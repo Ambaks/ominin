@@ -6,7 +6,9 @@ import type { Formule } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
+import type { GarlandMotif } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
+import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -208,12 +210,13 @@ export interface Restaurant {
   icons?: { tab: string; homeScreen: string };
   /**
    * Couleur de la barre du navigateur sur la version aux couleurs de
-   * l'établissement. Comme `icons`, lue par /menu/demo seulement : à brancher
-   * sur /menu/m le jour où l'établissement y passe.
+   * l'établissement (/menu/demo et /menu/m).
    */
   themeColor?: string;
   /** Tableau des allergènes publié par l'établissement, lié en pied de carte. */
   allergensUrl?: string;
+  /** Ce qui pend à la guirlande de « Ma carte » (fidélité) ; des lanternes par défaut. */
+  loyaltyMotif?: GarlandMotif;
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
    * elle tient lieu de hero à elle seule, sans texte superposé.
@@ -5586,6 +5589,10 @@ const caffePanis: Restaurant = {
   phone: "+33 4 99 67 65 38",
   hours: "Tous\u00a0les\u00a0jours 9h–\u20601h",
   highlights: ["De 9h à 1h, 7j/7", "Burrata straight from Puglia"],
+  // Accords provisoires, à régénérer avec backend/scripts/pairings.py.
+  pairings: caffePanisAccords,
+  // Les fanions d'une terrasse italienne.
+  loyaltyMotif: "fanions",
   categories: [
     {
       id: "antipasti",

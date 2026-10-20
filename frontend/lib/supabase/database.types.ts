@@ -2001,6 +2001,219 @@ export type Database = {
           },
         ]
       }
+      hubrise_connections: {
+        Row: {
+          access_token: string
+          account_id: string
+          account_name: string | null
+          callback_registered_at: string | null
+          catalog_dirty_at: string | null
+          catalog_id: string | null
+          catalog_name: string | null
+          catalog_snapshot: Json | null
+          catalog_synced_at: string | null
+          connected_at: string
+          customer_list_id: string | null
+          customer_list_name: string | null
+          etablissement_id: string
+          hours_note: string | null
+          hours_synced_at: string | null
+          inventory_synced_at: string | null
+          last_failed_at: string | null
+          location_id: string
+          location_name: string | null
+          payment_name: string | null
+          payment_ref: string | null
+          service_type_ref_collection: string | null
+          service_type_ref_eat_in: string | null
+          tip_charge_ref: string | null
+        }
+        Insert: {
+          access_token: string
+          account_id: string
+          account_name?: string | null
+          callback_registered_at?: string | null
+          catalog_dirty_at?: string | null
+          catalog_id?: string | null
+          catalog_name?: string | null
+          catalog_snapshot?: Json | null
+          catalog_synced_at?: string | null
+          connected_at?: string
+          customer_list_id?: string | null
+          customer_list_name?: string | null
+          etablissement_id: string
+          hours_note?: string | null
+          hours_synced_at?: string | null
+          inventory_synced_at?: string | null
+          last_failed_at?: string | null
+          location_id: string
+          location_name?: string | null
+          payment_name?: string | null
+          payment_ref?: string | null
+          service_type_ref_collection?: string | null
+          service_type_ref_eat_in?: string | null
+          tip_charge_ref?: string | null
+        }
+        Update: {
+          access_token?: string
+          account_id?: string
+          account_name?: string | null
+          callback_registered_at?: string | null
+          catalog_dirty_at?: string | null
+          catalog_id?: string | null
+          catalog_name?: string | null
+          catalog_snapshot?: Json | null
+          catalog_synced_at?: string | null
+          connected_at?: string
+          customer_list_id?: string | null
+          customer_list_name?: string | null
+          etablissement_id?: string
+          hours_note?: string | null
+          hours_synced_at?: string | null
+          inventory_synced_at?: string | null
+          last_failed_at?: string | null
+          location_id?: string
+          location_name?: string | null
+          payment_name?: string | null
+          payment_ref?: string | null
+          service_type_ref_collection?: string | null
+          service_type_ref_eat_in?: string | null
+          tip_charge_ref?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubrise_connections_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hubrise_outbox: {
+        Row: {
+          attempts: number
+          created_at: string
+          etablissement_id: string
+          hubrise_id: string | null
+          id: string
+          item_id: string | null
+          kind: string
+          last_error: string | null
+          next_attempt_at: string
+          order_id: string | null
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          etablissement_id: string
+          hubrise_id?: string | null
+          id?: string
+          item_id?: string | null
+          kind: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          etablissement_id?: string
+          hubrise_id?: string | null
+          id?: string
+          item_id?: string | null
+          kind?: string
+          last_error?: string | null
+          next_attempt_at?: string
+          order_id?: string | null
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubrise_outbox_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hubrise_outbox_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hubrise_outbox_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hubrise_ref_map: {
+        Row: {
+          choice_id: string | null
+          created_at: string
+          etablissement_id: string
+          group_id: string | null
+          hubrise_name: string | null
+          id: string
+          item_id: string
+          matched_by: string
+          option_list_name: string | null
+          ref: string
+          target: string
+        }
+        Insert: {
+          choice_id?: string | null
+          created_at?: string
+          etablissement_id: string
+          group_id?: string | null
+          hubrise_name?: string | null
+          id?: string
+          item_id: string
+          matched_by: string
+          option_list_name?: string | null
+          ref: string
+          target: string
+        }
+        Update: {
+          choice_id?: string | null
+          created_at?: string
+          etablissement_id?: string
+          group_id?: string | null
+          hubrise_name?: string | null
+          id?: string
+          item_id?: string
+          matched_by?: string
+          option_list_name?: string | null
+          ref?: string
+          target?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubrise_ref_map_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hubrise_ref_map_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       items: {
         Row: {
           badges: Database["public"]["Enums"]["badge"][]
@@ -2184,18 +2397,21 @@ export type Database = {
           contact: string
           created_at: string
           etablissement_id: string
+          hubrise_customer_id: string | null
           id: string
         }
         Insert: {
           contact: string
           created_at?: string
           etablissement_id: string
+          hubrise_customer_id?: string | null
           id?: string
         }
         Update: {
           contact?: string
           created_at?: string
           etablissement_id?: string
+          hubrise_customer_id?: string | null
           id?: string
         }
         Relationships: [
@@ -2809,6 +3025,8 @@ export type Database = {
           customer_phone: string | null
           estimated_ready_at: string | null
           etablissement_id: string
+          hubrise_order_id: string | null
+          hubrise_status: string | null
           id: string
           loyalty_customer_id: string | null
           online_payment_started_at: string | null
@@ -2838,6 +3056,8 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id: string
+          hubrise_order_id?: string | null
+          hubrise_status?: string | null
           id?: string
           loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
@@ -2867,6 +3087,8 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id?: string
+          hubrise_order_id?: string | null
+          hubrise_status?: string | null
           id?: string
           loyalty_customer_id?: string | null
           online_payment_started_at?: string | null
@@ -4768,6 +4990,7 @@ export type Database = {
           findings: Json
           guidelines: string
           id: string
+          proposal: Json | null
           version: number
         }
         Insert: {
@@ -4777,6 +5000,7 @@ export type Database = {
           findings?: Json
           guidelines: string
           id?: string
+          proposal?: Json | null
           version: number
         }
         Update: {
@@ -4786,6 +5010,7 @@ export type Database = {
           findings?: Json
           guidelines?: string
           id?: string
+          proposal?: Json | null
           version?: number
         }
         Relationships: []
@@ -4796,36 +5021,60 @@ export type Database = {
           brand: string
           captions: Json
           created_at: string
+          feedback: string | null
           format: string
           id: string
           playbook_id: string
           post_date: string
+          reel: Json | null
+          render_error: string | null
+          render_status: string | null
+          scheduled_at: string
           slides: Json
+          status: string
           topic: string
+          updated_at: string
+          video_path: string | null
         }
         Insert: {
           angle: string
           brand: string
           captions: Json
           created_at?: string
+          feedback?: string | null
           format?: string
           id?: string
           playbook_id: string
           post_date: string
+          reel?: Json | null
+          render_error?: string | null
+          render_status?: string | null
+          scheduled_at: string
           slides: Json
+          status?: string
           topic: string
+          updated_at?: string
+          video_path?: string | null
         }
         Update: {
           angle?: string
           brand?: string
           captions?: Json
           created_at?: string
+          feedback?: string | null
           format?: string
           id?: string
           playbook_id?: string
           post_date?: string
+          reel?: Json | null
+          render_error?: string | null
+          render_status?: string | null
+          scheduled_at?: string
           slides?: Json
+          status?: string
           topic?: string
+          updated_at?: string
+          video_path?: string | null
         }
         Relationships: [
           {
@@ -5290,6 +5539,15 @@ export type Database = {
       }
     }
     Functions: {
+      hubrise_set_choice_disponible: {
+        Args: {
+          p_choice: string
+          p_disponible: boolean
+          p_group: string
+          p_item: string
+        }
+        Returns: undefined
+      }
       abandon_online_payment: {
         Args: { p_order_id: string }
         Returns: undefined

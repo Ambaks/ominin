@@ -4,7 +4,8 @@ import { useState } from "react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatDay } from "@/lib/admin/format";
 import type { SocialPost, SocialPublication } from "@/lib/admin/social";
-import { BRAND_BY_ID, PLATFORMS, slideUrl } from "@/lib/social/brands";
+import { BRAND_BY_ID, PLATFORMS } from "@/lib/social/brands";
+import { FORMAT_LABELS, PostMedia, PostThumb } from "./post-media";
 import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
 const STATUS: Record<
@@ -37,7 +38,7 @@ export function PostsTab({ posts }: { posts: SocialPost[] }) {
     return (
       <EmptyState
         title="Aucune publication"
-        body="L'agent rédige et publie un carrousel par jour pour chaque marque qui a au moins un compte relié. Le premier apparaîtra ici après son prochain passage."
+        body="Les posts validés apparaissent ici une fois partis, avec leurs résultats."
       />
     );
   }
@@ -52,17 +53,12 @@ export function PostsTab({ posts }: { posts: SocialPost[] }) {
             className="rounded-2xl border border-hairline bg-surface"
           >
             <div className="flex gap-4 p-4">
-              {/* eslint-disable-next-line @next/next/no-img-element -- JPEG rendu par /api/social/slides, déjà à la bonne taille */}
-              <img
-                src={slideUrl(post.id, 1)}
-                alt=""
-                loading="lazy"
-                className="aspect-4/5 w-20 shrink-0 rounded-lg border border-hairline object-cover"
-              />
+              <PostThumb post={post} />
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <p className="text-xs text-faint">
                   {formatDay(post.postDate)} ·{" "}
-                  {BRAND_BY_ID.get(post.brand)?.name} · ligne v
+                  {BRAND_BY_ID.get(post.brand)?.name} ·{" "}
+                  {FORMAT_LABELS[post.format]} · ligne v
                   {post.playbookVersion}
                 </p>
                 <p className="font-medium">{post.topic}</p>
@@ -87,18 +83,7 @@ export function PostsTab({ posts }: { posts: SocialPost[] }) {
 
             {open && (
               <div className="flex flex-col gap-4 border-t border-hairline p-4">
-                <div className="no-scrollbar flex gap-3 overflow-x-auto">
-                  {post.slides.map((_, index) => (
-                    // eslint-disable-next-line @next/next/no-img-element -- idem
-                    <img
-                      key={index}
-                      src={slideUrl(post.id, index + 1)}
-                      alt={`Image ${index + 1}`}
-                      loading="lazy"
-                      className="aspect-4/5 w-52 shrink-0 rounded-xl border border-hairline"
-                    />
-                  ))}
-                </div>
+                <PostMedia post={post} />
                 {PLATFORMS.filter((platform) =>
                   post.publications.some((p) => p.platform === platform.id)
                 ).map((platform) => (

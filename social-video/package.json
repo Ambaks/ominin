@@ -1,0 +1,25 @@
+{
+  "name": "ominin-social-video",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "render": "tsx scripts/render.ts",
+    "studio": "remotion studio src/index.tsx",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/bundler": "4.0.529",
+    "@remotion/cli": "4.0.529",
+    "@remotion/renderer": "4.0.529",
+    "playwright": "1.55.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "remotion": "4.0.529"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "tsx": "4.23.15",
+    "typescript": "^5"
+  }
+}

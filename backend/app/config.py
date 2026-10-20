@@ -145,9 +145,15 @@ class Settings(BaseSettings):
     # ones first.
     autoresearch_scoring_batch_size: int = 200
 
-    # Social agent (daily). One carousel per brand per day, published on the
-    # brand's connected accounts. Slide images are rendered by the frontend
+    # Social agent. Drafts one carousel per brand and per slot of the coming
+    # week; an admin approves it, then it is published on the brand's
+    # connected accounts. Slide images are rendered by the frontend
     # (frontend_origin + /api/social/slides/…), which Meta fetches by URL.
+    # Slots: weekdays (Monday = 0) and local time, decided by Marwan
+    # (Tuesday, Thursday, Sunday, 15:30 Paris).
+    social_slot_weekdays: list[int] = [1, 3, 6]
+    social_slot_time: str = "15:30"
+    social_timezone: str = "Europe/Paris"
     # Instagram caps a carousel at 10 images; the range below is editorial.
     meta_graph_version: str = "v25.0"
     meta_timeout_seconds: int = 30
@@ -156,12 +162,23 @@ class Settings(BaseSettings):
     social_container_poll_attempts: int = 20
     social_slides_min: int = 5
     social_slides_max: int = 8
+    # Reels: scenes per script (each one voice line, ~3 to 6 s), and how
+    # long to wait for Meta to process an uploaded video before giving up.
+    social_reel_scenes_min: int = 4
+    social_reel_scenes_max: int = 8
+    social_video_poll_seconds: int = 10
+    social_video_poll_attempts: int = 30
+    # Reels are rendered by the social-render GitHub workflow (Remotion), set
+    # off by a repository_dispatch: repository "owner/name" and a fine-grained
+    # token allowed to dispatch on it (Contents: read and write).
+    github_repository: str = ""
+    github_dispatch_token: str = ""
     # Recent posts shown to the writer so it does not repeat itself.
     social_history_size: int = 30
-    # Metrics are refreshed daily until a post is this old, then frozen; only
-    # frozen posts feed the analysis (a day-old reach is undecided).
+    # Metrics are refreshed at each analysis until a post is this old, then
+    # frozen; only frozen posts feed it (a day-old reach is undecided).
     social_settle_days: int = 3
-    # The editorial line is only rewritten once this many posts are settled
+    # A new editorial line is only proposed once this many posts are settled
     # for the brand; the analysis reads at most the sample size, newest first.
     social_research_min_posts: int = 5
     social_research_sample_size: int = 60

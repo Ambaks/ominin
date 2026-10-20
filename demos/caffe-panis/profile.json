@@ -2,7 +2,7 @@
   "slug": "caffe-panis",
   "name": "Caffè Panis",
   "tagline": "Caffè · Ristorante · Gelateria",
-  "status": "prospect — démo de visite du 2026-10-14, aucune carte de salle en ligne : carte de leur marque de livraison (Uber Eats, archive du 2025-11-26)",
+  "status": "client — en production depuis le 2026-10-19 (démo de visite du 2026-10-14)",
   "demo": {
     "menu": "/menu/demo/caffe-panis",
     "click_and_collect": "/collect/demo/caffe-panis"
@@ -96,5 +96,15 @@
     "Orthographe corrigée à l'affichage (liste dans options_a_valider) : « Stracciatella Fumee 125 G » → « Stracciatella fumée 125 g », « rapé » → « râpé », « huiles truffée » → « huile truffée. »… Nous gardons-vous ces corrections, ou préférez-vous les noms tels qu'Uber Eats les affiche ?",
     "« Pasta Vivi E Vechio » gardé tel quel : jeu de mots voulu, ou « Vecchio » ?",
     "Options des pizzas et des pâtes (Uber Eats en propose, l'archive ne les contient pas) : lesquelles, à quel prix ?"
-  ]
+  ],
+  "production": {
+    "statut": "En ligne depuis le 2026-10-19, produit complet (offre connect, service à table) : tables, appel serveur, rôles serveur et cuisinier, badgeuse, terminaux Omilink, fidélité, l'accord du chef.",
+    "url": "https://menu.ominin.com/m/caffe-panis?table=<n>",
+    "seed": "npm run seed:restaurant -- caffe-panis — 6 catégories, 30 plats, 12 tables ; puis tables 13 à 80 en SQL (80 tables).",
+    "fidelite": "Capacité fidelite ouverte, programme allumé, 1 € = 1 point. Récompenses provisoires, à valider avec le gérant (modifiables dans Gestion → Fidélité) : 50 pts café Illy ou soft, 100 pts dessert, 150 pts antipasto, 250 pts pizza ou pasta.",
+    "accords": "frontend/lib/menu/accords/caffe-panis.json : accords provisoires choisis à la main. À régénérer : uv run python scripts/pairings.py caffe-panis (depuis backend/), qui l'écrase.",
+    "paiement": "Paiement au comptoir (online_payment false) tant que le gérant n'a pas signé le contrat et ouvert Stripe depuis Gestion → Paiements.",
+    "compte_gestion": "Lien gérant émis le 2026-10-19 (npm run menu:gerant -- caffe-panis, page /rejoindre/<jeton> sur menu.ominin.com) : sert une fois ; relancer la commande en réémet un (révoque le précédent). NE PAS relancer seed:restaurant (effacerait les commandes).",
+    "rappel": "La carte est encore celle de la livraison (Ciccio Gang, Uber Eats, prix de livraison) : la carte papier de la salle reste à obtenir."
+  }
 }

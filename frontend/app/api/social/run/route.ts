@@ -2,14 +2,18 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/admin/server";
 
 /*
- * Lancement à la main des deux jobs de l'agent social, depuis /reseaux.
- * Le backend exige le secret partagé des crons (X-Agent-Secret) : il ne
- * quitte jamais le serveur, le navigateur ne fait que demander le run.
+ * Lancement à la main des jobs de l'agent social, depuis /reseaux : préparer
+ * les brouillons, réécrire ceux renvoyés avec un commentaire, refaire la
+ * vidéo d'un Reel, publier ce qui est validé. Le backend exige le secret partagé des crons
+ * (X-Agent-Secret) : il ne quitte jamais le serveur, le navigateur ne fait
+ * que demander le run.
  */
 
 const JOB_PATHS = {
+  social_draft: "social-draft",
+  social_redraft: "social-redraft",
+  social_render: "social-render",
   social_post: "social-post",
-  social_research: "social-research",
 } as const;
 
 export async function POST(request: Request) {

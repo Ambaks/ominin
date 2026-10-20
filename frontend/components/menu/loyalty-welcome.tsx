@@ -11,6 +11,7 @@ import { useCart } from "@/lib/menu/cart";
 import {
   LOYALTY_GREETING_MS,
   nextReward,
+  type GarlandMotif,
   type LoyaltyProgram,
 } from "@/lib/menu/loyalty";
 import { greetedKey, useLoyaltyMember } from "@/lib/menu/loyalty-member";
@@ -49,10 +50,13 @@ function useGreeted(key: string): boolean {
 
 function Seal({
   logo,
+  icon,
   size,
   drawn,
 }: {
   logo?: string;
+  /** L'icône carrée de l'enseigne, posée pleine dans le sceau à la place du logo. */
+  icon?: string;
   size: "lg" | "sm";
   /** Le cercle se trace et le logo s'ouvre : l'accueil seulement. */
   drawn?: boolean;
@@ -66,13 +70,22 @@ function Seal({
           <circle cx="24" cy="24" r="22.5" pathLength="1" fill="none" stroke="var(--ember-1)" strokeWidth="1.5" />
         </svg>
       )}
-      {logo && (
-        // eslint-disable-next-line @next/next/no-img-element -- logo SVG du dossier public, sans optimisation à faire
+      {icon ? (
+        // eslint-disable-next-line @next/next/no-img-element -- icône du dossier public
         <img
-          src={logo}
+          src={icon}
           alt=""
-          className={size === "lg" ? `${drawn ? "loyalty-seal-logo " : ""}size-7` : "size-3.5"}
+          className={`${drawn ? "loyalty-seal-logo " : ""}absolute rounded-full object-cover ${size === "lg" ? "inset-[3px] size-[calc(100%-6px)]" : "inset-0 size-full"}`}
         />
+      ) : (
+        logo && (
+          // eslint-disable-next-line @next/next/no-img-element -- logo SVG du dossier public, sans optimisation à faire
+          <img
+            src={logo}
+            alt=""
+            className={size === "lg" ? `${drawn ? "loyalty-seal-logo " : ""}size-7` : "size-3.5"}
+          />
+        )
       )}
     </span>
   );
@@ -91,7 +104,19 @@ function Progress({ program, points }: { program: LoyaltyProgram; points: number
   );
 }
 
-export function LoyaltyWelcome({ brand, logo }: { brand: string; logo?: string }) {
+export function LoyaltyWelcome({
+  brand,
+  logo,
+  icon,
+  wordmark,
+  motif,
+}: {
+  brand: string;
+  logo?: string;
+  icon?: string;
+  wordmark?: boolean;
+  motif?: GarlandMotif;
+}) {
   const { slug, loyalty } = useCart();
   const { member } = useLoyaltyMember();
   const points = member?.points ?? null;
@@ -176,7 +201,7 @@ export function LoyaltyWelcome({ brand, logo }: { brand: string; logo?: string }
           }}
           className="loyalty-greeting fixed inset-x-3 top-[calc(env(safe-area-inset-top,0px)+0.75rem)] z-40 mx-auto flex max-w-md items-center gap-3 rounded-3xl border border-hairline bg-surface/85 py-3 pl-3 pr-4 text-left text-foreground shadow-[0_18px_40px_rgba(0,0,0,0.45)] backdrop-blur-xl"
         >
-          <Seal logo={logo} size="lg" drawn />
+          <Seal logo={logo} icon={icon} size="lg" drawn />
           <span className="flex min-w-0 flex-1 flex-col gap-0.5">
             <span className="font-display text-lg leading-tight">
               {name ? `Bon retour, ${name}` : "Bon retour parmi nous"}
@@ -205,13 +230,19 @@ export function LoyaltyWelcome({ brand, logo }: { brand: string; logo?: string }
           data-docked={docked || undefined}
           className="loyalty-pill loyalty-pill-enter fixed right-3 top-[calc(env(safe-area-inset-top,0px)+0.75rem)] z-40 flex items-center gap-1.5 rounded-full border border-ember-1/45 bg-surface/85 py-1 pl-1 pr-3 text-sm font-semibold tabular-nums text-foreground shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-lg data-docked:bg-background data-docked:shadow-none"
         >
-          <Seal logo={logo} size="sm" />
+          <Seal logo={logo} icon={icon} size="sm" />
           {points}
         </button>
       )}
 
       {open && (
-        <LoyaltyCardSheet brand={brand} logo={logo} onClose={() => setOpen(false)} />
+        <LoyaltyCardSheet
+          brand={brand}
+          logo={logo}
+          wordmark={wordmark}
+          motif={motif}
+          onClose={() => setOpen(false)}
+        />
       )}
     </>
   );

@@ -1,0 +1,37 @@
+# Réseaux sociaux, chaque mercredi soir : bilan des résultats (proposition de
+# ligne éditoriale, adoptée ou non dans l'admin) puis brouillons des trois
+# créneaux à venir pour chaque marque — jeudi, dimanche, mardi. Rien n'est
+# publié ici : les brouillons attendent une validation dans /admin/reseaux.
+#
+# Pas encore planifié : lancement à la main seulement, tant que les variables
+# du rendu ne sont pas posées (tâches de l'admin, Projet). Pour l'activer :
+#   schedule:
+#     - cron: "0 18 * * 3"  # Mercredi 18:00 UTC (20:00 Paris en été, 19:00 en hiver)
+name: agent-social-draft
+
+on:
+  workflow_dispatch:
+
+jobs:
+  trigger:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger /agent/social-research
+        run: |
+          curl -sf --max-time 300 --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/social-research"
+      - name: Trigger /agent/social-draft
+        run: |
+          curl -sf --max-time 300 --retry 6 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Agent-Secret: ${{ secrets.AGENT_TRIGGER_SECRET }}" \
+            "${{ secrets.BACKEND_URL }}/agent/social-draft"
+      # Échec du workflow : notification à Marwan et Ambaka (une par 6 h au
+      # plus, voir lib/admin/alerts.ts). Jamais bloquant.
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"La préparation des réseaux sociaux n'a pas tourné\",\"body\":\"Touche pour ouvrir le run et voir l'erreur.\",\"key\":\"${{ github.workflow }}\",\"url\":\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"urgent\":true}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

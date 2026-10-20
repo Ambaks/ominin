@@ -18,7 +18,7 @@ export const DAY_NAMES = [
   "Dimanche",
 ] as const;
 
-const TIME_ZONE = "Europe/Paris";
+export const TIME_ZONE = "Europe/Paris";
 
 export const toMinutes = (time: string) => {
   const [h, m] = time.split(":").map(Number);
