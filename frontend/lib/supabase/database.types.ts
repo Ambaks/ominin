@@ -1125,49 +1125,49 @@ export type Database = {
       }
       client_caisse: {
         Row: {
-          etablissement_id: string
+          projet_client_id: string
           name: string
         }
         Insert: {
-          etablissement_id: string
+          projet_client_id: string
           name: string
         }
         Update: {
-          etablissement_id?: string
+          projet_client_id?: string
           name?: string
         }
         Relationships: [
           {
-            foreignKeyName: "client_caisse_etablissement_id_fkey"
-            columns: ["etablissement_id"]
+            foreignKeyName: "client_caisse_projet_client_id_fkey"
+            columns: ["projet_client_id"]
             isOneToOne: true
-            referencedRelation: "etablissements"
+            referencedRelation: "projet_clients"
             referencedColumns: ["id"]
           },
         ]
       }
       client_materiel: {
         Row: {
-          etablissement_id: string
+          projet_client_id: string
           item: string
           quantity: number
         }
         Insert: {
-          etablissement_id: string
+          projet_client_id: string
           item: string
           quantity: number
         }
         Update: {
-          etablissement_id?: string
+          projet_client_id?: string
           item?: string
           quantity?: number
         }
         Relationships: [
           {
-            foreignKeyName: "client_materiel_etablissement_id_fkey"
-            columns: ["etablissement_id"]
+            foreignKeyName: "client_materiel_projet_client_id_fkey"
+            columns: ["projet_client_id"]
             isOneToOne: false
-            referencedRelation: "etablissements"
+            referencedRelation: "projet_clients"
             referencedColumns: ["id"]
           },
         ]
@@ -5622,7 +5622,7 @@ export type Database = {
         Args: { p_etab?: string | null; p_limit: number }
         Returns: {
           created_at: string
-          etablissement_id: string
+          projet_client_id: string
           name: string
           order_id: string
           paid_online: boolean

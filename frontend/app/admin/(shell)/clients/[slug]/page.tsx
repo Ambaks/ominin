@@ -7,9 +7,9 @@ import { ChevronLeftIcon } from "@/components/admin/icons";
 import { ClientActivity } from "@/components/admin/clients/activity";
 import { ClientAnalytique } from "@/components/admin/clients/analytique";
 import { ClientDemarrage } from "@/components/admin/clients/demarrage";
-import { ClientMateriel } from "@/components/admin/clients/materiel";
 import { ClientReglages } from "@/components/admin/clients/reglages";
 import { ClientRevenus } from "@/components/admin/clients/revenus";
+import { ClientMaterielParEtablissement } from "@/components/admin/projet/materiel";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
@@ -149,7 +149,7 @@ function ClientDetail() {
         <ClientDemarrage etablissementId={client.etablissement_id} />
       )}
       {view === "materiel" && (
-        <ClientMateriel etablissementId={client.etablissement_id} />
+        <ClientMaterielParEtablissement etablissementId={client.etablissement_id} />
       )}
       {view === "reglages" &&<ClientReglages client={client} />}
     </div>
