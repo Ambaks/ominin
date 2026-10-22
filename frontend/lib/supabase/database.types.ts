@@ -5064,6 +5064,7 @@ export type Database = {
           render_progress: number | null
           render_stage: string | null
           render_status: string | null
+          review: Json | null
           scheduled_at: string
           slides: Json
           status: string
@@ -5087,6 +5088,7 @@ export type Database = {
           render_progress?: number | null
           render_stage?: string | null
           render_status?: string | null
+          review?: Json | null
           scheduled_at: string
           slides: Json
           status?: string
@@ -5110,6 +5112,7 @@ export type Database = {
           render_progress?: number | null
           render_stage?: string | null
           render_status?: string | null
+          review?: Json | null
           scheduled_at?: string
           slides?: Json
           status?: string

@@ -5,7 +5,9 @@ publishing slot of the next seven days (social_slot_weekdays at
 social_slot_time), in the format it picks — Reel, carousel or single image —
 from the brand sheets, the editorial line in force, the current prices, the
 catalogues of screenshots and filmed demos, and the recent and planned
-posts. A Reel is a script of scenes: the social-render workflow turns it into
+posts. A separate reviewer call scores every version out of 10; Claude
+rewrites from its critique until the draft reaches the target score, and the
+best version is kept with its review. A Reel is a script of scenes: the social-render workflow turns it into
 a video (set off here, or by run_social_render). Nothing is published here:
 drafts wait in /admin/reseaux, where an admin approves them, edits them, or
 asks for a rewrite — which run_social_redraft performs.
@@ -25,9 +27,12 @@ from app.config import settings
 from app.prompts.social import (
     BRANDS,
     PostDraft,
+    PostReview,
     ReelScene,
     compose_content,
     compose_system,
+    review_content,
+    review_system,
 )
 from app.services import keepalive, notify
 
@@ -254,8 +259,13 @@ class _Context:
             return empty
 
     def compose(self, brand: str, day: date, previous: dict | None = None) -> dict:
-        """The post's columns for this draft. Raises ValueError when Claude's
-        output breaks the format's rules: the slot is reported, not filled."""
+        """The post's columns for this draft, with the reviewer's opinion:
+        each version is scored by a separate call and rewritten from its
+        critique until it reaches social_review_target or runs out of
+        rewrites; the best one is kept. Raises ValueError when Claude's first
+        output breaks the format's rules: the slot is reported, not filled.
+        previous: the post an admin sent back, with their feedback — kept in
+        every rewrite."""
         playbook = current_playbook(self.sb, brand)
         # Ominin présente les trois offres : tout leur matériel lui est ouvert.
         screens = [s for s in self.screens if brand == "ominin" or s["brand"] == brand]
@@ -269,21 +279,63 @@ class _Context:
             .limit(settings.social_history_size)
             .execute()
         ).data
-        draft = parse_structured(
-            compose_system(
-                brand,
-                playbook["guidelines"],
-                self.pricing,
-                screens,
-                clips,
-                self.stock,
-                self.music,
-                self.handles,
-            ),
-            compose_content(day, recent, previous),
-            PostDraft,
+        writer = compose_system(
+            brand,
+            playbook["guidelines"],
+            self.pricing,
+            screens,
+            clips,
+            self.stock,
+            self.music,
+            self.handles,
         )
+        reviewer = review_system(
+            brand,
+            playbook["guidelines"],
+            self.pricing,
+            screens,
+            clips,
+            self.stock,
+            self.music,
+        )
+        feedback = previous.get("feedback") if previous else None
 
+        def write(content: str) -> dict:
+            row = self._row(
+                parse_structured(writer, content, PostDraft), screens, clips
+            )
+            return {**row, "playbook_id": playbook["id"]}
+
+        def review(row: dict) -> PostReview:
+            return parse_structured(reviewer, review_content(row), PostReview)
+
+        row = write(compose_content(day, recent, previous))
+        best, best_review, rounds = row, review(row), 0
+        latest_review = best_review
+        while (
+            latest_review.score < settings.social_review_target
+            and rounds < settings.social_review_max_rounds
+        ):
+            keepalive.ping_if_due()
+            rounds += 1
+            try:
+                row = write(
+                    compose_content(
+                        day, recent, {**row, "feedback": feedback}, latest_review
+                    )
+                )
+            except ValueError:
+                # Une réécriture hors des règles du format : on garde la
+                # meilleure version déjà notée.
+                continue
+            latest_review = review(row)
+            if latest_review.score > best_review.score:
+                best, best_review = row, latest_review
+        return {**best, "review": {**best_review.model_dump(), "rounds": rounds}}
+
+    def _row(self, draft: PostDraft, screens: list[dict], clips: list[dict]) -> dict:
+        """The post's columns from one writer output. Raises ValueError when
+        it breaks the format's rules."""
         row = {
             "format": draft.format,
             "topic": draft.topic,
@@ -293,7 +345,6 @@ class _Context:
                 "facebook": draft.caption_facebook,
                 "snapchat": draft.caption_snapchat,
             },
-            "playbook_id": playbook["id"],
             "reel": None,
             "render_status": None,
             "render_error": None,
