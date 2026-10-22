@@ -100,7 +100,7 @@ def _render_items(order_items: list[dict]) -> list[bytes]:
     return out
 
 
-def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
+def render_kitchen_ticket(order: dict, restaurant_name: str, show_table_number: bool) -> bytes:
     out: list[bytes] = [INIT, CODEPAGE_CP1252, SMOOTHING_ON]
 
     out += [
@@ -130,19 +130,19 @@ def render_kitchen_ticket(order: dict, restaurant_name: str) -> bytes:
             _line(_pickup_label(pickup)),
             SIZE_NORMAL,
         ]
-    elif order["tables"]:
+    elif order["tables"] and order["order_number"] is None:
         out += [
             BOLD_ON, SIZE_DOUBLE,
             _line(f"TABLE {order['tables']['number']}"),
             SIZE_NORMAL, BOLD_OFF,
         ]
     else:
-        # Fast food : pas de table, le numéro que le comptoir appellera.
-        out += [
-            BOLD_ON, SIZE_TRIPLE,
-            _line(f"N\xb0 {order['order_number']}"),
-            SIZE_NORMAL, BOLD_OFF,
-        ]
+        # Fast food : le numéro que le comptoir appellera, et la table du QR
+        # dessous si le gérant l'affiche.
+        out += [BOLD_ON, SIZE_TRIPLE, _line(f"N\xb0 {order['order_number']}")]
+        if show_table_number and order["tables"]:
+            out += [SIZE_DOUBLE, _line(f"TABLE {order['tables']['number']}")]
+        out += [SIZE_NORMAL, BOLD_OFF]
 
     out += [ALIGN_LEFT, _rule(), LF]
     out += _render_items(order["order_items"])
@@ -183,7 +183,7 @@ def render_test_ticket(printer_name: str, at: str, restaurant_name: str) -> byte
     return b"".join(out)
 
 
-def render_job(job: dict, restaurant_name: str = "") -> bytes:
+def render_job(job: dict, restaurant_name: str, show_table_number: bool) -> bytes:
     if job["kind"] == "order":
-        return render_kitchen_ticket(job["orders"], restaurant_name)
+        return render_kitchen_ticket(job["orders"], restaurant_name, show_table_number)
     return render_test_ticket(job["printers"]["name"], job["created_at"], restaurant_name)

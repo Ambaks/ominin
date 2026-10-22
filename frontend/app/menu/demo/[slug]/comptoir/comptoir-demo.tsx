@@ -366,7 +366,7 @@ export function ComptoirDemo({
                     <OrderCard
                       key={order.id}
                       order={order}
-                      place={placeLabel(order, state.tables)}
+                      place={placeLabel(order, state.tables, false)}
                     />
                   ))}
             </div>

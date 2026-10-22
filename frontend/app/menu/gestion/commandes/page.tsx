@@ -141,6 +141,7 @@ export default function CommandesPage() {
   const tableNumbersById = new Map(
     state.tables.map((table) => [table.id, table.number])
   );
+  const showTable = state.etablissement.showTableNumber;
   const closedOrders = state.orders.filter((order) =>
     isHistoryStatus(order.status)
   );
@@ -172,17 +173,18 @@ export default function CommandesPage() {
 
   // Une carte par table pour l'addition et le service ; les commandes collect
   // et l'historique restent des cartes individuelles. Une commande fast food
-  // a son addition à elle, et sa place dans la file du comptoir.
+  // a son addition à elle, et sa place dans la file du comptoir — même passée
+  // depuis le QR d'une table.
   const byTable = new Map<string, Order[]>();
   const numbered: Order[] = [];
   const singles: Order[] = [];
   for (const order of visible) {
-    if (filter !== "historique" && order.type === "sur_place" && order.tableId) {
+    if (filter !== "historique" && order.orderNumber !== undefined) {
+      numbered.push(order);
+    } else if (filter !== "historique" && order.type === "sur_place" && order.tableId) {
       const list = byTable.get(order.tableId) ?? [];
       list.push(order);
       byTable.set(order.tableId, list);
-    } else if (filter !== "historique" && order.orderNumber !== undefined) {
-      numbered.push(order);
     } else {
       singles.push(order);
     }
@@ -367,7 +369,7 @@ export default function CommandesPage() {
                   key={order.id}
                   orders={[order]}
                   title={[
-                    placeLabel(order, state.tables),
+                    placeLabel(order, state.tables, showTable),
                     earlierNumberingDay(order, state.orderNumberResetHour),
                   ]
                     .filter(Boolean)
@@ -382,6 +384,11 @@ export default function CommandesPage() {
                       order={order}
                       now={now}
                       resetHour={state.orderNumberResetHour}
+                      table={
+                        showTable && order.tableId
+                          ? tableNumbersById.get(order.tableId)
+                          : undefined
+                      }
                       readOnly={isCuisinier}
                     />
                   ))}
@@ -390,13 +397,13 @@ export default function CommandesPage() {
           {singles.map((order) =>
             isServeur ? (
               <div key={order.id} className="order-pop">
-                <OrderCard order={order} place={placeLabel(order, state.tables)} pickupShop={pickupShop} />
+                <OrderCard order={order} place={placeLabel(order, state.tables, showTable)} pickupShop={pickupShop} />
               </div>
             ) : (
               <OrderCard
                 key={order.id}
                 order={order}
-                place={placeLabel(order, state.tables)}
+                place={placeLabel(order, state.tables, showTable)}
                 pickupShop={pickupShop}
               />
             )

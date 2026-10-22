@@ -105,7 +105,7 @@ function PaymentRow({
   const isCollect = order.type === "collect";
   const heading = isCollect
     ? order.customerName ?? "Client"
-    : placeLabel(order, state.tables);
+    : placeLabel(order, state.tables, state.etablissement.showTableNumber);
   const mode = displayMode(order);
   const articleCount = order.items.reduce((sum, line) => sum + line.quantity, 0);
   // Tout encaissement au comptoir se corrige et s'annule ; un règlement en

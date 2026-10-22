@@ -130,7 +130,8 @@ export interface CartConfig {
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
   /**
-   * Fast food : le client commande sans table et reçoit un numéro du jour.
+   * Fast food : le client retire au comptoir et reçoit un numéro du jour ;
+   * la table du QR, s'il en scanne une, part avec la commande.
    * Absent ⇒ restaurant, la commande part d'une table scannée.
    */
   serviceMode?: ServiceMode;

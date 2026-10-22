@@ -214,7 +214,8 @@ export function CartBar() {
     setAnnouncement(
       cart.count === 0
         ? state === "sent"
-          ? cart.tableNumber === null ||
+          ? cart.fastFood ||
+            cart.tableNumber === null ||
             stripePayment ||
             squarePayment ||
             sumupPayment ||
@@ -558,8 +559,8 @@ export function CartBar() {
       "place_order",
       {
         p_slug: cart.slug,
-        // Nul en fast food (la base y refuse une table) : les types générés
-        // ne connaissent pas d'argument nul.
+        // Nul sans QR de table : les types générés ne connaissent pas
+        // d'argument nul.
         p_table_number: cart.tableNumber as number,
         p_items: payload,
         // Réglée en ligne, la commande attend son paiement hors de la caisse ;

@@ -38,6 +38,7 @@ interface OrderRow {
   square_payment_id: string | null;
   sumup_checkout_id: string | null;
   tables: { number: number } | null;
+  etablissements: { show_table_number: boolean };
   order_items: {
     item_id: string | null;
     name: string;
@@ -50,7 +51,7 @@ interface OrderRow {
 }
 
 const ORDER_SELECT =
-  "id, etablissement_id, order_number, type, status, paid_online, tip_amount, customer_name, customer_phone, customer_note, pickup_at, loyalty_customer_id, stripe_payment_intent_id, square_payment_id, sumup_checkout_id, tables (number), order_items (item_id, name, quantity, unit_price, vat_rate, options, components)";
+  "id, etablissement_id, order_number, type, status, paid_online, tip_amount, customer_name, customer_phone, customer_note, pickup_at, loyalty_customer_id, stripe_payment_intent_id, square_payment_id, sumup_checkout_id, tables (number), etablissements (show_table_number), order_items (item_id, name, quantity, unit_price, vat_rate, options, components)";
 
 export interface BuiltOrder {
   /** null : la commande ne se transmet plus (annulée avant l'envoi). */
@@ -291,7 +292,11 @@ export async function buildOrder(
             ],
           }
         : {}),
-      ...(order.type === "sur_place" && order.tables
+      // Une commande numérotée (fast food) ne donne sa table que si le
+      // gérant l'affiche à l'équipe.
+      ...(order.type === "sur_place" &&
+      order.tables &&
+      (order.order_number == null || order.etablissements.show_table_number)
         ? { custom_fields: { restaurant: { table_name: String(order.tables.number) } } }
         : {}),
       ...(await customerFields(admin, connection, order)),

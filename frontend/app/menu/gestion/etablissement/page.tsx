@@ -215,6 +215,7 @@ export default function EtablissementPage() {
           {hasFeature("commandes") && state.etablissement.offre !== null && (
             <ServiceModeSettings
               initialMode={state.etablissement.serviceMode}
+              initialShowTable={state.etablissement.showTableNumber}
               slug={state.etablissement.slug}
               resetHour={state.orderNumberResetHour}
             />

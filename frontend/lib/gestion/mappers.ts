@@ -38,6 +38,7 @@ export function rowToEtablissement(
     openingHours: row.opening_hours as OpeningHours | null,
     offre: row.offre,
     serviceMode: row.service_mode,
+    showTableNumber: row.show_table_number,
     categoryLayout: row.category_layout as CategoryLayout,
     siret: row.siret ?? undefined,
     onlinePayment: row.online_payment,

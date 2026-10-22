@@ -74,7 +74,7 @@ function ArrivalToasts({ onReveal }: { onReveal: (tableId: string) => void }) {
       const { tableId } = order;
       if (previous.has(order.id) || !awaitsService(order)) continue;
       toast.notice(
-        `${placeLabel(order, state.tables).replaceAll(" ", "\u00a0")}\u00a0: nouvelle commande.`,
+        `${placeLabel(order, state.tables, false).replaceAll(" ", "\u00a0")}\u00a0: nouvelle commande.`,
         tableId ? { label: "Voir", onPress: () => onReveal(tableId) } : undefined
       );
     }
@@ -461,7 +461,7 @@ function Salle({
                 ) : (
                   <div className={GRID}>
                     {history.map((order) => (
-                      <OrderCard key={order.id} order={order} place={placeLabel(order, state.tables)} />
+                      <OrderCard key={order.id} order={order} place={placeLabel(order, state.tables, false)} />
                     ))}
                   </div>
                 )}
