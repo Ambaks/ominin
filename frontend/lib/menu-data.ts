@@ -6,7 +6,7 @@ import type { Formule } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
-import type { GarlandMotif } from "@/lib/menu/loyalty";
+import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 
@@ -181,6 +181,22 @@ export interface AfficheMenu {
 
 export type CategoryLayout = "top" | "rail";
 
+/** La fidélité d'une carte d'aperçu ; la page rapproche les paliers de ses articles. */
+export interface DemoLoyalty {
+  pointsPerEuro: number;
+  /** Du palier le moins cher au plus cher ; items : ids d'articles de la carte. */
+  rewards: { id: string; label: string; points: number; items: string[] }[];
+  /**
+   * L'habitué que l'aperçu reconnaît d'emblée. Son solde est la somme de son
+   * historique, daté à l'ouverture de l'aperçu (il y a `daysAgo` jours).
+   */
+  member: {
+    contact: string;
+    firstName: string;
+    history: (Omit<LoyaltyHistoryEntry, "at"> & { daysAgo: number })[];
+  };
+}
+
 export interface Restaurant {
   slug: string;
   /** Le nom des écrans du personnel et des tickets de cuisine. */
@@ -219,6 +235,16 @@ export interface Restaurant {
   allergensUrl?: string;
   /** Ce qui pend à la guirlande de « Ma carte » (fidélité) ; des lanternes par défaut. */
   loyaltyMotif?: GarlandMotif;
+  /**
+   * La roue du jour d'un téléphone que la fidélité connaît. Registre
+   * seulement, et l'aperçu seul la fait tourner.
+   */
+  loyaltyWheel?: LoyaltyWheelConfig;
+  /**
+   * Fidélité d'une carte d'aperçu (/menu/demo) : en production, les paliers
+   * vivent en base. Rien ne part, tout se garde dans le navigateur.
+   */
+  demoLoyalty?: DemoLoyalty;
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
    * elle tient lieu de hero à elle seule, sans texte superposé.
@@ -5601,6 +5627,85 @@ const caffePanis: Restaurant = {
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.
   loyaltyMotif: "fanions",
+  // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
+  loyaltyWheel: {
+    slices: [
+      { points: 5, weight: 32 },
+      { points: 10, weight: 26 },
+      { points: 15, weight: 20 },
+      { points: 20, weight: 12 },
+      { points: 30, weight: 6 },
+      { points: 50, weight: 4 },
+    ],
+    // Provisoire, à valider : le 7e jour d'affilée, les points du tour doublent.
+    golden: { every: 7, multiplier: 2 },
+  },
+  // Les paliers de sa fidélité en production (1 € = 1 point).
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café Illy ou soft offert",
+        points: 50,
+        items: ["cafe-illy", "coca-cola", "coca-cola-zero", "fuzetea-peche"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert offert",
+        points: 100,
+        items: ["il-tiramisu", "mousse-big-love", "deurty-cookie"],
+      },
+      {
+        id: "antipasto",
+        label: "1 antipasto offert",
+        points: 150,
+        items: [
+          "trio-arancini",
+          "prosciutto",
+          "burrata-pesto-forever",
+          "classic-burrata",
+          "stracciatella-fumee",
+          "burrata-truffe-mortadelle",
+        ],
+      },
+      {
+        id: "pizza-pasta",
+        label: "1 pizza ou pasta offerte",
+        points: 250,
+        items: [
+          "amor-amatriciana",
+          "mama-king",
+          "margherita",
+          "puissance-4",
+          "stracciatella-versace",
+          "capo",
+          "green-circle",
+          "truffle-supreme",
+          "carbonara-originale",
+          "alla-bolognese",
+          "all-amatriciana",
+          "vivi-e-vechio",
+          "con-il-pesto",
+          "al-tartufo",
+        ],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Giulia",
+      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      history: [
+        { kind: "gain", points: 3, table: 4, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 5, table: 9, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 22, table: 3, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 25, table: 7, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       id: "antipasti",
