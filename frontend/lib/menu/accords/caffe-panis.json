@@ -1,52 +1,14 @@
 {
-  "Trio d'arancini": [
-    { "with": "Pizza Margherita", "why": "Le risotto frit ouvre la table, la margherita la suit." }
+  "Café allongé": [
+    { "with": "Calvados", "why": "La pomme suit le café : c'est le café-calva." }
   ],
-  "Classic Burrata": [
-    { "with": "Prosciutto", "why": "La crème de la burrata appelle le sel du jambon." }
+  "Gin Beefeater": [
+    { "with": "Tonic Water Original", "why": "Le gin-tonic : amertume franche et genièvre." }
   ],
-  "Burrata Pesto Forever": [
-    { "with": "Pasta Con Il Pesto", "why": "Le même basilic, de l'entrée aux pâtes." }
+  "Glace à l'italienne": [
+    { "with": "Café Illy", "why": "L'amertume du café contre la douceur de la glace." }
   ],
-  "Pizza Margherita": [
-    { "with": "Classic Burrata", "why": "À partager en attendant la pizza." },
-    { "with": "Coca-Cola", "why": "Bien frais contre la pâte chaude." }
-  ],
-  "Pizza Mama King": [
-    { "with": "Trio d'arancini", "why": "Trois bouchées à partager avant la pizza." },
-    { "with": "Fuzetea Pêche", "why": "La pêche adoucit le jambon et les olives." }
-  ],
-  "Pizza Puissance 4": [
-    { "with": "Coca-Cola Zéro", "why": "Les bulles allègent les quatre fromages." }
-  ],
-  "Pizza Capo": [
-    { "with": "Fuzetea Pêche", "why": "Un thé glacé pour calmer le piquant." }
-  ],
-  "Pizza Truffle Suprême": [
-    { "with": "Il Tiramisù", "why": "Le café du tiramisù prolonge la truffe." }
-  ],
-  "Pasta Carbonara Originale": [
-    { "with": "Il Tiramisù", "why": "Rome du début à la fin." }
-  ],
-  "Pasta Alla Bolognese": [
-    { "with": "Classic Burrata", "why": "Une burrata fraîche avant le ragù." }
-  ],
-  "Pasta Al Tartufo": [
-    { "with": "Burrata Truffe & Mortadelle", "why": "La truffe en entrée comme en plat." }
-  ],
-  "Le Dwich Regina": [
-    { "with": "Coca-Cola", "why": "Le duo du midi, sur le pouce." }
-  ],
-  "Les Dwich du Gang": [
-    { "with": "Deurty Cookie", "why": "Le cookie pour finir en douceur." }
-  ],
-  "Il Tiramisù": [
-    { "with": "Café Illy", "why": "Un espresso serré avec le mascarpone." }
-  ],
-  "Mousse Big-love": [
-    { "with": "Café Illy", "why": "Le café coupe la douceur du chocolat." }
-  ],
-  "Deurty Cookie": [
-    { "with": "Café Illy", "why": "Cookie et espresso, le goûter italien." }
+  "Crêpe": [
+    { "with": "Noisette", "why": "Un café pour couper le sucre." }
   ]
 }

@@ -12,6 +12,7 @@ import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { FORMULES_LINK } from "@/lib/menu/format";
+import { resolveFormuleOffers, resolvePairings } from "@/lib/menu/pairings";
 import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
 
@@ -129,6 +130,11 @@ export default async function MenuPreviewPage({
         paymentProvider: "stripe",
         squareLocationId: null,
         preview: true,
+        // L'accord du chef, comme fetchRestaurant le résout en production.
+        pairings: resolvePairings(restaurant.categories, restaurant.pairings),
+        formuleOffers: restaurant.pairings
+          ? resolveFormuleOffers(formules, restaurant.categories)
+          : undefined,
         ...(suivi && {
           demoSuivi: {
             drinks: restaurant.categories
