@@ -514,6 +514,7 @@ export function CartBar() {
       }
       if (!cart.fastFood) {
         setSentPayment(payment);
+        recordPreviewLoyalty();
         cart.clear();
         resetChoices();
         setState("sent");
@@ -691,6 +692,24 @@ export function CartBar() {
     }
   };
 
+  // Aperçu doté d'une fidélité (loyalty-demo) : la commande passe sur la
+  // carte de son contact, avant que le panier ne se vide.
+  const recordPreviewLoyalty = () => {
+    if (!loyaltyContact || !loyaltyMember.recordPreviewOrder) return;
+    loyaltyMember.recordPreviewOrder({
+      contact: loyaltyContact,
+      firstName: firstName.trim() || undefined,
+      remember: member !== null || rememberPhone,
+      earned: loyaltyPoints,
+      spent: cart.pointsSpent,
+      rewards: cart.lines.filter((line) => line.reward).map((line) => line.name).join(", ") || null,
+      table: cart.tableNumber,
+    });
+    // Comme après une vraie commande : le champ ne se vide qu'une fois le téléphone retenu.
+    if (member !== null || rememberPhone) setContact("");
+    setBalance(null);
+  };
+
   // Aperçu à table : la commande part — payée en ligne (« accepté »), total
   // pourboire compris, ou à régler. Que des boissons, chaque article d'une
   // catégorie de boissons (une formule n'y est jamais) : le service la
@@ -702,6 +721,7 @@ export function CartBar() {
     tip: number
   ) => {
     if (!tickets || !cart.demoSuivi) return;
+    recordPreviewLoyalty();
     const drinks = new Set(cart.demoSuivi.drinks);
     const hot = new Set(cart.demoSuivi.hotDrinks);
     tickets.add(orderId, {

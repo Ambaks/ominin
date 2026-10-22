@@ -14163,3 +14163,18 @@ html:has([data-category-rail]) {
     animation: none;
   }
 }
+
+/* La roue en pictogramme (pastille, accueil) : la roue elle-même a sa feuille, loyalty-wheel.css. */
+.wheel-glyph {
+  animation: wheel-glyph 5s linear infinite;
+}
+@keyframes wheel-glyph {
+  to {
+    transform: rotate(1turn);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wheel-glyph {
+    animation: none;
+  }
+}
