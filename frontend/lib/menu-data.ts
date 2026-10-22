@@ -5576,9 +5576,112 @@ const cafeDesArts: Restaurant = {
  * Ciccio Gang, leur marque de livraison à la même adresse (Uber Eats,
  * archive du 26 novembre 2025), mot pour mot à l'orthographe près, prix de
  * livraison, dans l'ordre d'une carte de salle (Uber Eats ouvre sur les
- * Dwich), les plats à photo en tête de section ; le café Illy de leur fiche
- * TheFork (2022). Sources : demos/caffe-panis/docs/.
+ * Dwich), les plats à photo en tête de section. Glaces, crêpes et boissons :
+ * leur carte papier, photographiée le 22 octobre 2026, dans son ordre. Sources :
+ * demos/caffe-panis/docs/.
  */
+const PANIS_SIROP = groupeChoix(
+  "sirop",
+  "Sirop",
+  ["Grenadine", "Fraise", "Citron", "Menthe", "Pac", "Pêche", "Orgeat", "Kiwi", "Framboise", "Violette", "Cerise", "Citron vert"],
+  { obligatoire: true }
+);
+const PANIS_SIROP_FRAPPE = groupeChoix("sirop", "Sirop", ["Noisette", "Caramel", "Orgeat"], { obligatoire: true });
+/**
+ * Un article par format, comme une ligne de la carte : seul un article sans
+ * options peut venir en accord du chef (lib/menu/pairings.ts). Le premier
+ * format garde le nom de la carte, les autres le suivent de leur format.
+ */
+const panisFormats = (
+  id: string,
+  name: string,
+  formats: readonly (readonly [suffixe: string, detail: string, prix: number])[],
+  extra: Partial<MenuItem> = {}
+): MenuItem[] =>
+  formats.map(([suffixe, detail, price], i) => ({
+    id: i === 0 ? id : `${id}-${slugLibelle(suffixe)}`,
+    name: i === 0 ? name : `${name} ${suffixe}`,
+    price,
+    detail,
+    ...extra,
+  }));
+
+const panisCoupe = (id: string, name: string, coupe: number, bouteille: number) =>
+  panisFormats(
+    id,
+    name,
+    [
+      ["", "Coupe", coupe],
+      ["· bouteille", "Bouteille", bouteille],
+    ],
+    ALCOOL
+  );
+
+/** Une pression : le 25 cl sous son nom, puis le 50 cl (et le bock, s'il y en a un). */
+const panisPression = (id: string, name: string, description: string | undefined, demi: number, pinte: number, bock?: number) =>
+  panisFormats(
+    id,
+    name,
+    [
+      ["", "25 cl", demi],
+      ["50 cl", "50 cl", pinte],
+      ...(bock === undefined ? [] : [["bock", "15 cl", bock] as const]),
+    ],
+    { ...(description && { description }), ...ALCOOL }
+  );
+
+const panisCocktail = (id: string, name: string, description: string | undefined, price: number): MenuItem => ({
+  id,
+  name,
+  ...(description && { description }),
+  price,
+  ...ALCOOL,
+});
+
+const panisVin = (id: string, name: string, description: string | undefined, verre: number, bouteille: number) =>
+  panisFormats(
+    id,
+    name,
+    [
+      ["", "Verre 12 cl", verre],
+      ["· bouteille", "Bouteille 75 cl", bouteille],
+    ],
+    { ...(description && { description }), ...ALCOOL }
+  );
+
+/** Le vin de la maison, au verre ou en pichet. */
+const panisPichet = (id: string, name: string, description?: string) =>
+  panisFormats(
+    id,
+    name,
+    [
+      ["", "Verre 12 cl", 4],
+      ["· pichet 1/4", "Pichet 1/4", 7],
+      ["· pichet 1/2", "Pichet 1/2", 14],
+    ],
+    { ...(description && { description }), ...ALCOOL }
+  );
+
+const panisAlcool = (id: string, name: string, price: number, detail = "4 cl"): MenuItem => ({
+  id,
+  name,
+  price,
+  detail,
+  ...ALCOOL,
+});
+
+/** Une bouteille à table, nommée à part du verre du même alcool. */
+const panisBouteille = (id: string, name: string, price: number): MenuItem => ({
+  id,
+  name: `${name} · bouteille`,
+  price,
+  detail: "Bouteille",
+  ...ALCOOL,
+  options: [
+    groupeChoix("supplements", "Suppléments", [["5 Red Bull", 10], ["2 softs", 10], ["Sirop", 1]], { multiple: true }),
+  ],
+});
+
 const caffePanis: Restaurant = {
   slug: "caffe-panis",
   name: "Caffè Panis",
@@ -5814,17 +5917,356 @@ const caffePanis: Restaurant = {
           price: 5.9,
           image: pexels("14136387/pexels-photo-14136387.jpeg", 800),
         },
+        {
+          id: "glace-italienne",
+          name: "Glace à l'italienne",
+          price: 4,
+          options: [
+            groupeChoix("service", "Service", ["Cornet", "Pot"], { obligatoire: true }),
+            groupeChoix("parfum", "Parfum", ["Vanille", "Chocolat", "Les deux"], { obligatoire: true }),
+            groupeChoix(
+              "supplements",
+              "Suppléments",
+              ["Coulis chocolat", "Coulis caramel", "Coulis fruits rouges", "Chantilly"],
+              { multiple: true, supplement: 0.5 }
+            ),
+          ],
+        },
+        {
+          id: "crepe",
+          name: "Crêpe",
+          price: 4,
+          options: [
+            groupeChoix("garniture", "Garniture", ["Sucre", "Nutella", "Coulis fruits rouges", "Coulis caramel"], {
+              obligatoire: true,
+            }),
+          ],
+        },
       ],
     },
     {
-      id: "boissons",
-      name: "Boissons",
+      id: "bulles",
+      name: "Bulles",
+      kicker: { text: "Frizzante", lang: "it" },
       boissons: true,
       items: [
-        { id: "cafe-illy", name: "Café Illy", price: 2, chaud: true },
-        { id: "coca-cola", name: "Coca-Cola", price: 2.9, detail: "33 cl" },
-        { id: "coca-cola-zero", name: "Coca-Cola Zéro", price: 2.9, detail: "33 cl" },
-        { id: "fuzetea-peche", name: "Fuzetea Pêche", price: 2.9 },
+        ...panisCoupe("prosecco", "Prosecco", 7, 25),
+        ...panisCoupe("champagne-robert-allait", "Champagne Robert-Allait", 10, 70),
+        { id: "pavone", name: "Pavone", description: "Muscat pétillant", price: 35, detail: "Bouteille", ...ALCOOL },
+      ],
+    },
+    {
+      id: "aperitivi",
+      name: "Apéritifs",
+      kicker: { text: "Aperitivi", lang: "it" },
+      boissons: true,
+      items: [
+        { id: "pastis-panis", name: "Pastis Panis", price: 3, ...ALCOOL },
+        {
+          id: "kir",
+          name: "Kir",
+          price: 5,
+          ...ALCOOL,
+          options: [groupeChoix("parfum", "Parfum", ["Cassis", "Pêche", "Mûre"], { obligatoire: true })],
+        },
+        { id: "suze", name: "Suze", price: 5, ...ALCOOL },
+        { id: "muscat", name: "Muscat", price: 5, ...ALCOOL },
+        { id: "porto", name: "Porto", price: 5, ...ALCOOL },
+        { id: "campari", name: "Campari", price: 5, ...ALCOOL },
+        {
+          id: "martini",
+          name: "Martini",
+          price: 5,
+          ...ALCOOL,
+          options: [groupeChoix("couleur", "Martini", ["Blanc", "Rouge"], { obligatoire: true })],
+        },
+        {
+          id: "lillet",
+          name: "Lillet",
+          price: 5,
+          ...ALCOOL,
+          options: [groupeChoix("couleur", "Lillet", ["Blanc", "Rouge"], { obligatoire: true })],
+        },
+      ],
+    },
+    {
+      id: "bibite-fresche",
+      name: "Boissons fraîches",
+      kicker: { text: "Bibite fresche", lang: "it" },
+      boissons: true,
+      items: [
+        { id: "pepsi", name: "Pepsi", price: 4, detail: "33 cl" },
+        { id: "pepsi-max", name: "Pepsi Max", price: 4, detail: "33 cl" },
+        { id: "orangina", name: "Orangina", price: 4, detail: "33 cl" },
+        { id: "perrier", name: "Perrier", price: 4, detail: "33 cl" },
+        { id: "schweppes", name: "Schweppes", price: 3.7, detail: "25 cl" },
+        { id: "schweppes-agrum", name: "Schweppes Agrum'", price: 3.7, detail: "25 cl" },
+        { id: "fuze-tea", name: "Fuze Tea", price: 3.7, detail: "25 cl" },
+        { id: "sirop-teisseire", name: "Sirop Teisseire", price: 3.5, options: [PANIS_SIROP] },
+        { id: "diabolo", name: "Diabolo", price: 4, options: [PANIS_SIROP] },
+        { id: "limonade-tireuse", name: "Limonade à la tireuse", price: 3.5, detail: "33 cl" },
+        { id: "orange-pressee", name: "Orange pressée", price: 6 },
+        { id: "citron-presse", name: "Citron pressé", price: 6 },
+        {
+          id: "jus-granini",
+          name: "Jus de fruit Granini",
+          price: 4,
+          detail: "25 cl",
+          options: [
+            groupeChoix("parfum", "Parfum", ["Orange bio", "Ananas", "Abricot", "Fraise", "Tomate", "ACE"], {
+              obligatoire: true,
+            }),
+          ],
+        },
+        { id: "red-bull", name: "Red Bull", description: "Éditions spéciales sur demande", price: 5 },
+        { id: "red-bull-sans-sucre", name: "Red Bull sans sucre", price: 5 },
+      ],
+    },
+    {
+      id: "isope",
+      name: "Gamme Isope",
+      boissons: true,
+      items: [
+        { id: "tonic-water-original", name: "Tonic Water Original", description: "Amertume franche", price: 5 },
+        {
+          id: "soda-craft-pamplemousse",
+          name: "Soda Craft Pamplemousse",
+          description: "Intensément fruité & fraîcheur",
+          price: 5,
+        },
+        { id: "ginger-beer-spicy", name: "Ginger Beer Spicy", description: "Gingembre corsé & pointe de piment", price: 5 },
+        { id: "tonic-water-concombre", name: "Tonic Water Concombre", description: "Fraîcheur & amertume douce", price: 5 },
+      ],
+    },
+    {
+      id: "shooter",
+      name: "Shooter",
+      boissons: true,
+      items: [
+        { id: "shooter-parfum", name: "Shooter", description: "Parfum au choix", price: 4, ...ALCOOL },
+        { id: "metre-de-shooter", name: "Le mètre de shooter", price: 30, detail: "×10", ...ALCOOL },
+      ],
+    },
+    {
+      id: "birre",
+      name: "Bières",
+      kicker: { text: "Birre", lang: "it" },
+      boissons: true,
+      items: [
+        ...panisPression("moretti", "Moretti", "Blonde", 4, 7.5, 2),
+        ...panisPression("gallia-blanche", "Gallia Blanche", undefined, 4, 7.5),
+        ...panisPression("gallia-ipa", "Gallia IPA", undefined, 4.5, 8),
+        ...panisPression("pelican", "Pélican", "Triple blonde", 4.5, 8),
+        ...panisPression("kriek-mort-subite", "Kriek Mort Subite", "Rouge", 4.5, 8),
+        ...panisPression("monaco", "Monaco", "Panaché", 3.8, 7),
+        { id: "supplement-sirop-biere", name: "Supplément sirop Teisseire", price: 0.5, options: [PANIS_SIROP] },
+        { id: "supplement-picon", name: "Supplément Picon", price: 0.5, ...ALCOOL },
+        { id: "corona", name: "Corona", price: 6, detail: "Bouteille 33 cl", ...ALCOOL },
+        { id: "corona-0", name: "Corona 0 %", description: "Bière sans alcool", price: 5, detail: "Bouteille 33 cl" },
+      ],
+    },
+    {
+      id: "acque",
+      name: "Eaux",
+      kicker: { text: "Acque", lang: "it" },
+      boissons: true,
+      items: [
+        ...panisFormats("evian", "Evian", [
+          ["", "25 cl", 5],
+          ["50 cl", "50 cl", 8],
+        ]),
+        ...panisFormats("san-pellegrino", "San Pellegrino", [
+          ["", "25 cl", 5],
+          ["50 cl", "50 cl", 8],
+        ]),
+        { id: "vittel", name: "Vittel", price: 4 },
+      ],
+    },
+    {
+      id: "bevande-calde",
+      name: "Boissons chaudes",
+      kicker: { text: "Bevande calde", lang: "it" },
+      boissons: "chaudes",
+      items: [
+        { id: "cafe-illy", name: "Café Illy", price: 2 },
+        { id: "deca-illy", name: "Déca Illy", price: 2 },
+        { id: "noisette", name: "Noisette", price: 2.2 },
+        { id: "cafe-allonge", name: "Café allongé", price: 2 },
+        { id: "double-cafe", name: "Double café", price: 3.5 },
+        { id: "cafe-creme", name: "Café crème", price: 3.7 },
+        { id: "cappuccino", name: "Cappuccino", price: 4 },
+        { id: "chocolat", name: "Chocolat", price: 4 },
+        { id: "the-dammann", name: "Thé Dammann Frères", price: 4 },
+        { id: "cafe-viennois", name: "Café viennois", price: 4.5 },
+        { id: "chocolat-viennois", name: "Chocolat viennois", price: 4.5 },
+        { id: "cafe-frappe", name: "Café frappé", price: 5, options: [PANIS_SIROP_FRAPPE] },
+        { id: "chocolat-frappe", name: "Chocolat frappé", price: 5, options: [PANIS_SIROP_FRAPPE] },
+      ],
+    },
+    {
+      id: "cocktails-signatures",
+      name: "Cocktails Signatures",
+      boissons: true,
+      items: [
+        panisCocktail("tropical-mule", "Tropical Mule", "Rhum ambré, ginger beer, purée passion, citron vert", 11),
+        panisCocktail("caipirinha-piment", "Caipirinha Piment", "Cachaça, sirop piment, citron vert", 11),
+        panisCocktail("honey-deuce", "Honey Deuce", "Gin, liqueur de framboise, citron vert, miel", 11),
+        panisCocktail("beach-house", "Beach House", "Tequila, Aperol, jus d'ananas, jus de passion", 12),
+        panisCocktail("purple-tonic", "Purple Tonic", "Gin, St-Germain, citron vert, sirop de violette, tonic", 12),
+        panisCocktail("panis-melon", "Panis Melon", "Vodka, Midori, Perrier, menthe, citron vert", 12),
+        panisCocktail("sexy-sandia", "Sexy Sandia", "Pastèque fraîche, tequila, menthe, St-Germain, Perrier", 13),
+      ],
+    },
+    {
+      id: "sours",
+      name: "Sours",
+      boissons: true,
+      items: [
+        panisCocktail("aperol-sour", "Aperol Sour", undefined, 9),
+        panisCocktail("whisky-sour", "Whisky Sour", undefined, 10),
+        panisCocktail("amaretto-sour", "Amaretto Sour", undefined, 10),
+        panisCocktail("st-germain-sour", "St-Germain Sour", undefined, 12),
+      ],
+    },
+    {
+      id: "spritz",
+      name: "Spritz",
+      boissons: true,
+      items: [
+        panisCocktail("aperol-spritz", "Apérol Spritz", "6 € pendant l'Aperitivo Happy Hour", 9),
+        panisCocktail("campari-spritz", "Campari Spritz", undefined, 9),
+        panisCocktail("lemon-spritz", "Lemon Spritz", undefined, 9),
+        panisCocktail("italicus-spritz", "Italicus Spritz", undefined, 11),
+        panisCocktail("napoleon-spritz", "Napoleon Spritz", undefined, 11),
+        panisCocktail("st-germain-spritz", "St-Germain Spritz", undefined, 12),
+      ],
+    },
+    {
+      id: "classiques",
+      name: "Classiques",
+      boissons: true,
+      items: [
+        {
+          ...panisCocktail("mojito", "Mojito", undefined, 10),
+          options: [groupeChoix("parfum", "Parfum", ["Framboise", "Passion"], { obligatoire: true })],
+        },
+        panisCocktail("expresso-martini", "Expresso Martini", undefined, 10),
+        {
+          ...panisCocktail("mule", "Mule", undefined, 10),
+          options: [groupeChoix("recette", "Mule", ["Moscow", "London"], { obligatoire: true })],
+        },
+        panisCocktail("gin-fizz", "Gin Fizz", "Demandez à votre serveur", 10),
+        panisCocktail("basilic-smash", "Basilic Smash", undefined, 10),
+        panisCocktail("negroni", "Negroni", undefined, 10),
+        panisCocktail("tequila-sunrise", "Tequila Sunrise", undefined, 10),
+        panisCocktail("pornstar-martini", "Pornstar Martini", undefined, 10),
+      ],
+    },
+    {
+      id: "virgin",
+      name: "Virgin",
+      boissons: true,
+      items: [
+        { id: "martinini", name: "Martinini", description: "Jus de passion, vanille, citron vert", price: 7.5 },
+        { id: "dry-panis", name: "Dry Panis", description: "Purée de framboise, citron vert, limonade", price: 7.5 },
+      ],
+    },
+    {
+      id: "vini-rossi",
+      name: "Vins rouges",
+      kicker: { text: "Vini rossi", lang: "it" },
+      boissons: true,
+      items: [
+        ...panisPichet("pays-d-herault-rouge", "Pays d'Hérault rouge"),
+        ...panisVin("sans-chichi", "Sans Chichi", "IGP Pays d'Oc rouge · syrah, carignan", 5, 24),
+        ...panisVin("cote-du-rhone", "Côte du Rhône", "Cuvée Perrin · grenache, syrah, mourvèdre", 6, 25),
+        ...panisVin(
+          "salut-de-la-terre",
+          "Salut de la Terre",
+          "Terrasses du Larzac, cave Castelbarry · grenache, syrah, mourvèdre",
+          7,
+          28
+        ),
+        ...panisVin("pic-st-loup", "Pic St Loup", "Château Lancyre · syrah, grenache, carignan", 7, 28),
+      ],
+    },
+    {
+      id: "vini-bianchi",
+      name: "Vins blancs",
+      kicker: { text: "Vini bianchi", lang: "it" },
+      boissons: true,
+      items: [
+        ...panisPichet("secret-de-lunes", "Secret de Lunes", "Chardonnay"),
+        ...panisVin("jardin-de-lyse", "Jardin de Lyse", "Viognier", 5, 25),
+        ...panisVin("terre-d-ardoise", "Terre d'Ardoise", "Carignan", 5, 25),
+        ...panisVin("petit-chardonnay", "Petit Chardonnay", "Léger, 9,5 %, Pays d'Oc", 5, 25),
+        ...panisVin("inedit-moelleux", "Inédit moelleux", "Les petites gâteries de Marie-Antoinette", 5, 25),
+        ...panisVin("les-hautes-terres", "Les Hautes Terres", undefined, 6, 26),
+      ],
+    },
+    {
+      id: "vini-rosati",
+      name: "Vins rosés",
+      kicker: { text: "Vini rosati", lang: "it" },
+      boissons: true,
+      items: [
+        ...panisPichet("pays-d-herault-rose", "Pays d'Hérault rosé"),
+        ...panisVin("pive", "Pive", "Grenache gris, grenache noir, merlot, syrah", 5, 26),
+        ...panisVin("inedit-rose", "Inédit rosé", "Grenache, syrah, cabernet sauvignon, merlot", 5, 25),
+        ...panisVin("chateau-lancyre", "Château Lancyre", "Ici on voit la mer · Pic St Loup bio", 6, 28),
+      ],
+    },
+    {
+      id: "alcoli-forti",
+      name: "Alcools forts",
+      kicker: { text: "Alcoli forti", lang: "it" },
+      boissons: true,
+      items: [
+        panisAlcool("baileys", "Baileys", 7, "6 cl"),
+        panisAlcool("limoncello", "Limoncello", 7, "6 cl"),
+        panisAlcool("mentheuse", "Mentheuse", 7, "6 cl"),
+        panisAlcool("croqueuse", "Croqueuse", 7, "6 cl"),
+        panisAlcool("pulpeuse", "Pulpeuse", 7, "6 cl"),
+        panisAlcool("get-27", "Get 27", 7, "6 cl"),
+        panisAlcool("whisky-ballantines", "Whisky Ballantine's", 8),
+        panisAlcool("jagermeister", "Jägermeister", 7),
+        panisAlcool("vodka", "Vodka", 8),
+        panisAlcool("tequila", "Tequila", 8),
+        panisAlcool("rhum-captain-morgan", "Rhum Captain Morgan", 8),
+        panisAlcool("gin-beefeater", "Gin Beefeater", 8),
+        panisAlcool("bourbon-four-roses", "Bourbon Four Roses", 10),
+        panisAlcool("whisky-jack-daniels", "Whisky Jack Daniel's", 10),
+        panisAlcool("cognac-hennessy", "Cognac Hennessy", 10),
+        panisAlcool("armagnac-samalens", "Armagnac Samalens", 10),
+        panisAlcool("calvados", "Calvados", 10),
+        panisAlcool("poire-williams", "Poire Williams", 10),
+        panisAlcool("vodka-belvedere", "Vodka Belvedere", 12),
+        panisAlcool("whisky-chivas-12", "Whisky Chivas 12 ans", 12),
+        panisAlcool("whisky-aberlour-12", "Whisky Aberlour 12 ans", 12),
+        panisAlcool("bacardi-carta-oro", "Bacardi Carta Oro", 8),
+        panisAlcool("bacardi-blanco", "Bacardi Blanco", 8),
+        panisAlcool("rhum-agricole-martinique", "Rhum agricole Martinique", 12),
+        panisAlcool("rhum-bumbu-xo", "Rhum Bumbu XO", 14),
+        panisAlcool("rhum-bumbu-original", "Rhum Bumbu Original", 14),
+        panisAlcool("rhum-gouverneur", "Rhum Gouverneur", 12),
+        { id: "supplement-soda", name: "Supplément soda", price: 2 },
+        { id: "supplement-red-bull", name: "Supplément Red Bull", price: 3 },
+      ],
+    },
+    {
+      id: "alcoli-forti-bouteille",
+      name: "Alcools forts en bouteille",
+      kicker: { text: "Alcoli forti", lang: "it" },
+      boissons: true,
+      items: [
+        panisBouteille("bouteille-pastis-panis", "Pastis Panis", 60),
+        panisBouteille("bouteille-get-27", "Get 27", 75),
+        panisBouteille("bouteille-vodka-poliakov", "Vodka Poliakov", 80),
+        panisBouteille("bouteille-vodka-absolut", "Vodka Absolut", 90),
+        panisBouteille("bouteille-vodka-belvedere", "Vodka Belvedere", 110),
+        panisBouteille("bouteille-jagermeister", "Jägermeister", 75),
+        panisBouteille("bouteille-gin-gordons", "Gin Gordon's", 80),
+        panisBouteille("bouteille-captain-morgan", "Captain Morgan", 80),
       ],
     },
   ],
