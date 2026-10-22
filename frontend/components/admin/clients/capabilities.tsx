@@ -19,7 +19,7 @@ import {
   VIEWS,
 } from "@/lib/gestion/constants";
 import type { Feature, OrderTab } from "@/lib/gestion/types";
-import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
+import { CategoryLayoutPicker } from "@/components/gestion/category-layout-settings";
 import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
@@ -213,7 +213,6 @@ function CategoryLayoutCard({
   const [saving, setSaving] = useState(false);
 
   const choose = async (categoryLayout: CategoryLayout) => {
-    if (categoryLayout === client.categoryLayout) return;
     const previous = client;
     onChange({ ...client, categoryLayout });
     setSaving(true);
@@ -238,27 +237,11 @@ function CategoryLayoutCard({
           Le gérant peut aussi le régler depuis sa gestion.
         </p>
       </div>
-      <div role="radiogroup" aria-label="Catégories du menu QR" className="grid gap-3 sm:grid-cols-2">
-        {CATEGORY_LAYOUTS.map((layout) => {
-          const selected = client.categoryLayout === layout.id;
-          return (
-            <button
-              key={layout.id}
-              type="button"
-              role="radio"
-              aria-checked={selected}
-              disabled={saving}
-              onClick={() => void choose(layout.id)}
-              className={`rounded-2xl border px-4 py-3 text-left transition-colors disabled:cursor-wait ${
-                selected ? "border-ember-2/60 bg-surface-raised" : "border-hairline bg-surface hover:border-ember-2/30"
-              }`}
-            >
-              <p className="text-sm font-medium">{layout.label}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-faint">{layout.body}</p>
-            </button>
-          );
-        })}
-      </div>
+      <CategoryLayoutPicker
+        value={client.categoryLayout}
+        disabled={saving}
+        onChoose={(layout) => void choose(layout)}
+      />
     </section>
   );
 }

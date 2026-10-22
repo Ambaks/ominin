@@ -18,10 +18,10 @@ export function SectionLink({
   ...props
 }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "onClick"> & {
   sectionId: string;
-  onJump?: (event: MouseEvent<HTMLAnchorElement>) => void;
+  onJump?: () => void;
 }) {
   const jump = (event: MouseEvent<HTMLAnchorElement>) => {
-    onJump?.(event);
+    onJump?.();
     if (!document.getElementById(sectionId) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
     jumpToSection(sectionId, event.detail > 0);

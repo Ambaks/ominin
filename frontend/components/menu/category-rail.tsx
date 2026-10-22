@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { SectionLink, jumpToSection } from "@/components/menu/section-link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useCart } from "@/lib/menu/cart";
@@ -15,7 +15,8 @@ import { useQueryParam } from "@/lib/menu/use-query-param";
  * la couleur d'accent. Une pastille glisse derrière celle de la section en
  * cours. Toucher une icône y emmène et montre son nom dans une bulle ;
  * maintenir le doigt élargit le rail par-dessus la carte voilée, avec tous
- * les noms : on glisse jusqu'à la catégorie voulue, on relâche, on y est.
+ * les noms : on glisse jusqu'à la catégorie voulue, on relâche, on y est. Le
+ * bouton du pied du rail l'élargit aussi, au clic ou au clavier.
  *
  * Les lignes portent data-rail-item et non data-category : les thèmes des
  * établissements habillent les pastilles de la barre du haut par
@@ -29,9 +30,14 @@ const BUBBLE_MS = 1300;
  * la pastille se place par le rang de la ligne, dès le rendu serveur. */
 const LIST_PADDING = 12;
 const ROW_PITCH = 52;
-/* Rail élargi : près d'un bord de la liste, le doigt la fait défiler. */
+/* Rail élargi : près d'un bord de la liste, le doigt la fait défiler, à
+ * cette vitesse en pixels par seconde. */
 const EDGE_PX = 56;
-const EDGE_SPEED = 9;
+const EDGE_PX_PER_S = 540;
+
+/** Une ligne ne se redessine que si son état change, pas à chaque
+ * mouvement du doigt sur le rail élargi. */
+const RailIcon = memo(CategoryIcon);
 
 export function CategoryRail({
   categories,
@@ -49,40 +55,41 @@ export function CategoryRail({
   const [bubble, setBubble] = useState<{ id: string; top: number } | null>(null);
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
+  // Appui en cours : son minuteur, s'il a ouvert le rail, la hauteur du
+  // doigt (défilement près des bords).
   const press = useRef<{ timer: number; opened: boolean; y: number } | null>(null);
+  // Après un appui long, le clic que le navigateur synthétise au relâché ne
+  // doit pas suivre le lien de départ : marqué jusqu'au prochain appui.
+  const swallowClick = useRef(false);
+  // La catégorie sous le doigt, lue au relâché depuis les écouteurs posés
+  // hors du rendu : l'état React y serait périmé.
+  const hoveredRef = useRef<string | null>(null);
   const activeIndex = Math.max(0, categories.findIndex(({ id }) => id === activeId));
 
-  const itemAt = (x: number, y: number) =>
-    document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-rail-item]")?.dataset.railItem ?? null;
-
-  // La catégorie sous le doigt, lue au relâché depuis les écouteurs du
-  // document : l'état React y serait celui du rendu qui les a posés.
-  const hoveredRef = useRef<string | null>(null);
   const hover = (id: string | null) => {
     hoveredRef.current = id;
     setHovered(id);
   };
 
-  const close = useCallback(() => {
-    setOpen(false);
-    hoveredRef.current = null;
-    setHovered(null);
-    press.current = null;
-  }, []);
+  const itemAt = (x: number, y: number) =>
+    document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-rail-item]")?.dataset.railItem ?? null;
 
-  /** Relâché d'un appui long : la carte va à la catégorie sous le doigt. */
-  const release = useCallback(() => {
-    const target = hoveredRef.current;
-    if (target) {
-      track("categorie");
-      jumpToSection(target, true);
-    }
-    setOpen(false);
-    hoveredRef.current = null;
-    setHovered(null);
-    // Le clic qui suit un appui long ne doit pas suivre le lien dessous.
-    window.setTimeout(() => (press.current = null), 0);
-  }, [track]);
+  /** Referme le rail élargi ; choose : la carte va à la catégorie sous le
+   * doigt (relâché d'un appui long). */
+  const close = useCallback(
+    (choose: boolean) => {
+      const target = hoveredRef.current;
+      if (choose && target) {
+        track("categorie");
+        jumpToSection(target, true);
+      }
+      setOpen(false);
+      hoveredRef.current = null;
+      setHovered(null);
+      press.current = null;
+    },
+    [track]
+  );
 
   // La liste défile pour garder visible l'icône de la section en cours.
   useEffect(() => {
@@ -115,50 +122,66 @@ export function CategoryRail({
     };
   }, [bubble, placeBubble]);
 
-  // Rail élargi : au doigt, on suit les évènements tactiles — le navigateur
-  // a pu annuler le pointeur en croyant à un défilement. Le doigt qui glisse
-  // ne fait pas défiler la page (écouteur non passif, seul moyen d'annuler
-  // le défilement sur Safari) ; le relâcher choisit. Échap referme, et près
-  // d'un bord la liste défile seule.
+  // Au doigt, le geste se suit en évènements tactiles, posés sur le rail dès
+  // le départ : Safari et Chrome décident au premier contact si un
+  // touchmove pourra être annulé, et ne laissent bloquer le défilement qu'à
+  // un écouteur non passif déjà présent. Une fois le rail élargi, le doigt
+  // qui glisse désigne la ligne au lieu de faire défiler, et le relâcher
+  // choisit — même si le navigateur a entre-temps annulé le pointeur.
   useEffect(() => {
-    if (!open) return;
+    const nav = navRef.current;
+    if (!nav) return;
     const move = (event: TouchEvent) => {
+      if (!press.current?.opened) return;
       event.preventDefault();
       const touch = event.touches[0];
-      if (!touch || !press.current) return;
       press.current.y = touch.clientY;
       hover(itemAt(touch.clientX, touch.clientY));
     };
-    const escape = (event: KeyboardEvent) => event.key === "Escape" && close();
-    document.addEventListener("touchmove", move, { passive: false });
-    document.addEventListener("touchend", release);
+    const end = () => {
+      if (press.current?.opened) close(true);
+    };
+    nav.addEventListener("touchmove", move, { passive: false });
+    nav.addEventListener("touchend", end);
+    return () => {
+      nav.removeEventListener("touchmove", move);
+      nav.removeEventListener("touchend", end);
+    };
+  }, [close]);
+
+  // Rail élargi : Échap referme, et près d'un bord la liste défile seule,
+  // à vitesse constante quelle que soit la fréquence de l'écran.
+  useEffect(() => {
+    if (!open) return;
+    const escape = (event: KeyboardEvent) => event.key === "Escape" && close(false);
     document.addEventListener("keydown", escape);
     let frame = 0;
-    const drift = () => {
+    let last = performance.now();
+    const drift = (now: number) => {
       const list = listRef.current;
       const y = press.current?.y;
+      const step = (EDGE_PX_PER_S * (now - last)) / 1000;
+      last = now;
       if (list && y != null) {
         const box = list.getBoundingClientRect();
-        if (y < box.top + EDGE_PX) list.scrollTop -= EDGE_SPEED;
-        else if (y > box.bottom - EDGE_PX) list.scrollTop += EDGE_SPEED;
+        if (y < box.top + EDGE_PX) list.scrollTop -= step;
+        else if (y > box.bottom - EDGE_PX) list.scrollTop += step;
       }
       frame = requestAnimationFrame(drift);
     };
     frame = requestAnimationFrame(drift);
     return () => {
-      document.removeEventListener("touchmove", move);
-      document.removeEventListener("touchend", release);
       document.removeEventListener("keydown", escape);
       cancelAnimationFrame(frame);
     };
-  }, [open, close, release]);
+  }, [open, close]);
 
   return (
     <>
       <div
         aria-hidden
-        onClick={close}
-        className={`fixed inset-0 z-30 bg-black/45 transition-opacity duration-200 motion-reduce:transition-none ${
+        onClick={() => close(false)}
+        className={`fixed inset-0 z-[45] bg-black/45 transition-opacity duration-200 motion-reduce:transition-none ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
@@ -166,19 +189,23 @@ export function CategoryRail({
         ref={navRef}
         aria-label="Catégories"
         data-category-rail
-        className={`sticky z-40 flex w-16 shrink-0 flex-col self-start ${embedded ? "top-12 h-[calc(100dvh-3rem)]" : "top-0 h-dvh"}`}
+        className={`sticky flex w-16 shrink-0 flex-col self-start ${open ? "z-50" : "z-20"} ${
+          embedded ? "top-12 h-[calc(100dvh-3rem)]" : "top-0 h-dvh"
+        }`}
         onPointerDown={(event) => {
           if (event.pointerType === "mouse" && event.button !== 0) return;
+          swallowClick.current = false;
           const target = event.currentTarget;
           const { pointerId, clientX, clientY } = event;
           const timer = window.setTimeout(() => {
             press.current = { timer: 0, opened: true, y: clientY };
+            swallowClick.current = true;
             setBubble(null);
             setOpen(true);
             hover(itemAt(clientX, clientY));
             navigator.vibrate?.(8);
-            // Le relâché revient au rail même hors de lui : il referme. Un
-            // pointeur déjà relâché refuse la capture ; le voile referme alors.
+            // Le relâché revient au rail même hors de lui. Un pointeur déjà
+            // annulé refuse la capture : le suivi tactile prend le relais.
             try {
               target.setPointerCapture(pointerId);
             } catch {}
@@ -186,7 +213,7 @@ export function CategoryRail({
           press.current = { timer, opened: false, y: clientY };
         }}
         onPointerMove={(event) => {
-          if (!press.current?.opened) return;
+          if (!press.current?.opened || event.pointerType === "touch") return;
           press.current.y = event.clientY;
           hover(itemAt(event.clientX, event.clientY));
         }}
@@ -195,33 +222,33 @@ export function CategoryRail({
           window.clearTimeout(press.current.timer);
           if (!press.current.opened) press.current = null;
           // Au doigt, c'est touchend qui choisit (voir plus haut).
-          else if (event.pointerType !== "touch") release();
+          else if (event.pointerType !== "touch") close(true);
         }}
         onPointerCancel={() => {
           // Annulé avant l'ouverture : un défilement, pas un appui long.
-          // Après : le suivi tactile du rail élargi prend le relais.
           if (press.current && !press.current.opened) {
             window.clearTimeout(press.current.timer);
             press.current = null;
           }
         }}
-        onDragStart={(event) => event.preventDefault()}
         onClickCapture={(event) => {
-          if (press.current?.opened) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
+          if (!swallowClick.current) return;
+          swallowClick.current = false;
+          event.preventDefault();
+          event.stopPropagation();
         }}
+        onDragStart={(event) => event.preventDefault()}
         onContextMenu={(event) => event.preventDefault()}
       >
         <ul
           ref={listRef}
-          className={`no-scrollbar relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto border-r border-hairline bg-background pb-28 pt-3 select-none [-webkit-touch-callout:none] transition-[width,border-radius,box-shadow] duration-200 motion-reduce:transition-none ${
-            open ? "w-64 rounded-r-3xl shadow-[12px_0_40px_rgb(0_0_0/0.35)]" : "w-16"
+          className={`no-scrollbar relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto border-r border-hairline bg-background pt-3 select-none [-webkit-touch-callout:none] transition-[width,border-radius,box-shadow] duration-200 motion-reduce:transition-none ${
+            open ? "w-64 touch-none rounded-r-3xl shadow-[12px_0_40px_rgb(0_0_0/0.35)]" : "w-16"
           }`}
         >
           <li
             aria-hidden
+            data-rail-pill
             className={`pointer-events-none absolute inset-x-2 top-0 h-12 rounded-2xl bg-[color-mix(in_srgb,var(--ember-2)_24%,transparent)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
               open ? "opacity-0" : "opacity-100"
             }`}
@@ -235,29 +262,32 @@ export function CategoryRail({
                 <SectionLink
                   sectionId={id}
                   aria-label={name}
-                  title={name}
-                  draggable={false}
                   aria-current={active ? "location" : undefined}
+                  draggable={false}
                   onJump={() => {
                     track("categorie");
-                    placeBubble(id);
+                    if (open) close(false);
+                    else placeBubble(id);
                   }}
                   onFocus={(event) => {
                     if (event.currentTarget.matches(":focus-visible")) placeBubble(id);
+                  }}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === "mouse" && !open) placeBubble(id);
                   }}
                   className={`flex h-12 items-center gap-3 rounded-2xl px-3 text-ember-2 transition-colors motion-reduce:transition-none ${
                     highlighted ? "bg-[color-mix(in_srgb,var(--ember-2)_28%,transparent)]" : ""
                   }`}
                 >
-                  <CategoryIcon
+                  <RailIcon
                     name={name}
                     className={`size-6 shrink-0 transition-[transform,opacity] duration-300 motion-reduce:transition-none ${
-                      active || highlighted ? "scale-[1.18] opacity-100" : "opacity-75"
+                      active || highlighted ? "scale-[1.18] opacity-100" : "opacity-80"
                     }`}
                   />
                   {open && (
                     <span
-                      className={`truncate text-[15px] ${
+                      className={`rail-name truncate text-[15px] ${
                         highlighted ? "font-semibold text-foreground" : "font-medium text-muted"
                       }`}
                     >
@@ -268,6 +298,21 @@ export function CategoryRail({
               </li>
             );
           })}
+          {/* Toutes les catégories d'un coup, au clic ou au clavier : le
+              même rail élargi que l'appui long, qui se signale ainsi. */}
+          <li className="mb-28 mt-1 px-2">
+            <button
+              type="button"
+              aria-expanded={open}
+              aria-label={open ? "Replier les catégories" : "Toutes les catégories"}
+              onClick={() => (open ? close(false) : setOpen(true))}
+              className="flex h-10 w-full items-center justify-center rounded-2xl text-muted transition-colors hover:text-foreground"
+            >
+              <svg viewBox="0 0 24 24" className={`size-5 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M7 6l6 6-6 6M13 6l6 6-6 6" />
+              </svg>
+            </button>
+          </li>
         </ul>
         {!themeLocked && (
           <div className="flex justify-center border-r border-hairline bg-background py-3 max-sm:hidden">
@@ -278,7 +323,7 @@ export function CategoryRail({
           <span
             key={bubble.id}
             aria-hidden
-            className="rail-bubble pointer-events-none absolute left-full z-10 ml-2 -translate-y-1/2 whitespace-nowrap rounded-full bg-foreground px-3.5 py-1.5 text-sm font-semibold text-background shadow-lg before:absolute before:-left-1 before:top-1/2 before:size-2.5 before:-translate-y-1/2 before:rotate-45 before:rounded-[2px] before:bg-foreground"
+            className="rail-bubble ember-gradient pointer-events-none absolute left-full z-10 ml-2 -translate-y-1/2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold text-background shadow-lg before:absolute before:-left-1 before:top-1/2 before:size-2.5 before:-translate-y-1/2 before:rotate-45 before:rounded-[2px] before:bg-[var(--ember-1)]"
             style={{ top: bubble.top }}
           >
             {categories.find(({ id }) => id === bubble.id)?.name}
