@@ -9,7 +9,7 @@ import { normalizeText } from "@/lib/admin/format";
  * reconnaît prend la cloche de service.
  */
 
-type IconId =
+export type IconId =
   | "pizza"
   | "burger"
   | "salad"
@@ -25,6 +25,7 @@ type IconId =
   | "board"
   | "crepe"
   | "star"
+  | "heart"
   | "mocktail"
   | "beerBottle"
   | "bread"
@@ -61,7 +62,8 @@ const RULES: [IconId, string[]][] = [
   ["smoothie", ["smoothie", "jus", "detox"]],
   ["milkshake", ["milkshake", "shake", "frappe", "frappuccino"]],
   ["mocktail", ["sans alcool", "mocktail", "virgin"]],
-  ["star", ["signature", "incontournable", "special*", "best*", "coup de coeur"]],
+  ["star", ["signature", "special*", "best*"]],
+  ["heart", ["incontournable", "coup de coeur", "favori*", "prefere*"]],
   ["cocktail", ["cocktail", "coktail", "long drink", "happy hour", "aperitif"]],
   ["beerBottle", ["biere bouteille", "bouteille biere"]],
   ["beer", ["biere", "pression", "beer"]],
@@ -113,6 +115,8 @@ const PATHS: Record<IconId, string[]> = {
   // Crêpe pliée en quatre.
   crepe: ["M3.5 19.5 12 4l8.5 15.5Z", "M3.5 19.5 14.5 8.5"],
   // Étoile : signatures, incontournables.
+  // Cœur : incontournables, coups de cœur.
+  heart: ["M12 20s-7.5-4.6-7.5-10A4.3 4.3 0 0 1 12 7.2 4.3 4.3 0 0 1 19.5 10c0 5.4-7.5 10-7.5 10Z"],
   star: ["M12 3.5l2.6 5.4 5.9.8-4.3 4.1 1 5.8L12 16.8l-5.2 2.8 1-5.8-4.3-4.1 5.9-.8Z"],
   // Sans alcool : coupe et rondelle de citron.
   mocktail: ["M4.5 6.5h12L10.5 14Z", "M10.5 14v6.5", "M7 20.5h7", "M18 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z", "M18 3v6M15 6h6"],
@@ -148,20 +152,33 @@ function matches(word: string, rule: string): boolean {
   return word === rule || word === `${rule}s` || word === `${rule}x`;
 }
 
-export function categoryIcon(name: string): IconId {
+/** Les icônes que reconnaît le nom, de la plus précise à la plus large. */
+function candidates(name: string): IconId[] {
   const words = normalizeText(name).split(/[^a-z0-9'-]+/).filter(Boolean);
-  for (const [icon, expressions] of RULES) {
-    for (const expression of expressions) {
-      const parts = expression.split(" ");
-      for (let start = 0; start + parts.length <= words.length; start++) {
-        if (parts.every((part, offset) => matches(words[start + offset], part))) return icon;
-      }
+  const found = (expression: string) => {
+    const parts = expression.split(" ");
+    for (let start = 0; start + parts.length <= words.length; start++) {
+      if (parts.every((part, offset) => matches(words[start + offset], part))) return true;
     }
-  }
-  return "cloche";
+    return false;
+  };
+  return RULES.filter(([, expressions]) => expressions.some(found)).map(([icon]) => icon);
 }
 
-export function CategoryIcon({ name, className }: { name: string; className?: string }) {
+/** Les icônes des catégories d'une carte, chacune différente autant que
+ * possible : un nom dont la première icône est déjà prise passe à la
+ * suivante qu'il reconnaît, et ne la répète que faute d'autre. */
+export function categoryIcons(names: string[]): IconId[] {
+  const taken = new Set<IconId>();
+  return names.map((name) => {
+    const found = candidates(name);
+    const icon = found.find((id) => !taken.has(id)) ?? found[0] ?? "cloche";
+    taken.add(icon);
+    return icon;
+  });
+}
+
+export function CategoryIcon({ icon, className }: { icon: IconId; className?: string }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -173,7 +190,7 @@ export function CategoryIcon({ name, className }: { name: string; className?: st
       aria-hidden
       className={className}
     >
-      {PATHS[categoryIcon(name)].map((d) => (
+      {PATHS[icon].map((d) => (
         <path key={d} d={d} />
       ))}
     </svg>

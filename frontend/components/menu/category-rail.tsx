@@ -1,10 +1,10 @@
 "use client";
 
-import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { SectionLink, jumpToSection } from "@/components/menu/section-link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useCart } from "@/lib/menu/cart";
-import { CategoryIcon } from "@/lib/menu/category-icons";
+import { CategoryIcon, categoryIcons } from "@/lib/menu/category-icons";
 import { scrollBehavior } from "@/lib/menu/scroll";
 import { type CategoryLink, useActiveSection } from "@/lib/menu/use-active-section";
 import { useQueryParam } from "@/lib/menu/use-query-param";
@@ -26,10 +26,6 @@ import { useQueryParam } from "@/lib/menu/use-query-param";
 /** Durée d'appui qui élargit le rail, et vie de la bulle d'une icône touchée. */
 const LONG_PRESS_MS = 420;
 const BUBBLE_MS = 1300;
-/* Géométrie de la liste, celle des classes ci-dessous (pt-3, h-12, gap-1) :
- * la pastille se place par le rang de la ligne, dès le rendu serveur. */
-const LIST_PADDING = 12;
-const ROW_PITCH = 52;
 /* Rail élargi : près d'un bord de la liste, le doigt la fait défiler, à
  * cette vitesse en pixels par seconde. */
 const EDGE_PX = 56;
@@ -52,6 +48,7 @@ export function CategoryRail({
   const { activeId } = useActiveSection(categories);
   const navRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const pillRef = useRef<HTMLLIElement>(null);
   const [bubble, setBubble] = useState<{ id: string; top: number } | null>(null);
   const [open, setOpen] = useState(false);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -64,7 +61,7 @@ export function CategoryRail({
   // La catégorie sous le doigt, lue au relâché depuis les écouteurs posés
   // hors du rendu : l'état React y serait périmé.
   const hoveredRef = useRef<string | null>(null);
-  const activeIndex = Math.max(0, categories.findIndex(({ id }) => id === activeId));
+  const icons = useMemo(() => categoryIcons(categories.map(({ name }) => name)), [categories]);
 
   const hover = (id: string | null) => {
     hoveredRef.current = id;
@@ -91,15 +88,22 @@ export function CategoryRail({
     [track]
   );
 
-  // La liste défile pour garder visible l'icône de la section en cours.
-  useEffect(() => {
+  // La pastille se pose sur la ligne de la section en cours, mesurée (la
+  // hauteur des lignes est en rem, elle suit la taille de texte du
+  // téléphone), et la liste défile pour la garder visible.
+  useLayoutEffect(() => {
     const list = listRef.current;
-    if (!list || open) return;
-    const top = LIST_PADDING + activeIndex * ROW_PITCH;
-    if (top < list.scrollTop || top + ROW_PITCH > list.scrollTop + list.clientHeight) {
+    const pill = pillRef.current;
+    const item = list?.querySelector<HTMLElement>(`[data-rail-item="${activeId}"]`);
+    if (!list || !pill || !item) return;
+    const { offsetTop: top, offsetHeight: height } = item;
+    pill.style.transform = `translateY(${top}px)`;
+    pill.dataset.placed = "";
+    if (open) return;
+    if (top < list.scrollTop || top + height > list.scrollTop + list.clientHeight) {
       list.scrollTo({ top: top - list.clientHeight / 2, behavior: scrollBehavior() });
     }
-  }, [activeIndex, open]);
+  }, [activeId, open]);
 
   // La bulle suit son icône, même si la liste défile sous elle.
   const placeBubble = useCallback((id: string) => {
@@ -141,11 +145,17 @@ export function CategoryRail({
     const end = () => {
       if (press.current?.opened) close(true);
     };
+    // Geste interrompu par le système (appel, geste de bord) : rien n'est choisi.
+    const cancel = () => {
+      if (press.current?.opened) close(false);
+    };
     nav.addEventListener("touchmove", move, { passive: false });
     nav.addEventListener("touchend", end);
+    nav.addEventListener("touchcancel", cancel);
     return () => {
       nav.removeEventListener("touchmove", move);
       nav.removeEventListener("touchend", end);
+      nav.removeEventListener("touchcancel", cancel);
     };
   }, [close]);
 
@@ -248,13 +258,13 @@ export function CategoryRail({
         >
           <li
             aria-hidden
+            ref={pillRef}
             data-rail-pill
             className={`pointer-events-none absolute inset-x-2 top-0 h-12 rounded-2xl bg-[color-mix(in_srgb,var(--ember-2)_24%,transparent)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
-              open ? "opacity-0" : "opacity-100"
+              open ? "opacity-0" : "opacity-0 data-placed:opacity-100"
             }`}
-            style={{ transform: `translateY(${LIST_PADDING + activeIndex * ROW_PITCH}px)` }}
           />
-          {categories.map(({ id, name }) => {
+          {categories.map(({ id, name }, index) => {
             const active = id === activeId;
             const highlighted = open && id === hovered;
             return (
@@ -280,7 +290,7 @@ export function CategoryRail({
                   }`}
                 >
                   <RailIcon
-                    name={name}
+                    icon={icons[index]}
                     className={`size-6 shrink-0 transition-[transform,opacity] duration-300 motion-reduce:transition-none ${
                       active || highlighted ? "scale-[1.18] opacity-100" : "opacity-80"
                     }`}

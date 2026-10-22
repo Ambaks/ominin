@@ -14,7 +14,8 @@ const ACTIVE_LINE = 0.4;
 /**
  * La catégorie allumée et la part de la carte déjà parcourue, relues à
  * chaque défilement : la dernière section dont le titre a passé la ligne des
- * 40 % de l'écran, la première tant qu'aucun ne l'a passée. (Un observateur
+ * 40 % de l'écran, la première tant qu'aucun ne l'a passée, la dernière en
+ * bas de page. (Un observateur
  * d'intersection à bande haute laissait allumée la section du dessous quand
  * on remontait : deux sections y tenaient à la fois, celle du dessus n'y
  * rentrait jamais.) Partagé par la barre du haut et le rail de gauche.
@@ -36,6 +37,9 @@ export function useActiveSection(categories: { id: string }[]) {
           const section = document.getElementById(id);
           if (section && section.getBoundingClientRect().top <= line) active = id;
         }
+        // En bas de page, les dernières sections courtes n'atteignent jamais
+        // la ligne : la dernière s'allume.
+        if (max > 0 && window.scrollY >= max - 1) active = categories.at(-1)?.id ?? active;
         setActiveId(active);
       });
     };
