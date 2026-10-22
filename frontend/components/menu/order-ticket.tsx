@@ -27,7 +27,7 @@ import {
  * depuis la pastille qui reste au bas de la carte tant qu'elle n'est pas
  * remise.
  *
- * Aperçu à table (demoSuivi) : le même ticket, pour la table — reçue, en
+ * À table (Restaurant.suivi) : le même ticket, pour la table — reçue, en
  * préparation, servie. Servie, sa pastille reste, repliée : le client revoit
  * ce qu'il a déjà commandé ; et la page la salue d'une feuille aux couleurs
  * de la maison, « Bon appétit ! » ou « Bonne dégustation ! ».
@@ -127,6 +127,21 @@ const TABLE_STAGES: Partial<Record<OrderStatus, Stage>> = {
     step: TABLE_STEPS.length,
     chip: "Servie",
   },
+  annulee: {
+    title: "Commande annulée",
+    body: "Adressez-vous à un\u00a0serveur.",
+    step: -1,
+    chip: "Annulée",
+  },
+};
+
+/** À table, le règlement en ligne commencé, pas encore abouti. */
+const TABLE_PAYING: Stage = {
+  title: "Paiement en cours",
+  body: "Le paiement en ligne n’est pas terminé\u00a0: sans lui, réglez auprès d’un serveur.",
+  step: 0,
+  waiting: true,
+  chip: "Paiement…",
 };
 
 const BAR_STEPS = ["Reçue", "En préparation", "Prête au bar"] as const;
@@ -161,9 +176,10 @@ const SETTLED_AT_COUNTER =
 const SETTLED_AT_COUNTER_BAR =
   "Réglée au\u00a0comptoir\u00a0: elle est en\u00a0préparation.\nCette page vous prévient dès qu’elle est prête au\u00a0bar.";
 
-/** table : aperçu à table, ses étapes et ses mots ; bar : retrait au bar. */
+/** table : à table, ses étapes et ses mots ; bar : retrait au bar (aperçu). */
 const stageOf = (ticket: Ticket, table: number | null, bar = false): Stage | null => {
   if (table !== null) {
+    if (ticket.status === "en_attente" && ticket.paying) return TABLE_PAYING;
     const stage = ticket.status ? (bar ? BAR_STAGES : TABLE_STAGES)[ticket.status] : undefined;
     if (!stage) return null;
     if (ticket.status === "servie") return { ...stage, title: servedGreeting(ticket) };
@@ -646,7 +662,7 @@ function OrderTicket({
               ))}
             </ul>
           )}
-          {table !== null && (
+          {table !== null && tickets?.simulated && (
             <p className="mt-4 text-center text-[11px] text-muted">
               Démo&nbsp;: {bar ? "le bar est simulé, son scan aussi" : "la salle est simulée"}.
             </p>

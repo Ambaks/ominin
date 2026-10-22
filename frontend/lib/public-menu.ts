@@ -260,6 +260,7 @@ export async function fetchRestaurant(slug: string): Promise<{
       placeId: staticData?.placeId,
       allergensUrl: staticData?.allergensUrl,
       loyaltyMotif: staticData?.loyaltyMotif,
+      suivi: staticData?.suivi,
       poster: staticData?.poster,
       affiches,
       highlights: staticData?.highlights,

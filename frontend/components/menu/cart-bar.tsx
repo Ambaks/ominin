@@ -895,6 +895,7 @@ export function CartBar() {
                   locationId={squarePayment.locationId}
                   total={squarePayment.total}
                   tipAmount={squarePayment.tipAmount}
+                  merchant={cart.restaurantName}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(squarePayment.orderId, paid)}
                 />
@@ -903,6 +904,7 @@ export function CartBar() {
                   orderId={stripePayment.orderId}
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
+                  merchant={cart.restaurantName}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
@@ -911,6 +913,7 @@ export function CartBar() {
                   orderId={stripePayment.orderId}
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
+                  merchant={cart.restaurantName}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />

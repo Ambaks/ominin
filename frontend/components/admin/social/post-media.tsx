@@ -26,10 +26,40 @@ const VISUAL_LABELS = {
 } as const;
 
 const RENDER_LABELS = {
-  pending: "Vidéo en attente de rendu…",
-  rendering: "Vidéo en cours de rendu (quelques minutes)…",
+  pending: "En attente du serveur de rendu…",
+  rendering: "Vidéo en cours de rendu",
   failed: "Le rendu de la vidéo a échoué.",
 } as const;
+
+/** Barre d'avancement du rendu : l'étape, la part faite, et pendant le
+ * montage le temps restant estimé par le workflow. */
+function RenderProgress({ post }: { post: SocialPost }) {
+  const done = post.renderProgress ?? 0;
+  const eta = post.renderEtaSeconds;
+  return (
+    <div className="flex w-full flex-col gap-1.5">
+      <div
+        role="progressbar"
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={Math.round(done * 100)}
+        className="h-2 w-full overflow-hidden rounded-full bg-background"
+      >
+        <div
+          className="ember-gradient h-full rounded-full transition-[width] duration-700 ease-out"
+          style={{ width: `${Math.max(done, 0.03) * 100}%` }}
+        />
+      </div>
+      <p className="flex justify-between gap-2 text-xs">
+        <span>{post.renderStage ?? "Démarrage"}</span>
+        <span className="tabular-nums">
+          {Math.round(done * 100)} %
+          {eta != null && ` · ${eta < 60 ? `${eta} s` : `${Math.ceil(eta / 60)} min`}`}
+        </span>
+      </p>
+    </div>
+  );
+}
 
 /** Vignette : première image, ou la vidéo du Reel quand elle existe. */
 export function PostThumb({ post }: { post: SocialPost }) {
@@ -90,6 +120,7 @@ export function PostMedia({
       ) : (
         <div className="flex aspect-9/16 w-60 shrink-0 flex-col items-center justify-center gap-3 rounded-xl border border-hairline bg-surface-raised p-4 text-center text-sm text-muted">
           <p>{RENDER_LABELS[post.renderStatus as keyof typeof RENDER_LABELS]}</p>
+          {post.renderStatus === "rendering" && <RenderProgress post={post} />}
           {post.renderStatus === "failed" && (
             <>
               {post.renderError && (

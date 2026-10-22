@@ -33,7 +33,7 @@ import { tableParam } from "@/lib/menu/table-param";
  * ?service=fast-food montre le parcours fast food : commande sans table, puis
  * le ticket numéroté, dont l'aperçu fait avancer les étapes à la main.
  *
- * À table, un établissement en demoSuivi montre la suite : le paiement en
+ * À table, un établissement en suivi montre la suite : le paiement en
  * ligne simulé, puis chaque commande suivie au bas de l'écran jusqu'au
  * service — rien n'est appelé, ni paiement ni base. ?retrait=bar : un QR
  * dont les commandes se retirent au bar — prête, le client y montre le code
@@ -103,7 +103,7 @@ export default async function MenuPreviewPage({
   if (!restaurant) notFound();
 
   const themeClass = theme === "ominin" ? undefined : restaurantThemeClass(slug);
-  const suivi = !fastFood && Boolean(restaurant.demoSuivi);
+  const suivi = !fastFood && Boolean(restaurant.suivi);
 
   // Comme la page en production (fetchRestaurant) : une formule désactivée
   // ne se montre pas. Ses jours de service, eux, ne filtrent pas l'aperçu,
