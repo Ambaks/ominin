@@ -136,7 +136,10 @@ export interface Recording {
   seconds: number;
 }
 
-/** Filme les démos demandées dans <publicDir>/clips. */
+/** Filme les démos demandées dans <publicDir>/clips. Une démo qui ne se
+ * laisse pas filmer (site injoignable, interface changée) manque à la
+ * réponse au lieu d'arrêter le passage : sa scène prendra la capture de
+ * secours du catalogue. */
 export async function recordClips(
   ids: string[],
   publicDir: string,
@@ -160,9 +163,15 @@ export async function recordClips(
       const opened = Date.now();
       let start = 0;
       const page = await context.newPage();
-      await RECORDERS[id](page, () => {
-        start = (Date.now() - opened) / 1000;
-      });
+      try {
+        await RECORDERS[id](page, () => {
+          start = (Date.now() - opened) / 1000;
+        });
+      } catch (error) {
+        console.warn(`Démo « ${id} » non filmée : ${error instanceof Error ? error.message : error}`);
+        await context.close();
+        continue;
+      }
       const seconds = (Date.now() - opened) / 1000 - start;
       await context.close();
       const file = `clips/${id}.webm`;

@@ -33,6 +33,8 @@ import { createClient } from "@/lib/supabase/client";
  * bas de l'écran jusqu'à la fermeture de la page, saluée d'un « Bon appétit ! ».
  * Elles n'ont pas de numéro du jour : le client numérote les siennes. En
  * aperçu, sans base ni stockage, une salle simulée les fait avancer seule.
+ * Retrait au bar (barPickup, aperçu) : prête, la commande attend le client
+ * au bar, où il montre le code de son ticket ; le scan du bar la dit remise.
  */
 
 export interface TicketLine {
@@ -120,6 +122,8 @@ interface TicketsValue {
   advance: ((orderId: string) => void) | null;
   /** À table : le numéro de la table ; null en fast food. */
   table: number | null;
+  /** Aperçu à table : la commande se retire au bar, sur présentation de son code. */
+  barPickup: boolean;
   /**
    * À table : la commande servie que la page salue, une à la fois.
    * Le salut attend qu'aucune feuille ne soit ouverte (TicketTracker).
@@ -168,11 +172,22 @@ const PREVIEW_TABLE_NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
   en_preparation: "servie",
 };
 
-/** Aperçu à table : le temps que la salle simulée laisse à chaque état, en ms. */
+/** Aperçu à table, retrait au bar : prête, elle attend que le bar scanne son code. */
+const PREVIEW_BAR_NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
+  ...PREVIEW_TABLE_NEXT,
+  en_preparation: "prete",
+  prete: "servie",
+};
+
+/**
+ * Aperçu à table : le temps que la salle simulée laisse à chaque état, en ms.
+ * prete : au bar, le temps d'y venir montrer son code.
+ */
 const PREVIEW_TABLE_STEP_MS: Partial<Record<OrderStatus, number>> = {
   en_attente: 5_000,
   payee: 5_000,
   en_preparation: 8_000,
+  prete: 12_000,
 };
 
 /** Aperçu : la préparation simulée d'une commande réglée, en minutes. */
@@ -212,6 +227,13 @@ const SPOKEN_TABLE: Partial<Record<OrderStatus, string>> = {
   en_preparation: "en préparation.",
   servie: "servie.",
   annulee: "annulée. Adressez-vous à un serveur.",
+};
+
+/** Aperçu à table, retrait au bar. */
+const SPOKEN_BAR: Partial<Record<OrderStatus, string>> = {
+  ...SPOKEN_TABLE,
+  prete: "prête\u00a0! Venez la chercher au bar et montrez votre code.",
+  servie: "remise. Bon appétit\u00a0!",
 };
 
 const unknownTicket = (id: string): Ticket => ({
@@ -371,6 +393,7 @@ export function TicketsProvider({
   slug,
   preview = false,
   table = null,
+  barPickup = false,
   children,
 }: {
   slug: string;
@@ -378,6 +401,8 @@ export function TicketsProvider({
   preview?: boolean;
   /** À table (Restaurant.suivi) : la table suivie ; absent, fast food. */
   table?: number | null;
+  /** Aperçu à table : retrait au bar. */
+  barPickup?: boolean;
   children: React.ReactNode;
 }) {
   // À table, à part : un QR sans table ne reprend pas les commandes d'une table.
@@ -430,8 +455,9 @@ export function TicketsProvider({
       changed
         .map((ticket) => {
           if (table !== null) {
-            const spoken = SPOKEN_TABLE[ticket.status!];
-            return spoken ? `Commande ${ticket.number}, table ${table}\u00a0: ${spoken}` : "";
+            const spoken = (barPickup ? SPOKEN_BAR : SPOKEN_TABLE)[ticket.status!];
+            const where = barPickup ? "retrait au bar" : `table ${table}`;
+            return spoken ? `Commande ${ticket.number}, ${where}\u00a0: ${spoken}` : "";
           }
           const spoken = ticket.paying ? "paiement en cours." : SPOKEN[ticket.status!];
           const time = readyTime(ticket);
@@ -550,7 +576,8 @@ export function TicketsProvider({
   // from : l'état que la minuterie a vu ; passé à la main entre-temps, la
   // commande ne saute pas une étape.
   const step = useCallback((orderId: string, from?: OrderStatus) => {
-    const flow = table === null ? PREVIEW_NEXT : PREVIEW_TABLE_NEXT;
+    const flow =
+      table === null ? PREVIEW_NEXT : barPickup ? PREVIEW_BAR_NEXT : PREVIEW_TABLE_NEXT;
     setTickets((current) =>
       current.map((ticket) => {
         const next = ticket.status && flow[ticket.status];
@@ -566,7 +593,7 @@ export function TicketsProvider({
           : ticket;
       })
     );
-  }, [table]);
+  }, [table, barPickup]);
 
   // Une commande qui devient prête se signale même onglet en arrière-plan :
   // le titre de la page le dit, et le téléphone vibre là où il sait le faire.
@@ -602,6 +629,7 @@ export function TicketsProvider({
       advance: preview ? step : null,
       simulated: preview,
       table,
+      barPickup,
       served: tickets.find((ticket) => ticket.id === toGreet[0]) ?? null,
       dismissServed: () => {
         setToGreet((current) => current.slice(1));
@@ -621,6 +649,7 @@ export function TicketsProvider({
       preview,
       step,
       table,
+      barPickup,
       toGreet,
     ]
   );

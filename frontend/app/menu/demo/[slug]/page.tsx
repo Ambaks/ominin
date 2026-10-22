@@ -12,6 +12,7 @@ import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { FORMULES_LINK } from "@/lib/menu/format";
+import { resolveFormuleOffers, resolvePairings } from "@/lib/menu/pairings";
 import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
 
@@ -35,7 +36,9 @@ import { tableParam } from "@/lib/menu/table-param";
  *
  * À table, un établissement en suivi montre la suite : le paiement en
  * ligne simulé, puis chaque commande suivie au bas de l'écran jusqu'au
- * service — rien n'est appelé, ni paiement ni base.
+ * service — rien n'est appelé, ni paiement ni base. ?retrait=bar : un QR
+ * dont les commandes se retirent au bar — prête, le client y montre le code
+ * de son ticket, que le bar scanne pour la marquer remise.
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
@@ -92,7 +95,7 @@ export default async function MenuPreviewPage({
   searchParams,
 }: PageProps<"/menu/demo/[slug]">) {
   const { slug } = await params;
-  const { theme, service, table } = await searchParams;
+  const { theme, service, table, retrait } = await searchParams;
   const fastFood = service === "fast-food";
   // ?table=7 : le numéro d'une vraie table de l'établissement, pour une
   // capture ; illisible, la table fictive.
@@ -127,6 +130,11 @@ export default async function MenuPreviewPage({
         paymentProvider: "stripe",
         squareLocationId: null,
         preview: true,
+        // L'accord du chef, comme fetchRestaurant le résout en production.
+        pairings: resolvePairings(restaurant.categories, restaurant.pairings),
+        formuleOffers: restaurant.pairings
+          ? resolveFormuleOffers(formules, restaurant.categories)
+          : undefined,
         ...(suivi && {
           demoSuivi: {
             drinks: restaurant.categories
@@ -138,6 +146,7 @@ export default async function MenuPreviewPage({
                 category.items.filter((item) => category.boissons === "chaudes" || item.chaud)
               )
               .map((item) => item.id),
+            barPickup: retrait === "bar",
           },
         }),
       }}
