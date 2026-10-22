@@ -327,8 +327,10 @@ export function LoyaltyWelcome({
           onClose={() => {
             setWheelOpen(false);
             setWheelDone(true);
+            // « Ma carte » demandée : la carte s'ouvre, l'accueil n'a plus lieu d'être.
             if (cardAfterWheel) {
               setCardAfterWheel(false);
+              setProgress("pill");
               setOpen(true);
             }
           }}
