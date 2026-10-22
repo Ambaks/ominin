@@ -87,7 +87,15 @@ function StreakTrack({
             data-golden={golden || undefined}
             className="wheel-streak-day relative grid size-8 place-items-center rounded-full text-[11px] font-bold tabular-nums"
           >
-            {golden ? `×${multiplier}` : day <= played ? "✓" : `J${day}`}
+            {golden ? (
+              <span className="flex flex-col items-center leading-none">
+                <span className="text-[8px]">J{day}</span>×{multiplier}
+              </span>
+            ) : day <= played ? (
+              "✓"
+            ) : (
+              `J${day}`
+            )}
           </li>
         );
       })}
@@ -100,18 +108,22 @@ function Gain({
   gained,
   before,
   label,
+  near,
   detail,
-  slow,
+  jackpot,
 }: {
   gained: number;
   before: number;
   label: string;
+  /** « Le jackpot était juste à côté » : la part voisine était le gros lot. */
+  near: boolean;
   detail: string;
-  /** Le gros lot défile plus longtemps. */
-  slow: boolean;
+  /** Le gros lot se montre plus longtemps avant le résultat, et défile plus longtemps. */
+  jackpot: boolean;
 }) {
-  // Le compte part avec le bond du chiffre, pas avant : il se lit en entier.
-  const counted = useCountUp(gained, true, 600, slow ? 1700 : 1100);
+  // Le compte part avec le bond du chiffre (la scène tenue, 650 ms ; 1,1 s
+  // pour le gros lot, voir --reveal), pas avant : il se lit en entier.
+  const counted = useCountUp(gained, true, jackpot ? 1250 : 800, jackpot ? 1700 : 1100);
   return (
     <div className="flex flex-col items-center gap-1">
       <p
@@ -121,6 +133,7 @@ function Gain({
         +{counted}
       </p>
       <p className="wheel-kicker text-[11px] font-bold uppercase tracking-[0.3em]">{label}</p>
+      {near && <p className="wheel-won-line wheel-strong text-xs font-semibold">Le jackpot était juste à côté&nbsp;!</p>}
       <p className="wheel-won-line wheel-muted mt-1 text-sm">
         Solde&nbsp;: {before} → <span className="wheel-strong font-semibold tabular-nums">{before + counted}</span> points
         <br />
@@ -298,10 +311,18 @@ export function LoyaltyWheel({
     setLaunch({ points: member.points ?? 0, streak: wheel.streak });
     setPhase("spinning");
     const still = reducedMotion();
-    // Le recul part dès le toucher : le tirage peut prendre son temps.
+    // Le recul part dès le toucher — l'aiguille se tend avec — : le tirage
+    // peut prendre son temps.
     const windup = still
       ? null
       : dial.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(-24deg)" }], {
+          duration: 640,
+          easing: "cubic-bezier(0.4, 0, 0.2, 1)",
+          fill: "forwards",
+        });
+    const tension = still
+      ? null
+      : pointerRef.current?.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(-12deg)" }], {
           duration: 640,
           easing: "cubic-bezier(0.4, 0, 0.2, 1)",
           fill: "forwards",
@@ -311,6 +332,7 @@ export function LoyaltyWheel({
       result = await wheel.spin();
     } catch {
       windup?.cancel();
+      tension?.cancel();
       setLaunch(null);
       setPhase("ready");
       return;
@@ -341,6 +363,7 @@ export function LoyaltyWheel({
     const duration = 5800;
     const animation = dial.animate(keyframes, { duration, fill: "forwards" });
     windup?.cancel();
+    tension?.cancel();
     followTicks(animation, duration, angleAt, sway);
     // Un souffle, la roue arrêtée, avant que le gain ne s'allume.
     animation.finished.then(
@@ -365,6 +388,31 @@ export function LoyaltyWheel({
   const unlocked = loyalty.rewards.filter((reward) => reward.points > before && reward.points <= after);
   const next = nextReward(loyalty, after);
   const goal = nextReward(loyalty, before);
+  // La part voisine de la gagnante était le gros lot : ça se dit.
+  const near =
+    won !== null &&
+    !jackpot &&
+    [-1, 1].some((side) => slices[(won.index + side + slices.length) % slices.length].points === top);
+
+  const renderSlice = (i: number) => {
+    const big = slices[i].points === top;
+    const gilded = big || (goldenToday && i % 2 === 1);
+    return (
+      <g key={i} className={`wheel-slice ${gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`}`}>
+        <path d={slicePath(i, step)} fill={gilded ? `url(#${titleId}-gold)` : undefined} />
+        <g transform={`rotate(${i * step})`}>
+          {big && (
+            <text y="-79" textAnchor="middle" className="text-[9.5px] font-extrabold uppercase tracking-[0.18em]">
+              Jackpot
+            </text>
+          )}
+          <text y="-50" textAnchor="middle" className="text-[28px] font-bold">
+            +{shown(slices[i].points)}
+          </text>
+        </g>
+      </g>
+    );
+  };
 
   return (
     <Sheet onClosed={onClose} backdropCloses={phase !== "spinning"} labelledBy={titleId}>
@@ -471,36 +519,33 @@ export function LoyaltyWheel({
                         <stop offset="1" stopColor="#b8862b" />
                       </radialGradient>
                     </defs>
-                    {slices.map((slice, i) => {
-                      const big = slice.points === top;
-                      const gilded = big || (goldenToday && i % 2 === 1);
-                      return (
-                        <g
-                          key={i}
-                          data-lit={won?.index === i || undefined}
-                          className={`wheel-slice ${gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`}`}
-                        >
-                          <path d={slicePath(i, step)} fill={gilded ? `url(#${titleId}-gold)` : undefined} />
-                          <g transform={`rotate(${i * step})`}>
-                            {big && (
-                              <text y="-79" textAnchor="middle" className="text-[8px] font-bold uppercase tracking-[0.2em]">
-                                Jackpot
-                              </text>
-                            )}
-                            <text y="-50" textAnchor="middle" className="text-[28px] font-bold">
-                              +{shown(slice.points)}
-                            </text>
-                          </g>
-                        </g>
-                      );
-                    })}
-                    {won && <path d={slicePath(won.index, step)} className="wheel-won-outline" />}
+                    {slices.map((_, i) => renderSlice(i))}
                     {Array.from({ length: slices.length * 2 }, (_, i) => {
                       const [x, y] = polar(i * (step / 2) + step / 2, 95).split(" ");
                       return <circle key={i} cx={x} cy={y} r={i % 2 ? 1.6 : 2.4} className="wheel-peg" />;
                     })}
                   </svg>
                 </div>
+                {/*
+                  Au gain, un voile sur toute la roue et, par-dessus, la part
+                  gagnante redessinée seule : elle grossit, son cercle d'or
+                  pulse — opacités et transformations, la roue ne se repeint pas.
+                */}
+                {won && (
+                  <>
+                    <span aria-hidden="true" className="wheel-dim absolute inset-[4.5%] rounded-full" />
+                    <span aria-hidden="true" className="wheel-lit absolute inset-0">
+                      <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
+                        {renderSlice(won.index)}
+                      </svg>
+                    </span>
+                    <span aria-hidden="true" className="wheel-lit-outline absolute inset-0">
+                      <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
+                        <path d={slicePath(won.index, step)} className="wheel-won-outline" />
+                      </svg>
+                    </span>
+                  </>
+                )}
                 <span aria-hidden="true" className="wheel-wash absolute inset-[4%] rounded-full" />
               </div>
               <svg viewBox="-110 -110 220 220" aria-hidden="true" className="pointer-events-none absolute inset-0 size-full overflow-visible">
@@ -588,7 +633,7 @@ export function LoyaltyWheel({
                     {phase === "spinning" ? "Bonne chance…" : "Lancer la roue"}
                   </button>
                 </span>
-                <p className="wheel-muted text-xs">
+                <p className="wheel-soft text-[12.5px] leading-relaxed">
                   Vos points&nbsp;: <span className="wheel-strong font-semibold tabular-nums">{before}</span>
                   {goal && (
                     <>
@@ -619,7 +664,8 @@ export function LoyaltyWheel({
                     key={spins}
                     gained={gained}
                     before={before}
-                    slow={jackpot}
+                    near={near}
+                    jackpot={jackpot}
                     label={
                       goldenToday
                         ? `points · roue dorée ×${multiplier}`

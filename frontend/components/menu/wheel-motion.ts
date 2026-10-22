@@ -35,7 +35,7 @@ export function burst(tier: WinTier): Piece[] {
   const [waves, perWave, spread, lift] = {
     small: [2, 8, 60, 40],
     mid: [3, 14, 70, 50],
-    jackpot: [4, 20, 80, 60],
+    jackpot: [4, 14, 80, 60],
   }[tier];
   const kinds: Piece["kind"][] = ["coin", "a", "coin", "b", "coin", "c"];
   return Array.from({ length: waves * perWave }, (_, i) => {
@@ -63,8 +63,9 @@ export function spinPath(start: number, target: number, step: number, tease: -1 
   const side = tease || 1;
   const past = target + side * step * (tease ? 0.45 : 0.3);
   const segments: { until: number; to: number; ease: Ease }[] = [
-    { until: tease ? 0.84 : 0.86, to: past, ease: [0.45, 0, 0.2, 1] },
-    ...(tease ? [{ until: 0.875, to: past, ease: [0, 0, 1, 1] as Ease }] : []),
+    { until: tease ? 0.8 : 0.86, to: past, ease: [0.45, 0, 0.2, 1] },
+    // Le presque se tient 400 ms : assez pour qu'on y croie.
+    ...(tease ? [{ until: 0.87, to: past, ease: [0, 0, 1, 1] as Ease }] : []),
     { until: 0.955, to: target - side * step * 0.04, ease: [0.2, 0.6, 0.3, 1] },
     { until: 1, to: target, ease: [0.45, 0, 0.55, 1] },
   ];

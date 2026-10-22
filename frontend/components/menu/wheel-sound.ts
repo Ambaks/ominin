@@ -26,6 +26,7 @@ export function useWheelSound() {
   const context = useRef<AudioContext | null>(null);
   const lastTick = useRef(0);
   const lastSlot = useRef(0);
+  const softer = useRef(false);
   // Le fichier se télécharge à l'ouverture ; il se décode au lancer, sous le geste.
   const clicksFile = useRef<Promise<ArrayBuffer> | null>(null);
   const clicks = useRef<AudioBuffer | null>(null);
@@ -137,16 +138,20 @@ export function useWheelSound() {
       const ctx = audio();
       if (!ctx) return;
       const at = ctx.currentTime + delay;
-      if (at - lastTick.current < 0.025) return;
+      const gap = at - lastTick.current;
+      if (gap < 0.025) return;
       lastTick.current = at;
-      const level = speed > 0.7 ? 0.45 : speed < 0.12 ? 0.9 : 0.65;
+      // Serrés (moins de 55 ms), un coup sur deux recule : un cliquetis, pas un bourdon.
+      softer.current = gap < 0.055 && !softer.current;
+      const level = (speed > 0.7 ? 0.45 : speed < 0.12 ? 0.9 : 0.65) * (softer.current ? 0.5 : 1);
       const buffer = clicks.current;
       if (buffer) {
         lastSlot.current = (lastSlot.current + 1 + Math.floor(Math.random() * (CLICK_SLOTS - 1))) % CLICK_SLOTS;
         const source = ctx.createBufferSource();
         const gain = ctx.createGain();
         source.buffer = buffer;
-        source.playbackRate.value = 0.96 + Math.random() * 0.08;
+        // Plus aigu à pleine vitesse, plus grave sur les derniers taquets.
+        source.playbackRate.value = 0.9 + Math.min(0.25, speed * 0.2) + (Math.random() - 0.5) * 0.04;
         gain.gain.value = level;
         source.connect(gain).connect(ctx.destination);
         source.start(at, (lastSlot.current * buffer.duration) / CLICK_SLOTS, buffer.duration / CLICK_SLOTS);
