@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
+import { CLIPS } from "../../frontend/lib/social/clips.ts";
 import { MUSIC_BY_ID } from "../../frontend/lib/social/music.ts";
 import { SCREEN_BY_ID, screenPath } from "../../frontend/lib/social/screens.ts";
 import { STOCK_BY_ID } from "../../frontend/lib/social/stock.ts";
@@ -33,6 +34,7 @@ const BREATH_SECONDS = 0.35;
  * montage entre deux écritures en base. */
 const STEPS = { voice: 0.1, queued: 0.2, upload: 0.95 };
 const PROGRESS_STEP = 0.05;
+const CLIP_BY_ID = new Map(CLIPS.map((clip) => [clip.id, clip]));
 
 function progress(id: string, stage: string, done: number, etaSeconds: number | null = null) {
   return updatePost(id, "rendering", {
@@ -152,11 +154,17 @@ async function prepare(reel: PendingReel, recordings: Map<string, Recording>): P
   const script = reel.reel as ReelScript;
   const scenes: RenderScene[] = [];
 
-  for (const [index, scene] of script.scenes.entries()) {
+  for (const [index, written] of script.scenes.entries()) {
     const voice = `voice/${reel.id}-${index}.wav`;
-    const seconds = (await synthesize(scene.voiceover, join(PUBLIC, voice))) + BREATH_SECONDS;
-    const recording = scene.visual === "demo" ? recordings.get(scene.media) : undefined;
-    if (scene.visual === "demo" && !recording) throw new Error(`démo « ${scene.media} » non filmée`);
+    const seconds = (await synthesize(written.voiceover, join(PUBLIC, voice))) + BREATH_SECONDS;
+    const recording = written.visual === "demo" ? recordings.get(written.media) : undefined;
+    // Démo non filmée (site injoignable) : sa capture de secours, dans le
+    // même téléphone, plutôt qu'un Reel en échec.
+    const fallback = written.visual === "demo" && !recording ? CLIP_BY_ID.get(written.media)?.fallbackScreen : undefined;
+    if (written.visual === "demo" && !recording && !fallback) {
+      throw new Error(`démo « ${written.media} » ni filmée ni remplaçable`);
+    }
+    const scene = fallback ? { ...written, visual: "screen" as const, media: fallback } : written;
     if (scene.visual === "screen" && !SCREEN_BY_ID.has(scene.media)) {
       throw new Error(`capture « ${scene.media} » inconnue`);
     }
