@@ -999,7 +999,9 @@ export function CartBar() {
                           ? "À emporter"
                           : cart.fastFood
                             ? "À récupérer au comptoir"
-                            : `Table ${cart.tableNumber}`}
+                            : cart.preview && cart.demoSuivi?.barPickup
+                              ? "À récupérer au bar"
+                              : `Table ${cart.tableNumber}`}
                         {paymentStep && (
                           <>
                             <span aria-hidden className="flex w-10 gap-1">
