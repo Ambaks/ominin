@@ -7,7 +7,8 @@ import type { CategoryLink } from "@/lib/menu/use-active-section";
 /*
  * La carte et ses catégories, dans la mise en page choisie par
  * l'établissement : barre de pastilles collée en haut (par défaut), ou rail
- * d'icônes collé à gauche, à côté des sections.
+ * d'icônes collé à gauche, à côté des sections, qui pousse la carte à droite
+ * quand il s'ouvre.
  */
 export function MenuBody({
   layout = "top",
@@ -27,12 +28,12 @@ export function MenuBody({
 
   if (layout === "rail") {
     return (
-      <div className="mx-auto flex w-full max-w-2xl lg:max-w-5xl">
+      <div className="mx-auto flex w-full max-w-2xl overflow-x-clip lg:max-w-5xl">
         <CategoryRail categories={categories} themeLocked={themeLocked} />
         {/* Colonne plus étroite que la carte en pleine largeur : les titres de
             section y descendent d'un cran pour tenir sur une ligne. */}
         <main
-          className={`${sections} min-w-0 flex-1 pl-4 pr-5 lg:pl-8 lg:pr-10 [&_.category-heading]:text-[26px] sm:[&_.category-heading]:text-4xl lg:[&_.category-heading]:text-5xl`}
+          className={`${sections} min-w-0 flex-1 pl-3 pr-5 transition-transform duration-300 ease-out motion-reduce:transition-none lg:pl-8 lg:pr-10 [&_.category-heading]:text-[26px] sm:[&_.category-heading]:text-4xl lg:[&_.category-heading]:text-5xl`}
         >
           {children}
         </main>

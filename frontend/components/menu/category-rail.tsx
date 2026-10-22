@@ -5,34 +5,32 @@ import { SectionLink, jumpToSection } from "@/components/menu/section-link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useCart } from "@/lib/menu/cart";
 import { CategoryIcon, categoryIcons } from "@/lib/menu/category-icons";
-import { scrollBehavior } from "@/lib/menu/scroll";
 import { type CategoryLink, useActiveSection } from "@/lib/menu/use-active-section";
 import { useQueryParam } from "@/lib/menu/use-query-param";
 
 /*
  * Les catégories en rail vertical, à gauche de la carte (réglage
- * category_layout de l'établissement) : une icône par catégorie, au trait, à
- * la couleur d'accent. Une pastille glisse derrière celle de la section en
- * cours. Toucher une icône y emmène et montre son nom dans une bulle ;
- * maintenir le doigt élargit le rail par-dessus la carte voilée, avec tous
- * les noms : on glisse jusqu'à la catégorie voulue, on relâche, on y est. Le
- * bouton du pied du rail l'élargit aussi, au clic ou au clavier.
+ * category_layout de l'établissement). Au repos, une colonne fine ne montre
+ * que trois icônes : la catégorie en cours sur sa pastille, la précédente et
+ * la suivante en retrait ; elles défilent à mesure qu'on lit la carte.
+ * Toucher le rail l'ouvre en entier, icônes et noms, et pousse la carte à
+ * droite : on touche une catégorie, on y est. Maintenir le doigt l'ouvre
+ * aussi : on glisse jusqu'à la catégorie voulue et on relâche.
  *
  * Les lignes portent data-rail-item et non data-category : les thèmes des
  * établissements habillent les pastilles de la barre du haut par
  * [data-category], ils n'ont pas à toucher au rail.
  */
 
-/** Durée d'appui qui élargit le rail, et vie de la bulle d'une icône touchée. */
+/** Durée d'appui qui ouvre le rail en mode glisser-relâcher. */
 const LONG_PRESS_MS = 420;
-const BUBBLE_MS = 1300;
-/* Rail élargi : près d'un bord de la liste, le doigt la fait défiler, à
- * cette vitesse en pixels par seconde. */
+/* Rail ouvert à l'appui long : près d'un bord de la liste, le doigt la fait
+ * défiler, à cette vitesse en pixels par seconde. */
 const EDGE_PX = 56;
 const EDGE_PX_PER_S = 540;
 
 /** Une ligne ne se redessine que si son état change, pas à chaque
- * mouvement du doigt sur le rail élargi. */
+ * mouvement du doigt sur le rail ouvert. */
 const RailIcon = memo(CategoryIcon);
 
 export function CategoryRail({
@@ -48,11 +46,9 @@ export function CategoryRail({
   const { activeId } = useActiveSection(categories);
   const navRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
-  const pillRef = useRef<HTMLLIElement>(null);
-  const [bubble, setBubble] = useState<{ id: string; top: number } | null>(null);
-  // Rail élargi, et par quoi : l'appui long (le doigt désigne, la liste ne
-  // défile qu'aux bords) ou le bouton du pied (la liste défile au doigt).
-  const [openedBy, setOpenedBy] = useState<"press" | "button" | null>(null);
+  // Rail ouvert, et par quoi : l'appui long (le doigt désigne, la liste ne
+  // défile qu'aux bords) ou un toucher (la liste défile au doigt).
+  const [openedBy, setOpenedBy] = useState<"press" | "tap" | null>(null);
   const open = openedBy !== null;
   const [hovered, setHovered] = useState<string | null>(null);
   // Appui en cours : son minuteur, s'il a ouvert le rail, la hauteur du
@@ -65,6 +61,7 @@ export function CategoryRail({
   // hors du rendu : l'état React y serait périmé.
   const hoveredRef = useRef<string | null>(null);
   const icons = useMemo(() => categoryIcons(categories.map(({ name }) => name)), [categories]);
+  const activeIndex = Math.max(0, categories.findIndex(({ id }) => id === activeId));
 
   const hover = (id: string | null) => {
     hoveredRef.current = id;
@@ -74,8 +71,8 @@ export function CategoryRail({
   const itemAt = (x: number, y: number) =>
     document.elementFromPoint(x, y)?.closest<HTMLElement>("[data-rail-item]")?.dataset.railItem ?? null;
 
-  /** Referme le rail élargi ; choose : la carte va à la catégorie sous le
-   * doigt (relâché d'un appui long). */
+  /** Referme le rail ; choose : la carte va à la catégorie sous le doigt
+   * (relâché d'un appui long). */
   const close = useCallback(
     (choose: boolean) => {
       const target = hoveredRef.current;
@@ -91,50 +88,30 @@ export function CategoryRail({
     [track]
   );
 
-  // La pastille se pose sur la ligne de la section en cours, mesurée (la
-  // hauteur des lignes est en rem, elle suit la taille de texte du
-  // téléphone), et la liste défile pour la garder visible.
+  // Fermé, la liste glisse pour poser la catégorie en cours au milieu de la
+  // fenêtre de trois lignes (mesurée : la hauteur des lignes est en rem, elle
+  // suit la taille de texte du téléphone). Ouvert, elle reprend sa place et
+  // défile jusqu'à elle. La carte glisse à droite avec le rail (globals.css).
   useLayoutEffect(() => {
     const list = listRef.current;
-    const pill = pillRef.current;
     const item = list?.querySelector<HTMLElement>(`[data-rail-item="${activeId}"]`);
-    if (!list || !pill || !item) return;
-    const { offsetTop: top, offsetHeight: height } = item;
-    pill.style.transform = `translateY(${top}px)`;
-    pill.dataset.placed = "";
-    if (open) return;
-    if (top < list.scrollTop || top + height > list.scrollTop + list.clientHeight) {
-      list.scrollTo({ top: top - list.clientHeight / 2, behavior: scrollBehavior() });
+    navRef.current?.parentElement?.toggleAttribute("data-rail-open", open);
+    if (!list || !item) return;
+    if (open) {
+      list.style.transform = "";
+      list.scrollTo({ top: item.offsetTop - list.clientHeight / 2, behavior: "instant" });
+      return;
     }
+    list.scrollTop = 0;
+    list.style.transform = `translateY(${item.offsetHeight - item.offsetTop}px)`;
   }, [activeId, open]);
-
-  // La bulle suit son icône, même si la liste défile sous elle.
-  const placeBubble = useCallback((id: string) => {
-    const nav = navRef.current;
-    const item = nav?.querySelector<HTMLElement>(`[data-rail-item="${id}"]`);
-    if (!nav || !item) return;
-    const box = item.getBoundingClientRect();
-    setBubble({ id, top: box.top - nav.getBoundingClientRect().top + box.height / 2 });
-  }, []);
-
-  useLayoutEffect(() => {
-    const list = listRef.current;
-    if (!bubble || !list) return;
-    const follow = () => placeBubble(bubble.id);
-    list.addEventListener("scroll", follow, { passive: true });
-    const timer = window.setTimeout(() => setBubble(null), BUBBLE_MS);
-    return () => {
-      list.removeEventListener("scroll", follow);
-      window.clearTimeout(timer);
-    };
-  }, [bubble, placeBubble]);
 
   // Au doigt, le geste se suit en évènements tactiles, posés sur le rail dès
   // le départ : Safari et Chrome décident au premier contact si un
   // touchmove pourra être annulé, et ne laissent bloquer le défilement qu'à
-  // un écouteur non passif déjà présent. Une fois le rail élargi, le doigt
-  // qui glisse désigne la ligne au lieu de faire défiler, et le relâcher
-  // choisit — même si le navigateur a entre-temps annulé le pointeur.
+  // un écouteur non passif déjà présent. Une fois le rail ouvert par l'appui,
+  // le doigt qui glisse désigne la ligne au lieu de faire défiler, et le
+  // relâcher choisit — même si le navigateur a entre-temps annulé le pointeur.
   useEffect(() => {
     const nav = navRef.current;
     if (!nav) return;
@@ -162,8 +139,9 @@ export function CategoryRail({
     };
   }, [close]);
 
-  // Rail élargi : Échap referme, et près d'un bord la liste défile seule,
-  // à vitesse constante quelle que soit la fréquence de l'écran.
+  // Rail ouvert : Échap referme, et près d'un bord la liste défile seule sous
+  // le doigt de l'appui long, à vitesse constante quelle que soit la
+  // fréquence de l'écran.
   useEffect(() => {
     if (!open) return;
     const escape = (event: KeyboardEvent) => event.key === "Escape" && close(false);
@@ -194,7 +172,7 @@ export function CategoryRail({
       <div
         aria-hidden
         onClick={() => close(false)}
-        className={`fixed inset-0 z-[45] bg-black/45 transition-opacity duration-200 motion-reduce:transition-none ${
+        className={`fixed inset-0 z-[45] bg-black/30 transition-opacity duration-300 motion-reduce:transition-none ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
         }`}
       />
@@ -202,9 +180,9 @@ export function CategoryRail({
         ref={navRef}
         aria-label="Catégories"
         data-category-rail
-        className={`sticky flex w-16 shrink-0 flex-col self-start ${open ? "z-50" : "z-20"} ${
-          embedded ? "top-12 h-[calc(100dvh-3rem)]" : "top-0 h-dvh"
-        }`}
+        className={`sticky flex w-12 shrink-0 flex-col self-start ${
+          open ? `z-50 ${embedded ? "h-[calc(100dvh-3rem)]" : "h-dvh"}` : "z-20"
+        } ${embedded ? "top-12" : "top-0"}`}
         onPointerDown={(event) => {
           if (event.pointerType === "mouse" && event.button !== 0) return;
           swallowClick.current = false;
@@ -213,7 +191,6 @@ export function CategoryRail({
           const timer = window.setTimeout(() => {
             press.current = { timer: 0, opened: true, y: clientY };
             swallowClick.current = true;
-            setBubble(null);
             setOpenedBy("press");
             hover(itemAt(clientX, clientY));
             navigator.vibrate?.(8);
@@ -245,103 +222,94 @@ export function CategoryRail({
           }
         }}
         onClickCapture={(event) => {
-          if (!swallowClick.current) return;
-          swallowClick.current = false;
-          event.preventDefault();
-          event.stopPropagation();
+          // Le clic qui suit un appui long, ou un toucher sur le rail fermé :
+          // il ouvre le rail au lieu de suivre le lien.
+          if (swallowClick.current || !open) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          if (swallowClick.current) swallowClick.current = false;
+          else if (!open) setOpenedBy("tap");
         }}
         onDragStart={(event) => event.preventDefault()}
         onContextMenu={(event) => event.preventDefault()}
       >
-        <ul
-          ref={listRef}
-          className={`no-scrollbar relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto border-r border-hairline bg-background pt-3 select-none [-webkit-touch-callout:none] transition-[width,border-radius,box-shadow] duration-200 motion-reduce:transition-none ${
-            open ? `w-64 rounded-r-3xl shadow-[12px_0_40px_rgb(0_0_0/0.35)] ${openedBy === "press" ? "touch-none" : ""}` : "w-16"
+        {/* Fermé : la fenêtre de trois lignes, la pastille fixe au milieu ;
+            les icônes défilent derrière elle. Ouvert : le panneau déborde de
+            la colonne, qui garde sa largeur — la carte glisse sans se
+            remettre en page. */}
+        <div
+          className={`relative flex min-h-0 flex-col overflow-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none ${
+            open ? "w-60 flex-1 rounded-r-3xl bg-background shadow-[12px_0_40px_rgb(0_0_0/0.35)]" : "mt-3 h-36 w-12"
           }`}
         >
-          <li
-            aria-hidden
-            ref={pillRef}
-            data-rail-pill
-            className={`pointer-events-none absolute inset-x-2 top-0 h-12 rounded-2xl bg-[color-mix(in_srgb,var(--ember-2)_24%,transparent)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
-              openedBy === "press" ? "opacity-0" : "opacity-0 data-placed:opacity-100"
+          {!open && (
+            <span
+              aria-hidden
+              data-rail-pill
+              className="pointer-events-none absolute inset-x-1 top-12 h-12 rounded-2xl bg-[color-mix(in_srgb,var(--ember-2)_24%,transparent)]"
+            />
+          )}
+          <ul
+            ref={listRef}
+            className={`no-scrollbar relative flex min-h-0 flex-1 flex-col select-none [-webkit-touch-callout:none] ${
+              open
+                ? `overflow-y-auto py-3 ${openedBy === "press" ? "touch-none" : ""}`
+                : "transition-transform duration-300 ease-out motion-reduce:transition-none"
             }`}
-          />
-          {categories.map(({ id, name }, index) => {
-            const active = id === activeId;
-            const highlighted = open && id === hovered;
-            return (
-              <li key={id} data-rail-item={id} className="relative px-2">
-                <SectionLink
-                  sectionId={id}
-                  aria-label={name}
-                  aria-current={active ? "location" : undefined}
-                  draggable={false}
-                  onJump={() => {
-                    track("categorie");
-                    if (open) close(false);
-                    else placeBubble(id);
-                  }}
-                  onFocus={(event) => {
-                    if (event.currentTarget.matches(":focus-visible")) placeBubble(id);
-                  }}
-                  onPointerEnter={(event) => {
-                    if (event.pointerType === "mouse" && !open) placeBubble(id);
-                  }}
-                  className={`flex h-12 items-center gap-3 rounded-2xl px-3 text-ember-2 transition-colors motion-reduce:transition-none ${
-                    highlighted ? "bg-[color-mix(in_srgb,var(--ember-2)_28%,transparent)]" : ""
+          >
+            {categories.map(({ id, name }, index) => {
+              const active = id === activeId;
+              const highlighted = open && (openedBy === "press" ? id === hovered : active);
+              const distance = Math.abs(index - activeIndex);
+              return (
+                <li
+                  key={id}
+                  data-rail-item={id}
+                  className={`relative px-1 transition-opacity duration-300 motion-reduce:transition-none ${
+                    open || distance === 0 ? "" : distance === 1 ? "opacity-40" : "invisible opacity-0"
                   }`}
                 >
-                  <RailIcon
-                    icon={icons[index]}
-                    className={`size-6 shrink-0 transition-[transform,opacity] duration-300 motion-reduce:transition-none ${
-                      active || highlighted ? "scale-[1.18] opacity-100" : "opacity-80"
+                  <SectionLink
+                    sectionId={id}
+                    aria-label={name}
+                    aria-current={active ? "location" : undefined}
+                    tabIndex={open || distance <= 1 ? undefined : -1}
+                    draggable={false}
+                    onJump={() => {
+                      track("categorie");
+                      close(false);
+                    }}
+                    className={`flex h-12 items-center gap-3 rounded-2xl px-2.5 text-ember-2 transition-colors motion-reduce:transition-none ${
+                      highlighted ? "bg-[color-mix(in_srgb,var(--ember-2)_24%,transparent)]" : ""
                     }`}
-                  />
-                  {open && (
-                    <span
-                      className={`rail-name truncate text-[15px] ${
-                        highlighted ? "font-semibold text-foreground" : "font-medium text-muted"
+                  >
+                    <RailIcon
+                      icon={icons[index]}
+                      className={`size-6 shrink-0 transition-transform duration-300 motion-reduce:transition-none ${
+                        open || active ? "" : "scale-90"
                       }`}
-                    >
-                      {name}
-                    </span>
-                  )}
-                </SectionLink>
+                    />
+                    {open && (
+                      <span
+                        className={`rail-name truncate text-[15px] ${
+                          highlighted ? "font-semibold text-foreground" : "font-medium text-muted"
+                        }`}
+                      >
+                        {name}
+                      </span>
+                    )}
+                  </SectionLink>
+                </li>
+              );
+            })}
+            {open && !themeLocked && (
+              <li className="mb-24 mt-3 flex justify-center">
+                <ThemeToggle />
               </li>
-            );
-          })}
-          {/* Toutes les catégories d'un coup, au clic ou au clavier : le
-              même rail élargi que l'appui long, qui se signale ainsi. */}
-          <li className="mb-28 mt-1 px-2">
-            <button
-              type="button"
-              aria-expanded={open}
-              aria-label={open ? "Replier les catégories" : "Toutes les catégories"}
-              onClick={() => (open ? close(false) : setOpenedBy("button"))}
-              className="flex h-10 w-full items-center justify-center rounded-2xl text-muted transition-colors hover:text-foreground"
-            >
-              <svg viewBox="0 0 24 24" className={`size-5 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M7 6l6 6-6 6M13 6l6 6-6 6" />
-              </svg>
-            </button>
-          </li>
-        </ul>
-        {!themeLocked && (
-          <div className="flex justify-center border-r border-hairline bg-background py-3 max-sm:hidden">
-            <ThemeToggle />
-          </div>
-        )}
-        {bubble && !open && (
-          <span
-            key={bubble.id}
-            aria-hidden
-            className="rail-bubble ember-gradient pointer-events-none absolute left-full z-10 ml-2 -translate-y-1/2 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-semibold text-background shadow-lg before:absolute before:-left-1 before:top-1/2 before:size-2.5 before:-translate-y-1/2 before:rotate-45 before:rounded-[2px] before:bg-[var(--ember-1)]"
-            style={{ top: bubble.top }}
-          >
-            {categories.find(({ id }) => id === bubble.id)?.name}
-          </span>
-        )}
+            )}
+          </ul>
+        </div>
       </nav>
     </>
   );
