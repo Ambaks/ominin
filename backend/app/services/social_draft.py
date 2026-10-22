@@ -241,9 +241,11 @@ class _Context:
         # vidéos ni musiques, le Reel s'en passe. On rédige quand même, et on
         # prévient.
         try:
+            # ominin.com redirige vers www.ominin.com : on suit.
             response = httpx.get(
                 f"{settings.frontend_origin}/api/social/{route}",
                 timeout=settings.internal_http_timeout_seconds,
+                follow_redirects=True,
             )
             response.raise_for_status()
             return response.json()
