@@ -5,15 +5,13 @@ import { SectionLink } from "@/components/menu/section-link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useCart } from "@/lib/menu/cart";
 import { scrollBehavior } from "@/lib/menu/scroll";
+import { useActiveSection } from "@/lib/menu/use-active-section";
 import { useQueryParam } from "@/lib/menu/use-query-param";
 
-interface CategoryLink {
+export interface CategoryLink {
   id: string;
   name: string;
 }
-
-/** Ligne qu'un titre de section doit passer pour allumer sa catégorie, en part de la hauteur d'écran. */
-const ACTIVE_LINE = 0.4;
 
 /** Pas d'une flèche du rail, en part de sa largeur visible. */
 const RAIL_STEP = 0.75;
@@ -30,38 +28,8 @@ export function CategoryNav({
   const { track } = useCart();
   // Menu montré dans une iframe de la page d'accueil (?embed=1).
   const embedded = useQueryParam("embed") === "1";
-  const [activeId, setActiveId] = useState(categories[0]?.id);
-  const [progress, setProgress] = useState(0);
+  const { activeId, progress } = useActiveSection(categories);
   const railRef = useRef<HTMLDivElement>(null);
-
-  // La catégorie allumée et la jauge, relues à chaque défilement : la
-  // dernière section dont le titre a passé la ligne des 40 % de l'écran, la
-  // première tant qu'aucun ne l'a passée. (Un observateur d'intersection à
-  // bande haute laissait allumée la section du dessous quand on remontait :
-  // deux sections y tenaient à la fois, celle du dessus n'y rentrait jamais.)
-  useEffect(() => {
-    let frame = 0;
-    const onScroll = () => {
-      cancelAnimationFrame(frame);
-      frame = requestAnimationFrame(() => {
-        const max = document.documentElement.scrollHeight - window.innerHeight;
-        setProgress(max > 0 ? window.scrollY / max : 0);
-        const line = window.innerHeight * ACTIVE_LINE;
-        let active = categories[0]?.id;
-        for (const { id } of categories) {
-          const section = document.getElementById(id);
-          if (section && section.getBoundingClientRect().top <= line) active = id;
-        }
-        setActiveId(active);
-      });
-    };
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      cancelAnimationFrame(frame);
-      window.removeEventListener("scroll", onScroll);
-    };
-  }, [categories]);
 
   // Keep the active pill visible in the horizontal rail.
   useEffect(() => {

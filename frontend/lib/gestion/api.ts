@@ -1,4 +1,4 @@
-import type { Badge, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import type { Badge, CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
@@ -979,6 +979,7 @@ export type EtablissementInput = Omit<
   | "adminPinSet"
   | "paymentPinSet"
   | "serviceMode"
+  | "categoryLayout"
   | "onlineMinOrder"
 >;
 
@@ -1056,6 +1057,20 @@ export async function setServiceMode(mode: ServiceMode): Promise<void> {
   );
   apply((draft) => {
     draft.etablissement.serviceMode = mode;
+  });
+}
+
+/** Catégories du menu QR en barre en haut ou en rail d'icônes à gauche
+ * (gérant). Le menu suit à sa prochaine revalidation. */
+export async function setCategoryLayout(layout: CategoryLayout): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({ category_layout: layout })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.categoryLayout = layout;
   });
 }
 

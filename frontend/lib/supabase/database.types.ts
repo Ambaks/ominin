@@ -1773,6 +1773,7 @@ export type Database = {
       }
       etablissements: {
         Row: {
+          category_layout: string
           demo: boolean
           address: string
           admin_pin_set: boolean
@@ -1809,6 +1810,7 @@ export type Database = {
           tagline: string
         }
         Insert: {
+          category_layout?: string
           demo?: boolean
           address?: string
           admin_pin_set?: boolean
@@ -1845,6 +1847,7 @@ export type Database = {
           tagline?: string
         }
         Update: {
+          category_layout?: string
           demo?: boolean
           address?: string
           admin_pin_set?: boolean
@@ -5568,6 +5571,10 @@ export type Database = {
       }
     }
     Functions: {
+      admin_set_category_layout: {
+        Args: { p_etablissement: string; p_layout: string }
+        Returns: undefined
+      }
       hubrise_set_choice_disponible: {
         Args: {
           p_choice: string

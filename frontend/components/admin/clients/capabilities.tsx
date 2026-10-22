@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/toast";
 import {
   clientFeatures,
   nextOverrides,
+  saveCategoryLayout,
   saveOrderTabs,
   saveOverrides,
   type Client,
@@ -18,6 +19,7 @@ import {
   VIEWS,
 } from "@/lib/gestion/constants";
 import type { Feature, OrderTab } from "@/lib/gestion/types";
+import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
  * L'arborescence d'un client : les vues de son espace de gestion, et sous
@@ -197,6 +199,71 @@ function OrderTabsCard({
   );
 }
 
+/* Présentation des catégories du menu QR. Le gérant peut la changer aussi
+ * depuis sa gestion : la carte montre la dernière valeur choisie. */
+const LAYOUTS: { id: CategoryLayout; label: string; hint: string }[] = [
+  { id: "top", label: "En haut", hint: "Barre de pastilles au-dessus de la carte." },
+  { id: "rail", label: "À gauche", hint: "Rail d'icônes le long de la carte." },
+];
+
+function CategoryLayoutCard({
+  client,
+  onChange,
+}: {
+  client: Client;
+  onChange: (client: Client) => void;
+}) {
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const choose = async (categoryLayout: CategoryLayout) => {
+    if (categoryLayout === client.categoryLayout) return;
+    const previous = client;
+    onChange({ ...client, categoryLayout });
+    setSaving(true);
+    try {
+      await saveCategoryLayout(client.id, categoryLayout);
+    } catch (error) {
+      onChange(previous);
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h3 className="font-display text-base font-medium">Catégories du menu QR</h3>
+        <p className="mt-0.5 text-xs leading-relaxed text-faint">
+          Le gérant peut aussi le régler depuis sa gestion.
+        </p>
+      </div>
+      <div role="radiogroup" aria-label="Catégories du menu QR" className="grid gap-3 sm:grid-cols-2">
+        {LAYOUTS.map((layout) => {
+          const selected = client.categoryLayout === layout.id;
+          return (
+            <button
+              key={layout.id}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              disabled={saving}
+              onClick={() => void choose(layout.id)}
+              className={`rounded-2xl border px-4 py-3 text-left transition-colors disabled:cursor-wait ${
+                selected ? "border-ember-2/60 bg-surface-raised" : "border-hairline bg-surface hover:border-ember-2/30"
+              }`}
+            >
+              <p className="text-sm font-medium">{layout.label}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-faint">{layout.hint}</p>
+            </button>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
 export function Capabilities({
   client,
   onChange,
@@ -327,6 +394,10 @@ export function Capabilities({
 
       {features.commandes && (
         <OrderTabsCard client={client} onChange={onChange} />
+      )}
+
+      {client.products.offre && (
+        <CategoryLayoutCard client={client} onChange={onChange} />
       )}
 
       <p className="text-xs leading-relaxed text-faint">

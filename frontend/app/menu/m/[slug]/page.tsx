@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
-import { CategoryNav } from "@/components/menu/category-nav";
+import { MenuBody } from "@/components/menu/menu-body";
 import { AffichesBanner, FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
@@ -210,11 +210,12 @@ export default async function MenuPage({
               bout de la carte. */}
           <TicketTracker />
           <CartBar />
-          <CategoryNav
+          <MenuBody
+            layout={restaurant.categoryLayout}
             categories={categoryLinks}
             themeLocked={Boolean(restaurantThemeClass(slug))}
-          />
-          <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+            bottomPadding="pb-28"
+          >
             {showFormules && (
               <FormulesSection
                 formules={tiles}
@@ -236,7 +237,7 @@ export default async function MenuPage({
                 />
               ))
             )}
-          </main>
+          </MenuBody>
           <MenuFooter
             restaurant={restaurant}
             themeToggle={!restaurantThemeClass(slug)}
