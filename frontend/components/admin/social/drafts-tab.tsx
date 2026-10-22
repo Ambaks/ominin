@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { inputClass } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useRunMutation } from "@/components/ui/toast";
@@ -42,6 +42,9 @@ const STATUS: Record<
 
 type Mode = "view" | "edit" | "redraft";
 
+/** Relecture des posts tant qu'un Reel est en rendu : la barre avance seule. */
+const RENDER_POLL_MS = 10_000;
+
 export function DraftsTab({
   posts,
   onChange,
@@ -50,6 +53,15 @@ export function DraftsTab({
   posts: SocialPost[];
   onChange: () => void;
 }) {
+  const rendering = posts.some(
+    (post) => post.renderStatus === "pending" || post.renderStatus === "rendering"
+  );
+  useEffect(() => {
+    if (!rendering) return;
+    const timer = window.setInterval(onChange, RENDER_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [rendering, onChange]);
+
   if (posts.length === 0) {
     return (
       <EmptyState

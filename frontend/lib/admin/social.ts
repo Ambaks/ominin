@@ -128,6 +128,11 @@ export interface SocialPost {
   reel: ReelScript | null;
   renderStatus: RenderStatus | null;
   renderError: string | null;
+  /** Avancement du rendu en cours (workflow social-render) : étape, part
+   * faite de 0 à 1, temps restant estimé pendant le montage. */
+  renderStage: string | null;
+  renderProgress: number | null;
+  renderEtaSeconds: number | null;
   videoPath: string | null;
   captions: Record<SocialPlatform, string>;
   playbookVersion: number;
@@ -248,7 +253,7 @@ export async function fetchSocialPosts(): Promise<SocialPost[]> {
     await createClient()
       .from("social_posts")
       .select(
-        "id, brand, post_date, scheduled_at, status, feedback, updated_at, format, topic, angle, slides, reel, render_status, render_error, video_path, captions, social_playbooks(version), social_publications(id, status, permalink, error, published_at, metrics, metrics_settled_at, social_accounts(platform, handle))"
+        "id, brand, post_date, scheduled_at, status, feedback, updated_at, format, topic, angle, slides, reel, render_status, render_error, render_stage, render_progress, render_eta_seconds, video_path, captions, social_playbooks(version), social_publications(id, status, permalink, error, published_at, metrics, metrics_settled_at, social_accounts(platform, handle))"
       )
       .order("scheduled_at", { ascending: false })
       .limit(SOCIAL_POSTS_FETCH_LIMIT)
@@ -268,6 +273,9 @@ export async function fetchSocialPosts(): Promise<SocialPost[]> {
     reel: row.reel as unknown as ReelScript | null,
     renderStatus: row.render_status as RenderStatus | null,
     renderError: row.render_error,
+    renderStage: row.render_stage,
+    renderProgress: row.render_progress,
+    renderEtaSeconds: row.render_eta_seconds,
     videoPath: row.video_path,
     captions: row.captions as unknown as Record<SocialPlatform, string>,
     playbookVersion: row.social_playbooks.version,

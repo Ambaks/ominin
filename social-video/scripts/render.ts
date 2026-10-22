@@ -28,12 +28,30 @@ const PUBLIC = join(ROOT, "public");
 const OUT = join(ROOT, "out");
 /* Silence ajouté après chaque phrase, pour que la voix respire. */
 const BREATH_SECONDS = 0.35;
+/* Part de l'avancement atteinte au début de chaque étape (la barre de
+ * l'admin) : le montage occupe l'essentiel. Et l'écart d'avancement du
+ * montage entre deux écritures en base. */
+const STEPS = { voice: 0.1, queued: 0.2, upload: 0.95 };
+const PROGRESS_STEP = 0.05;
+
+function progress(id: string, stage: string, done: number, etaSeconds: number | null = null) {
+  return updatePost(id, "rendering", {
+    render_stage: stage,
+    render_progress: done,
+    render_eta_seconds: etaSeconds,
+  });
+}
 
 async function main() {
   const reels = await pendingReels();
   if (!reels.length) {
     console.log("Aucun Reel à rendre.");
     return;
+  }
+  // Tous passent « en cours » d'emblée : l'admin montre leur avancement.
+  for (const reel of reels) {
+    await updatePost(reel.id, "pending", { render_status: "rendering", render_error: null });
+    await progress(reel.id, "Démos filmées", 0);
   }
   await rm(PUBLIC, { recursive: true, force: true });
   await mkdir(join(PUBLIC, "voice"), { recursive: true });
@@ -53,8 +71,9 @@ async function main() {
   const failures: string[] = [];
   for (const reel of reels) {
     try {
-      await updatePost(reel.id, "pending", { render_status: "rendering", render_error: null });
+      await progress(reel.id, "Voix off", STEPS.voice);
       prepared.push({ reel, props: await prepare(reel, recordings) });
+      await progress(reel.id, "En attente du montage", STEPS.queued);
     } catch (error) {
       failures.push(await fail(reel, error));
     }
@@ -66,6 +85,8 @@ async function main() {
     try {
       const composition = await selectComposition({ serveUrl, id: "Reel", inputProps: props });
       const output = join(OUT, `${reel.id}.mp4`);
+      const started = Date.now();
+      let reported = 0;
       await renderMedia({
         composition,
         serveUrl,
@@ -73,10 +94,31 @@ async function main() {
         audioCodec: "aac",
         outputLocation: output,
         inputProps: props,
+        // Avancement du montage, écrit en base par paliers : l'admin le relit.
+        onProgress: ({ progress: done }) => {
+          if (done - reported < PROGRESS_STEP || done <= 0) return;
+          reported = done;
+          const elapsed = (Date.now() - started) / 1000;
+          void progress(
+            reel.id,
+            "Montage",
+            STEPS.queued + (STEPS.upload - STEPS.queued) * done,
+            Math.round((elapsed * (1 - done)) / done),
+          ).catch(() => undefined);
+        },
       });
+      await progress(reel.id, "Envoi de la vidéo", STEPS.upload);
       const path = `${reel.id}/${Date.now()}.mp4`;
       await upload(path, await readFile(output));
-      if (await updatePost(reel.id, "rendering", { render_status: "ready", video_path: path })) {
+      if (
+        await updatePost(reel.id, "rendering", {
+          render_status: "ready",
+          video_path: path,
+          render_stage: null,
+          render_progress: 1,
+          render_eta_seconds: null,
+        })
+      ) {
         if (reel.video_path) await remove(reel.video_path);
         console.log(`Reel ${reel.id} rendu : ${path}`);
       } else {
