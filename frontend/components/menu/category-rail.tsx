@@ -50,7 +50,10 @@ export function CategoryRail({
   const listRef = useRef<HTMLUListElement>(null);
   const pillRef = useRef<HTMLLIElement>(null);
   const [bubble, setBubble] = useState<{ id: string; top: number } | null>(null);
-  const [open, setOpen] = useState(false);
+  // Rail élargi, et par quoi : l'appui long (le doigt désigne, la liste ne
+  // défile qu'aux bords) ou le bouton du pied (la liste défile au doigt).
+  const [openedBy, setOpenedBy] = useState<"press" | "button" | null>(null);
+  const open = openedBy !== null;
   const [hovered, setHovered] = useState<string | null>(null);
   // Appui en cours : son minuteur, s'il a ouvert le rail, la hauteur du
   // doigt (défilement près des bords).
@@ -80,7 +83,7 @@ export function CategoryRail({
         track("categorie");
         jumpToSection(target, true);
       }
-      setOpen(false);
+      setOpenedBy(null);
       hoveredRef.current = null;
       setHovered(null);
       press.current = null;
@@ -211,7 +214,7 @@ export function CategoryRail({
             press.current = { timer: 0, opened: true, y: clientY };
             swallowClick.current = true;
             setBubble(null);
-            setOpen(true);
+            setOpenedBy("press");
             hover(itemAt(clientX, clientY));
             navigator.vibrate?.(8);
             // Le relâché revient au rail même hors de lui. Un pointeur déjà
@@ -253,7 +256,7 @@ export function CategoryRail({
         <ul
           ref={listRef}
           className={`no-scrollbar relative flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto border-r border-hairline bg-background pt-3 select-none [-webkit-touch-callout:none] transition-[width,border-radius,box-shadow] duration-200 motion-reduce:transition-none ${
-            open ? "w-64 touch-none rounded-r-3xl shadow-[12px_0_40px_rgb(0_0_0/0.35)]" : "w-16"
+            open ? `w-64 rounded-r-3xl shadow-[12px_0_40px_rgb(0_0_0/0.35)] ${openedBy === "press" ? "touch-none" : ""}` : "w-16"
           }`}
         >
           <li
@@ -261,7 +264,7 @@ export function CategoryRail({
             ref={pillRef}
             data-rail-pill
             className={`pointer-events-none absolute inset-x-2 top-0 h-12 rounded-2xl bg-[color-mix(in_srgb,var(--ember-2)_24%,transparent)] transition-[transform,opacity] duration-300 ease-out motion-reduce:transition-none ${
-              open ? "opacity-0" : "opacity-0 data-placed:opacity-100"
+              openedBy === "press" ? "opacity-0" : "opacity-0 data-placed:opacity-100"
             }`}
           />
           {categories.map(({ id, name }, index) => {
@@ -315,7 +318,7 @@ export function CategoryRail({
               type="button"
               aria-expanded={open}
               aria-label={open ? "Replier les catégories" : "Toutes les catégories"}
-              onClick={() => (open ? close(false) : setOpen(true))}
+              onClick={() => (open ? close(false) : setOpenedBy("button"))}
               className="flex h-10 w-full items-center justify-center rounded-2xl text-muted transition-colors hover:text-foreground"
             >
               <svg viewBox="0 0 24 24" className={`size-5 transition-transform duration-200 motion-reduce:transition-none ${open ? "rotate-180" : ""}`} fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
