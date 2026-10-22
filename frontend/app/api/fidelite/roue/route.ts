@@ -30,8 +30,14 @@ export async function POST(request: Request) {
     p_golden_multiplier: wheel.golden?.multiplier ?? null,
   });
   const row = data?.[0];
+  // Les refus de la base (tour déjà joué, pas de tour pour cette carte) se
+  // disent tels quels ; toute autre erreur reste au serveur.
+  if (error?.code === "P0001") {
+    return NextResponse.json({ error: error.message }, { status: 409 });
+  }
   if (error || !row) {
-    return NextResponse.json({ error: error?.message ?? "Tour refusé." }, { status: 409 });
+    console.error("loyalty_wheel_spin", error);
+    return NextResponse.json({ error: "Tour indisponible pour le moment." }, { status: 500 });
   }
   return NextResponse.json({ slice: row.slice, points: row.points, streak: row.streak });
 }

@@ -161,8 +161,11 @@ export function LoyaltyMemberProvider({
         sessionStorage.setItem(greetedKey(slug), "1");
       } catch {}
       setMember(remembered);
+      // Un autre contact, un autre tour du jour : relu avec la carte.
+      setWheelDay(null);
+      load().then(apply, () => {});
     },
-    [slug]
+    [slug, load, apply]
   );
 
   const loadHistory = useCallback(async () => {
