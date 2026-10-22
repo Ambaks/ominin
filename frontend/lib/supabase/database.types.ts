@@ -2488,6 +2488,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["loyalty_entry_kind"]
           order_id: string | null
           points: number
+          wheel_day: string | null
         }
         Insert: {
           created_at?: string
@@ -2496,6 +2497,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["loyalty_entry_kind"]
           order_id?: string | null
           points: number
+          wheel_day?: string | null
         }
         Update: {
           created_at?: string
@@ -2504,6 +2506,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["loyalty_entry_kind"]
           order_id?: string | null
           points?: number
+          wheel_day?: string | null
         }
         Relationships: [
           {
@@ -6087,6 +6090,27 @@ export type Database = {
           week: string
         }[]
       }
+      loyalty_wheel_spin: {
+        Args: {
+          p_golden_every?: number | null
+          p_golden_multiplier?: number | null
+          p_slices: Json
+          p_slug: string
+          p_token_hash: string
+        }
+        Returns: {
+          points: number
+          slice: number
+          streak: number
+        }[]
+      }
+      loyalty_wheel_state: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: {
+          played_today: boolean
+          streak: number
+        }[]
+      }
       mark_demo_order_paid: {
         Args: { p_order_id: string; p_tip?: number | null }
         Returns: boolean
@@ -6403,7 +6427,7 @@ export type Database = {
       crm_task_status: "open" | "done" | "cancelled"
       legal_doc: "cgv" | "dpa" | "confidentialite"
       legal_scope: "etablissement" | "shop"
-      loyalty_entry_kind: "gain" | "depense" | "ajustement"
+      loyalty_entry_kind: "gain" | "depense" | "ajustement" | "roue"
       member_role: "gerant" | "cuisinier" | "serveur"
       menu_stage:
         | "vue"
@@ -6666,7 +6690,7 @@ export const Constants = {
       crm_task_status: ["open", "done", "cancelled"],
       legal_doc: ["cgv", "dpa", "confidentialite"],
       legal_scope: ["etablissement", "shop"],
-      loyalty_entry_kind: ["gain", "depense", "ajustement"],
+      loyalty_entry_kind: ["gain", "depense", "ajustement", "roue"],
       member_role: ["gerant", "cuisinier", "serveur"],
       menu_stage: [
         "vue",

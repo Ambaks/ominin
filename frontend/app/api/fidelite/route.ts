@@ -1,4 +1,4 @@
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import {
@@ -7,6 +7,8 @@ import {
   type LoyaltyHistoryEntry,
   type LoyaltyMember,
 } from "@/lib/menu/loyalty";
+import { deviceFingerprint as fingerprint } from "@/lib/menu/loyalty-device";
+import { getRestaurant } from "@/lib/menu-data";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -17,15 +19,13 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * un an après le dernier scan qu'un téléphone est oublié.
  *
  * GET ?slug=   le client de ce téléphone, vu de ce restaurant (member: null sinon) ;
- *              avec &historique, les lignes de sa carte (history)
+ *              avec &historique, les lignes de sa carte (history) ; chez une
+ *              maison à roue (registre), où en est son tour du jour (wheel)
  * POST         retenir ce téléphone pour { slug, contact, firstName? }
  * DELETE       « Ce n'est pas moi » : oublier ce téléphone
  */
 
 const COOKIE_PATH = "/api/fidelite";
-
-const fingerprint = (token: string) =>
-  createHash("sha256").update(token).digest("hex");
 
 function withDeviceCookie(
   response: NextResponse,
@@ -62,6 +62,24 @@ async function readMember(
     : null;
 }
 
+/**
+ * Le tour du jour de ce téléphone, chez une maison qui a une roue : null
+ * sans roue, ou sans tour possible (pas de carte ici, ou pas encore de
+ * commande réglée). Une erreur ne coûte que la roue, pas l'accueil.
+ */
+async function readWheel(
+  slug: string,
+  token: string
+): Promise<{ played: boolean; streak: number } | null> {
+  if (!getRestaurant(slug)?.loyaltyWheel) return null;
+  const { data, error } = await createAdminClient().rpc("loyalty_wheel_state", {
+    p_slug: slug,
+    p_token_hash: fingerprint(token),
+  });
+  const row = data?.[0];
+  return error || !row ? null : { played: row.played_today, streak: row.streak };
+}
+
 async function readHistory(
   slug: string,
   token: string
@@ -84,12 +102,13 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const slug = params.get("slug");
   const token = (await cookies()).get(LOYALTY_DEVICE_COOKIE)?.value;
-  if (!slug || !token) return NextResponse.json({ member: null, history: [] });
-  const [member, history] = await Promise.all([
+  if (!slug || !token) return NextResponse.json({ member: null, history: [], wheel: null });
+  const [member, history, wheel] = await Promise.all([
     readMember(slug, token),
     params.has("historique") ? readHistory(slug, token) : [],
+    readWheel(slug, token),
   ]);
-  const response = NextResponse.json({ member, history });
+  const response = NextResponse.json({ member, history, wheel });
   return member ? withDeviceCookie(response, request, token) : response;
 }
 
