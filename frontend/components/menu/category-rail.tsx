@@ -10,8 +10,8 @@ import { useQueryParam } from "@/lib/menu/use-query-param";
 
 /*
  * Les catégories en rail vertical, à gauche de la carte (réglage
- * category_layout de l'établissement). Au repos, une colonne fine ne montre
- * que trois icônes : la catégorie en cours sur sa pastille, la précédente et
+ * category_layout de l'établissement). Au repos, une colonne fine ne montre,
+ * au milieu de l'écran, que trois icônes : la catégorie en cours sur sa pastille, la précédente et
  * la suivante en retrait ; elles défilent à mesure qu'on lit la carte.
  * Toucher le rail l'ouvre en entier, icônes et noms, et pousse la carte à
  * droite : on touche une catégorie, on y est. Maintenir le doigt l'ouvre
@@ -28,6 +28,8 @@ const LONG_PRESS_MS = 420;
  * défiler, à cette vitesse en pixels par seconde. */
 const EDGE_PX = 56;
 const EDGE_PX_PER_S = 540;
+/** À l'ouverture, chaque icône glisse de sa place au repos à sa ligne. */
+const UNFOLD_MS = 300;
 
 /** Une ligne ne se redessine que si son état change, pas à chaque
  * mouvement du doigt sur le rail ouvert. */
@@ -60,12 +62,20 @@ export function CategoryRail({
   // La catégorie sous le doigt, lue au relâché depuis les écouteurs posés
   // hors du rendu : l'état React y serait périmé.
   const hoveredRef = useRef<string | null>(null);
+  // Place de chaque icône juste avant l'ouverture, d'où elle glisse ensuite.
+  const unfoldFrom = useRef<Map<Element, DOMRect> | null>(null);
   const icons = useMemo(() => categoryIcons(categories.map(({ name }) => name)), [categories]);
   const activeIndex = Math.max(0, categories.findIndex(({ id }) => id === activeId));
 
   const hover = (id: string | null) => {
     hoveredRef.current = id;
     setHovered(id);
+  };
+
+  const openRail = (by: "press" | "tap") => {
+    const marks = listRef.current?.querySelectorAll("[data-rail-item] svg") ?? [];
+    unfoldFrom.current = new Map(Array.from(marks, (mark) => [mark, mark.getBoundingClientRect()]));
+    setOpenedBy(by);
   };
 
   const itemAt = (x: number, y: number) =>
@@ -91,7 +101,8 @@ export function CategoryRail({
   // Fermé, la liste glisse pour poser la catégorie en cours au milieu de la
   // fenêtre de trois lignes (mesurée : la hauteur des lignes est en rem, elle
   // suit la taille de texte du téléphone). Ouvert, elle reprend sa place et
-  // défile jusqu'à elle. La carte glisse à droite avec le rail (globals.css).
+  // défile jusqu'à elle, et chaque icône glisse de sa place au repos à sa
+  // ligne. La carte glisse à droite avec le rail (globals.css).
   useLayoutEffect(() => {
     const list = listRef.current;
     const item = list?.querySelector<HTMLElement>(`[data-rail-item="${activeId}"]`);
@@ -100,6 +111,16 @@ export function CategoryRail({
     if (open) {
       list.style.transform = "";
       list.scrollTo({ top: item.offsetTop - list.clientHeight / 2, behavior: "instant" });
+      const from = unfoldFrom.current;
+      unfoldFrom.current = null;
+      if (!from || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      for (const [icon, before] of from) {
+        const after = icon.getBoundingClientRect();
+        icon.animate(
+          [{ transform: `translate(${before.left - after.left}px, ${before.top - after.top}px)` }, { transform: "none" }],
+          { duration: UNFOLD_MS, easing: "cubic-bezier(0.2, 0, 0, 1)" }
+        );
+      }
       return;
     }
     list.scrollTop = 0;
@@ -182,7 +203,15 @@ export function CategoryRail({
         data-category-rail
         className={`sticky flex w-12 shrink-0 flex-col self-start ${
           open ? `z-50 ${embedded ? "h-[calc(100dvh-3rem)]" : "h-dvh"}` : "z-20"
-        } ${embedded ? "top-12" : "top-0"}`}
+        } ${
+          open
+            ? embedded
+              ? "top-12"
+              : "top-0"
+            : embedded
+              ? "top-[calc(50dvh-3rem)]"
+              : "top-[calc(50dvh-4.5rem)]"
+        }`}
         onPointerDown={(event) => {
           if (event.pointerType === "mouse" && event.button !== 0) return;
           swallowClick.current = false;
@@ -191,7 +220,7 @@ export function CategoryRail({
           const timer = window.setTimeout(() => {
             press.current = { timer: 0, opened: true, y: clientY };
             swallowClick.current = true;
-            setOpenedBy("press");
+            openRail("press");
             hover(itemAt(clientX, clientY));
             navigator.vibrate?.(8);
             // Le relâché revient au rail même hors de lui. Un pointeur déjà
@@ -229,7 +258,7 @@ export function CategoryRail({
             event.stopPropagation();
           }
           if (swallowClick.current) swallowClick.current = false;
-          else if (!open) setOpenedBy("tap");
+          else if (!open) openRail("tap");
         }}
         onDragStart={(event) => event.preventDefault()}
         onContextMenu={(event) => event.preventDefault()}
@@ -240,7 +269,7 @@ export function CategoryRail({
             remettre en page. */}
         <div
           className={`relative flex min-h-0 flex-col overflow-hidden transition-[width] duration-300 ease-out motion-reduce:transition-none ${
-            open ? "w-60 flex-1 rounded-r-3xl bg-background shadow-[12px_0_40px_rgb(0_0_0/0.35)]" : "mt-3 h-36 w-12"
+            open ? "w-60 flex-1 rounded-r-3xl bg-background shadow-[12px_0_40px_rgb(0_0_0/0.35)]" : "h-36 w-12"
           }`}
         >
           {!open && (
