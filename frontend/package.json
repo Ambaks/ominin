@@ -28,7 +28,8 @@
     "db:link": "supabase --workdir .. link",
     "db:push": "supabase --workdir .. db push",
     "db:diff": "supabase --workdir .. db diff",
-    "db:types": "supabase --workdir .. gen types typescript --linked > lib/supabase/database.types.ts"
+    "db:types": "supabase --workdir .. gen types typescript --linked > lib/supabase/database.types.ts",
+    "seed:shop-demo": "tsx scripts/seed-shop-demo.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.111.0",
