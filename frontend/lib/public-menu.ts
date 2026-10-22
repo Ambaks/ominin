@@ -3,7 +3,7 @@ import { assembleCategories, rowToAffiche, rowToFormule } from "@/lib/gestion/ma
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
-import { getRestaurant, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
+import { getRestaurant, type CategoryLayout, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
 import {
   resolveFormuleOffers,
@@ -265,6 +265,7 @@ export async function fetchRestaurant(slug: string): Promise<{
       affiches,
       highlights: staticData?.highlights,
       ticker: staticData?.ticker,
+      categoryLayout: etablissement.category_layout as CategoryLayout,
       glossary: staticData?.glossary,
       address: etablissement.address,
       phone: etablissement.phone,

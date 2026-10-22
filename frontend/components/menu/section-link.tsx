@@ -22,24 +22,29 @@ export function SectionLink({
 }) {
   const jump = (event: MouseEvent<HTMLAnchorElement>) => {
     onJump?.();
-    const section = document.getElementById(sectionId);
-    if (!section || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    if (!document.getElementById(sectionId) || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    section.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
-    const heading = section.querySelector<HTMLElement>("h2");
-    if (!heading) return;
-    heading.tabIndex = -1;
-    // Au clavier (detail 0), l'anneau dit où l'on arrive ; après un toucher,
-    // aucun : Safari cerclait le titre à chaque catégorie touchée (globals.css).
-    // La marque part avec ce focus : revenu plus tard au clavier, le titre
-    // retrouve son anneau.
-    if (event.detail > 0) {
-      heading.setAttribute("data-pointer-focus", "");
-      heading.addEventListener("blur", () => heading.removeAttribute("data-pointer-focus"), {
-        once: true,
-      });
-    }
-    heading.focus({ preventScroll: true });
+    jumpToSection(sectionId, event.detail > 0);
   };
   return <a {...props} href={`#${sectionId}`} onClick={jump} />;
+}
+
+/** Va à une section et pose le focus sur son titre. byPointer : au clavier,
+ * l'anneau dit où l'on arrive ; après un toucher, aucun — Safari cerclait le
+ * titre à chaque catégorie touchée (globals.css). La marque part avec ce
+ * focus : revenu plus tard au clavier, le titre retrouve son anneau. */
+export function jumpToSection(sectionId: string, byPointer: boolean) {
+  const section = document.getElementById(sectionId);
+  if (!section) return;
+  section.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
+  const heading = section.querySelector<HTMLElement>("h2");
+  if (!heading) return;
+  heading.tabIndex = -1;
+  if (byPointer) {
+    heading.setAttribute("data-pointer-focus", "");
+    heading.addEventListener("blur", () => heading.removeAttribute("data-pointer-focus"), {
+      once: true,
+    });
+  }
+  heading.focus({ preventScroll: true });
 }

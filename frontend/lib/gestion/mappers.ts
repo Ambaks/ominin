@@ -1,5 +1,5 @@
 import type { OpeningHours } from "@/lib/collect/hours";
-import type { MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import type { CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
   Affiche,
@@ -38,6 +38,7 @@ export function rowToEtablissement(
     openingHours: row.opening_hours as OpeningHours | null,
     offre: row.offre,
     serviceMode: row.service_mode,
+    categoryLayout: row.category_layout as CategoryLayout,
     siret: row.siret ?? undefined,
     onlinePayment: row.online_payment,
     paymentProvider: row.payment_provider,

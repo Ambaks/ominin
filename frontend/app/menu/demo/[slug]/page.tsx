@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { CartBar } from "@/components/menu/cart-bar";
-import { CategoryNav } from "@/components/menu/category-nav";
+import { MenuBody } from "@/components/menu/menu-body";
 import { FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
 import { MenuFooter } from "@/components/menu/menu-footer";
@@ -165,11 +165,12 @@ export default async function MenuPreviewPage({
             bout de la carte. */}
         <TicketTracker />
         <CartBar />
-        <CategoryNav
+        <MenuBody
+          layout={restaurant.categoryLayout}
           categories={categoryLinks}
           themeLocked={Boolean(themeClass)}
-        />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-10 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
+          bottomPadding="pb-10"
+        >
           {formules.length > 0 && <FormulesSection formules={formules} />}
           {restaurant.categories.map((category) => (
             <MenuSection
@@ -180,7 +181,7 @@ export default async function MenuPreviewPage({
               first={category.id === categoryLinks[0]?.id}
             />
           ))}
-        </main>
+        </MenuBody>
         <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
       </div>
     </CartProvider>

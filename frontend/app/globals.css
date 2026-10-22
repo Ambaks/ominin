@@ -14115,3 +14115,51 @@ html:has(.groupe-dialog:modal) {
 .loyalty-garland[data-motif="fanions"] .glass {
   transform-origin: top;
 }
+
+/*
+  Rail des catégories (CategoryRail), quand l'établissement le choisit.
+  Plus de barre collée en haut : une ancre s'arrête près du bord, plus sous
+  une réserve qui n'existe plus. En paysage, le rail reste collé, lui.
+*/
+html:has([data-category-rail]) {
+  --nav-band: 1rem;
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
+  [data-menu-root] nav[data-category-rail] {
+    position: sticky;
+  }
+}
+
+/* Les angles droits de Le Novelty aussi sur la pastille et la bulle du rail,
+   que sa règle générale écarte comme décoratives (aria-hidden). */
+[data-menu-root].theme-le-novelty :is([data-rail-pill], .rail-bubble) {
+  border-radius: 0;
+}
+
+/* Bulle du nom d'une catégorie touchée : elle sort de son icône en glissant.
+   Noms du rail élargi : ils arrivent en fondu, une fois la colonne ouverte. */
+@keyframes rail-bubble-in {
+  from {
+    opacity: 0;
+    translate: -6px 0;
+  }
+}
+@keyframes rail-name-in {
+  from {
+    opacity: 0;
+    translate: -4px 0;
+  }
+}
+.rail-bubble {
+  animation: rail-bubble-in 180ms ease-out;
+}
+.rail-name {
+  animation: rail-name-in 160ms 80ms ease-out backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-bubble,
+  .rail-name {
+    animation: none;
+  }
+}

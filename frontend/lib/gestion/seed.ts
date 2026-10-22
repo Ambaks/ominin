@@ -278,6 +278,7 @@ export function seed(): GestionState {
       openingHours: null,
       offre: "connect",
       serviceMode: "restaurant",
+      categoryLayout: "top",
       onlinePayment: false,
       paymentProvider: null,
       collectSlotCapacity: 5,

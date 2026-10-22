@@ -6,6 +6,7 @@ import { useToast } from "@/components/ui/toast";
 import {
   clientFeatures,
   nextOverrides,
+  saveCategoryLayout,
   saveOrderTabs,
   saveOverrides,
   type Client,
@@ -18,6 +19,8 @@ import {
   VIEWS,
 } from "@/lib/gestion/constants";
 import type { Feature, OrderTab } from "@/lib/gestion/types";
+import { CategoryLayoutPicker } from "@/components/gestion/category-layout-settings";
+import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
  * L'arborescence d'un client : les vues de son espace de gestion, et sous
@@ -197,6 +200,52 @@ function OrderTabsCard({
   );
 }
 
+/* Présentation des catégories du menu QR. Le gérant peut la changer aussi
+ * depuis sa gestion : la carte montre la dernière valeur choisie. */
+function CategoryLayoutCard({
+  client,
+  onChange,
+}: {
+  client: Client;
+  onChange: (client: Client) => void;
+}) {
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const choose = async (categoryLayout: CategoryLayout) => {
+    const previous = client;
+    onChange({ ...client, categoryLayout });
+    setSaving(true);
+    try {
+      await saveCategoryLayout(client.id, categoryLayout);
+      toast.success(
+        categoryLayout === "rail" ? "Catégories à gauche sur son menu." : "Catégories en haut sur son menu."
+      );
+    } catch (error) {
+      onChange(previous);
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h3 className="font-display text-base font-medium">Catégories du menu QR</h3>
+        <p className="mt-0.5 text-xs leading-relaxed text-faint">
+          Le gérant peut aussi le régler depuis sa gestion.
+        </p>
+      </div>
+      <CategoryLayoutPicker
+        value={client.categoryLayout}
+        disabled={saving}
+        onChoose={(layout) => void choose(layout)}
+      />
+    </section>
+  );
+}
+
 export function Capabilities({
   client,
   onChange,
@@ -327,6 +376,10 @@ export function Capabilities({
 
       {features.commandes && (
         <OrderTabsCard client={client} onChange={onChange} />
+      )}
+
+      {client.products.offre && (
+        <CategoryLayoutCard client={client} onChange={onChange} />
       )}
 
       <p className="text-xs leading-relaxed text-faint">

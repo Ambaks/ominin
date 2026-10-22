@@ -1,6 +1,7 @@
 import { FEATURES, ORDER_TABS } from "@/lib/gestion/constants";
 import { planFeature, resolveFeatures } from "@/lib/gestion/permissions";
 import type { ActiveProducts, Feature, OrderTab } from "@/lib/gestion/types";
+import type { CategoryLayout } from "@/lib/menu-data";
 import { createClient } from "@/lib/supabase/client";
 import { check, must } from "@/lib/supabase/result";
 
@@ -20,6 +21,8 @@ export interface Client {
   overrides: Partial<Record<Feature, boolean>>;
   /** Étapes de l'onglet Commandes, dans l'ordre d'affichage. */
   orderTabs: OrderTab[];
+  /** Catégories du menu QR : barre en haut ou rail d'icônes à gauche. */
+  categoryLayout: CategoryLayout;
 }
 
 function isFeature(key: string): key is Feature {
@@ -41,7 +44,7 @@ export async function fetchClients(): Promise<Client[]> {
   const [etablissements, subscriptions, settings] = await Promise.all([
     supabase
       .from("etablissements")
-      .select("id, name, slug, offre")
+      .select("id, name, slug, offre, category_layout")
       .order("name", { ascending: true })
       .then(must),
     supabase
@@ -77,6 +80,7 @@ export async function fetchClients(): Promise<Client[]> {
       overrides: toOverrides(row?.features),
       // Établissement d'avant la colonne : ce que faisait l'écran jusque-là.
       orderTabs: row?.order_tabs ?? ORDER_TABS,
+      categoryLayout: etablissement.category_layout as CategoryLayout,
     };
   });
 }
@@ -141,5 +145,19 @@ export async function saveOrderTabs(
         },
         { onConflict: "etablissement_id" }
       )
+  );
+}
+
+/** Présentation des catégories du menu QR de ce restaurant (le gérant peut
+ * aussi la changer depuis sa gestion). */
+export async function saveCategoryLayout(
+  etablissementId: string,
+  layout: CategoryLayout
+): Promise<void> {
+  check(
+    await createClient().rpc("admin_set_category_layout", {
+      p_etablissement: etablissementId,
+      p_layout: layout,
+    })
   );
 }

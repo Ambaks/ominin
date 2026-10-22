@@ -1,5 +1,5 @@
 import type { OpeningHours } from "@/lib/collect/hours";
-import type { MenuCategory, OptionGroup } from "@/lib/menu-data";
+import type { CategoryLayout, MenuCategory, OptionGroup } from "@/lib/menu-data";
 import type { VisiteId } from "./visites";
 
 export type Offre = "digital" | "smart" | "connect";
@@ -103,6 +103,8 @@ export interface Etablissement {
   /** Null quand l'établissement n'a que le click & collect. */
   offre: Offre | null;
   serviceMode: ServiceMode;
+  /** Catégories du menu QR : barre en haut ou rail d'icônes à gauche. */
+  categoryLayout: CategoryLayout;
   siret?: string;
   /** Le menu QR propose le règlement par carte (compte de paiement relié). */
   onlinePayment: boolean;
