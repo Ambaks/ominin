@@ -151,7 +151,7 @@ export interface MenuCategory {
   items: MenuItem[];
   /**
    * Rien que des boissons (registre seulement) : une commande faite de ces
-   * seuls articles se salue « Bonne dégustation ! » au service (demoSuivi) ;
+   * seuls articles se salue « Bonne dégustation ! » au service (suivi) ;
    * une seule ligne d'ailleurs, ou une formule, et c'est « Bon appétit ! ».
    * « chaudes » : la salutation porte une tasse, sinon un verre à pied.
    */
@@ -267,10 +267,13 @@ export interface Restaurant {
   /** /menu/demo à table : « Payer en ligne » et le pourboire, comme chez un client qui règle à table. */
   onlinePayment?: boolean;
   /**
-   * /menu/demo à table : le paiement en ligne se simule, puis chaque commande
-   * se suit au bas de l'écran jusqu'au service, comme un ticket fast food.
+   * À table, chaque commande se suit au bas de l'écran jusqu'au service, comme
+   * un ticket fast food — sur /m, en direct (reçue, encaissée, servie) ; sur
+   * /menu/demo, le paiement en ligne et la salle se simulent. À réserver aux
+   * établissements sans imprimante Omilink : son ticket clôt la commande à
+   * l'encaissement, qui se dirait aussitôt « servie ».
    */
-  demoSuivi?: boolean;
+  suivi?: boolean;
   /**
    * Boutique en click & collect seul, sans service à table : le seed ouvre
    * le produit collect avec ces horaires, sans offre menu ni tables.
@@ -3479,7 +3482,7 @@ const avecPinteHappyHour = (item: MenuItem, prix: string): MenuItem => {
 const leNovelty: Restaurant = {
   slug: "le-novelty",
   name: "Le Novelty",
-  demoSuivi: true,
+  suivi: true,
   tagline: "Bar — Cocktails — Terrasse",
   logo: "/le-novelty/logo.webp",
   whiteLogo: true,
@@ -3956,7 +3959,7 @@ const victoriaVin = (id: string, name: string, price: number, description?: stri
 const leVictoria: Restaurant = {
   slug: "le-victoria",
   name: "Le Victoria",
-  demoSuivi: true,
+  suivi: true,
   tagline: "Bar Restaurant · Tapas Cocktail",
   // Le badge rond de l'enseigne (avatar TikTok, 221 px) : assez net à cette taille.
   logo: "/le-victoria/badge.webp",
@@ -4580,7 +4583,7 @@ const cdaDigestif = (id: string, name: string, price = 9): MenuItem => ({ id, na
 const cafeDesArts: Restaurant = {
   slug: "cafe-des-arts",
   name: "Café des Arts",
-  demoSuivi: true,
+  suivi: true,
   tagline: "Bar · Restaurant",
   logo: "/cafe-des-arts/logo.webp",
   logoIsName: true,
@@ -5584,7 +5587,7 @@ const cafeDesArts: Restaurant = {
 const caffePanis: Restaurant = {
   slug: "caffe-panis",
   name: "Caffè Panis",
-  demoSuivi: true,
+  suivi: true,
   tagline: "Caffè\u00a0·\u00a0Ristorante\u00a0· Gelateria",
   logo: "/caffe-panis/logo.webp",
   logoIsName: true,
@@ -6210,7 +6213,7 @@ const laissacGlace = (boules: number, price: number) => {
 const brasserieLaissac: Restaurant = {
   slug: "brasserie-laissac",
   name: "Brasserie Laissac",
-  demoSuivi: true,
+  suivi: true,
   // La bio Instagram de la nouvelle équipe : « Restaurant, bar, cocktail, happy hour ».
   tagline: "Restaurant · Bar · Cocktail",
   // La gravure de l'écusson (la brasserie, sa cheminée, le cyprès), détourée du
@@ -6503,7 +6506,7 @@ const lEtoile: Restaurant = {
   phone: "",
   hours: "",
   themeColor: "#050507",
-  demoSuivi: true,
+  suivi: true,
   categories: [
     {
       id: "rhums",
@@ -6958,7 +6961,7 @@ const petitNiceFormuleEtudiante = (id: string, name: string, description: string
 const lePetitNice: Restaurant = {
   slug: "le-petit-nice",
   name: "Le Petit Nice",
-  demoSuivi: true,
+  suivi: true,
   // Le logo dit déjà « café ■ bar » : l'accroche nomme la terrasse et sa place.
   tagline: "Terrasse · Place Jean-Jaurès",
   // Le mot-symbole de l'enseigne, redessiné d'après photo (Questrial, Poppins) :
@@ -7582,7 +7585,7 @@ const richeSpiritueux = (famille: string, liste: readonly (readonly [id: string,
 const cafeRiche: Restaurant = {
   slug: "cafe-riche",
   name: "Café Riche",
-  demoSuivi: true,
+  suivi: true,
   // Le pied de page de leur site : « Brasserie historique · Depuis 1893 » ; le logo dit déjà l'année.
   tagline: "Brasserie historique",
   // Leur logo (« logo-fond-transparent » de leur site), recadré : « CAFÉ »,
@@ -8357,7 +8360,7 @@ const clubBouteille = (id: string, name: string, price: number, description: str
 const leClub: Restaurant = {
   slug: "le-club",
   name: "Le Club",
-  demoSuivi: true,
+  suivi: true,
   tagline: "Discothèque · Montpellier",
   address: "5 Rue du Grand Saint-Jean, 34000 Montpellier",
   phone: "+33 6 75 25 74 89",
@@ -8558,7 +8561,7 @@ const lEntrepot: Restaurant = {
   slug: "l-entrepot",
   name: "L'Entrepôt",
   brandName: "L'Entrepôt Complexe",
-  demoSuivi: true,
+  suivi: true,
   tagline: "Club · Musique urbaine · Lattes",
   // Le mot-symbole de leur site (lentrepotcomplexe.com), palmier compris.
   logo: "/l-entrepot/logo.webp",
@@ -8739,7 +8742,7 @@ const lePulp: Restaurant = {
   name: "Le Pulp",
   // Le logo : « pulp » en orange, « Garden » en vert dessous.
   brandName: "Pulp Garden",
-  demoSuivi: true,
+  suivi: true,
   // Leur site : « Open air discothèque ».
   tagline: "Open air discothèque",
   // Le mot-symbole de leur site (logo_pulp_low.png) retracé en vectoriel, et
@@ -9031,7 +9034,7 @@ const gracesSpiritueux = (famille: string, liste: readonly (readonly [id: string
 const cafe3Graces: Restaurant = {
   slug: "cafe-3-graces",
   name: "Café 3 Grâces",
-  demoSuivi: true,
+  suivi: true,
   // Leur site : « brasserie emblématique de la Place de la Comédie » ; le
   // logo dit déjà « depuis 1790 ».
   tagline: "Brasserie · Place de la Comédie",

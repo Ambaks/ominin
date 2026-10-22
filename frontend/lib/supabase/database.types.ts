@@ -5060,6 +5060,9 @@ export type Database = {
           post_date: string
           reel: Json | null
           render_error: string | null
+          render_eta_seconds: number | null
+          render_progress: number | null
+          render_stage: string | null
           render_status: string | null
           scheduled_at: string
           slides: Json
@@ -5080,6 +5083,9 @@ export type Database = {
           post_date: string
           reel?: Json | null
           render_error?: string | null
+          render_eta_seconds?: number | null
+          render_progress?: number | null
+          render_stage?: string | null
           render_status?: string | null
           scheduled_at: string
           slides: Json
@@ -5100,6 +5106,9 @@ export type Database = {
           post_date?: string
           reel?: Json | null
           render_error?: string | null
+          render_eta_seconds?: number | null
+          render_progress?: number | null
+          render_stage?: string | null
           render_status?: string | null
           scheduled_at?: string
           slides?: Json

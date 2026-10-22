@@ -175,6 +175,7 @@ export default async function MenuPage({
         onlineMinOrder,
         paymentProvider,
         squareLocationId,
+        tableTracking: orderingEnabled && !fastFood && restaurant.suivi === true,
         loyalty,
         // Sans commande, rien à fermer : pas de relecture.
         etablissementId: orderingEnabled ? id : undefined,
