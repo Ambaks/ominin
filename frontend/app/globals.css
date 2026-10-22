@@ -14115,3 +14115,20 @@ html:has(.groupe-dialog:modal) {
 .loyalty-garland[data-motif="fanions"] .glass {
   transform-origin: top;
 }
+
+/* Bulle du nom d'une catégorie touchée dans le rail (CategoryRail) : elle
+   sort de son icône en glissant. */
+@keyframes rail-bubble-in {
+  from {
+    opacity: 0;
+    translate: -6px 0;
+  }
+}
+.rail-bubble {
+  animation: rail-bubble-in 180ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .rail-bubble {
+    animation: none;
+  }
+}

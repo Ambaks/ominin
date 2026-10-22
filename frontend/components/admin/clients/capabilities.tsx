@@ -19,6 +19,7 @@ import {
   VIEWS,
 } from "@/lib/gestion/constants";
 import type { Feature, OrderTab } from "@/lib/gestion/types";
+import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
@@ -201,11 +202,6 @@ function OrderTabsCard({
 
 /* Présentation des catégories du menu QR. Le gérant peut la changer aussi
  * depuis sa gestion : la carte montre la dernière valeur choisie. */
-const LAYOUTS: { id: CategoryLayout; label: string; hint: string }[] = [
-  { id: "top", label: "En haut", hint: "Barre de pastilles au-dessus de la carte." },
-  { id: "rail", label: "À gauche", hint: "Rail d'icônes le long de la carte." },
-];
-
 function CategoryLayoutCard({
   client,
   onChange,
@@ -223,6 +219,9 @@ function CategoryLayoutCard({
     setSaving(true);
     try {
       await saveCategoryLayout(client.id, categoryLayout);
+      toast.success(
+        categoryLayout === "rail" ? "Catégories à gauche sur son menu." : "Catégories en haut sur son menu."
+      );
     } catch (error) {
       onChange(previous);
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
@@ -240,7 +239,7 @@ function CategoryLayoutCard({
         </p>
       </div>
       <div role="radiogroup" aria-label="Catégories du menu QR" className="grid gap-3 sm:grid-cols-2">
-        {LAYOUTS.map((layout) => {
+        {CATEGORY_LAYOUTS.map((layout) => {
           const selected = client.categoryLayout === layout.id;
           return (
             <button
@@ -255,7 +254,7 @@ function CategoryLayoutCard({
               }`}
             >
               <p className="text-sm font-medium">{layout.label}</p>
-              <p className="mt-0.5 text-xs leading-relaxed text-faint">{layout.hint}</p>
+              <p className="mt-0.5 text-xs leading-relaxed text-faint">{layout.body}</p>
             </button>
           );
         })}

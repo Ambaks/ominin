@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
-import { CategoryNav, type CategoryLink } from "@/components/menu/category-nav";
+import { CategoryNav } from "@/components/menu/category-nav";
 import { CategoryRail } from "@/components/menu/category-rail";
 import type { CategoryLayout } from "@/lib/menu-data";
+import type { CategoryLink } from "@/lib/menu/use-active-section";
 
 /*
  * La carte et ses catégories, dans la mise en page choisie par
@@ -27,8 +28,12 @@ export function MenuBody({
   if (layout === "rail") {
     return (
       <div className="mx-auto flex w-full max-w-2xl lg:max-w-5xl">
-        <CategoryRail categories={categories} />
-        <main className={`${sections} min-w-0 flex-1 pl-4 pr-5 lg:pl-8 lg:pr-10`}>
+        <CategoryRail categories={categories} themeLocked={themeLocked} />
+        {/* Colonne plus étroite que la carte en pleine largeur : les titres de
+            section y descendent d'un cran pour tenir sur une ligne. */}
+        <main
+          className={`${sections} min-w-0 flex-1 pl-4 pr-5 lg:pl-8 lg:pr-10 [&_.category-heading]:text-[26px] sm:[&_.category-heading]:text-4xl lg:[&_.category-heading]:text-5xl`}
+        >
           {children}
         </main>
       </div>

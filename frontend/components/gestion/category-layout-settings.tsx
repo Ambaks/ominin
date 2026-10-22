@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { setCategoryLayout } from "@/lib/gestion/api";
+import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
@@ -11,20 +12,11 @@ import type { CategoryLayout } from "@/lib/menu-data";
  * public suit à sa prochaine revalidation (une minute).
  */
 
-const LAYOUTS: { id: CategoryLayout; label: string; body: string; icon: React.ReactNode }[] = [
-  {
-    id: "top",
-    label: "En haut",
-    body: "Les catégories en pastilles dans une barre au-dessus de la carte, qui défile avec le doigt.",
-    icon: <path d="M4 5h16v4H4zM4 13h16M4 17h16M4 21h10" />,
-  },
-  {
-    id: "rail",
-    label: "À gauche",
-    body: "Une colonne d'icônes le long de la carte. Toucher une icône montre son nom ; la maintenir déplie toutes les catégories.",
-    icon: <path d="M4 4h4v16H4zM12 5h8M12 9h8M12 13h8M12 17h5" />,
-  },
-];
+/* Pictogramme de chaque présentation, dans la carte du réglage. */
+const ICONS: Record<CategoryLayout, React.ReactNode> = {
+  top: <path d="M4 5h16v4H4zM4 13h16M4 17h16M4 21h10" />,
+  rail: <path d="M4 4h4v16H4zM12 5h8M12 9h8M12 13h8M12 17h5" />,
+};
 
 export function CategoryLayoutSettings({ initialLayout }: { initialLayout: CategoryLayout }) {
   const toast = useToast();
@@ -61,7 +53,7 @@ export function CategoryLayoutSettings({ initialLayout }: { initialLayout: Categ
         </p>
       </div>
       <div role="radiogroup" aria-label="Catégories du menu" className="grid gap-3 sm:grid-cols-2">
-        {LAYOUTS.map((option) => {
+        {CATEGORY_LAYOUTS.map((option) => {
           const selected = layout === option.id;
           return (
             <button
@@ -87,7 +79,7 @@ export function CategoryLayoutSettings({ initialLayout }: { initialLayout: Categ
                     strokeLinejoin="round"
                     aria-hidden
                   >
-                    {option.icon}
+                    {ICONS[option.id]}
                   </svg>
                   <span className="font-display text-base font-medium">{option.label}</span>
                 </span>

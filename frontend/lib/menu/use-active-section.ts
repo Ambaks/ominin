@@ -2,6 +2,12 @@
 
 import { useEffect, useState } from "react";
 
+/** Lien vers une section de la carte, pour la barre du haut et le rail. */
+export interface CategoryLink {
+  id: string;
+  name: string;
+}
+
 /** Ligne qu'un titre de section doit passer pour allumer sa catégorie, en part de la hauteur d'écran. */
 const ACTIVE_LINE = 0.4;
 

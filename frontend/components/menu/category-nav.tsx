@@ -5,13 +5,8 @@ import { SectionLink } from "@/components/menu/section-link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { useCart } from "@/lib/menu/cart";
 import { scrollBehavior } from "@/lib/menu/scroll";
-import { useActiveSection } from "@/lib/menu/use-active-section";
+import { type CategoryLink, useActiveSection } from "@/lib/menu/use-active-section";
 import { useQueryParam } from "@/lib/menu/use-query-param";
-
-export interface CategoryLink {
-  id: string;
-  name: string;
-}
 
 /** Pas d'une flèche du rail, en part de sa largeur visible. */
 const RAIL_STEP = 0.75;
