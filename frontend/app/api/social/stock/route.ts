@@ -6,5 +6,5 @@ import { STOCK } from "@/lib/social/stock";
  * moment d'écrire un Reel : il ne peut choisir qu'un id qui existe ici.
  */
 export function GET() {
-  return NextResponse.json(STOCK.map(({ id, description }) => ({ id, description })));
+  return NextResponse.json(STOCK.map(({ id, description, brands }) => ({ id, description, brands })));
 }

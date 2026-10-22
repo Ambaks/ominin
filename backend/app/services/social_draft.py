@@ -270,6 +270,7 @@ class _Context:
         # Ominin présente les trois offres : tout leur matériel lui est ouvert.
         screens = [s for s in self.screens if brand == "ominin" or s["brand"] == brand]
         clips = [c for c in self.clips if brand == "ominin" or c["brand"] == brand]
+        stock = [v for v in self.stock if brand == "ominin" or brand in v["brands"]]
         recent = (
             self.sb.table("social_posts")
             .select("post_date, format, topic, angle")
@@ -285,7 +286,7 @@ class _Context:
             self.pricing,
             screens,
             clips,
-            self.stock,
+            stock,
             self.music,
             self.handles,
         )
@@ -295,14 +296,14 @@ class _Context:
             self.pricing,
             screens,
             clips,
-            self.stock,
+            stock,
             self.music,
         )
         feedback = previous.get("feedback") if previous else None
 
         def write(content: str) -> dict:
             row = self._row(
-                parse_structured(writer, content, PostDraft), screens, clips
+                parse_structured(writer, content, PostDraft), screens, clips, stock
             )
             return {**row, "playbook_id": playbook["id"]}
 
@@ -333,7 +334,13 @@ class _Context:
                 best, best_review = row, latest_review
         return {**best, "review": {**best_review.model_dump(), "rounds": rounds}}
 
-    def _row(self, draft: PostDraft, screens: list[dict], clips: list[dict]) -> dict:
+    def _row(
+        self,
+        draft: PostDraft,
+        screens: list[dict],
+        clips: list[dict],
+        stock: list[dict],
+    ) -> dict:
         """The post's columns from one writer output. Raises ValueError when
         it breaks the format's rules."""
         row = {
@@ -353,7 +360,7 @@ class _Context:
         if draft.format == "reel":
             row["slides"] = []
             row["reel"] = {
-                "scenes": _checked_scenes(draft.scenes, screens, clips, self.stock),
+                "scenes": _checked_scenes(draft.scenes, screens, clips, stock),
                 "cta": draft.cta,
                 # Une musique inconnue n'empêche pas le Reel : la voix seule.
                 "music": draft.music
