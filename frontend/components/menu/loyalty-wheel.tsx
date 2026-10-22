@@ -546,7 +546,7 @@ export function LoyaltyWheel({
           </p>
 
           {/* Le bouton se replie, le résultat se déplie : la roue recule d'autant, sans saut. */}
-          <div className="wheel-fold" data-open={won === null || undefined}>
+          <div className="wheel-fold" data-open={won === null || undefined} inert={won !== null}>
             <div>
               <div className="flex flex-col items-center gap-2.5 pb-2 text-center">
                 <span className="wheel-launch-glow relative rounded-full">
