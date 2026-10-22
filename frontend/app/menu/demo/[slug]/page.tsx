@@ -4,6 +4,7 @@ import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
 import { FormulesSection } from "@/components/menu/formules";
 import { Hero } from "@/components/menu/hero";
+import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
@@ -12,8 +13,17 @@ import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { FORMULES_LINK } from "@/lib/menu/format";
+import type { LoyaltyProgram } from "@/lib/menu/loyalty";
+import { DemoLoyaltyProvider } from "@/lib/menu/loyalty-demo";
 import { resolveFormuleOffers, resolvePairings } from "@/lib/menu/pairings";
-import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import {
+  brandName,
+  getRestaurant,
+  restaurantThemeClass,
+  type DemoLoyalty,
+  type MenuItem,
+  type Restaurant,
+} from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
 
 /*
@@ -31,6 +41,10 @@ import { tableParam } from "@/lib/menu/table-param";
  * palette et les polices d'Ominin. De quoi poser la question au gérant —
  * « vos couleurs ou les nôtres ? » — sans reconstruire une seconde page.
  *
+ * Un établissement doté d'une fidélité d'aperçu (demoLoyalty) montre la
+ * sienne : un habitué reconnu, sa roue, « Ma carte », les points d'une
+ * commande — tout gardé dans le navigateur (lib/menu/loyalty-demo).
+ *
  * ?service=fast-food montre le parcours fast food : commande sans table, puis
  * le ticket numéroté, dont l'aperçu fait avancer les étapes à la main.
  *
@@ -43,6 +57,24 @@ import { tableParam } from "@/lib/menu/table-param";
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
 const DEMO_TABLE = 1;
+
+/** Les paliers d'aperçu, rapprochés des articles de la carte comme fetchRestaurant. */
+function demoProgram(restaurant: Restaurant): LoyaltyProgram | null {
+  const demo = restaurant.demoLoyalty;
+  if (!demo) return null;
+  const items = new Map<string, MenuItem>(
+    restaurant.categories.flatMap((category) => category.items.map((item) => [item.id, item]))
+  );
+  return {
+    pointsPerEuro: demo.pointsPerEuro,
+    rewards: demo.rewards.map(({ id, label, points, items: ids }) => ({
+      id,
+      label,
+      points,
+      items: ids.flatMap((itemId) => items.get(itemId) ?? []),
+    })),
+  };
+}
 
 export async function generateMetadata({
   params,
@@ -105,6 +137,8 @@ export default async function MenuPreviewPage({
 
   const themeClass = theme === "ominin" ? undefined : restaurantThemeClass(slug);
   const suivi = !fastFood && Boolean(restaurant.suivi);
+  // La fidélité se montre à table : le ticket fast food n'en porte pas.
+  const loyalty = fastFood ? null : demoProgram(restaurant);
 
   // Comme la page en production (fetchRestaurant) : une formule désactivée
   // ne se montre pas. Ses jours de service, eux, ne filtrent pas l'aperçu,
@@ -135,6 +169,7 @@ export default async function MenuPreviewPage({
         formuleOffers: restaurant.pairings
           ? resolveFormuleOffers(formules, restaurant.categories)
           : undefined,
+        loyalty,
         ...(suivi && {
           demoSuivi: {
             drinks: restaurant.categories
@@ -151,39 +186,67 @@ export default async function MenuPreviewPage({
         }),
       }}
     >
-      <div
-        data-menu-root
-        data-slug={slug}
-        data-service={fastFood ? "fast-food" : undefined}
-        className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
-      >
-        <MenuTicker items={restaurant.ticker} />
-        <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} />
-        <MenuHighlights highlights={restaurant.highlights} />
-        {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
-            tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
-            bout de la carte. */}
-        <TicketTracker />
-        <CartBar />
-        <MenuBody
-          layout={restaurant.categoryLayout}
-          categories={categoryLinks}
-          themeLocked={Boolean(themeClass)}
-          bottomPadding="pb-10"
+      <MaybeDemoLoyalty restaurant={restaurant} demo={loyalty ? restaurant.demoLoyalty : undefined}>
+        <div
+          data-menu-root
+          data-slug={slug}
+          data-service={fastFood ? "fast-food" : undefined}
+          className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
-          {formules.length > 0 && <FormulesSection formules={formules} />}
-          {restaurant.categories.map((category) => (
-            <MenuSection
-              key={category.id}
-              category={category}
-              // La première photo ne se charge d'emblée qu'en tête de carte :
-              // sous des formules, elle est déjà loin sous le premier écran.
-              first={category.id === categoryLinks[0]?.id}
+          <MenuTicker items={restaurant.ticker} />
+          <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} />
+          <MenuHighlights highlights={restaurant.highlights} />
+          {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+              tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+              bout de la carte. */}
+          <TicketTracker />
+          <CartBar />
+          <MenuBody
+            layout={restaurant.categoryLayout}
+            categories={categoryLinks}
+            themeLocked={Boolean(themeClass)}
+            bottomPadding="pb-10"
+          >
+            {formules.length > 0 && <FormulesSection formules={formules} />}
+            {restaurant.categories.map((category) => (
+              <MenuSection
+                key={category.id}
+                category={category}
+                // La première photo ne se charge d'emblée qu'en tête de carte :
+                // sous des formules, elle est déjà loin sous le premier écran.
+                first={category.id === categoryLinks[0]?.id}
+              />
+            ))}
+          </MenuBody>
+          <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
+          {loyalty && (
+            <LoyaltyWelcome
+              brand={brandName(restaurant)}
+              logo={restaurant.logo}
+              icon={restaurant.icons?.homeScreen}
+              wordmark={restaurant.logoIsName}
+              motif={restaurant.loyaltyMotif}
             />
-          ))}
-        </MenuBody>
-        <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
-      </div>
+          )}
+        </div>
+      </MaybeDemoLoyalty>
     </CartProvider>
+  );
+}
+
+function MaybeDemoLoyalty({
+  restaurant,
+  demo,
+  children,
+}: {
+  restaurant: Restaurant;
+  demo?: DemoLoyalty;
+  children: React.ReactNode;
+}) {
+  if (!demo) return children;
+  return (
+    <DemoLoyaltyProvider slug={restaurant.slug} demo={demo} wheel={restaurant.loyaltyWheel}>
+      {children}
+    </DemoLoyaltyProvider>
   );
 }

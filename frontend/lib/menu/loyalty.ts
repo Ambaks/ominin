@@ -52,6 +52,11 @@ export const LOYALTY_DEVICE_COOKIE = "ominin_fidelite";
 export const LOYALTY_DEVICE_MAX_AGE = 365 * 24 * 60 * 60;
 /** Durée de l'accueil avant qu'il se replie en pastille de points (ms). */
 export const LOYALTY_GREETING_MS = 4000;
+/**
+ * Le tour du jour à jouer, la roue monte d'elle-même à la place de l'accueil,
+ * ce délai après l'ouverture de la page (ms) : la carte a fini de se poser.
+ */
+export const LOYALTY_WHEEL_DELAY_MS = 1000;
 
 /** Le client derrière un téléphone reconnu, vu de ce restaurant. */
 export interface LoyaltyMember {
@@ -64,15 +69,38 @@ export interface LoyaltyMember {
   since: string | null;
 }
 
-/** Une ligne de la carte : gain d'une commande, article offert, geste du gérant. */
+/** Une ligne de la carte : gain d'une commande, article offert, tour de roue, geste du gérant. */
 export interface LoyaltyHistoryEntry {
-  kind: "gain" | "depense" | "ajustement";
+  kind: "gain" | "depense" | "roue" | "ajustement";
   points: number;
   at: string;
   /** Table de la commande ; null hors commande à table. */
   table: number | null;
   /** Articles offerts par une dépense, « Rose Garden, Thé menthe ». */
   rewards: string | null;
+}
+
+/** Une part de la roue : ses points, et son poids au tirage. */
+export interface WheelSlice {
+  points: number;
+  weight: number;
+}
+
+/**
+ * La roue d'une maison : un tour par jour à un téléphone reconnu. Une série
+ * de jours d'affilée mène à la roue dorée (`golden.every`-ième jour), dont
+ * les points sont multipliés.
+ */
+export interface LoyaltyWheelConfig {
+  slices: WheelSlice[];
+  golden?: { every: number; multiplier: number };
+}
+
+/** Indice de la part tirée, au prorata des poids. */
+export function drawSlice(slices: WheelSlice[]): number {
+  let draw = Math.random() * slices.reduce((sum, slice) => sum + slice.weight, 0);
+  const index = slices.findIndex((slice) => (draw -= slice.weight) < 0);
+  return index === -1 ? slices.length - 1 : index;
 }
 
 /** Le palier suivant : le moins cher que le solde n'atteint pas encore. */

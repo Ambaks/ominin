@@ -9,7 +9,12 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { LoyaltyHistoryEntry, LoyaltyMember } from "./loyalty";
+import {
+  fetchLoyaltyBalance,
+  type LoyaltyHistoryEntry,
+  type LoyaltyMember,
+  type LoyaltyWheelConfig,
+} from "./loyalty";
 
 /*
  * Le client que ce téléphone a fait retenir (/api/fidelite). La page du menu
@@ -18,7 +23,39 @@ import type { LoyaltyHistoryEntry, LoyaltyMember } from "./loyalty";
  * l'encaissement arrivent pendant le repas.
  */
 
-interface LoyaltyMemberValue {
+/** La roue du jour d'un téléphone reconnu. */
+export interface LoyaltyWheelState extends LoyaltyWheelConfig {
+  /** Le tour d'aujourd'hui reste à jouer. */
+  ready: boolean;
+  /** Jours d'affilée avec un tour, aujourd'hui compris s'il est joué. */
+  streak: number;
+  /**
+   * Tire la part et crédite ses points sur-le-champ (multipliés un jour de
+   * roue dorée). La roue s'y arrête ensuite : fermer la feuille en route ne
+   * perd rien.
+   */
+  spin: () => Promise<{ index: number; points: number }>;
+  /**
+   * Aperçu seulement : le tour du jour s'annule, pour le rejouer devant le
+   * gérant ; goldenDay : la série d'avant passe au jour qui précède la roue dorée.
+   */
+  replay?: (goldenDay?: boolean) => void;
+}
+
+/** Une commande d'aperçu, portée sur la carte de son contact. */
+export interface PreviewLoyaltyOrder {
+  contact: string;
+  firstName?: string;
+  /** Retenir le téléphone pour ce contact, comme après une vraie commande. */
+  remember: boolean;
+  earned: number;
+  spent: number;
+  /** Articles offerts, « Il Tiramisù, Café Illy ». */
+  rewards: string | null;
+  table: number | null;
+}
+
+export interface LoyaltyMemberValue {
   /** Le menu peut retenir un téléphone (programme ouvert, vrai menu). */
   enabled: boolean;
   member: LoyaltyMember | null;
@@ -29,6 +66,12 @@ interface LoyaltyMemberValue {
   forget: () => Promise<void>;
   /** Les lignes de la carte, à l'ouverture de « Ma carte ». */
   loadHistory: () => Promise<LoyaltyHistoryEntry[]>;
+  /** Solde d'un contact saisi au panier ; null : programme éteint. */
+  balance: (slug: string, contact: string) => Promise<number | null>;
+  /** null : pas de roue dans cette maison. */
+  wheel: LoyaltyWheelState | null;
+  /** Aperçu seulement : la commande passe sur la carte, rien ne part. */
+  recordPreviewOrder?: (order: PreviewLoyaltyOrder) => void;
 }
 
 const noop = async () => {};
@@ -39,9 +82,14 @@ const DISABLED: LoyaltyMemberValue = {
   remember: noop,
   forget: noop,
   loadHistory: async () => [],
+  balance: fetchLoyaltyBalance,
+  wheel: null,
 };
 
 const LoyaltyMemberContext = createContext<LoyaltyMemberValue>(DISABLED);
+
+/** La fidélité d'une carte d'aperçu (loyalty-demo) se branche ici. */
+export const LoyaltyMemberValueProvider = LoyaltyMemberContext.Provider;
 
 /**
  * Clé sessionStorage : l'accueil a déjà eu lieu dans cet onglet. Posée aussi
@@ -123,7 +171,16 @@ export function LoyaltyMemberProvider({
   const value = useMemo<LoyaltyMemberValue>(
     () =>
       enabled
-        ? { enabled, member, refresh, remember, forget, loadHistory }
+        ? {
+            enabled,
+            member,
+            refresh,
+            remember,
+            forget,
+            loadHistory,
+            balance: fetchLoyaltyBalance,
+            wheel: null,
+          }
         : DISABLED,
     [enabled, member, refresh, remember, forget, loadHistory]
   );
