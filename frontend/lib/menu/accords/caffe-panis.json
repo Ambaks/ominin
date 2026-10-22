@@ -1,14 +1,26 @@
 {
-  "Café allongé": [
-    { "with": "Calvados", "why": "La pomme suit le café : c'est le café-calva." }
+  "Classic Burrata": [
+    { "with": "Prosciutto", "why": "La crème de la burrata adoucit le sel du jambon." }
   ],
-  "Gin Beefeater": [
-    { "with": "Tonic Water Original", "why": "Le gin-tonic : amertume franche et genièvre." }
+  "Stracciatella fumée 125 g": [
+    { "with": "Lemon Spritz", "why": "L'acidité du citron coupe la crème de la stracciatella." }
   ],
-  "Glace à l'italienne": [
-    { "with": "Café Illy", "why": "L'amertume du café contre la douceur de la glace." }
+  "Pizza Truffle Suprême": [
+    { "with": "Champagne Robert-Allait", "why": "Les bulles du champagne tranchent la crème de truffe." }
   ],
-  "Crêpe": [
-    { "with": "Noisette", "why": "Un café pour couper le sucre." }
+  "Mousse Big-love": [
+    { "with": "Café Illy", "why": "L'amertume du café coupe le sucre du praliné." }
+  ],
+  "Deurty Cookie": [
+    { "with": "Café Illy", "why": "Le café amer contrebalance le cœur de gianduja." }
+  ],
+  "Moretti": [
+    { "with": "Pizza Capo", "why": "Bien fraîche, la blonde tempère le piquant de la nduja." }
+  ],
+  "Gallia IPA": [
+    { "with": "Pizza Puissance 4", "why": "L'IPA, amère et houblonnée, tient tête au gorgonzola." }
+  ],
+  "Basilic Smash": [
+    { "with": "Burrata Pesto Forever", "why": "Le basilic du cocktail retrouve celui du pesto." }
   ]
 }
