@@ -418,6 +418,8 @@ export function CartBar() {
   const tipAmount = tipCents / 100;
   // Aperçu à table : paiement simulé et suivi (demoSuivi).
   const previewSuivi = cart.preview && cart.demoSuivi !== undefined;
+  // Aperçu du retrait au bar : on y règle et on y retire la commande.
+  const barPickup = previewSuivi && Boolean(cart.demoSuivi?.barPickup);
   // Le règlement a son étape quand il y a un choix à faire (en ligne ou au
   // comptoir, puis le pourboire).
   const paymentStep = cart.onlinePayment && cart.total > 0 && !belowMinimum && !cart.collect;
@@ -999,7 +1001,7 @@ export function CartBar() {
                           ? "À emporter"
                           : cart.fastFood
                             ? "À récupérer au comptoir"
-                            : cart.preview && cart.demoSuivi?.barPickup
+                            : barPickup
                               ? "À récupérer au bar"
                               : `Table ${cart.tableNumber}`}
                         {paymentStep && (
@@ -1052,7 +1054,7 @@ export function CartBar() {
                         {(
                           [
                             ["carte", "Payer en\u00a0ligne"],
-                            ["comptoir", "Payer au\u00a0comptoir"],
+                            ["comptoir", barPickup ? "Payer au\u00a0bar" : "Payer au\u00a0comptoir"],
                           ] as const
                         ).map(([value, label]) => (
                           <button

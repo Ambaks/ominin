@@ -34,7 +34,7 @@ import { createClient } from "@/lib/supabase/client";
  * Elles n'ont pas de numéro du jour : le client numérote les siennes. En
  * aperçu, sans base ni stockage, une salle simulée les fait avancer seule.
  * Retrait au bar (barPickup, aperçu) : prête, la commande attend le client
- * au bar, où il montre le code de son ticket ; le scan du bar la dit remise.
+ * au bar, où il montre le code de son ticket ; le scan du bar la dit retirée.
  */
 
 export interface TicketLine {
@@ -232,8 +232,9 @@ const SPOKEN_TABLE: Partial<Record<OrderStatus, string>> = {
 /** Aperçu à table, retrait au bar. */
 const SPOKEN_BAR: Partial<Record<OrderStatus, string>> = {
   ...SPOKEN_TABLE,
+  en_attente: "reçue, à régler au bar.",
   prete: "prête\u00a0! Venez la chercher au bar et montrez votre code.",
-  servie: "remise. Bon appétit\u00a0!",
+  servie: "retirée.",
 };
 
 const unknownTicket = (id: string): Ticket => ({

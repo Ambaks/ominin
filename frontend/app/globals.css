@@ -4723,6 +4723,34 @@ html:has(.ticket-dock) {
   -webkit-text-fill-color: var(--muted);
 }
 
+/* Retrait au bar, prête : le code à montrer prend la place. Le code (sa
+   marge blanche comprise) suit la largeur et la hauteur de l'écran ; au
+   téléphone à la verticale, le numéro se resserre (une ou plusieurs
+   commandes), et sur un écran bas les étapes lui cèdent leur ligne (plus
+   bas, avec le paiement en cours). */
+.order-ticket-code {
+  width: min(15rem, 62vw, 32svh);
+}
+
+@media (max-width: 39.99rem) and (orientation: portrait) {
+  .order-ticket-sheet .order-ticket[data-code] .order-ticket-digits {
+    --digits-size: clamp(3rem, 10svh, 5rem);
+  }
+}
+
+/* Téléphone couché : le code tient dans le volet de droite, sans ses fondus
+   de défilement, qui en voilaient les coins (les repères du lecteur). */
+@media (orientation: landscape) and (max-height: 500px) {
+  .order-ticket-code {
+    width: min(12rem, 36svh);
+  }
+
+  .order-ticket[data-code] .order-ticket-foot[role="region"][data-scrolled]::before,
+  .order-ticket[data-code] .order-ticket-foot[role="region"]::after {
+    display: none;
+  }
+}
+
 /* Le numéro suit la hauteur de l'écran : un téléphone bas ou couché garde
    l'état en vue sous le numéro. Passé 99, il suit aussi la largeur du ticket
    (cqi) : trois chiffres d'Archivo Black débordaient à 320 px. */
@@ -5267,9 +5295,10 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
 /* Paiement en cours, écran bas à la verticale : ses deux boutons montent le
    bas de la feuille ; les étapes, qui n'avancent pas avant le règlement,
    laissent la place au titre et à son explication (entière jusqu'à 640 px de
-   haut ; en dessous, la feuille défile). */
+   haut ; en dessous, la feuille défile). Le code du retrait au bar de même :
+   « C'est prêt ! » dit déjà la dernière étape. */
 @media (max-height: 700px) and (orientation: portrait) {
-  [role="dialog"]:has(.order-ticket-paying) .order-ticket-foot > ol {
+  :is([role="dialog"]:has(.order-ticket-paying), .order-ticket[data-code]) .order-ticket-foot > ol {
     display: none;
   }
 }
