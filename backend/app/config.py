@@ -175,6 +175,11 @@ class Settings(BaseSettings):
     github_dispatch_token: str = ""
     # Recent posts shown to the writer so it does not repeat itself.
     social_history_size: int = 30
+    # Every draft is scored by a separate reviewer call and rewritten from its
+    # critique until it reaches the target score (out of 10) or runs out of
+    # rewrites; the best version goes to the admin. Decided by Marwan.
+    social_review_target: float = 8.0
+    social_review_max_rounds: int = 3
     # Metrics are refreshed at each analysis until a post is this old, then
     # frozen; only frozen posts feed it (a day-old reach is undecided).
     social_settle_days: int = 3
