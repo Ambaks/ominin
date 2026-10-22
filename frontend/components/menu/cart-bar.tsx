@@ -1501,7 +1501,9 @@ export function CartBar() {
                               : cart.collect
                                 ? `Commander et payer · ${formatPrice(cart.total)}`
                                 : !cart.fastFood
-                                ? "Envoyer la commande"
+                                ? payment === "carte"
+                                  ? `Payer en\u00a0ligne · ${formatPrice((totalCents + tipCents) / 100)}`
+                                  : "Envoyer la commande"
                                 : payment === "carte"
                                   ? `Commander et payer · ${formatPrice(cart.total)}`
                                   : "Commander · payer au comptoir"}
