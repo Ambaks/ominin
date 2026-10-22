@@ -23,7 +23,8 @@ const supabaseOrigins = (() => {
 
 /*
  * CSP additive et prudente, calquée sur les origines réellement utilisées :
- *  - Supabase (REST/Storage/Realtime) : connect-src https + wss, img-src storage.
+ *  - Supabase (REST/Storage/Realtime) : connect-src https + wss, img-src storage,
+ *    media-src storage (Reels rendus de l'admin, bucket social-videos).
  *  - Stripe : Stripe.js embarqué sur le menu QR (Apple Pay, Google Pay et
  *    carte dans la page) — script sur js.stripe.com et ses sous-domaines,
  *    appels sur api.stripe.com, iframes des formulaires et de 3-D Secure
@@ -59,6 +60,7 @@ const csp = [
   "frame-ancestors 'self'",
   "form-action 'self' https:",
   `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com https://www.gstatic.com${supabaseOrigins}`,
+  `media-src 'self' https://*.supabase.co${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline' https://web.squarecdn.com https://sandbox.web.squarecdn.com",
   `script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com${isDev ? " 'unsafe-eval'" : ""}`,
