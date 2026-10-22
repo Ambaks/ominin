@@ -33,7 +33,7 @@ import {
  * de la maison, « Bon appétit ! » ou « Bonne dégustation ! ».
  *
  * Retrait au bar : prête, le ticket porte le code que le client montre au
- * bar ; scanné, la commande est remise et la page la salue de même.
+ * bar ; scanné, la commande est retirée et la page la salue de même.
  */
 
 /**
@@ -176,15 +176,15 @@ const BAR_STAGES: Partial<Record<OrderStatus, Stage>> = {
   },
   prete: {
     title: "C’est prêt\u00a0!",
-    body: "Venez au bar et montrez ce code\u00a0:\non le scanne et on vous remet votre commande.",
+    body: "Montrez ce code au\u00a0bar\u00a0:\non vous remet votre commande.",
     step: 2,
     chip: "Prête au bar",
   },
   servie: {
     title: "",
-    body: "Remise au bar.\nUne autre envie\u00a0? La carte reste ouverte.",
+    body: "Retirée au bar.\nUne autre envie\u00a0? La carte reste ouverte.",
     step: BAR_STEPS.length,
-    chip: "Remise",
+    chip: "Retirée",
   },
 };
 
@@ -383,6 +383,10 @@ function OrderTicket({
   const stage = stageOf(ticket, table, bar);
   const tracked = !!stage && stage.step >= 0;
   const ready = ticket.status === "prete";
+  // Retrait au bar, prête : le code à montrer au bar.
+  const code = bar && ready && ticket.number !== null;
+  const codeRef = useRef<HTMLDivElement>(null);
+  const exitRef = useRef<HTMLDivElement>(null);
   const active = isActiveTicket(ticket);
   // À table, deux commandes ou plus : « Vos commandes » sous le ticket.
   const orders =
@@ -427,7 +431,8 @@ function OrderTicket({
 
   // Prête pendant que le client lisait le bas du ticket : le numéro revient
   // en vue, c'est lui qu'il montrera au comptoir — et, téléphone couché,
-  // « C'est prêt ! » en haut de son volet.
+  // « C'est prêt ! » en haut de son volet. Au retrait au bar, la feuille
+  // descend ensuite jusqu'au code (plus bas).
   useEffect(() => {
     if (!ready) return;
     rootRef.current?.closest('[role="dialog"]')?.scrollTo({ top: 0 });
@@ -440,6 +445,27 @@ function OrderTicket({
     rootRef.current?.closest('[role="dialog"]')?.scrollTo({ top: 0 });
     footRef.current?.scrollTo({ top: 0 });
   }, [ticket.id]);
+
+  // Retrait au bar : c'est le code qu'on montre. La feuille descend jusqu'à
+  // lui, entier au-dessus des boutons collés en bas et de leur fondu
+  // (globals.css) — qu'il paraisse feuille ouverte ou à sa réouverture. Après
+  // les retours en haut ci-dessus, et une image plus tard : la feuille qui
+  // s'ouvre prend le focus après les effets du ticket.
+  useEffect(() => {
+    const box = codeRef.current;
+    const exit = exitRef.current;
+    if (!code || !box || !exit) return;
+    const frame = requestAnimationFrame(() => {
+      // Téléphone couché, c'est le volet de l'état qui défile, au-dessus des
+      // boutons : seul leur fondu y déborde.
+      const foot = footRef.current;
+      const paneScrolls = !!foot && getComputedStyle(foot).overflowY !== "visible";
+      const fade = parseFloat(getComputedStyle(exit, "::before").height) || 0;
+      box.style.scrollMarginBottom = `${(paneScrolls ? 0 : exit.offsetHeight) + fade}px`;
+      box.scrollIntoView({ block: "nearest" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [code, ticket.id]);
 
   // Le bouton qui vient de servir disparaît : le focus reste dans le ticket.
   const keepFocus = () =>
@@ -470,6 +496,7 @@ function OrderTicket({
     >
       <div
         data-ready={ready || undefined}
+        data-code={code || undefined}
         // À table, la commande servie garde son numéro en couleur : c'est
         // l'une de celles de la table, pas un ticket périmé.
         data-done={(!active && table === null) || undefined}
@@ -614,17 +641,6 @@ function OrderTicket({
               </h3>
             )}
             {estimate && <ReadyCountdown estimate={estimate} ai={estimatorLive} />}
-            {/* Noir sur blanc quel que soit le thème : la douchette lit le
-                contraste. Aperçu : le code ne porte qu'un texte de démo. */}
-            {bar && ready && ticket.number !== null && (
-              <div className="mb-2 mt-4 rounded-2xl bg-white p-3 text-black empty:hidden">
-                <QrCode
-                  value={`Démo Ominin · retrait au bar · commande n° ${ticket.number}`}
-                  label={`Code de retrait de la commande n° ${ticket.number}`}
-                  className="block size-44"
-                />
-              </div>
-            )}
             {/* Sous le titre de l'état, dans le ticket : un avis qui s'en va ne
                 déplace pas le numéro, et ne glisse pas sous les boutons. */}
             {notices.map((notice) => (
@@ -646,6 +662,26 @@ function OrderTicket({
                   </span>
                 ))}
               </p>
+            )}
+            {/* Sous la phrase qui le présente. Noir sur blanc quel que soit le
+                thème : la douchette lit le contraste. Aperçu : le code ne porte
+                qu'un texte de démo. */}
+            {code && (
+              <div
+                ref={codeRef}
+                className="order-ticket-code mb-1 mt-4 rounded-2xl bg-white p-3 text-black"
+              >
+                <QrCode
+                  value={`Démo Ominin · retrait au bar · commande n° ${ticket.number}`}
+                  label={`Code de retrait de la commande n° ${ticket.number}`}
+                  className="block h-auto w-full"
+                />
+                {/* Le numéro avec le code : sur un écran bas, la feuille
+                    descendue jusqu'au code a laissé le grand numéro en haut. */}
+                <p aria-hidden className="mt-3 font-display text-lg font-semibold leading-none tabular-nums">
+                  N°&nbsp;{ticket.number}
+                </p>
+              </div>
             )}
           </div>
           {ticket.lines.length > 0 && (
@@ -697,10 +733,14 @@ function OrderTicket({
           passer au comptoir (le formulaire de paiement vivait dans la feuille
           du panier, refermée), et, dans l'aperçu commercial, l'étape
           suivante. */}
-      <div className="order-ticket-exit sticky bottom-0 -mx-5 -mb-5 flex flex-col gap-2 bg-surface px-5 pb-5 pt-3">
+      <div
+        ref={exitRef}
+        className="order-ticket-exit sticky bottom-0 -mx-5 -mb-5 flex flex-col gap-2 bg-surface px-5 pb-5 pt-3"
+      >
         {/* Au téléphone, la liste est sous le ticket : cette ligne, toujours
-            en vue, y mène. Au bureau, elle est à côté. */}
-        {listed && (
+            en vue, y mène. Au bureau, elle est à côté. Le code du bar à
+            l'écran, elle s'efface : elle le poussait sous les boutons. */}
+        {listed && !code && (
           <button
             type="button"
             onClick={() => {
@@ -849,7 +889,7 @@ function ServeBox({
         </svg>
       </span>
       <p className="serve-box-kicker mt-5 text-[11px] font-semibold uppercase tracking-[0.3em] text-muted lining-nums">
-        Commande n°&nbsp;{ticket.number} · {bar ? "Remise au bar" : `Table ${table}`}
+        Commande n°&nbsp;{ticket.number} · {bar ? "Retirée" : `Table ${table}`}
       </p>
       <h2
         id={titleId}

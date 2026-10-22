@@ -37,7 +37,7 @@ import { tableParam } from "@/lib/menu/table-param";
  * ligne simulé, puis chaque commande suivie au bas de l'écran jusqu'au
  * service — rien n'est appelé, ni paiement ni base. ?retrait=bar : un QR
  * dont les commandes se retirent au bar — prête, le client y montre le code
- * de son ticket, que le bar scanne pour la marquer remise.
+ * de son ticket, que le bar scanne pour la marquer retirée.
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
