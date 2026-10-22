@@ -1,14 +1,41 @@
 {
-  "Café allongé": [
-    { "with": "Calvados", "why": "La pomme suit le café : c'est le café-calva." }
+  "Prosciutto": [
+    { "with": "Muscat", "why": "La douceur du muscat répond au sel du jambon de Parme." }
   ],
-  "Gin Beefeater": [
-    { "with": "Tonic Water Original", "why": "Le gin-tonic : amertume franche et genièvre." }
+  "Classic Burrata": [
+    { "with": "Prosciutto", "why": "La crème de la burrata adoucit le sel du jambon." }
   ],
-  "Glace à l'italienne": [
-    { "with": "Café Illy", "why": "L'amertume du café contre la douceur de la glace." }
+  "Stracciatella fumée 125 g": [
+    { "with": "Lemon Spritz", "why": "L'acidité du citron coupe la crème de la stracciatella." }
   ],
-  "Crêpe": [
-    { "with": "Noisette", "why": "Un café pour couper le sucre." }
+  "Pizza Stracciatella Versace": [
+    { "with": "Pic St Loup", "why": "La syrah répond à la tomate et au jambon de Parme." }
+  ],
+  "Pizza Truffle Suprême": [
+    { "with": "Champagne Robert-Allait", "why": "Les bulles du champagne tranchent la crème de truffe." }
+  ],
+  "Pasta Al Tartufo": [
+    { "with": "Prosecco", "why": "Les bulles du prosecco coupent la crème de gorgonzola." }
+  ],
+  "Mousse Big-love": [
+    { "with": "Café Illy", "why": "L'amertume du café coupe le sucre du praliné." }
+  ],
+  "Deurty Cookie": [
+    { "with": "Café Illy", "why": "Le café amer contrebalance le cœur de gianduja." }
+  ],
+  "Moretti": [
+    { "with": "Pizza Capo", "why": "Bien fraîche, la blonde tempère le piquant de la nduja." }
+  ],
+  "Gallia IPA": [
+    { "with": "Pizza Puissance 4", "why": "L'IPA, amère et houblonnée, tient tête au gorgonzola." }
+  ],
+  "Campari Spritz": [
+    { "with": "Classic Burrata", "why": "L'amertume du Campari tranche la crème de la burrata." }
+  ],
+  "Lemon Spritz": [
+    { "with": "Trio d'arancini", "why": "Les bulles et le citron tranchent la mozza des arancini." }
+  ],
+  "Basilic Smash": [
+    { "with": "Burrata Pesto Forever", "why": "Le basilic du cocktail retrouve celui du pesto." }
   ]
 }
