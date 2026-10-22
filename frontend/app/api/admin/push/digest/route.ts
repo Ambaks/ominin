@@ -16,8 +16,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *   puis bloquée, puis à faire), les deux suivantes, le reste compté — rien
  *   à qui n'a rien d'ouvert ;
  * - à tous, les chiffres des dernières 24 h des clients en service (le
- *   service du soir est fini à cette heure-là), face à leur moyenne
- *   journalière sur 30 jours ;
+ *   service du soir est fini à cette heure-là), face aux 24 h équivalentes
+ *   de la semaine d'avant (même jour, mêmes clients) ;
  * - à tous, un client qui décroche : visites du menu en baisse d'au moins
  *   CHURN_DROP_RATIO sur 30 jours face aux 30 d'avant (la règle de la
  *   Synthèse), une fois par semaine au plus par client.
@@ -75,9 +75,10 @@ export async function POST(request: Request) {
   const now = Date.now();
   const iso = (ms: number) => new Date(ms).toISOString();
   const period = CLIENT_PERIOD_DAYS[1] * DAY_MS;
-  const [yesterday, current, previous] = await Promise.all(
+  const [yesterday, sameDayLastWeek, current, previous] = await Promise.all(
     [
       [now - DAY_MS, now],
+      [now - 8 * DAY_MS, now - 7 * DAY_MS],
       [now - period, now],
       [now - 2 * period, now - period],
     ].map(([from, to]) =>
@@ -95,11 +96,9 @@ export async function POST(request: Request) {
     const total = (pick: (row: NonNullable<(typeof day)[number]["row"]>) => number) =>
       day.reduce((sum, { row }) => sum + pick(row!), 0);
     const revenue = total((row) => row.revenue);
-    // Moyenne journalière sur 30 jours des mêmes clients.
-    const average =
-      linked.reduce((sum, client) => sum + (figure(current, client)?.revenue ?? 0), 0) /
-      CLIENT_PERIOD_DAYS[1];
-    const gap = average > 0 ? Math.round((revenue / average - 1) * 100) : null;
+    // Le même service, une semaine plus tôt, chez les mêmes clients.
+    const lastWeek = day.reduce((sum, { client }) => sum + (figure(sameDayLastWeek, client)?.revenue ?? 0), 0);
+    const gap = lastWeek > 0 ? Math.round((revenue / lastWeek - 1) * 100) : null;
     const best = [...day].sort((a, b) => b.row!.revenue - a.row!.revenue);
     await notifyOwners(OWNERS, {
       title: `Hier ${formatEuros(revenue)} · ${formatEuros(total((row) => row.commission))} pour nous`,
@@ -108,7 +107,7 @@ export async function POST(request: Request) {
           .slice(0, 2)
           .map(({ client, row }) => `${client.name} ${formatEuros(row!.revenue)} (${row!.orders} tickets)`)
           .join(" · ") + (best.length > 2 ? ` · + ${best.length - 2}` : ""),
-        gap !== null && `${gap >= 0 ? "+" : "−"}${Math.abs(gap)} % vs moyenne ${CLIENT_PERIOD_DAYS[1]} j`,
+        gap !== null && `${gap >= 0 ? "+" : "−"}${Math.abs(gap)} % vs même jour la semaine dernière`,
       ]
         .filter(Boolean)
         .join(" — "),
