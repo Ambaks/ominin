@@ -5571,14 +5571,10 @@ const cafeDesArts: Restaurant = {
 };
 
 /*
- * Caffè Panis — 3 place du Marché aux Fleurs. Aucune carte de salle en ligne
- * (leur menu Sunday renvoie à « la carte papier ») : la carte entière de
- * Ciccio Gang, leur marque de livraison à la même adresse (Uber Eats,
- * archive du 26 novembre 2025), mot pour mot à l'orthographe près, prix de
- * livraison, dans l'ordre d'une carte de salle (Uber Eats ouvre sur les
- * Dwich), les plats à photo en tête de section. Glaces, crêpes et boissons :
- * leur carte papier, photographiée le 22 octobre 2026, dans son ordre. Sources :
- * demos/caffe-panis/docs/.
+ * Caffè Panis — 3 place du Marché aux Fleurs. Leur carte papier, photographiée
+ * le 22 octobre 2026, et rien d'autre : boissons dans son ordre, puis glaces
+ * et crêpes. Leur carte de livraison (Uber Eats) n'en fait plus partie, à la
+ * demande du gérant.
  */
 const PANIS_SIROP = groupeChoix(
   "sirop",
@@ -5694,256 +5690,12 @@ const caffePanis: Restaurant = {
   address: "3 Place du Marché aux Fleurs, 34000 Montpellier",
   phone: "+33 4 99 67 65 38",
   hours: "Tous\u00a0les\u00a0jours 9h–\u20601h",
-  highlights: ["De 9h à 1h, 7j/7", "Burrata straight from Puglia"],
+  highlights: ["De 9h à 1h, 7j/7"],
   // Accords provisoires, à régénérer avec backend/scripts/pairings.py.
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.
   loyaltyMotif: "fanions",
   categories: [
-    {
-      id: "antipasti",
-      name: "Antipasti",
-      items: [
-        {
-          id: "trio-arancini",
-          name: "Trio d'arancini",
-          description: "Trois dodues boulettes frites de risotto au prosciutto et fromage mozza fior di latte, ouuuuh.",
-          price: 6.9,
-          image: unsplash("photo-1751199393315-fbcae4eabd4c", 800),
-        },
-        {
-          id: "prosciutto",
-          name: "Prosciutto",
-          description: "L'inoubliable jambon en direct de la région de Parme, fondant à souhait.",
-          price: 7.9,
-          image: pexels("20095427/pexels-photo-20095427.jpeg", 800),
-        },
-        {
-          id: "burrata-pesto-forever",
-          name: "Burrata Pesto Forever",
-          description:
-            "Belle burrata straight from Puglia fourrée au pesto de basilic, tomates séchées à l'huile, huile d'olive et basilic frais. Servi avec une boule de pain maison.",
-          price: 8.9,
-          image: pexels("29380177/pexels-photo-29380177.jpeg", 800),
-        },
-        {
-          id: "classic-burrata",
-          name: "Classic Burrata",
-          description:
-            "Burrata de 125 g crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive e basta.",
-          price: 6.9,
-          image: pexels("14840767/pexels-photo-14840767.jpeg", 800),
-        },
-        {
-          id: "stracciatella-fumee",
-          name: "Stracciatella fumée 125\u00a0g",
-          description:
-            "Stracciatella de 125 g fumée et crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive et une pointe de sel de poivre e basta.",
-          price: 6.9,
-        },
-        {
-          id: "burrata-truffe-mortadelle",
-          name: "Burrata Truffe & Mortadelle",
-          description: "Dodue burrata bien fraîche en direct des Pouilles et crème de truffe d'été.",
-          price: 10.9,
-        },
-      ],
-    },
-    {
-      id: "pizze",
-      name: "Pizze",
-      items: [
-        {
-          id: "mama-king",
-          name: "Pizza Mama King",
-          description:
-            "Champignons de Paris cuits finement tranchés, jambon blanc aux herbes, mozza fior di latte, sauce tomates italiennes, olives taggiasche et basilic frais.",
-          price: 14.9,
-          image: pexels("29039064/pexels-photo-29039064.jpeg", 800),
-        },
-        {
-          id: "margherita",
-          name: "Pizza Margherita",
-          description:
-            "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé et basilic frais.",
-          price: 11.9,
-          image: pexels("35760006/pexels-photo-35760006.jpeg", 800),
-        },
-        {
-          id: "puissance-4",
-          name: "Pizza Puissance 4",
-          description:
-            "Crème fraîche, gorgonzola, gran formaggio râpé, mozza fior di latte et ciboulette. Du cheesy comme on aime.",
-          price: 14.9,
-          image: pexels("15478006/pexels-photo-15478006.jpeg", 800),
-        },
-        {
-          id: "stracciatella-versace",
-          name: "Pizza Stracciatella Versace",
-          description:
-            "Jambon de Parme, stracciatella fumée bien crémeuse, pecorino romano râpé, roquette fraîche et sauce tomates italiennes en direct de notre producteur fiammante.",
-          price: 19.9,
-          image: pexelsRecadre("8965714/pexels-photo-8965714.jpeg", 800),
-        },
-        {
-          id: "capo",
-          name: "Pizza Capo",
-          description:
-            "Fines tranches de salame piccante, salsa nduja xxxtra hot, mozza fior di latte, sauce tomates italiennes en direct de notre producteur fiammante et marjolaine fraîche.",
-          price: 15.9,
-          image: pexels("34773770/pexels-photo-34773770.jpeg", 800),
-        },
-        {
-          id: "green-circle",
-          name: "Pizza Green Circle",
-          description:
-            "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé, aubergines frites et basilic frais.",
-          price: 14.9,
-          image: pexels("13758318/pexels-photo-13758318.jpeg", 800),
-        },
-        {
-          id: "truffle-supreme",
-          name: "Pizza Truffle Suprême",
-          description:
-            "Crème de truffe d'été à la ricotta, mozza fior di latte, petits champignons de Paris, beaux copeaux de truffe fraîche d'automne, gran formaggio râpé et ciboulette.",
-          price: 20.9,
-        },
-        {
-          id: "amor-amatriciana",
-          name: "Pizza Amor Amatriciana",
-          description:
-            "Pancetta «\u00a0Poitrine de porc\u00a0» et sauce de tomates italiennes pour une extra dose de saveurs, mozza fior di latte, pecorino et basilic frais.",
-          price: 15.9,
-        },
-      ],
-    },
-    {
-      id: "pastas",
-      name: "Pastas",
-      items: [
-        {
-          id: "carbonara-originale",
-          name: "Pasta Carbonara Originale",
-          description: "Pasta rigatoni à la sauce carbonara, guanciale de cochon et pecorino.",
-          price: 13.9,
-          image: unsplash("photo-1735640268811-9c614c08b0dc", 800),
-        },
-        {
-          id: "alla-bolognese",
-          name: "Pasta Alla Bolognese",
-          description: "Pasta rigatoni au ragù de bœuf, gran formaggio italiano et feuilles de basilic.",
-          price: 14.9,
-          image: pexels("34909192/pexels-photo-34909192.jpeg", 800),
-        },
-        {
-          id: "all-amatriciana",
-          name: "Pasta All'Amatriciana",
-          description: "Pasta rigatoni à la sauce de tomates italiennes, pancetta de cochon et pecorino.",
-          price: 14.9,
-          image: pexels("37180268/pexels-photo-37180268.jpeg", 800),
-        },
-        {
-          id: "vivi-e-vechio",
-          name: "Pasta Vivi E Vechio",
-          description: "Pasta rigatoni à la sauce de tomates italiennes, stracciatella fumée et feuilles de basilic.",
-          price: 12.9,
-        },
-        {
-          id: "con-il-pesto",
-          name: "Pasta Con Il Pesto",
-          description:
-            "Pasta casareccia au pesto de basilic frais, gran formaggio italiano, petites noisettes et feuilles de basilic.",
-          price: 12.9,
-        },
-        {
-          id: "al-tartufo",
-          name: "Pasta Al Tartufo",
-          description:
-            "Pasta mafaldine à la crème de gorgonzola, jambon truffé, éclat de noisettes, copeaux de parmesan, huile truffée.",
-          price: 18.9,
-        },
-      ],
-    },
-    {
-      id: "dwich",
-      name: "Les Dwich du Panis",
-      items: [
-        {
-          id: "dwich-du-gang",
-          name: "Les Dwich du Gang",
-          description: "Le dwich jambon pâte à pizza bien fluffy, jambon blanc et mozza fior di latte xxtra fondante.",
-          price: 6.9,
-        },
-        {
-          id: "dwich-regina",
-          name: "Le Dwich Regina",
-          description:
-            "Pâte à pizza bien fluffy, sauce de tomates italiennes en direct de notre producteur fiammante, mozza fior di latte, jambon blanc, champignons de Paris cuits et olives taggiasche.",
-          price: 7.9,
-        },
-        {
-          id: "dwich-truffe",
-          name: "Le Dwich Truffe",
-          description:
-            "Pâte à pizza bien fluffy, crème de ricotta à la truffe d'été, mozza fior di latte et champignons de Paris cuits.",
-          price: 8.9,
-        },
-      ],
-    },
-    {
-      id: "desserts",
-      name: "Desserts",
-      items: [
-        {
-          id: "il-tiramisu",
-          name: "Il Tiramisù",
-          description:
-            "Le grand classique de la casa bien onctueux et une petite pointe de liqueur de marsala, c'est que du love.",
-          price: 6.9,
-          image: pexelsRecadre("27305272/pexels-photo-27305272.jpeg", 800),
-        },
-        {
-          id: "mousse-big-love",
-          name: "Mousse Big-love",
-          description: "Inimitable mousse au bon chocolat, praliné noisette et crunchy gaufrette au chocolat au lait.",
-          price: 6.9,
-          image: unsplash("photo-1590080875852-ba44f83ff2db", 800),
-        },
-        {
-          id: "deurty-cookie",
-          name: "Deurty Cookie",
-          description:
-            "Décadent cookie choco-praliné mi-cuit, noix de pécan, big pépites de chocolat et pour l'overdose de love, cœur fondant ultra coulant à la gianduja.",
-          price: 5.9,
-          image: pexels("14136387/pexels-photo-14136387.jpeg", 800),
-        },
-        {
-          id: "glace-italienne",
-          name: "Glace à l'italienne",
-          price: 4,
-          options: [
-            groupeChoix("service", "Service", ["Cornet", "Pot"], { obligatoire: true }),
-            groupeChoix("parfum", "Parfum", ["Vanille", "Chocolat", "Les deux"], { obligatoire: true }),
-            groupeChoix(
-              "supplements",
-              "Suppléments",
-              ["Coulis chocolat", "Coulis caramel", "Coulis fruits rouges", "Chantilly"],
-              { multiple: true, supplement: 0.5 }
-            ),
-          ],
-        },
-        {
-          id: "crepe",
-          name: "Crêpe",
-          price: 4,
-          options: [
-            groupeChoix("garniture", "Garniture", ["Sucre", "Nutella", "Coulis fruits rouges", "Coulis caramel"], {
-              obligatoire: true,
-            }),
-          ],
-        },
-      ],
-    },
     {
       id: "bulles",
       name: "Bulles",
@@ -6267,6 +6019,37 @@ const caffePanis: Restaurant = {
         panisBouteille("bouteille-jagermeister", "Jägermeister", 75),
         panisBouteille("bouteille-gin-gordons", "Gin Gordon's", 80),
         panisBouteille("bouteille-captain-morgan", "Captain Morgan", 80),
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Desserts",
+      items: [
+        {
+          id: "glace-italienne",
+          name: "Glace à l'italienne",
+          price: 4,
+          options: [
+            groupeChoix("service", "Service", ["Cornet", "Pot"], { obligatoire: true }),
+            groupeChoix("parfum", "Parfum", ["Vanille", "Chocolat", "Les deux"], { obligatoire: true }),
+            groupeChoix(
+              "supplements",
+              "Suppléments",
+              ["Coulis chocolat", "Coulis caramel", "Coulis fruits rouges", "Chantilly"],
+              { multiple: true, supplement: 0.5 }
+            ),
+          ],
+        },
+        {
+          id: "crepe",
+          name: "Crêpe",
+          price: 4,
+          options: [
+            groupeChoix("garniture", "Garniture", ["Sucre", "Nutella", "Coulis fruits rouges", "Coulis caramel"], {
+              obligatoire: true,
+            }),
+          ],
+        },
       ],
     },
   ],
