@@ -110,7 +110,8 @@ function Gain({
   /** Le gros lot défile plus longtemps. */
   slow: boolean;
 }) {
-  const counted = useCountUp(gained, true, 450, slow ? 1400 : 900);
+  // Le compte part avec le bond du chiffre, pas avant : il se lit en entier.
+  const counted = useCountUp(gained, true, 600, slow ? 1700 : 1100);
   return (
     <div className="flex flex-col items-center gap-1">
       <p
@@ -220,7 +221,9 @@ export function LoyaltyWheel({
    * du pas sous elle ; l'angle se calcule depuis le temps de l'animation et
    * ses courbes. Vite, elle claque (moins fort à pleine vitesse, maintenue
    * contre les taquets) ; au ralenti, le taquet qui arrive la pousse, puis
-   * la lâche.
+   * la lâche. Le son ne suit pas les images : chaque claquement des 60 ms à
+   * venir se calcule et se programme sur l'horloge audio, régulier même
+   * quand une image saute.
    */
   const followTicks = (animation: Animation, duration: number, angleAt: (progress: number) => number, sway: number) => {
     const pointer = pointerRef.current;
@@ -231,8 +234,20 @@ export function LoyaltyWheel({
     let speed = 0;
     let kick: Animation | null = null;
     let lastBuzz = 0;
+    let heard = edge;
+    let scanned = 0;
     const tick = (time: number) => {
-      const progress = Math.min(1, Number(animation.currentTime ?? 0) / duration);
+      const now = Number(animation.currentTime ?? 0);
+      for (let at = Math.max(now, scanned); at <= Math.min(duration, now + 60); at += 2) {
+        const crossing = Math.floor((angleAt(at / duration) + sway) / pitch);
+        if (crossing !== heard) {
+          heard = crossing;
+          const pace = Math.abs(angleAt(Math.min(1, (at + 8) / duration)) - angleAt(at / duration)) / 8;
+          sound.tick(pace, (at - now) / 1000);
+        }
+        scanned = at + 2;
+      }
+      const progress = Math.min(1, now / duration);
       const angle = angleAt(progress) + sway;
       if (previousTime) speed = speed * 0.7 + (Math.abs(angle - previous) / (time - previousTime)) * 0.3;
       previous = angle;
@@ -248,7 +263,6 @@ export function LoyaltyWheel({
           [{ transform: from }, { transform: `rotate(${lean}deg)`, offset: 0.2 }, { transform: "rotate(3deg)", offset: 0.7 }, { transform: "rotate(0deg)" }],
           { duration: speed < 0.12 ? 220 : 140, easing: "ease-out" }
         );
-        sound.tick(time, speed);
         if (time - lastBuzz > 70) {
           navigator.vibrate?.(6);
           lastBuzz = time;
@@ -308,8 +322,14 @@ export function LoyaltyWheel({
           return (Math.atan2(b, a) * 180) / Math.PI;
         })()
       : 0;
+    // Un tour sur six et demi environ frôle la part voisine — d'un côté ou de
+    // l'autre — et y hésite : l'arrêt se place assez près du bord pour que le
+    // dépassement la franchisse vraiment.
+    const tease = Math.random() < 0.15;
+    const side = Math.random() < 0.5 ? 1 : -1;
     // Pas pile au milieu de la part : une roue qui tombe toujours au centre sonne faux.
-    const target = 360 * 6 - result.index * step + (Math.random() - 0.5) * step * 0.76 - sway;
+    const offset = tease ? side * (0.1 + Math.random() * 0.28) : (Math.random() - 0.5) * 0.76;
+    const target = 360 * 6 - result.index * step + offset * step - sway;
     if (still) {
       dial.style.transform = `rotate(${target}deg)`;
       land(result);
@@ -317,8 +337,7 @@ export function LoyaltyWheel({
     }
     await windup?.finished.catch(() => {});
     if (!dialRef.current) return;
-    // Un tour sur six et demi environ dépasse franchement dans la part voisine, et y hésite.
-    const { keyframes, angleAt } = spinPath(-24, target, step, Math.random() < 0.15);
+    const { keyframes, angleAt } = spinPath(-24, target, step, tease ? side : 0);
     const duration = 5800;
     const animation = dial.animate(keyframes, { duration, fill: "forwards" });
     windup?.cancel();
@@ -403,13 +422,11 @@ export function LoyaltyWheel({
                 ) : (
                   <span className="wheel-muted font-semibold">Votre série commence aujourd’hui</span>
                 )}
-                <span className="wheel-gold-chip rounded-full px-2.5 py-1 font-bold">
-                  {goldenToday
-                    ? won
-                      ? "Roue dorée jouée"
-                      : `Aujourd’hui : roue dorée ×${multiplier}`
-                    : `×${golden.multiplier} · roue dorée ${toGolden === 1 ? "demain" : `dans ${toGolden} j`}`}
-                </span>
+                {goldenToday && (
+                  <span className="wheel-gold-chip rounded-full px-2.5 py-1 font-bold">
+                    {won ? "Roue dorée jouée" : `Aujourd’hui : roue dorée ×${multiplier}`}
+                  </span>
+                )}
               </p>
               <StreakTrack
                 every={every}
@@ -422,9 +439,12 @@ export function LoyaltyWheel({
           )}
 
           <div
-            className="grid min-h-0 flex-1 touch-none place-items-center pt-4"
+            className="grid min-h-[12.5rem] flex-1 touch-none place-items-center pt-4"
             onPointerDown={(event) => {
               swipeFrom.current = { x: event.clientX, y: event.clientY };
+            }}
+            onPointerCancel={() => {
+              swipeFrom.current = null;
             }}
             onPointerUp={(event) => {
               // Un geste sur la roue la lance, comme on la pousserait de la main.
@@ -488,11 +508,13 @@ export function LoyaltyWheel({
                 <circle r="102" pathLength="96" className="wheel-checker" />
                 <circle r="109.5" className="wheel-rim-edge" />
                 <circle r="100.5" className="wheel-rim-edge" />
-                {Array.from({ length: 24 }, (_, i) => {
-                  const [x, y] = polar(i * 15, 106).split(" ");
-                  return <circle key={i} cx={x} cy={y} r="2.9" className="wheel-bulb" style={{ "--i": i } as CSSProperties} />;
-                })}
               </svg>
+              {/* Les ampoules en éléments à part : leur lumière est une opacité, composée sans repeindre la roue. */}
+              <span aria-hidden="true" className="wheel-bulbs pointer-events-none absolute inset-0">
+                {Array.from({ length: 24 }, (_, i) => (
+                  <i key={i} style={{ "--i": i } as CSSProperties} />
+                ))}
+              </span>
               <span className="wheel-hub absolute left-1/2 top-1/2 grid size-[23%] -translate-x-1/2 -translate-y-1/2 place-items-center overflow-hidden rounded-full">
                 {icon ? (
                   // eslint-disable-next-line @next/next/no-img-element -- icône du dossier public
@@ -514,7 +536,7 @@ export function LoyaltyWheel({
                 <path d="M12 31L2.5 10.5a10 10 0 1 1 19 0z" />
                 <circle cx="12" cy="9.5" r="3.6" />
               </svg>
-              {jackpot && <span aria-hidden="true" className="wheel-ring absolute inset-0 rounded-full" />}
+              {won && <span key={spins} aria-hidden="true" className="wheel-ring absolute inset-0 rounded-full" />}
               {jackpot && (
                 <p className="wheel-jackpot pointer-events-none absolute inset-x-[-8%] bottom-[10%] py-1.5 text-center font-display text-3xl font-semibold uppercase italic">
                   Jackpot&nbsp;!
@@ -547,9 +569,14 @@ export function LoyaltyWheel({
                 : ""}
           </p>
 
-          {/* Le bouton se replie, le résultat se déplie : la roue recule d'autant, sans saut. */}
-          <div className="wheel-fold" data-open={won === null || undefined} inert={won !== null}>
-            <div>
+          {/*
+            La place du résultat est tenue dès l'ouverture : avant le tour, la
+            roue grandie y descend et le bouton en occupe le bas ; au gain, la
+            roue remonte à sa taille et le résultat glisse à sa place. Rien que
+            des transformations, rien à remettre en page.
+          */}
+          <div className="wheel-zone relative h-[20rem] shrink-0">
+            <div className="wheel-launch-pane absolute inset-x-0 bottom-0" inert={won !== null}>
               <div className="flex flex-col items-center gap-2.5 pb-2 text-center">
                 <span className="wheel-launch-glow relative rounded-full">
                   <button
@@ -585,9 +612,7 @@ export function LoyaltyWheel({
                 </p>
               </div>
             </div>
-          </div>
-          <div className="wheel-fold" data-open={won !== null || undefined}>
-            <div>
+            <div className="wheel-result-pane absolute inset-x-0 top-0" inert={won === null}>
               {won && (
                 <div className="wheel-result flex w-full flex-col items-center gap-2 text-center">
                   <Gain
@@ -614,7 +639,7 @@ export function LoyaltyWheel({
                   />
                   <div className="wheel-won-line wheel-tomorrow flex w-full flex-col items-center gap-1 rounded-2xl px-4 py-2.5" aria-hidden="true">
                     <p className="wheel-kicker text-[10px] font-bold uppercase tracking-[0.24em]">
-                      Prochain tour{golden ? ` · jour ${day + 1}` : ""} · jusqu’à +
+                      Prochain tour{golden ? ` · J${(day % every) + 1}` : ""} · jusqu’à +
                       {golden && toGolden === 1 ? top * golden.multiplier : top}
                     </p>
                     <UntilTomorrow className="wheel-countdown text-3xl font-extrabold leading-none tabular-nums" />

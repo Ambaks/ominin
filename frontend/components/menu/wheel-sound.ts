@@ -40,10 +40,16 @@ export function useWheelSound() {
   useEffect(() => {
     onRef.current = on;
   }, [on]);
-  useEffect(() => {
-    clicksFile.current = fetch(CLICKS_URL).then((response) => response.arrayBuffer());
+  // Le son coupé ou le mouvement réduit, rien à télécharger.
+  const loadClicks = () => {
+    clicksFile.current ??= fetch(CLICKS_URL).then((response) => response.arrayBuffer());
     // Hors ligne : le claquement synthétisé prend le relais.
     clicksFile.current.catch(() => {});
+    return clicksFile.current;
+  };
+
+  useEffect(() => {
+    if (onRef.current && !reducedMotion()) loadClicks();
     return () => {
       void context.current?.close();
       context.current = null;
@@ -62,8 +68,8 @@ export function useWheelSound() {
   };
 
   const decodeClicks = (ctx: AudioContext) =>
-    clicksFile.current
-      ?.then((file) => ctx.decodeAudioData(file.slice(0)))
+    loadClicks()
+      .then((file) => ctx.decodeAudioData(file.slice(0)))
       .then((buffer) => {
         clicks.current = buffer;
       }, () => {});
@@ -93,7 +99,9 @@ export function useWheelSound() {
       if (!on) {
         onRef.current = true;
         const ctx = audio();
-        if (ctx && !clicks.current) decodeClicks(ctx);
+        if (!ctx) return;
+        void ctx.resume();
+        if (!clicks.current) decodeClicks(ctx);
       }
     },
     /** Au toucher du bouton : iOS n'ouvre le son que sous un geste. */
@@ -120,15 +128,17 @@ export function useWheelSound() {
       source.start();
     },
     /**
-     * Un claquement par 25 ms au plus : au-delà, un bourdon. Jamais deux fois
-     * le même coup de suite, chacun un rien plus haut ou plus bas : une roue,
-     * pas une boucle. Retenu à pleine vitesse, net sur les derniers taquets.
+     * Un claquement, `delay` secondes plus tard sur l'horloge audio ; un par
+     * 25 ms au plus : au-delà, un bourdon. Jamais deux fois le même coup de
+     * suite, chacun un rien plus haut ou plus bas : une roue, pas une boucle.
+     * Retenu à pleine vitesse, net sur les derniers taquets.
      */
-    tick: (time: number, speed: number) => {
-      if (time - lastTick.current < 25) return;
-      lastTick.current = time;
+    tick: (speed: number, delay: number) => {
       const ctx = audio();
       if (!ctx) return;
+      const at = ctx.currentTime + delay;
+      if (at - lastTick.current < 0.025) return;
+      lastTick.current = at;
       const level = speed > 0.7 ? 0.45 : speed < 0.12 ? 0.9 : 0.65;
       const buffer = clicks.current;
       if (buffer) {
@@ -139,12 +149,12 @@ export function useWheelSound() {
         source.playbackRate.value = 0.96 + Math.random() * 0.08;
         gain.gain.value = level;
         source.connect(gain).connect(ctx.destination);
-        source.start(0, (lastSlot.current * buffer.duration) / CLICK_SLOTS, buffer.duration / CLICK_SLOTS);
+        source.start(at, (lastSlot.current * buffer.duration) / CLICK_SLOTS, buffer.duration / CLICK_SLOTS);
         return;
       }
       const frequency = 900 + Math.min(1100, speed * 1200);
-      const oscillator = note(ctx, frequency, ctx.currentTime, 0.035, "triangle", level * 0.14);
-      oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.7, ctx.currentTime + 0.03);
+      const oscillator = note(ctx, frequency, at, 0.035, "triangle", level * 0.14);
+      oscillator.frequency.exponentialRampToValueAtTime(frequency * 0.7, at + 0.03);
     },
     win: (tier: WinTier) => {
       const ctx = audio();

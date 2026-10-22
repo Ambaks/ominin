@@ -55,6 +55,28 @@ const LoyaltyWheel = dynamic(
 
 type Phase = "greeting" | "folding" | "pill";
 
+/**
+ * La montée de la roue, une seconde après l'ouverture de la page — depuis le
+ * chargement, ou depuis l'arrivée sur la carte par un lien interne. Le client
+ * a ouvert le panier avant : la roue ne surgit pas à sa fermeture (onSkip),
+ * l'accueil et la pastille l'annoncent. Rendue seulement quand la roue attend :
+ * le menu sans roue ne suit pas les feuilles.
+ */
+function WheelAutoOpen({ onOpen, onSkip }: { onOpen: () => void; onSkip: () => void }) {
+  const noSheet = useNoSheet();
+  const [mountedAt] = useState(() => performance.now());
+  useEffect(() => {
+    if (!noSheet) {
+      onSkip();
+      return;
+    }
+    const origin = mountedAt < LOYALTY_WHEEL_DELAY_MS ? 0 : mountedAt;
+    const timer = setTimeout(onOpen, Math.max(0, LOYALTY_WHEEL_DELAY_MS - (performance.now() - origin)));
+    return () => clearTimeout(timer);
+  }, [noSheet, mountedAt, onOpen, onSkip]);
+  return null;
+}
+
 /*
  * L'accueil a déjà eu lieu dans l'onglet (sessionStorage) ? Lu comme une
  * source externe : côté serveur, rien à saluer.
@@ -164,8 +186,6 @@ export function LoyaltyWelcome({
   const [wheelFirst, setWheelFirst] = useState<boolean | null>(null);
   const [wheelShown, setWheelShown] = useState(false);
   const [wheelDone, setWheelDone] = useState(false);
-  const noSheet = useNoSheet();
-  const mountedAt = useRef<number | null>(null);
   const phase: Phase | null =
     !known || (wheel !== null && wheelFirst === null) || (wheelFirst && !wheelDone)
       ? null
@@ -199,37 +219,12 @@ export function LoyaltyWelcome({
   }, [known]);
 
   useEffect(() => {
-    mountedAt.current = performance.now();
-  }, []);
-
-  useEffect(() => {
     if (!known || !wheel || wheelFirst !== null) return;
     const first = spinReady && !greeted;
     // eslint-disable-next-line react-hooks/set-state-in-effect -- le membre arrive après l'hydratation
     setWheelFirst(first);
     if (first) loadWheel().catch(() => setWheelDone(true));
   }, [known, wheel, wheelFirst, spinReady, greeted]);
-
-  // Une seconde après l'ouverture de la page — depuis le chargement, ou
-  // depuis l'arrivée sur la carte par un lien interne. Le client a ouvert le
-  // panier avant : la roue ne surgit pas à sa fermeture, l'accueil et la
-  // pastille l'annoncent.
-  useEffect(() => {
-    if (!wheelFirst || wheelShown || wheelDone) return;
-    if (!noSheet) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- une feuille vient de s'ouvrir
-      setWheelDone(true);
-      return;
-    }
-    const mounted = mountedAt.current ?? performance.now();
-    const origin = mounted < LOYALTY_WHEEL_DELAY_MS ? 0 : mounted;
-    const elapsed = performance.now() - origin;
-    const timer = setTimeout(() => {
-      setWheelShown(true);
-      setWheelOpen(true);
-    }, Math.max(0, LOYALTY_WHEEL_DELAY_MS - elapsed));
-    return () => clearTimeout(timer);
-  }, [wheelFirst, wheelShown, wheelDone, noSheet]);
 
   useEffect(() => {
     if (phase !== "greeting") return;
@@ -317,6 +312,16 @@ export function LoyaltyWelcome({
           {points}
           {spinReady && <WheelGlyph className="wheel-glyph -mr-1 size-4 text-ember-1" />}
         </button>
+      )}
+
+      {wheelFirst && !wheelShown && !wheelDone && (
+        <WheelAutoOpen
+          onOpen={() => {
+            setWheelShown(true);
+            setWheelOpen(true);
+          }}
+          onSkip={() => setWheelDone(true)}
+        />
       )}
 
       {wheelOpen && (

@@ -52,18 +52,20 @@ export function burst(tier: WinTier): Piece[] {
 
 /**
  * Le tour, de l'élan pris (`start`, le recul) à la part (`target`) : longue
- * accélération, six tours, dépassement de 0,3 part — parfois dans la voisine,
- * l'aiguille y claque —, retour un rien trop loin, arrêt. `tease` : le
- * dépassement va jusqu'à 0,45 part et la roue y hésite un instant avant de
- * revenir, le frisson du presque. Rend les images clés de Web Animations et
+ * accélération, six tours, freinage ferme, dépassement de 0,3 part —
+ * parfois dans la voisine, l'aiguille y claque —, retour un rien trop loin,
+ * arrêt. `tease` (±1) : le frisson du presque — la roue s'arrête à 0,45 part
+ * dans la voisine (au-delà de la part, ou juste avant elle), y hésite un
+ * instant, puis glisse à sa place. Rend les images clés de Web Animations et
  * l'angle à chaque instant, pour l'aiguille.
  */
-export function spinPath(start: number, target: number, step: number, tease = false) {
-  const past = target + step * (tease ? 0.45 : 0.3);
+export function spinPath(start: number, target: number, step: number, tease: -1 | 0 | 1 = 0) {
+  const side = tease || 1;
+  const past = target + side * step * (tease ? 0.45 : 0.3);
   const segments: { until: number; to: number; ease: Ease }[] = [
-    { until: tease ? 0.85 : 0.875, to: past, ease: [0.5, 0, 0.12, 1] },
+    { until: tease ? 0.84 : 0.86, to: past, ease: [0.45, 0, 0.2, 1] },
     ...(tease ? [{ until: 0.875, to: past, ease: [0, 0, 1, 1] as Ease }] : []),
-    { until: 0.955, to: target - step * 0.04, ease: [0.2, 0.6, 0.3, 1] },
+    { until: 0.955, to: target - side * step * 0.04, ease: [0.2, 0.6, 0.3, 1] },
     { until: 1, to: target, ease: [0.45, 0, 0.55, 1] },
   ];
   const curves = segments.map((segment) => bezier(segment.ease));
