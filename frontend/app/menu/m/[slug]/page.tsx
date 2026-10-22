@@ -187,7 +187,11 @@ export default async function MenuPage({
     >
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
           la barre est fixed mais reste dans le sous-arbre des variables. */}
-      <LoyaltyMemberProvider slug={slug} enabled={orderingEnabled && loyalty != null}>
+      <LoyaltyMemberProvider
+        slug={slug}
+        enabled={orderingEnabled && loyalty != null}
+        wheel={restaurant.loyaltyWheel}
+      >
         <div
           data-menu-root
           data-slug={slug}
