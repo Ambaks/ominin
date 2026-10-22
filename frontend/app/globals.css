@@ -14160,34 +14160,29 @@ html:has([data-category-rail]) {
   }
 }
 
-/* Les angles droits de Le Novelty aussi sur la pastille et la bulle du rail,
-   que sa règle générale écarte comme décoratives (aria-hidden). */
-[data-menu-root].theme-le-novelty :is([data-rail-pill], .rail-bubble) {
+/* Les angles droits de Le Novelty aussi sur la pastille du rail, que sa
+   règle générale écarte comme décorative (aria-hidden). */
+[data-menu-root].theme-le-novelty [data-rail-pill] {
   border-radius: 0;
 }
 
-/* Bulle du nom d'une catégorie touchée : elle sort de son icône en glissant.
-   Noms du rail élargi : ils arrivent en fondu, une fois la colonne ouverte. */
-@keyframes rail-bubble-in {
-  from {
-    opacity: 0;
-    translate: -6px 0;
-  }
+/* Rail ouvert : la carte glisse à droite d'autant que la colonne s'élargit
+   (w-60 moins w-12), sans se remettre en page. */
+[data-rail-open] > main {
+  transform: translateX(12rem);
 }
+
+/* Noms du rail ouvert : ils arrivent en fondu, une fois la colonne ouverte. */
 @keyframes rail-name-in {
   from {
     opacity: 0;
     translate: -4px 0;
   }
 }
-.rail-bubble {
-  animation: rail-bubble-in 180ms ease-out;
-}
 .rail-name {
   animation: rail-name-in 160ms 80ms ease-out backwards;
 }
 @media (prefers-reduced-motion: reduce) {
-  .rail-bubble,
   .rail-name {
     animation: none;
   }

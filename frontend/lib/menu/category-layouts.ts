@@ -11,6 +11,6 @@ export const CATEGORY_LAYOUTS: { id: CategoryLayout; label: string; body: string
   {
     id: "rail",
     label: "À gauche",
-    body: "Une colonne d'icônes le long de la carte. Toucher une icône montre son nom ; la maintenir déplie toutes les catégories.",
+    body: "Une colonne fine le long de la carte : la catégorie en cours, la précédente et la suivante. La toucher déplie toutes les catégories.",
   },
 ];
