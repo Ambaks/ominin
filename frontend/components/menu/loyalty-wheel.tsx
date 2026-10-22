@@ -525,27 +525,27 @@ export function LoyaltyWheel({
                       return <circle key={i} cx={x} cy={y} r={i % 2 ? 1.6 : 2.4} className="wheel-peg" />;
                     })}
                   </svg>
+                  {/*
+                    Au gain, un voile sur toute la roue et, par-dessus, la part
+                    gagnante redessinée seule : elle grossit, son cercle d'or
+                    pulse — opacités et transformations, la roue ne se repeint pas.
+                  */}
+                  {won && (
+                    <>
+                      <span aria-hidden="true" className="wheel-dim absolute inset-[4.5%] rounded-full" />
+                      <span aria-hidden="true" className="wheel-lit absolute inset-0">
+                        <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
+                          {renderSlice(won.index)}
+                        </svg>
+                      </span>
+                      <span aria-hidden="true" className="wheel-lit-outline absolute inset-0">
+                        <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
+                          <path d={slicePath(won.index, step)} className="wheel-won-outline" />
+                        </svg>
+                      </span>
+                    </>
+                  )}
                 </div>
-                {/*
-                  Au gain, un voile sur toute la roue et, par-dessus, la part
-                  gagnante redessinée seule : elle grossit, son cercle d'or
-                  pulse — opacités et transformations, la roue ne se repeint pas.
-                */}
-                {won && (
-                  <>
-                    <span aria-hidden="true" className="wheel-dim absolute inset-[4.5%] rounded-full" />
-                    <span aria-hidden="true" className="wheel-lit absolute inset-0">
-                      <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
-                        {renderSlice(won.index)}
-                      </svg>
-                    </span>
-                    <span aria-hidden="true" className="wheel-lit-outline absolute inset-0">
-                      <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
-                        <path d={slicePath(won.index, step)} className="wheel-won-outline" />
-                      </svg>
-                    </span>
-                  </>
-                )}
                 <span aria-hidden="true" className="wheel-wash absolute inset-[4%] rounded-full" />
               </div>
               <svg viewBox="-110 -110 220 220" aria-hidden="true" className="pointer-events-none absolute inset-0 size-full overflow-visible">
