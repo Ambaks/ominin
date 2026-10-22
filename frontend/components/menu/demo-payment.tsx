@@ -20,12 +20,15 @@ export function DemoPayment({
   orderId,
   total,
   tipAmount,
+  merchant,
   onDone,
   onPhase,
 }: {
   orderId: string;
   total: number;
   tipAmount: number;
+  /** L'établissement encaisseur, nommé au-dessus du montant. */
+  merchant?: string;
   /** Fin du règlement — payé, ou abandon. */
   onDone: (paid: boolean) => void;
   onPhase?: (phase: CardPhase) => void;
@@ -72,9 +75,10 @@ export function DemoPayment({
       state={state}
       total={total}
       tipAmount={tipAmount}
+      merchant={merchant}
       hasWallet={false}
       wallets={null}
-      operator="Ominin, en démonstration"
+      operator="Ominin (démonstration)"
       onPay={() => void pay()}
       onCounter={() => onDone(false)}
       card={<DemoCard />}

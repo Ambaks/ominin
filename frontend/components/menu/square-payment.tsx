@@ -162,6 +162,7 @@ export function SquarePayment({
   locationId,
   total,
   tipAmount,
+  merchant,
   onDone,
   onPhase,
 }: {
@@ -170,6 +171,8 @@ export function SquarePayment({
   /** Affiché par Apple Pay / Google Pay ; le montant débité reste celui du serveur. */
   total: number;
   tipAmount: number;
+  /** L'établissement encaisseur, nommé au-dessus du montant. */
+  merchant?: string;
   /** Fin du règlement — payé, ou abandon (le client réglera au comptoir). */
   onDone: (paid: boolean) => void;
   onPhase?: (phase: CardPhase) => void;
@@ -320,6 +323,7 @@ export function SquarePayment({
       state={state}
       total={total}
       tipAmount={tipAmount}
+      merchant={merchant}
       hasWallet={wallets.applePay || wallets.googlePay}
       operator="Square"
       onPay={() => void pay("card")}

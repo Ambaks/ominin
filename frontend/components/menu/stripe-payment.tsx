@@ -33,6 +33,7 @@ export function StripePayment({
   orderId,
   total,
   tipAmount,
+  merchant,
   onDone,
   onPhase,
 }: {
@@ -40,6 +41,8 @@ export function StripePayment({
   /** Affiché dans la feuille ; le montant débité reste celui du serveur. */
   total: number;
   tipAmount: number;
+  /** L'établissement encaisseur, nommé au-dessus du montant. */
+  merchant?: string;
   /** Fin du règlement — payé, ou abandon (le client réglera au comptoir). */
   onDone: (paid: boolean) => void;
   onPhase?: (phase: CardPhase) => void;
@@ -147,6 +150,7 @@ export function StripePayment({
       state={state}
       total={total}
       tipAmount={tipAmount}
+      merchant={merchant}
       hasWallet={hasWallet}
       operator="Stripe"
       onPay={() => void confirm()}
