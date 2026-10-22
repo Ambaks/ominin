@@ -117,7 +117,8 @@ export default async function MenuPage({
   const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
 
   const orderingEnabled = offre === "smart" || offre === "connect";
-  // Fast food : un seul QR, au comptoir ; on commande sans table.
+  // Fast food : on commande sans service à table et l'on retire au comptoir ;
+  // le QR peut être unique ou celui d'une table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
 
   const categoryLinks = [
@@ -164,10 +165,10 @@ export default async function MenuPage({
     <CartProvider
       config={{
         slug,
-        // Un ancien QR de table ne compte plus en fast food : ni panier par
-        // table, ni table dans l'analytique.
+        // La table du QR suit la commande, en fast food aussi : le client y
+        // retire au comptoir, la table reste notée (voir show_table_number).
         tableNumber: null,
-        tableFromUrl: !fastFood,
+        tableFromUrl: true,
         orderingEnabled,
         serviceMode,
         restaurantName: restaurant.name,

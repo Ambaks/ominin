@@ -1802,6 +1802,7 @@ export type Database = {
           phone: string
           platform_fee_percent: number
           service_mode: Database["public"]["Enums"]["service_mode"]
+          show_table_number: boolean
           siret: string | null
           slug: string
           square_location_id: string | null
@@ -1839,6 +1840,7 @@ export type Database = {
           phone?: string
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
+          show_table_number?: boolean
           siret?: string | null
           slug: string
           square_location_id?: string | null
@@ -1876,6 +1878,7 @@ export type Database = {
           phone?: string
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
+          show_table_number?: boolean
           siret?: string | null
           slug?: string
           square_location_id?: string | null

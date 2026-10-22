@@ -149,6 +149,7 @@ export function demoState(
       openingHours: null,
       offre: "connect",
       serviceMode,
+      showTableNumber: false,
       categoryLayout: restaurant.categoryLayout ?? "top",
       onlinePayment: true,
       paymentProvider: "stripe",

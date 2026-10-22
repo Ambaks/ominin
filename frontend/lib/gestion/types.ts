@@ -32,7 +32,8 @@ export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 export type PaymentProvider = "stripe" | "sumup" | "square" | "demo";
 /**
  * Restaurant : le client commande depuis sa table, la salle la lui apporte.
- * Fast food : il commande sans table et reçoit un numéro du jour.
+ * Fast food : il retire au comptoir et reçoit un numéro du jour ; la table
+ * du QR, s'il en scanne une, reste notée.
  */
 export type ServiceMode = "restaurant" | "fast_food";
 
@@ -103,6 +104,8 @@ export interface Etablissement {
   /** Null quand l'établissement n'a que le click & collect. */
   offre: Offre | null;
   serviceMode: ServiceMode;
+  /** Fast food : la table du QR s'affiche à l'équipe à côté du numéro. */
+  showTableNumber: boolean;
   /** Catégories du menu QR : barre en haut ou rail d'icônes à gauche. */
   categoryLayout: CategoryLayout;
   siret?: string;
@@ -185,7 +188,7 @@ export interface Order {
   id: string;
   type: OrderType;
   tableId: string | null;
-  /** Numéro du jour d'une commande fast food (sans table). */
+  /** Numéro du jour d'une commande fast food ; la table du QR peut s'y ajouter (tableId). */
   orderNumber?: number;
   status: OrderStatus;
   createdAt: string;

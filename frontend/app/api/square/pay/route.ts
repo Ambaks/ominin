@@ -125,7 +125,7 @@ export async function POST(request: Request) {
   const [{ data: etab }, { data: lines }, { data: table }] = await Promise.all([
     admin
       .from("etablissements")
-      .select("name, online_payment, online_min_order, payment_provider, square_location_id, platform_fee_percent, collect_fee_percent")
+      .select("name, online_payment, online_min_order, payment_provider, square_location_id, platform_fee_percent, collect_fee_percent, show_table_number")
       .eq("id", order.etablissement_id)
       .single(),
     admin
@@ -171,14 +171,16 @@ export async function POST(request: Request) {
 
   const locationId = etab.square_location_id;
   const existingOrderId = order.square_order_id;
-  // « Table 7 », « N° 42 » : ce que le personnel doit voir d'un coup d'œil
-  // sur son écran de caisse et sur le ticket imprimé.
+  // « Table 7 », « N° 42 », « N° 42 · Table 7 » : ce que le personnel doit
+  // voir d'un coup d'œil sur son écran de caisse et sur le ticket imprimé.
   const ticketName = order.type === "collect"
     ? `À emporter — ${etab.name}`
-    : table
-    ? `Table ${table.number}`
     : order.order_number
-      ? `N° ${order.order_number}`
+    ? `N° ${order.order_number}${
+        table && etab.show_table_number ? ` · Table ${table.number}` : ""
+      }`
+    : table
+      ? `Table ${table.number}`
       : `Commande — ${etab.name}`;
 
   try {

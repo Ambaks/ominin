@@ -34,6 +34,7 @@ export function CounterCard({
   order,
   now,
   resetHour,
+  table,
   readOnly = false,
   setStatus = api.updateOrderStatus,
 }: {
@@ -44,6 +45,8 @@ export function CounterCard({
   now: Date;
   /** Heure où les numéros repartent de 1 ; inconnue, pas de jour affiché. */
   resetHour: number | null;
+  /** Table du QR, quand le gérant l'affiche à côté du numéro. */
+  table?: number;
   /** Vue cuisine : la file du comptoir, sans ses gestes. */
   readOnly?: boolean;
   /** Démonstration : le geste reste dans l'onglet au lieu d'écrire en base. */
@@ -134,6 +137,16 @@ export function CounterCard({
               {order.orderNumber}
             </span>
           </span>
+          {/* Le numéro reste ce qu'on appelle : la table se lit en second. */}
+          {table !== undefined && (
+            <span
+              className={`mt-1 text-sm font-semibold tabular-nums ${
+                ready ? "text-background/75" : "text-muted"
+              }`}
+            >
+              Table {table}
+            </span>
+          )}
         </h3>
         {/* Attente en haut, heure calée sur le bas du numéro. */}
         <p className="flex flex-col items-end justify-between gap-1.5 self-stretch text-right tabular-nums">

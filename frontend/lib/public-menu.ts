@@ -73,7 +73,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   squareLocationId: string | null;
   /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */
   qrMenu: boolean;
-  /** Restaurant (commande depuis la table) ou fast food (sans table, numérotée). */
+  /** Restaurant (commande depuis la table) ou fast food (au comptoir, numérotée). */
   serviceMode: ServiceMode;
   /** Le menu propose d'appeler un serveur ; retiré, le bouton n'existe pas. */
   callServer: boolean;

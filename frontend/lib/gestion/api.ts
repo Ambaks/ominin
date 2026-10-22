@@ -501,9 +501,9 @@ export interface StaffOrderLine {
  * Commande prise en salle par un membre de l'équipe (client qui commande
  * directement au serveur). Même RPC que le menu QR : place_order valide
  * articles, stock et options, et ouvre la table si son numéro est nouveau —
- * en fast food, sans table, elle prend son numéro du jour. La commande
- * attend son encaissement ; elle part en cuisine une fois payée. Rend le
- * numéro du jour, s'il y en a un.
+ * en fast food, l'équipe la passe sans table : elle prend son numéro du
+ * jour. La commande attend son encaissement ; elle part en cuisine une fois
+ * payée. Rend le numéro du jour, s'il y en a un.
  */
 export async function createStaffOrder(
   tableNumber: number | null,
@@ -512,7 +512,7 @@ export async function createStaffOrder(
   const supabase = createClient();
   const { data: orderId, error } = await supabase.rpc("place_order", {
     p_slug: getState().etablissement.slug,
-    // Nul en fast food (la base y refuse une table) : les types générés
+    // Nul quand l'équipe prend la commande sans table : les types générés
     // ne connaissent pas d'argument nul.
     p_table_number: tableNumber as number,
     p_items: lines.map((line) => ({
@@ -979,6 +979,7 @@ export type EtablissementInput = Omit<
   | "adminPinSet"
   | "paymentPinSet"
   | "serviceMode"
+  | "showTableNumber"
   | "categoryLayout"
   | "onlineMinOrder"
 >;
@@ -1057,6 +1058,20 @@ export async function setServiceMode(mode: ServiceMode): Promise<void> {
   );
   apply((draft) => {
     draft.etablissement.serviceMode = mode;
+  });
+}
+
+/** Fast food : la table du QR à côté du numéro, au comptoir et sur le
+ * ticket cuisine (gérant). */
+export async function setShowTableNumber(enabled: boolean): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({ show_table_number: enabled })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.showTableNumber = enabled;
   });
 }
 

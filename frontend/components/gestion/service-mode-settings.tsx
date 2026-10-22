@@ -2,15 +2,18 @@
 
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
-import { setServiceMode } from "@/lib/gestion/api";
+import { Toggle } from "@/components/ui/toggle";
+import { setServiceMode, setShowTableNumber } from "@/lib/gestion/api";
 import type { ServiceMode } from "@/lib/gestion/types";
 import { menuSiteUrl } from "@/lib/site";
 
 /*
  * Type de service (gérant). Restaurant : chaque table a son QR, la salle
- * apporte la commande. Fast food : un seul QR, le client commande sans table,
- * repart avec un numéro du jour et suit sa commande jusqu'à « Prête » — les
- * écrans des tables se retirent de l'espace. Le menu public suit à sa
+ * apporte la commande. Fast food : depuis le QR du comptoir ou ceux des
+ * tables restés en place, le client repart avec un numéro du jour et suit sa
+ * commande jusqu'à « Prête » — les écrans des tables se retirent de
+ * l'espace. La table du QR reste notée ; l'équipe ne la voit à côté du
+ * numéro que si le gérant l'affiche. Le menu public suit à sa
  * prochaine revalidation (une minute) ; une carte déjà ouverte garde l'ancien
  * mode jusqu'à ce qu'on la recharge — le gérant en est prévenu.
  */
@@ -35,7 +38,7 @@ const MODES: {
     id: "fast_food",
     label: "Fast food",
     tagline: "Commande au comptoir",
-    body: "Un seul QR code. Le client commande sans table, reçoit un numéro et suit sa commande sur son téléphone jusqu'à « Prête ».",
+    body: "Un QR code au comptoir, ou ceux des tables. Le client reçoit un numéro et suit sa commande sur son téléphone jusqu'à « Prête ».",
     icon: (
       <path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6" />
     ),
@@ -44,16 +47,19 @@ const MODES: {
 
 export function ServiceModeSettings({
   initialMode,
+  initialShowTable,
   slug,
   resetHour,
 }: {
   initialMode: ServiceMode;
+  initialShowTable: boolean;
   slug: string;
   /** Heure où les numéros repartent de 1 ; inconnue, elle n'est pas annoncée. */
   resetHour: number | null;
 }) {
   const toast = useToast();
   const [mode, setMode] = useState(initialMode);
+  const [showTable, setShowTable] = useState(initialShowTable);
   const [busy, setBusy] = useState(false);
 
   const choose = async (next: ServiceMode) => {
@@ -65,11 +71,31 @@ export function ServiceModeSettings({
       await setServiceMode(next);
       toast.success(
         next === "fast_food"
-          ? "Fast food activé\u00a0: vos clients commandent sans table."
+          ? "Fast food activé\u00a0: chaque commande reçoit un numéro."
           : "Restaurant activé\u00a0: la commande se fait depuis la table."
       );
     } catch (error) {
       setMode(previous);
+      toast.error(
+        error instanceof Error ? error.message : "Une erreur est survenue."
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggleShowTable = async (next: boolean) => {
+    setBusy(true);
+    setShowTable(next);
+    try {
+      await setShowTableNumber(next);
+      toast.success(
+        next
+          ? "La table s'affiche à côté du numéro."
+          : "Seul le numéro de commande s'affiche."
+      );
+    } catch (error) {
+      setShowTable(!next);
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
       );
@@ -166,6 +192,23 @@ export function ServiceModeSettings({
             {resetHour !== null &&
               ` Les numéros repartent de 1 chaque jour à ${resetHour} h.`}
           </p>
+          <div className="mt-1.5 flex items-center justify-between gap-3 border-t border-hairline pt-3">
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Afficher le numéro de table
+              </p>
+              <p className="mt-0.5">
+                Les QR de table restent valables&nbsp;: la table s&rsquo;affiche
+                à côté du numéro, au comptoir et sur le ticket cuisine.
+              </p>
+            </div>
+            <Toggle
+              checked={showTable}
+              onChange={(next) => void toggleShowTable(next)}
+              disabled={busy}
+              label="Afficher le numéro de table"
+            />
+          </div>
         </div>
       )}
     </section>
