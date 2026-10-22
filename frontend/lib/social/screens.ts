@@ -71,8 +71,18 @@ export const SCREENS: readonly Screen[] = [
     description:
       "Côté commerçant : la commande à emporter qui arrive en direct, payée en ligne, avec ses plats et le bouton « Commencer la préparation ».",
   },
-  // Shop : aucune capture tant qu'il n'existe pas de boutique de démo
-  // fictive — les seules boutiques en ligne sont celles de vrais clients.
+  {
+    id: "shop-vitrine",
+    brand: "shop",
+    description:
+      "L'accueil d'une boutique en ligne de bougies artisanales aux couleurs de la marque : bandeau « Livraison offerte dès 60 € d'achat », grand visuel de bougies avec « Coulées à la main, dans notre atelier », bouton « Découvrir nos créations » et les collections en pastilles rondes (Bougies, Diffuseurs, Coffrets).",
+  },
+  {
+    id: "shop-produit",
+    brand: "shop",
+    description:
+      "La fiche d'un produit dans la boutique en ligne : grande photo d'une bougie en céramique avec le badge « Best-seller », fil d'Ariane, nom « Figuier sauvage », prix « 32 € TTC » et le début de la description.",
+  },
 ];
 
 export const SCREEN_BY_ID = new Map(SCREENS.map((screen) => [screen.id, screen]));
