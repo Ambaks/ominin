@@ -895,6 +895,7 @@ export function CartBar() {
                   locationId={squarePayment.locationId}
                   total={squarePayment.total}
                   tipAmount={squarePayment.tipAmount}
+                  merchant={cart.restaurantName}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(squarePayment.orderId, paid)}
                 />
@@ -903,6 +904,7 @@ export function CartBar() {
                   orderId={stripePayment.orderId}
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
+                  merchant={cart.restaurantName}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
@@ -911,6 +913,7 @@ export function CartBar() {
                   orderId={stripePayment.orderId}
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
+                  merchant={cart.restaurantName}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
@@ -996,7 +999,9 @@ export function CartBar() {
                           ? "À emporter"
                           : cart.fastFood
                             ? "À récupérer au comptoir"
-                            : `Table ${cart.tableNumber}`}
+                            : cart.preview && cart.demoSuivi?.barPickup
+                              ? "À récupérer au bar"
+                              : `Table ${cart.tableNumber}`}
                         {paymentStep && (
                           <>
                             <span aria-hidden className="flex w-10 gap-1">
@@ -1496,7 +1501,9 @@ export function CartBar() {
                               : cart.collect
                                 ? `Commander et payer · ${formatPrice(cart.total)}`
                                 : !cart.fastFood
-                                ? "Envoyer la commande"
+                                ? payment === "carte"
+                                  ? `Payer en\u00a0ligne · ${formatPrice((totalCents + tipCents) / 100)}`
+                                  : "Envoyer la commande"
                                 : payment === "carte"
                                   ? `Commander et payer · ${formatPrice(cart.total)}`
                                   : "Commander · payer au comptoir"}

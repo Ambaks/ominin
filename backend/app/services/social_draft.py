@@ -222,6 +222,8 @@ class _Context:
         self.pricing = self._site("tarifs", {})
         self.screens = self._site("screens", [])
         self.clips = self._site("clips", [])
+        self.stock = self._site("stock", [])
+        self.music = self._site("music", [])
         accounts = (
             sb.table("social_accounts")
             .select("brand, platform, handle")
@@ -235,13 +237,15 @@ class _Context:
         }
 
     def _site(self, route: str, empty):
-        # Sans tarifs, la fiche interdit d'en citer ; sans captures ni démos,
-        # les visuels se passent de l'outil. On rédige quand même, et on
+        # Sans tarifs, la fiche interdit d'en citer ; sans captures, démos,
+        # vidéos ni musiques, le Reel s'en passe. On rédige quand même, et on
         # prévient.
         try:
+            # ominin.com redirige vers www.ominin.com : on suit.
             response = httpx.get(
                 f"{settings.frontend_origin}/api/social/{route}",
                 timeout=settings.internal_http_timeout_seconds,
+                follow_redirects=True,
             )
             response.raise_for_status()
             return response.json()
@@ -272,6 +276,8 @@ class _Context:
                 self.pricing,
                 screens,
                 clips,
+                self.stock,
+                self.music,
                 self.handles,
             ),
             compose_content(day, recent, previous),
@@ -296,8 +302,12 @@ class _Context:
         if draft.format == "reel":
             row["slides"] = []
             row["reel"] = {
-                "scenes": _checked_scenes(draft.scenes, screens, clips),
+                "scenes": _checked_scenes(draft.scenes, screens, clips, self.stock),
                 "cta": draft.cta,
+                # Une musique inconnue n'empêche pas le Reel : la voix seule.
+                "music": draft.music
+                if draft.music in {m["id"] for m in self.music}
+                else "",
             }
             row["render_status"] = "pending"
             return row
@@ -324,7 +334,10 @@ class _Context:
 
 
 def _checked_scenes(
-    scenes: list[ReelScene], screens: list[dict], clips: list[dict]
+    scenes: list[ReelScene],
+    screens: list[dict],
+    clips: list[dict],
+    stock: list[dict],
 ) -> list[dict]:
     if (
         not settings.social_reel_scenes_min
@@ -332,12 +345,14 @@ def _checked_scenes(
         <= settings.social_reel_scenes_max
     ):
         raise ValueError(f"reel of {len(scenes)} scenes")
-    media = {"demo": {c["id"] for c in clips}, "screen": {s["id"] for s in screens}}
+    media = {
+        "demo": {c["id"] for c in clips},
+        "screen": {s["id"] for s in screens},
+        "stock": {s["id"] for s in stock},
+    }
     for index, scene in enumerate(scenes, 1):
         if scene.visual in media and scene.media not in media[scene.visual]:
             raise ValueError(f"scene {index}: unknown {scene.visual} '{scene.media}'")
-        if scene.visual == "stock" and not scene.stock_query.strip():
-            raise ValueError(f"scene {index}: stock without a query")
         if not scene.voiceover.strip():
             raise ValueError(f"scene {index}: no voiceover")
     return [scene.model_dump() for scene in scenes]

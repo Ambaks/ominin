@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { inputClass } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useRunMutation } from "@/components/ui/toast";
@@ -14,8 +14,10 @@ import {
   type SocialPlatform,
 } from "@/lib/social/brands";
 import { CLIPS } from "@/lib/social/clips";
+import { MUSIC } from "@/lib/social/music";
 import type { ReelScene, ReelScript, ReelVisual } from "@/lib/social/reel";
 import { SCREENS } from "@/lib/social/screens";
+import { STOCK } from "@/lib/social/stock";
 import { FORMAT_LABELS, PostMedia } from "./post-media";
 import { PRIMARY_BUTTON, SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
@@ -40,6 +42,9 @@ const STATUS: Record<
 
 type Mode = "view" | "edit" | "redraft";
 
+/** Relecture des posts tant qu'un Reel est en rendu : la barre avance seule. */
+const RENDER_POLL_MS = 10_000;
+
 export function DraftsTab({
   posts,
   onChange,
@@ -48,6 +53,15 @@ export function DraftsTab({
   posts: SocialPost[];
   onChange: () => void;
 }) {
+  const rendering = posts.some(
+    (post) => post.renderStatus === "pending" || post.renderStatus === "rendering"
+  );
+  useEffect(() => {
+    if (!rendering) return;
+    const timer = window.setInterval(onChange, RENDER_POLL_MS);
+    return () => window.clearInterval(timer);
+  }, [rendering, onChange]);
+
   if (posts.length === 0) {
     return (
       <EmptyState
@@ -449,8 +463,9 @@ function ReelEditor({
   return (
     <>
       {reel.scenes.map((scene, index) => {
-        const media =
-          scene.visual === "demo" ? clips : scene.visual === "screen" ? screens : null;
+        const media = { demo: clips, screen: screens, stock: STOCK, title: null }[
+          scene.visual
+        ];
         return (
           <fieldset
             key={index}
@@ -480,7 +495,6 @@ function ReelEditor({
                   setScene(index, {
                     visual: event.target.value as ReelVisual,
                     media: "",
-                    stock_query: "",
                   })
                 }
                 className={inputClass}
@@ -509,18 +523,6 @@ function ReelEditor({
                   ))}
                 </select>
               )}
-              {scene.visual === "stock" && (
-                <input
-                  aria-label="Recherche de la vidéo, en anglais"
-                  placeholder="Recherche en anglais : busy restaurant waiter"
-                  value={scene.stock_query}
-                  required
-                  onChange={(event) =>
-                    setScene(index, { stock_query: event.target.value })
-                  }
-                  className={inputClass}
-                />
-              )}
             </div>
           </fieldset>
         );
@@ -532,6 +534,21 @@ function ReelEditor({
           onChange={(event) => onChange({ ...reel, cta: event.target.value })}
           className={inputClass}
         />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className={SECTION_TITLE}>Musique</span>
+        <select
+          value={reel.music}
+          onChange={(event) => onChange({ ...reel, music: event.target.value })}
+          className={inputClass}
+        >
+          <option value="">Sans musique</option>
+          {MUSIC.map((track) => (
+            <option key={track.id} value={track.id}>
+              {track.mood}
+            </option>
+          ))}
+        </select>
       </label>
     </>
   );

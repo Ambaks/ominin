@@ -173,9 +173,15 @@ export interface CartConfig {
    * drinks : les articles des catégories de boissons ; une commande faite de
    * ces seuls articles, sans formule, se salue « Bonne dégustation ! ».
    * hotDrinks : celles qui sont chaudes ; rien que d'elles, la salutation
-   * porte une tasse. Ignoré hors aperçu.
+   * porte une tasse. barPickup : la commande se retire au bar — prête, le
+   * client y montre un code que le bar scanne. Ignoré hors aperçu.
    */
-  demoSuivi?: { drinks: string[]; hotDrinks: string[] };
+  demoSuivi?: { drinks: string[]; hotDrinks: string[]; barPickup?: boolean };
+  /**
+   * Suivi à table (Restaurant.suivi) : chaque commande passée se suit au bas
+   * de l'écran jusqu'au service. Ignoré en aperçu (demoSuivi) et en fast food.
+   */
+  tableTracking?: boolean;
   /**
    * Click & collect (collect.ominin.com/<slug>) : sans table, payé en ligne à
    * la commande, retiré à l'heure choisie dans les horaires d'ouverture.
@@ -468,7 +474,16 @@ export function CartProvider({
           {children}
         </TicketsProvider>
       ) : config.preview && config.demoSuivi ? (
-        <TicketsProvider slug={config.slug} preview table={tableNumber}>
+        <TicketsProvider
+          slug={config.slug}
+          preview
+          table={tableNumber}
+          barPickup={config.demoSuivi.barPickup}
+        >
+          {children}
+        </TicketsProvider>
+      ) : !config.preview && config.tableTracking ? (
+        <TicketsProvider slug={config.slug} table={tableNumber}>
           {children}
         </TicketsProvider>
       ) : (

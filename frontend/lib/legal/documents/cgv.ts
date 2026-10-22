@@ -28,8 +28,22 @@ import {
 import { euros, parisEffectiveDate } from "../format";
 import type { LegalArticle, LegalDocument } from "../types";
 
+/*
+ * Digital a quitté la landing le 2026-10-20 (#410), mais toutes les versions
+ * publiées jusqu'ici la citent : recopiée telle qu'elle a été publiée. La
+ * retirer du contrat demande une nouvelle version.
+ */
+const digital20260922: Plan = {
+  id: "digital",
+  name: "Digital",
+  price: 59,
+  tagline: "Votre carte, en digital.",
+  featuresLabel: "Inclus :",
+  features: [],
+};
+
 /** Offres menu & salle en cours, telles que la landing les publie. */
-const plansCurrent: Plan[] = pricingSection.plans;
+const plansCurrent: Plan[] = [digital20260922, ...pricingSection.plans];
 
 /*
  * Offres menu & salle des versions du 2026-09-22 et du 2026-10-07, recopiées

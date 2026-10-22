@@ -12,17 +12,18 @@ export interface ReelScene {
   /** Texte à l'écran ; les mots entre [[ ]] sur le dégradé. */
   caption: string;
   visual: ReelVisual;
-  /** Id de la démo filmée (demo, lib/social/clips) ou de la capture
-   * (screen, lib/social/screens) ; "" sinon. */
+  /** Id dans le catalogue du visuel : démo filmée (demo, lib/social/clips),
+   * capture (screen, lib/social/screens), vidéo de personnes (stock,
+   * lib/social/stock) ; "" pour un texte seul. */
   media: string;
-  /** Recherche Pexels, en anglais (stock) ; "" sinon. */
-  stock_query: string;
 }
 
 export interface ReelScript {
   scenes: ReelScene[];
   /** Appel à l'action de l'écran final. */
   cta: string;
+  /** Musique sous la voix (lib/social/music), ou "" : la voix seule. */
+  music: string;
 }
 
 export type RenderStatus = "pending" | "rendering" | "ready" | "failed";

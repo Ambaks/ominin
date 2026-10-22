@@ -28,10 +28,13 @@ import { createClient } from "@/lib/supabase/client";
  * commande remise, annulée, ou d'un autre jour (order_ticket ne rend que
  * celles du jour de numérotation) quitte la liste.
  *
- * Aperçu à table (demoSuivi, `table`) : les commandes de la table se suivent
- * de même, sans base ni stockage. Une salle simulée les fait avancer seule —
- * reçue, en préparation, servie —, et une commande servie reste au bas de
- * l'écran jusqu'à la fermeture de la page, saluée d'un « Bon appétit ! ».
+ * À table (`table`, Restaurant.suivi) : les commandes de la table se suivent
+ * de même — reçue, en préparation, servie —, et une commande servie reste au
+ * bas de l'écran jusqu'à la fermeture de la page, saluée d'un « Bon appétit ! ».
+ * Elles n'ont pas de numéro du jour : le client numérote les siennes. En
+ * aperçu, sans base ni stockage, une salle simulée les fait avancer seule.
+ * Retrait au bar (barPickup, aperçu) : prête, la commande attend le client
+ * au bar, où il montre le code de son ticket ; le scan du bar la dit remise.
  */
 
 export interface TicketLine {
@@ -113,12 +116,16 @@ interface TicketsValue {
   handedOff: boolean;
   /** Dernier changement, pour la zone annoncée aux lecteurs d'écran. */
   announcement: string;
+  /** Aperçu : la salle est simulée, rien ne vient de la base. */
+  simulated: boolean;
   /** Aperçu commercial : l'étape suivante se joue à la main. */
   advance: ((orderId: string) => void) | null;
-  /** Aperçu à table : le numéro de la table ; null en fast food. */
+  /** À table : le numéro de la table ; null en fast food. */
   table: number | null;
+  /** Aperçu à table : la commande se retire au bar, sur présentation de son code. */
+  barPickup: boolean;
   /**
-   * Aperçu à table : la commande servie que la page salue, une à la fois.
+   * À table : la commande servie que la page salue, une à la fois.
    * Le salut attend qu'aucune feuille ne soit ouverte (TicketTracker).
    */
   served: Ticket | null;
@@ -127,7 +134,7 @@ interface TicketsValue {
 
 const TicketsContext = createContext<TicketsValue | null>(null);
 
-/** Null hors fast food et hors aperçu à table : aucun ticket à suivre. */
+/** Null hors fast food et hors suivi à table : aucun ticket à suivre. */
 export function useTickets(): TicketsValue | null {
   return useContext(TicketsContext);
 }
@@ -165,11 +172,22 @@ const PREVIEW_TABLE_NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
   en_preparation: "servie",
 };
 
-/** Aperçu à table : le temps que la salle simulée laisse à chaque état, en ms. */
+/** Aperçu à table, retrait au bar : prête, elle attend que le bar scanne son code. */
+const PREVIEW_BAR_NEXT: Partial<Record<OrderStatus, OrderStatus>> = {
+  ...PREVIEW_TABLE_NEXT,
+  en_preparation: "prete",
+  prete: "servie",
+};
+
+/**
+ * Aperçu à table : le temps que la salle simulée laisse à chaque état, en ms.
+ * prete : au bar, le temps d'y venir montrer son code.
+ */
 const PREVIEW_TABLE_STEP_MS: Partial<Record<OrderStatus, number>> = {
   en_attente: 5_000,
   payee: 5_000,
   en_preparation: 8_000,
+  prete: 12_000,
 };
 
 /** Aperçu : la préparation simulée d'une commande réglée, en minutes. */
@@ -200,7 +218,7 @@ const SPOKEN: Partial<Record<OrderStatus, string>> = {
 };
 
 /**
- * Aperçu à table. Payée en ligne, la commande reçue ne se dit pas : la
+ * À table. Payée en ligne, la commande reçue ne se dit pas : la
  * feuille du paiement vient de dire « Paiement accepté », et le ticket qui
  * s'ouvre, la table et le numéro. La salutation se dit par sa feuille.
  */
@@ -208,6 +226,14 @@ const SPOKEN_TABLE: Partial<Record<OrderStatus, string>> = {
   en_attente: "reçue, à régler auprès d’un serveur ou au comptoir.",
   en_preparation: "en préparation.",
   servie: "servie.",
+  annulee: "annulée. Adressez-vous à un serveur.",
+};
+
+/** Aperçu à table, retrait au bar. */
+const SPOKEN_BAR: Partial<Record<OrderStatus, string>> = {
+  ...SPOKEN_TABLE,
+  prete: "prête\u00a0! Venez la chercher au bar et montrez votre code.",
+  servie: "remise. Bon appétit\u00a0!",
 };
 
 const unknownTicket = (id: string): Ticket => ({
@@ -271,9 +297,11 @@ function useWakeLock(active: boolean) {
  */
 function TicketWatcher({
   id,
+  atTable,
   onUpdate,
 }: {
   id: string;
+  atTable: boolean;
   onUpdate: (id: string, update: TicketUpdate | null) => void;
 }) {
   useEffect(() => {
@@ -293,8 +321,10 @@ function TicketWatcher({
         id,
         row
           ? {
-              number: row.order_number,
-              status: row.status,
+              // À table, pas de numéro du jour : on garde celui du client.
+              ...(!atTable && { number: row.order_number }),
+              // À table, encaissée veut dire partie en cuisine, à servir.
+              status: atTable && row.status === "payee" ? "en_preparation" : row.status,
               createdAt: row.created_at,
               total: Number(row.total),
               due: Number(row.due),
@@ -332,7 +362,7 @@ function TicketWatcher({
       document.removeEventListener("visibilitychange", onVisible);
       if (channel) void supabase.removeChannel(channel);
     };
-  }, [id, onUpdate]);
+  }, [id, atTable, onUpdate]);
   return null;
 }
 
@@ -363,16 +393,20 @@ export function TicketsProvider({
   slug,
   preview = false,
   table = null,
+  barPickup = false,
   children,
 }: {
   slug: string;
   /** Aperçu : rien n'est lu ni gardé, le ticket se montre sur un numéro fictif. */
   preview?: boolean;
-  /** Aperçu à table (demoSuivi) : la table suivie ; absent, fast food. */
+  /** À table (Restaurant.suivi) : la table suivie ; absent, fast food. */
   table?: number | null;
+  /** Aperçu à table : retrait au bar. */
+  barPickup?: boolean;
   children: React.ReactNode;
 }) {
-  const storageKey = `ominin-commandes:${slug}`;
+  // À table, à part : un QR sans table ne reprend pas les commandes d'une table.
+  const storageKey = `ominin-commandes:${slug}${table === null ? "" : ":table"}`;
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [shownId, setShownId] = useState<string | null>(null);
   const [notices, setNotices] = useState<string[]>([]);
@@ -387,7 +421,14 @@ export function TicketsProvider({
     setRestored(true);
     if (!preview) {
       const saved = readSaved(storageKey);
-      if (saved.length > 0) setTickets(saved.map(unknownTicket));
+      if (saved.length > 0) {
+        setTickets(
+          saved.map((id, index) => ({
+            ...unknownTicket(id),
+            number: table === null ? null : index + 1,
+          }))
+        );
+      }
     }
   }
 
@@ -414,8 +455,9 @@ export function TicketsProvider({
       changed
         .map((ticket) => {
           if (table !== null) {
-            const spoken = SPOKEN_TABLE[ticket.status!];
-            return spoken ? `Commande ${ticket.number}, table ${table}\u00a0: ${spoken}` : "";
+            const spoken = (barPickup ? SPOKEN_BAR : SPOKEN_TABLE)[ticket.status!];
+            const where = barPickup ? "retrait au bar" : `table ${table}`;
+            return spoken ? `Commande ${ticket.number}, ${where}\u00a0: ${spoken}` : "";
           }
           const spoken = ticket.paying ? "paiement en cours." : SPOKEN[ticket.status!];
           const time = readyTime(ticket);
@@ -524,7 +566,7 @@ export function TicketsProvider({
                     tip: order.tip,
                     atCounter: table !== null && order.status === "en_attente",
                   }
-                : unknownTicket(orderId),
+                : { ...unknownTicket(orderId), number: table === null ? null : current.length + 1 },
             ]
       );
     },
@@ -534,7 +576,8 @@ export function TicketsProvider({
   // from : l'état que la minuterie a vu ; passé à la main entre-temps, la
   // commande ne saute pas une étape.
   const step = useCallback((orderId: string, from?: OrderStatus) => {
-    const flow = table === null ? PREVIEW_NEXT : PREVIEW_TABLE_NEXT;
+    const flow =
+      table === null ? PREVIEW_NEXT : barPickup ? PREVIEW_BAR_NEXT : PREVIEW_TABLE_NEXT;
     setTickets((current) =>
       current.map((ticket) => {
         const next = ticket.status && flow[ticket.status];
@@ -550,7 +593,7 @@ export function TicketsProvider({
           : ticket;
       })
     );
-  }, [table]);
+  }, [table, barPickup]);
 
   // Une commande qui devient prête se signale même onglet en arrière-plan :
   // le titre de la page le dit, et le téléphone vibre là où il sait le faire.
@@ -584,7 +627,9 @@ export function TicketsProvider({
       handedOff,
       announcement,
       advance: preview ? step : null,
+      simulated: preview,
       table,
+      barPickup,
       served: tickets.find((ticket) => ticket.id === toGreet[0]) ?? null,
       dismissServed: () => {
         setToGreet((current) => current.slice(1));
@@ -604,6 +649,7 @@ export function TicketsProvider({
       preview,
       step,
       table,
+      barPickup,
       toGreet,
     ]
   );
@@ -611,8 +657,10 @@ export function TicketsProvider({
   return (
     <TicketsContext.Provider value={value}>
       {!preview &&
-        activeIds.map((id) => <TicketWatcher key={id} id={id} onUpdate={onUpdate} />)}
-      {table !== null &&
+        activeIds.map((id) => (
+          <TicketWatcher key={id} id={id} atTable={table !== null} onUpdate={onUpdate} />
+        ))}
+      {preview && table !== null &&
         tickets.map(
           (ticket) =>
             ticket.status && (

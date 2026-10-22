@@ -147,14 +147,17 @@ export function CardPaymentFailed({
 }
 
 /**
- * Le formulaire : montant, portefeuilles (Apple Pay en premier), carte, et
- * la sortie vers le comptoir. Les portefeuilles et le formulaire carte sont
- * les conteneurs du prestataire, toujours montés : son SDK les remplit.
+ * Le formulaire, à l'image de l'aperçu à table (preview-payment) : le mot
+ * « Paiement », l'établissement et le montant, puis les portefeuilles (Apple
+ * Pay en premier), la carte, « Payer », et la sortie vers le comptoir. Les
+ * portefeuilles et le formulaire carte sont les conteneurs du prestataire,
+ * toujours montés : son SDK les remplit.
  */
 export function CardPaymentForm({
   state,
   total,
   tipAmount,
+  merchant,
   hasWallet,
   wallets,
   card,
@@ -165,6 +168,8 @@ export function CardPaymentForm({
   state: "loading" | "ready" | "paying";
   total: number;
   tipAmount: number;
+  /** L'établissement encaisseur, nommé au-dessus du montant. */
+  merchant?: string;
   hasWallet: boolean;
   wallets: ReactNode;
   card: ReactNode;
@@ -175,106 +180,90 @@ export function CardPaymentForm({
 }) {
   const due = formatPrice(total + tipAmount);
   // Le formulaire remplace le panier : le focus le suit, sinon il retombait sur la page.
-  const titleRef = useRef<HTMLHeadingElement>(null);
+  const titleRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => titleRef.current?.focus(), []);
   return (
-    <div className="relative overflow-hidden">
-      <div aria-hidden className="ember-glow pointer-events-none absolute inset-x-0 top-0 h-56" />
-      <div className="relative flex flex-col px-6 pt-8 pb-[max(1.5rem,env(safe-area-inset-bottom))]">
-        <header className="rise flex flex-col items-center gap-2 text-center">
-          <h2
-            ref={titleRef}
-            tabIndex={-1}
-            className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.28em] text-ember-1 outline-none"
-          >
-            <LockIcon className="size-3.5" />
-            Paiement sécurisé
-          </h2>
-          <p className="ember-text font-display text-5xl font-medium tabular-nums">
-            {due}
-          </p>
-          {tipAmount > 0 && (
-            <p className="text-xs text-muted tabular-nums">
-              Commande {formatPrice(total)} · Pourboire {formatPrice(tipAmount)}
-            </p>
-          )}
-        </header>
-
-        <section
-          className={`rise flex flex-col gap-2.5 ${hasWallet ? "mt-6" : ""}`}
-          style={{ animationDelay: "80ms" }}
+    <div className="flex flex-col gap-5 p-5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+      {/* Des paragraphes : un titre y prendrait le filet de titre des thèmes. */}
+      <header className="rise flex flex-col items-center gap-1 text-center">
+        <p
+          ref={titleRef}
+          tabIndex={-1}
+          className="text-[11px] font-semibold uppercase tracking-[0.25em] text-muted outline-none"
         >
-          {wallets}
-          {hasWallet && (
-            <div className="mt-3.5 flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
-              <span className="h-px flex-1 bg-hairline" />
-              ou par carte
-              <span className="h-px flex-1 bg-hairline" />
+          Paiement
+        </p>
+        {merchant && <p className="max-w-full truncate text-sm font-medium">{merchant}</p>}
+        <p className="font-display text-3xl font-semibold lining-nums tabular-nums text-ember-1">
+          {due}
+        </p>
+        {tipAmount > 0 && (
+          <p className="text-xs text-muted tabular-nums">
+            Commande {formatPrice(total)} · Pourboire {formatPrice(tipAmount)}
+          </p>
+        )}
+      </header>
+
+      <section
+        className={`rise flex flex-col gap-2.5 ${hasWallet ? "" : "-mt-5"}`}
+        style={{ animationDelay: "80ms" }}
+      >
+        {wallets}
+        {hasWallet && (
+          <div className="mt-2 flex items-center gap-4 text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
+            <span className="h-px flex-1 bg-hairline" />
+            ou par carte
+            <span className="h-px flex-1 bg-hairline" />
+          </div>
+        )}
+      </section>
+
+      <section className="rise flex flex-col gap-5" style={{ animationDelay: "140ms" }}>
+        <div className={`relative ${state === "loading" ? "min-h-28" : ""}`}>
+          {card}
+          {state === "loading" && (
+            <div aria-hidden className="absolute inset-0 flex flex-col gap-px overflow-hidden rounded-2xl border border-hairline">
+              <div className="shimmer flex-1" />
+              <div className="flex flex-1 gap-px">
+                <div className="shimmer flex-1" />
+                <div className="shimmer flex-1" />
+              </div>
             </div>
           )}
-        </section>
-
-        <section
-          className="rise mt-6 flex flex-col gap-3"
-          style={{ animationDelay: "140ms" }}
+        </div>
+        <button
+          type="button"
+          onClick={onPay}
+          disabled={state !== "ready"}
+          className="ember-gradient flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-background transition active:scale-[0.99] disabled:opacity-60"
         >
-          {!hasWallet && (
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
-              Carte bancaire
-            </p>
+          {state === "paying" ? (
+            <>
+              <Spinner />
+              Paiement en cours…
+            </>
+          ) : state === "loading" ? (
+            "Préparation du paiement…"
+          ) : (
+            `Payer ${due}`
           )}
-          <div className={`relative ${state === "loading" ? "min-h-28" : ""}`}>
-            {card}
-            {state === "loading" && (
-              <div aria-hidden className="absolute inset-0 flex flex-col gap-px overflow-hidden rounded-2xl border border-hairline">
-                <div className="shimmer flex-1" />
-                <div className="flex flex-1 gap-px">
-                  <div className="shimmer flex-1" />
-                  <div className="shimmer flex-1" />
-                </div>
-              </div>
-            )}
-          </div>
-          <button
-            type="button"
-            onClick={onPay}
-            disabled={state !== "ready"}
-            className="ember-gradient flex h-13 w-full items-center justify-center gap-2 rounded-full text-[15px] font-semibold text-background shadow-lg shadow-black/25 transition active:scale-[0.99] disabled:opacity-60"
-          >
-            {state === "paying" ? (
-              <>
-                <Spinner />
-                Paiement en cours…
-              </>
-            ) : state === "loading" ? (
-              "Préparation du paiement…"
-            ) : (
-              <>
-                <LockIcon className="size-4" />
-                Payer {due}
-              </>
-            )}
-          </button>
-        </section>
+        </button>
+      </section>
 
-        <footer
-          className="rise mt-6 flex flex-col items-center gap-4 border-t border-hairline pt-5"
-          style={{ animationDelay: "200ms" }}
+      <footer className="rise -mt-2 flex flex-col items-center gap-2" style={{ animationDelay: "200ms" }}>
+        <button
+          type="button"
+          onClick={onCounter}
+          disabled={state === "paying"}
+          className="min-h-11 rounded-full px-4 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-40"
         >
-          <p className="max-w-xs text-center text-[11px] leading-relaxed text-faint">
-            Paiement chiffré, opéré par {operator}. Vos données de carte ne
-            transitent jamais par nos serveurs.
-          </p>
-          <button
-            type="button"
-            onClick={onCounter}
-            disabled={state === "paying"}
-            className="text-sm font-medium text-muted underline-offset-4 transition hover:text-foreground hover:underline disabled:opacity-40"
-          >
-            Payer au comptoir plutôt
-          </button>
-        </footer>
-      </div>
+          Payer au comptoir plutôt
+        </button>
+        <p className="flex items-center justify-center gap-1.5 text-xs text-muted">
+          <LockIcon className="size-3.5" />
+          Paiement sécurisé par {operator}
+        </p>
+      </footer>
     </div>
   );
 }
