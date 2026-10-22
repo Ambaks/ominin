@@ -1,13 +1,13 @@
-import { createHash } from "node:crypto";
-import { copyFile, mkdir, readFile, readdir, rm } from "node:fs/promises";
+import { copyFile, mkdir, readFile, rm } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { bundle } from "@remotion/bundler";
 import { renderMedia, selectComposition } from "@remotion/renderer";
+import { MUSIC_BY_ID } from "../../frontend/lib/social/music.ts";
 import { SCREEN_BY_ID, screenPath } from "../../frontend/lib/social/screens.ts";
+import { STOCK_BY_ID } from "../../frontend/lib/social/stock.ts";
 import { FPS } from "../src/format.ts";
 import type { ReelProps, ReelScript, RenderScene } from "../src/types.ts";
-import { findVideo } from "./pexels.ts";
 import { type Recording, recordClips } from "./record.ts";
 import { type PendingReel, pendingReels, remove, updatePost, upload } from "./supabase.ts";
 import { synthesize } from "./tts.ts";
@@ -15,12 +15,11 @@ import { synthesize } from "./tts.ts";
 /*
  * Rendu des Reels (workflow GitHub social-render, lancé par le backend après
  * la rédaction ou une modification). Pour chaque Reel en attente : la voix
- * de chaque scène, les vidéos libres de droits, les démos filmées, puis le
- * montage Remotion (src/Reel.tsx) en MP4 1080 × 1920, déposé dans le bucket
- * social-videos. L'admin voit la vidéo dans « À valider ».
- *
- * Musique : les pistes déposées dans social-video/music/ (MP3 libres de
- * droits), une par Reel, tirée de son id ; sans piste, la voix seule.
+ * de chaque scène (ElevenLabs), les démos filmées, puis le montage Remotion
+ * (src/Reel.tsx) en MP4 1080 × 1920, déposé dans le bucket social-videos.
+ * Vidéos de personnes et musique viennent des catalogues Mixkit
+ * (frontend/lib/social/stock.ts, music.ts), lues par URL au montage.
+ * L'admin voit la vidéo dans « À valider ».
  */
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
@@ -109,7 +108,6 @@ async function prepareShared() {
 
 async function prepare(reel: PendingReel, recordings: Map<string, Recording>): Promise<ReelProps> {
   const script = reel.reel as ReelScript;
-  const used = new Set<number>();
   const scenes: RenderScene[] = [];
 
   for (const [index, scene] of script.scenes.entries()) {
@@ -120,13 +118,15 @@ async function prepare(reel: PendingReel, recordings: Map<string, Recording>): P
     if (scene.visual === "screen" && !SCREEN_BY_ID.has(scene.media)) {
       throw new Error(`capture « ${scene.media} » inconnue`);
     }
+    const stock = scene.visual === "stock" ? STOCK_BY_ID.get(scene.media) : undefined;
+    if (scene.visual === "stock" && !stock) throw new Error(`vidéo « ${scene.media} » inconnue`);
     scenes.push({
       caption: scene.caption,
       voiceover: scene.voiceover,
       visual: scene.visual,
       src:
         scene.visual === "stock"
-          ? await findVideo(scene.stock_query, seconds, used)
+          ? stock!.url
           : scene.visual === "demo"
             ? recording!.file
             : scene.visual === "screen"
@@ -139,18 +139,13 @@ async function prepare(reel: PendingReel, recordings: Map<string, Recording>): P
       frames: Math.ceil(seconds * FPS),
     });
   }
-  return { brand: reel.brand as ReelProps["brand"], scenes, cta: script.cta, music: await pickMusic(reel.id) };
-}
-
-async function pickMusic(id: string): Promise<string | null> {
-  const tracks = (await readdir(join(ROOT, "music")).catch(() => [] as string[]))
-    .filter((file) => file.endsWith(".mp3"))
-    .sort();
-  if (!tracks.length) return null;
-  const track = tracks[createHash("sha1").update(id).digest().readUInt32BE(0) % tracks.length];
-  await mkdir(join(PUBLIC, "music"), { recursive: true });
-  await copyFile(join(ROOT, "music", track), join(PUBLIC, "music", track));
-  return `music/${track}`;
+  return {
+    brand: reel.brand as ReelProps["brand"],
+    scenes,
+    cta: script.cta,
+    // Morceau retiré du catalogue depuis la rédaction : la voix seule.
+    music: MUSIC_BY_ID.get(script.music)?.url ?? null,
+  };
 }
 
 async function fail(reel: PendingReel, error: unknown): Promise<string> {

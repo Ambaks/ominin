@@ -193,7 +193,6 @@ class ReelScene(BaseModel):
     caption: str
     visual: Literal["demo", "screen", "stock", "title"]
     media: str
-    stock_query: str
 
 
 class PostDraft(BaseModel):
@@ -203,6 +202,7 @@ class PostDraft(BaseModel):
     slides: list[Slide]
     scenes: list[ReelScene]
     cta: str
+    music: str
     caption_instagram: str
     caption_facebook: str
     caption_snapchat: str
@@ -259,6 +259,8 @@ def compose_system(
     pricing: dict[str, str] | None,
     screens: list[dict],
     clips: list[dict],
+    stock: list[dict],
+    music: list[dict],
     handles: dict[str, str],
 ) -> str:
     return f"""\
@@ -291,6 +293,13 @@ DÉMOS FILMÉES DISPONIBLES pour le Reel (id : ce qu'on y voit), jouées dans \
 un téléphone :
 {_catalogue(clips, "Aucune démo filmée disponible.")}
 
+VIDÉOS DE VRAIES PERSONNES DISPONIBLES pour le Reel (id : ce qu'on y voit), \
+en plein écran :
+{_catalogue(stock, "Aucune vidéo de personnes disponible.")}
+
+MUSIQUES DISPONIBLES pour le Reel (id : ambiance) :
+{_catalogue(music, "Aucune musique disponible : music vaut une chaîne vide.")}
+
 FORMAT DE SORTIE :
 - format : "reel", "carousel" ou "image".
 - slides (carousel : entre {settings.social_slides_min} et \
@@ -322,15 +331,17 @@ salle, le comptoir, un client au téléphone, un commerçant débordé — c'est
 qui donne des visages et de l'émotion), "demo" (une démo filmée dans un \
 téléphone), "screen" (une capture dans un téléphone), "title" (le texte \
 seul, en grand, sur le fond de la marque).
-  - media : l'id de la démo filmée (demo) ou de la capture (screen), pris \
-dans les listes ci-dessus ; chaîne vide sinon.
-  - stock_query : pour "stock", la recherche en anglais de la vidéo, 2 à 5 \
-mots concrets (« busy restaurant waiter », « woman paying with phone ») ; \
-chaîne vide sinon. Pas de logo ni de marque visibles à chercher.
+  - media : l'id pris dans la liste qui correspond au visuel — démo filmée \
+(demo), capture (screen), vidéo de personnes (stock) ; chaîne vide pour \
+"title". Choisis ce qui illustre exactement la phrase dite ; jamais d'id \
+hors des listes, et pas deux fois la même vidéo de personnes dans un Reel.
   Alterne : jamais deux scènes "title" de suite, au moins une scène "stock" \
 et au moins une scène "demo" ou "screen" quand le sujet touche une offre.
 - cta (reel) : l'appel à l'action de l'écran final, 8 mots au plus \
 (« Écrivez MENU en message »). Chaîne vide pour les autres formats.
+- music (reel) : l'id de la musique dont l'ambiance sert le Reel (énergique \
+pour une offre, inspirée pour la vision…). Chaîne vide pour les autres \
+formats.
 - caption_instagram : légende Instagram, hashtags compris.
 - caption_facebook : légende Facebook, sans hashtags en rafale, avec \
 l'adresse du site en clair.
@@ -371,12 +382,12 @@ def compose_content(day, recent_posts: list[dict], previous: dict | None = None)
                     for index, slide in enumerate(previous["slides"], 1)
                 ),
                 *(
-                    f"  scène {index} ({scene['visual']} {scene['media']}"
-                    f"{scene['stock_query']}) : « {scene['voiceover']} » / "
-                    f"écran : {scene['caption']}"
+                    f"  scène {index} ({scene['visual']} {scene['media']}) : "
+                    f"« {scene['voiceover']} » / écran : {scene['caption']}"
                     for index, scene in enumerate(reel.get("scenes", []), 1)
                 ),
                 *([f"Écran final : {reel['cta']}"] if reel.get("cta") else []),
+                *([f"Musique : {reel['music']}"] if reel.get("music") else []),
                 f"Légende Instagram : {previous['captions']['instagram']}",
                 "",
                 (

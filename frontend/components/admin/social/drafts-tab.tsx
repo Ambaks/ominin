@@ -14,8 +14,10 @@ import {
   type SocialPlatform,
 } from "@/lib/social/brands";
 import { CLIPS } from "@/lib/social/clips";
+import { MUSIC } from "@/lib/social/music";
 import type { ReelScene, ReelScript, ReelVisual } from "@/lib/social/reel";
 import { SCREENS } from "@/lib/social/screens";
+import { STOCK } from "@/lib/social/stock";
 import { FORMAT_LABELS, PostMedia } from "./post-media";
 import { PRIMARY_BUTTON, SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
@@ -449,8 +451,9 @@ function ReelEditor({
   return (
     <>
       {reel.scenes.map((scene, index) => {
-        const media =
-          scene.visual === "demo" ? clips : scene.visual === "screen" ? screens : null;
+        const media = { demo: clips, screen: screens, stock: STOCK, title: null }[
+          scene.visual
+        ];
         return (
           <fieldset
             key={index}
@@ -480,7 +483,6 @@ function ReelEditor({
                   setScene(index, {
                     visual: event.target.value as ReelVisual,
                     media: "",
-                    stock_query: "",
                   })
                 }
                 className={inputClass}
@@ -509,18 +511,6 @@ function ReelEditor({
                   ))}
                 </select>
               )}
-              {scene.visual === "stock" && (
-                <input
-                  aria-label="Recherche de la vidéo, en anglais"
-                  placeholder="Recherche en anglais : busy restaurant waiter"
-                  value={scene.stock_query}
-                  required
-                  onChange={(event) =>
-                    setScene(index, { stock_query: event.target.value })
-                  }
-                  className={inputClass}
-                />
-              )}
             </div>
           </fieldset>
         );
@@ -532,6 +522,21 @@ function ReelEditor({
           onChange={(event) => onChange({ ...reel, cta: event.target.value })}
           className={inputClass}
         />
+      </label>
+      <label className="flex flex-col gap-1">
+        <span className={SECTION_TITLE}>Musique</span>
+        <select
+          value={reel.music}
+          onChange={(event) => onChange({ ...reel, music: event.target.value })}
+          className={inputClass}
+        >
+          <option value="">Sans musique</option>
+          {MUSIC.map((track) => (
+            <option key={track.id} value={track.id}>
+              {track.mood}
+            </option>
+          ))}
+        </select>
       </label>
     </>
   );

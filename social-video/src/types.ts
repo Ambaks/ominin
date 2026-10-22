@@ -8,7 +8,7 @@ export interface RenderScene {
   caption: string;
   voiceover: string;
   visual: ReelVisual;
-  /** staticFile (démo filmée, capture) ou URL (vidéo libre de droits). */
+  /** staticFile (démo filmée, capture) ou URL (vidéo de personnes, Mixkit). */
   src: string | null;
   /** Démo filmée : où commence le parcours dans l'enregistrement, et sa
    * durée utile, en secondes — la scène la joue en entier, accélérée. */
@@ -24,5 +24,6 @@ export interface ReelProps extends Record<string, unknown> {
   brand: SocialBrand;
   scenes: RenderScene[];
   cta: string;
+  /** URL du morceau (catalogue Mixkit), ou null : la voix seule. */
   music: string | null;
 }
