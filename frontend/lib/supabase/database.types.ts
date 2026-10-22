@@ -1773,6 +1773,7 @@ export type Database = {
       }
       etablissements: {
         Row: {
+          demo: boolean
           address: string
           admin_pin_set: boolean
           club_dress_code: string | null
@@ -1808,6 +1809,7 @@ export type Database = {
           tagline: string
         }
         Insert: {
+          demo?: boolean
           address?: string
           admin_pin_set?: boolean
           club_dress_code?: string | null
@@ -1843,6 +1845,7 @@ export type Database = {
           tagline?: string
         }
         Update: {
+          demo?: boolean
           address?: string
           admin_pin_set?: boolean
           club_dress_code?: string | null
@@ -4869,6 +4872,7 @@ export type Database = {
       }
       shops: {
         Row: {
+          demo: boolean
           about_text: string | null
           announcement: string | null
           catalog_label: string
@@ -4903,6 +4907,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          demo?: boolean
           about_text?: string | null
           announcement?: string | null
           catalog_label?: string
@@ -4937,6 +4942,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          demo?: boolean
           about_text?: string | null
           announcement?: string | null
           catalog_label?: string
