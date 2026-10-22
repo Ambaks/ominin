@@ -1,9 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Fragment, useEffect, useId, useLayoutEffect, useRef, useState } from "react";
 import { CheckIcon } from "@/components/gestion/icons";
 import { Sheet, useNoSheet } from "@/components/menu/sheet";
-import { QrCode } from "@/components/pitch/qr-code";
 import { SERVICE_CLOCK_TICK_MS } from "@/lib/gestion/constants";
 import { frenchTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
@@ -35,6 +35,18 @@ import {
  * Retrait au bar : prête, le ticket porte le code que le client montre au
  * bar ; scanné, la commande est remise et la page la salue de même.
  */
+
+/**
+ * L'encodeur QR ne pèse que sur le retrait au bar, pas sur chaque carte. Son
+ * chargement en échec (réseau, déploiement entre-temps) laisse le ticket sans
+ * code plutôt que la page en erreur : le numéro reste à montrer.
+ */
+const QrCode = dynamic(() =>
+  import("@/components/pitch/qr-code").then(
+    (m) => m.QrCode,
+    () => () => null
+  )
+);
 
 const STEPS = ["Commandée", "En cuisine", "Prête"] as const;
 
@@ -149,6 +161,13 @@ const BAR_STEPS = ["Reçue", "En préparation", "Prête au bar"] as const;
 // Le titre de « servie » est la salutation du service (servedGreeting).
 const BAR_STAGES: Partial<Record<OrderStatus, Stage>> = {
   ...TABLE_STAGES,
+  en_attente: {
+    title: "À régler",
+    body: "Réglez-la au\u00a0bar\u00a0: elle part en\u00a0préparation dès l’encaissement.",
+    step: 1,
+    waiting: true,
+    chip: "À régler",
+  },
   en_preparation: {
     title: "En préparation",
     body: "Gardez cette page ouverte\u00a0: elle vous prévient dès que c’est prêt au\u00a0bar.",
@@ -173,8 +192,8 @@ const BAR_STAGES: Partial<Record<OrderStatus, Stage>> = {
 const SETTLED_AT_COUNTER =
   "Réglée au\u00a0comptoir\u00a0: elle est en\u00a0préparation.\nUn serveur vous l’apporte à\u00a0table.";
 
-const SETTLED_AT_COUNTER_BAR =
-  "Réglée au\u00a0comptoir\u00a0: elle est en\u00a0préparation.\nCette page vous prévient dès qu’elle est prête au\u00a0bar.";
+const SETTLED_AT_BAR =
+  "Réglée au\u00a0bar\u00a0: elle est en\u00a0préparation.\nCette page vous prévient dès qu’elle est prête.";
 
 /** table : à table, ses étapes et ses mots ; bar : retrait au bar (aperçu). */
 const stageOf = (ticket: Ticket, table: number | null, bar = false): Stage | null => {
@@ -184,7 +203,7 @@ const stageOf = (ticket: Ticket, table: number | null, bar = false): Stage | nul
     if (!stage) return null;
     if (ticket.status === "servie") return { ...stage, title: servedGreeting(ticket) };
     if (ticket.status === "en_preparation" && ticket.atCounter) {
-      return { ...stage, body: bar ? SETTLED_AT_COUNTER_BAR : SETTLED_AT_COUNTER };
+      return { ...stage, body: bar ? SETTLED_AT_BAR : SETTLED_AT_COUNTER };
     }
     return stage;
   }
@@ -446,7 +465,6 @@ function OrderTicket({
       ref={rootRef}
       data-ticket-sheet={ticket.status ?? undefined}
       data-table={table ?? undefined}
-      data-bar={bar || undefined}
       data-orders={listed || undefined}
       className="order-ticket-sheet flex flex-col gap-5 p-5 pt-6"
     >
@@ -599,7 +617,7 @@ function OrderTicket({
             {/* Noir sur blanc quel que soit le thème : la douchette lit le
                 contraste. Aperçu : le code ne porte qu'un texte de démo. */}
             {bar && ready && ticket.number !== null && (
-              <div className="order-ticket-code mb-2 mt-4 rounded-2xl bg-white p-3 text-black">
+              <div className="mb-2 mt-4 rounded-2xl bg-white p-3 text-black empty:hidden">
                 <QrCode
                   value={`Démo Ominin · retrait au bar · commande n° ${ticket.number}`}
                   label={`Code de retrait de la commande n° ${ticket.number}`}

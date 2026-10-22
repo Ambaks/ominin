@@ -232,8 +232,9 @@ const SPOKEN_TABLE: Partial<Record<OrderStatus, string>> = {
 /** Aperçu à table, retrait au bar. */
 const SPOKEN_BAR: Partial<Record<OrderStatus, string>> = {
   ...SPOKEN_TABLE,
+  en_attente: "reçue, à régler au bar.",
   prete: "prête\u00a0! Venez la chercher au bar et montrez votre code.",
-  servie: "remise. Bon appétit\u00a0!",
+  servie: "remise.",
 };
 
 const unknownTicket = (id: string): Ticket => ({
