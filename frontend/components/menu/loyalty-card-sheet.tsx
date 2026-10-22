@@ -129,11 +129,11 @@ export function LoyaltyCardSheet({
             <p className="flex items-center justify-between gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/5 px-3.5 py-3 text-xs">
               <span className="inline-flex items-center gap-2 font-semibold">
                 <WheelGlyph className="size-4 text-ember-1" />
-                {wheel.streak > 1 ? `Série : ${wheel.streak} jours` : "Tour du jour joué"}
+                {wheel.streak > 1 ? `${wheel.streak} jours d’affilée` : "Tour du jour joué"}
               </span>
               <span className="text-muted">
                 Prochain tour dans{" "}
-                <UntilTomorrow className="font-mono font-semibold tabular-nums text-foreground" />
+                <UntilTomorrow className="font-semibold tabular-nums text-foreground" />
               </span>
             </p>
           )}

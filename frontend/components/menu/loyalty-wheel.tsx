@@ -317,7 +317,8 @@ export function LoyaltyWheel({
     }
     await windup?.finished.catch(() => {});
     if (!dialRef.current) return;
-    const { keyframes, angleAt } = spinPath(-24, target, step);
+    // Un tour sur six et demi environ dépasse franchement dans la part voisine, et y hésite.
+    const { keyframes, angleAt } = spinPath(-24, target, step, Math.random() < 0.15);
     const duration = 5800;
     const animation = dial.animate(keyframes, { duration, fill: "forwards" });
     windup?.cancel();
@@ -432,7 +433,8 @@ export function LoyaltyWheel({
               if (from && Math.hypot(event.clientX - from.x, event.clientY - from.y) > 24) void spin();
             }}
           >
-            <div className="loyalty-wheel relative aspect-square w-[min(50vw,12.5rem)]" data-motif={motif}>
+            <div className="loyalty-wheel relative aspect-square w-[min(46vw,11.5rem)]" data-motif={motif}>
+              {jackpot && <span aria-hidden="true" className="wheel-rays absolute inset-[-28%] rounded-full" />}
               <span aria-hidden="true" className="wheel-shadow absolute inset-[3%] rounded-full" />
               <div ref={swayRef} className="wheel-sway absolute inset-0">
                 <div ref={dialRef} className="absolute inset-0">
@@ -459,7 +461,6 @@ export function LoyaltyWheel({
                           className={`wheel-slice ${gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`}`}
                         >
                           <path d={slicePath(i, step)} fill={gilded ? `url(#${titleId}-gold)` : undefined} />
-                          <path d={slicePath(i, step)} className="wheel-slice-shade" />
                           <g transform={`rotate(${i * step})`}>
                             {big && (
                               <text y="-79" textAnchor="middle" className="text-[8px] font-bold uppercase tracking-[0.2em]">
@@ -513,8 +514,9 @@ export function LoyaltyWheel({
                 <path d="M12 31L2.5 10.5a10 10 0 1 1 19 0z" />
                 <circle cx="12" cy="9.5" r="3.6" />
               </svg>
+              {jackpot && <span aria-hidden="true" className="wheel-ring absolute inset-0 rounded-full" />}
               {jackpot && (
-                <p className="wheel-jackpot pointer-events-none absolute inset-x-[-8%] bottom-[16%] py-1.5 text-center font-display text-3xl font-semibold uppercase italic">
+                <p className="wheel-jackpot pointer-events-none absolute inset-x-[-8%] bottom-[10%] py-1.5 text-center font-display text-3xl font-semibold uppercase italic">
                   Jackpot&nbsp;!
                 </p>
               )}
@@ -593,12 +595,20 @@ export function LoyaltyWheel({
                     gained={gained}
                     before={before}
                     slow={jackpot}
-                    label={goldenToday ? `points · roue dorée ×${multiplier}` : jackpot ? "points · gros lot" : "points gagnés"}
+                    label={
+                      goldenToday
+                        ? `points · roue dorée ×${multiplier}`
+                        : jackpot
+                          ? "points · gros lot"
+                          : golden
+                            ? `points · série de ${day} jours`
+                            : "points gagnés"
+                    }
                     detail={
                       unlocked.length > 0
                         ? `Débloqué : ${unlocked.at(-1)!.label}`
                         : next
-                          ? `Plus que ${next.points - after} ${next.points - after === 1 ? "point" : "points"} : ${next.label}`
+                          ? `Encore ${next.points - after} ${next.points - after === 1 ? "point" : "points"} : ${next.label}`
                           : "Toutes les récompenses sont à portée"
                     }
                   />
@@ -607,11 +617,12 @@ export function LoyaltyWheel({
                       Prochain tour{golden ? ` · jour ${day + 1}` : ""} · jusqu’à +
                       {golden && toGolden === 1 ? top * golden.multiplier : top}
                     </p>
-                    <UntilTomorrow className="wheel-countdown font-mono text-3xl font-bold leading-none tabular-nums" />
+                    <UntilTomorrow className="wheel-countdown text-3xl font-extrabold leading-none tabular-nums" />
                     {golden && (
                       <>
                         <span className="wheel-gold-chip mt-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold">
-                          {toGolden === 1 ? "Demain" : `Dans ${toGolden} jours`} : roue dorée, points ×{golden.multiplier}
+                          {toGolden === 1 ? "Demain" : `Dans ${toGolden} jours`} : roue dorée, jusqu’à +
+                          {top * golden.multiplier}
                         </span>
                         <p className="wheel-soft text-[11px]">Un jour manqué, et la série repart à zéro.</p>
                       </>

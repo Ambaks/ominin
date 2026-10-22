@@ -61,6 +61,13 @@ export function useWheelSound() {
     return context.current;
   };
 
+  const decodeClicks = (ctx: AudioContext) =>
+    clicksFile.current
+      ?.then((file) => ctx.decodeAudioData(file.slice(0)))
+      .then((buffer) => {
+        clicks.current = buffer;
+      }, () => {});
+
   const note = (ctx: AudioContext, frequency: number, at: number, length: number, type: OscillatorType, peak: number) => {
     const oscillator = ctx.createOscillator();
     const gain = ctx.createGain();
@@ -82,19 +89,19 @@ export function useWheelSound() {
       try {
         localStorage.setItem(SOUND_KEY, on ? "off" : "on");
       } catch {}
+      // Rallumé (sous le geste) : le claquement enregistré se décode tout de suite.
+      if (!on) {
+        onRef.current = true;
+        const ctx = audio();
+        if (ctx && !clicks.current) decodeClicks(ctx);
+      }
     },
     /** Au toucher du bouton : iOS n'ouvre le son que sous un geste. */
     whoosh: () => {
       const ctx = audio();
       if (!ctx) return;
       void ctx.resume();
-      if (!clicks.current) {
-        clicksFile.current
-          ?.then((file) => ctx.decodeAudioData(file.slice(0)))
-          .then((buffer) => {
-            clicks.current = buffer;
-          }, () => {});
-      }
+      if (!clicks.current) decodeClicks(ctx);
       const length = 0.6;
       const buffer = ctx.createBuffer(1, ctx.sampleRate * length, ctx.sampleRate);
       const samples = buffer.getChannelData(0);

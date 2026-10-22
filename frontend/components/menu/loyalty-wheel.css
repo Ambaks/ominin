@@ -186,14 +186,17 @@
 .wheel-slice-gold text {
   fill: #3b2a08;
 }
-.wheel-slice .wheel-slice-shade {
-  fill: #021a0c;
-  stroke: none;
-  opacity: 0;
-  transition: opacity 0.5s ease 0.1s;
+/* Roue dorée : l'or sur le noir. */
+.wheel-stage[data-golden] .wheel-slice-a path {
+  fill: #0a1f10;
 }
-.wheel-stage[data-phase="won"] .wheel-slice:not([data-lit]) .wheel-slice-shade {
-  opacity: 0.55;
+/* Les parts perdantes passent toutes au vert profond (le remplissage CSS
+   l'emporte sur le dégradé doré en attribut) : la gagnante seule reste vive. */
+.wheel-slice path {
+  transition: fill 0.5s ease 0.1s;
+}
+.wheel-stage[data-phase="won"] .wheel-slice:not([data-lit]) path {
+  fill: #0b3a1c;
 }
 .wheel-slice text {
   transition: fill 0.5s ease 0.1s, opacity 0.5s ease 0.1s;
@@ -207,7 +210,7 @@
   stroke: var(--gold-1);
   stroke-width: 3.5;
   stroke-linejoin: round;
-  animation: wheel-outline 1.2s ease-in-out 0.12s 3;
+  animation: wheel-outline 0.8s ease-in-out 0.12s 4;
 }
 .wheel-wash {
   opacity: 0;
@@ -226,13 +229,14 @@
 }
 /*
   La roue grande pour jouer (une échelle sur sa taille finale), plus petite
-  pour laisser la scène au gain ; le bouton s'efface et se replie, le
-  résultat se déplie dans le même temps (grilles de 0fr à 1fr) : la roue
-  glisse, rien ne saute. Le tout 250 ms après l'éclair.
+  pour laisser la scène au gain : la fête jaillit d'abord de la grande roue,
+  puis, 450 ms après l'éclair, elle recule pendant que le bouton (effacé dès
+  l'arrêt) se replie et que le résultat se déplie (grilles de 0fr à 1fr) :
+  la roue glisse, rien ne saute.
 */
 .loyalty-wheel {
-  scale: 1.64;
-  transition: scale 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
+  scale: 1.78;
+  transition: scale 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s;
 }
 .wheel-stage[data-phase="won"] .loyalty-wheel {
   scale: 1;
@@ -240,7 +244,7 @@
 .wheel-fold {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
+  transition: grid-template-rows 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.45s;
 }
 .wheel-fold[data-open] {
   grid-template-rows: 1fr;
@@ -249,7 +253,7 @@
   min-height: 0;
   overflow: hidden;
   contain: layout paint;
-  transition: opacity 0.2s ease;
+  transition: opacity 0.12s ease;
 }
 /* Ce qui se replie s'efface d'abord : pas de bouton tranché net. */
 .wheel-fold:not([data-open]) > div {
@@ -351,11 +355,11 @@
 .wheel-won-amount {
   color: var(--gold-1);
   text-shadow: 0 0 18px rgba(246, 221, 138, 0.55);
-  animation: loyalty-pop 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.45s both;
+  animation: loyalty-pop 0.55s cubic-bezier(0.16, 1, 0.3, 1) 0.6s both;
 }
 /* Le compte arrivé : un dernier bond. */
 .wheel-won-amount[data-done] {
-  animation: wheel-amount-done 0.22s ease-out;
+  animation: wheel-amount-done 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 .wheel-soft {
   color: color-mix(in srgb, var(--ivory) 86%, transparent);
@@ -373,6 +377,44 @@
 }
 .wheel-stage[data-jackpot] .wheel-flash {
   animation: wheel-flash-twice 0.9s ease-out;
+}
+/*
+  Gros lot : un anneau d'or s'élargit depuis la roue, des rayons tournent
+  derrière elle, les ampoules courent en vague plutôt qu'ensemble.
+*/
+.wheel-ring {
+  z-index: 3;
+  border: 2px solid var(--gold-1);
+  opacity: 0;
+  animation: wheel-ring-out 0.7s ease-out;
+}
+.wheel-rays {
+  z-index: -1;
+  background: repeating-conic-gradient(rgba(246, 221, 138, 0.22) 0 8deg, transparent 8deg 22deg);
+  mask: radial-gradient(closest-side, #000 35%, transparent);
+  animation:
+    wheel-spin 9s linear infinite,
+    wheel-rays-in 0.6s ease-out both;
+}
+.wheel-stage[data-jackpot] .wheel-bulb {
+  animation:
+    wheel-blink 0.36s steps(1, end) calc(var(--i) * 0.04s) 6 both,
+    wheel-chase 2.4s steps(1, end) calc(3.2s + var(--i) * -0.1s) infinite;
+}
+@keyframes wheel-ring-out {
+  0% {
+    opacity: 0.8;
+    transform: scale(0.6);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.8);
+  }
+}
+@keyframes wheel-rays-in {
+  from {
+    opacity: 0;
+  }
 }
 .wheel-stage[data-tier="small"] .wheel-flash {
   animation: wheel-flash-soft 0.45s ease-out;
@@ -427,7 +469,7 @@
   text-shadow: 0 0 12px rgba(246, 221, 138, 0.35);
 }
 .wheel-won-line {
-  animation: loyalty-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.55s both;
+  animation: loyalty-rise 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.7s both;
 }
 .wheel-jackpot {
   z-index: 3;
@@ -438,8 +480,8 @@
     0 10px 26px rgba(0, 0, 0, 0.5),
     0 0 30px rgba(246, 221, 138, 0.55);
   animation:
-    wheel-jackpot 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.85s both,
-    wheel-ribbon-out 0.45s ease-in 2.6s forwards;
+    wheel-jackpot 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both,
+    wheel-ribbon-out 0.45s ease-in 3.2s forwards;
 }
 
 /*
@@ -629,7 +671,7 @@
 }
 @keyframes wheel-punch {
   50% {
-    transform: scale(1.05);
+    transform: scale(1.1);
   }
 }
 @keyframes wheel-shake {
@@ -671,7 +713,7 @@
   }
   55% {
     opacity: 1;
-    transform: scaleX(1.06) rotate(-6deg);
+    transform: scaleX(1.06) rotate(-9deg);
   }
   100% {
     opacity: 1;
@@ -739,6 +781,8 @@
   .wheel-launch::after,
   .wheel-won-line,
   .wheel-jackpot,
+  .wheel-ring,
+  .wheel-rays,
   .wheel-won-amount[data-done],
   .wheel-pointer,
   .wheel-stage::after,
