@@ -3,9 +3,10 @@
 # modification d'un script dans l'admin ; traite tous les Reels en attente.
 # Un seul rendu à la fois : un nouvel appel attend la fin du précédent.
 #
-# Secrets : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, OPENAI_API_KEY,
-# PEXELS_API_KEY. Variables : TTS_MODEL, TTS_VOICE, TTS_INSTRUCTIONS
-# (facultative) — fournisseur de voix à confirmer, voir scripts/tts.ts.
+# Secrets : SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, ELEVENLABS_API_KEY.
+# Variables : ELEVENLABS_VOICE_ID, ELEVENLABS_MODEL (voix off, voir
+# scripts/tts.ts). Vidéos de personnes et musiques : catalogues Mixkit, sans
+# clé (frontend/lib/social/stock.ts, music.ts).
 name: social-render
 
 on:
@@ -39,11 +40,9 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-          TTS_MODEL: ${{ vars.TTS_MODEL }}
-          TTS_VOICE: ${{ vars.TTS_VOICE }}
-          TTS_INSTRUCTIONS: ${{ vars.TTS_INSTRUCTIONS }}
+          ELEVENLABS_API_KEY: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVENLABS_VOICE_ID: ${{ vars.ELEVENLABS_VOICE_ID }}
+          ELEVENLABS_MODEL: ${{ vars.ELEVENLABS_MODEL }}
       # Échec : notification à Marwan et Ambaka (une par 6 h au plus, voir
       # lib/admin/alerts.ts). Jamais bloquant.
       - name: Prévenir l'admin

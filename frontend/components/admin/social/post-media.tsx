@@ -2,6 +2,7 @@
 
 import type { SocialPost } from "@/lib/admin/social";
 import { slideUrl } from "@/lib/social/brands";
+import { MUSIC_BY_ID } from "@/lib/social/music";
 import { videoUrl } from "@/lib/social/reel";
 import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
@@ -109,7 +110,6 @@ export function PostMedia({
             <p className={SECTION_TITLE}>
               Scène {index + 1} · {VISUAL_LABELS[scene.visual]}
               {scene.media && ` · ${scene.media}`}
-              {scene.visual === "stock" && ` · « ${scene.stock_query} »`}
             </p>
             <p className="mt-1 font-medium">{scene.caption}</p>
             <p className="mt-0.5 text-muted">« {scene.voiceover} »</p>
@@ -118,6 +118,9 @@ export function PostMedia({
         <li className="rounded-xl bg-surface-raised p-3 text-sm">
           <p className={SECTION_TITLE}>Écran final</p>
           <p className="mt-1 font-medium">{post.reel.cta}</p>
+          <p className="mt-1 text-muted">
+            {MUSIC_BY_ID.get(post.reel.music)?.mood ?? "Sans musique"}
+          </p>
         </li>
       </ol>
     </div>

@@ -72,7 +72,7 @@ export function Reel({ brand: brandId, scenes, cta, music }: ReelProps) {
       <Sequence from={from} durationInFrames={OUTRO_FRAMES}>
         <Outro brand={brand} cta={cta} />
       </Sequence>
-      {music ? <Audio src={staticFile(music)} volume={MUSIC_VOLUME} loop /> : null}
+      {music ? <Audio src={music} volume={MUSIC_VOLUME} loop /> : null}
       <Progress brand={brand} total={total} />
     </AbsoluteFill>
   );
