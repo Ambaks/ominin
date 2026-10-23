@@ -12,6 +12,7 @@ import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import { Garland, LoyaltyCard, RewardDrawing } from "./loyalty-card";
 import { UntilTomorrow } from "./until-tomorrow";
 import { WheelGlyph } from "./wheel-glyph";
+import type { LiquidOrigin } from "./liquid-sheet";
 import { Sheet } from "./sheet";
 
 /*
@@ -44,12 +45,15 @@ export function LoyaltyCardSheet({
   logo,
   wordmark,
   motif,
+  origin,
   onClose,
 }: {
   brand: string;
   logo?: string;
   wordmark?: boolean;
   motif?: GarlandMotif;
+  /** La pastille d'où la feuille naît, quand elle l'a ouverte. */
+  origin?: LiquidOrigin | null;
   onClose: () => void;
 }) {
   const { loyalty } = useCart();
@@ -77,6 +81,7 @@ export function LoyaltyCardSheet({
       }}
       backdropCloses
       labelledBy={titleId}
+      origin={origin}
     >
       {(close) => (
         <div className="flex flex-col gap-6 px-5 pb-8 pt-5">

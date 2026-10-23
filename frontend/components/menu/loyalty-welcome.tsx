@@ -19,6 +19,7 @@ import {
 import { greetedKey, useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import { reducedMotion, useCountUp } from "./loyalty-card";
 import { LoyaltyCardSheet } from "./loyalty-card-sheet";
+import type { LiquidOrigin } from "./liquid-sheet";
 import { useNoSheet } from "./sheet";
 import { WheelGlyph } from "./wheel-glyph";
 
@@ -177,6 +178,10 @@ export function LoyaltyWelcome({
   // « Ma carte » demandée depuis la roue : elle s'ouvre une fois la roue descendue.
   const [cardAfterWheel, setCardAfterWheel] = useState(false);
   const openNext = () => (spinReady ? setWheelOpen(true) : setOpen(true));
+  // Touchée, la pastille : la feuille en naît (Sheet, origin). Ouverte d'ailleurs, elle monte.
+  const [origin, setOrigin] = useState<LiquidOrigin | null>(null);
+  // Le liquide (shader compris) n'est chargé que pour une carte qui a une pastille.
+  const [liquid, setLiquid] = useState<typeof import("./liquid-sheet") | null>(null);
   const greetingRef = useRef<HTMLButtonElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const sessionKey = greetedKey(slug);
@@ -230,6 +235,21 @@ export function LoyaltyWelcome({
     if (phase !== "greeting") return;
     const timer = setTimeout(fold, LOYALTY_GREETING_MS);
     return () => clearTimeout(timer);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "pill" || reducedMotion()) return;
+    let live = true;
+    import("./liquid-sheet").then(
+      (module) => {
+        module.prepareLiquid();
+        if (live) setLiquid(module);
+      },
+      () => {}
+    );
+    return () => {
+      live = false;
+    };
   }, [phase]);
 
   useEffect(() => {
@@ -304,7 +324,15 @@ export function LoyaltyWelcome({
               ? `Tourner la roue · ${points} ${points === 1 ? "point" : "points"}`
               : `Ma carte de fidélité : ${points} ${points === 1 ? "point" : "points"}`
           }
-          onClick={openNext}
+          onPointerDown={(event) => {
+            // La roue chargée dès le doigt posé : la feuille naît sans attendre son paquet.
+            if (spinReady) loadWheel().catch(() => {});
+            if (liquid?.liquidReady()) liquid.squeezePill(event.currentTarget);
+          }}
+          onClick={(event) => {
+            openNext();
+            if (liquid?.liquidReady()) setOrigin({ source: event.currentTarget, grow: liquid.growSheet });
+          }}
           data-docked={docked || undefined}
           className="loyalty-pill loyalty-pill-enter fixed right-3 top-[calc(env(safe-area-inset-top,0px)+0.75rem)] z-40 flex items-center gap-1.5 rounded-full border border-ember-1/45 bg-surface/85 py-1 pl-1 pr-3 text-sm font-semibold tabular-nums text-foreground shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-lg data-docked:bg-background data-docked:shadow-none"
         >
@@ -329,7 +357,9 @@ export function LoyaltyWelcome({
           icon={icon}
           logo={logo}
           motif={motif}
+          origin={origin}
           onClose={() => {
+            setOrigin(null);
             setWheelOpen(false);
             setWheelDone(true);
             // « Ma carte » demandée : la carte s'ouvre, l'accueil n'a plus lieu d'être.
@@ -349,7 +379,11 @@ export function LoyaltyWelcome({
           logo={logo}
           wordmark={wordmark}
           motif={motif}
-          onClose={() => setOpen(false)}
+          origin={origin}
+          onClose={() => {
+            setOrigin(null);
+            setOpen(false);
+          }}
         />
       )}
     </>

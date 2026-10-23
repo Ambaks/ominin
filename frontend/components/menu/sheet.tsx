@@ -3,12 +3,14 @@
 import {
   useEffect,
   useId,
+  useLayoutEffect,
   useRef,
   useState,
   useSyncExternalStore,
   type ReactNode,
 } from "react";
 import { createPortal } from "react-dom";
+import type { LiquidOrigin, LiquidSheet } from "./liquid-sheet";
 
 /**
  * Le réglage de défilement du navigateur avant toute feuille, lu une fois :
@@ -107,6 +109,11 @@ export function useSheetHistoryReset() {
  * « + » du panier se tape en rafale. Mouvement réduit : les deux animations
  * deviennent des fondus de même durée, la garde tient.
  *
+ * Ouverte depuis la pastille de fidélité (origin), elle en naît en liquide
+ * et s'y vide en partant (liquid-sheet) : la garde tient le temps de la
+ * croissance, le fond s'assombrit avec elle. Sans liquide prêt, la montée
+ * ordinaire.
+ *
  * Deux feuilles peuvent s'empiler (un article offert se compose depuis le
  * panier) : seule celle du dessus répond au clavier, et chacune ne se ferme
  * au « Retour » que si c'est sa propre entrée d'historique qui s'en va.
@@ -117,6 +124,7 @@ export function Sheet({
   labelledBy,
   label,
   enter = "rise",
+  origin,
   children,
 }: {
   /** Appelé une fois la feuille descendue. */
@@ -128,6 +136,11 @@ export function Sheet({
    * seulement : changée ensuite, la classe relançait l'entrée.
    */
   enter?: "rise" | "swap";
+  /**
+   * D'où elle naît et où elle se vide (la pastille), lu à l'ouverture ;
+   * fourni seulement quand le liquide est prêt (chargé à part).
+   */
+  origin?: LiquidOrigin | null;
   /** Toucher le fond ferme-t-il la feuille ? */
   backdropCloses: boolean;
   labelledBy?: string;
@@ -146,6 +159,11 @@ export function Sheet({
   const lastAccepted = useRef<Element | null>(null);
   const [closing, setClosing] = useState(false);
   const [entrance] = useState(enter);
+  const [growth] = useState(origin);
+  // Le liquide qui ne démarre pas (contexte perdu entre-temps, pastille disparue) rend la montée ordinaire.
+  const [liquid, setLiquid] = useState(growth != null);
+  const liquidRef = useRef<LiquidSheet | null>(null);
+  const dimRef = useRef<HTMLDivElement>(null);
   // Le parent recrée souvent son rappel : le lire dans une ref évite de
   // relancer les effets (et de renvoyer le focus au déclencheur) à chaque rendu.
   const onClosedRef = useRef(onClosed);
@@ -155,11 +173,38 @@ export function Sheet({
 
   const close = () => setClosing(true);
 
+  // Avant la peinture : le premier état du liquide est posé, la feuille ne paraît pas pleine un instant.
+  useLayoutEffect(() => {
+    const panel = panelRef.current;
+    const dim = dimRef.current;
+    if (!growth || !panel || !dim) return;
+    // Levée par le liquide, parfois dès son premier état (il tombe) : posée avant.
+    settled.current = false;
+    let run: LiquidSheet | null = null;
+    try {
+      run = growth.grow({
+        panel,
+        dim,
+        source: growth.source,
+        onOpened: () => {
+          settled.current = true;
+        },
+      });
+    } catch {}
+    // Avant la peinture : la feuille monte alors comme les autres.
+    if (!run) setLiquid(false);
+    liquidRef.current = run;
+    return () => {
+      run?.dispose();
+      liquidRef.current = null;
+    };
+  }, [growth]);
+
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
     countSheet(1);
-    settled.current = getComputedStyle(panel).animationName === "none";
+    if (!liquidRef.current) settled.current = getComputedStyle(panel).animationName === "none";
     const opener = document.activeElement as HTMLElement | null;
     const bodyOverflow = document.body.style.overflow;
     panel.focus();
@@ -352,18 +397,30 @@ export function Sheet({
     };
   }, [sheetId]);
 
-  // Sans animation de sortie (CSS absent), rien à attendre.
+  // Sans animation de sortie (CSS absent, liquide tombé), rien à attendre.
   useEffect(() => {
+    if (!closing) return;
+    const run = liquidRef.current;
+    if (run) {
+      let mounted = true;
+      const closed = () => {
+        if (mounted) onClosedRef.current();
+      };
+      run.close().then(closed, closed);
+      return () => {
+        mounted = false;
+      };
+    }
     const panel = panelRef.current;
-    if (closing && panel && getComputedStyle(panel).animationName === "none") {
+    if (liquid || (panel && getComputedStyle(panel).animationName === "none")) {
       onClosedRef.current();
     }
-  }, [closing]);
+  }, [closing, liquid]);
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm transition-opacity duration-200 sm:items-center sm:p-4 ${
-        closing ? "opacity-0" : ""
+      className={`fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4 ${
+        liquid ? "" : `bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${closing ? "opacity-0" : ""}`
       }`}
       onClickCapture={(event) => {
         const control =
@@ -382,6 +439,7 @@ export function Sheet({
       }}
       onClick={backdropCloses ? close : undefined}
     >
+      {liquid && <div ref={dimRef} aria-hidden="true" className="absolute inset-0 bg-black/60 backdrop-blur-sm" />}
       <div
         ref={panelRef}
         tabIndex={-1}
@@ -389,7 +447,7 @@ export function Sheet({
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-label={label}
-        className={`${closing ? "sheet-fall" : `sheet-${entrance}`} flex max-h-(--sheet-max) w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl`}
+        className={`${liquid ? "relative" : closing ? "sheet-fall" : `sheet-${entrance}`} flex max-h-(--sheet-max) w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl`}
         onClick={(event) => event.stopPropagation()}
         onAnimationEnd={(event) => {
           if (event.target !== event.currentTarget) return;

@@ -28,6 +28,8 @@
   background:
     radial-gradient(60% 34% at 50% 50%, rgba(246, 221, 138, 0.16), transparent 70%),
     radial-gradient(130% 90% at 50% 34%, var(--felt-1), var(--felt-2));
+  /* Sous les dégradés, invisible : la teinte du liquide d'où la roue naît (liquid-sheet). */
+  background-color: color-mix(in srgb, var(--felt-1) 45%, var(--felt-2));
   color-scheme: dark;
 }
 .wheel-stage[data-jackpot] {
@@ -42,6 +44,7 @@
   background:
     radial-gradient(70% 40% at 50% 50%, rgba(255, 226, 140, 0.3), transparent 70%),
     radial-gradient(130% 90% at 50% 34%, #0f3a1c, #020c05);
+  background-color: color-mix(in srgb, #0f3a1c 45%, #020c05);
 }
 .wheel-stage[data-golden]::after {
   content: "";

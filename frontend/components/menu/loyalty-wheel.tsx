@@ -4,6 +4,7 @@ import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/lib/menu/cart";
 import { nextReward, type GarlandMotif } from "@/lib/menu/loyalty";
 import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
+import type { LiquidOrigin } from "./liquid-sheet";
 import { reducedMotion, useCountUp } from "./loyalty-card";
 import { Sheet } from "./sheet";
 import { UntilTomorrow } from "./until-tomorrow";
@@ -147,12 +148,15 @@ export function LoyaltyWheel({
   icon,
   logo,
   motif,
+  origin,
   onClose,
   onShowCard,
 }: {
   icon?: string;
   logo?: string;
   motif?: GarlandMotif;
+  /** La pastille d'où la feuille naît, quand elle l'a ouverte. */
+  origin?: LiquidOrigin | null;
   onClose: () => void;
   /** « Ma carte », après la fermeture de la roue. */
   onShowCard: () => void;
@@ -415,7 +419,7 @@ export function LoyaltyWheel({
   };
 
   return (
-    <Sheet onClosed={onClose} backdropCloses={phase !== "spinning"} labelledBy={titleId}>
+    <Sheet onClosed={onClose} backdropCloses={phase !== "spinning"} labelledBy={titleId} origin={origin}>
       {(close) => (
         <div
           className="wheel-stage relative flex min-h-(--sheet-max) shrink-0 flex-col gap-3.5 overflow-hidden px-5 pb-6 pt-5"
