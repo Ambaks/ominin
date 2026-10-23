@@ -3,7 +3,11 @@ import Link from "next/link";
 import { Logo } from "@/components/site-nav";
 import { contact, legal } from "@/lib/content";
 
-export const metadata: Metadata = { title: "Mentions légales — FLG Aérogommage" };
+export const metadata: Metadata = {
+  title: "Mentions légales — FLG Aérogommage",
+  description: "Éditeur, immatriculation et hébergeur du site de FLG Aérogommage, Castanet-Tolosan.",
+  alternates: { canonical: "/mentions-legales" },
+};
 
 const link = "text-fg underline decoration-accent underline-offset-4";
 
@@ -17,15 +21,15 @@ export default function MentionsLegales() {
         <h1 className="display display-l">Mentions légales</h1>
         <dl className="mt-12 border-t border-line">
           <div className="border-b border-line py-8">
-            <dt className="label text-accent-text">Éditeur du site</dt>
-            <dd className="lead mt-4 text-muted">
+            <dt className="sr-only">Éditeur du site</dt>
+            <dd className="lead text-muted">
               {legal.company}
               <br />
               {legal.registration}
               <br />
               {legal.vat}
               <br />
-              {legal.address}
+              {legal.address.street}, {legal.address.postalCode} {legal.address.city}
               <br />
               <a href={contact.phoneHref} className={`whitespace-nowrap ${link}`}>
                 {contact.phone}
