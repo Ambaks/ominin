@@ -198,9 +198,13 @@ export default async function MenuPage({
           data-service={fastFood ? "fast-food" : undefined}
           className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
+          {/* « < » échappé : un nom ou une description contenant
+              « </script> » fermerait la balise et injecterait du script. */}
           <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+            }}
           />
           <MenuTicker items={restaurant.ticker} />
           <Hero

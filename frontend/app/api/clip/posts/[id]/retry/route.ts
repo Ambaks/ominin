@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { clipProvider } from "@/lib/clip/provider";
 import { SIGNED_URL_TTL_SECONDS } from "@/lib/clip/provider/config";
 import type { CaptionSet, ClipPlatform } from "@/lib/clip/provider/types";
-import { providerUnavailable, requireClipUser } from "@/lib/clip/server";
+import { ownsClipPath, providerUnavailable, requireClipUser } from "@/lib/clip/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -44,7 +44,8 @@ export async function POST(
   }
   if (
     (post.status !== "echec" && post.status !== "partiel") ||
-    !post.storage_path
+    !post.storage_path ||
+    !ownsClipPath(user.id, post.storage_path)
   ) {
     return NextResponse.json(
       { error: "Cette publication ne peut pas être relancée." },

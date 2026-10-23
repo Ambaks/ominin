@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { clipProvider } from "@/lib/clip/provider";
-import { providerUnavailable, requireClipUser } from "@/lib/clip/server";
+import { ownsClipPath, providerUnavailable, requireClipUser } from "@/lib/clip/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -16,7 +16,7 @@ export async function GET(
 ) {
   const auth = await requireClipUser();
   if (auth instanceof NextResponse) return auth;
-  const { supabase } = auth;
+  const { user, supabase } = auth;
   const { id } = await ctx.params;
 
   // La RLS restreint la lecture aux lignes du clipper courant.
@@ -42,7 +42,7 @@ export async function GET(
     }
 
     let storagePath = post.storage_path;
-    if (status.state === "publie" && storagePath) {
+    if (status.state === "publie" && storagePath && ownsClipPath(user.id, storagePath)) {
       await createAdminClient().storage.from("clips").remove([storagePath]);
       storagePath = null;
     }

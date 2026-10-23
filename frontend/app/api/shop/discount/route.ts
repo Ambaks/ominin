@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { clientIp, rateLimit } from "@/lib/rate-limit/server";
 import { validateDiscountCode } from "@/lib/shop/checkout";
 import { getShopBySlug } from "@/lib/shop/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -9,6 +10,8 @@ export async function POST(request: Request) {
   if (typeof body.slug !== "string" || typeof body.code !== "string" || !Number.isInteger(body.subtotalCents)) {
     return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
   }
+  const limited = await rateLimit("shopDiscount", clientIp(request));
+  if (limited) return limited;
   const shop = await getShopBySlug(body.slug);
   if (!shop) return NextResponse.json({ error: "Boutique introuvable." }, { status: 404 });
   const result = await validateDiscountCode(createAdminClient(), shop.id, body.code, body.subtotalCents as number);

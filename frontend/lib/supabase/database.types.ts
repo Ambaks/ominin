@@ -5758,11 +5758,11 @@ export type Database = {
       claim_gerant_link: { Args: { p_token: string }; Returns: string }
       clock_in: {
         Args: { p_code: string | null; p_signature: string; p_staff_id: string }
-        Returns: string
+        Returns: string | null
       }
       clock_out: {
         Args: { p_code: string | null; p_entry_id: string; p_signature: string }
-        Returns: undefined
+        Returns: boolean
       }
       club_annuler_reservation: {
         Args: { p_booking: string }
@@ -6200,7 +6200,7 @@ export type Database = {
           p_payment_code: string
           p_tip?: number | null
         }
-        Returns: undefined
+        Returns: boolean
       }
       place_order: {
         Args: {
@@ -6231,6 +6231,10 @@ export type Database = {
           p_shop?: string
         }
         Returns: string
+      }
+      rate_limit_hit: {
+        Args: { p_key: string; p_max: number; p_window_seconds: number }
+        Returns: boolean
       }
       regler_paiement: {
         Args: { p_intent: string | null; p_payment: string; p_total: number }
@@ -6313,7 +6317,7 @@ export type Database = {
       }
       set_payment_pin: {
         Args: { p_code: string; p_etablissement_id: string }
-        Returns: undefined
+        Returns: boolean
       }
       set_staff_code: {
         Args: { p_code: string; p_staff_id: string }

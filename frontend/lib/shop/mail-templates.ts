@@ -1,3 +1,4 @@
+import { httpHref } from "@/lib/admin/format";
 import { REPLY_DELAY_LABEL } from "./constants";
 import { countryName, formatPrice } from "./format";
 import { DEFAULT_PALETTE, resolveTheme } from "./theme";
@@ -41,7 +42,7 @@ ${ctx.shop.tagline ? `<div style="font-family:Arial,sans-serif;font-size:10px;le
 ${intro ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:${p.inkSoft};">${intro}</p>` : ""}
 </td></tr>
 <tr><td style="padding:0 32px 8px;font-family:Arial,sans-serif;font-size:14.5px;line-height:1.7;">${body}</td></tr>
-${cta ? `<tr><td style="padding:16px 32px 8px;text-align:center;"><a href="${cta.url}" style="display:inline-block;background:${p.accent};color:${p.paper};text-decoration:none;font-family:Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;padding:15px 28px;border-radius:999px;">${escapeHtml(cta.label)}</a></td></tr>` : ""}
+${cta ? `<tr><td style="padding:16px 32px 8px;text-align:center;"><a href="${escapeHtml(cta.url)}" style="display:inline-block;background:${p.accent};color:${p.paper};text-decoration:none;font-family:Arial,sans-serif;font-size:12px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;padding:15px 28px;border-radius:999px;">${escapeHtml(cta.label)}</a></td></tr>` : ""}
 <tr><td style="padding:24px 32px 28px;text-align:center;font-family:Arial,sans-serif;font-size:12px;line-height:1.7;color:${p.inkSoft};border-top:1px solid ${p.line};">
 ${escapeHtml(ctx.shop.name)} · <a href="${ctx.shopUrl}" style="color:${p.accentDeep};">${escapeHtml(ctx.shopUrl.replace(/^https?:\/\//, ""))}</a>
 ${ctx.shop.contact_email ? `<br>Une question ? <a href="mailto:${escapeHtml(ctx.shop.contact_email)}" style="color:${p.accentDeep};">${escapeHtml(ctx.shop.contact_email)}</a>` : ""}
@@ -108,7 +109,7 @@ export function orderShippedMail(ctx: MailContext, order: ShopOrder) {
         order.tracking_number ? `<p style="margin:0 0 12px;">Numéro de suivi : <strong>${escapeHtml(order.tracking_number)}</strong>${order.carrier ? ` (${escapeHtml(order.carrier)})` : ""}</p>` : ""
       }<div style="margin-top:8px;">${addressBlock(order)}</div>`,
       cta: order.tracking_url
-        ? { label: "Suivre mon colis", url: order.tracking_url }
+        ? { label: "Suivre mon colis", url: httpHref(order.tracking_url) }
         : { label: "Voir ma commande", url: trackingUrl(ctx, order) },
     }),
   };

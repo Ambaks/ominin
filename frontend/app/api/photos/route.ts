@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { requireGerant } from "@/lib/supabase/gerant";
 
 /*
  * Upload des photos de plats vers le bucket public « photos ». L'écriture
@@ -17,28 +17,9 @@ const EXTENSIONS: Record<string, string> = {
 };
 
 export async function POST(request: Request) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
-    return NextResponse.json(
-      { error: "Authentification requise." },
-      { status: 401 }
-    );
-  }
-
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("etablissement_id, role")
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!membership || membership.role !== "gerant") {
-    return NextResponse.json(
-      { error: "Seul le gérant peut modifier les photos du menu." },
-      { status: 403 }
-    );
+  const auth = await requireGerant("Seul le gérant peut modifier les photos du menu.");
+  if ("error" in auth) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   const form = await request.formData();
@@ -54,7 +35,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const path = `${membership.etablissement_id}/${crypto.randomUUID()}.${extension}`;
+  const path = `${auth.etablissementId}/${crypto.randomUUID()}.${extension}`;
   const admin = createAdminClient();
   const { error } = await admin.storage
     .from("photos")
