@@ -9,13 +9,13 @@
     { "with": "Lemon Spritz", "why": "L'acidité du citron coupe la crème de la stracciatella." }
   ],
   "Pizza Stracciatella Versace": [
-    { "with": "Pic St Loup", "why": "La syrah répond à la tomate et au jambon de Parme." }
+    { "with": "Pic St Loup", "format": "Verre 12 cl", "why": "La syrah répond à la tomate et au jambon de Parme." }
   ],
   "Pizza Truffle Suprême": [
-    { "with": "Champagne Robert-Allait", "why": "Les bulles du champagne tranchent la crème de truffe." }
+    { "with": "Champagne Robert-Allait", "format": "Coupe", "why": "Les bulles du champagne tranchent la crème de truffe." }
   ],
   "Pasta Al Tartufo": [
-    { "with": "Prosecco", "why": "Les bulles du prosecco coupent la crème de gorgonzola." }
+    { "with": "Prosecco", "format": "Coupe", "why": "Les bulles du prosecco coupent la crème de gorgonzola." }
   ],
   "Mousse Big-love": [
     { "with": "Café Illy", "why": "L'amertume du café coupe le sucre du praliné." }

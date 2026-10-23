@@ -68,13 +68,13 @@ export function CartPairings() {
                 </SuggestionRow>
               </li>
             )}
-            {suggested.map(({ item, why }) => (
+            {suggested.map(({ item, why, choices }) => (
               <li key={item.id}>
                 <SuggestionRow image={item.image} title={lineName(item)} why={why}>
                   <button
                     type="button"
                     onClick={() => {
-                      addLine(plainLine(item, "panier"));
+                      addLine(plainLine(item, "panier", choices));
                       track("panier", { items: [item.id] });
                     }}
                     aria-label={`Ajouter : ${lineName(item)}, ${formatPrice(item.price)}`}

@@ -321,6 +321,7 @@ export function RuleForm({
           value={targets}
           onChange={setTargets}
           label="Articles concernés"
+          formats
         />
       </div>
     </Modal>
@@ -386,11 +387,28 @@ export function TarifsInline({
   /** Le bouton « + Tarif planifié » : une boutique à emporter le trouve une
    *  fois, sur la catégorie, plutôt que sur chaque article. */
   offerNew?: boolean;
-  /** Prix en vigueur à l'instant, relu en base (articles seulement). */
-  effective?: { price: number; ruleName: string } | null;
+  /** Prix en vigueur à l'instant, relu en base (articles seulement) ; `format` s'il ne vaut que pour lui. */
+  effective?: { price: number; ruleName: string; format?: string } | null;
 }) {
   const [editing, setEditing] = useState<PriceRule | null>(null);
   const [creating, setCreating] = useState(false);
+
+  // Les formats qu'une règle vise seuls sur cet article : « · Verre 12 cl ».
+  const choices =
+    target.kind === "item"
+      ? categories
+          .flatMap((category) => category.items)
+          .find((item) => item.id === target.id)
+          ?.options?.find((group) => group.formats)?.choices
+      : undefined;
+  const formatsOf = (rule: PriceRule) => {
+    const names = rule.targets.flatMap((candidate) =>
+      candidate.kind === "item" && candidate.id === target.id && candidate.choiceId
+        ? (choices ?? []).filter((choice) => choice.id === candidate.choiceId).map((choice) => choice.name)
+        : []
+    );
+    return names.length > 0 ? ` · ${names.join(", ")}` : "";
+  };
 
   if (!(canEdit && offerNew) && owned.length === 0 && inherited.length === 0 && !effective) {
     return null;
@@ -410,7 +428,8 @@ export function TarifsInline({
           title={`Tarif en vigueur : ${effective.ruleName}`}
           className="rounded-full bg-ember-2/15 px-2 py-0.5 text-[10px] font-semibold text-ember-1"
         >
-          En ce moment {formatPrice(effective.price)}
+          En ce moment {effective.format && `${effective.format} `}
+          {formatPrice(effective.price)}
         </span>
       )}
       {owned.map((rule) => (
@@ -423,6 +442,7 @@ export function TarifsInline({
           className={`${chipClass(rule.actif)} transition-colors enabled:hover:border-ember-2/60`}
         >
           {rule.name} {formatAdjustment(rule)}
+          {formatsOf(rule)}
         </button>
       ))}
       {inherited.map((rule) => (

@@ -1,21 +1,58 @@
 import type { Formule } from "@/lib/gestion/types";
-import type { MenuCategory, MenuItem } from "@/lib/menu-data";
-import type { CartLine } from "./cart";
+import { isChoiceAvailable, type MenuCategory, type MenuItem } from "@/lib/menu-data";
+import type { CartChoice, CartLine } from "./cart";
 
-/** Les accords d'un plat dans le registre : les plats qui l'accompagnent, par leur nom en base, et pourquoi. */
-export type PairingNotes = Record<string, { with: string; why: string }[]>;
+/**
+ * Les accords d'un plat dans le registre : les plats qui l'accompagnent, par
+ * leur nom en base, et pourquoi. `format` nomme le choix d'un article à
+ * formats (« Verre 12 cl » d'un vin servi aussi en bouteille).
+ */
+export type PairingNotes = Record<string, { with: string; format?: string; why: string }[]>;
 
 /** Un plat proposé avec un autre, et la raison dite au client. */
 export interface Pairing {
+  /** Au format de l'accord, s'il en a un : son prix entier, le format en `detail`. */
   item: MenuItem;
   why: string;
+  /** Le format retenu, tel que la ligne du panier le transmet. */
+  choices?: CartChoice[];
+}
+
+/**
+ * La cible d'un accord, ajoutée d'un toucher : un plat sans options, ou un
+ * article à formats dont l'accord nomme un format disponible — ses autres
+ * groupes, s'il en a, doivent pouvoir rester vides.
+ */
+function pairingTarget(target: MenuItem, why: string, format: string | undefined): Pairing | null {
+  if (!target.options?.length) return { item: target, why };
+  const formats = target.options.find((group) => group.formats);
+  const choice = formats?.choices.find((candidate) => candidate.name === format);
+  if (
+    !formats ||
+    !choice ||
+    !isChoiceAvailable(choice) ||
+    target.options.some((group) => group !== formats && group.obligatoire && !group.when)
+  ) {
+    return null;
+  }
+  return {
+    item: {
+      ...target,
+      price: target.price + choice.supplement,
+      detail: choice.name,
+      options: undefined,
+      tarifs: undefined,
+    },
+    why,
+    choices: [{ group_id: formats.id, choice_id: choice.id }],
+  };
 }
 
 /**
  * Rattache les accords du registre (par nom, comme withPrintedDetails) aux
  * plats de la carte en ligne, par id. Ne restent que les plats qui
- * s'ajoutent d'un toucher : un plat à options ouvrirait sa propre feuille
- * par-dessus celle du panier.
+ * s'ajoutent d'un toucher (pairingTarget) : un plat à options ouvrirait sa
+ * propre feuille par-dessus celle du panier.
  */
 export function resolvePairings(
   categories: MenuCategory[],
@@ -29,9 +66,10 @@ export function resolvePairings(
   for (const [name, list] of Object.entries(notes)) {
     const item = byName.get(name);
     if (!item) continue;
-    const pairings = list.flatMap(({ with: other, why }) => {
+    const pairings = list.flatMap(({ with: other, format, why }) => {
       const target = byName.get(other);
-      return target && !target.options?.length ? [{ item: target, why }] : [];
+      const pairing = target && pairingTarget(target, why, format);
+      return pairing ? [pairing] : [];
     });
     if (pairings.length > 0) resolved[item.id] = pairings;
   }

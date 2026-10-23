@@ -255,14 +255,18 @@ export function cartLineKey(
 }
 
 /** La ligne de panier d'un plat sans options. */
-export const plainLine = (item: MenuItem, accord?: AccordSource): Omit<CartLine, "quantity"> => ({
-  key: cartLineKey(item.id, []),
+export const plainLine = (
+  item: MenuItem,
+  accord?: AccordSource,
+  choices: CartChoice[] = []
+): Omit<CartLine, "quantity"> => ({
+  key: cartLineKey(item.id, choices),
   itemId: item.id,
   name: lineName(item),
   detail: item.detail,
   unitPrice: item.price,
   optionSummary: [],
-  choices: [],
+  choices,
   stock: item.stock,
   noticeHours: item.noticeHours,
   accord,

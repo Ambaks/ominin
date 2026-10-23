@@ -2,6 +2,7 @@ import type { OpeningHours } from "@/lib/collect/hours";
 import { assembleCategories, rowToAffiche, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
+import { itemFormatsLine } from "@/lib/menu/format";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
 import { getRestaurant, type CategoryLayout, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
@@ -140,7 +141,10 @@ export async function fetchRestaurant(slug: string): Promise<{
         (category) => category.items.length > 0
       ),
       tarifs
-    ),
+    ).map((category) => ({
+      ...category,
+      items: category.items.map((item) => ({ ...item, tarifs: itemFormatsLine(item) })),
+    })),
     staticData
   );
 
