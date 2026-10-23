@@ -44,7 +44,7 @@ export function CartPairings() {
   return (
     <>
       {(match || suggested.length > 0) && (
-        <section aria-label="L'accord du chef" className={`mt-5 ${chefCard} p-3.5`}>
+        <section aria-label="Le combo parfait" className={`mt-5 ${chefCard} p-3.5`}>
           <ChefTag />
           <ul className="flex flex-col gap-3">
             {match && (
