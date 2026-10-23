@@ -115,6 +115,8 @@ export interface Etablissement {
   onlinePayment: boolean;
   /** Null tant que le gérant n'a pas choisi ⇒ comportement Stripe historique. */
   paymentProvider: PaymentProvider | null;
+  /** Relié à une caisse par HubRise : l'espace lui envoie ses encaissements et ses remises. */
+  hubriseConnected: boolean;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
   /** Durée d'un créneau de retrait, en minutes (posée par Ominin). */

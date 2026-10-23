@@ -1788,6 +1788,7 @@ export type Database = {
           created_at: string
           google_review_url: string | null
           hours: string
+          hubrise_connected: boolean
           id: string
           loyalty_enabled: boolean
           loyalty_points_per_euro: number
@@ -1827,6 +1828,7 @@ export type Database = {
           created_at?: string
           google_review_url?: string | null
           hours?: string
+          hubrise_connected?: boolean
           id?: string
           loyalty_enabled?: boolean
           loyalty_points_per_euro?: number
@@ -1866,6 +1868,7 @@ export type Database = {
           created_at?: string
           google_review_url?: string | null
           hours?: string
+          hubrise_connected?: boolean
           id?: string
           loyalty_enabled?: boolean
           loyalty_points_per_euro?: number
@@ -2059,6 +2062,8 @@ export type Database = {
           location_name: string | null
           payment_name: string | null
           payment_ref: string | null
+          payment_ref_card: string | null
+          payment_ref_cash: string | null
           service_type_ref_collection: string | null
           service_type_ref_eat_in: string | null
           tip_charge_ref: string | null
@@ -2085,6 +2090,8 @@ export type Database = {
           location_name?: string | null
           payment_name?: string | null
           payment_ref?: string | null
+          payment_ref_card?: string | null
+          payment_ref_cash?: string | null
           service_type_ref_collection?: string | null
           service_type_ref_eat_in?: string | null
           tip_charge_ref?: string | null
@@ -2111,6 +2118,8 @@ export type Database = {
           location_name?: string | null
           payment_name?: string | null
           payment_ref?: string | null
+          payment_ref_card?: string | null
+          payment_ref_cash?: string | null
           service_type_ref_collection?: string | null
           service_type_ref_eat_in?: string | null
           tip_charge_ref?: string | null
@@ -3024,6 +3033,7 @@ export type Database = {
           mode: Database["public"]["Enums"]["payment_mode"]
           order_id: string
           paid_at: string
+          till_payment: boolean
         }
         Insert: {
           amount: number
@@ -3033,6 +3043,7 @@ export type Database = {
           mode: Database["public"]["Enums"]["payment_mode"]
           order_id: string
           paid_at?: string
+          till_payment?: boolean
         }
         Update: {
           amount?: number
@@ -3042,6 +3053,7 @@ export type Database = {
           mode?: Database["public"]["Enums"]["payment_mode"]
           order_id?: string
           paid_at?: string
+          till_payment?: boolean
         }
         Relationships: [
           {
@@ -5598,6 +5610,10 @@ export type Database = {
       admin_set_category_layout: {
         Args: { p_etablissement: string; p_layout: string }
         Returns: undefined
+      }
+      hubrise_record_till_payment: {
+        Args: { p_order: string; p_payments: Json }
+        Returns: boolean
       }
       hubrise_set_choice_disponible: {
         Args: {

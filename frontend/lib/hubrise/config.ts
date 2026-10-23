@@ -50,9 +50,18 @@ export const HUBRISE = {
     location: ["update"],
   },
 
+  /**
+   * Marque des règlements qu'Ominin porte chez HubRise (private_ref
+   * « ominin:<jambe> ») : ceux de la caisse ne l'ont pas.
+   */
+  paymentPrivateRefPrefix: "ominin:",
+
   /** Libellés envoyés à la caisse quand le restaurant n'en a pas réglé d'autre. */
   labels: {
     payment: "Carte (Ominin)",
+    /** Encaissé au comptoir dans Ominin : espèces, ou carte au terminal. */
+    cash: "Espèces",
+    card: "Carte",
     tip: "Pourboire",
     formule: "Formule",
   },

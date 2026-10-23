@@ -18,6 +18,8 @@ import { requireGerant } from "@/lib/supabase/gerant";
 const TILL_FIELDS = {
   paymentRef: "payment_ref",
   paymentName: "payment_name",
+  paymentRefCash: "payment_ref_cash",
+  paymentRefCard: "payment_ref_card",
   serviceTypeRefEatIn: "service_type_ref_eat_in",
   serviceTypeRefCollection: "service_type_ref_collection",
   tipChargeRef: "tip_charge_ref",
@@ -71,6 +73,8 @@ export async function GET() {
     till: {
       paymentRef: connection.payment_ref,
       paymentName: connection.payment_name,
+      paymentRefCash: connection.payment_ref_cash,
+      paymentRefCard: connection.payment_ref_card,
       serviceTypeRefEatIn: connection.service_type_ref_eat_in,
       serviceTypeRefCollection: connection.service_type_ref_collection,
       tipChargeRef: connection.tip_charge_ref,

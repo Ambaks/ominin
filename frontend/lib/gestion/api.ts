@@ -1,4 +1,5 @@
 import type { Badge, CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import { syncTill } from "@/lib/hubrise/kick";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
@@ -600,6 +601,7 @@ export async function updateOrderStatus(
   // Push vers la salle (prête) ou la cuisine (annulée) ; la route écarte
   // l'auteur du geste via sa session. Fire-and-forget : la mutation a réussi.
   notifyOrderEvent(orderId, status);
+  syncTill(getState().etablissement.hubriseConnected);
   return apply((draft) => {
     const order = findOrder(draft, orderId);
     order.status = status;
@@ -645,6 +647,7 @@ export async function payOrderItems(
   // Mauvais code : la base répond false et compte l'échec (une exception
   // l'effacerait avec la transaction).
   if (paid === false) throw new Error("Code d'encaissement incorrect.");
+  syncTill(getState().etablissement.hubriseConnected);
   await refreshOrdersNow(orderIds);
 }
 
@@ -718,6 +721,7 @@ export async function updateOrderPayment(
       p_cash_change: cash?.cashChange ?? null,
     })
   );
+  syncTill(getState().etablissement.hubriseConnected);
   const row = must(
     await supabase
       .from("orders")
@@ -751,6 +755,7 @@ export async function voidPayment(orderId: string): Promise<Order> {
       .select("*, order_items(*), order_payments(*)")
       .single()
   );
+  syncTill(getState().etablissement.hubriseConnected);
   return replaceOrder(rowToOrder(row));
 }
 
@@ -977,6 +982,7 @@ export type EtablissementInput = Omit<
   | "offre"
   | "onlinePayment"
   | "paymentProvider"
+  | "hubriseConnected"
   | "collectSlotCapacity"
   | "collectSlotMinutes"
   | "adminPinSet"

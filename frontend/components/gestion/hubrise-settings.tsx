@@ -34,6 +34,8 @@ export interface HubriseStatus {
   till?: {
     paymentRef: string | null;
     paymentName: string | null;
+    paymentRefCash: string | null;
+    paymentRefCard: string | null;
     serviceTypeRefEatIn: string | null;
     serviceTypeRefCollection: string | null;
     tipChargeRef: string | null;
@@ -132,6 +134,17 @@ function TillSettings({
           </Field>
           <Field label="Mode de paiement : code">
             <input value={values.paymentRef ?? ""} onChange={set("paymentRef")} className={inputClass} />
+          </Field>
+          {/* Encaissé au comptoir dans Ominin : la caisse le range dans ses
+              propres modes, et reconnaît les espèces qu'elle encaisse. */}
+          <Field
+            label="Espèces au comptoir : code"
+            hint="Sans lui, les espèces prises à la caisse comptent comme carte dans Ominin."
+          >
+            <input value={values.paymentRefCash ?? ""} onChange={set("paymentRefCash")} className={inputClass} />
+          </Field>
+          <Field label="Carte au comptoir : code">
+            <input value={values.paymentRefCard ?? ""} onChange={set("paymentRefCard")} className={inputClass} />
           </Field>
           <Field label="Sur place : code">
             <input value={values.serviceTypeRefEatIn ?? ""} onChange={set("serviceTypeRefEatIn")} className={inputClass} />

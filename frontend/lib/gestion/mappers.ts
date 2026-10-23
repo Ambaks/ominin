@@ -44,6 +44,7 @@ export function rowToEtablissement(
     siret: row.siret ?? undefined,
     onlinePayment: row.online_payment,
     paymentProvider: row.payment_provider,
+    hubriseConnected: row.hubrise_connected,
     collectSlotCapacity: row.collect_slot_capacity,
     collectSlotMinutes: row.collect_slot_minutes,
     onlineMinOrder:
