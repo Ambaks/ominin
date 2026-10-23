@@ -283,6 +283,7 @@ export function seed(): GestionState {
       categoryLayout: "top",
       onlinePayment: false,
       paymentProvider: null,
+      hubriseConnected: false,
       collectSlotCapacity: 5,
       collectSlotMinutes: DEFAULT_COLLECT_SLOT_MINUTES,
       onlineMinOrder: null,

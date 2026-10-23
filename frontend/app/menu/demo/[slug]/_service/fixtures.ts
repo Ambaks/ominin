@@ -154,6 +154,7 @@ export function demoState(
       categoryLayout: restaurant.categoryLayout ?? "top",
       onlinePayment: true,
       paymentProvider: "stripe",
+      hubriseConnected: false,
       collectSlotCapacity: 0,
       collectSlotMinutes: DEFAULT_COLLECT_SLOT_MINUTES,
       onlineMinOrder: null,
