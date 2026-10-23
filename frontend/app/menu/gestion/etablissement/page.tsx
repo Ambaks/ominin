@@ -216,6 +216,7 @@ export default function EtablissementPage() {
             <ServiceModeSettings
               initialMode={state.etablissement.serviceMode}
               initialShowTable={state.etablissement.showTableNumber}
+              initialBarPickup={state.etablissement.barPickup}
               slug={state.etablissement.slug}
               resetHour={state.orderNumberResetHour}
             />

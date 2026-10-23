@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
-import { setServiceMode, setShowTableNumber } from "@/lib/gestion/api";
+import { setBarPickup, setServiceMode, setShowTableNumber } from "@/lib/gestion/api";
 import type { ServiceMode } from "@/lib/gestion/types";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -13,7 +13,9 @@ import { menuSiteUrl } from "@/lib/site";
  * tables restés en place, le client repart avec un numéro du jour et suit sa
  * commande jusqu'à « Prête » — les écrans des tables se retirent de
  * l'espace. La table du QR reste notée ; l'équipe ne la voit à côté du
- * numéro que si le gérant l'affiche. Le menu public suit à sa
+ * numéro que si le gérant l'affiche. Au bar, la commande prête montre au
+ * client un code que l'équipe scanne pour la lui remettre (/gestion/remise),
+ * et le menu dit « bar » au lieu de « comptoir ». Le menu public suit à sa
  * prochaine revalidation (une minute) ; une carte déjà ouverte garde l'ancien
  * mode jusqu'à ce qu'on la recharge — le gérant en est prévenu.
  */
@@ -48,11 +50,13 @@ const MODES: {
 export function ServiceModeSettings({
   initialMode,
   initialShowTable,
+  initialBarPickup,
   slug,
   resetHour,
 }: {
   initialMode: ServiceMode;
   initialShowTable: boolean;
+  initialBarPickup: boolean;
   slug: string;
   /** Heure où les numéros repartent de 1 ; inconnue, elle n'est pas annoncée. */
   resetHour: number | null;
@@ -60,6 +64,7 @@ export function ServiceModeSettings({
   const toast = useToast();
   const [mode, setMode] = useState(initialMode);
   const [showTable, setShowTable] = useState(initialShowTable);
+  const [barPickup, setBar] = useState(initialBarPickup);
   const [busy, setBusy] = useState(false);
 
   const choose = async (next: ServiceMode) => {
@@ -96,6 +101,26 @@ export function ServiceModeSettings({
       );
     } catch (error) {
       setShowTable(!next);
+      toast.error(
+        error instanceof Error ? error.message : "Une erreur est survenue."
+      );
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const toggleBarPickup = async (next: boolean) => {
+    setBusy(true);
+    setBar(next);
+    try {
+      await setBarPickup(next);
+      toast.success(
+        next
+          ? "Retrait au bar activé\u00a0: le client montre son code au bar."
+          : "Retrait au comptoir\u00a0: le client vient sur son numéro."
+      );
+    } catch (error) {
+      setBar(!next);
       toast.error(
         error instanceof Error ? error.message : "Une erreur est survenue."
       );
@@ -174,7 +199,7 @@ export function ServiceModeSettings({
       {mode === "fast_food" && (
         <div className="flex flex-col gap-1.5 rounded-xl border border-hairline px-4 py-3 text-xs leading-relaxed text-muted">
           <p>
-            Votre QR code de comptoir pointe vers{" "}
+            Un QR code sans table ({barPickup ? "au bar" : "au comptoir"}, une affiche) pointe vers{" "}
             <a
               href={`${menuSiteUrl}/m/${slug}`}
               target="_blank"
@@ -188,7 +213,7 @@ export function ServiceModeSettings({
           <p>
             Les commandes payées arrivent dans «&nbsp;À servir&nbsp;» par
             numéro&nbsp;: «&nbsp;Prête&nbsp;» prévient le client, «&nbsp;Remettre&nbsp;»
-            la clôt.
+            {barPickup && ", ou le scan de son code,"} la clôt.
             {resetHour !== null &&
               ` Les numéros repartent de 1 chaque jour à ${resetHour} h.`}
           </p>
@@ -207,6 +232,23 @@ export function ServiceModeSettings({
               onChange={(next) => void toggleShowTable(next)}
               disabled={busy}
               label="Afficher le numéro de table"
+            />
+          </div>
+          <div className="mt-1.5 flex items-center justify-between gap-3 border-t border-hairline pt-3">
+            <div>
+              <p className="text-sm font-medium text-foreground">Retrait au bar</p>
+              <p className="mt-0.5">
+                Prête, la commande montre au client un code. Scannez-le avec
+                «&nbsp;Scanner&nbsp;», dans la barre du bas de l&rsquo;espace (ou
+                l&rsquo;appareil photo du téléphone)&nbsp;: elle est remise, et
+                le client le voit. Les QR des tables restent valables.
+              </p>
+            </div>
+            <Toggle
+              checked={barPickup}
+              onChange={(next) => void toggleBarPickup(next)}
+              disabled={busy}
+              label="Retrait au bar"
             />
           </div>
         </div>

@@ -6,13 +6,14 @@ import { CheckIcon } from "@/components/gestion/icons";
 import { Sheet, useNoSheet } from "@/components/menu/sheet";
 import { SERVICE_CLOCK_TICK_MS } from "@/lib/gestion/constants";
 import { frenchTime } from "@/lib/gestion/format";
+import { remiseUrl } from "@/lib/gestion/remise-link";
 import type { OrderStatus } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
-import { formatPrice } from "@/lib/menu/format";
+import { counterWords, formatPrice } from "@/lib/menu/format";
 import { useCart } from "@/lib/menu/cart";
 import { fallBackToCounter } from "@/lib/menu/online-payment";
 import {
-  CARD_NOTICES,
+  cardNotices,
   isActiveTicket,
   servedGreeting,
   useTickets,
@@ -33,19 +34,25 @@ import {
  * de la maison, « Bon appétit ! » ou « Bonne dégustation ! ».
  *
  * Retrait au bar : prête, le ticket porte le code que le client montre au
- * bar ; scanné, la commande est retirée et la page la salue de même.
+ * bar ; scanné, la commande est retirée et la page la salue de même. En
+ * fast food, le code ouvre /gestion/remise/<commande> sur le téléphone de
+ * l'équipe, qui la remet ; dans l'aperçu, il ne porte qu'un texte de démo.
  */
 
 /**
  * L'encodeur QR ne pèse que sur le retrait au bar, pas sur chaque carte. Son
  * chargement en échec (réseau, déploiement entre-temps) laisse le ticket sans
- * code plutôt que la page en erreur : le numéro reste à montrer.
+ * code plutôt que la page en erreur : le numéro reste à montrer. Le carré
+ * d'attente donne à son chargement sa propre limite de Suspense : sans lui,
+ * la première attente masquait la feuille ouverte, et le focus en tombait.
  */
-const QrCode = dynamic(() =>
-  import("@/components/pitch/qr-code").then(
-    (m) => m.QrCode,
-    () => () => null
-  )
+const QrCode = dynamic(
+  () =>
+    import("@/components/pitch/qr-code").then(
+      (m) => m.QrCode,
+      () => () => null
+    ),
+  { loading: () => <span aria-hidden className="block aspect-square w-full" /> }
 );
 
 const STEPS = ["Commandée", "En cuisine", "Prête"] as const;
@@ -158,7 +165,8 @@ const TABLE_PAYING: Stage = {
 
 const BAR_STEPS = ["Reçue", "En préparation", "Prête au bar"] as const;
 
-// Le titre de « servie » est la salutation du service (servedGreeting).
+// Le titre de « servie » est la salutation du service (servedGreeting). En
+// fast food, une commande payée est en préparation (stageOf).
 const BAR_STAGES: Partial<Record<OrderStatus, Stage>> = {
   ...TABLE_STAGES,
   en_attente: {
@@ -186,6 +194,18 @@ const BAR_STAGES: Partial<Record<OrderStatus, Stage>> = {
     step: BAR_STEPS.length,
     chip: "Retirée",
   },
+  annulee: {
+    title: "Commande annulée",
+    body: "Adressez-vous au\u00a0bar.",
+    step: -1,
+    chip: "Annulée",
+  },
+};
+
+/** Retrait au bar, le règlement en ligne commencé : il se finit, ou se fait au bar. */
+const BAR_PAYING: Stage = {
+  ...PAYING,
+  body: "Le paiement en ligne n’est pas terminé. Touchez «\u00a0Payer au\u00a0bar\u00a0»\u00a0: votre commande y apparaîtra.",
 };
 
 /** Réglée au comptoir, la commande le dit : on sait qui a encaissé. */
@@ -195,23 +215,22 @@ const SETTLED_AT_COUNTER =
 const SETTLED_AT_BAR =
   "Réglée au\u00a0bar\u00a0: elle est en\u00a0préparation.\nCette page vous prévient dès qu’elle est prête.";
 
-/** table : à table, ses étapes et ses mots ; bar : retrait au bar (aperçu). */
+/** table : à table, ses étapes et ses mots ; bar : retrait au bar, en fast food ou à table (aperçu). */
 const stageOf = (ticket: Ticket, table: number | null, bar = false): Stage | null => {
-  if (table !== null) {
-    if (ticket.status === "en_attente" && ticket.paying) return TABLE_PAYING;
-    const stage = ticket.status ? (bar ? BAR_STAGES : TABLE_STAGES)[ticket.status] : undefined;
-    if (!stage) return null;
-    if (ticket.status === "servie") return { ...stage, title: servedGreeting(ticket) };
-    if (ticket.status === "en_preparation" && ticket.atCounter) {
-      return { ...stage, body: bar ? SETTLED_AT_BAR : SETTLED_AT_COUNTER };
-    }
-    return stage;
+  if (!ticket.status) return null;
+  if (ticket.status === "en_attente" && ticket.paying) {
+    return bar ? BAR_PAYING : table === null ? PAYING : TABLE_PAYING;
   }
-  return ticket.status === "en_attente" && ticket.paying
-    ? PAYING
-    : ticket.status
-      ? (STAGES[ticket.status] ?? null)
-      : null;
+  if (table === null && !bar) return STAGES[ticket.status] ?? null;
+  // En fast food, payée veut dire en préparation, jusqu'à « prête ».
+  const status = table === null && ticket.status === "payee" ? "en_preparation" : ticket.status;
+  const stage = (bar ? BAR_STAGES : TABLE_STAGES)[status];
+  if (!stage) return null;
+  if (status === "servie") return { ...stage, title: servedGreeting(ticket) };
+  if (status === "en_preparation" && ticket.atCounter) {
+    return { ...stage, body: bar ? SETTLED_AT_BAR : SETTLED_AT_COUNTER };
+  }
+  return stage;
 };
 
 /**
@@ -379,7 +398,9 @@ function OrderTicket({
   const [footScrolls, setFootScrolls] = useState(false);
   const table = tickets?.table ?? null;
   const bar = tickets?.barPickup ?? false;
-  const steps = table === null ? STEPS : bar ? BAR_STEPS : TABLE_STEPS;
+  // Suivie comme à table : à table, ou au bar — la commande servie y est saluée.
+  const followed = table !== null || bar;
+  const steps = bar ? BAR_STEPS : table === null ? STEPS : TABLE_STEPS;
   const stage = stageOf(ticket, table, bar);
   const tracked = !!stage && stage.step >= 0;
   const ready = ticket.status === "prete";
@@ -425,9 +446,9 @@ function OrderTicket({
   const estimate = ticket.status === "payee" ? ticket.estimate : null;
   // Payée entre-temps (un débit qui aboutit après la fermeture de la feuille) :
   // un avis de paiement manqué mentirait.
-  const cardNotices: string[] = Object.values(CARD_NOTICES);
+  const paymentNotices: string[] = Object.values(cardNotices(bar));
   const notices =
-    tickets?.notices.filter((notice) => !ticket.paid || !cardNotices.includes(notice)) ?? [];
+    tickets?.notices.filter((notice) => !ticket.paid || !paymentNotices.includes(notice)) ?? [];
 
   // Prête pendant que le client lisait le bas du ticket : le numéro revient
   // en vue, c'est lui qu'il montrera au comptoir — et, téléphone couché,
@@ -490,16 +511,16 @@ function OrderTicket({
     <div
       ref={rootRef}
       data-ticket-sheet={ticket.status ?? undefined}
-      data-table={table ?? undefined}
+      data-followed={followed || undefined}
       data-orders={listed || undefined}
       className="order-ticket-sheet flex flex-col gap-5 p-5 pt-6"
     >
       <div
         data-ready={ready || undefined}
         data-code={code || undefined}
-        // À table, la commande servie garde son numéro en couleur : c'est
-        // l'une de celles de la table, pas un ticket périmé.
-        data-done={(!active && table === null) || undefined}
+        // À table et au bar, la commande servie garde son numéro en couleur :
+        // c'est l'une de la visite, pas un ticket périmé. Annulée, il s'éteint.
+        data-done={(!active && (!followed || ticket.status === "annulee")) || undefined}
         data-issued={tickets?.handedOff || undefined}
         className="order-ticket relative"
       >
@@ -516,16 +537,16 @@ function OrderTicket({
           {/* Le titre de la feuille : le lecteur d'écran l'annonce avec le numéro. */}
           <h2 id={titleId} className="mt-5 flex flex-col items-center">
             <span className="order-ticket-label text-[11px] font-semibold uppercase tracking-[0.3em] text-muted">
-              {table === null ? "Votre numéro" : bar ? "Retrait au bar" : `Table ${table}`}
+              {bar ? "Retrait au bar" : table === null ? "Votre numéro" : `Table ${table}`}
             </span>
             {ticket.number === null ? (
               <span aria-busy className="shimmer mt-3 block h-24 w-40 rounded-2xl" />
             ) : (
               <span className="order-ticket-number mt-1 flex items-start justify-center gap-1.5 font-display leading-none">
                 <span aria-hidden className="mt-3 text-2xl font-medium text-muted">N°</span>
-                {/* À table, le grand numéro est celui de la commande : la table
-                    est dite au-dessus. */}
-                {table !== null && <span className="sr-only">, commande n° </span>}
+                {/* À table et au bar, le grand numéro est celui de la commande :
+                    la table ou le bar est dit au-dessus. */}
+                {followed && <span className="sr-only">, commande n° </span>}
                 <span
                   // Taille : globals.css, selon la hauteur de l'écran, et la
                   // largeur du ticket passé 99.
@@ -634,7 +655,7 @@ function OrderTicket({
                     ? "sr-only"
                     : `order-ticket-title text-balance font-display font-medium ${
                         ready ? "ember-text text-3xl" : "text-2xl"
-                      } ${table !== null && ticket.status === "servie" ? "order-ticket-greeting" : ""}`
+                      } ${followed && ticket.status === "servie" ? "order-ticket-greeting" : ""}`
                 }
               >
                 {stage.title}
@@ -664,15 +685,19 @@ function OrderTicket({
               </p>
             )}
             {/* Sous la phrase qui le présente. Noir sur blanc quel que soit le
-                thème : la douchette lit le contraste. Aperçu : le code ne porte
-                qu'un texte de démo. */}
+                thème : l'appareil photo lit le contraste. Aperçu : le code ne
+                porte qu'un texte de démo. */}
             {code && (
               <div
                 ref={codeRef}
                 className="order-ticket-code mb-1 mt-4 rounded-2xl bg-white p-3 text-black"
               >
                 <QrCode
-                  value={`Démo Ominin · retrait au bar · commande n° ${ticket.number}`}
+                  value={
+                    tickets?.simulated
+                      ? `Démo Ominin · retrait au bar · commande n° ${ticket.number}`
+                      : remiseUrl(ticket.id)
+                  }
                   label={`Code de retrait de la commande n° ${ticket.number}`}
                   className="block h-auto w-full"
                 />
@@ -757,7 +782,7 @@ function OrderTicket({
             </span>
           </button>
         )}
-        {stage === PAYING && (
+        {(stage === PAYING || stage === BAR_PAYING) && (
           <div className="order-ticket-paying flex flex-col gap-2">
             <button
               type="button"
@@ -765,7 +790,7 @@ function OrderTicket({
               disabled={busy}
               className="ember-gradient min-h-11 rounded-full px-6 py-3 text-sm font-semibold text-background disabled:opacity-60"
             >
-              {busy ? "Un instant…" : "Payer au\u00a0comptoir"}
+              {busy ? "Un instant…" : `Payer au\u00a0${counterWords(bar).place}`}
             </button>
             {problem && (
               <p role="alert" className="text-center text-xs text-ember-3">
@@ -808,14 +833,14 @@ function OrderTicket({
             ref={closeRef}
             type="button"
             onClick={onClose}
-            // À table, une seule sortie, la même à chaque état.
+            // À table et au bar, une seule sortie, la même à chaque état.
             className={`min-h-11 flex-1 rounded-full border px-4 py-3 text-sm font-semibold ${
-              active || table !== null
+              active || followed
                 ? "border-hairline text-foreground"
                 : "ember-gradient border-transparent bg-origin-border text-background"
             }`}
           >
-            {active || table !== null ? "Retour à la carte" : "Fermer"}
+            {active || followed ? "Retour à la carte" : "Fermer"}
           </button>
         </div>
       </div>
@@ -826,10 +851,9 @@ function OrderTicket({
 /** Ce qui s'efface d'une rangée trop étroite, dans l'ordre (globals.css). */
 const DOCK_FIT_STEPS = ["served", "pill", "tight", "cooking", "total", "due", "ready", "count"] as const;
 
-/** Au bas de l'écran : les commandes en cours ; à table, les servies aussi. */
-const docked = (ticket: Ticket, table: number | null) =>
-  ticket.number !== null &&
-  (isActiveTicket(ticket) || (table !== null && ticket.status === "servie"));
+/** Au bas de l'écran : les commandes en cours ; à table et au bar, les servies aussi. */
+const docked = (ticket: Ticket, followed: boolean) =>
+  ticket.number !== null && (isActiveTicket(ticket) || (followed && ticket.status === "servie"));
 
 /**
  * Le service salué, aux couleurs de la maison : la feuille elle-même porte
@@ -844,7 +868,7 @@ function ServeBox({
   onClose,
 }: {
   ticket: Ticket;
-  table: number;
+  table: number | null;
   bar: boolean;
   titleId: string;
   onClose: () => void;
@@ -922,6 +946,7 @@ export function TicketTracker() {
   const serveTitleId = useId();
   const shownId = tickets?.shownId ?? null;
   const table = tickets?.table ?? null;
+  const followed = table !== null || Boolean(tickets?.barPickup);
   const servedId = tickets?.served?.id ?? null;
   const dockRef = useRef<HTMLDivElement>(null);
 
@@ -988,7 +1013,7 @@ export function TicketTracker() {
   // Le fondu sous les pastilles efface la carte qui passe derrière elles ; sur
   // le pied de page de l'établissement, il le salissait : il s'en va quand
   // sa bande ne couvre plus que le pied.
-  const inDock = (tickets?.tickets ?? []).some((ticket) => docked(ticket, table));
+  const inDock = (tickets?.tickets ?? []).some((ticket) => docked(ticket, followed));
   useEffect(() => {
     const dock = dockRef.current?.parentElement;
     const root = dock?.closest<HTMLElement>("[data-menu-root]");
@@ -1081,12 +1106,18 @@ export function TicketTracker() {
   }, [shownId, servedId]);
 
   if (!tickets) return null;
-  // Ce que le client doit faire d'abord : venir chercher, puis payer. À
-  // table, dans l'ordre des commandes : une pastille servie ne change pas de
-  // place.
+  // Ce que le client doit faire d'abord : venir chercher, puis payer ; au
+  // bar, les commandes retirées passent derrière. À table, dans l'ordre des
+  // commandes : une pastille servie ne change pas de place.
   const urgency = (ticket: Ticket) =>
-    ticket.status === "prete" ? 0 : ticket.status === "en_attente" ? 1 : 2;
-  const docks = tickets.tickets.filter((ticket) => docked(ticket, table));
+    ticket.status === "prete"
+      ? 0
+      : ticket.status === "en_attente"
+        ? 1
+        : ticket.status === "servie"
+          ? 3
+          : 2;
+  const docks = tickets.tickets.filter((ticket) => docked(ticket, followed));
   const active = table === null ? docks.sort((a, b) => urgency(a) - urgency(b)) : docks;
   const shown = tickets.tickets.find((ticket) => ticket.id === shownId);
   const served = tickets.served;
@@ -1143,8 +1174,8 @@ export function TicketTracker() {
                       ready ? "ember-gradient text-background" : "bg-background text-ember-1"
                     }`}
                   >
-                    {/* À table, « N° » : le chiffre seul passait pour la table. */}
-                    {table !== null && (
+                    {/* À table et au bar, « N° » : le chiffre seul passait pour la table. */}
+                    {followed && (
                       <span aria-hidden className="mr-0.5 font-sans text-[10px] font-semibold">
                         N°
                       </span>
@@ -1178,7 +1209,7 @@ export function TicketTracker() {
           {(dismiss) => <OrderTicket ticket={shown} titleId={titleId} onClose={dismiss} />}
         </Sheet>
       )}
-      {greeting && table !== null && (
+      {greeting && followed && (
         <Sheet
           key={greeting.id}
           onClosed={() => {

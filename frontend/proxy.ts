@@ -303,7 +303,11 @@ export async function proxy(request: NextRequest) {
 
   if (!user && isPrivate) {
     const url = sameHostUrl(`${prefix}${LOGIN_PATH}`);
-    url.search = "";
+    // La page demandée suit la connexion, si la page de connexion l'accepte :
+    // un code de retrait scanné par un téléphone déconnecté y revient. Le
+    // chemin du produit, sans préfixe : il se sert aussi bien sur le
+    // sous-domaine que sur le domaine principal.
+    url.search = new URLSearchParams({ next: localPath }).toString();
     return NextResponse.redirect(url);
   }
   if (user && isLogin) {

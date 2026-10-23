@@ -34,6 +34,7 @@ export function StripePayment({
   total,
   tipAmount,
   merchant,
+  bar,
   onDone,
   onPhase,
 }: {
@@ -43,6 +44,8 @@ export function StripePayment({
   tipAmount: number;
   /** L'établissement encaisseur, nommé au-dessus du montant. */
   merchant?: string;
+  /** Retrait au bar : on y règle, au lieu du comptoir. */
+  bar: boolean;
   /** Fin du règlement — payé, ou abandon (le client réglera au comptoir). */
   onDone: (paid: boolean) => void;
   onPhase?: (phase: CardPhase) => void;
@@ -131,13 +134,14 @@ export function StripePayment({
 
   if (state === "paid") {
     return (
-      <CardPaymentPaid due={formatPrice(total + tipAmount)} onContinue={() => onDone(true)} />
+      <CardPaymentPaid bar={bar} due={formatPrice(total + tipAmount)} onContinue={() => onDone(true)} />
     );
   }
 
   if (state === "declined" || state === "error") {
     return (
       <CardPaymentFailed
+        bar={bar}
         declined={state === "declined"}
         onRetry={retry}
         onCounter={() => onDone(false)}
@@ -147,6 +151,7 @@ export function StripePayment({
 
   return (
     <CardPaymentForm
+      bar={bar}
       state={state}
       total={total}
       tipAmount={tipAmount}

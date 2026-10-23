@@ -52,7 +52,9 @@ import { tableParam } from "@/lib/menu/table-param";
  * ligne simulé, puis chaque commande suivie au bas de l'écran jusqu'au
  * service — rien n'est appelé, ni paiement ni base. ?retrait=bar : un QR
  * dont les commandes se retirent au bar — prête, le client y montre le code
- * de son ticket, que le bar scanne pour la marquer retirée.
+ * de son ticket, que le bar scanne pour la marquer retirée. Avec
+ * ?service=fast-food, le même retrait sur un ticket numéroté, comme en
+ * production (etablissements.bar_pickup).
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
@@ -181,9 +183,10 @@ export default async function MenuPreviewPage({
                 category.items.filter((item) => category.boissons === "chaudes" || item.chaud)
               )
               .map((item) => item.id),
-            barPickup: retrait === "bar",
           },
         }),
+        // ?retrait=bar : là où l'aperçu suit la commande, à table ou en fast food.
+        barPickup: retrait === "bar" && (fastFood || suivi),
       }}
     >
       <MaybeDemoLoyalty restaurant={restaurant} demo={loyalty ? restaurant.demoLoyalty : undefined}>

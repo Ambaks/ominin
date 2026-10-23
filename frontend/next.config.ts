@@ -83,10 +83,11 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     // geolocation=(self) : la carte du CRM admin propose « ma position » en
-    // prospection terrain — n'autorise que le site lui-même à demander la
-    // permission, le navigateur garde le dernier mot.
+    // prospection terrain ; camera=(self) : l'équipe scanne le code de
+    // retrait au bar depuis l'espace de gestion. N'autorise que le site
+    // lui-même à demander la permission, le navigateur garde le dernier mot.
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(self), browsing-topics=()",
+    value: "camera=(self), microphone=(), geolocation=(self), browsing-topics=()",
   },
   // HSTS : ignoré par les navigateurs hors HTTPS (dev/local), actif en prod.
   {

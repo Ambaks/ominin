@@ -150,6 +150,7 @@ export function demoState(
       offre: "connect",
       serviceMode,
       showTableNumber: false,
+      barPickup: false,
       categoryLayout: restaurant.categoryLayout ?? "top",
       onlinePayment: true,
       paymentProvider: "stripe",

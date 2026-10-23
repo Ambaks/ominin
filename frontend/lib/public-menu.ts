@@ -75,6 +75,8 @@ export async function fetchRestaurant(slug: string): Promise<{
   qrMenu: boolean;
   /** Restaurant (commande depuis la table) ou fast food (au comptoir, numérotée). */
   serviceMode: ServiceMode;
+  /** Fast food : retrait au bar, sur présentation d'un code que l'équipe scanne. */
+  barPickup: boolean;
   /** Le menu propose d'appeler un serveur ; retiré, le bouton n'existe pas. */
   callServer: boolean;
   /** Programme de fidélité ouvert par Ominin et allumé par le gérant. */
@@ -234,6 +236,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     squareLocationId: etablissement.square_location_id ?? null,
     qrMenu: features?.qr !== false,
     serviceMode: etablissement.service_mode,
+    barPickup: etablissement.bar_pickup,
     // Au comptoir, personne ne vient à table : pas de serveur à appeler.
     callServer:
       features?.appel_serveur !== false && etablissement.service_mode === "restaurant",

@@ -1,8 +1,9 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { usePathname, useSelectedLayoutSegment } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { clubFonts } from "@/lib/club/fonts";
@@ -47,6 +48,7 @@ import {
   MenuIcon,
   PrinterIcon,
   ProductsIcon,
+  ScanIcon,
   SoireesIcon,
   TablesIcon,
   TeamIcon,
@@ -170,7 +172,25 @@ function LoadError({ message }: { message: string }) {
   );
 }
 
+/**
+ * Le scanner du retrait au bar, chargé au premier usage : seuls ceux qui
+ * scannent téléchargent la caméra et la remise. Le chargement a sa propre
+ * limite de Suspense (loading) : l'espace derrière ne disparaît pas.
+ */
+const Scanner = dynamic(() => import("./remise/scanner").then((m) => m.Scanner), {
+  loading: () => null,
+});
+
+/*
+ * Le code de retrait scanné à l'appareil photo du téléphone (/gestion/remise/…)
+ * a sa propre page, sans l'espace : chaque scan ouvre un onglet neuf, et
+ * l'espace y chargeait un mois de commandes avant de remettre la sienne.
+ */
 export function GestionShell({ children }: { children: React.ReactNode }) {
+  return useSelectedLayoutSegment() === "remise" ? children : <GestionSpace>{children}</GestionSpace>;
+}
+
+function GestionSpace({ children }: { children: React.ReactNode }) {
   const state = useGestion();
   const loadError = useGestionLoadError();
   const pathname = usePathname();
@@ -227,6 +247,15 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   // de plus : elle laisse la place aux barres collées des écrans.
   const mobileItems = items.filter((item) => !item.sidebarOnly);
   const mobileNav = mobileItems.length > 1;
+  // Retrait au bar : qui remet les commandes scanne leurs codes depuis la
+  // barre du bas (ou la colonne), sans quitter l'application.
+  const canScan =
+    state?.etablissement.serviceMode === "fast_food" &&
+    state.etablissement.barPickup &&
+    can(state.role, "orders.setStatus:servie");
+  // Le bouton qui a ouvert le scanner : le focus y revient à sa fermeture.
+  const [scanFrom, setScanFrom] = useState<HTMLElement | null>(null);
+  const closeScanner = useCallback(() => setScanFrom(null), []);
   // Hauteur de l'en-tête collé, pour ce qui se colle dessous (onglets d'un
   // écran) : elle change avec la largeur, l'en-tête passant sur deux lignes.
   const header = useRef<HTMLElement>(null);
@@ -454,6 +483,17 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                     </Link>
                   );
                 })}
+                {canScan && (
+                  // Une action, pas une page : pleine, à l'inverse du fond.
+                  <button
+                    type="button"
+                    onClick={(event) => setScanFrom(event.currentTarget)}
+                    className="mt-3 flex items-center gap-2.5 rounded-xl bg-foreground px-3 py-2.5 text-sm font-semibold text-background"
+                  >
+                    <ScanIcon className="size-4.5" />
+                    Scanner un code
+                  </button>
+                )}
               </div>
             </aside>
           )}
@@ -538,8 +578,27 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
                   </Link>
                 );
               })}
+              {canScan && (
+                // Une action, pas un onglet : l'icône dans une pastille pleine,
+                // le libellé neutre — jamais pris pour l'onglet ouvert.
+                <button
+                  type="button"
+                  onClick={(event) => setScanFrom(event.currentTarget)}
+                  className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold text-foreground"
+                >
+                  <span className="flex size-6 items-center justify-center rounded-full bg-foreground text-background">
+                    <ScanIcon className="size-4" />
+                  </span>
+                  <span className="max-w-full truncate px-0.5 max-[359px]:text-[9px] max-[359px]:tracking-tight">
+                    Scanner
+                  </span>
+                </button>
+              )}
             </div>
           </nav>
+        )}
+        {scanFrom && state && (
+          <Scanner venueId={state.etablissement.id} returnTo={scanFrom} onClose={closeScanner} />
         )}
       </div>
     </ToastProvider>
