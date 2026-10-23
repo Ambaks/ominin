@@ -98,22 +98,29 @@ export const LoyaltyMemberValueProvider = LoyaltyMemberContext.Provider;
  */
 export const greetedKey = (slug: string) => `fidelite-accueil:${slug}`;
 
-async function readJson(response: Response): Promise<LoyaltyMember | null> {
+/** Le tour du jour vu du serveur ; null : pas de roue pour ce téléphone ici. */
+type WheelDay = { played: boolean; streak: number } | null;
+
+async function readJson(response: Response) {
   const body = await response.json();
   if (!response.ok) throw new Error(body.error ?? "Fidélité indisponible.");
-  return body.member;
+  return body as { member: LoyaltyMember | null; wheel?: WheelDay };
 }
 
 export function LoyaltyMemberProvider({
   slug,
   enabled,
+  wheel: wheelConfig,
   children,
 }: {
   slug: string;
   enabled: boolean;
+  /** La roue de la maison (registre) ; absente, pas de roue. */
+  wheel?: LoyaltyWheelConfig;
   children: ReactNode;
 }) {
   const [member, setMember] = useState<LoyaltyMember | null>(null);
+  const [wheelDay, setWheelDay] = useState<WheelDay>(null);
 
   const load = useCallback(
     () =>
@@ -123,19 +130,24 @@ export function LoyaltyMemberProvider({
     [slug]
   );
 
-  const refresh = useCallback(() => load().then(setMember), [load]);
+  const apply = useCallback((body: { member: LoyaltyMember | null; wheel?: WheelDay }) => {
+    setMember(body.member);
+    setWheelDay(body.wheel ?? null);
+  }, []);
+
+  const refresh = useCallback(() => load().then(apply), [load, apply]);
 
   useEffect(() => {
     if (!enabled) return;
     // Réseau perdu : le client tapera son numéro, comme avant.
-    const sync = () => load().then(setMember, () => {});
+    const sync = () => load().then(apply, () => {});
     sync();
     const onVisible = () => {
       if (document.visibilityState === "visible") sync();
     };
     document.addEventListener("visibilitychange", onVisible);
     return () => document.removeEventListener("visibilitychange", onVisible);
-  }, [enabled, load]);
+  }, [enabled, load, apply]);
 
   const remember = useCallback(
     async (contact: string, firstName?: string) => {
@@ -144,13 +156,16 @@ export function LoyaltyMemberProvider({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug, contact, firstName }),
       });
-      const remembered = await readJson(response);
+      const { member: remembered } = await readJson(response);
       try {
         sessionStorage.setItem(greetedKey(slug), "1");
       } catch {}
       setMember(remembered);
+      // Un autre contact, un autre tour du jour : relu avec la carte.
+      setWheelDay(null);
+      load().then(apply, () => {});
     },
-    [slug]
+    [slug, load, apply]
   );
 
   const loadHistory = useCallback(async () => {
@@ -165,8 +180,35 @@ export function LoyaltyMemberProvider({
 
   const forget = useCallback(async () => {
     setMember(null);
+    setWheelDay(null);
     await fetch("/api/fidelite", { method: "DELETE" });
   }, []);
+
+  // Le tirage se fait au serveur, qui crédite la carte : le solde et le tour
+  // du jour se mettent à jour ici, sans relire la carte.
+  const spin = useCallback(async () => {
+    const response = await fetch("/api/fidelite/roue", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ slug }),
+    });
+    const body = await response.json();
+    if (!response.ok) throw new Error(body.error ?? "Tour refusé.");
+    const { slice, points, streak } = body as { slice: number; points: number; streak: number };
+    setWheelDay({ played: true, streak });
+    setMember((current) =>
+      current && current.points !== null ? { ...current, points: current.points + points } : current
+    );
+    return { index: slice, points };
+  }, [slug]);
+
+  const wheel = useMemo(
+    () =>
+      wheelConfig && wheelDay && member
+        ? { ...wheelConfig, ready: !wheelDay.played, streak: wheelDay.streak, spin }
+        : null,
+    [wheelConfig, wheelDay, member, spin]
+  );
 
   const value = useMemo<LoyaltyMemberValue>(
     () =>
@@ -179,10 +221,10 @@ export function LoyaltyMemberProvider({
             forget,
             loadHistory,
             balance: fetchLoyaltyBalance,
-            wheel: null,
+            wheel,
           }
         : DISABLED,
-    [enabled, member, refresh, remember, forget, loadHistory]
+    [enabled, member, refresh, remember, forget, loadHistory, wheel]
   );
 
   return (

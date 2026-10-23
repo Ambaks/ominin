@@ -236,8 +236,10 @@ export interface Restaurant {
   /** Ce qui pend à la guirlande de « Ma carte » (fidélité) ; des lanternes par défaut. */
   loyaltyMotif?: GarlandMotif;
   /**
-   * La roue du jour d'un téléphone que la fidélité connaît. Registre
-   * seulement, et l'aperçu seul la fait tourner.
+   * La roue du jour d'un téléphone que la fidélité connaît, une fois sa
+   * carte gagnante d'une commande réglée. Registre seulement : sur le vrai
+   * menu, /api/fidelite/roue la passe au tirage en base (loyalty_wheel_spin) ;
+   * l'aperçu la fait tourner dans le navigateur.
    */
   loyaltyWheel?: LoyaltyWheelConfig;
   /**
