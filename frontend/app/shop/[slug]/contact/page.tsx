@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { MailIcon, MessageIcon, PhoneIcon } from "@/components/shop/icons";
 import { ContactForm } from "@/components/shop/store/contact-form";
 import { shopHref } from "@/components/shop/store/href";
+import { httpHref } from "@/lib/admin/format";
 import { REPLY_DELAY_LABEL } from "@/lib/shop/constants";
 import { getCurrentUser, getShopBySlug } from "@/lib/shop/server";
 
@@ -41,7 +42,7 @@ export default async function ContactPage({ params }: PageProps<"/shop/[slug]/co
           {shop.instagram_url && (
             <li className="flex items-center gap-3">
               <MessageIcon className="size-[18px] text-shop-accent-deep" />
-              <a href={shop.instagram_url} target="_blank" rel="noreferrer" className="hover:text-shop-accent-deep">
+              <a href={httpHref(shop.instagram_url)} target="_blank" rel="noreferrer" className="hover:text-shop-accent-deep">
                 Sur Instagram
               </a>
             </li>

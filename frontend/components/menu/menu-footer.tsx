@@ -2,6 +2,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { NameWords } from "@/components/menu/name-words";
+import { httpHref } from "@/lib/admin/format";
 import {
   brandName,
   displayAddress,
@@ -124,7 +125,7 @@ export function MenuFooter({
               Vous avez aimé&nbsp;? Dites-le sur&nbsp;Google.
             </p>
             <a
-              href={restaurant.googleReviewUrl}
+              href={httpHref(restaurant.googleReviewUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="footer-review flex items-center gap-2 rounded-full border border-ember-2/40 bg-surface/70 px-5 py-3 text-sm font-semibold backdrop-blur transition-colors hover:border-ember-2"

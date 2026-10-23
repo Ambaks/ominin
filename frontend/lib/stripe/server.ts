@@ -2,7 +2,7 @@ import Stripe from "stripe";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import { clubSiteUrl, collectSiteUrl, menuSiteUrl } from "@/lib/site";
 import type { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
+import { requireGerant as requireEtablissementGerant } from "@/lib/supabase/gerant";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -18,25 +18,8 @@ export function getStripe(): Stripe {
 }
 
 /** Gérant de l'établissement courant : seul à régler et consulter l'encaissement. */
-export async function requireGerant() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return { error: "Authentification requise.", status: 401 as const };
-  const { data: membership } = await supabase
-    .from("memberships")
-    .select("etablissement_id, role")
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (!membership || membership.role !== "gerant") {
-    return {
-      error: "Seul le gérant peut configurer le paiement en ligne.",
-      status: 403 as const,
-    };
-  }
-  return { etablissementId: membership.etablissement_id, email: user.email };
+export function requireGerant() {
+  return requireEtablissementGerant("Seul le gérant peut configurer le paiement en ligne.");
 }
 
 /** Compte Stripe Express relié à l'établissement, ou null s'il n'y en a pas. */
@@ -144,8 +127,18 @@ async function settlePayment(
   };
 
   // Plus de commande (tentative écartée pendant que l'intent aboutissait) :
-  // l'argent est rendu.
-  if (!order) return refund("commande disparue");
+  // l'argent est rendu — seulement sur le compte d'un restaurant. Le webhook
+  // connecté reçoit aussi les paiements des boutiques, dont l'order_id
+  // désigne une commande boutique : ceux-là ne le concernent pas.
+  if (!order) {
+    const { data: restaurant, error: accountError } = await admin
+      .from("payment_accounts")
+      .select("etablissement_id")
+      .eq("stripe_account_id", accountId)
+      .maybeSingle();
+    if (accountError) throw new Error(accountError.message);
+    return restaurant ? refund("commande disparue") : "unpaid";
+  }
 
   const account = await connectedAccount(admin, order.etablissement_id);
   if (account?.id !== accountId) {

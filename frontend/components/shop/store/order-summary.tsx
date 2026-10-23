@@ -1,3 +1,4 @@
+import { httpHref } from "@/lib/admin/format";
 import { SHIPPING_KIND_LABELS } from "@/lib/shop/constants";
 import { countryName, formatDate, formatDateTime, formatPrice, fullName } from "@/lib/shop/format";
 import type { Address, OrderItemOption, OrderWithItems, RelayPoint, ShopOrder, ShopOrderEvent, ShopOrderStatus } from "@/lib/shop/types";
@@ -130,7 +131,7 @@ export function OrderCard({ order }: { order: OrderWithItems }) {
             <p className="text-sm text-shop-ink-soft">
               Suivi :{" "}
               {order.tracking_url ? (
-                <a href={order.tracking_url} target="_blank" rel="noreferrer" className="font-medium text-shop-accent-deep underline-offset-2 hover:underline">
+                <a href={httpHref(order.tracking_url)} target="_blank" rel="noreferrer" className="font-medium text-shop-accent-deep underline-offset-2 hover:underline">
                   {order.tracking_number}
                 </a>
               ) : (

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { sendInviteEmail, sendTeamNotification } from "@/lib/gestion/invite-notify";
+import { rateLimit } from "@/lib/rate-limit/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   }
+  const limited = await rateLimit("teamInvite", user.id);
+  if (limited) return limited;
 
   const { data: etablissement } = await supabase
     .from("etablissements")

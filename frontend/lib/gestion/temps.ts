@@ -221,13 +221,15 @@ export async function clockIn(
   code: string | null,
   signature: string
 ): Promise<void> {
-  check(
-    await createClient().rpc("clock_in", {
-      p_staff_id: staff.id,
-      p_code: code,
-      p_signature: signature,
-    })
-  );
+  const { data: entryId, error } = await createClient().rpc("clock_in", {
+    p_staff_id: staff.id,
+    p_code: code,
+    p_signature: signature,
+  });
+  if (error) throw new Error(error.message);
+  // Mauvais code : la base répond null et compte l'échec (une exception
+  // l'effacerait avec la transaction).
+  if (!entryId) throw new Error("Code incorrect.");
 }
 
 /** L'heure retenue est celle du serveur (trigger) : la tablette peut dérégler. */
@@ -236,13 +238,13 @@ export async function clockOut(
   code: string | null,
   signature: string
 ): Promise<void> {
-  check(
-    await createClient().rpc("clock_out", {
-      p_entry_id: entryId,
-      p_code: code,
-      p_signature: signature,
-    })
-  );
+  const { data: closed, error } = await createClient().rpc("clock_out", {
+    p_entry_id: entryId,
+    p_code: code,
+    p_signature: signature,
+  });
+  if (error) throw new Error(error.message);
+  if (closed === false) throw new Error("Code incorrect.");
 }
 
 // ---------------------------------------------------------------------------

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { dispatchCallServer } from "@/lib/push/server";
+import { clientIp, rateLimit } from "@/lib/rate-limit/server";
 
 /*
  * Appel serveur depuis le menu QR. Route publique comme /api/push/dispatch :
@@ -27,6 +28,10 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+
+  // Le verrou par table n'arrête pas une boucle sur tous les numéros.
+  const limited = await rateLimit("callServer", clientIp(request));
+  if (limited) return limited;
 
   await dispatchCallServer(slug, tableNumber);
   return NextResponse.json({ ok: true }, { status: 202 });

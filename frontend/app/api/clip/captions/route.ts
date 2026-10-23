@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { CAPTION_CONTEXT_MAX_CHARS, generateCaptions } from "@/lib/clip/captions";
 import { CLIP_PLATFORMS, type ClipPlatform } from "@/lib/clip/provider/types";
 import { requireClipUser } from "@/lib/clip/server";
+import { rateLimit } from "@/lib/rate-limit/server";
 
 /** Titres/descriptions générés par Claude à partir de la description du clip. */
 export async function POST(request: Request) {
@@ -28,6 +29,8 @@ export async function POST(request: Request) {
       { status: 400 }
     );
   }
+  const limited = await rateLimit("clipCaptions", auth.user.id);
+  if (limited) return limited;
 
   try {
     const captions = await generateCaptions(context, platforms);

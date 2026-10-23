@@ -629,20 +629,22 @@ export async function payOrderItems(
   const supabase = createClient();
   const orderIds = ordersOfLines(items.map((item) => item.itemId));
   const cash = mode === "carte" ? undefined : cashDetails;
-  check(
-    await supabase.rpc("pay_order_items", {
-      p_items: items.map((item) => ({
-        item_id: item.itemId,
-        quantity: item.quantity,
-      })),
-      p_mode: mode,
-      p_payment_code: paymentCode,
-      p_cash_given: cash?.cashGiven ?? null,
-      p_cash_change: cash?.cashChange ?? null,
-      p_tip: tip ?? null,
-      p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
-    })
-  );
+  const { data: paid, error } = await supabase.rpc("pay_order_items", {
+    p_items: items.map((item) => ({
+      item_id: item.itemId,
+      quantity: item.quantity,
+    })),
+    p_mode: mode,
+    p_payment_code: paymentCode,
+    p_cash_given: cash?.cashGiven ?? null,
+    p_cash_change: cash?.cashChange ?? null,
+    p_tip: tip ?? null,
+    p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
+  });
+  if (error) throw new Error(error.message);
+  // Mauvais code : la base répond false et compte l'échec (une exception
+  // l'effacerait avec la transaction).
+  if (paid === false) throw new Error("Code d'encaissement incorrect.");
   await refreshOrdersNow(orderIds);
 }
 
@@ -943,12 +945,13 @@ export async function verifyAdminPin(code: string): Promise<boolean> {
 /** Pose ou remplace le code de quatre chiffres exigé à chaque encaissement. */
 export async function setPaymentPin(code: string): Promise<void> {
   const supabase = createClient();
-  check(
-    await supabase.rpc("set_payment_pin", {
-      p_etablissement_id: etablissementId(),
-      p_code: code,
-    })
-  );
+  const { data: set, error } = await supabase.rpc("set_payment_pin", {
+    p_etablissement_id: etablissementId(),
+    p_code: code,
+  });
+  if (error) throw new Error(error.message);
+  // Code réservé : la base répond false et compte l'essai.
+  if (set === false) throw new Error("Ce code est réservé. Choisissez-en un autre.");
   apply((draft) => {
     draft.etablissement.paymentPinSet = true;
   });
