@@ -13835,6 +13835,11 @@ html:has(.groupe-dialog:modal) {
   pointer-events: none;
   animation: loyalty-ping 1.8s cubic-bezier(0.16, 1, 0.3, 1) 1s 2;
 }
+/* La feuille qui naît de la pastille (liquid-sheet.ts) : la pastille passe
+   au-dessus du voile de la feuille (z-50), qui sort d'elle et s'y vide. */
+.loyalty-pill[data-liquid-source] {
+  z-index: 51;
+}
 /* Rangée dans la barre des catégories collée en haut : le rail lui laisse
    sa place au lieu de faire passer les catégories dessous. */
 [data-menu-root]:has(.loyalty-pill[data-docked]) [data-category-nav] .rail-row {
