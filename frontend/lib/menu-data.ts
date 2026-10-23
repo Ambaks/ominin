@@ -3391,6 +3391,21 @@ const articleFormats = (
 
 const ALCOOL = { vatRate: 20 } as const;
 
+/** La roue du jour de Caffè Panis, reprise telle quelle par les aperçus de l'Écusson. */
+const roueDuJour: LoyaltyWheelConfig = {
+  // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
+  slices: [
+    { points: 5, weight: 32 },
+    { points: 10, weight: 26 },
+    { points: 15, weight: 20 },
+    { points: 20, weight: 12 },
+    { points: 30, weight: 6 },
+    { points: 50, weight: 4 },
+  ],
+  // Provisoire, à valider : le 7e jour d'affilée, les points du tour doublent.
+  golden: { every: 7, multiplier: 2 },
+};
+
 /*
  * Le Novelty — 10 rue Saint-Guilhem. Toute la carte vient de leur site
  * (lenovelty-montpellier.fr, ouvert le 14 octobre 2026) : les onglets
@@ -5629,19 +5644,7 @@ const caffePanis: Restaurant = {
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.
   loyaltyMotif: "fanions",
-  // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
-  loyaltyWheel: {
-    slices: [
-      { points: 5, weight: 32 },
-      { points: 10, weight: 26 },
-      { points: 15, weight: 20 },
-      { points: 20, weight: 12 },
-      { points: 30, weight: 6 },
-      { points: 50, weight: 4 },
-    ],
-    // Provisoire, à valider : le 7e jour d'affilée, les points du tour doublent.
-    golden: { every: 7, multiplier: 2 },
-  },
+  loyaltyWheel: roueDuJour,
   // Les paliers de sa fidélité en production (1 € = 1 point).
   demoLoyalty: {
     pointsPerEuro: 1,
