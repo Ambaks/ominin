@@ -280,7 +280,7 @@ export function seed(): GestionState {
       serviceMode: "restaurant",
       showTableNumber: false,
       barPickup: false,
-      categoryLayout: "top",
+      categoryLayout: "wheel",
       onlinePayment: false,
       paymentProvider: null,
       hubriseConnected: false,

@@ -20,7 +20,12 @@ const ACTIVE_LINE = 0.4;
  * on remontait : deux sections y tenaient à la fois, celle du dessus n'y
  * rentrait jamais.) Partagé par la barre du haut et le rail de gauche.
  */
-export function useActiveSection(categories: { id: string }[]) {
+export function useActiveSection(
+  categories: { id: string }[],
+  /** La part parcourue, relue à chaque image : sans elle, la page ne se
+   * redessine qu'au changement de section. */
+  { withProgress = true }: { withProgress?: boolean } = {}
+) {
   const [activeId, setActiveId] = useState(categories[0]?.id);
   const [progress, setProgress] = useState(0);
 
@@ -30,7 +35,7 @@ export function useActiveSection(categories: { id: string }[]) {
       cancelAnimationFrame(frame);
       frame = requestAnimationFrame(() => {
         const max = document.documentElement.scrollHeight - window.innerHeight;
-        setProgress(max > 0 ? window.scrollY / max : 0);
+        if (withProgress) setProgress(max > 0 ? window.scrollY / max : 0);
         const line = window.innerHeight * ACTIVE_LINE;
         let active = categories[0]?.id;
         for (const { id } of categories) {
@@ -49,7 +54,7 @@ export function useActiveSection(categories: { id: string }[]) {
       cancelAnimationFrame(frame);
       window.removeEventListener("scroll", onScroll);
     };
-  }, [categories]);
+  }, [categories, withProgress]);
 
   return { activeId, progress };
 }

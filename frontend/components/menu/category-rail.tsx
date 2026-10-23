@@ -45,7 +45,7 @@ export function CategoryRail({
 }) {
   const { track } = useCart();
   const embedded = useQueryParam("embed") === "1";
-  const { activeId } = useActiveSection(categories);
+  const { activeId } = useActiveSection(categories, { withProgress: false });
   const navRef = useRef<HTMLElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
   // Rail ouvert, et par quoi : l'appui long (le doigt désigne, la liste ne

@@ -1,17 +1,19 @@
 import type { ReactNode } from "react";
 import { CategoryNav } from "@/components/menu/category-nav";
 import { CategoryRail } from "@/components/menu/category-rail";
+import { CategoryWheel } from "@/components/menu/category-wheel";
 import type { CategoryLayout } from "@/lib/menu-data";
 import type { CategoryLink } from "@/lib/menu/use-active-section";
 
 /*
  * La carte et ses catégories, dans la mise en page choisie par
- * l'établissement : barre de pastilles collée en haut (par défaut), ou rail
- * d'icônes collé à gauche, à côté des sections, qui pousse la carte à droite
- * quand il s'ouvre.
+ * l'établissement : roue posée par-dessus la carte, qui ne lui prend aucune
+ * place (par défaut), barre de pastilles collée en haut, ou rail d'icônes
+ * collé à gauche, à côté des sections, qui pousse la carte à droite quand il
+ * s'ouvre.
  */
 export function MenuBody({
-  layout = "top",
+  layout = "wheel",
   categories,
   themeLocked,
   bottomPadding,
@@ -38,6 +40,16 @@ export function MenuBody({
           {children}
         </main>
       </div>
+    );
+  }
+  if (layout === "wheel") {
+    return (
+      <>
+        <CategoryWheel categories={categories} />
+        <main className={`${sections} mx-auto w-full max-w-2xl px-5 lg:max-w-5xl lg:px-10`}>
+          {children}
+        </main>
+      </>
     );
   }
   return (

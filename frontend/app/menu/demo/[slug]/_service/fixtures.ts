@@ -151,7 +151,7 @@ export function demoState(
       serviceMode,
       showTableNumber: false,
       barPickup: false,
-      categoryLayout: restaurant.categoryLayout ?? "top",
+      categoryLayout: restaurant.categoryLayout ?? "wheel",
       onlinePayment: true,
       paymentProvider: "stripe",
       hubriseConnected: false,

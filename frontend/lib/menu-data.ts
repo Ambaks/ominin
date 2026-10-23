@@ -179,7 +179,7 @@ export interface AfficheMenu {
   formules: Formule[];
 }
 
-export type CategoryLayout = "top" | "rail";
+export type CategoryLayout = "top" | "rail" | "wheel";
 
 /** La fidélité d'une carte d'aperçu ; la page rapproche les paliers de ses articles. */
 export interface DemoLoyalty {
@@ -266,8 +266,8 @@ export interface Restaurant {
   highlights?: string[];
   /** Le bandeau défilant des annonces, en haut de la page. */
   ticker?: TickerItem[];
-  /** Catégories en barre au-dessus de la carte (par défaut) ou en rail
-   * d'icônes à gauche (etablissements.category_layout). */
+  /** Catégories en roue posée sur la carte (par défaut), en barre au-dessus
+   * de la carte ou en rail d'icônes à gauche (etablissements.category_layout). */
   categoryLayout?: CategoryLayout;
   /** Les mots de la carte que l'établissement explique, repris au pied de carte. */
   glossary?: { term: string; definition: string }[];
