@@ -983,6 +983,7 @@ export type EtablissementInput = Omit<
   | "paymentPinSet"
   | "serviceMode"
   | "showTableNumber"
+  | "barPickup"
   | "categoryLayout"
   | "onlineMinOrder"
 >;
@@ -1075,6 +1076,20 @@ export async function setShowTableNumber(enabled: boolean): Promise<void> {
   );
   apply((draft) => {
     draft.etablissement.showTableNumber = enabled;
+  });
+}
+
+/** Fast food : retrait au bar, le code du client scanné par l'équipe
+ * (gérant). Le menu suit à sa prochaine revalidation. */
+export async function setBarPickup(enabled: boolean): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({ bar_pickup: enabled })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.barPickup = enabled;
   });
 }
 

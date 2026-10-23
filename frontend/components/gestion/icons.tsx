@@ -40,6 +40,16 @@ export function ApercuIcon(props: IconProps) {
   );
 }
 
+/** Un viseur sur un code : scanner le code de retrait d'un client. */
+export function ScanIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16" />
+      <path d="M8.5 8.5h2.5v2.5H8.5zM13 8.5h2.5v2.5H13zM8.5 13h2.5v2.5H8.5zM13.5 13.5h2" />
+    </Svg>
+  );
+}
+
 export function CommandesIcon(props: IconProps) {
   return (
     <Svg {...props}>

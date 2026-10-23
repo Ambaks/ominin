@@ -279,6 +279,7 @@ export function seed(): GestionState {
       offre: "connect",
       serviceMode: "restaurant",
       showTableNumber: false,
+      barPickup: false,
       categoryLayout: "top",
       onlinePayment: false,
       paymentProvider: null,

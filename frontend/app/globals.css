@@ -4984,6 +4984,20 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
     0 0 0 4px var(--ember-2);
 }
 
+/* Deux pastilles côte à côte, dont une prête : son cerne déborde de 4 px,
+   la rangée s'écarte pour qu'il ne mange pas la voisine. Serrée, la rangée
+   garde son écart : le cerne y tient déjà. */
+[data-menu-root]:not([data-dock-fit~="tight"]) .ticket-dock-column:has(.ticket-chip[data-ready]) {
+  column-gap: 0.75rem;
+}
+
+/* Serrée, deux pastilles prêtes côte à côte : leurs deux cernes (4 px
+   chacun) ne tiennent pas dans l'écart, il s'ouvre jusqu'à laisser le même
+   jour qu'ailleurs entre eux. */
+[data-dock-fit~="tight"] .ticket-chip[data-ready] + .ticket-chip[data-ready] {
+  margin-inline-start: 0.375rem;
+}
+
 /* Le point, plein et de la couleur du fond : pâle sur la pastille claire, il
    passait pour éteint. */
 .ticket-chip[data-ready] .ticket-chip-dot {
@@ -10572,16 +10586,17 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
 }
 
 /*
-  Téléphone à la verticale, à table : le ticket prend la hauteur de son
-  contenu. Le ticket fast food remplit l'écran pour que son numéro ne bouge
-  pas ; ici, la page restait à moitié vide sous trois lignes de commande.
+  Téléphone à la verticale, à table et au bar : le ticket prend la hauteur de
+  son contenu. Le ticket fast food remplit l'écran pour que son numéro ne
+  bouge pas ; ici, la page restait à moitié vide sous trois lignes de
+  commande.
 */
 @media (max-width: 39.99rem) and (not ((orientation: landscape) and (max-height: 500px))) {
-  [data-menu-root] [role="dialog"]:has(.order-ticket-sheet[data-table]) {
+  [data-menu-root] [role="dialog"]:has(.order-ticket-sheet[data-followed]) {
     height: auto;
   }
 
-  .order-ticket-sheet[data-table] .order-ticket-foot {
+  .order-ticket-sheet[data-followed] .order-ticket-foot {
     justify-content: flex-start;
   }
 

@@ -80,6 +80,9 @@ export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "reti
  */
 export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "prete", "servie", "retiree"];
 
+/** Retrait au bar : une commande numérotée se remet réglée, prête ou pas encore. */
+export const HANDOVER_STATUSES: OrderStatus[] = ["payee", "prete"];
+
 /**
  * Statuts encore ouverts, quel que soit leur âge : à encaisser (en_attente),
  * à servir (payee) ou en cours côté collect.

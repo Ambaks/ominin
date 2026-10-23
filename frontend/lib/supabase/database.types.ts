@@ -1777,6 +1777,7 @@ export type Database = {
           demo: boolean
           address: string
           admin_pin_set: boolean
+          bar_pickup: boolean
           club_dress_code: string | null
           club_min_age: number
           club_refused: string | null
@@ -1815,6 +1816,7 @@ export type Database = {
           demo?: boolean
           address?: string
           admin_pin_set?: boolean
+          bar_pickup?: boolean
           club_dress_code?: string | null
           club_min_age?: number
           club_refused?: string | null
@@ -1853,6 +1855,7 @@ export type Database = {
           demo?: boolean
           address?: string
           admin_pin_set?: boolean
+          bar_pickup?: boolean
           club_dress_code?: string | null
           club_min_age?: number
           club_refused?: string | null
@@ -3060,6 +3063,7 @@ export type Database = {
           customer_phone: string | null
           estimated_ready_at: string | null
           etablissement_id: string
+          handed_over_at: string | null
           hubrise_order_id: string | null
           hubrise_status: string | null
           id: string
@@ -3091,6 +3095,7 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id: string
+          handed_over_at?: string | null
           hubrise_order_id?: string | null
           hubrise_status?: string | null
           id?: string
@@ -3122,6 +3127,7 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id?: string
+          handed_over_at?: string | null
           hubrise_order_id?: string | null
           hubrise_status?: string | null
           id?: string

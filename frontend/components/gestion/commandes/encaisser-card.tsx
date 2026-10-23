@@ -15,7 +15,7 @@ import type {
   OrderItem,
   PaymentLeg,
 } from "@/lib/gestion/types";
-import { formatPrice } from "@/lib/menu/format";
+import { counterWords, formatPrice } from "@/lib/menu/format";
 import { CheckMark, LineLabel, LineOptions } from "./order-line";
 import { PaymentDialog } from "./payment-dialog";
 import { PaymentPinDialog } from "./payment-pin-dialog";
@@ -365,6 +365,9 @@ export function EncaisserCard({
   orders: Order[];
   title: string;
 }) {
+  const etablissement = useGestion()?.etablissement;
+  // Retrait au bar : la commande part en préparation, comme le client le lit.
+  const barPickup = etablissement?.serviceMode === "fast_food" && etablissement.barPickup;
   const oldest = orders.reduce(
     (min, order) => (order.createdAt < min ? order.createdAt : min),
     orders[0].createdAt
@@ -382,7 +385,9 @@ export function EncaisserCard({
               {formatTime(oldest)}
             </span>
           </div>
-          <p className="text-xs text-muted">Part en cuisine une fois encaissée.</p>
+          <p className="text-xs text-muted">
+            Part {counterWords(barPickup).preparation} une fois encaissée.
+          </p>
         </div>
         <span className="font-display text-lg text-ember-1">
           {formatPrice(remaining)}

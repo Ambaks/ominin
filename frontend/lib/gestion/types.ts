@@ -106,6 +106,8 @@ export interface Etablissement {
   serviceMode: ServiceMode;
   /** Fast food : la table du QR s'affiche à l'équipe à côté du numéro. */
   showTableNumber: boolean;
+  /** Fast food : prête, le client montre un code que l'équipe scanne pour la lui remettre. */
+  barPickup: boolean;
   /** Catégories du menu QR : barre en haut ou rail d'icônes à gauche. */
   categoryLayout: CategoryLayout;
   siret?: string;
@@ -204,6 +206,8 @@ export interface Order {
   pickupAt?: string;
   /** Prête vers (ISO) — posée à l'acceptation d'une commande collect « dès que possible ». */
   estimatedReadyAt?: string;
+  /** ISO — remise au client (commande numérotée), par le scan de son code ou au comptoir. */
+  handedOverAt?: string;
   cashGiven?: number;
   cashChange?: number;
   tipAmount?: number;

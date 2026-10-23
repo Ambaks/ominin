@@ -174,10 +174,14 @@ export interface CartConfig {
    * drinks : les articles des catégories de boissons ; une commande faite de
    * ces seuls articles, sans formule, se salue « Bonne dégustation ! ».
    * hotDrinks : celles qui sont chaudes ; rien que d'elles, la salutation
-   * porte une tasse. barPickup : la commande se retire au bar — prête, le
-   * client y montre un code que le bar scanne. Ignoré hors aperçu.
+   * porte une tasse. Ignoré hors aperçu.
    */
-  demoSuivi?: { drinks: string[]; hotDrinks: string[]; barPickup?: boolean };
+  demoSuivi?: { drinks: string[]; hotDrinks: string[] };
+  /**
+   * Retrait au bar (fast food, ou aperçu à table) : la commande se règle et
+   * se retire au bar ; prête, le client y montre un code que l'équipe scanne.
+   */
+  barPickup?: boolean;
   /**
    * Suivi à table (Restaurant.suivi) : chaque commande passée se suit au bas
    * de l'écran jusqu'au service. Ignoré en aperçu (demoSuivi) et en fast food.
@@ -471,7 +475,7 @@ export function CartProvider({
   return (
     <CartContext.Provider value={value}>
       {config.serviceMode === "fast_food" ? (
-        <TicketsProvider slug={config.slug} preview={config.preview}>
+        <TicketsProvider slug={config.slug} preview={config.preview} barPickup={config.barPickup}>
           {children}
         </TicketsProvider>
       ) : config.preview && config.demoSuivi ? (
@@ -479,7 +483,7 @@ export function CartProvider({
           slug={config.slug}
           preview
           table={tableNumber}
-          barPickup={config.demoSuivi.barPickup}
+          barPickup={config.barPickup}
         >
           {children}
         </TicketsProvider>

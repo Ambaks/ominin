@@ -20,9 +20,9 @@ import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref, normalizePhone, previewOrderKey, type PreviewCollectOrder } from "@/lib/collect/shared";
 import { useCart, type CartLine } from "@/lib/menu/cart";
-import { formatPrice } from "@/lib/menu/format";
+import { counterWords, formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
-import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
+import { cardNotices, useTickets, type TicketLine } from "@/lib/menu/tickets";
 import { pointsEarned } from "@/lib/menu/loyalty";
 import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import { CART_LINES_SHOWN } from "@/lib/gestion/constants";
@@ -419,8 +419,11 @@ export function CartBar() {
   const tipAmount = tipCents / 100;
   // Aperçu à table : paiement simulé et suivi (demoSuivi).
   const previewSuivi = cart.preview && cart.demoSuivi !== undefined;
-  // Aperçu du retrait au bar : on y règle et on y retire la commande.
-  const barPickup = previewSuivi && Boolean(cart.demoSuivi?.barPickup);
+  // Retrait au bar : on y règle et on y retire la commande.
+  const barPickup = Boolean(cart.barPickup);
+  const { place: counter, preparation } = counterWords(barPickup);
+  const filledChoice = previewSuivi || barPickup;
+  const paymentNotices = cardNotices(barPickup);
   // Le règlement a son étape quand il y a un choix à faire (en ligne ou au
   // comptoir, puis le pourboire).
   const paymentStep = cart.onlinePayment && cart.total > 0 && !belowMinimum && !cart.collect;
@@ -689,7 +692,7 @@ export function CartBar() {
     // feuille — il viendra à sa fin.
     const inPage = payment === "carte" && !failed;
     if (cart.fastFood && !inPage) {
-      handOff(orderId, [...(failed ? [CARD_NOTICES.failed] : []), ...loyaltyNotices()]);
+      handOff(orderId, [...(failed ? [paymentNotices.failed] : []), ...loyaltyNotices()]);
     } else {
       setState("sent");
     }
@@ -739,6 +742,14 @@ export function CartBar() {
     resetChoices();
   };
 
+  // Ce que dit le ticket au terme du paiement par carte. Au bar, le client
+  // qui n'a pas payé vient de choisir d'y régler : son ticket le dit
+  // (« Réglez-la au bar »), un avis de paiement manqué l'alarmerait.
+  const settledNotices = (paid: boolean) =>
+    paid
+      ? loyaltyNotices(true)
+      : [...(barPickup ? [] : [paymentNotices.declined]), ...loyaltyNotices()];
+
   // Fin d'un règlement dans la feuille (Square, Stripe). Click & collect :
   // payé, la page de suivi ; sinon la commande n'est pas passée, le panier
   // reste. À table : non payé, l'addition passe au comptoir ; en fast food,
@@ -759,12 +770,7 @@ export function CartBar() {
       return;
     }
     if (!paid) giveUpCard(orderId);
-    if (cart.fastFood) {
-      handOff(
-        orderId,
-        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
-      );
-    }
+    if (cart.fastFood) handOff(orderId, settledNotices(paid));
   };
 
   const close = () => {
@@ -779,7 +785,7 @@ export function CartBar() {
       const abandoned = cardPhase.current === "form";
       if (abandoned) giveUpCard(pending);
       handOff(pending, [
-        ...(abandoned ? [CARD_NOTICES.declined] : []),
+        ...(abandoned ? [paymentNotices.declined] : []),
         ...loyaltyNotices(cardPhase.current === "paid"),
       ]);
       return;
@@ -904,12 +910,7 @@ export function CartBar() {
                   onDone={(paid) => {
                     setSumupPayment(null);
                     if (!paid) giveUpCard(sumupPayment.orderId);
-                    if (cart.fastFood) {
-                      handOff(
-                        sumupPayment.orderId,
-                        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
-                      );
-                    }
+                    if (cart.fastFood) handOff(sumupPayment.orderId, settledNotices(paid));
                   }}
                 />
               ) : state === "sent" && squarePayment ? (
@@ -919,6 +920,7 @@ export function CartBar() {
                   total={squarePayment.total}
                   tipAmount={squarePayment.tipAmount}
                   merchant={cart.restaurantName}
+                  bar={barPickup}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(squarePayment.orderId, paid)}
                 />
@@ -928,6 +930,7 @@ export function CartBar() {
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
                   merchant={cart.restaurantName}
+                  bar={barPickup}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
@@ -937,6 +940,7 @@ export function CartBar() {
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
                   merchant={cart.restaurantName}
+                  bar={barPickup}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
@@ -1020,11 +1024,9 @@ export function CartBar() {
                       <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-sans text-xs font-normal normal-case tracking-normal text-muted">
                         {cart.collect
                           ? "À emporter"
-                          : cart.fastFood
-                            ? "À récupérer au comptoir"
-                            : barPickup
-                              ? "À récupérer au bar"
-                              : `Table ${cart.tableNumber}`}
+                          : cart.fastFood || barPickup
+                            ? `À récupérer au ${counter}`
+                            : `Table ${cart.tableNumber}`}
                         {paymentStep && (
                           <>
                             <span aria-hidden className="flex w-10 gap-1">
@@ -1075,7 +1077,7 @@ export function CartBar() {
                         {(
                           [
                             ["carte", "Payer en\u00a0ligne"],
-                            ["comptoir", barPickup ? "Payer au\u00a0bar" : "Payer au\u00a0comptoir"],
+                            ["comptoir", `Payer au\u00a0${counter}`],
                           ] as const
                         ).map(([value, label]) => (
                           <button
@@ -1099,12 +1101,13 @@ export function CartBar() {
                                 ?.querySelector<HTMLElement>(`[data-choice="${other}"]`)
                                 ?.focus();
                             }}
-                            // Aperçu à table (demoSuivi) : le choix fait se remplit
-                            // de la couleur de la maison, comme le bouton d'envoi.
+                            // Aperçu à table (demoSuivi) et retrait au bar : le choix
+                            // fait se remplit de la couleur de la maison, comme le
+                            // bouton d'envoi.
                             className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
                               payment !== value
                                 ? "border-hairline text-muted"
-                                : previewSuivi
+                                : filledChoice
                                   ? "ember-gradient border-transparent bg-origin-border text-background"
                                   : "border-ember-2/60 bg-surface-raised text-foreground"
                             }`}
@@ -1115,7 +1118,7 @@ export function CartBar() {
                               className={`size-2.5 shrink-0 rounded-full ${
                                 payment !== value
                                   ? "border border-current opacity-50"
-                                  : previewSuivi
+                                  : filledChoice
                                     ? "bg-current"
                                     : "ember-gradient"
                               }`}
@@ -1131,8 +1134,8 @@ export function CartBar() {
                         <p className="mb-4 grid text-pretty text-xs leading-relaxed text-muted">
                           {(
                             [
-                              ["carte", "Payée maintenant, elle part tout\u00a0de\u00a0suite en\u00a0cuisine."],
-                              ["comptoir", "Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."],
+                              ["carte", `Payée maintenant, elle part tout\u00a0de\u00a0suite ${preparation}.`],
+                              ["comptoir", `Elle part ${preparation} une fois réglée au\u00a0${counter}.`],
                             ] as const
                           ).map(([choice, text]) => (
                             <span
@@ -1423,9 +1426,9 @@ export function CartBar() {
                       <p className="mb-3 text-pretty text-xs leading-relaxed text-muted">
                         Paiement en ligne dès {formatPrice(minimumCents / 100)}&nbsp;:
                         ajoutez {formatPrice(missingCents / 100)} pour
-                        payer par carte, ou réglez au comptoir.
+                        payer par carte, ou réglez au {counter}.
                         {cart.fastFood &&
-                          " Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."}
+                          ` Elle part ${preparation} une fois réglée au\u00a0${counter}.`}
                       </p>
                     )}
                     {/* Refusée pour un plat fermé : l'avis des lignes coupées le dit mieux. */}
@@ -1529,7 +1532,7 @@ export function CartBar() {
                                   : "Envoyer la commande"
                                 : payment === "carte"
                                   ? `Commander et payer · ${formatPrice(cart.total)}`
-                                  : "Commander · payer au comptoir"}
+                                  : `Commander · payer au ${counter}`}
                         </button>
                       )}
                     </div>

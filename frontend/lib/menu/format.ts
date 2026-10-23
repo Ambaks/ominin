@@ -6,6 +6,15 @@ import type { Allergen, Badge, DishTag, MenuItem, OptionGroup } from "@/lib/menu
  * d'un prix formaté ne télécharge pas toutes les cartes de démonstration.
  */
 
+/**
+ * Où le client règle et retire sa commande — le comptoir, ou le bar au
+ * retrait au bar —, et où elle part une fois réglée.
+ */
+export const counterWords = (bar: boolean) =>
+  bar
+    ? { place: "bar", preparation: "en\u00a0préparation" }
+    : { place: "comptoir", preparation: "en\u00a0cuisine" };
+
 /** La carte de démonstration d'Ominin (landing, démo Collect, espace de test). */
 export const DEMO_SLUG = "trattoria-lucia";
 
