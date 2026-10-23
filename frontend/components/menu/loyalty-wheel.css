@@ -19,6 +19,12 @@
   --reveal: 0.65s;
   --felt-1: color-mix(in srgb, var(--ember-1) 70%, #000);
   --felt-2: color-mix(in srgb, var(--ember-3) 35%, #000);
+  /* Le voile du gain, la part gagnante éclaircie, la salle et les parts d'un jour de roue dorée. */
+  --felt-dim: color-mix(in srgb, var(--felt-2) 60%, #000);
+  --felt-lit: color-mix(in srgb, var(--felt-1) 72%, var(--gold-1));
+  --felt-golden-1: color-mix(in srgb, var(--felt-1) 62%, #000);
+  --felt-golden-2: color-mix(in srgb, var(--felt-2) 35%, #000);
+  --felt-golden-slice: color-mix(in srgb, var(--felt-2) 75%, #000);
   --gold-1: #f6dd8a;
   --gold-2: #d4a845;
   --gold-3: #8f6420;
@@ -38,13 +44,18 @@
 .theme-caffe-panis .wheel-stage {
   --felt-1: #156330;
   --felt-2: #052512;
+  --felt-dim: #021a0c;
+  --felt-lit: #23944b;
+  --felt-golden-1: #0f3a1c;
+  --felt-golden-2: #020c05;
+  --felt-golden-slice: #0a1f10;
 }
 /* Jour de roue dorée : la salle passe à l'or, des éclats scintillent. */
 .wheel-stage[data-golden] {
   background:
     radial-gradient(70% 40% at 50% 50%, rgba(255, 226, 140, 0.3), transparent 70%),
-    radial-gradient(130% 90% at 50% 34%, #0f3a1c, #020c05);
-  background-color: color-mix(in srgb, #0f3a1c 45%, #020c05);
+    radial-gradient(130% 90% at 50% 34%, var(--felt-golden-1), var(--felt-golden-2));
+  background-color: color-mix(in srgb, var(--felt-golden-1) 45%, var(--felt-golden-2));
 }
 .wheel-stage[data-golden]::after {
   content: "";
@@ -197,16 +208,16 @@
 }
 /* Roue dorée : l'or sur le noir. */
 .wheel-stage[data-golden] .wheel-slice-a path {
-  fill: #0a1f10;
+  fill: var(--felt-golden-slice);
 }
 /*
   Au gain : un voile sur toute la roue, et la part gagnante redessinée seule
   par-dessus (.wheel-lit) — elle grossit, son cercle d'or pulse. Rien que des
   opacités et des transformations sur des calques à part : la roue entière ne
-  se repeint pas au plus fort de la fête. Verte, la gagnante s'éclaircit.
+  se repeint pas au plus fort de la fête. Sombre, la gagnante s'éclaircit.
 */
 .wheel-dim {
-  background: #021a0c;
+  background: var(--felt-dim);
   opacity: 0;
   animation: wheel-dim 0.3s ease-out 0.1s forwards;
 }
@@ -214,7 +225,7 @@
   animation: wheel-lit-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.12s both;
 }
 .wheel-lit .wheel-slice-a path {
-  fill: #23944b;
+  fill: var(--felt-lit);
 }
 .wheel-lit-outline {
   animation:
