@@ -1,4 +1,4 @@
-export const clientTypes = ["Architecte / maître d'œuvre", "Entreprise de rénovation", "Collectivité / copropriété", "Particulier", "Autre"] as const;
+export const clientTypes = ["Architecte / maître d'œuvre", "Entreprise de rénovation", "Entreprise de construction", "Particulier", "Autre"] as const;
 
 export const projectTypes = [
   "Charpente",

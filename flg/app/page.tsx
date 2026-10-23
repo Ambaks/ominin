@@ -15,7 +15,7 @@ import {
   featured,
   navCta,
   navLinks,
-  proofs,
+  procede,
   steps,
   surfaces,
   zone,
@@ -69,9 +69,9 @@ export default function Home() {
               <RiseText as="h1" onView={false} delay={0.15} text="La matière *révélée.*" className="display display-xl" />
               <Reveal delay={0.7}>
                 <p className="lead mt-10 max-w-xl text-fg/80">
-                  Décapage de grandes surfaces — charpentes, plafonds, façades, escaliers, poutres, sols — en bois,
-                  métal, pierre et tomette. Nous travaillons pour les particuliers, mais aussi pour les architectes, des
-                  entreprises de rénovation, des entreprises de BTP.
+                  Conscient de l&apos;importance du renouvelable et du respect de l&apos;environnement, l&apos;aérogommage
+                  s&apos;inscrit dans une action durable. Nous travaillons pour les particuliers, mais aussi pour les
+                  architectes, des entreprises de rénovation, des entreprises de construction.
                 </p>
                 <div className="mt-12 flex flex-wrap items-center gap-4">
                   <Button href="#devis">Demander un devis</Button>
@@ -100,24 +100,15 @@ export default function Home() {
           <Marquee items={surfaces} />
         </div>
 
-        <section aria-label="Le procédé en bref" className="shell py-[var(--section)]">
-          <div className="grid gap-px bg-line md:grid-cols-2">
-            {proofs.map((p, i) => (
-              <Reveal
-                key={p.label}
-                delay={i * 0.08}
-                className="grid h-full grid-cols-[9rem_1fr] items-baseline gap-6 bg-bg py-6 md:flex md:flex-col md:gap-8 md:p-8 md:pb-10"
-              >
-                <p className="display display-m tabular whitespace-nowrap md:display-l">
-                  {p.value}
-                  {p.unit && <span className="label ml-3 block align-middle text-muted md:inline">{p.unit}</span>}
-                </p>
-                <div>
-                  <h2 className="label text-accent-text">{p.label}</h2>
-                  <p className="mt-3 text-muted">{p.body}</p>
-                </div>
-              </Reveal>
-            ))}
+        <section className="shell py-[var(--section)]">
+          <div className="grid gap-y-10 border-t border-line pt-8 md:grid-cols-12 md:gap-x-6 md:gap-y-16">
+            <p className="label text-accent-text md:col-span-2">Le procédé</p>
+            <RiseText text="Qu'est-ce que *l'aérogommage ?*" className="display display-l md:col-span-10" />
+            <Reveal className="md:col-span-10 md:col-start-3">
+              <p className="lead text-muted lg:columns-2 lg:gap-12">
+                <span className="text-fg">{procede.lede}</span> {procede.body}
+              </p>
+            </Reveal>
           </div>
         </section>
 
@@ -167,7 +158,7 @@ export default function Home() {
           <div className="shell">
             <SectionHead
               n="02"
-              title="Une méthode, *cinq étapes.*"
+              title="Un chantier, *cinq étapes.*"
             />
             <div className="grid gap-16 md:grid-cols-12">
               <div className="md:col-span-5">
@@ -211,7 +202,7 @@ export default function Home() {
           <div className="shell">
             <SectionHead
               n="03"
-              title="Tous les supports, *un seul geste.*"
+              title="Tous supports, *une méthode.*"
             />
             <div className="grid gap-px bg-line md:grid-cols-3">
               {applications.map((a, i) => (
@@ -249,9 +240,8 @@ export default function Home() {
               />
               <ul className="border-t border-line md:col-span-6 md:col-start-7">
                 {audiences.map((a) => (
-                  <Reveal as="li" key={a.title} className="border-b border-line py-8">
-                    <h3 className="display display-s">{a.title}</h3>
-                    <p className="mt-3 max-w-lg text-muted">{a.body}</p>
+                  <Reveal as="li" key={a} className="border-b border-line py-8">
+                    <h3 className="display display-m">{a}</h3>
                   </Reveal>
                 ))}
               </ul>
@@ -325,7 +315,7 @@ export default function Home() {
                 .
               </p>
               <p className="mt-6">
-                <a href={`mailto:${contact.email}`} className="text-fg underline decoration-accent underline-offset-4">
+                <a href={`mailto:${contact.email}`} className="display display-s text-fg underline decoration-accent underline-offset-4">
                   {contact.email}
                 </a>
               </p>
@@ -344,8 +334,8 @@ export default function Home() {
             <nav aria-label="Pied de page">
               <ul className="flex flex-wrap gap-x-8 gap-y-3">
                 <li>
-                  <a href="/cgv" className="text-muted transition-colors hover:text-fg">
-                    Conditions générales de vente
+                  <a href="/mentions-legales" className="text-muted transition-colors hover:text-fg">
+                    Mentions légales
                   </a>
                 </li>
                 <li>
