@@ -141,3 +141,16 @@ export function addVerb(item: MenuItem): "Composer" | "Choisir" | "Ajouter" {
 export function formatPrice(price: number): string {
   return `${price.toFixed(2).replace(".", ",")}\u00a0€`;
 }
+
+/** Les prix de tous les formats sur une ligne, « Verre 7,00 € · Bouteille 28,00 € » ; insécables, un format ne se sépare ni de son unité ni de son prix. */
+export const formatsLine = (prices: readonly (readonly [label: string, price: number])[]) =>
+  prices.map(([label, price]) => `${label} ${formatPrice(price)}`.replace(/ /g, "\u00a0")).join(" · ");
+
+/**
+ * La ligne des formats d'un article de la base, qui n'en porte pas (le
+ * registre l'écrit à la main, `tarifs`) : relue sur le prix du moment.
+ */
+export const itemFormatsLine = (item: MenuItem) => {
+  const formats = item.options?.find((group) => group.formats);
+  return formats && formatsLine(formats.choices.map((choice) => [choice.name, item.price + choice.supplement]));
+};

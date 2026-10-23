@@ -1180,6 +1180,7 @@ async function replaceTargets(
         rule_id: ruleId,
         category_id: target.kind === "category" ? target.id : null,
         item_id: target.kind === "item" ? target.id : null,
+        choice_id: target.kind === "item" ? (target.choiceId ?? null) : null,
       }))
     )
   );

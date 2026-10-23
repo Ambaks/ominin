@@ -3505,16 +3505,19 @@ export type Database = {
       price_rule_targets: {
         Row: {
           category_id: string | null
+          choice_id: string | null
           item_id: string | null
           rule_id: string
         }
         Insert: {
           category_id?: string | null
+          choice_id?: string | null
           item_id?: string | null
           rule_id: string
         }
         Update: {
           category_id?: string | null
+          choice_id?: string | null
           item_id?: string | null
           rule_id?: string
         }
@@ -6372,6 +6375,7 @@ export type Database = {
       tarifs_actifs: {
         Args: { p_at?: string; p_etablissement: string }
         Returns: {
+          choice_id: string | null
           item_id: string
           price: number
           rule_name: string

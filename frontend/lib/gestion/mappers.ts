@@ -198,9 +198,10 @@ export function rowToOrder(row: OrderRow): Order {
 const rowToTarget = (target: {
   category_id: string | null;
   item_id: string | null;
+  choice_id?: string | null;
 }): MenuTarget =>
   target.item_id
-    ? { kind: "item", id: target.item_id }
+    ? { kind: "item", id: target.item_id, ...(target.choice_id && { choiceId: target.choice_id }) }
     : { kind: "category", id: target.category_id as string };
 
 /**

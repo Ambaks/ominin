@@ -3,7 +3,7 @@ import type { Formule } from "@/lib/gestion/types";
 // Libellés, mise en forme et adresses de photos vivent dans lib/menu/format
 // et lib/menu/images : un module client les importe de là, sans tirer ce
 // registre dans son paquet.
-import { formatPrice } from "@/lib/menu/format";
+import { formatPrice, formatsLine } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
@@ -37,6 +37,8 @@ export interface OptionChoice {
   supplement: number;
   /** false : épuisé, grisé sur la carte et refusé à la commande. Absent : disponible. */
   disponible?: boolean;
+  /** Un tarif planifié vise ce format : `supplement` porte déjà son prix. */
+  tarif?: AppliedTarif;
 }
 
 /** Un choix se commande tant qu'il n'est pas marqué épuisé. */
@@ -3377,12 +3379,10 @@ const articleFormats = (
   { options = [], ...extra }: Partial<MenuItem> = {},
   groupe: readonly [id: string, name: string] | [] = []
 ): MenuItem => {
-  // Insécables : un format ne se sépare ni de son unité ni de son prix.
-  const tarifs = prix.map(([label, montant]) => `${label} ${formatPrice(montant)}`.replace(/ /g, "\u00a0")).join(" · ");
   return {
     id,
     name,
-    tarifs,
+    tarifs: formatsLine(prix),
     price: prix[0][1],
     options: [groupeFormats(prix, ...groupe), ...options],
     ...extra,

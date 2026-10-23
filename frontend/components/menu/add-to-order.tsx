@@ -56,6 +56,7 @@ export function ChoiceRow({
   onChange,
   supplement = 0,
   price,
+  wasPrice,
   describedBy,
   invalid,
   soldOut,
@@ -68,6 +69,8 @@ export function ChoiceRow({
   supplement?: number;
   /** Prix entier du format choisi, affiché à la place du supplément. */
   price?: number;
+  /** Prix du format hors tarif planifié, barré à côté de `price`. */
+  wasPrice?: number;
   describedBy?: string;
   /** Le groupe obligatoire est resté vide après l'appui sur un bouton incomplet. */
   invalid?: boolean;
@@ -97,7 +100,12 @@ export function ChoiceRow({
       {soldOut ? (
         <span className="text-muted">Épuisé</span>
       ) : price !== undefined ? (
-        <span className="text-muted">{formatPrice(price)}</span>
+        <span className="text-muted">
+          {wasPrice !== undefined && wasPrice > price && (
+            <span className="mr-1.5 text-faint line-through">{formatPrice(wasPrice)}</span>
+          )}
+          {formatPrice(price)}
+        </span>
       ) : (
         supplement > 0 && <span className="text-muted">+{formatPrice(supplement)}</span>
       )}
@@ -146,6 +154,7 @@ export function GroupChoices({
           onChange={() => onToggle(choice.id)}
           supplement={choice.supplement}
           price={formatPrices ? basePrice + choice.supplement : undefined}
+          wasPrice={formatPrices ? choice.tarif?.basePrice : undefined}
           invalid={invalid}
           soldOut={!isChoiceAvailable(choice)}
         >
@@ -648,7 +657,7 @@ export function OptionsModal({
       noticeHours: item.noticeHours,
       reward,
     });
-    for (const { item: other } of pickedPairings) addLine(plainLine(other, "fiche"));
+    for (const { item: other, choices } of pickedPairings) addLine(plainLine(other, "fiche", choices));
     track("panier");
     onAdded();
     close();

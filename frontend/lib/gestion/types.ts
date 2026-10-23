@@ -348,7 +348,8 @@ export type PriceRuleUnit = "montant" | "pourcentage";
  */
 export type MenuTarget =
   | { kind: "category"; id: string }
-  | { kind: "item"; id: string };
+  /** `choiceId` : un seul format de l'article (tarifs seulement), le verre et pas la bouteille. */
+  | { kind: "item"; id: string; choiceId?: string };
 
 /**
  * Un tarif planifié : un écart de prix qui revient chaque semaine, les jours
