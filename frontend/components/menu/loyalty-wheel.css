@@ -90,6 +90,11 @@
   background: var(--cp-mosaic) top / 0.4rem 0.4rem repeat-x;
   opacity: 0.85;
 }
+/* Le rouge du tapis du Victoria : celui de ses aplats, pas le rouge éclairci du texte. */
+.theme-le-victoria .wheel-stage {
+  --felt-1: color-mix(in srgb, var(--vc-red) 78%, #000);
+  --felt-2: color-mix(in srgb, var(--vc-red) 22%, #000);
+}
 .wheel-kicker,
 .wheel-strong {
   color: var(--gold-1);

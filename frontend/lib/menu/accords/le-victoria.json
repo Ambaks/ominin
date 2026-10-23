@@ -1,0 +1,56 @@
+{
+  "Cuba Libre": [
+    {
+      "with": "Mini saucissons",
+      "why": "Le sucre du cola répond au sel du saucisson."
+    }
+  ],
+  "Corona": [
+    {
+      "with": "Stick mozzarella",
+      "why": "Les bulles de la Corona coupent la mozzarella."
+    }
+  ],
+  "Pizza regina tomate": [
+    {
+      "with": "Merlot",
+      "why": "Le merlot épouse la tomate et le jambon."
+    }
+  ],
+  "Pizza chèvre miel": [
+    {
+      "with": "Joy",
+      "why": "Le blanc doux fait écho au miel du chèvre."
+    }
+  ],
+  "Pizza au poulet": [
+    {
+      "with": "Chardonnay",
+      "why": "Le chardonnay tranche la crème fraîche."
+    }
+  ],
+  "Pizza spezzial": [
+    {
+      "with": "Pic Saint Loup Bio",
+      "why": "Le Pic Saint Loup rouge tient tête au jambon cru."
+    }
+  ],
+  "Pizza salmone": [
+    {
+      "with": "Picpoul de Pinet",
+      "why": "Le picpoul blanc rafraîchit la crème et le saumon fumé."
+    }
+  ],
+  "Hamburger Le Chicken avec frite maison": [
+    {
+      "with": "Kronenbourg",
+      "why": "Les bulles de la Kronenbourg tranchent le pané."
+    }
+  ],
+  "Le classique avec frite maison": [
+    {
+      "with": "Heineken",
+      "why": "Le houblon de la Heineken coupe le cheddar."
+    }
+  ]
+}
