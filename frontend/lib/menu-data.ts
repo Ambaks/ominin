@@ -12,6 +12,7 @@ import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
 import leVictoriaAccords from "@/lib/menu/accords/le-victoria.json";
 import cafeDesArtsAccords from "@/lib/menu/accords/cafe-des-arts.json";
+import brasserieLaissacAccords from "@/lib/menu/accords/brasserie-laissac.json";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -6600,6 +6601,79 @@ const brasserieLaissac: Restaurant = {
     // La bio Instagram : « 1 salle, climatisé ».
     { text: "Salle climatisée" },
   ],
+  pairings: brasserieLaissacAccords,
+  loyaltyWheel: roueDuJour,
+  // Les paliers de Caffè Panis (1 € = 1 point), sur la carte de la brasserie.
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "pinte-virgin",
+        label: "1 pinte ou 1 virgin offert",
+        points: 50,
+        items: ["pinte-blonde", "pinte-monaco", "virgin-mojito", "virgin-colada"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert offert",
+        points: 100,
+        items: [
+          "tiramisu",
+          "tarte-tatin",
+          "tarte-citron",
+          "moelleux",
+          "dame-blanche",
+          "cafe-liegeois",
+          "chocolat-liegeois",
+        ],
+      },
+      {
+        id: "planche",
+        label: "1 planche offerte",
+        points: 150,
+        items: ["planche-charcuterie", "planche-fromages"],
+      },
+      {
+        id: "pizza-burger",
+        label: "1 pizza ou burger offert(e)",
+        points: 250,
+        items: [
+          "cheese-burger",
+          "original-burger",
+          "burger-chevre-miel",
+          "rosti-burger",
+          "savoyard",
+          "vegetarien",
+          "chicken",
+          "chicken-avocado",
+          "california-beef",
+          "fish-burger",
+          "chicken-beef",
+          "margherita",
+          "regina",
+          "pizza-chevre-miel",
+          "speziale",
+          "vegetarienne",
+          "pizza-poulet",
+          "pizza-saumon",
+          "quatre-fromaggi",
+        ],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Hugo",
+      history: [
+        { kind: "gain", points: 9, table: 5, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 6, table: 2, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 18, table: 8, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 24, table: 3, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       // L'ardoise du comptoir : « Formule midi à ne pas rater ». Les plats du
