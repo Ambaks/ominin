@@ -295,8 +295,17 @@ export function CategoryRail({
                 <li
                   key={id}
                   data-rail-item={id}
+                  // Ouvert, la liste se centre en hauteur (marges automatiques
+                  // de la première et de la dernière ligne, qui s'effacent
+                  // quand elle déborde et défile).
                   className={`relative px-1 transition-opacity duration-300 motion-reduce:transition-none ${
-                    open || distance === 0 ? "" : distance === 1 ? "opacity-40" : "invisible opacity-0"
+                    open
+                      ? `${index === 0 ? "mt-auto" : ""} ${index === categories.length - 1 ? "mb-auto" : ""}`
+                      : distance === 0
+                        ? ""
+                        : distance === 1
+                          ? "opacity-40"
+                          : "invisible opacity-0"
                   }`}
                 >
                   <SectionLink
