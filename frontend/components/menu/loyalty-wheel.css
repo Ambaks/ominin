@@ -50,6 +50,15 @@
   --felt-golden-2: #020c05;
   --felt-golden-slice: #0a1f10;
 }
+/* L'or du Novelty sur un tapis de laque noire : sur un tapis or, le cadre doré se perdait. */
+.theme-le-novelty .wheel-stage {
+  --felt-1: #211d14;
+  --felt-2: #050505;
+  /* Sur ce noir, la salle d'un jour de roue dorée tire vers l'or pour se distinguer d'un jour ordinaire. */
+  --felt-golden-1: #3d2e0e;
+  --felt-golden-2: #0d0904;
+  --felt-golden-slice: #1a1306;
+}
 /* Jour de roue dorée : la salle passe à l'or, des éclats scintillent. */
 .wheel-stage[data-golden] {
   background:

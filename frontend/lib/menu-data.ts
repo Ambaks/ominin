@@ -9,6 +9,7 @@ import type { PairingNotes } from "@/lib/menu/pairings";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
+import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -3544,6 +3545,66 @@ const leNovelty: Restaurant = {
     { text: "Café du matin à 1\u00a0€ de 9h à 12h", tone: "brand" },
     { text: "Formule Goûter 5\u00a0€ tous les jours" },
   ],
+  pairings: leNoveltyAccords,
+  loyaltyWheel: roueDuJour,
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café ou soft offert",
+        points: 50,
+        items: ["cafe", "noisette", "cappuccino", "fuzetea"],
+      },
+      {
+        id: "tapas",
+        label: "1 tapas offerte",
+        points: 100,
+        items: [
+          "sticks-mozzarella",
+          "patatas-bravas",
+          "beignets-calamars",
+          "accras-morue",
+          "croquetas-chorizo",
+          "wings-poulet",
+          "oignons-rings",
+        ],
+      },
+      {
+        id: "cocktail",
+        label: "1 cocktail offert",
+        points: 150,
+        items: [
+          "mojito",
+          "cuba-libre",
+          "ti-punch",
+          "caipirinha",
+          "gin-tonic",
+          "planteur",
+          "spritz",
+        ],
+      },
+      {
+        id: "planche",
+        label: "1 planche offerte",
+        points: 250,
+        items: ["planche-mixte", "planche-charcuterie", "planche-fromages"],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Camille",
+      history: [
+        { kind: "gain", points: 2, table: 4, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 4, table: 9, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 17, table: 3, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 22, table: 7, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       id: "cocktails",
