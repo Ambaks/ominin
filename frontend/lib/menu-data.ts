@@ -9,6 +9,7 @@ import type { PairingNotes } from "@/lib/menu/pairings";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
+import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -3391,6 +3392,21 @@ const articleFormats = (
 
 const ALCOOL = { vatRate: 20 } as const;
 
+/** La roue du jour de Caffè Panis, reprise telle quelle par les aperçus de l'Écusson. */
+const roueDuJour: LoyaltyWheelConfig = {
+  // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
+  slices: [
+    { points: 5, weight: 32 },
+    { points: 10, weight: 26 },
+    { points: 15, weight: 20 },
+    { points: 20, weight: 12 },
+    { points: 30, weight: 6 },
+    { points: 50, weight: 4 },
+  ],
+  // Provisoire, à valider : le 7e jour d'affilée, les points du tour doublent.
+  golden: { every: 7, multiplier: 2 },
+};
+
 /*
  * Le Novelty — 10 rue Saint-Guilhem. Toute la carte vient de leur site
  * (lenovelty-montpellier.fr, ouvert le 14 octobre 2026) : les onglets
@@ -3529,6 +3545,66 @@ const leNovelty: Restaurant = {
     { text: "Café du matin à 1\u00a0€ de 9h à 12h", tone: "brand" },
     { text: "Formule Goûter 5\u00a0€ tous les jours" },
   ],
+  pairings: leNoveltyAccords,
+  loyaltyWheel: roueDuJour,
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café ou soft offert",
+        points: 50,
+        items: ["cafe", "noisette", "cappuccino", "fuzetea"],
+      },
+      {
+        id: "tapas",
+        label: "1 tapas offerte",
+        points: 100,
+        items: [
+          "sticks-mozzarella",
+          "patatas-bravas",
+          "beignets-calamars",
+          "accras-morue",
+          "croquetas-chorizo",
+          "wings-poulet",
+          "oignons-rings",
+        ],
+      },
+      {
+        id: "cocktail",
+        label: "1 cocktail offert",
+        points: 150,
+        items: [
+          "mojito",
+          "cuba-libre",
+          "ti-punch",
+          "caipirinha",
+          "gin-tonic",
+          "planteur",
+          "spritz",
+        ],
+      },
+      {
+        id: "planche",
+        label: "1 planche offerte",
+        points: 250,
+        items: ["planche-mixte", "planche-charcuterie", "planche-fromages"],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Camille",
+      history: [
+        { kind: "gain", points: 2, table: 4, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 4, table: 9, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 17, table: 3, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 22, table: 7, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       id: "cocktails",
@@ -5629,19 +5705,7 @@ const caffePanis: Restaurant = {
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.
   loyaltyMotif: "fanions",
-  // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
-  loyaltyWheel: {
-    slices: [
-      { points: 5, weight: 32 },
-      { points: 10, weight: 26 },
-      { points: 15, weight: 20 },
-      { points: 20, weight: 12 },
-      { points: 30, weight: 6 },
-      { points: 50, weight: 4 },
-    ],
-    // Provisoire, à valider : le 7e jour d'affilée, les points du tour doublent.
-    golden: { every: 7, multiplier: 2 },
-  },
+  loyaltyWheel: roueDuJour,
   // Les paliers de sa fidélité en production (1 € = 1 point).
   demoLoyalty: {
     pointsPerEuro: 1,
