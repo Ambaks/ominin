@@ -14184,6 +14184,64 @@ html:has(.groupe-dialog:modal) {
 }
 
 /*
+  Fidélité de Café Riche : la carte au bleu de l'auvent, l'encre crème, un
+  filet de laiton ; les lanternes s'allument au laiton du logo.
+*/
+.theme-cafe-riche .loyalty-card {
+  color: var(--cr-creme);
+  box-shadow:
+    0 22px 44px -20px color-mix(in srgb, var(--cr-bleu-profond) 60%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--cr-laiton-clair) 45%, transparent);
+}
+/* Un filet de laiton en retrait, comme le cadre du logo sur leur carte. */
+.theme-cafe-riche .loyalty-card::after {
+  content: "";
+  position: absolute;
+  inset: 0.5rem;
+  border: 1px solid color-mix(in srgb, var(--cr-laiton-clair) 80%, transparent);
+  border-radius: 12px;
+  pointer-events: none;
+}
+.theme-cafe-riche .loyalty-card-bg {
+  background:
+    radial-gradient(80% 70% at 90% 105%, color-mix(in srgb, var(--cr-laiton) 30%, transparent), transparent 60%),
+    radial-gradient(60% 50% at 0% 0%, rgba(255, 255, 255, 0.08), transparent 70%),
+    linear-gradient(158deg, var(--cr-bleu) 0%, var(--cr-bleu-profond) 100%);
+}
+/*
+  Le « CAFÉ » noir du logo disparaît sur le bleu : le mot-symbole passe en
+  laiton uni, comme les lettres de l'auvent (le filtre tombe sur
+  --cr-laiton-clair).
+*/
+.theme-cafe-riche .loyalty-card img:not(.loyalty-card-logo) {
+  filter: brightness(0) invert(64%) sepia(40%) saturate(3) hue-rotate(5deg);
+}
+/* Éteintes, les lanternes gardent un trait de bleu ; allumées, le laiton du logo. */
+.theme-cafe-riche .loyalty-garland :is(.glass, .shade) {
+  stroke: color-mix(in srgb, var(--cr-bleu) 40%, transparent);
+}
+.theme-cafe-riche .loyalty-garland .bulb.on .glass,
+.theme-cafe-riche .loyalty-garland .lantern.on .shade {
+  fill: var(--cr-laiton-clair);
+  stroke: var(--cr-laiton);
+}
+.theme-cafe-riche .loyalty-garland .lantern.on .weave {
+  stroke: color-mix(in srgb, var(--cr-laiton-sombre) 70%, transparent);
+}
+.theme-cafe-riche .loyalty-garland .halo {
+  fill: var(--cr-laiton-clair);
+}
+.theme-cafe-riche .loyalty-garland .lantern.on .halo {
+  opacity: 0.7;
+}
+.theme-cafe-riche .loyalty-garland .lantern.on text {
+  fill: var(--cr-laiton-sombre);
+}
+.theme-cafe-riche .loyalty-garland .spark {
+  fill: var(--cr-laiton-clair);
+}
+
+/*
   Rail ou roue des catégories (CategoryRail, CategoryWheel), quand
   l'établissement le choisit. Plus de barre collée en haut : une ancre
   s'arrête près du bord, plus sous une réserve qui n'existe plus. En
