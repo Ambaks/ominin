@@ -59,6 +59,15 @@
   --felt-golden-2: #0d0904;
   --felt-golden-slice: #1a1306;
 }
+/* Le noir de la salle et son gris clair sous des parts magenta : un tapis bordeaux sortait de l'enseigne. */
+.theme-cafe-des-arts .wheel-stage {
+  --felt-2: #12000a;
+  --ivory: #ececec;
+  background:
+    radial-gradient(60% 34% at 50% 50%, rgba(230, 0, 126, 0.16), transparent 70%),
+    radial-gradient(130% 90% at 50% 34%, var(--felt-2), #000);
+  background-color: color-mix(in srgb, var(--felt-2) 45%, #000);
+}
 /* Jour de roue dorée : la salle passe à l'or, des éclats scintillent. */
 .wheel-stage[data-golden] {
   background:

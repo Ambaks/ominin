@@ -14111,6 +14111,24 @@ html:has(.groupe-dialog:modal) {
   }
 }
 
+/* Café des Arts : le magenta en coin assez sombre pour les mentions blanches de la carte,
+   le mot-symbole en blanc et plus grand pour que sa moitié magenta ne s'y fonde pas. */
+.theme-cafe-des-arts .loyalty-card-bg {
+  background:
+    radial-gradient(90% 80% at 92% 108%, color-mix(in srgb, var(--ca-magenta) 30%, transparent), transparent 60%),
+    radial-gradient(70% 60% at 10% -10%, color-mix(in srgb, var(--ca-magenta) 30%, transparent), transparent 70%),
+    linear-gradient(
+      158deg,
+      color-mix(in srgb, #000 92%, var(--ca-magenta)) 0%,
+      color-mix(in srgb, #000 62%, var(--ca-magenta)) 40%,
+      color-mix(in srgb, var(--ca-magenta) 62%, #000) 100%
+    );
+}
+.theme-cafe-des-arts .loyalty-card img {
+  height: 2.75rem;
+  filter: brightness(0) invert(1);
+}
+
 /*
   Fidélité de Caffè Panis : la carte en vert bouteille à l'encre ivoire, le
   mot-symbole en tête, le damier de la salle à son pied ; la guirlande en

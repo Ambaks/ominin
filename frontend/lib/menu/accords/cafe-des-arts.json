@@ -1,0 +1,194 @@
+{
+  "Paulaner": [
+    {
+      "with": "Terrine de porc maison servie avec ses toasts grillés",
+      "why": "La fraîcheur de la blonde relance le porc de la terrine."
+    }
+  ],
+  "Prosecco Ponte Villoni": [
+    {
+      "with": "Carpaccio de bresaola et ses copeaux de grana padano",
+      "why": "Les bulles du prosecco coupent le grana padano."
+    }
+  ],
+  "Sangria blanche & rouge Maison": [
+    {
+      "with": "Bruschetta Catalane",
+      "why": "Le fruit de la sangria adoucit le jambon cru."
+    }
+  ],
+  "Fiero Spritz": [
+    {
+      "with": "Napolitaine",
+      "why": "Les bulles du spritz tiennent tête aux anchois."
+    }
+  ],
+  "Saint-Germain cocktail": [
+    {
+      "with": "Bruschetta Chèvre miel",
+      "why": "Les bulles du cocktail allègent la crème et le chèvre."
+    }
+  ],
+  "Mojito": [
+    {
+      "with": "Carpaccio de bresaola et ses copeaux de grana padano",
+      "why": "Le citron vert du mojito tranche le sel de la bresaola."
+    }
+  ],
+  "Piña Colada": [
+    {
+      "with": "Toscana",
+      "why": "L'ananas de la colada adoucit le chorizo et les lardons."
+    }
+  ],
+  "Moscow Mule": [
+    {
+      "with": "Tataki de bœuf aux graines de sésame",
+      "why": "Le gingembre du mule fait ressortir le sésame du tataki."
+    }
+  ],
+  "Gin Fizz": [
+    {
+      "with": "Bruschetta Saumon",
+      "why": "Le citron et l'eau gazeuse coupent la crème ciboulette."
+    }
+  ],
+  "Sex on the beach": [
+    {
+      "with": "Calabrese",
+      "why": "La pêche du cocktail tempère le jambon cru et le parmesan."
+    }
+  ],
+  "Cold and Dark Martini": [
+    {
+      "with": "Moelleux au chocolat, cœur caramel et sa crème anglaise",
+      "why": "Le café du cocktail prolonge le chocolat du moelleux."
+    }
+  ],
+  "Domaine Boissezon Guiraud · Saint Chinian AOP": [
+    {
+      "with": "Toscana",
+      "why": "Le rouge de Saint-Chinian répond à la tomate et au chorizo."
+    }
+  ],
+  "Terre des Galets · Côtes du Rhône AOP": [
+    {
+      "with": "Reine",
+      "why": "Le côtes-du-rhône rouge épouse la sauce tomate."
+    }
+  ],
+  "Domaine de la Rouvière · Côtes de Provence AOP": [
+    {
+      "with": "Napolitaine",
+      "why": "Le rosé de Provence, bien frais, relève les anchois."
+    }
+  ],
+  "Duc de Morny · Picpoul De Pinet AOP": [
+    {
+      "with": "Seiches à la sétoise, riz camarguais",
+      "why": "Le picpoul de Pinet est le blanc des plats sétois."
+    }
+  ],
+  "Domaine de la Baume · Sauvignon IGP": [
+    {
+      "with": "Salade de chèvre chaud AOP Pélardon et son lard grillé",
+      "why": "Le sauvignon blanc relève le pélardon chaud."
+    }
+  ],
+  "Domaine des Garrigues · Chardonnay VDP d'Oc": [
+    {
+      "with": "Norvégienne",
+      "why": "Le chardonnay épouse la crème et le saumon fumé."
+    }
+  ],
+  "Reine": [
+    {
+      "with": "Fiero Spritz",
+      "why": "Les bulles du spritz tranchent la mozzarella et le jambon."
+    }
+  ],
+  "Calabrese": [
+    {
+      "with": "Coupe de champagne",
+      "why": "Le sel du Serrano appelle les bulles de la coupe."
+    }
+  ],
+  "La Tartufata": [
+    {
+      "with": "Coupe de champagne",
+      "why": "Les bulles du champagne coupent la crème à la truffe."
+    }
+  ],
+  "Indienne": [
+    {
+      "with": "Moscow Mule",
+      "why": "Le citron vert du mule coupe la crème au curry."
+    }
+  ],
+  "Filet de Saint Pierre grillé, beurre blanc, fondue de poireaux": [
+    {
+      "with": "Coupe de champagne",
+      "why": "Les bulles du champagne réveillent le beurre blanc."
+    }
+  ],
+  "Mac and cheese et son jambon à la truffe": [
+    {
+      "with": "Prosecco Ponte Villoni",
+      "why": "La crème truffée appelle les bulles du prosecco."
+    }
+  ],
+  "Escalopes de foie gras poêlées, compotée d’oignons et sa brioche maison aux figues": [
+    {
+      "with": "Muscat",
+      "why": "La douceur du muscat prolonge la figue et le foie poêlé."
+    }
+  ],
+  "Assiette de fromages": [
+    {
+      "with": "Porto Rouge",
+      "why": "La douceur du porto tient tête aux fromages."
+    }
+  ],
+  "Moelleux au chocolat, cœur caramel et sa crème anglaise": [
+    {
+      "with": "Café",
+      "why": "L'amertume du café répond au cœur caramel."
+    }
+  ],
+  "Crème brûlée": [
+    {
+      "with": "Double Café",
+      "why": "L'amertume du café tient tête au sucre brûlé."
+    }
+  ],
+  "Chocolat Liégeois": [
+    {
+      "with": "Café",
+      "why": "Un café amer tranche le sucre du chocolat."
+    }
+  ],
+  "Dame Blanche": [
+    {
+      "with": "Double Café",
+      "why": "L'amertume du café tranche la vanille et la chantilly."
+    }
+  ],
+  "Café allongé": [
+    {
+      "with": "Calvados Château du Breuil",
+      "why": "Le café-calva : la pomme du calvados dans le café."
+    }
+  ],
+  "Burger Aveyronnais au roquefort et bacon « bœuf Charolais » servi avec ses frites maison et salade": [
+    {
+      "with": "Porto Rouge",
+      "why": "Le porto tempère le roquefort et le bacon."
+    }
+  ],
+  "Profiteroles maison au chocolat": [
+    {
+      "with": "Décaféiné",
+      "why": "Le décaféiné, amer, contrebalance le sucre du chocolat."
+    }
+  ]
+}
