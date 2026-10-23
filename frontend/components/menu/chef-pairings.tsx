@@ -16,7 +16,7 @@ export function ChefTag() {
   return (
     <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-ember-1">
       <Spark />
-      L&apos;accord du chef
+      Le combo parfait
       <span className="ml-auto text-[10px] font-semibold tracking-[0.08em] text-muted">IA</span>
     </p>
   );
@@ -81,7 +81,7 @@ export function SheetPairings({
   onToggle: (itemId: string) => void;
 }) {
   return (
-    <section aria-label="L'accord du chef" className={`sheet-pairings ${chefCard} p-3`}>
+    <section aria-label="Le combo parfait" className={`sheet-pairings ${chefCard} p-3`}>
       <ChefTag />
       <ul className="flex flex-col gap-2.5">
         {pairings.map(({ item, why }) => {
