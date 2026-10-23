@@ -10,6 +10,7 @@ import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/li
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
+import leVictoriaAccords from "@/lib/menu/accords/le-victoria.json";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -4081,6 +4082,84 @@ const leVictoria: Restaurant = {
     { text: "Le midi, deux plats du jour au choix à partir de 9,90\u00a0€, à demander au serveur", tone: "brand" },
     { text: "Girafes de bière ou de cocktail de 3 à 5\u00a0L pour les groupes, sur demande" },
   ],
+  // Accords de l'aperçu, à revoir avec le gérant ; sans café à la carte, les desserts n'en ont pas.
+  pairings: leVictoriaAccords,
+  loyaltyWheel: roueDuJour,
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "soft-biere",
+        label: "1 soft ou bière offerte",
+        points: 50,
+        items: [
+          "coca-cola",
+          "fuze-tea",
+          "1664-sans-alcool",
+          "heineken",
+          "kronenbourg",
+          "monaco",
+        ],
+      },
+      {
+        id: "dessert-tapas",
+        label: "1 dessert ou tapas offert",
+        points: 100,
+        items: [
+          "tarte-citron",
+          "tarte-tatin",
+          "moelleux-chocolat",
+          "frite-maison",
+          "wings",
+          "croquetas-chorizo",
+          "stick-mozzarella",
+          "patatas-bravas",
+          "mini-nems",
+          "mini-saucissons",
+          "mini-samossas",
+          "frites-patate-douce",
+          "fish-and-chips",
+        ],
+      },
+      {
+        id: "cocktail",
+        label: "1 cocktail offert",
+        points: 150,
+        items: ["mojito", "cuba-libre", "punch", "sangria", "planteur", "sex-on-the-beach"],
+      },
+      {
+        id: "pizza-tagliatelle",
+        label: "1 pizza ou tagliatelle offerte",
+        points: 250,
+        items: [
+          "margherita",
+          "vegetariana",
+          "4-formaggi",
+          "regina",
+          "chevre-miel",
+          "pizza-poulet",
+          "spezzial",
+          "salmone",
+          "bruschetta-chevre-miel",
+          "tagliatelles-curry",
+          "tagliatelles-bolognaise",
+        ],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Mathilde",
+      history: [
+        { kind: "gain", points: 8, table: 4, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 11, table: 2, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 12, table: 6, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 18, table: 3, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   // Le bar d'abord, comme le store (« Tapas Cocktail ») : tapas, cocktails,
   // bières, puis la cuisine ; les vins, à la bouteille, en fin de carte.
   categories: [
