@@ -68,6 +68,13 @@
     radial-gradient(130% 90% at 50% 34%, var(--felt-2), #000);
   background-color: color-mix(in srgb, var(--felt-2) 45%, #000);
 }
+.theme-brasserie-laissac .wheel-stage {
+  --felt-1: #2b2116;
+  --felt-2: #0b0a09;
+  --felt-golden-1: #3d2e0e;
+  --felt-golden-2: #0d0904;
+  --felt-golden-slice: #1a1306;
+}
 /* Jour de roue dorée : la salle passe à l'or, des éclats scintillent. */
 .wheel-stage[data-golden] {
   background:

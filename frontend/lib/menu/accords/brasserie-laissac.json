@@ -1,0 +1,29 @@
+{
+  "Fish & Chips": [
+    { "with": "Pinte Blonde", "why": "Une blonde fraîche, c'est la tradition du fish and chips." }
+  ],
+  "Mozzarella « Burrata », tomates & jambon Serrano": [
+    { "with": "Apérol Spritz", "why": "Les bulles du spritz tranchent la burrata." }
+  ],
+  "Original Burger Laissac": [
+    { "with": "Frites de patates douces", "why": "La patate douce fait écho aux oignons confits." }
+  ],
+  "Fish Burger": [
+    { "with": "Mojito", "why": "Le citron vert du mojito réveille le poisson pané." }
+  ],
+  "Burger Chèvre miel": [
+    { "with": "Apérol Spritz", "why": "L'amertume de l'Apérol équilibre le miel." }
+  ],
+  "Speziale": [
+    { "with": "Pinte Blonde", "why": "La fraîcheur de la blonde répond à la tomate." }
+  ],
+  "4 Fromaggi": [
+    { "with": "Verre Vin moelleux", "why": "La douceur du moelleux répond au roquefort." }
+  ],
+  "Apérol Spritz": [
+    { "with": "Planche de charcuterie", "why": "L'Apérol, amer, tranche la charcuterie." }
+  ],
+  "Verre Vin moelleux": [
+    { "with": "Camembert rôti", "why": "Le moelleux reprend la douceur des figues." }
+  ]
+}
