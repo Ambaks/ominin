@@ -204,7 +204,8 @@ export function Sheet({
     const panel = panelRef.current;
     if (!panel) return;
     countSheet(1);
-    if (!liquidRef.current) settled.current = getComputedStyle(panel).animationName === "none";
+    // Née de la pastille, la garde suit le liquide, ou la montée ordinaire s'il n'a pas démarré.
+    if (!growth) settled.current = getComputedStyle(panel).animationName === "none";
     const opener = document.activeElement as HTMLElement | null;
     const bodyOverflow = document.body.style.overflow;
     panel.focus();
@@ -395,7 +396,7 @@ export function Sheet({
         }
       }
     };
-  }, [sheetId]);
+  }, [sheetId, growth]);
 
   // Sans animation de sortie (CSS absent, liquide tombé), rien à attendre.
   useEffect(() => {

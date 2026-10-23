@@ -359,14 +359,16 @@ export function LoyaltyWelcome({
           motif={motif}
           origin={origin}
           onClose={() => {
-            setOrigin(null);
             setWheelOpen(false);
             setWheelDone(true);
             // « Ma carte » demandée : la carte s'ouvre, l'accueil n'a plus lieu d'être.
+            // Née de la pastille comme la roue, si la roue en venait.
             if (cardAfterWheel) {
               setCardAfterWheel(false);
               setProgress("pill");
               setOpen(true);
+            } else {
+              setOrigin(null);
             }
           }}
           onShowCard={() => setCardAfterWheel(true)}

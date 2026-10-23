@@ -36,31 +36,31 @@ export const LIQUID = {
    * amortissement (1 = sans rebond), départ après le toucher (s).
    */
   open: [
-    { freq: 10, damping: 0.8, delay: 0.04 },
-    { freq: 11, damping: 0.85, delay: 0.18 },
-    { freq: 13, damping: 0.85, delay: 0 },
-    { freq: 11, damping: 0.85, delay: 0 },
+    { freq: 11.5, damping: 0.8, delay: 0 },
+    { freq: 12.5, damping: 0.85, delay: 0.15 },
+    { freq: 15, damping: 0.85, delay: 0 },
+    { freq: 12.5, damping: 0.85, delay: 0 },
   ] satisfies Spring[],
-  /* À la fermeture, la forme part dès le toucher pendant que le contenu se trouble. */
+  /* À la fermeture, la forme part juste après le toucher, pendant que le contenu se trouble. */
   close: [
-    { freq: 15, damping: 0.9, delay: 0 },
-    { freq: 14, damping: 0.88, delay: 0.03 },
-    { freq: 15, damping: 0.9, delay: 0 },
-    { freq: 13.5, damping: 0.95, delay: 0.05 },
+    { freq: 15, damping: 0.9, delay: 0.03 },
+    { freq: 14, damping: 0.88, delay: 0.05 },
+    { freq: 15, damping: 0.9, delay: 0.03 },
+    { freq: 13.5, damping: 0.95, delay: 0.07 },
   ] satisfies Spring[],
   /*
    * Le liquide au repos, rentré sous les bords de la pastille (px) ; la
-   * goutte d'où il part et où il rentre, sous son centre bas (part de sa
-   * largeur, de sa hauteur).
+   * goutte d'où il part et où il rentre, au centre de la pastille (part de
+   * sa largeur, de sa hauteur).
    */
   pillInset: 3,
-  seed: [0.5, 0.5],
+  seed: [0.8, 0.5],
   /*
    * Pont entre la pastille et la feuille : portée du raccord (px) ; avancement
    * (0 → 1) où il se forme en sortant de la pastille, où il se résorbe en y
    * rentrant, où il lâche. Le liquide sous la pastille suit le pont.
    */
-  bridge: { reach: 56, form: [0, 0.08], drain: [0.03, 0.22], release: [0.55, 0.85] },
+  bridge: { reach: 56, form: [0, 0.08], drain: [0.03, 0.22], release: [0.62, 0.9] },
   /* Vitesse (px/s) à laquelle le bord d'attaque s'arrondit tout à fait en goutte. */
   tipSpeed: 1600,
   /*
@@ -74,7 +74,7 @@ export const LIQUID = {
    * fermeture, longueur d'onde (px), vitesse (px/s), durée de vie (s), portée
    * (px) où elles s'éteignent, irrégularité des cercles (px) et sa dérive.
    */
-  ripple: { slope: [0.32, 0.03], wavelength: 70, speed: 640, life: 0.7, reach: 420, jitter: 7, wander: 0.5 },
+  ripple: { slope: [0.22, 0.03], wavelength: 70, speed: 640, life: 0.7, reach: 300, jitter: 7, wander: 0.5 },
   /* Ménisque : largeur du bord bombé (px), pente au bord. */
   meniscus: { width: 16, slope: 2.8 },
   /*
@@ -90,16 +90,19 @@ export const LIQUID = {
    * Eau : Fresnel à l'incidence normale ; bord mince éclairci (liquide
    * sombre) ou ombré (liquide clair) ; liseré sombre (force, pentes où il
    * naît et culmine) ; reflets d'un liquide clair, qui sinon brûle au
-   * blanc ; tranche allumée ; transparence de la tranche (opacité au bord,
-   * largeur px).
+   * blanc ; tranche allumée du côté de la lampe (part tournée vers
+   * l'ombre, surcroît sur un liquide sombre, que le fond sombre avalerait) ;
+   * transparence de la tranche hors de la feuille (opacité au bord, largeur
+   * px, fondu px au bord de la feuille) ; teinte qui fonce vers le pied.
    */
   fresnel: 0.02,
   edgeLift: 0.3,
   edgeShade: 0.12,
   rim: { alpha: 0.16, slope: [0.25, 1] },
   lightSpec: 0.35,
-  rimLight: 0.28,
-  thin: { alpha: 0.55, width: 10 },
+  rimLight: { gain: 0.28, shade: 0.25, dark: 0.8 },
+  thin: { alpha: 0.55, width: 10, feather: 24 },
+  fall: 0.06,
   /* Épaisseur : part de teinte profonde au cœur. */
   absorb: 0.35,
   /* Reflet large qui balaie la face à l'ouverture : éclat, largeur (px), direction, durée (s). */
@@ -110,38 +113,41 @@ export const LIQUID = {
    * raideur, part tournée vers la lampe).
    */
   caustics: 1,
-  footLight: { gain: 0.35, offset: 3, width: 4 },
+  footLight: { gain: 0.15, offset: 3, width: 4 },
   shadow: { alpha: 0.35, reach: 18, falloff: 3, lit: 0.55 },
   /*
    * Le contenu perce derrière un front mouillé parti de la pastille :
    * avancement où il part, où il a tout découvert ; largeur du front (px) ;
    * éclat et largeur (px) de sa ligne.
    */
-  clear: [0.3, 0.88],
+  clear: [0.25, 0.8],
   front: { band: 160, gain: 0.18, width: 10 },
-  /* Le contenu monte de tant (px) jusqu'à sa place, à mesure qu'il perce. */
-  rise: 8,
   /* Fond assombri : fondu d'entrée, de sortie (ms). */
-  dim: { open: 460, close: 260 },
+  dim: { open: 460, close: 380 },
   /* Réponse (1/s) du front, du voile qui trouble le contenu à la fermeture, de la brillance, du pont. */
-  rates: { reveal: 12, cloud: 40, gloss: 8, bridge: 18 },
+  rates: { reveal: 16, cloud: 40, gloss: 8, bridge: 18 },
   /*
    * Repos : écart (px) et vitesse (px/s) sous lesquels un bord est posé ;
    * vitesse (px/s) sous laquelle la brillance s'éteint, découverte où elle
    * s'éteint ; seuils de brillance, d'ondulation (px), de pont (px) ; part
    * de l'avancement restant quand la feuille est rentrée.
    */
-  rest: { distance: 0.5, speed: 8, glossSpeed: 400, glossFrom: 0.85, gloss: 0.02, wobble: 0.15, bridge: 0.5, drained: 0.015 },
-  /* Feuille lisible (la garde contre le double-tap se lève) : part du contenu découverte. */
-  opened: 0.9,
+  rest: { distance: 1, speed: 15, glossSpeed: 400, glossFrom: 0.85, gloss: 0.05, wobble: 0.15, bridge: 0.5, drained: 0.03 },
+  /*
+   * Garde contre le double-tap levée (la croix, le fond, la roue répondent) :
+   * part du contenu découverte. Le second toucher d'un double-tap tombe bien avant.
+   */
+  opened: 0.5,
   /*
    * Pastille : écrasée sous le doigt ; quand le liquide l'atteint
    * (avancement restant), elle s'aplatit puis rebondit (échelles x y), le
    * liquide s'y éteint sur la fin (avancement restant) ; durées (ms).
    */
   squeeze: { scale: ["1", "0.9", "1.05", "1"], ms: 420 },
-  bounce: { at: 0.15, scale: ["1", "1.06 0.9", "0.96 1.1", "1.02 0.98", "1"], ms: 520 },
-  vanish: 0.03,
+  bounce: { at: 0.15, scale: ["1", "1.12 0.86", "0.95 1.1", "1.02 0.98", "1"], ms: 520 },
+  vanish: 0.08,
+  /* L'anneau de la pastille (loyalty-pill-enter::after) éclot quand elle reçoit le liquide : échelle, durée (ms). */
+  ping: { scale: 1.5, ms: 700 },
   /*
    * Intégration : pas fixe (s), écart maximal entre deux images (s), durée
    * maximale d'un trajet (s). Garde : sans image depuis tant de ms (horloge
@@ -157,10 +163,11 @@ export const LIQUID = {
   slow: { ms: 50, frames: 5 },
   /*
    * Contour de découpe : points par coin, sur les côtés ; pas de marche
-   * (part de la distance, minimum px), dichotomies. Le contenu est découpé
-   * sous la tranche translucide tant qu'elle brille, sans quoi il s'y voyait.
+   * (part de la distance, minimum px), dichotomies ; débord (px) qui laisse
+   * entier le filet du bord de la feuille une fois posée, retrait d'autant
+   * quand elle se vide (aucun pixel du contenu sur la tranche).
    */
-  outline: { corner: 12, sides: 96, march: 0.8, minStep: 0.5, bisect: 6 },
+  outline: { corner: 12, sides: 96, march: 0.8, minStep: 0.5, bisect: 6, bleed: 1 },
   /* Compilation au repos : attente maximale (ms), délai sans requestIdleCallback (ms), essais avant d'y renoncer. */
   idle: { timeout: 4000, delay: 1500, tries: 20 },
   /* Définition du canevas : densité maximale, pixels au plus (grands écrans). */
@@ -215,7 +222,7 @@ function field(x: number, y: number, s: Shape) {
     s.wobble[0] * Math.sin(3 * angle + s.wobble[1]) -
     s.wobble[2] * Math.sin(5 * angle + s.wobble[3]);
   const [px, py, hx, hy] = s.pill;
-  return smin(d, roundBox(x - px, y - py, hx, hy, Math.min(hx, hy)), s.bridge);
+  return hx > 0 ? smin(d, roundBox(x - px, y - py, hx, hy, Math.min(hx, hy)), s.bridge) : d;
 }
 
 /*
@@ -224,7 +231,7 @@ function field(x: number, y: number, s: Shape) {
  * dans les coins, sans quoi la feuille posée s'y voyait taillée en pans —,
  * avancent à pas de distance jusqu'à sortir, puis on resserre par dichotomie.
  */
-function outline(s: Shape, ox: number, oy: number, inset: number) {
+function outline(s: Shape, ox: number, oy: number, bleed: number) {
   const [l, t, r, b] = s.box;
   const [tl, tr, br, bl] = s.radii;
   const cx = (l + r) / 2;
@@ -252,16 +259,16 @@ function outline(s: Shape, ox: number, oy: number, inset: number) {
     const uy = (ay - cy) / length;
     let inside = 0;
     let outside = 0;
-    let d = field(cx, cy, s) + inset;
+    let d = field(cx, cy, s) - bleed;
     if (d >= 0) return;
     while (d < 0) {
       inside = outside;
       outside += Math.max(-d * march, minStep);
-      d = field(cx + ux * outside, cy + uy * outside, s) + inset;
+      d = field(cx + ux * outside, cy + uy * outside, s) - bleed;
     }
     for (let j = 0; j < bisect; j++) {
       const mid = (inside + outside) / 2;
-      if (field(cx + ux * mid, cy + uy * mid, s) + inset < 0) inside = mid;
+      if (field(cx + ux * mid, cy + uy * mid, s) - bleed < 0) inside = mid;
       else outside = mid;
     }
     points.push(`${(cx + ux * outside - ox).toFixed(1)}px ${(cy + uy * outside - oy).toFixed(1)}px`);
@@ -279,7 +286,7 @@ function outline(s: Shape, ox: number, oy: number, inset: number) {
       cast(ax + radius * Math.cos(angle), ay + radius * Math.sin(angle));
     }
   }
-  return points.length ? `polygon(${points.join(",")})` : "inset(50%)";
+  return `polygon(${points.join(",")})`;
 }
 
 const glsl = (n: number) => n.toFixed(4);
@@ -331,7 +338,7 @@ float shape(vec2 p) {
   float d = roundBox(q, 0.5 * (uBox.zw - uBox.xy), radius)
     - uWobble.x * sin(3.0 * angle + uWobble.y)
     - uWobble.z * sin(5.0 * angle + uWobble.w);
-  return smin(d, roundBox(p - uPill.xy, uPill.zw, min(uPill.z, uPill.w)), uBridge);
+  return uPill.z > 0.0 ? smin(d, roundBox(p - uPill.xy, uPill.zw, min(uPill.z, uPill.w)), uBridge) : d;
 }
 /* La pièce vue dans l'eau : horizon clair, zénith sombre, boîte à lumière et contre-jour. */
 vec3 room(vec3 r, vec3 key) {
@@ -357,7 +364,8 @@ void main() {
   /* Un liquide clair (la crème de la carte) : reflets tenus, bord ombré plutôt qu'éclairci. */
   float lum = dot(uTint, vec3(0.2126, 0.7152, 0.0722));
   float tame = mix(1.0, LIGHT_SPEC, lum);
-  float away = max(dot(outward, -normalize(key.xy)), 0.0);
+  float facing = dot(outward, normalize(key.xy));
+  float away = max(-facing, 0.0);
 
   /* Dehors : ombre de contact, ligne de lumière au pied du bord opposé à la lampe. */
   float shadowA = SHADOW_ALPHA * exp(-max(d, 0.0) / SHADOW_REACH * SHADOW_FALLOFF) * (SHADOW_LIT + (1.0 - SHADOW_LIT) * away);
@@ -392,19 +400,22 @@ void main() {
   float panel = clamp(min(inPanel.x, inPanel.y) * uDpr + 0.5, 0.0, 1.0);
   float behind = dist - (uFront.x - 0.5 * uFront.y);
   float wet = uFront.z * panel * s * exp(-behind * behind / (FRONT_WIDTH * FRONT_WIDTH));
-  vec3 spec = ((fresnel * room(r, key) + KEY_TONE * (caustic + RIM_LIGHT * edge * edge * edge)) * uGloss
+  float rimLight = RIM_LIGHT * (1.0 + RIM_DARK * (1.0 - lum)) * mix(RIM_SHADE, 1.0, max(facing, 0.0)) * edge * edge * edge;
+  vec3 spec = ((fresnel * room(r, key) + KEY_TONE * (caustic + rimLight)) * uGloss
     + KEY_TONE * (sheen + wet)) * tame;
   float dark = RIM_ALPHA * (1.0 + lum) * smoothstep(RIM_SLOPE.x, RIM_SLOPE.y, length(tilt)) * (1.0 - fresnel) * uGloss;
 
   float cleared = 1.0 - smoothstep(uFront.x - uFront.y, uFront.x, dist);
+  /* Hors de la feuille, la tranche mince laisse voir la page ; sur elle, le contenu ne paraît que découvert. */
   float thin = mix(THIN_ALPHA, 1.0, smoothstep(0.0, THIN_WIDTH, -d));
-  float bodyA = mix(1.0, max(uVeil, 1.0 - cleared), panel) * thin;
+  float sheet = smoothstep(-THIN_FEATHER, THIN_FEATHER, min(inPanel.x, inPanel.y));
+  float bodyA = mix(thin, 1.0, sheet) * mix(1.0, max(uVeil, 1.0 - cleared), panel);
   /* Épaisseur en coussin (sans arête au milieu) : le cœur prend la teinte deux fois traversée. */
   vec2 u = clamp((p - center) / max(0.5 * (uBox.zw - uBox.xy), vec2(1.0)), -1.0, 1.0);
   vec2 u2 = u * u;
   float thick = (1.0 - u2.x * u2.x) * (1.0 - u2.y * u2.y);
   float lift = (EDGE_LIFT * (1.0 - lum) - EDGE_SHADE * lum) * edge;
-  vec3 col = uTint * mix(vec3(1.0 + lift), uTint, ABSORB * thick) * bodyA;
+  vec3 col = uTint * mix(vec3(1.0 + lift), uTint, ABSORB * thick) * (1.0 - FALL * (0.5 + 0.5 * u.y)) * bodyA;
   float a = bodyA;
   /* Le liseré sombre est de la couleur du liquide, en plus profond. */
   col = col * (1.0 - dark) + uTint * uTint * dark;
@@ -442,7 +453,11 @@ function fragment() {
     LIGHT_SPEC: glsl(LIQUID.lightSpec),
     RIM_ALPHA: glsl(LIQUID.rim.alpha),
     RIM_SLOPE: vec(LIQUID.rim.slope),
-    RIM_LIGHT: glsl(LIQUID.rimLight),
+    RIM_LIGHT: glsl(LIQUID.rimLight.gain),
+    RIM_SHADE: glsl(LIQUID.rimLight.shade),
+    RIM_DARK: glsl(LIQUID.rimLight.dark),
+    THIN_FEATHER: glsl(LIQUID.thin.feather),
+    FALL: glsl(LIQUID.fall),
     THIN_ALPHA: glsl(LIQUID.thin.alpha),
     THIN_WIDTH: glsl(LIQUID.thin.width),
     ABSORB: glsl(LIQUID.absorb),
@@ -458,7 +473,9 @@ function fragment() {
     SHADOW_FALLOFF: glsl(LIQUID.shadow.falloff),
     SHADOW_LIT: glsl(LIQUID.shadow.lit),
   };
-  return Object.entries(defines).map(([name, value]) => `#define ${name} ${value}\n`).join("") + FRAG;
+  // Sans les commentaires (accents) : certains pilotes ne lisent que l'ASCII.
+  const source = FRAG.replace(/\/\*[\s\S]*?\*\//g, "");
+  return Object.entries(defines).map(([name, value]) => `#define ${name} ${value}\n`).join("") + source;
 }
 
 const UNIFORMS = [
@@ -531,7 +548,14 @@ function compile() {
     }
     if (parallel && !gl.getProgramParameter(program, parallel.COMPLETION_STATUS_KHR)) {
       if (++tries > LIQUID.idle.tries) fail();
-      else later(link);
+      else
+        later(() => {
+          try {
+            link();
+          } catch {
+            fail();
+          }
+        });
       return;
     }
     for (const shader of shaders) gl.deleteShader(shader);
@@ -551,7 +575,7 @@ function compile() {
       status = "off";
       current?.finish();
     });
-    canvas.style.cssText = "position:absolute;inset:0;width:100%;height:100%;pointer-events:none";
+    canvas.style.cssText = "position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none";
     canvas.setAttribute("aria-hidden", "true");
     const at = Object.fromEntries(UNIFORMS.map((name) => [name, gl.getUniformLocation(program, name)]));
     // Un premier tracé au repos : le pilote finit de préparer le programme ailleurs qu'au toucher.
@@ -568,7 +592,13 @@ function compile() {
 export function prepareLiquid() {
   if (status !== "idle" || reducedMotion()) return;
   status = "pending";
-  later(compile);
+  later(() => {
+    try {
+      compile();
+    } catch {
+      status = "off";
+    }
+  });
 }
 
 /** Le liquide est-il prêt à jouer maintenant ? */
@@ -641,6 +671,9 @@ export function growSheet({
   let core: Rect = [0, 0, 0, 0];
   let seed: Rect = [0, 0, 0, 0];
   let width = window.innerWidth;
+  // La feuille et l'écran tels que mesurés : la remesure n'a lieu que s'ils changent.
+  const sizes = () => `${rectOf(panel)} ${rectOf(panel.parentElement!)}`;
+  let measured = "";
   let rest: Corners = [0, 0, 0, 0];
   let dpr = 1;
   // La feuille passe-t-elle sous la pastille (écran bas) ? Elle la recouvre alors une fois posée.
@@ -649,7 +682,10 @@ export function growSheet({
   /* Toutes les mesures, à l'ouverture et à la fermeture (la roue a pu changer de tapis). */
   const measure = () => {
     if (!source.isConnected || !panel.isConnected) return false;
-    const pill = rectOf(source);
+    // Sa taille sans l'écrasement en cours (scale, centré) : celle de la pastille au repos.
+    const box = source.getBoundingClientRect();
+    const [x, y] = [box.left + box.width / 2, box.top + box.height / 2];
+    const pill: Rect = [x - source.offsetWidth / 2, y - source.offsetHeight / 2, x + source.offsetWidth / 2, y + source.offsetHeight / 2];
     const inset = LIQUID.pillInset;
     if (pill[2] - pill[0] <= 2 * inset || pill[3] - pill[1] <= 2 * inset) return false;
     // Teinte illisible (couleur que le navigateur ne sait pas peindre) : pas de liquide.
@@ -661,7 +697,7 @@ export function growSheet({
     const middle = (core[0] + core[2]) / 2;
     seed = [middle - half, core[3] - (core[3] - core[1]) * depth, middle + half, core[3]];
     target = rectOf(panel);
-    overlaps = target[1] < pill[3];
+    overlaps = target[1] < pill[3] && target[0] < pill[2] && target[2] > pill[0];
     const style = getComputedStyle(panel);
     rest = [
       style.borderTopLeftRadius,
@@ -672,12 +708,17 @@ export function growSheet({
     const view = panel.parentElement!.getBoundingClientRect();
     width = window.innerWidth;
     dpr = Math.min(window.devicePixelRatio || 1, LIQUID.dprCap, Math.sqrt(LIQUID.maxPixels / (view.width * view.height)));
-    canvas.width = Math.round(view.width * dpr);
-    canvas.height = Math.round(view.height * dpr);
+    const [w, h] = [Math.round(view.width * dpr), Math.round(view.height * dpr)];
+    // Réassignée, la taille réalloue le tampon : seulement si elle change.
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.uniform1f(at.uHeight, canvas.height);
     gl.uniform1f(at.uDpr, dpr);
     gl.uniform3f(at.uTint, ...tint);
+    measured = sizes();
     return true;
   };
   if (!measure()) return null;
@@ -787,11 +828,11 @@ export function growSheet({
     );
     gl.uniform2f(at.uKeyShift, shift((vel[0] + vel[2]) / 2), shift((vel[1] + vel[3]) / 2));
     // Rentrée, la dernière goutte s'éteint dans la pastille.
-    gl.uniform1f(at.uFade, opening ? 1 : smoothstep(0, LIQUID.vanish, progress));
+    gl.uniform1f(at.uFade, opening ? 1 : smoothstep(LIQUID.rest.drained, LIQUID.vanish, progress));
     gl.disable(gl.SCISSOR_TEST);
     gl.clear(gl.COLOR_BUFFER_BIT);
     // Seule la région du liquide, de son ombre et de la pastille se calcule.
-    const margin = LIQUID.shadow.reach + LIQUID.wobble.max * (1 + LIQUID.wobble.second);
+    const margin = LIQUID.shadow.reach + LIQUID.wobble.max * (1 + LIQUID.wobble.second) + s.bridge / 4;
     const x0 = Math.max(0, Math.floor((Math.min(s.box[0], core[0]) - margin) * dpr));
     const y0 = Math.max(0, Math.floor((Math.min(s.box[1], core[1]) - margin) * dpr));
     const x1 = Math.min(canvas.width, Math.ceil((Math.max(s.box[2], core[2]) + margin) * dpr));
@@ -799,13 +840,14 @@ export function growSheet({
     gl.enable(gl.SCISSOR_TEST);
     gl.scissor(x0, canvas.height - y1, Math.max(0, x1 - x0), Math.max(0, y1 - y0));
     gl.drawArrays(gl.TRIANGLES, 0, 3);
-    panel.style.clipPath = outline(s, target[0], target[1], LIQUID.thin.width * gloss);
-    if (opening && content) content.style.translate = `0 ${(LIQUID.rise * (1 - reveal)).toFixed(2)}px`;
+    const { bleed } = LIQUID.outline;
+    panel.style.clipPath = outline(s, target[0], target[1], opening ? bleed * (1 - gloss) : -bleed);
   };
 
   // Le contenu de la carte arrive après coup (l'historique), la barre de défilement s'en va : on remesure.
+  // L'appel à l'observation même, ou un changement déjà mesuré, ne coûte rien.
   const observer = new ResizeObserver(() => {
-    if (!running) return;
+    if (!running || sizes() === measured) return;
     if (measure()) draw();
     else finish();
   });
@@ -814,6 +856,10 @@ export function growSheet({
     if (bounced) return;
     bounced = true;
     source.animate({ scale: LIQUID.bounce.scale }, { duration: LIQUID.bounce.ms, easing: "ease-out" });
+    source.animate(
+      { opacity: [1, 0], scale: ["1", String(LIQUID.ping.scale)] },
+      { duration: LIQUID.ping.ms, easing: "cubic-bezier(0.16, 1, 0.3, 1)", pseudoElement: "::after" }
+    );
   };
 
   const stop = () => {
@@ -841,13 +887,19 @@ export function growSheet({
     stop();
     if (mode === "open") {
       panel.style.clipPath = "";
-      content?.style.removeProperty("translate");
       fading?.finish();
       open();
     } else {
-      delete source.dataset.liquidSource;
-      bounce();
+      // La fermeture d'abord : rien de ce qui suit ne doit la retenir.
       resolveClose?.();
+      // Rien ne reste à l'écran le temps que la feuille se démonte.
+      panel.style.visibility = "hidden";
+      fading?.cancel();
+      dim.style.opacity = "0";
+      delete source.dataset.liquidSource;
+      try {
+        bounce();
+      } catch {}
     }
   }
 
@@ -886,7 +938,9 @@ export function growSheet({
         left += Math.abs(target[i] - pos[i]);
       }
       progress = Math.min(1, Math.max(0, 1 - left / (span || 1)));
-      const topProgress = Math.min(1, Math.max(0, 1 - Math.abs(target[1] - pos[1]) / (Math.abs(target[1] - seed[1]) || 1)));
+      // Le haut voyage peu (la feuille s'arrête près de la pastille) : rapporté au moins à la goutte.
+      const travel = Math.max(Math.abs(target[1] - seed[1]), seed[3] - seed[1]);
+      const topProgress = Math.min(1, Math.max(0, 1 - Math.abs(target[1] - pos[1]) / travel));
       const { form, drain, release, reach } = LIQUID.bridge;
       const calm = LIQUID.rest;
       if (mode === "open") {
@@ -904,7 +958,8 @@ export function growSheet({
       const bridgeGoal = reach * smoothstep(from, to, progress) * (1 - smoothstep(release[0], release[1], progress));
       gloss += (glossGoal - gloss) * ease(LIQUID.rates.gloss);
       bridge += (bridgeGoal - bridge) * ease(LIQUID.rates.bridge);
-      wobble += (LIQUID.wobble.gain * speed - wobble) * ease(LIQUID.wobble.rate);
+      // Le bord se calme à mesure que le contenu arrive.
+      wobble += (LIQUID.wobble.gain * speed * (mode === "open" ? 1 - reveal : 1) - wobble) * ease(LIQUID.wobble.rate);
       phase[0] += LIQUID.wobble.spin[0] * dt;
       phase[1] += LIQUID.wobble.spin[1] * dt;
       draw();
@@ -962,7 +1017,7 @@ export function growSheet({
     // Plus d'image depuis un moment (horloge réelle) : la feuille finit sans le liquide.
     watchdog = window.setInterval(() => {
       if (Date.now() - lastWall > (framed ? LIQUID.stall : LIQUID.firstFrame)) finish();
-    }, LIQUID.stall);
+    }, LIQUID.stall / 2);
     try {
       draw();
       raf = requestAnimationFrame(frame);
@@ -972,9 +1027,26 @@ export function growSheet({
   };
 
   const run = { finish };
-  const content = panel.firstElementChild instanceof HTMLElement ? panel.firstElementChild : null;
-  fade(1, LIQUID.dim.open);
-  start();
+
+  const dispose = () => {
+    stop();
+    // Le canevas est partagé : libéré seulement si aucune autre feuille ne s'en sert.
+    if (!current) {
+      canvas.width = 0;
+      canvas.height = 0;
+    }
+    fading?.cancel();
+    panel.style.clipPath = "";
+    delete source.dataset.liquidSource;
+  };
+
+  try {
+    fade(1, LIQUID.dim.open);
+    start();
+  } catch {
+    dispose();
+    return null;
+  }
 
   return {
     close() {
@@ -989,7 +1061,6 @@ export function growSheet({
           mode = "close";
           since = 0;
           startedAt = performance.now();
-          content?.style.removeProperty("translate");
           fade(0, LIQUID.dim.close);
           return;
         }
@@ -1011,17 +1082,6 @@ export function growSheet({
       });
       return closing;
     },
-    dispose() {
-      stop();
-      // Le canevas est partagé : libéré seulement si aucune autre feuille ne s'en sert.
-      if (!current) {
-        canvas.width = 0;
-        canvas.height = 0;
-      }
-      fading?.cancel();
-      panel.style.clipPath = "";
-      content?.style.removeProperty("translate");
-      delete source.dataset.liquidSource;
-    },
+    dispose,
   };
 }
