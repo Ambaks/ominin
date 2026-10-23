@@ -75,6 +75,14 @@
   --felt-golden-2: #0d0904;
   --felt-golden-slice: #1a1306;
 }
+/* Café Riche : le tapis et la roue dorée au bleu de l'auvent. */
+.theme-cafe-riche .wheel-stage {
+  --felt-1: var(--cr-bleu);
+  --felt-2: color-mix(in srgb, var(--cr-bleu-profond) 55%, #000);
+  --felt-dim: var(--cr-bleu-profond);
+  --felt-lit: color-mix(in srgb, var(--cr-bleu) 70%, #fff);
+  --felt-golden-slice: var(--cr-bleu-profond);
+}
 /* Jour de roue dorée : la salle passe à l'or, des éclats scintillent. */
 .wheel-stage[data-golden] {
   background:
@@ -362,6 +370,10 @@
 }
 .theme-caffe-panis .wheel-bulbs > i {
   box-shadow: 0 0 0 0.35cqw var(--gold-3);
+}
+/* Le cadre de Café Riche au laiton de son logo, avivé par l'or de la roue. */
+.theme-cafe-riche .wheel-rim {
+  stroke: color-mix(in srgb, var(--cr-laiton-clair) 50%, var(--gold-2));
 }
 /* Une ampoule : son culot éteint, sa lumière en ::after dont seule l'opacité change. */
 .wheel-bulbs > i {

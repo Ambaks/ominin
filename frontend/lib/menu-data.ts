@@ -8,6 +8,7 @@ import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
+import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
 import leVictoriaAccords from "@/lib/menu/accords/le-victoria.json";
@@ -8031,6 +8032,8 @@ const cafeRiche: Restaurant = {
   // « RiCHE » or cerné de bleu, « DEPUIS 1893 », comme sur l'auvent.
   logo: "/cafe-riche/logo.png",
   logoIsName: true,
+  // Leur logo sur la crème de la carte, pour la roue, le sceau de fidélité et l'onglet.
+  icons: { tab: "/cafe-riche/favicon.png", homeScreen: "/cafe-riche/icon.png" },
   themeColor: "#173a6b",
   address: "8 Place de la Comédie, 34000 Montpellier",
   // Leur site et leur fiche Google.
@@ -8039,6 +8042,77 @@ const cafeRiche: Restaurant = {
   // Leur site : « Ouvert 7/7 de 7h à 1h du matin », « produits frais et de
   // saison », « sa terrasse emblématique sur la Place de la Comédie ».
   highlights: ["Ouvert 7/7 de 7h à 1h", "Produits frais et de saison", "Terrasse sur la place de la Comédie"],
+  // Accords écrits à la main sur leur carte, à relire avec eux.
+  pairings: cafeRicheAccords,
+  loyaltyWheel: roueDuJour,
+  // Les paliers de Caffè Panis (1 € = 1 point) sur leur carte, à caler avec eux.
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café ou soft offert",
+        points: 50,
+        items: ["cafe-expresso", "cappuccino", "cafe-allonge", "coca-cola", "orangina", "perrier"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert offert",
+        points: 100,
+        items: ["profiteroles", "creme-brulee", "tiramisu", "mousse-chocolat", "panna-cotta", "pain-perdu"],
+      },
+      {
+        id: "entree",
+        label: "1 entrée offerte",
+        points: 150,
+        items: [
+          "soupe-poisson",
+          "burrata-pesto",
+          "arancini",
+          "rillettes-thon",
+          "avocat-crevette",
+          "focaccia-chevre-miel",
+          "oeufs-mayonnaise",
+        ],
+      },
+      {
+        id: "plat",
+        label: "1 plat offert",
+        points: 250,
+        items: [
+          "moules-creme",
+          "bavette-echalote",
+          "tartare-boeuf",
+          "moules-roquefort",
+          "fish-and-chips",
+          "rouille-seiche",
+          "seiche-plancha",
+          "supreme-volaille",
+          "carpaccio-boeuf",
+          "burger-le-riche",
+          "burger-chic-chicken",
+          "burger-vegi",
+          "linguines-carbonara",
+          "linguines-vongole",
+          "linguines-pesto",
+        ],
+      },
+    ],
+    member: {
+      contact: "0623456789",
+      firstName: "Mathilde",
+      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      history: [
+        { kind: "gain", points: 4, table: 12, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 16, table: 5, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 29, table: 21, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 9, table: 3, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   ticker: [
     { text: "Brasserie historique depuis 1893", tone: "brand" },
     { text: "Plat du jour du lundi au vendredi, uniquement le midi", tone: "accent" },
