@@ -29,14 +29,15 @@ export function SectionLink({
   return <a {...props} href={`#${sectionId}`} onClick={jump} />;
 }
 
-/** Va à une section et pose le focus sur son titre. byPointer : au clavier,
+/** Va à une section et pose le focus sur son titre. behavior : la roue des
+ * catégories y saute d'un coup, cachée sous son voile. byPointer : au clavier,
  * l'anneau dit où l'on arrive ; après un toucher, aucun — Safari cerclait le
  * titre à chaque catégorie touchée (globals.css). La marque part avec ce
  * focus : revenu plus tard au clavier, le titre retrouve son anneau. */
-export function jumpToSection(sectionId: string, byPointer: boolean) {
+export function jumpToSection(sectionId: string, byPointer: boolean, behavior = scrollBehavior()) {
   const section = document.getElementById(sectionId);
   if (!section) return;
-  section.scrollIntoView({ behavior: scrollBehavior(), block: "start" });
+  section.scrollIntoView({ behavior, block: "start" });
   const heading = section.querySelector<HTMLElement>("h2");
   if (!heading) return;
   heading.tabIndex = -1;

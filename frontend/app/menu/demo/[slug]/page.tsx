@@ -11,6 +11,7 @@ import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
+import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import { CartProvider } from "@/lib/menu/cart";
 import { FORMULES_LINK } from "@/lib/menu/format";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
@@ -55,6 +56,9 @@ import { tableParam } from "@/lib/menu/table-param";
  * de son ticket, que le bar scanne pour la marquer retirée. Avec
  * ?service=fast-food, le même retrait sur un ticket numéroté, comme en
  * production (etablissements.bar_pickup).
+ *
+ * ?categories=top|rail|wheel essaie une autre présentation des catégories
+ * que celle de l'établissement.
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
@@ -129,7 +133,7 @@ export default async function MenuPreviewPage({
   searchParams,
 }: PageProps<"/menu/demo/[slug]">) {
   const { slug } = await params;
-  const { theme, service, table, retrait } = await searchParams;
+  const { theme, service, table, retrait, categories } = await searchParams;
   const fastFood = service === "fast-food";
   // ?table=7 : le numéro d'une vraie table de l'établissement, pour une
   // capture ; illisible, la table fictive.
@@ -205,7 +209,7 @@ export default async function MenuPreviewPage({
           <TicketTracker />
           <CartBar />
           <MenuBody
-            layout={restaurant.categoryLayout}
+            layout={CATEGORY_LAYOUTS.find(({ id }) => id === categories)?.id ?? restaurant.categoryLayout}
             categories={categoryLinks}
             themeLocked={Boolean(themeClass)}
             bottomPadding="pb-10"

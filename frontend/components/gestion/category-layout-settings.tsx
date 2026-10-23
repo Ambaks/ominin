@@ -8,8 +8,9 @@ import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
  * Présentation des catégories du menu QR (gérant) : la barre de pastilles
- * collée en haut, ou un rail d'icônes à gauche, à côté des plats. Le menu
- * public suit à sa prochaine revalidation (une minute). Le sélecteur sert
+ * collée en haut, un rail d'icônes à gauche, à côté des plats, ou une roue
+ * posée sur la carte. Le menu public suit à sa prochaine revalidation (une
+ * minute). Le sélecteur sert
  * aussi à l'admin Ominin (capacités d'un client).
  */
 
@@ -17,6 +18,7 @@ import type { CategoryLayout } from "@/lib/menu-data";
 const ICONS: Record<CategoryLayout, React.ReactNode> = {
   top: <path d="M4 5h16v4H4zM4 13h16M4 17h16M4 21h10" />,
   rail: <path d="M4 4h4v16H4zM12 5h8M12 9h8M12 13h8M12 17h5" />,
+  wheel: <path d="M20 4a10 10 0 0 0 0 16M20 8a5 5 0 0 0 0 8M4 12h8" />,
 };
 
 export function CategoryLayoutPicker({
@@ -29,7 +31,7 @@ export function CategoryLayoutPicker({
   onChoose: (layout: CategoryLayout) => void;
 }) {
   return (
-    <div role="radiogroup" aria-label="Catégories du menu" className="grid gap-3 sm:grid-cols-2">
+    <div role="radiogroup" aria-label="Catégories du menu" className="grid gap-3 sm:grid-cols-3">
       {CATEGORY_LAYOUTS.map((option) => {
         const selected = value === option.id;
         return (
@@ -88,11 +90,7 @@ export function CategoryLayoutSettings({ initialLayout }: { initialLayout: Categ
     setLayout(next);
     try {
       await setCategoryLayout(next);
-      toast.success(
-        next === "rail"
-          ? "Catégories à gauche : votre menu les affiche en icônes."
-          : "Catégories en haut : votre menu les affiche en barre."
-      );
+      toast.success(CATEGORY_LAYOUTS.find(({ id }) => id === next)?.saved ?? "");
     } catch (error) {
       setLayout(previous);
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");

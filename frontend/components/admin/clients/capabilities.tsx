@@ -20,6 +20,7 @@ import {
 } from "@/lib/gestion/constants";
 import type { Feature, OrderTab } from "@/lib/gestion/types";
 import { CategoryLayoutPicker } from "@/components/gestion/category-layout-settings";
+import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
@@ -218,9 +219,7 @@ function CategoryLayoutCard({
     setSaving(true);
     try {
       await saveCategoryLayout(client.id, categoryLayout);
-      toast.success(
-        categoryLayout === "rail" ? "Catégories à gauche sur son menu." : "Catégories en haut sur son menu."
-      );
+      toast.success(CATEGORY_LAYOUTS.find(({ id }) => id === categoryLayout)?.savedAdmin ?? "");
     } catch (error) {
       onChange(previous);
       toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");

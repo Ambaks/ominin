@@ -1099,8 +1099,8 @@ export async function setBarPickup(enabled: boolean): Promise<void> {
   });
 }
 
-/** Catégories du menu QR en barre en haut ou en rail d'icônes à gauche
- * (gérant). Le menu suit à sa prochaine revalidation. */
+/** Catégories du menu QR en barre en haut, en rail d'icônes à gauche ou en
+ * roue sur la carte (gérant). Le menu suit à sa prochaine revalidation. */
 export async function setCategoryLayout(layout: CategoryLayout): Promise<void> {
   check(
     await createClient()

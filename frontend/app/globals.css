@@ -14166,11 +14166,12 @@ html:has(.groupe-dialog:modal) {
 }
 
 /*
-  Rail des catégories (CategoryRail), quand l'établissement le choisit.
-  Plus de barre collée en haut : une ancre s'arrête près du bord, plus sous
-  une réserve qui n'existe plus. En paysage, le rail reste collé, lui.
+  Rail ou roue des catégories (CategoryRail, CategoryWheel), quand
+  l'établissement le choisit. Plus de barre collée en haut : une ancre
+  s'arrête près du bord, plus sous une réserve qui n'existe plus. En
+  paysage, le rail reste collé, lui.
 */
-html:has([data-category-rail]) {
+html:has(:is([data-category-rail], [data-category-wheel])) {
   --nav-band: 1rem;
 }
 
