@@ -32,7 +32,7 @@ export const legal = {
   company: "SAS FLG Aérogommage",
   registration: "RCS Toulouse 989 590 245",
   vat: "TVA intracommunautaire : FR 96989590245",
-  address: "8 rue Henri Matisse, 31320 Castanet-Tolosan",
+  address: { street: "8 rue Henri Matisse", postalCode: "31320", city: "Castanet-Tolosan" },
   representative: "M. Frédéric Le Grégam",
 } as const;
 

@@ -6,6 +6,7 @@ import { CurtainImage, MotionProvider, ParallaxImage, Reveal, RiseText } from "@
 import { QuoteForm } from "@/components/quote-form";
 import { Logo, SiteNav } from "@/components/site-nav";
 import { VideoLoop } from "@/components/video-loop";
+import { description, siteUrl } from "@/lib/site";
 import {
   applications,
   audiences,
@@ -13,6 +14,7 @@ import {
   comparison,
   contact,
   featured,
+  legal,
   navCta,
   navLinks,
   procede,
@@ -45,6 +47,26 @@ function SectionHead({ n, title, intro }: { n: string; title?: string; intro?: s
 
 const half = "(min-width: 768px) 45vw, 100vw";
 
+const business = {
+  "@context": "https://schema.org",
+  "@type": "HomeAndConstructionBusiness",
+  name: "FLG Aérogommage",
+  legalName: legal.company,
+  description,
+  url: siteUrl,
+  image: siteUrl && `${siteUrl}/opengraph-image.jpg`,
+  telephone: contact.phoneHref.replace("tel:", ""),
+  email: contact.email,
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: legal.address.street,
+    postalCode: legal.address.postalCode,
+    addressLocality: legal.address.city,
+    addressCountry: "FR",
+  },
+  areaServed: zone.map((name) => ({ "@type": "City", name })),
+};
+
 function CtaBand({ title }: { title: string }) {
   return (
     <Reveal className="mt-24 flex flex-col items-start justify-between gap-8 border-y border-line py-10 md:mt-32 md:flex-row md:items-center">
@@ -57,6 +79,10 @@ function CtaBand({ title }: { title: string }) {
 export default function Home() {
   return (
     <MotionProvider>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(business).replace(/</g, "\\u003c") }}
+      />
       <SiteNav links={navLinks} cta={navCta} />
 
       <main>

@@ -65,9 +65,9 @@ export function BeforeAfter({ before, after, alt, sizes, className }: Props) {
         if (e.currentTarget.hasPointerCapture(e.pointerId)) setFromPointer(e);
       }}
     >
-      <Image src={after} alt={`${alt} — après`} sizes={sizes} placeholder="blur" fill className="object-cover" />
+      <Image src={after} alt={`${alt} après aérogommage`} sizes={sizes} placeholder="blur" fill className="object-cover" />
       <motion.div className="absolute inset-0" style={{ clipPath: clip }}>
-        <Image src={before} alt={`${alt} — avant`} sizes={sizes} placeholder="blur" fill className="object-cover" />
+        <Image src={before} alt={`${alt} avant aérogommage`} sizes={sizes} placeholder="blur" fill className="object-cover" />
       </motion.div>
 
       <span className="label pointer-events-none absolute left-4 top-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
