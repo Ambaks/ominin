@@ -30,7 +30,7 @@ export const chefCard = "flex flex-col gap-3 rounded-2xl border border-ember-1/3
  * du bouton principal, qu'il ne doit pas concurrencer.
  */
 export const suggestionButton = (on = false) =>
-  `min-h-9 shrink-0 rounded-full border px-3 text-xs font-semibold tabular-nums transition-[color,background-color,border-color,transform] active:scale-95 ${
+  `suggestion-cta min-h-9 shrink-0 rounded-full border px-3 text-xs font-semibold tabular-nums transition-[color,background-color,border-color,transform] active:scale-95 ${
     on ? "border-transparent bg-ember-1 text-background" : "border-ember-1/50 bg-ember-1/15 text-foreground"
   }`;
 

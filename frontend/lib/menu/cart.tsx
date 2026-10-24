@@ -49,6 +49,8 @@ export interface CartLine {
   name: string;
   /** Format du plat (« x4 », « pour 2 »), en fin de name : le panier l'écrit en petit. */
   detail?: string;
+  /** La photo du plat, là où un thème la montre dans le panier. */
+  image?: string;
   /** Prix de base + suppléments, pour l'affichage ; la base refige le montant. */
   unitPrice: number;
   quantity: number;
@@ -96,7 +98,8 @@ function isCartLine(value: unknown): value is CartLine {
     line.quantity >= 1 &&
     Array.isArray(line.optionSummary) &&
     Array.isArray(line.choices) &&
-    (line.detail === undefined || typeof line.detail === "string")
+    (line.detail === undefined || typeof line.detail === "string") &&
+    (line.image === undefined || typeof line.image === "string")
   );
 }
 
@@ -264,6 +267,7 @@ export const plainLine = (
   itemId: item.id,
   name: lineName(item),
   detail: item.detail,
+  image: item.image,
   unitPrice: item.price,
   optionSummary: [],
   choices,

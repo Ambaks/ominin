@@ -147,7 +147,7 @@ export function LoyaltySection({
 
   if (!opened && !member && !contact.trim() && balance === null) {
     return (
-      <section className="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-hairline p-4">
+      <section className="loyalty-box mt-5 flex items-center justify-between gap-3 rounded-2xl border border-hairline p-4">
         {title}
         <button
           type="button"
@@ -161,7 +161,7 @@ export function LoyaltySection({
   }
 
   return (
-    <section className="mt-5 flex flex-col gap-3 rounded-2xl border border-hairline p-4">
+    <section className="loyalty-box mt-5 flex flex-col gap-3 rounded-2xl border border-hairline p-4">
       <div>
         {title}
         {member && (
