@@ -10,6 +10,7 @@ import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/li
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
+import allergenesDemo from "@/lib/menu/allergenes-demo.json";
 import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
 import leVictoriaAccords from "@/lib/menu/accords/le-victoria.json";
 import cafeDesArtsAccords from "@/lib/menu/accords/cafe-des-arts.json";
@@ -10014,7 +10015,33 @@ const cafe3Graces: Restaurant = {
   ],
 };
 
-const restaurants: Record<string, Restaurant> = {
+/*
+ * Les allergènes des démos, supposés d'après le nom, la description et la
+ * recette d'usage (scripts : aucun ; à régénérer à la main). Quelques plats
+ * par démo restent sans : la fiche montre alors « non renseignés ». Ceux que
+ * la carte imprime (Baï-Kō) restent les siens. Jamais sur /menu/m : la carte
+ * en ligne ne lit que ceux de la base (lib/public-menu.ts).
+ */
+const withDemoAllergens = (registry: Record<string, Restaurant>): Record<string, Restaurant> => {
+  const table = allergenesDemo as Record<string, Record<string, Allergen[]>>;
+  return Object.fromEntries(
+    Object.entries(registry).map(([slug, restaurant]) => [
+      slug,
+      {
+        ...restaurant,
+        categories: restaurant.categories.map((category) => ({
+          ...category,
+          items: category.items.map((item) => ({
+            ...item,
+            allergens: item.allergens ?? table[slug]?.[item.id],
+          })),
+        })),
+      },
+    ])
+  );
+};
+
+const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
   [lzFood.slug]: lzFood,
@@ -10037,7 +10064,7 @@ const restaurants: Record<string, Restaurant> = {
   [lEntrepot.slug]: lEntrepot,
   [lePulp.slug]: lePulp,
   [cafe3Graces.slug]: cafe3Graces,
-};
+});
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
  * menu public et les démos aux couleurs du restaurant. Absente ⇒ thème
