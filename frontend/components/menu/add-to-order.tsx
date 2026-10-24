@@ -303,7 +303,8 @@ export function revealMissing(
 export function revealAboveCartBar(button: HTMLElement | null) {
   requestAnimationFrame(() => {
     const bar = document.querySelector<HTMLElement>(".cart-bar");
-    if (!button?.isConnected || !bar?.parentElement) return;
+    // Depuis la fiche d'un plat, la page est figée derrière elle : rien à dégager.
+    if (!button?.isConnected || button.closest("[role=dialog]") || !bar?.parentElement) return;
     const gap = parseFloat(getComputedStyle(bar.parentElement).paddingTop);
     // La place de la barre dans sa mise en page (offsetTop), pas celle de son
     // entrée animée : un thème la fait monter du bas de l'écran.

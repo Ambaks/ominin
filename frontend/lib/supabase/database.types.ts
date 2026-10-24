@@ -2260,6 +2260,7 @@ export type Database = {
       }
       items: {
         Row: {
+          allergens: Database["public"]["Enums"]["allergen"][] | null
           badges: Database["public"]["Enums"]["badge"][]
           category_id: string
           created_at: string
@@ -2280,6 +2281,7 @@ export type Database = {
           vat_rate: number
         }
         Insert: {
+          allergens?: Database["public"]["Enums"]["allergen"][] | null
           badges?: Database["public"]["Enums"]["badge"][]
           category_id: string
           created_at?: string
@@ -2300,6 +2302,7 @@ export type Database = {
           vat_rate?: number
         }
         Update: {
+          allergens?: Database["public"]["Enums"]["allergen"][] | null
           badges?: Database["public"]["Enums"]["badge"][]
           category_id?: string
           created_at?: string
@@ -6403,6 +6406,21 @@ export type Database = {
     }
     Enums: {
       accord_source: "panier" | "fiche" | "formule"
+      allergen:
+        | "gluten"
+        | "crustaces"
+        | "oeuf"
+        | "poisson"
+        | "arachides"
+        | "soja"
+        | "lait"
+        | "fruits-a-coque"
+        | "celeri"
+        | "moutarde"
+        | "sesame"
+        | "sulfites"
+        | "lupin"
+        | "mollusques"
       badge: "maison" | "top" | "nouveau"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
       club_booking_source: "en_ligne" | "telephone" | "sur_place"
@@ -6661,6 +6679,22 @@ export const Constants = {
   public: {
     Enums: {
       accord_source: ["panier", "fiche", "formule"],
+      allergen: [
+        "gluten",
+        "crustaces",
+        "oeuf",
+        "poisson",
+        "arachides",
+        "soja",
+        "lait",
+        "fruits-a-coque",
+        "celeri",
+        "moutarde",
+        "sesame",
+        "sulfites",
+        "lupin",
+        "mollusques",
+      ],
       badge: ["maison", "top", "nouveau"],
       clip_post_status: ["en_cours", "publie", "partiel", "echec"],
       club_booking_source: ["en_ligne", "telephone", "sur_place"],

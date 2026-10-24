@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import { PhotoField } from "@/components/gestion/photo-field";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
@@ -11,8 +11,9 @@ import { DEFAULT_VAT_RATE, VAT_RATES } from "@/lib/gestion/constants";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
-import { BADGE_LABELS } from "@/lib/menu/format";
-import { type Badge, type MenuCategory, type MenuItem } from "@/lib/menu-data";
+import { AllergenIcon } from "@/components/menu/allergen-icon";
+import { ALLERGEN_LABELS, BADGE_LABELS } from "@/lib/menu/format";
+import { type Allergen, type Badge, type MenuCategory, type MenuItem } from "@/lib/menu-data";
 import {
   OptionsEditor,
   draftToOptions,
@@ -49,6 +50,7 @@ export function ItemFormModal({
   const [notice, setNotice] = useState(item?.noticeHours != null ? String(item.noticeHours) : "");
   const [image, setImage] = useState(item?.image ?? "");
   const [badges, setBadges] = useState<Badge[]>(item?.badges ?? []);
+  const [allergens, setAllergens] = useState<Allergen[] | null>(item?.allergens ?? null);
   const [pairing, setPairing] = useState(item?.pairing ?? "");
   const [vatRate, setVatRate] = useState(
     String(item?.vatRate ?? DEFAULT_VAT_RATE)
@@ -84,6 +86,7 @@ export function ItemFormModal({
       stock: parsedStock,
       image: image.trim(),
       badges,
+      allergens,
       pairing: pairing.trim(),
       options: draftToOptions(options),
       categoryId,
@@ -231,6 +234,8 @@ export function ItemFormModal({
           />
         </Field>
 
+        <AllergensField value={allergens} onChange={setAllergens} />
+
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
             label="Détail"
@@ -266,18 +271,14 @@ export function ItemFormModal({
                   key={badge}
                   type="button"
                   onClick={() =>
-                    setBadges(
-                      active
-                        ? badges.filter((b) => b !== badge)
-                        : [...badges, badge]
+                    setBadges((current) =>
+                      current.includes(badge)
+                        ? current.filter((b) => b !== badge)
+                        : [...current, badge]
                     )
                   }
                   aria-pressed={active}
-                  className={`rounded-full px-4 py-2.5 text-sm font-semibold transition-all ${
-                    active
-                      ? "ember-gradient text-background"
-                      : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                  }`}
+                  className={chip(active)}
                 >
                   {BADGE_LABELS[badge]}
                 </button>
@@ -297,5 +298,78 @@ export function ItemFormModal({
         )}
       </form>
     </Modal>
+  );
+}
+
+const chip = (active: boolean) =>
+  `inline-flex min-h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-all ${
+    active
+      ? "ember-gradient text-background"
+      : "border border-foreground/30 text-foreground/85 hover:border-ember-2/60 hover:text-foreground"
+  }`;
+
+/**
+ * Les quatorze allergènes, et « Aucun » : rien de coché, ils ne sont pas
+ * renseignés et le menu invite le client à demander à l'équipe ; « Aucun »
+ * dit que le plat n'en contient aucun.
+ */
+function AllergensField({
+  value,
+  onChange,
+}: {
+  value: Allergen[] | null;
+  onChange: Dispatch<SetStateAction<Allergen[] | null>>;
+}) {
+  const none = value?.length === 0;
+  const toggle = (allergen: Allergen) =>
+    onChange((current) => {
+      const next = current?.includes(allergen)
+        ? current.filter((a) => a !== allergen)
+        : [...(current ?? []), allergen];
+      return next.length ? next : null;
+    });
+  // Pas Field : son <label> renverrait un clic sur l'intitulé au premier bouton, et cocherait le gluten.
+  return (
+    <fieldset className="flex flex-col gap-1.5">
+      <legend className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-faint">
+        Allergènes
+      </legend>
+      <div className="flex flex-wrap gap-2">
+        {(Object.keys(ALLERGEN_LABELS) as Allergen[]).map((allergen) => {
+          const active = value?.includes(allergen) ?? false;
+          return (
+            <button
+              key={allergen}
+              type="button"
+              onClick={() => toggle(allergen)}
+              aria-pressed={active}
+              className={chip(active)}
+            >
+              <AllergenIcon allergen={allergen} className="size-4 shrink-0" />
+              {ALLERGEN_LABELS[allergen]}
+            </button>
+          );
+        })}
+      </div>
+      {/* À part : « Aucun » affiche une promesse sur le menu, pas un allergène de plus. */}
+      <button
+        type="button"
+        onClick={() => onChange((current) => (current?.length === 0 ? null : []))}
+        aria-pressed={none}
+        className={`${chip(none)} self-start ${none ? "" : "border-dashed border-foreground/45"}`}
+      >
+        <svg viewBox="0 0 16 16" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <path d="M3.5 8.5l3 3 6-7" />
+        </svg>
+        Aucun des 14
+      </button>
+      <p aria-live="polite" className="text-xs text-muted">
+        {value === null
+          ? "Rien de coché : la fiche affichera « Allergènes non renseignés »."
+          : none
+            ? "La fiche affichera « Aucun des 14 allergènes ». Seulement si vous en êtes sûr."
+            : "Affichés un par un sur la fiche du plat."}
+      </p>
+    </fieldset>
   );
 }

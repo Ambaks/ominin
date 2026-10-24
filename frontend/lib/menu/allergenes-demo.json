@@ -1,0 +1,4543 @@
+{
+  "bai-ko": {
+    "aloe-vera": [],
+    "bongbong": [],
+    "cafe": [],
+    "chilsung": [],
+    "coca": [],
+    "eau": [],
+    "frites-classiques": [],
+    "ice-tea": [],
+    "menu-midi": [
+      "gluten",
+      "oeuf",
+      "arachides",
+      "soja",
+      "sesame"
+    ],
+    "milkis": [
+      "lait"
+    ],
+    "riz-blanc": [],
+    "soda": []
+  },
+  "big-smash": {
+    "bacon-dog": [
+      "gluten"
+    ],
+    "badoit": [],
+    "big-chicken": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "big-combo": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "big-fish": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "big-kids": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "big-mountain": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "big-salade": [
+      "gluten",
+      "crustaces",
+      "oeuf",
+      "lait"
+    ],
+    "big-smash-burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "big-sundae": [
+      "gluten",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "big-sundae-pistachio": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "capri-sun": [],
+    "cheesy-dog": [
+      "gluten",
+      "lait"
+    ],
+    "chicken-pop-corn": [
+      "gluten",
+      "oeuf"
+    ],
+    "chicken-pop-corn-spicy": [
+      "gluten",
+      "oeuf"
+    ],
+    "chicken-spicy": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "classic-dog": [
+      "gluten",
+      "moutarde"
+    ],
+    "coca-cola": [],
+    "crevettes-panees": [
+      "gluten",
+      "crustaces",
+      "oeuf"
+    ],
+    "evian": [],
+    "frites-cheddar": [
+      "lait"
+    ],
+    "frites-cheddar-bacon": [
+      "lait"
+    ],
+    "frites-epicees": [],
+    "frites-nature": [],
+    "fuze-tea-peche": [],
+    "grilled-cheese": [
+      "gluten",
+      "lait"
+    ],
+    "grilled-cheese-bacon": [
+      "gluten",
+      "lait"
+    ],
+    "grilled-nutella": [
+      "gluten",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "kinder-country": [
+      "gluten",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "little-smash": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "little-wrap": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "little-wrap-spicy": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "menu-big-cheese": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-big-chicken": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "menu-big-fish": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "menu-big-smash": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-chicken-spicy": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "menu-grilled-smash": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-original-cheese": [
+      "gluten",
+      "lait",
+      "moutarde"
+    ],
+    "menu-original-chicken": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "menu-smash-bacon": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-smash-classic": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-smash-spicy": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-surf-turf": [
+      "gluten",
+      "crustaces",
+      "oeuf",
+      "lait",
+      "sesame"
+    ],
+    "milkshake": [
+      "lait"
+    ],
+    "milkshake-pistache-macadamia": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "nuggets": [
+      "gluten",
+      "oeuf"
+    ],
+    "original-cheese": [
+      "gluten",
+      "lait",
+      "moutarde"
+    ],
+    "original-chicken": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "pops-cheddar": [
+      "gluten",
+      "lait"
+    ],
+    "pops-cheddar-bacon": [
+      "gluten",
+      "lait"
+    ],
+    "pops-nature": [
+      "gluten"
+    ],
+    "red-bull": [],
+    "sauces": [
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "smash-bacon": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "smash-classic": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "smash-spicy": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "spicy-dog": [
+      "gluten",
+      "oeuf"
+    ],
+    "surf-turf": [
+      "gluten",
+      "crustaces",
+      "oeuf",
+      "lait",
+      "sesame"
+    ],
+    "tenders": [
+      "gluten",
+      "oeuf"
+    ],
+    "the-limonade": [],
+    "volvic": []
+  },
+  "boho": {
+    "assortiment-boho": [
+      "gluten",
+      "crustaces",
+      "soja"
+    ],
+    "banoffee": [
+      "lait"
+    ],
+    "blue-lagoon": [
+      "lait"
+    ],
+    "brioche-pain-perdu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "burger-boho": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "cappuccino": [
+      "lait"
+    ],
+    "carpaccio-boeuf": [
+      "lait"
+    ],
+    "chicha-classique": [],
+    "chicha-mi-amor": [],
+    "chicha-premium": [],
+    "chicha-royale": [],
+    "citronnade-maison": [],
+    "coca-cola": [],
+    "coca-zero": [],
+    "coco-mango": [],
+    "coupe-glace": [
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "creme-brulee": [
+      "oeuf",
+      "lait"
+    ],
+    "crepes-nutella": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crevettes-tempura": [
+      "gluten",
+      "crustaces",
+      "oeuf"
+    ],
+    "entrecote": [
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "espresso": [],
+    "evian": [],
+    "fraise-tagada": [
+      "lait"
+    ],
+    "gaufre-nutella": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "ginger-lemonade": [],
+    "ice-tea": [],
+    "jus-fruits-frais": [],
+    "latina-passion": [],
+    "latte-macchiato": [
+      "lait"
+    ],
+    "lungo": [],
+    "magret-canard": [
+      "moutarde"
+    ],
+    "menu-enfant-plat": [
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "milkshake-popcorn": [
+      "lait"
+    ],
+    "mojito": [],
+    "nems-legumes": [
+      "gluten",
+      "soja"
+    ],
+    "nems-poulet": [
+      "gluten",
+      "soja"
+    ],
+    "noisette": [],
+    "perrier": [],
+    "piece-boeuf": [
+      "moutarde"
+    ],
+    "piece-poulet": [
+      "moutarde"
+    ],
+    "pina-colada": [],
+    "pizza-chevre-miel": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-margarita": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-poulet-indienne": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-saumon": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "plateau-fruits": [],
+    "red-dragon": [],
+    "redbull": [],
+    "ristretto": [],
+    "rose-garden": [],
+    "salade-cesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "samoussas-boeuf": [
+      "gluten"
+    ],
+    "saumon-plancha": [
+      "poisson",
+      "moutarde"
+    ],
+    "sex-on-the-beach": [],
+    "terracota": [],
+    "tiramisu-cafe": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tomate-burrata": [
+      "lait",
+      "fruits-a-coque"
+    ]
+  },
+  "boulangerie-cyprien": {
+    "baba": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "baba-partager": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "baguette-charbon": [
+      "gluten"
+    ],
+    "baguette-tradition": [
+      "gluten"
+    ],
+    "chausson-pommes": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "chocolatine": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "chou-praline-pecan": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "croissant": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "eclair-tout-chocolat": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "millefeuille-caramel": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "millefeuille-caramel-partager": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "pain-complet": [
+      "gluten"
+    ],
+    "pain-cyprien": [
+      "gluten"
+    ],
+    "pain-de-mie": [
+      "gluten",
+      "lait"
+    ],
+    "pain-des-copains": [
+      "gluten"
+    ],
+    "pain-viennois": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "paris-brest": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "paris-brest-partager": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "tarte-framboise-basilic": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tarte-framboise-basilic-partager": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tourte-grand-epeautre": [
+      "gluten"
+    ]
+  },
+  "brasserie-laissac": {
+    "assiette-fromages": [
+      "gluten",
+      "lait"
+    ],
+    "banana-split": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "bruschetta": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "burger-chevre-miel": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burrata": [
+      "lait"
+    ],
+    "cafe-liegeois": [
+      "oeuf",
+      "lait"
+    ],
+    "california-beef": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "camembert-roti": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "chardonnay": [
+      "sulfites"
+    ],
+    "cheese-burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "cheesecake": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "chicken": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "chicken-avocado": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "chicken-beef": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "chocolat-liegeois": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "colonel": [],
+    "dame-blanche": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "fish-and-chips": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "moutarde"
+    ],
+    "fish-burger": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "formule-gouter": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "formule-petit-dejeuner": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "frites-maison": [],
+    "frites-patate-douce": [],
+    "glace-1-boule": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "glace-2-boules": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "glace-3-boules": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "gourmand": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "jager-bomb": [],
+    "margherita": [
+      "gluten",
+      "lait"
+    ],
+    "moelleux": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "mojito": [],
+    "nuggets": [
+      "gluten",
+      "oeuf"
+    ],
+    "original-burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "pinte-blonde": [
+      "gluten"
+    ],
+    "pinte-monaco": [
+      "gluten"
+    ],
+    "pizza-chevre-miel": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-poulet": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-saumon": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "planche-charcuterie": [
+      "gluten"
+    ],
+    "planche-fromages": [
+      "gluten",
+      "lait"
+    ],
+    "planche-mixte": [
+      "gluten",
+      "lait"
+    ],
+    "planteur": [],
+    "plat-1-dessert": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "plat-2-dessert": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "punch-sangria": [
+      "sulfites"
+    ],
+    "quatre-fromaggi": [
+      "gluten",
+      "lait"
+    ],
+    "regina": [
+      "gluten",
+      "lait"
+    ],
+    "rosti-burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "salade-caesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-chevre-chaud": [
+      "gluten",
+      "lait",
+      "moutarde"
+    ],
+    "salade-italienne": [
+      "gluten",
+      "lait",
+      "moutarde"
+    ],
+    "savoyard": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "sex-on-the-beach": [],
+    "speziale": [
+      "gluten",
+      "lait"
+    ],
+    "spritz": [
+      "sulfites"
+    ],
+    "sticks-mozzarella": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tarte-citron": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tarte-tatin": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "vegetarien": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "vegetarienne": [
+      "gluten",
+      "lait"
+    ],
+    "vin-moelleux": [
+      "sulfites"
+    ],
+    "virgin-colada": [],
+    "virgin-mojito": []
+  },
+  "cafe-3-graces": {
+    "aglae": [
+      "gluten",
+      "lait"
+    ],
+    "americano": [
+      "sulfites"
+    ],
+    "aperol-spritz": [
+      "sulfites"
+    ],
+    "bacardi": [],
+    "baileys": [
+      "lait"
+    ],
+    "ballantines": [],
+    "banana-split": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "bombay-tonic": [],
+    "brioche-perdue": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "brownie": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "brunch": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "bud": [
+      "gluten"
+    ],
+    "bumbu": [
+      "lait"
+    ],
+    "burger-classic": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-crispy": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-italien": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "cafe": [],
+    "cafe-liegeois": [
+      "oeuf",
+      "lait"
+    ],
+    "caipirinha-roska": [],
+    "campari": [],
+    "cappuccino": [
+      "lait"
+    ],
+    "carpaccio": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "chocolat-chaud": [
+      "soja",
+      "lait"
+    ],
+    "chocolat-liegeois": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "classic": [
+      "gluten",
+      "lait"
+    ],
+    "clos-real": [
+      "sulfites"
+    ],
+    "coca": [],
+    "complet": [
+      "gluten",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "corona": [
+      "gluten"
+    ],
+    "corona-0": [
+      "gluten"
+    ],
+    "cote-de-boeuf": [
+      "lait",
+      "moutarde"
+    ],
+    "coupe-3-graces": [
+      "oeuf",
+      "lait"
+    ],
+    "crazy-melon": [],
+    "creme-brulee": [
+      "oeuf",
+      "lait"
+    ],
+    "crepe-chocolat": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "crepe-confiture": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "crepe-creme-de-marron": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "crepe-nutella": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-sucre": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "crepe-sucre-citron": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "dame-blanche": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "diabolo": [],
+    "dictador": [],
+    "domaine-argenteille": [
+      "sulfites"
+    ],
+    "domaine-de-joy": [
+      "sulfites"
+    ],
+    "double-cafe": [],
+    "douceurs-des-iles": [],
+    "duke": [],
+    "erena": [],
+    "eristoff": [],
+    "escalope-milanaise": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "espresso-martini": [],
+    "exotique": [
+      "lait"
+    ],
+    "fanta": [],
+    "formule-douceur": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "fraise-melba": [
+      "oeuf",
+      "lait"
+    ],
+    "fuze-tea": [],
+    "get": [],
+    "ginger-beer": [],
+    "glace-1-boule": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "glace-2-boules": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "glace-3-boules": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "goose-island": [
+      "gluten"
+    ],
+    "gourmande": [
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "gouverneur": [],
+    "grain-de-sagesse": [
+      "sulfites"
+    ],
+    "grande-sieste": [
+      "sulfites"
+    ],
+    "granini": [],
+    "grey-goose": [],
+    "hoegaarden": [
+      "gluten"
+    ],
+    "houmous": [
+      "gluten",
+      "sesame"
+    ],
+    "jack-daniels": [],
+    "jambon-serrano": [
+      "gluten"
+    ],
+    "kir": [
+      "sulfites"
+    ],
+    "kir-royal": [
+      "sulfites"
+    ],
+    "latte": [
+      "lait"
+    ],
+    "latte-caramel": [
+      "lait"
+    ],
+    "latte-vanille": [
+      "lait"
+    ],
+    "leffe": [
+      "gluten"
+    ],
+    "leffe-ruby": [
+      "gluten"
+    ],
+    "limonade": [],
+    "limoncello": [],
+    "loup-grille": [
+      "poisson",
+      "lait",
+      "celeri",
+      "sulfites"
+    ],
+    "marie-antoinette-blanc": [
+      "sulfites"
+    ],
+    "marie-antoinette-rose": [
+      "sulfites"
+    ],
+    "marie-antoinette-rouge": [
+      "sulfites"
+    ],
+    "martini": [
+      "sulfites"
+    ],
+    "martini-spumante": [
+      "sulfites"
+    ],
+    "mojito": [],
+    "moules-gratinees": [
+      "gluten",
+      "lait",
+      "mollusques"
+    ],
+    "mozzarella-panee": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri",
+      "sesame"
+    ],
+    "mule": [],
+    "muscat": [
+      "sulfites"
+    ],
+    "noisette": [
+      "lait"
+    ],
+    "oasis": [],
+    "orange-pressee": [],
+    "panache": [
+      "gluten"
+    ],
+    "papaya-mania": [],
+    "patatas-bravas": [],
+    "patron": [],
+    "paul-mas-1892": [
+      "sulfites"
+    ],
+    "paul-mas-viognier": [
+      "sulfites"
+    ],
+    "peach-lover": [
+      "sulfites"
+    ],
+    "peche-melba": [
+      "oeuf",
+      "lait"
+    ],
+    "perrier": [],
+    "pina-colada": [],
+    "pinky-groovy": [],
+    "piper-heidsieck": [
+      "sulfites"
+    ],
+    "planche-charcuterie": [
+      "lait",
+      "sulfites"
+    ],
+    "planche-mediterranee": [
+      "gluten",
+      "poisson",
+      "lait",
+      "sesame",
+      "mollusques"
+    ],
+    "poire": [],
+    "poire-belle-helene": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "pornstar-martini": [
+      "sulfites"
+    ],
+    "porto": [
+      "sulfites"
+    ],
+    "ricard": [],
+    "risotto": [
+      "lait",
+      "celeri",
+      "sulfites"
+    ],
+    "rosyne": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "saint-germain-spritz": [
+      "sulfites"
+    ],
+    "salade-cesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-nordique": [
+      "gluten",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-romaine": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "saumon-blinis": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait"
+    ],
+    "schweppes": [],
+    "seiches": [
+      "lait",
+      "celeri",
+      "sulfites",
+      "mollusques"
+    ],
+    "sex-on-the-beach": [],
+    "sirop": [],
+    "sprite": [],
+    "stracciatella": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "suze": [],
+    "tataki-thon": [
+      "gluten",
+      "poisson",
+      "soja",
+      "sesame"
+    ],
+    "thalie": [
+      "gluten",
+      "lait"
+    ],
+    "the-infusion": [],
+    "tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tomates-mozzarella": [
+      "lait"
+    ],
+    "trilogie-mozzarella": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "viennois": [
+      "lait"
+    ],
+    "virgin-mojito": [],
+    "virgin-pina": [],
+    "yellow-slow": []
+  },
+  "cafe-des-arts": {
+    "amaretto": [
+      "fruits-a-coque"
+    ],
+    "americano-maison": [
+      "sulfites"
+    ],
+    "armagnac": [],
+    "assiette-fromages": [
+      "lait"
+    ],
+    "baba-au-rhum": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "bacardi-8-ans": [],
+    "bacardi-cuatro": [],
+    "bacardi-cuatro-red-bull": [],
+    "bacardi-oakheart": [],
+    "badoit": [],
+    "baileys": [
+      "lait"
+    ],
+    "bambino-fish-and-chips": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "soja",
+      "lait",
+      "fruits-a-coque",
+      "moutarde"
+    ],
+    "bambino-nuggets": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "banana-split": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "bavette": [
+      "gluten",
+      "lait",
+      "celeri",
+      "sulfites"
+    ],
+    "biere-du-mois": [
+      "gluten"
+    ],
+    "blanc-baume-sauvignon": [
+      "sulfites"
+    ],
+    "blanc-baume-viognier": [
+      "sulfites"
+    ],
+    "blanc-duc-de-morny-picpoul": [
+      "sulfites"
+    ],
+    "blanc-garrigues-chardonnay": [
+      "sulfites"
+    ],
+    "blanc-grezan-chardonnay": [
+      "sulfites"
+    ],
+    "blanc-hortus": [
+      "sulfites"
+    ],
+    "blanc-tarriquet": [
+      "sulfites"
+    ],
+    "bloody-mary": [
+      "poisson",
+      "celeri"
+    ],
+    "bologne-vo": [],
+    "bombay-sapphire": [],
+    "bruschetta-catalane": [
+      "gluten",
+      "lait",
+      "moutarde",
+      "sulfites"
+    ],
+    "bruschetta-chevre-miel": [
+      "gluten",
+      "lait",
+      "moutarde",
+      "sulfites"
+    ],
+    "bruschetta-saumon": [
+      "gluten",
+      "poisson",
+      "lait",
+      "moutarde",
+      "sulfites"
+    ],
+    "bumbu": [],
+    "burger-aveyronnais": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-cafe-des-arts": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-vegetarien": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "cacolac": [
+      "lait"
+    ],
+    "cafe": [],
+    "cafe-allonge": [],
+    "cafe-creme": [
+      "lait"
+    ],
+    "cafe-gourmand": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "cafe-liegeois": [
+      "oeuf",
+      "lait"
+    ],
+    "caipirinha": [],
+    "caipiroska": [],
+    "calvados": [],
+    "campari-suze": [],
+    "cappuccino": [
+      "lait"
+    ],
+    "cardhu-amber-rock": [],
+    "carpaccio-bresaola": [
+      "lait"
+    ],
+    "champagne-ar-lenoble": [
+      "sulfites"
+    ],
+    "champagne-ruinart": [
+      "sulfites"
+    ],
+    "champagne-selection-maison": [
+      "sulfites"
+    ],
+    "champagne-veuve-clicquot": [
+      "sulfites"
+    ],
+    "chartreuse-verte": [],
+    "chivas": [],
+    "chocolat-chaud": [
+      "soja",
+      "lait"
+    ],
+    "chocolat-liegeois": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "chouffe": [
+      "gluten"
+    ],
+    "cidre-magners": [
+      "sulfites"
+    ],
+    "cihuatan": [],
+    "coca-cola": [],
+    "coconut": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "cognac": [],
+    "cold-and-dark-martini": [],
+    "colonel": [],
+    "corona": [
+      "gluten"
+    ],
+    "cosmopolitain": [],
+    "coupe-2-boules": [
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque",
+      "sulfites"
+    ],
+    "coupe-3-boules": [
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque",
+      "sulfites"
+    ],
+    "coupe-de-champagne": [
+      "sulfites"
+    ],
+    "crabbie": [],
+    "creme-brulee": [
+      "oeuf",
+      "lait"
+    ],
+    "cuba-libre": [],
+    "cubanisto": [
+      "gluten"
+    ],
+    "dame-blanche": [
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "dead-n-stormy": [],
+    "decafeine": [],
+    "delice-des-bois": [
+      "lait"
+    ],
+    "desperados": [
+      "gluten"
+    ],
+    "detox": [],
+    "diabolo": [
+      "fruits-a-coque"
+    ],
+    "don-papa": [],
+    "double-cafe": [],
+    "duo": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "soja",
+      "lait",
+      "fruits-a-coque",
+      "celeri",
+      "moutarde",
+      "sulfites"
+    ],
+    "epaule-agneau": [
+      "lait",
+      "celeri",
+      "sulfites"
+    ],
+    "escargots": [
+      "lait",
+      "mollusques"
+    ],
+    "evian": [],
+    "exotique": [],
+    "fanta": [],
+    "fiero-spritz": [
+      "sulfites"
+    ],
+    "filet-rossini": [
+      "gluten",
+      "lait",
+      "celeri",
+      "sulfites"
+    ],
+    "floraison-gvine": [],
+    "foie-gras-poele": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "sulfites"
+    ],
+    "formule-express": [
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque",
+      "sulfites"
+    ],
+    "french-coffee": [
+      "lait"
+    ],
+    "frozen-daiquiri": [],
+    "fuze-tea": [],
+    "garniture-frites": [],
+    "garniture-grenailles": [],
+    "garniture-legumes": [],
+    "garniture-puree": [
+      "lait"
+    ],
+    "garniture-riz": [],
+    "get": [],
+    "gin-fizz": [],
+    "gourmande": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "grey-goose": [],
+    "grey-goose-red-bull": [],
+    "guinness": [
+      "gluten"
+    ],
+    "heineken": [
+      "gluten"
+    ],
+    "hendricks": [],
+    "hennessy": [],
+    "irish-coffee": [
+      "lait"
+    ],
+    "jack-daniels": [],
+    "jagerbomb": [],
+    "jagermeister": [],
+    "jus-de-fruits": [],
+    "kir-maison": [
+      "sulfites"
+    ],
+    "kir-royal": [
+      "sulfites"
+    ],
+    "kriek-cerise": [
+      "gluten"
+    ],
+    "lasagne-boeuf": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "le-grand-fizz": [],
+    "limonade-pression": [],
+    "limoncello": [],
+    "linguinis-saint-jacques": [
+      "gluten",
+      "lait",
+      "celeri",
+      "sulfites",
+      "mollusques"
+    ],
+    "long-island": [],
+    "lynchburg-lemonade": [],
+    "mac-and-cheese": [
+      "gluten",
+      "lait"
+    ],
+    "mai-tai": [
+      "fruits-a-coque"
+    ],
+    "margarita": [],
+    "martini": [
+      "sulfites"
+    ],
+    "martini-tonic": [
+      "sulfites"
+    ],
+    "martiniquaise": [
+      "oeuf",
+      "lait",
+      "sulfites"
+    ],
+    "menu-25-formule": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "soja",
+      "lait",
+      "fruits-a-coque",
+      "celeri",
+      "moutarde",
+      "sesame",
+      "sulfites"
+    ],
+    "milkshake-1-parfum": [
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "milkshake-2-parfums": [
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "mirabelle": [],
+    "moelleux-chocolat": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "mojito": [],
+    "mojito-royal": [
+      "sulfites"
+    ],
+    "monaco": [
+      "gluten"
+    ],
+    "mont-blanc": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "moscow-mule": [],
+    "munchner-marzen": [
+      "gluten"
+    ],
+    "muscat": [
+      "sulfites"
+    ],
+    "noisette": [
+      "lait"
+    ],
+    "oeuf-parfait": [
+      "oeuf",
+      "lait"
+    ],
+    "old-ladies": [],
+    "orangina": [],
+    "panache": [
+      "gluten"
+    ],
+    "pannacotta": [
+      "lait"
+    ],
+    "parfait-caramel": [
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "patron-silver": [],
+    "paulaner": [
+      "gluten"
+    ],
+    "paulaner-sans-alcool": [
+      "gluten"
+    ],
+    "peachy": [],
+    "peche-melba": [
+      "oeuf",
+      "lait"
+    ],
+    "pertuis": [],
+    "petit-dejeuner-americain": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "petit-dejeuner-continental": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "pichet-biere": [
+      "gluten"
+    ],
+    "pichet-cocktail": [],
+    "picon-biere": [
+      "gluten"
+    ],
+    "pina-colada": [],
+    "pizza-4-fromages": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-4-saisons": [
+      "gluten",
+      "lait",
+      "sulfites"
+    ],
+    "pizza-bambino": [
+      "gluten",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "pizza-calabrese": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-campione": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "pizza-chevre-miel": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-florentine": [
+      "gluten",
+      "lait",
+      "sulfites"
+    ],
+    "pizza-indienne": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-margarita": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-napolitaine": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "pizza-neptune": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "pizza-norvegienne": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "pizza-reine": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-romaine": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-royale": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "pizza-savoyarde": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-tartufata": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-toscana": [
+      "gluten",
+      "lait"
+    ],
+    "planche-shooters": [
+      "lait"
+    ],
+    "plantation-pineapple": [],
+    "planteur": [],
+    "poire-belle-helene": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "poire-pochee": [
+      "soja",
+      "lait",
+      "sulfites"
+    ],
+    "poire-williams": [],
+    "poke-bowl-vegetarien": [
+      "gluten",
+      "soja",
+      "sesame"
+    ],
+    "porto-rouge": [
+      "sulfites"
+    ],
+    "profiteroles": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "profiteroles-maison": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "prosecco-verre": [
+      "sulfites"
+    ],
+    "prossecco-ponte-villoni": [
+      "sulfites"
+    ],
+    "punch-maison": [],
+    "red-bull": [],
+    "ricard-pastis": [],
+    "risotto-saint-jacques": [
+      "lait",
+      "celeri",
+      "sulfites",
+      "mollusques"
+    ],
+    "rose-garrigues-cinsault": [
+      "sulfites"
+    ],
+    "rose-grezan-faugeres": [
+      "sulfites"
+    ],
+    "rose-hortus": [
+      "sulfites"
+    ],
+    "rose-le-pive": [
+      "sulfites"
+    ],
+    "rose-rouviere": [
+      "sulfites"
+    ],
+    "rouge-boissezon-guiraud": [
+      "sulfites"
+    ],
+    "rouge-crozes-hermitage": [
+      "sulfites"
+    ],
+    "rouge-deesses-muettes": [
+      "sulfites"
+    ],
+    "rouge-garrigues-merlot": [
+      "sulfites"
+    ],
+    "rouge-grezan-faugeres": [
+      "sulfites"
+    ],
+    "rouge-hortus": [
+      "sulfites"
+    ],
+    "rouge-mas-de-quernes": [
+      "sulfites"
+    ],
+    "rouge-terre-des-galets": [
+      "sulfites"
+    ],
+    "saint-germain-cocktail": [
+      "sulfites"
+    ],
+    "saint-pierre": [
+      "poisson",
+      "lait",
+      "sulfites"
+    ],
+    "salade-caesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-chevre-chaud": [
+      "gluten",
+      "lait",
+      "moutarde",
+      "sulfites"
+    ],
+    "salade-perigourdine": [
+      "fruits-a-coque",
+      "moutarde",
+      "sulfites"
+    ],
+    "salade-vegetarienne": [
+      "moutarde",
+      "sulfites"
+    ],
+    "salvator": [
+      "gluten"
+    ],
+    "san-jose": [],
+    "sangria-maison": [
+      "sulfites"
+    ],
+    "schweppes": [],
+    "seiches-setoise": [
+      "celeri",
+      "sulfites",
+      "mollusques"
+    ],
+    "sex-on-the-beach": [],
+    "sirop-a-l-eau": [
+      "fruits-a-coque"
+    ],
+    "smoothies": [],
+    "sobieski": [],
+    "special-punch": [],
+    "special-sangria": [
+      "sulfites"
+    ],
+    "sprite": [],
+    "st-thomas": [
+      "gluten"
+    ],
+    "supreme-volaille": [
+      "gluten",
+      "lait",
+      "celeri",
+      "sulfites"
+    ],
+    "tartiflette": [
+      "lait",
+      "sulfites"
+    ],
+    "tataki-boeuf": [
+      "gluten",
+      "soja",
+      "sesame"
+    ],
+    "tequila-sunrise": [],
+    "terrine-porc": [
+      "gluten",
+      "celeri",
+      "sulfites"
+    ],
+    "the-infusion": [],
+    "ti-punch": [],
+    "tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "sulfites"
+    ],
+    "tottori": [],
+    "trio": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "soja",
+      "lait",
+      "fruits-a-coque",
+      "celeri",
+      "moutarde",
+      "sulfites"
+    ],
+    "tripel-karmeliet": [
+      "gluten"
+    ],
+    "tropico": [],
+    "uno": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "veloute-legumes": [
+      "lait",
+      "celeri"
+    ],
+    "verre-d-eau": [],
+    "viennois": [
+      "soja",
+      "lait"
+    ],
+    "virgin-colada": [],
+    "virgin-mojito": [],
+    "william-lawson": [],
+    "woodford-reserve": []
+  },
+  "cafe-poulard": {
+    "beignets-courgettes": [
+      "gluten",
+      "oeuf",
+      "moutarde"
+    ],
+    "bouquet-crevettes": [
+      "crustaces"
+    ],
+    "brochettes": [],
+    "burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "cafe": [],
+    "camembert-pane": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "chocolat": [
+      "soja",
+      "lait"
+    ],
+    "clafoutis": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "crudo-daurade": [
+      "poisson"
+    ],
+    "filet-daurade": [
+      "poisson"
+    ],
+    "gaspacho": [
+      "gluten"
+    ],
+    "gaufre": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "jus-de-fruits": [],
+    "pan-con-tomate": [
+      "gluten"
+    ],
+    "pita": [
+      "gluten"
+    ],
+    "poulet-roti": [],
+    "poulpe": [
+      "mollusques"
+    ],
+    "salade-mangue": [],
+    "souris-agneau": [
+      "celeri"
+    ],
+    "tartines-chocolat": [
+      "gluten",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "tataki-magret": [
+      "gluten",
+      "soja",
+      "sesame"
+    ],
+    "viennoiserie": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ]
+  },
+  "cafe-riche": {
+    "accompagnement": [],
+    "accras-morue": [
+      "gluten",
+      "oeuf",
+      "poisson"
+    ],
+    "affligem-abbaye": [
+      "gluten"
+    ],
+    "affligem-blanche": [
+      "gluten"
+    ],
+    "affogato": [
+      "lait"
+    ],
+    "after-eight": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "americano": [
+      "sulfites"
+    ],
+    "arancini": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "ardoise-mixte": [
+      "gluten",
+      "lait"
+    ],
+    "armagnac-10-ans": [],
+    "avocado-toast": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "avocat-crevette": [
+      "crustaces",
+      "oeuf",
+      "moutarde"
+    ],
+    "azzura-mule": [],
+    "baileys": [
+      "lait"
+    ],
+    "banana-split": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "bavette-echalote": [
+      "lait",
+      "sulfites"
+    ],
+    "belvedere": [],
+    "black-label": [],
+    "bombay": [],
+    "bouquets-crevette": [
+      "crustaces",
+      "oeuf",
+      "moutarde"
+    ],
+    "brunch": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "burger-aveyronnais": [
+      "gluten",
+      "lait",
+      "sesame"
+    ],
+    "burger-chic-chicken": [
+      "gluten",
+      "oeuf",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-le-riche": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-vegi": [
+      "gluten",
+      "soja",
+      "sesame"
+    ],
+    "burrata-pesto": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "cafe-allonge": [],
+    "cafe-allonge-arabica": [],
+    "cafe-expresso": [],
+    "cafe-expresso-arabica": [],
+    "cafe-gourmand": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "cafe-latte": [
+      "lait"
+    ],
+    "cafe-liegeois": [
+      "oeuf",
+      "lait"
+    ],
+    "caipirinha": [],
+    "calvados": [],
+    "camembert-roti": [
+      "gluten",
+      "lait",
+      "moutarde",
+      "sulfites"
+    ],
+    "campari": [],
+    "campari-perrier": [],
+    "cappuccino": [
+      "lait"
+    ],
+    "carpaccio-boeuf": [
+      "lait"
+    ],
+    "champagne": [
+      "sulfites"
+    ],
+    "chapelle-de-venenge": [
+      "sulfites"
+    ],
+    "chateau-laroque-la-cupa": [
+      "sulfites"
+    ],
+    "chateau-minuty": [
+      "sulfites"
+    ],
+    "chateau-minuty-magnum": [
+      "sulfites"
+    ],
+    "cheesecake": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "cherry-chouffe": [
+      "gluten"
+    ],
+    "chevre-pane-miel": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "chipirones": [
+      "mollusques"
+    ],
+    "chivas": [],
+    "chocolat-ancienne": [
+      "lait"
+    ],
+    "chocolat-chaud": [
+      "lait"
+    ],
+    "chocolat-liegeois": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "chouffe-blonde": [
+      "gluten"
+    ],
+    "cidre-brut": [
+      "sulfites"
+    ],
+    "cigalus": [
+      "sulfites"
+    ],
+    "citadelle": [],
+    "citronnade": [],
+    "citronnade-menthe": [],
+    "clapiere-figuerette": [
+      "sulfites"
+    ],
+    "clapiere-jalade": [
+      "sulfites"
+    ],
+    "clapiere-jardin-de-jules": [
+      "sulfites"
+    ],
+    "coca-cola": [],
+    "cognac-vsop": [],
+    "colonel": [],
+    "cosmopolitan": [],
+    "cote-veau": [],
+    "creme": [
+      "lait"
+    ],
+    "creme-brulee": [
+      "oeuf",
+      "lait"
+    ],
+    "crepe-beurre-sucre": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-chocolat": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-citron": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-confiture-fraise": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-confiture-peche": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-flambee": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-nutella": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-nutella-banane": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-sucre": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "croissant": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "daiquiri": [],
+    "dame-blanche": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "dark-n-stormy": [],
+    "decafeine": [],
+    "decafeine-allonge": [],
+    "desperados": [
+      "gluten"
+    ],
+    "diabolo": [
+      "fruits-a-coque"
+    ],
+    "dictador-12-ans": [],
+    "diplomatico-reserva": [],
+    "disaronno": [
+      "fruits-a-coque"
+    ],
+    "don-papa-7-ans": [],
+    "double-cafe": [],
+    "double-cafe-arabica": [],
+    "emalieres-macon-villages": [
+      "sulfites"
+    ],
+    "espresso-martini": [],
+    "filet-bar": [
+      "poisson",
+      "sulfites"
+    ],
+    "fish-and-chips": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "moutarde"
+    ],
+    "focaccia-chevre-miel": [
+      "gluten",
+      "lait"
+    ],
+    "formule-classique": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "formule-complete": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "frappe": [
+      "lait"
+    ],
+    "frites": [],
+    "frites-cheddar": [
+      "gluten",
+      "lait"
+    ],
+    "frites-cheddar-bacon": [
+      "gluten",
+      "lait"
+    ],
+    "genepi": [],
+    "gentleman-sour": [
+      "oeuf"
+    ],
+    "get": [],
+    "ginger-beer": [],
+    "glace-1-boule": [
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "glace-2-boules": [
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "glace-3-boules": [
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "glenfiddich": [],
+    "grey-goose": [],
+    "havana-7-ans": [],
+    "heineken-zero": [
+      "gluten"
+    ],
+    "hendricks": [],
+    "hugo": [
+      "sulfites"
+    ],
+    "huitres": [
+      "mollusques"
+    ],
+    "huitres-gratinees": [
+      "oeuf",
+      "lait",
+      "sulfites",
+      "mollusques"
+    ],
+    "jack-daniels": [],
+    "jack-daniels-honey": [],
+    "jamelles-viognier": [
+      "sulfites"
+    ],
+    "jim-beam": [],
+    "jus-citron": [],
+    "jus-orange": [],
+    "jus-orange-banane": [],
+    "jus-pamplemousse": [],
+    "kir": [
+      "sulfites"
+    ],
+    "l-intox-original": [],
+    "lagunitas-ipa": [
+      "gluten"
+    ],
+    "limonade": [],
+    "limoncello": [],
+    "linguines-carbonara": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "linguines-pesto": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "linguines-vongole": [
+      "gluten",
+      "oeuf",
+      "sulfites",
+      "mollusques"
+    ],
+    "london-mule": [],
+    "loup-dans-la-bergerie": [
+      "sulfites"
+    ],
+    "magret-canard": [],
+    "margarita": [],
+    "martini": [
+      "sulfites"
+    ],
+    "menu-enfant": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "menu-opera": [
+      "gluten",
+      "crustaces",
+      "oeuf",
+      "poisson",
+      "lait",
+      "celeri",
+      "moutarde",
+      "sulfites",
+      "mollusques"
+    ],
+    "milanetas-poulet": [
+      "gluten",
+      "oeuf"
+    ],
+    "milkshake": [
+      "lait"
+    ],
+    "mojito": [],
+    "moscow-mule": [],
+    "moules-creme": [
+      "lait",
+      "celeri",
+      "sulfites",
+      "mollusques"
+    ],
+    "moules-roquefort": [
+      "lait",
+      "celeri",
+      "sulfites",
+      "mollusques"
+    ],
+    "mousse-chocolat": [
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "negroni": [
+      "sulfites"
+    ],
+    "nikka": [],
+    "noisette": [
+      "lait"
+    ],
+    "nutella-cup": [
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "oeufs-mayonnaise": [
+      "oeuf",
+      "moutarde"
+    ],
+    "omelette": [
+      "oeuf",
+      "lait"
+    ],
+    "orangina": [],
+    "pacto-navio": [],
+    "pago": [],
+    "pago-pop": [],
+    "pain-a-tartiner": [
+      "gluten",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "pain-perdu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "panna-cotta": [
+      "lait"
+    ],
+    "patatas-bravas": [
+      "oeuf"
+    ],
+    "peace-and-love": [],
+    "pelforth-blonde": [
+      "gluten"
+    ],
+    "pelforth-brune": [
+      "gluten"
+    ],
+    "perrier": [],
+    "pina-colada": [],
+    "pink-riche": [],
+    "plat-du-jour-cafe": [],
+    "plat-du-jour-cafe-gourmand": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "poire-williams": [],
+    "poke-vegan": [
+      "gluten",
+      "soja",
+      "sesame"
+    ],
+    "pornstar-martini": [
+      "sulfites"
+    ],
+    "porto-muscat": [
+      "sulfites"
+    ],
+    "profiteroles": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "prosecco": [
+      "sulfites"
+    ],
+    "puech-haut-argali": [
+      "sulfites"
+    ],
+    "puech-haut-tete-de-belier-blanc": [
+      "sulfites"
+    ],
+    "puech-haut-tete-de-belier-rouge": [
+      "sulfites"
+    ],
+    "red-bull": [],
+    "ricard-pastis": [],
+    "rillettes-thon": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait"
+    ],
+    "rouille-seiche": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "celeri",
+      "mollusques"
+    ],
+    "salade-cesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-chevre-chaud": [
+      "gluten",
+      "lait",
+      "fruits-a-coque",
+      "moutarde"
+    ],
+    "salade-grecque": [
+      "lait"
+    ],
+    "salade-italienne": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "salade-nicoise": [
+      "oeuf",
+      "poisson",
+      "moutarde"
+    ],
+    "san-pellegrino": [],
+    "sauce": [
+      "gluten",
+      "lait",
+      "sulfites"
+    ],
+    "schweppes": [],
+    "seiche-plancha": [
+      "oeuf",
+      "moutarde",
+      "mollusques"
+    ],
+    "sex-on-the-beach": [],
+    "sirop": [
+      "fruits-a-coque"
+    ],
+    "sodas": [],
+    "soupe-poisson": [
+      "gluten",
+      "crustaces",
+      "oeuf",
+      "poisson",
+      "lait",
+      "celeri"
+    ],
+    "spicy-flash": [],
+    "spritz": [
+      "sulfites"
+    ],
+    "steak-a-cheval": [
+      "oeuf"
+    ],
+    "supreme-volaille": [
+      "celeri"
+    ],
+    "suze": [],
+    "sweet-purple": [],
+    "tanqueray": [],
+    "tartare-boeuf": [
+      "oeuf",
+      "moutarde"
+    ],
+    "tartare-thon": [
+      "poisson",
+      "soja",
+      "sesame"
+    ],
+    "tataki-thon-riz": [
+      "gluten",
+      "poisson",
+      "soja",
+      "sesame"
+    ],
+    "tataki-thon-teriyaki": [
+      "gluten",
+      "poisson",
+      "soja",
+      "sesame"
+    ],
+    "terrine-foie-gras": [
+      "gluten",
+      "sulfites"
+    ],
+    "the-glace": [],
+    "the-infusion": [],
+    "tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "vin-pichet": [
+      "sulfites"
+    ],
+    "virgin-colada": [],
+    "virgin-mojito": [],
+    "virgin-sex-on-the-beach": [],
+    "vittel": [],
+    "vodka-red-bull": [],
+    "xviii-saint-luc": [
+      "sulfites"
+    ]
+  },
+  "caffe-panis": {
+    "al-tartufo": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "all-amatriciana": [
+      "gluten",
+      "lait"
+    ],
+    "alla-bolognese": [
+      "gluten",
+      "lait",
+      "celeri"
+    ],
+    "amor-amatriciana": [
+      "gluten",
+      "lait"
+    ],
+    "burrata-pesto-forever": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "cafe-illy": [],
+    "capo": [
+      "gluten",
+      "lait"
+    ],
+    "carbonara-originale": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "classic-burrata": [
+      "lait"
+    ],
+    "coca-cola": [],
+    "coca-cola-zero": [],
+    "con-il-pesto": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "deurty-cookie": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "dwich-du-gang": [
+      "gluten",
+      "lait"
+    ],
+    "dwich-regina": [
+      "gluten",
+      "lait"
+    ],
+    "dwich-truffe": [
+      "gluten",
+      "lait"
+    ],
+    "fuzetea-peche": [],
+    "green-circle": [
+      "gluten",
+      "lait"
+    ],
+    "il-tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "sulfites"
+    ],
+    "mama-king": [
+      "gluten",
+      "lait"
+    ],
+    "margherita": [
+      "gluten",
+      "lait"
+    ],
+    "prosciutto": [],
+    "puissance-4": [
+      "gluten",
+      "lait"
+    ],
+    "stracciatella-fumee": [
+      "lait"
+    ],
+    "stracciatella-versace": [
+      "gluten",
+      "lait"
+    ],
+    "trio-arancini": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "truffle-supreme": [
+      "gluten",
+      "lait"
+    ],
+    "vivi-e-vechio": [
+      "gluten",
+      "lait"
+    ]
+  },
+  "chicken-street": {
+    "box-mix-solo": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "box-onion-rings": [
+      "gluten",
+      "oeuf"
+    ],
+    "burger-naan-dynamite": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "burger-naan-onion-rings-bacon": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "cheese": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "cristaline": [],
+    "double-cheese": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "family-mix": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "family-spicy": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "family-tenders": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "fuze-tea-50": [],
+    "ice-mix": [
+      "gluten",
+      "arachides",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "ice-street": [
+      "gluten",
+      "arachides",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "menu-burger-naan-dynamite": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-enfant-cheese": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "menu-enfant-nuggets": [
+      "gluten",
+      "oeuf"
+    ],
+    "menu-monster": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "menu-naan-mix": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-naan-tenders": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "menu-street-b": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "menu-tenders-5": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "monster": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "naan-curry": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-farmer": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-mix": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-steak": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-supreme": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-tenders": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-tenders-steak": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-thai": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "naan-tikka": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "nuggets-4": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "soda": [],
+    "street-b": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "tenders-3": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "tenders-5": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "tenders-n-cheese": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "twice": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "wings": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "wings-3": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "wings-6": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ]
+  },
+  "l-adresse": {
+    "beef-burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "brioche-perdue": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "chicha-khaloud": [],
+    "chicha-plate": [],
+    "chicken-burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "coca-cola": [],
+    "copacabana": [
+      "lait"
+    ],
+    "creme-brulee-pistache": [
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "diabolo": [],
+    "eau-petillante-1l": [],
+    "eau-petillante-50cl": [],
+    "eau-plate-1l": [],
+    "eau-plate-50cl": [],
+    "entrecote": [
+      "lait"
+    ],
+    "faux-filet": [
+      "lait"
+    ],
+    "fondant-chocolat": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "fusilli-truffe-burrata": [
+      "gluten",
+      "lait"
+    ],
+    "ice-tea": [],
+    "magret-canard": [
+      "lait"
+    ],
+    "medaillon-foie-gras": [
+      "gluten",
+      "sulfites"
+    ],
+    "mojito": [],
+    "nuggets": [
+      "gluten",
+      "oeuf"
+    ],
+    "oasis": [],
+    "orangina": [],
+    "pave-saumon": [
+      "poisson",
+      "lait",
+      "sulfites"
+    ],
+    "pina-colada": [],
+    "red-bull": [],
+    "salade-burrata": [
+      "lait",
+      "fruits-a-coque",
+      "sulfites"
+    ],
+    "salade-cesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-paysanne": [
+      "gluten",
+      "lait",
+      "moutarde"
+    ],
+    "schweppes-agrumes": [],
+    "souris-agneau": [
+      "lait",
+      "celeri"
+    ],
+    "sprite": [],
+    "sunset": [],
+    "supplement-foie-gras": [
+      "sulfites"
+    ],
+    "supreme-volaille": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "sulfites"
+    ],
+    "tagliatelles-forestiere": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tagliatelles-pesto-burrata": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "tagliatelles-saumon": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait"
+    ],
+    "the-menthe": []
+  },
+  "l-entrepot": {
+    "absolut": [],
+    "belvedere": [],
+    "bombay-sapphire": [],
+    "caipirinha": [],
+    "captain-morgan": [],
+    "chivas-12": [],
+    "corona": [
+      "gluten"
+    ],
+    "desperados": [
+      "gluten"
+    ],
+    "eau": [],
+    "grey-goose": [],
+    "heineken": [
+      "gluten"
+    ],
+    "ice-tea": [],
+    "jack-daniels": [],
+    "jagerbomb": [],
+    "jus-ananas": [],
+    "jus-orange": [],
+    "long-drink": [],
+    "moet-ice": [
+      "sulfites"
+    ],
+    "moet-imperial": [
+      "sulfites"
+    ],
+    "mojito": [],
+    "patron-silver": [],
+    "pepsi": [],
+    "pepsi-max": [],
+    "planteur": [],
+    "plateau-shooters": [],
+    "red-bull": [],
+    "ruinart-blanc": [
+      "sulfites"
+    ],
+    "seven-up": [],
+    "shooter": [],
+    "tequila-sunrise": [],
+    "veuve-clicquot": [
+      "sulfites"
+    ],
+    "virgin-mojito": [],
+    "vodka-red-bull": []
+  },
+  "l-etoile": {
+    "armand-de-brignac-gold": [
+      "sulfites"
+    ],
+    "belvedere": [],
+    "belvedere-chrome": [],
+    "belvedere-lumineuse": [],
+    "black-label": [],
+    "ciroc": [],
+    "class-azul-reposado": [],
+    "coca-cola": [],
+    "coca-cola-zero": [],
+    "cristaline": [],
+    "dom-perignon-lumineuse": [
+      "sulfites"
+    ],
+    "don-julio-1942": [],
+    "don-julio-blanco": [],
+    "don-julio-reposado": [],
+    "fuzetea": [],
+    "hennessy-fine-150": [],
+    "hennessy-fine-75": [],
+    "hexis-energy-100": [],
+    "hexis-energy-25": [],
+    "hexis-energy-pack": [],
+    "jack-daniels": [],
+    "jack-daniels-apple": [],
+    "jack-daniels-honey": [],
+    "jack-daniels-rey": [],
+    "magnum-ciroc": [],
+    "magnum-jack-daniels": [],
+    "magnum-moet-brut": [
+      "sulfites"
+    ],
+    "moet-brut": [
+      "sulfites"
+    ],
+    "moet-ice": [
+      "sulfites"
+    ],
+    "moet-rose": [
+      "sulfites"
+    ],
+    "ruinart-blanc-de-blancs": [
+      "sulfites"
+    ],
+    "shooter": [],
+    "shooter-superieur": [],
+    "shooter-superieur-x10": [],
+    "shooter-x10": [],
+    "tanqueray-ten": [],
+    "zacapa": []
+  },
+  "le-club": {
+    "absolut": [],
+    "bombay-sapphire": [],
+    "chivas-12": [],
+    "corona": [
+      "gluten"
+    ],
+    "desperados": [
+      "gluten"
+    ],
+    "eau": [],
+    "grey-goose": [],
+    "havana-club-3": [],
+    "heineken": [
+      "gluten"
+    ],
+    "jack-daniels": [],
+    "jagerbomb": [],
+    "jus": [],
+    "long-island": [],
+    "moet-ice": [
+      "sulfites"
+    ],
+    "moet-imperial": [
+      "sulfites"
+    ],
+    "mojito": [],
+    "patron-silver": [],
+    "plateau-shooters": [],
+    "red-bull": [],
+    "ruinart-blanc-de-blancs": [
+      "sulfites"
+    ],
+    "sex-on-the-beach": [],
+    "shooter": [],
+    "soda": [],
+    "spritz": [
+      "sulfites"
+    ],
+    "tequila-sunrise": [],
+    "verre": [],
+    "veuve-clicquot": [
+      "sulfites"
+    ]
+  },
+  "le-novelty": {
+    "1664-sans-alcool": [
+      "gluten"
+    ],
+    "accras-morue": [
+      "gluten",
+      "oeuf",
+      "poisson"
+    ],
+    "beignets-calamars": [
+      "gluten",
+      "oeuf",
+      "mollusques"
+    ],
+    "beignets-courgettes": [
+      "gluten",
+      "oeuf"
+    ],
+    "beignets-crevettes": [
+      "gluten",
+      "crustaces",
+      "oeuf"
+    ],
+    "bete-blanche": [
+      "gluten"
+    ],
+    "bete-blonde": [
+      "gluten"
+    ],
+    "bete-rouge": [
+      "gluten"
+    ],
+    "biere-du-moment": [
+      "gluten"
+    ],
+    "bruschetta": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "cafe": [],
+    "cafe-allonge": [],
+    "cafe-creme": [
+      "lait"
+    ],
+    "cafe-viennois": [
+      "lait"
+    ],
+    "caipirinha": [],
+    "caipiroska": [],
+    "camembert-roti": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "cappuccino": [
+      "lait"
+    ],
+    "cherry-chouffe": [
+      "gluten"
+    ],
+    "chocolat-chaud": [
+      "soja",
+      "lait"
+    ],
+    "chocolat-viennois": [
+      "soja",
+      "lait"
+    ],
+    "chouffe": [
+      "gluten"
+    ],
+    "cidre": [
+      "sulfites"
+    ],
+    "coca-cola": [],
+    "coco-bull": [],
+    "corona": [
+      "gluten"
+    ],
+    "cosmopolitan": [],
+    "croquetas-chorizo": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "cuba-libre": [],
+    "daiquiri": [],
+    "decafeine": [],
+    "desperados": [
+      "gluten"
+    ],
+    "diabolo": [],
+    "double-cafe": [],
+    "ducasse-triple": [
+      "gluten"
+    ],
+    "eau-1l": [],
+    "eau-gazeuse": [],
+    "el-marez": [],
+    "evian": [],
+    "exotique": [],
+    "expresso-martini": [],
+    "fada-ipa": [
+      "gluten"
+    ],
+    "fanta-sprite": [],
+    "fish-and-chips": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "moutarde"
+    ],
+    "formule-etudiante": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri",
+      "moutarde",
+      "sesame"
+    ],
+    "formule-gouter": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "french-coffee": [
+      "lait"
+    ],
+    "frites-patates-douces": [],
+    "fuzetea": [],
+    "gin-fizz": [],
+    "gin-tonic": [],
+    "ginger-beer-tonic": [],
+    "grimbergen": [
+      "gluten"
+    ],
+    "guinness": [
+      "gluten"
+    ],
+    "heineken": [
+      "gluten"
+    ],
+    "irish-coffee": [
+      "lait"
+    ],
+    "jager-bomb": [],
+    "jambon-serrano": [
+      "gluten"
+    ],
+    "jus-de-fruits": [],
+    "jus-presse": [],
+    "kastel-rouge": [
+      "gluten"
+    ],
+    "kronenbourg": [
+      "gluten"
+    ],
+    "limonade-pression": [],
+    "long-island": [],
+    "margarita": [],
+    "milk-shake": [
+      "lait"
+    ],
+    "mini-nems-poulet": [
+      "gluten",
+      "oeuf",
+      "soja"
+    ],
+    "mini-saucissons": [],
+    "mojito": [],
+    "monaco": [
+      "gluten"
+    ],
+    "moscow-mule": [],
+    "mozzarella-bufala": [
+      "lait"
+    ],
+    "n-fire": [],
+    "noisette": [
+      "lait"
+    ],
+    "oignons-rings": [
+      "gluten",
+      "oeuf"
+    ],
+    "pan-con-tomate": [
+      "gluten"
+    ],
+    "panier-frites": [],
+    "patatas-persillees": [],
+    "picon-biere": [
+      "gluten"
+    ],
+    "pina-colada": [],
+    "planche-fromages": [
+      "lait"
+    ],
+    "planche-gourmande": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "fruits-a-coque",
+      "mollusques"
+    ],
+    "planche-mixte": [
+      "lait"
+    ],
+    "planche-tapas": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "mollusques"
+    ],
+    "planteur": [],
+    "pornstar": [
+      "sulfites"
+    ],
+    "red-berry": [],
+    "red-bull": [],
+    "sepions": [
+      "mollusques"
+    ],
+    "sex-on-the-beach": [],
+    "sirop-a-l-eau": [],
+    "smoothie": [],
+    "spritz": [
+      "sulfites"
+    ],
+    "sticks-mozzarella": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tequila-sunrise": [],
+    "tete-a-l-envers": [],
+    "the-glace": [],
+    "the-infusion": [],
+    "ti-punch": [],
+    "triple-karmeliet": [
+      "gluten"
+    ],
+    "tropico-orangina": [],
+    "virgin-colada": [],
+    "virgin-mojito": [],
+    "wings-poulet": [
+      "gluten"
+    ]
+  },
+  "le-petit-nice": {
+    "apple-berries": [],
+    "brie-roti": [
+      "lait"
+    ],
+    "burger-cbo": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burratina": [
+      "lait"
+    ],
+    "cafe-allonge": [],
+    "cafe-double": [],
+    "cafe-noisette": [],
+    "cafe-viennois": [
+      "lait"
+    ],
+    "cappuccino": [
+      "lait"
+    ],
+    "chocolat-cannelle": [
+      "soja",
+      "lait"
+    ],
+    "chocolat-caramel": [
+      "soja",
+      "lait"
+    ],
+    "chocolat-chaud": [
+      "soja",
+      "lait"
+    ],
+    "chocolat-noisette": [
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "chocolat-viennois": [
+      "soja",
+      "lait"
+    ],
+    "club-sandwich": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "moutarde"
+    ],
+    "coco-spirit": [],
+    "crazy-banana": [],
+    "croque": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "decafeine": [],
+    "dessert-du-jour": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "exotique": [],
+    "expresso": [],
+    "formule-etudiante-pinte": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "formule-etudiante-soft": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "french-coffee": [
+      "lait"
+    ],
+    "fresh-passion": [],
+    "fruits-presses": [],
+    "ginger-rasberry": [],
+    "grand-creme": [
+      "lait"
+    ],
+    "irish-coffee": [
+      "lait"
+    ],
+    "italian-coffee": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "jamaican-coffee": [
+      "lait"
+    ],
+    "la-bartavelle": [
+      "gluten"
+    ],
+    "lime-mandarine": [],
+    "mango-drop": [],
+    "nachos": [
+      "lait"
+    ],
+    "nectar": [],
+    "passionnement": [],
+    "peached-iced-tea": [],
+    "petit-dejeuner": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "pie-apple": [],
+    "pinte-paulaner": [
+      "gluten"
+    ],
+    "red-berries": [],
+    "salade-caprese": [
+      "lait"
+    ],
+    "salade-cesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-chevre-chaud": [
+      "gluten",
+      "lait",
+      "moutarde"
+    ],
+    "salade-italienne": [
+      "lait",
+      "moutarde"
+    ],
+    "saucisson": [],
+    "sirop": [
+      "fruits-a-coque"
+    ],
+    "smoothie": [],
+    "soda": [],
+    "tenders": [
+      "gluten",
+      "oeuf"
+    ],
+    "the": [],
+    "tropical-soda": [],
+    "viennoiserie": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "virgin": []
+  },
+  "le-pulp": {
+    "bacardi": [],
+    "belvedere": [],
+    "belvedere-jeroboam": [],
+    "belvedere-magnum": [],
+    "chivas-12": [],
+    "dom-perignon": [
+      "sulfites"
+    ],
+    "havana": [],
+    "jack-daniels": [],
+    "jb": [],
+    "moet": [
+      "sulfites"
+    ],
+    "moet-jeroboam": [
+      "sulfites"
+    ],
+    "moet-magnum": [
+      "sulfites"
+    ],
+    "moet-rose": [
+      "sulfites"
+    ],
+    "rhum-vieux-ambre": [],
+    "smirnoff": [],
+    "trois-rivieres": []
+  },
+  "le-victoria": {
+    "1664-sans-alcool": [
+      "gluten"
+    ],
+    "4-formaggi": [
+      "gluten",
+      "lait"
+    ],
+    "amour-de-gris": [
+      "sulfites"
+    ],
+    "argali": [
+      "sulfites"
+    ],
+    "bergerie-hortus": [
+      "sulfites"
+    ],
+    "bruschetta-chevre-miel": [
+      "gluten",
+      "lait"
+    ],
+    "chardonnay": [
+      "sulfites"
+    ],
+    "cheesecake": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "chevre-miel": [
+      "gluten",
+      "lait"
+    ],
+    "coca-cola": [],
+    "coca-cola-1l": [],
+    "corona": [
+      "gluten"
+    ],
+    "crepe-caramel": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-nature": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "crepe-nutella": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-nutella-banane": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-nutella-coco": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "crepe-sucre": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "crepe-sucre-citron": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "croquetas-chorizo": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "cuba-libre": [],
+    "desperados": [
+      "gluten"
+    ],
+    "faugeres-rose": [
+      "sulfites"
+    ],
+    "faugeres-rouge": [
+      "sulfites"
+    ],
+    "fish-and-chips": [
+      "gluten",
+      "oeuf",
+      "poisson"
+    ],
+    "frite-maison": [],
+    "frites-patate-douce": [],
+    "fuze-tea": [],
+    "gaufre-caramel": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "gaufre-nutella": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "gaufre-nutella-banane": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "gaufre-nutella-coco": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "gaufre-sucre": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "gaufre-sucre-citron": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "heineken": [
+      "gluten"
+    ],
+    "jagerbomb": [],
+    "joy": [
+      "sulfites"
+    ],
+    "kronenbourg": [
+      "gluten"
+    ],
+    "le-chicken": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "le-classique": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "margherita": [
+      "gluten",
+      "lait"
+    ],
+    "merlot": [
+      "sulfites"
+    ],
+    "mini-nems": [
+      "gluten",
+      "oeuf",
+      "soja"
+    ],
+    "mini-samossas": [
+      "gluten"
+    ],
+    "mini-saucissons": [],
+    "moelleux-chocolat": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "mojito": [],
+    "monaco": [
+      "gluten"
+    ],
+    "pic-saint-loup": [
+      "sulfites"
+    ],
+    "pic-saint-loup-bio": [
+      "sulfites"
+    ],
+    "picpoul": [
+      "sulfites"
+    ],
+    "pietra": [
+      "gluten"
+    ],
+    "pizza-poulet": [
+      "gluten",
+      "lait"
+    ],
+    "planteur": [],
+    "punch": [],
+    "red-bull": [],
+    "regina": [
+      "gluten",
+      "lait"
+    ],
+    "salade-cesar": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "salade-chevre-chaud": [
+      "gluten",
+      "lait",
+      "moutarde"
+    ],
+    "salmone": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "sangria": [
+      "sulfites"
+    ],
+    "sex-on-the-beach": [],
+    "spezzial": [
+      "gluten",
+      "lait"
+    ],
+    "stick-mozzarella": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tagliatelles-bolognaise": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "tagliatelles-curry": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tarte-citron": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tarte-tatin": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "vegetariana": [
+      "gluten",
+      "lait"
+    ],
+    "viognier": [
+      "sulfites"
+    ],
+    "wings": [
+      "gluten"
+    ]
+  },
+  "lz-food": {
+    "bouteille": [],
+    "burger-cheese": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-chicken": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-double-steaks": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "burger-gouzou": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde",
+      "sesame"
+    ],
+    "cafe": [],
+    "canette": [],
+    "menu-enfant": [
+      "gluten",
+      "oeuf",
+      "moutarde"
+    ],
+    "nems": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "moutarde"
+    ],
+    "nuggets": [
+      "gluten",
+      "oeuf",
+      "moutarde"
+    ],
+    "pizza-4-fromage": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-algerienne": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "pizza-boise": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-buffalo": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-burger": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "pizza-carnivor": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-chevre-miel": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-curry": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-kebab": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-margherita": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-norvegienne": [
+      "gluten",
+      "poisson",
+      "lait"
+    ],
+    "pizza-orientale": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-reine": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-savoyarde": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-tandory": [
+      "gluten",
+      "lait"
+    ],
+    "pizza-vege": [
+      "gluten",
+      "lait"
+    ],
+    "red-bull": [],
+    "sandwich-americain": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "sandwich-americain-supreme": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "sandwich-kebab": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "sandwich-kefta": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "sandwich-poulet-creme-supreme": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "tacos-1-viande": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "tacos-2-viandes": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "tacos-3-viandes": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "moutarde"
+    ],
+    "tarte-daim": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "tenders": [
+      "gluten",
+      "oeuf",
+      "moutarde"
+    ],
+    "tiramisu-caramel": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "tiramisu-chocolat": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait"
+    ],
+    "wings": [
+      "gluten",
+      "oeuf",
+      "moutarde"
+    ]
+  },
+  "o-crousti-poulet": {
+    "ailes": [
+      "gluten",
+      "celeri"
+    ],
+    "alloco": [],
+    "blanc-de-poulet": [
+      "gluten",
+      "oeuf",
+      "celeri"
+    ],
+    "bouteille": [],
+    "bricks": [
+      "gluten",
+      "oeuf"
+    ],
+    "canette": [],
+    "cuisse": [
+      "celeri"
+    ],
+    "demi-poulet": [
+      "celeri"
+    ],
+    "donut": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "menu-costaud": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "menu-duo": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "menu-family": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "menu-gourmand": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "menu-solo": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "nems": [
+      "gluten",
+      "soja"
+    ],
+    "patates-sautees": [],
+    "pates-cremo": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "pilons": [
+      "celeri"
+    ],
+    "potatoes": [],
+    "riz-oriental": [
+      "celeri"
+    ],
+    "saucisse": [
+      "gluten"
+    ],
+    "tarte-daim": [
+      "gluten",
+      "oeuf",
+      "soja",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "tenders": [
+      "gluten",
+      "oeuf"
+    ],
+    "tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ]
+  },
+  "trattoria-lucia": {
+    "affogato": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "arancini": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "branzino": [
+      "poisson"
+    ],
+    "burrata": [
+      "lait"
+    ],
+    "carbonara": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "carpaccio": [
+      "lait"
+    ],
+    "chianti": [
+      "sulfites"
+    ],
+    "chinotto": [],
+    "diavola": [
+      "gluten",
+      "lait"
+    ],
+    "espresso": [],
+    "gamberoni": [
+      "gluten",
+      "crustaces",
+      "sulfites"
+    ],
+    "ichnusa": [
+      "gluten"
+    ],
+    "limonata": [],
+    "limoncello-spritz": [
+      "sulfites"
+    ],
+    "linguine": [
+      "gluten",
+      "oeuf",
+      "sulfites",
+      "mollusques"
+    ],
+    "margherita": [
+      "gluten",
+      "lait"
+    ],
+    "moretti": [
+      "gluten"
+    ],
+    "nebbiolo": [
+      "sulfites"
+    ],
+    "negroni": [
+      "sulfites"
+    ],
+    "panna-cotta": [
+      "lait",
+      "fruits-a-coque"
+    ],
+    "polpo": [
+      "lait",
+      "mollusques"
+    ],
+    "prosecco": [
+      "sulfites"
+    ],
+    "quattro": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "risotto": [
+      "lait",
+      "celeri",
+      "sulfites"
+    ],
+    "san-pellegrino": [],
+    "scaloppine": [
+      "gluten",
+      "lait"
+    ],
+    "spritz": [
+      "sulfites"
+    ],
+    "tagliata": [
+      "sulfites"
+    ],
+    "tagliatelle": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "celeri"
+    ],
+    "tartufo": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "tiramisu": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "vermentino": [
+      "sulfites"
+    ]
+  }
+}

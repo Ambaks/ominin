@@ -45,7 +45,7 @@ export function MenuFooter({
   // Une carte qui imprime des allergènes renvoie aussi vers l'équipe : la liste
   // ne remplace pas la question d'un client allergique.
   const printsAllergens = restaurant.categories.some((category) =>
-    category.items.some((item) => item.allergens?.length)
+    category.items.some((item) => item.allergens !== undefined)
   );
   const hasPhotos =
     Boolean(restaurant.coverImage || restaurant.affiches?.length) ||

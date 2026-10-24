@@ -64,6 +64,7 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     price: Number(row.price),
     image: row.image ?? undefined,
     badges: row.badges.length ? row.badges : undefined,
+    allergens: row.allergens ?? undefined,
     pairing: row.pairing ?? undefined,
     detail: row.detail ?? undefined,
     printName: row.print_name ?? undefined,

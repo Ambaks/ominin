@@ -1,4 +1,4 @@
-import type { Badge, CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import type { Allergen, Badge, CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import { syncTill } from "@/lib/hubrise/kick";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
@@ -81,6 +81,8 @@ export interface ItemInput {
   stock: number | null;
   image?: string;
   badges: Badge[];
+  /** null ⇒ pas renseignés ; [] ⇒ aucun des quatorze. */
+  allergens: Allergen[] | null;
   pairing?: string;
   options: OptionGroup[];
   categoryId: string;
@@ -99,6 +101,7 @@ function itemColumns(
     price: input.price,
     image: input.image || null,
     badges: input.badges,
+    allergens: input.allergens,
     pairing: input.pairing || null,
     detail: input.detail || null,
     print_name: input.printName || null,
