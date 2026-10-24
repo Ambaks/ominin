@@ -1212,39 +1212,65 @@ export type Database = {
           },
         ]
       }
+      closure_windows: {
+        Row: {
+          closure_id: string
+          days: number[]
+          ends_at: string | null
+          id: string
+          starts_at: string
+        }
+        Insert: {
+          closure_id: string
+          days: number[]
+          ends_at?: string | null
+          id?: string
+          starts_at: string
+        }
+        Update: {
+          closure_id?: string
+          days?: number[]
+          ends_at?: string | null
+          id?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closure_windows_closure_id_fkey"
+            columns: ["closure_id"]
+            isOneToOne: false
+            referencedRelation: "closures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       closures: {
         Row: {
           created_at: string
-          days: number[] | null
-          ends_at: string | null
           etablissement_id: string
           id: string
           name: string
+          open_windows: boolean
           override_closed: boolean | null
-          override_day: string | null
-          starts_at: string | null
+          override_until: string | null
         }
         Insert: {
           created_at?: string
-          days?: number[] | null
-          ends_at?: string | null
           etablissement_id: string
           id?: string
           name: string
+          open_windows?: boolean
           override_closed?: boolean | null
-          override_day?: string | null
-          starts_at?: string | null
+          override_until?: string | null
         }
         Update: {
           created_at?: string
-          days?: number[] | null
-          ends_at?: string | null
           etablissement_id?: string
           id?: string
           name?: string
+          open_windows?: boolean
           override_closed?: boolean | null
-          override_day?: string | null
-          starts_at?: string | null
+          override_until?: string | null
         }
         Relationships: [
           {
@@ -6012,23 +6038,20 @@ export type Database = {
       enregistrer_fermeture: {
         Args: {
           p_closure: string | null
-          p_days: number[] | null
-          p_ends_at: string | null
           p_etablissement: string
           p_name: string
-          p_starts_at: string | null
+          p_open_windows: boolean
           p_targets: Json
+          p_windows: Json
         }
         Returns: {
           created_at: string
-          days: number[] | null
-          ends_at: string | null
           etablissement_id: string
           id: string
           name: string
+          open_windows: boolean
           override_closed: boolean | null
-          override_day: string | null
-          starts_at: string | null
+          override_until: string | null
         }
         SetofOptions: {
           from: "*"
@@ -6288,14 +6311,12 @@ export type Database = {
         Args: { p_closure: string; p_fermee: boolean }
         Returns: {
           created_at: string
-          days: number[] | null
-          ends_at: string | null
           etablissement_id: string
           id: string
           name: string
+          open_windows: boolean
           override_closed: boolean | null
-          override_day: string | null
-          starts_at: string | null
+          override_until: string | null
         }
         SetofOptions: {
           from: "*"

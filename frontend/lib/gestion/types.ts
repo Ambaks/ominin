@@ -374,26 +374,34 @@ export interface PriceRule {
   targets: MenuTarget[];
 }
 
+/** Une plage d'horaire de fermeture, les jours où elle revient. */
+export interface ClosureWindow {
+  /** Jours ISO : 1 = lundi … 7 = dimanche. */
+  days: number[];
+  /** "22:00". */
+  startsAt: string;
+  /** null ⇒ jusqu'à la fin de la journée de service. */
+  endsAt: string | null;
+}
+
 /**
  * Une fermeture : une partie de la carte que le client ne commande plus, à
  * heure fixe ou d'un geste pendant le service. Tout se lit en heure de
  * service (lib/gestion/fermetures.ts) : la journée repart ouverte à la
- * bascule, et le forçage à la main ne vaut que pour la journée où il a été
- * posé.
+ * bascule, et le forçage à la main cède au prochain changement de
+ * l'horaire.
  */
 export interface Closure {
   id: string;
   /** « Cuisine », « Bar » : ce que l'équipe lit sur son bouton. */
   name: string;
-  /** Jours ISO de l'horaire ; null ⇒ fermeture à la main seulement. */
-  days: number[] | null;
-  /** "22:00" — présent avec days. */
-  startsAt: string | null;
-  /** null ⇒ jusqu'à la fin de la journée de service. */
-  endsAt: string | null;
-  /** Fermée (true) ou rouverte (false) à la main pour overrideDay. */
+  /** Vide ⇒ fermeture à la main seulement. */
+  windows: ClosureWindow[];
+  /** Les plages disent quand c'est servi (coupé en dehors), sinon quand c'est coupé. */
+  openWindows: boolean;
+  /** Fermée (true) ou rouverte (false) à la main jusqu'à overrideUntil. */
   overrideClosed: boolean | null;
-  /** Journée de service du forçage, "2026-10-13". */
-  overrideDay: string | null;
+  /** Heure de service où le forçage cède à l'horaire, "2026-10-13T19:00:00". */
+  overrideUntil: string | null;
   targets: MenuTarget[];
 }

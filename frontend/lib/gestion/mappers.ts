@@ -1,4 +1,5 @@
 import type { OpeningHours } from "@/lib/collect/hours";
+import { byWindowOrder } from "./fermetures";
 import type { CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
@@ -228,18 +229,26 @@ export function rowToPriceRule(
   };
 }
 
-/** Une fermeture et ses cibles, embarquées comme celles d'un tarif. */
+/** Une fermeture, ses plages et ses cibles, embarquées comme celles d'un tarif. */
 export function rowToClosure(
-  row: Tables<"closures"> & { closure_targets: Tables<"closure_targets">[] }
+  row: Tables<"closures"> & {
+    closure_windows: Tables<"closure_windows">[];
+    closure_targets: Tables<"closure_targets">[];
+  }
 ): Closure {
   return {
     id: row.id,
     name: row.name,
-    days: row.days,
-    startsAt: row.starts_at,
-    endsAt: row.ends_at,
+    windows: row.closure_windows
+      .map((window) => ({
+        days: window.days,
+        startsAt: window.starts_at.slice(0, 5),
+        endsAt: window.ends_at?.slice(0, 5) ?? null,
+      }))
+      .sort(byWindowOrder),
+    openWindows: row.open_windows,
     overrideClosed: row.override_closed,
-    overrideDay: row.override_day,
+    overrideUntil: row.override_until,
     targets: row.closure_targets.map(rowToTarget),
   };
 }
