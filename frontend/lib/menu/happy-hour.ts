@@ -4,7 +4,7 @@ import type { Formule } from "@/lib/gestion/types";
 import type { MenuCategory, MenuItem, RuleHours } from "@/lib/menu-data";
 import { isDrinkCategory } from "./category-icons";
 import { fitsVignette } from "./compact-preview";
-import { cents } from "./tarifs";
+import { cents, type TarifMap } from "./tarifs";
 
 /*
  * La happy hour en cours : les remises à heures fixes que les tarifs planifiés
@@ -157,4 +157,22 @@ export function withHappyHourSection(
   const offered = categories.findIndex((category) => category.items.some((item) => ids.has(item.id)));
   const at = Math.max(0, drinks >= 0 ? drinks : offered);
   return [...categories.slice(0, at), section, ...categories.slice(at)];
+}
+
+/**
+ * Les tarifs d'une happy hour d'aperçu (Restaurant.demoHappyHour), ouverte à
+ * l'heure pile qui précède `at` pour `length` heures : la démo la montre à
+ * toute heure, avec un vrai compte à rebours.
+ */
+export function demoTarifs(
+  demo: { name: string; prices: Record<string, number> },
+  at: Date,
+  length: number
+): TarifMap {
+  const hour = Math.floor(parisParts(at).minutes / 60);
+  const time = (h: number) => `${String(h % 24).padStart(2, "0")}:00:00`;
+  const hours = { startsAt: time(hour), endsAt: time(hour + length) };
+  return new Map(
+    Object.entries(demo.prices).map(([id, price]) => [id, { price, ruleName: demo.name, hours }])
+  );
 }

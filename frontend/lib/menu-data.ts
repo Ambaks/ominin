@@ -279,6 +279,13 @@ export interface Restaurant {
    */
   demoLoyalty?: DemoLoyalty;
   /**
+   * Happy hour d'une carte d'aperçu (/menu/demo) : le nom de la règle et le
+   * prix du moment de quelques articles. En production, ce sont les tarifs
+   * planifiés ; l'aperçu l'ouvre autour de l'heure de la visite, pour qu'on
+   * la voie n'importe quand.
+   */
+  demoHappyHour?: { name: string; prices: Record<string, number> };
+  /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
    * elle tient lieu de hero à elle seule, sans texte superposé.
    */
@@ -5928,6 +5935,10 @@ const caffePanis: Restaurant = {
   // Les fanions d'une terrasse italienne.
   loyaltyMotif: "fanions",
   loyaltyWheel: roueDuJour,
+  demoHappyHour: {
+    name: "Aperitivo Happy Hour",
+    prices: { margherita: 9, "cafe-illy": 1.5, "coca-cola": 2 },
+  },
   // Les paliers de sa fidélité en production (1 € = 1 point).
   demoLoyalty: {
     pointsPerEuro: 1,
