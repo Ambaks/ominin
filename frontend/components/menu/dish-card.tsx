@@ -164,7 +164,7 @@ function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boo
         <Notice hours={item.noticeHours} />
         <Allergens item={item} />
         <Pairing pairing={item.pairing} />
-        <RewardHint itemId={item.id} />
+        <RewardHint itemId={item.id} compact />
         <div className="dish-action pointer-events-none z-1 mt-1 flex justify-end *:pointer-events-auto">
           <AddToOrder item={item} />
         </div>

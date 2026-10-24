@@ -7792,10 +7792,13 @@ html:has([data-menu-root].theme-caffe-panis) body {
   line-height: 1.3;
 }
 
-/* « Les petites gâteries de Marie-Antoinette » : la description entière,
-   jamais coupée ; ses retours à la ligne (une composition) gardés. */
-.dish-mini-description {
-  white-space: pre-line;
+/* La description et les formats sur une ligne chacun, coupés d'un « … » :
+   toutes les fiches à la même mesure ; le texte entier est dans la fiche
+   du plat, qu'un toucher sur la vignette ouvre. */
+.dish-mini-text > .dish-mini-info:not(.dish-mini-tarif) {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .dish-mini-tarif {
@@ -14109,6 +14112,22 @@ html:has(.groupe-dialog:modal) {
   transform-origin: left;
   animation: loyalty-bar 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.3s both;
 }
+/* Gagné : la jauge pleine, un reflet la traverse de temps en temps. */
+.reward-hint[data-earned] .reward-hint-bar {
+  position: relative;
+}
+.reward-hint[data-earned] .reward-hint-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.75) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: reward-hint-shine 2.8s ease-in-out 1.5s infinite;
+}
+@keyframes reward-hint-shine {
+  60%,
+  100% { transform: translateX(100%); }
+}
 @keyframes loyalty-drop {
   0% { opacity: 0; transform: translateY(-140%) scale(0.92); }
   70% { opacity: 1; transform: translateY(6%) scale(1.01); }
@@ -14145,7 +14164,8 @@ html:has(.groupe-dialog:modal) {
   .loyalty-pill-enter,
   .loyalty-pill-enter::after,
   .loyalty-bar > i,
-  .reward-hint-bar > i {
+  .reward-hint-bar > i,
+  .reward-hint[data-earned] .reward-hint-bar::after {
     animation: none;
   }
 }
