@@ -5,6 +5,7 @@ import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
 import { AffichesBanner, FormulesSection } from "@/components/menu/formules";
+import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
@@ -17,6 +18,7 @@ import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
 import { withCompactPreview } from "@/lib/menu/compact-preview";
+import { happyHourOf, withHappyHourSection } from "@/lib/menu/happy-hour";
 import { FORMULES_LINK } from "@/lib/menu/format";
 import { brandName, hasVelours, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
@@ -124,9 +126,16 @@ export default async function MenuPage({
   // le QR peut être unique ou celui d'une table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
 
+  // La happy hour se lit sur la carte telle qu'elle s'affiche (vignettes et
+  // leurs photos comprises) ; sa section s'ajoute aux catégories, dans la
+  // roue aussi.
+  const categories = withCompactPreview(slug, restaurant.categories);
+  const happyHour = happyHourOf(categories, new Date());
+  const sections = withHappyHourSection(categories, happyHour);
+
   const categoryLinks = [
     ...(showFormules ? [FORMULES_LINK] : []),
-    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+    ...sections.map(({ id, name }) => ({ id, name })),
   ];
 
   /*
@@ -242,7 +251,7 @@ export default async function MenuPage({
                 La carte est en préparation — revenez bientôt.
               </p>
             ) : (
-              withCompactPreview(slug, restaurant.categories).map((category) => (
+              sections.map((category) => (
                 <MenuSection
                   key={category.id}
                   category={category}
@@ -258,6 +267,7 @@ export default async function MenuPage({
             themeToggle={!restaurantThemeClass(slug)}
           />
           {callServer && <CallServerButton />}
+          {happyHour && <HappyHourPill happyHour={happyHour} />}
           <LoyaltyWelcome
             brand={brandName(restaurant)}
             logo={restaurant.logo}

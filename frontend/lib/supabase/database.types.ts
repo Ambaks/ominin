@@ -6379,9 +6379,11 @@ export type Database = {
         Args: { p_at?: string; p_etablissement: string }
         Returns: {
           choice_id: string | null
+          ends_at: string | null
           item_id: string
           price: number
           rule_name: string
+          starts_at: string | null
         }[]
       }
       ungroup_tables: { Args: { p_group_id: string }; Returns: undefined }

@@ -250,6 +250,17 @@ function candidates(name: string): IconId[] {
   return RULES.filter(([, expressions]) => expressions.some(found)).map(([icon]) => icon);
 }
 
+const DRINKS = new Set<IconId>([
+  "irishCoffee", "icedDrink", "coffee", "tea", "smoothie", "milkshake", "mocktail", "cocktail",
+  "beerBottle", "beer", "wine", "champagne", "spirit", "tumbler", "shot", "water", "soda",
+]);
+
+/** Une catégorie de boissons, à son nom : « Bulles », « Bières », « Softs ». */
+export const isDrinkCategory = (name: string) => {
+  const [icon] = candidates(name);
+  return icon !== undefined && DRINKS.has(icon);
+};
+
 /** Les icônes des catégories d'une carte, chacune différente autant que
  * possible : un nom dont la première icône est déjà prise passe à la
  * suivante qu'il reconnaît, la répète si sa voisine ne l'a pas, sinon prend
