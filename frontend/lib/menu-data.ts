@@ -5882,6 +5882,8 @@ const cafeDesArts: Restaurant = {
   ],
 };
 
+const panisPlat = (file: string) => `/caffe-panis/plats/${file}.webp`;
+
 /*
  * Caffè Panis — 3 place du Marché aux Fleurs. Aucune carte de salle en ligne
  * (leur menu Sunday renvoie à « la carte papier ») : la carte entière de
@@ -5985,14 +5987,14 @@ const caffePanis: Restaurant = {
           name: "Trio d'arancini",
           description: "Trois dodues boulettes frites de risotto au prosciutto et fromage mozza fior di latte, ouuuuh.",
           price: 6.9,
-          image: unsplash("photo-1751199393315-fbcae4eabd4c", 800),
+          image: panisPlat("trio-arancini"),
         },
         {
           id: "prosciutto",
           name: "Prosciutto",
           description: "L'inoubliable jambon en direct de la région de Parme, fondant à souhait.",
           price: 7.9,
-          image: pexels("20095427/pexels-photo-20095427.jpeg", 800),
+          image: panisPlat("prosciutto"),
         },
         {
           id: "burrata-pesto-forever",
@@ -6000,7 +6002,7 @@ const caffePanis: Restaurant = {
           description:
             "Belle burrata straight from Puglia fourrée au pesto de basilic, tomates séchées à l'huile, huile d'olive et basilic frais. Servi avec une boule de pain maison.",
           price: 8.9,
-          image: pexels("29380177/pexels-photo-29380177.jpeg", 800),
+          image: panisPlat("burrata-pesto-forever"),
         },
         {
           id: "classic-burrata",
@@ -6008,7 +6010,7 @@ const caffePanis: Restaurant = {
           description:
             "Burrata de 125 g crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive e basta.",
           price: 6.9,
-          image: pexels("14840767/pexels-photo-14840767.jpeg", 800),
+          image: panisPlat("classic-burrata"),
         },
         {
           id: "stracciatella-fumee",
@@ -6035,7 +6037,7 @@ const caffePanis: Restaurant = {
           description:
             "Champignons de Paris cuits finement tranchés, jambon blanc aux herbes, mozza fior di latte, sauce tomates italiennes, olives taggiasche et basilic frais.",
           price: 14.9,
-          image: pexels("29039064/pexels-photo-29039064.jpeg", 800),
+          image: panisPlat("pizza-mama-king"),
         },
         {
           id: "margherita",
@@ -6043,7 +6045,7 @@ const caffePanis: Restaurant = {
           description:
             "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé et basilic frais.",
           price: 11.9,
-          image: pexels("35760006/pexels-photo-35760006.jpeg", 800),
+          image: panisPlat("pizza-margherita"),
         },
         {
           id: "puissance-4",
@@ -6051,7 +6053,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème fraîche, gorgonzola, gran formaggio râpé, mozza fior di latte et ciboulette. Du cheesy comme on aime.",
           price: 14.9,
-          image: pexels("15478006/pexels-photo-15478006.jpeg", 800),
+          image: panisPlat("pizza-puissance-4"),
         },
         {
           id: "stracciatella-versace",
@@ -6059,7 +6061,7 @@ const caffePanis: Restaurant = {
           description:
             "Jambon de Parme, stracciatella fumée bien crémeuse, pecorino romano râpé, roquette fraîche et sauce tomates italiennes en direct de notre producteur fiammante.",
           price: 19.9,
-          image: pexelsRecadre("8965714/pexels-photo-8965714.jpeg", 800),
+          image: panisPlat("pizza-stracciatella-versace"),
         },
         {
           id: "capo",
@@ -6067,7 +6069,7 @@ const caffePanis: Restaurant = {
           description:
             "Fines tranches de salame piccante, salsa nduja xxxtra hot, mozza fior di latte, sauce tomates italiennes en direct de notre producteur fiammante et marjolaine fraîche.",
           price: 15.9,
-          image: pexels("34773770/pexels-photo-34773770.jpeg", 800),
+          image: panisPlat("pizza-capo"),
         },
         {
           id: "green-circle",
@@ -6075,7 +6077,7 @@ const caffePanis: Restaurant = {
           description:
             "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé, aubergines frites et basilic frais.",
           price: 14.9,
-          image: pexels("13758318/pexels-photo-13758318.jpeg", 800),
+          image: panisPlat("pizza-green-circle"),
         },
         {
           id: "truffle-supreme",
@@ -6102,21 +6104,21 @@ const caffePanis: Restaurant = {
           name: "Pasta Carbonara Originale",
           description: "Pasta rigatoni à la sauce carbonara, guanciale de cochon et pecorino.",
           price: 13.9,
-          image: unsplash("photo-1735640268811-9c614c08b0dc", 800),
+          image: panisPlat("pasta-carbonara"),
         },
         {
           id: "alla-bolognese",
           name: "Pasta Alla Bolognese",
           description: "Pasta rigatoni au ragù de bœuf, gran formaggio italiano et feuilles de basilic.",
           price: 14.9,
-          image: pexels("34909192/pexels-photo-34909192.jpeg", 800),
+          image: panisPlat("pasta-bolognese"),
         },
         {
           id: "all-amatriciana",
           name: "Pasta All'Amatriciana",
           description: "Pasta rigatoni à la sauce de tomates italiennes, pancetta de cochon et pecorino.",
           price: 14.9,
-          image: pexels("37180268/pexels-photo-37180268.jpeg", 800),
+          image: panisPlat("pasta-amatriciana"),
         },
         {
           id: "vivi-e-vechio",
@@ -6176,14 +6178,14 @@ const caffePanis: Restaurant = {
           description:
             "Le grand classique de la casa bien onctueux et une petite pointe de liqueur de marsala, c'est que du love.",
           price: 6.9,
-          image: pexelsRecadre("27305272/pexels-photo-27305272.jpeg", 800),
+          image: panisPlat("tiramisu"),
         },
         {
           id: "mousse-big-love",
           name: "Mousse Big-love",
           description: "Inimitable mousse au bon chocolat, praliné noisette et crunchy gaufrette au chocolat au lait.",
           price: 6.9,
-          image: unsplash("photo-1590080875852-ba44f83ff2db", 800),
+          image: panisPlat("mousse-big-love"),
         },
         {
           id: "deurty-cookie",
@@ -6191,7 +6193,7 @@ const caffePanis: Restaurant = {
           description:
             "Décadent cookie choco-praliné mi-cuit, noix de pécan, big pépites de chocolat et pour l'overdose de love, cœur fondant ultra coulant à la gianduja.",
           price: 5.9,
-          image: pexels("14136387/pexels-photo-14136387.jpeg", 800),
+          image: panisPlat("deurty-cookie"),
         },
       ],
     },
