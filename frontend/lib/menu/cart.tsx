@@ -192,6 +192,8 @@ export interface CartConfig {
   tableDelivery?: boolean;
   /** Rien que des boissons à la carte (un club) : chaque commande se salue comme telle. */
   drinksOnly?: boolean;
+  /** L'adresse de l'espace de l'équipe, où mène le code de retrait ; absent, celle du menu. */
+  staffSite?: string;
   /**
    * Suivi à table (Restaurant.suivi) : chaque commande passée se suit au bas
    * de l'écran jusqu'au service. Ignoré en aperçu (demoSuivi) et en fast food.

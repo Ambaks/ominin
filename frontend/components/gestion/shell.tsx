@@ -4,6 +4,8 @@ import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useSelectedLayoutSegment } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import "@/components/club/tokens.css";
+import "@/components/gestion/soirees/soirees.css";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import { clubFonts } from "@/lib/club/fonts";
@@ -15,6 +17,7 @@ import {
   activeProducts,
   awaitsAcknowledgement,
   cardCount,
+  isClub,
   isClubOnly,
   isPickupShop,
   needsAttention,
@@ -204,6 +207,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
   // Le click & collect seul ouvre l'espace : la garde porte sur les produits
   // payés, plus sur le seul abonnement à l'offre. Un club ne s'abonne pas :
   // Ominin se paie sur ses tables vendues, l'espace s'ouvre avec ses soirées.
+  const club = isClub(state);
   const clubOnly = isClubOnly(state);
   const subscribed = products.offre != null || products.collect || clubOnly;
   const pickupShop = isPickupShop(state);
@@ -223,7 +227,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
   );
   // La page que voient les clients : pour une boutique à emporter seule, sa
   // page de commande en ligne — elle n'a pas de menu QR.
-  const voirClient = clubOnly
+  const voirClient = club
     ? "Voir ma page club"
     : pickupShop
       ? "Voir ma boutique en ligne"
@@ -322,19 +326,20 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
   );
   const surtitre = state
     ? `${
-        state.etablissement.offre
-          ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
-          : clubOnly
-            ? "Ominin Club"
+        club
+          ? "Ominin Club"
+          : state.etablissement.offre
+            ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
             : collectBrand
       } · ${roleLabels(state)[state.role]}`
     : "Espace de gestion";
 
   return (
-    <ToastProvider placement={clubOnly ? "top" : "bottom"}>
+    <ToastProvider placement={club ? "top" : "bottom"}>
       <div
-        // Un club parle la langue de ses pages : leurs jetons et leurs polices, en-tête compris.
-        className={`flex min-h-dvh w-full flex-col ${clubOnly ? `club-tokens club-espace ${clubFonts}` : ""}`}
+        // Un club parle la langue de ses soirées sur tout l'espace : leurs
+        // jetons, leurs polices et leur allure (.soirees), en-tête compris.
+        className={`flex min-h-dvh w-full flex-col ${club ? `club-tokens club-espace soirees ${clubFonts}` : ""}`}
         style={{ "--gestion-barre-bas": mobileNav ? "5rem" : "1rem" } as React.CSSProperties}
       >
         <header
@@ -386,7 +391,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
                 <ThemeToggle />
                 <a
                   href={
-                    clubOnly
+                    club
                       ? `${clubSiteUrl}/${state.etablissement.slug}`
                       : pickupShop
                         ? `${collectSiteUrl}/${state.etablissement.slug}`

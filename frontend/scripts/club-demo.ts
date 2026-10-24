@@ -3,8 +3,8 @@
  * d'adresse, pas de téléphone), sur la salle du seed, réglée par le
  * fournisseur « demo » (aucun débit). Visible à club.ominin.com/l-etoile-demo,
  * son espace de gestion ouvert au compte CLUB_DEMO_EMAIL. Sa carte de L'Étoile
- * se commande au menu QR (menu.ominin.com/m/l-etoile-demo) : retirée au bar
- * sans table, apportée à la table avec ?table=<n>.
+ * se commande sur son sous-domaine (club.ominin.com/l-etoile-demo/carte) :
+ * retirée au bar sans table, apportée à la table avec ?table=<n>.
  *
  * Usage, depuis frontend/ :  npm run club:demo
  * Lit frontend/.env.local : NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,

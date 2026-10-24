@@ -44,6 +44,14 @@ export function isPickupShop(state: GestionState | null): boolean {
 }
 
 /**
+ * Club sur Ominin Club, qu'il prenne ou non les commandes au menu QR : tout
+ * son espace parle la langue de ses soirées.
+ */
+export function isClub(state: GestionState | null): boolean {
+  return state?.features.soirees ?? false;
+}
+
+/**
  * Club sur Ominin Club seul, sans offre ni click & collect : ni carte ni
  * service à table, son espace tient dans ses soirées.
  */

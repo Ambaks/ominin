@@ -12,7 +12,7 @@ import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/c
 import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { bookingPath, clubHref, sharePath } from "@/lib/club/links";
 import { fetchBookingByToken, fetchClub, type BookingTicket } from "@/lib/club/public";
-import { clubSiteUrl, menuSiteUrl } from "@/lib/site";
+import { clubSiteUrl } from "@/lib/site";
 
 /* Le statut change sans le client (paiement, porte, remboursement) : relu à chaque visite. */
 export const dynamic = "force-dynamic";
@@ -422,12 +422,12 @@ export default async function BookingPage({ params, searchParams }: { params: Pa
             )}
             {passValid && <PassActions url={url} title={`${booking.event.title} — ${club.name}`} />}
             {booking.club.ordering && (
-              <a href={`${menuSiteUrl}/m/${slug}`}>
+              <Link href={clubHref(`/${slug}/carte`)}>
                 <svg viewBox="0 0 24 24" aria-hidden>
                   <path d="M7 3.5h10l-.5 5a4.5 4.5 0 01-9 0L7 3.5zM12 13v7M8.5 20.5h7" />
                 </svg>
                 La carte
-              </a>
+              </Link>
             )}
             <Link href={eventHref}>
               <svg viewBox="0 0 24 24" aria-hidden>

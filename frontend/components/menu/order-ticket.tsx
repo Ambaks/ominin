@@ -427,7 +427,7 @@ function OrderTicket({
   titleId: string;
   onClose: () => void;
 }) {
-  const { restaurantName, estimatorLive } = useCart();
+  const { restaurantName, estimatorLive, staffSite } = useCart();
   const tickets = useTickets();
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState<string | null>(null);
@@ -748,7 +748,7 @@ function OrderTicket({
                   value={
                     tickets?.simulated
                       ? `Démo Ominin · retrait au bar · commande n° ${ticket.number}`
-                      : remiseUrl(ticket.id)
+                      : remiseUrl(ticket.id, staffSite)
                   }
                   label={`Code de retrait de la commande n° ${ticket.number}`}
                   className="block h-auto w-full"

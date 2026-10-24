@@ -73,7 +73,7 @@ html.light .soirees {
 }
 
 /* Un seul système de boutons : corail plein pour le geste principal, contour pour le reste. */
-.soirees .ember-gradient {
+.soirees :is(.ember-gradient, .ember-flow) {
   background-image: none;
   background-color: var(--soirees-coral);
   color: var(--soirees-on-coral);

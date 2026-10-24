@@ -1,9 +1,8 @@
 import type { Metadata, Viewport } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
-import { EtoileMenu } from "@/components/menu/etoile/etoile-menu";
 import { MenuBody } from "@/components/menu/menu-body";
 import { AffichesBanner, FormulesSection, FormuleTiles } from "@/components/menu/formules";
 import { HappyHourPill } from "@/components/menu/happy-hour-pill";
@@ -15,21 +14,16 @@ import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
-import { brandFontVariables, etoileFontVariables } from "@/lib/menu/brand-fonts";
+import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
 import { withCompactPreview } from "@/lib/menu/compact-preview";
 import { HAPPY_HOUR_SECTION_ID, happyHourOf, withHappyHourSection } from "@/lib/menu/happy-hour";
 import { FORMULES_LINK } from "@/lib/menu/format";
-import {
-  brandName,
-  etoileScene,
-  etoileSceneCategories,
-  hasVelours,
-  restaurantThemeClass,
-} from "@/lib/menu-data";
+import { menuCartConfig } from "@/lib/menu/cart-config";
+import { brandName, etoileScene, hasVelours, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
-import { menuSiteUrl } from "@/lib/site";
+import { clubSiteUrl, menuSiteUrl } from "@/lib/site";
 
 /*
  * Menu public : lecture anonyme de la base (policies RLS « public read »).
@@ -75,7 +69,6 @@ export async function generateMetadata({
       images,
     },
     twitter: { card: "summary_large_image", title, description, images },
-    ...(etoileScene(slug) && { robots: { index: false, follow: false } }),
     // Le raccourci d'écran d'accueil porte ses icônes et son nom, pas ceux d'Ominin.
     ...(restaurant.icons && {
       icons: {
@@ -100,26 +93,12 @@ export default async function MenuPage({
   params,
 }: PageProps<"/menu/m/[slug]">) {
   const { slug } = await params;
+  // La carte de la démo d'Ominin Club vit sur le sous-domaine du club.
+  if (etoileScene(slug)) permanentRedirect(`${clubSiteUrl}/${slug}/carte`);
   const data = await getRestaurant(slug);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
-  const {
-    id,
-    restaurant,
-    offre,
-    onlinePayment,
-    onlineMinOrder,
-    closedItems,
-    paymentProvider,
-    squareLocationId,
-    serviceMode,
-    barPickup,
-    callServer,
-    loyalty,
-    formules,
-    pairings,
-    formuleOffers,
-  } = data;
+  const { restaurant, serviceMode, callServer, loyalty, formules } = data;
 
   // Les affiches des offres se montrent sous l'affiche du restaurant ; sans
   // elle, en tête de la section des formules, avant les tuiles de celles
@@ -130,58 +109,9 @@ export default async function MenuPage({
   const tiles = formules.filter((formule) => !formule.affiche && !formule.hours);
   const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
 
-  const orderingEnabled = offre === "smart" || offre === "connect";
-  // Fast food : on commande sans service à table et l'on retire au comptoir ;
-  // le QR peut être unique ou celui d'une table.
+  const cartConfig = menuCartConfig(slug, data);
+  const { orderingEnabled } = cartConfig;
   const fastFood = orderingEnabled && serviceMode === "fast_food";
-
-  const cartConfig = {
-    slug,
-    // La table du QR suit la commande, en fast food aussi : le client y
-    // retire au comptoir, la table reste notée (voir show_table_number).
-    tableNumber: null,
-    tableFromUrl: true,
-    orderingEnabled,
-    serviceMode,
-    barPickup: fastFood && barPickup,
-    restaurantName: restaurant.name,
-    onlinePayment: orderingEnabled && onlinePayment,
-    onlineMinOrder,
-    paymentProvider,
-    squareLocationId,
-    tableTracking: orderingEnabled && !fastFood && restaurant.suivi === true,
-    loyalty,
-    // Sans commande, rien à fermer : pas de relecture.
-    etablissementId: orderingEnabled ? id : undefined,
-    closedItems: orderingEnabled ? closedItems : undefined,
-    pairings,
-    formuleOffers,
-  };
-
-  // La scène de L'Étoile remplace la carte : la commande d'un QR de table y
-  // est apportée à la table, celle d'un QR sans table se retire au bar.
-  if (etoileScene(slug)) {
-    const sceneCategories = etoileSceneCategories(restaurant.categories);
-    return (
-      <CartProvider
-        config={{
-          ...cartConfig,
-          tableDelivery: true,
-          drinksOnly: sceneCategories.every((category) => category.boissons),
-        }}
-      >
-        <div
-          data-menu-root
-          data-slug={slug}
-          className={`${etoileFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col`}
-        >
-          <EtoileMenu restaurant={{ ...restaurant, categories: sceneCategories }} />
-          <TicketTracker />
-          <CartBar />
-        </div>
-      </CartProvider>
-    );
-  }
 
   // La happy hour se lit sur la carte telle qu'elle s'affiche (vignettes et
   // leurs photos comprises) ; sa section s'ajoute aux catégories, dans la
