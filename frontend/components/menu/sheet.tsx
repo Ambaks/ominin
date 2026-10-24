@@ -125,6 +125,7 @@ export function Sheet({
   label,
   enter = "rise",
   origin,
+  card = false,
   children,
 }: {
   /** Appelé une fois la feuille descendue. */
@@ -143,6 +144,11 @@ export function Sheet({
   origin?: LiquidOrigin | null;
   /** Toucher le fond ferme-t-il la feuille ? */
   backdropCloses: boolean;
+  /**
+   * Une fiche posée au milieu de l'écran, téléphone compris, sur un fond à
+   * peine voilé : on lit le plat sans perdre la carte de vue.
+   */
+  card?: boolean;
   labelledBy?: string;
   label?: string;
   /**
@@ -420,8 +426,10 @@ export function Sheet({
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-4 ${
-        liquid ? "" : `bg-black/60 backdrop-blur-sm transition-opacity duration-200 ${closing ? "opacity-0" : ""}`
+      className={`fixed inset-0 z-50 flex justify-center ${card ? "items-center p-4" : "items-end sm:items-center sm:p-4"} ${
+        liquid
+          ? ""
+          : `${card ? "bg-black/40 backdrop-blur-[6px]" : "bg-black/60 backdrop-blur-sm"} transition-opacity duration-200 ${closing ? "opacity-0" : ""}`
       }`}
       onClickCapture={(event) => {
         const control =
@@ -448,7 +456,7 @@ export function Sheet({
         aria-modal="true"
         aria-labelledby={labelledBy}
         aria-label={label}
-        className={`${liquid ? "relative" : closing ? "sheet-fall" : `sheet-${entrance}`} flex max-h-(--sheet-max) w-full max-w-md flex-col overflow-y-auto overscroll-contain rounded-t-3xl border border-hairline bg-surface sm:rounded-3xl`}
+        className={`${liquid ? "relative" : closing ? "sheet-fall" : `sheet-${entrance}`} flex max-h-(--sheet-max) w-full max-w-md flex-col overflow-y-auto overscroll-contain border border-hairline bg-surface ${card ? "rounded-3xl" : "rounded-t-3xl sm:rounded-3xl"}`}
         onClick={(event) => event.stopPropagation()}
         onAnimationEnd={(event) => {
           if (event.target !== event.currentTarget) return;

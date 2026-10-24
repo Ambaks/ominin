@@ -3858,14 +3858,12 @@ html:has(.theme-l-adresse) body {
 }
 
 /* Sur une carte sans photo, le compte au panier se pose sur le coin du
-   bouton : au coin de la carte, il cachait le prix. Pas sur une carte seule
-   dans sa section : son bouton reste sans position, le voile qui rend toute
-   la carte touchable (plus bas) s'étend à la carte. */
-:where([data-menu-root]) article:not(:has(.dish-photo), :only-child) .dish-action > button {
+   bouton : au coin de la carte, il cachait le prix. */
+:where([data-menu-root]) article:not(:has(.dish-photo)) .dish-action > button {
   position: relative;
 }
 
-:where([data-menu-root]) article:not(:has(.dish-photo), :only-child) .cart-count {
+:where([data-menu-root]) article:not(:has(.dish-photo)) .cart-count {
   top: -0.5rem;
   right: -0.5rem;
 }
@@ -4067,27 +4065,6 @@ html:has(.theme-l-adresse) body {
     h3 {
     font-size: 1.2rem;
   }
-}
-
-/* Toute la vignette se touche, pas seulement son bouton : un pouce vise la
-   photo ou le nom au moins aussi souvent. Pas de rétrécissement à l'appui :
-   il faisait du bouton le repère de son voile, qui se réduisait à lui et
-   laissait tomber le toucher. Un cerne marque l'appui à la place. */
-[data-menu-root]
-  :is(.dish-grid-tiles > article, .dish-grid > article:only-child)
-  .dish-action
-  > button::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-
-[data-menu-root]
-  :is(.dish-grid-tiles > article, .dish-grid > article:only-child)
-  .dish-action
-  > button:active {
-  scale: none;
-  box-shadow: inset 0 0 0 3px currentColor;
 }
 
 /* Les boutons des vignettes tiennent sur une ligne, même étroits
@@ -10150,7 +10127,8 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
     .theme-le-novelty .dish-grid > article {
       transition:
         background-color 0.3s,
-        transform 0.3s var(--ec-tiroir);
+        transform 0.3s var(--ec-tiroir),
+        scale 0.3s var(--ec-tiroir);
     }
 
     .theme-le-novelty .dish-grid > article:hover {
@@ -10457,7 +10435,8 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
     .theme-caffe-panis .dish-grid > article {
       transition:
         border-color 0.3s,
-        transform 0.3s var(--ec-tiroir);
+        transform 0.3s var(--ec-tiroir),
+        scale 0.3s var(--ec-tiroir);
     }
 
     .theme-caffe-panis .dish-grid > article:hover {
@@ -12201,7 +12180,8 @@ html:has([data-menu-root].theme-le-pulp) body {
   background: var(--surface);
   transition:
     border-color 0.3s,
-    box-shadow 0.3s;
+    box-shadow 0.3s,
+    scale 0.3s;
 }
 
 .theme-le-pulp .dish-head {

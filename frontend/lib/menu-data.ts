@@ -121,9 +121,10 @@ export interface MenuItem {
   noticeHours?: number;
   /*
    * Piment, mentions et allergènes tels que la carte de l'établissement les
-   * imprime. La base ne les porte pas encore : ils viennent du registre
-   * statique, rattachés par nom sur /menu/m (lib/public-menu.ts).
-   * undefined ⇒ rien d'imprimé, pas « aucun ».
+   * imprime. Les allergènes se saisissent en gestion (items.allergens) ; le
+   * reste vient du registre statique, rattaché par nom sur /menu/m
+   * (lib/public-menu.ts). undefined ⇒ pas renseigné, pas « aucun » ;
+   * [] ⇒ aucun des quatorze.
    */
   /** Force du piment, de 1 à 3 (🌶 à 🌶🌶🌶). */
   spice?: 1 | 2 | 3;

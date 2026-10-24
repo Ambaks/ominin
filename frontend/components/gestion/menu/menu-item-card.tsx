@@ -13,7 +13,7 @@ import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Printer } from "@/lib/gestion/terminaux";
-import { BADGE_LABELS, formatPrice } from "@/lib/menu/format";
+import { allergenLine, BADGE_LABELS, formatPrice } from "@/lib/menu/format";
 import {
   hasBlockedRequiredGroup,
   isChoiceAvailable,
@@ -125,6 +125,15 @@ export function MenuItemCard({
             {item.description}
           </p>
         )}
+
+        {/* Ce qui manque encore se voit : sans allergènes, le menu renvoie le client à l'équipe. */}
+        <p className={`text-xs ${item.allergens === undefined ? "text-ember-2" : "text-faint"}`}>
+          {item.allergens === undefined
+            ? "Allergènes non renseignés"
+            : item.allergens.length === 0
+              ? "Aucun allergène"
+              : allergenLine(item.allergens)}
+        </p>
 
         {item.badges && item.badges.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

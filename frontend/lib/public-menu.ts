@@ -38,9 +38,10 @@ function serviceIsoDay(dayEndHour: number): number {
 }
 
 /**
- * Piment, mentions, allergènes et nom dans la langue de la cuisine : la base
- * ne les porte pas encore, le registre statique si. Rattachés par nom, la
- * carte en ligne imprime ce que montre /menu/demo ; sans registre, rien.
+ * Piment, mentions et nom dans la langue de la cuisine : la base ne les porte
+ * pas encore, le registre statique si. Rattachés par nom, la carte en ligne
+ * imprime ce que montre /menu/demo ; sans registre, rien. Les allergènes
+ * saisis en gestion priment sur ceux du registre, même « aucun ».
  */
 function withPrintedDetails(categories: MenuCategory[], registry: Restaurant | undefined): MenuCategory[] {
   if (!registry) return categories;
@@ -51,7 +52,7 @@ function withPrintedDetails(categories: MenuCategory[], registry: Restaurant | u
     kicker: kickers.get(category.name),
     items: category.items.map((item) => {
       const source = printed.get(item.name);
-      return source ? { ...item, spice: source.spice, tags: source.tags, allergens: source.allergens } : item;
+      return source ? { ...item, spice: source.spice, tags: source.tags, allergens: item.allergens ?? source.allergens } : item;
     }),
   }));
 }
