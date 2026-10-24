@@ -1,19 +1,17 @@
 import type { MenuCategory } from "@/lib/menu-data";
-import { pexels, unsplash } from "./images";
+import { pexels } from "./images";
 
 /*
  * Prototype : les boissons de Caffè Panis en vignettes (MenuCategory.compact),
- * des photos libres posées par nom d'article. La base ne porte ni l'un ni
- * l'autre ; si la mise en page plaît, le drapeau et les photos y entrent.
+ * des photos posées par nom d'article. La base ne porte ni l'un ni l'autre ;
+ * si la mise en page plaît, le drapeau et les photos y entrent.
  */
 const THUMB_WIDTH = 200;
 
-const espresso = unsplash("photo-1510707577719-ae7c14805e3a", THUMB_WIDTH);
 const photo = (id: number) => pexels(`${id}/pexels-photo-${id}.jpeg`, THUMB_WIDTH);
 // Alcools, vins, bulles, apéritifs : la vraie bouteille, sans étiquette quand
 // la carte ne dit pas la marque ; carrés de 1200 px, nets jusque dans la fiche.
 const bottle = (slug: string) => `/caffe-panis/bouteilles/${slug}.webp`;
-
 const drink = (slug: string) => `/caffe-panis/boissons/${slug}.webp`;
 
 const PREVIEW: Record<string, Record<string, string>> = {
