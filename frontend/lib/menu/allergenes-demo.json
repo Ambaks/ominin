@@ -4421,6 +4421,136 @@
       "lait"
     ]
   },
+  "rosemarie": {
+    "granite-rhum-romarin": [],
+    "granite-vodka-griottes": [],
+    "granite-goyave": [],
+    "cocktail-cachaca": [],
+    "cocktail-gin-hibiscus": [],
+    "cocktail-tequila-framboise": [],
+    "focaccia": [
+      "gluten"
+    ],
+    "burrata": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "jambon-serrano": [],
+    "babaganoush": [
+      "sesame"
+    ],
+    "houmous-petit-pois": [
+      "sesame"
+    ],
+    "gaspacho-verde": [
+      "gluten"
+    ],
+    "croquettes-poisson": [
+      "gluten",
+      "oeuf",
+      "poisson",
+      "lait",
+      "moutarde"
+    ],
+    "labneh": [
+      "gluten",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "beignets-courgettes": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "panzerotto": [
+      "gluten",
+      "lait"
+    ],
+    "polenta-frite": [
+      "oeuf",
+      "lait"
+    ],
+    "carpaccio-boeuf": [
+      "lait"
+    ],
+    "calamars-setoise": [
+      "oeuf",
+      "mollusques",
+      "sulfites"
+    ],
+    "roquette-encornet": [
+      "mollusques"
+    ],
+    "paccheri-ragu": [
+      "gluten",
+      "lait",
+      "celeri"
+    ],
+    "pave-truite": [
+      "gluten",
+      "poisson",
+      "fruits-a-coque"
+    ],
+    "clafoutis-tomates": [
+      "gluten",
+      "oeuf",
+      "lait"
+    ],
+    "boulettes-poulet": [
+      "gluten",
+      "oeuf"
+    ],
+    "persille-boeuf": [
+      "lait",
+      "celeri",
+      "moutarde",
+      "sulfites"
+    ],
+    "frites": [],
+    "coleslaw": [
+      "oeuf",
+      "moutarde"
+    ],
+    "taboule": [
+      "gluten"
+    ],
+    "abricots-rotis": [
+      "lait"
+    ],
+    "citron-biscotti": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "ananas-caramelise": [
+      "gluten",
+      "arachides",
+      "lait"
+    ],
+    "soupe-pasteque": [],
+    "glace-chouchous": [
+      "arachides",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "glace-zezettes": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "sulfites"
+    ],
+    "glace-oreillettes": [
+      "gluten",
+      "oeuf",
+      "lait",
+      "fruits-a-coque"
+    ],
+    "glace-nature": [
+      "lait"
+    ]
+  },
   "trattoria-lucia": {
     "affogato": [
       "gluten",

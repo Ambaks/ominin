@@ -657,7 +657,7 @@ export function CategoryWheel({ categories }: { categories: CategoryLink[] }) {
               </div>
               <div
                 style={{ right: DISC / 2 + LABEL_GAP }}
-                className="font-display absolute top-0 line-clamp-2 w-max max-w-[var(--wheel-label-max)] py-[0.12em] text-right text-2xl font-medium leading-[1.1] tracking-tight text-balance text-foreground opacity-0 [text-transform:var(--wheel-case,none)]"
+                className="category-wheel-label font-display absolute top-0 line-clamp-2 w-max max-w-[var(--wheel-label-max)] py-[0.12em] text-right text-2xl font-medium leading-[1.1] tracking-tight text-balance text-foreground opacity-0 [text-transform:var(--wheel-case,none)]"
               >
                 {name}
               </div>

@@ -151,6 +151,7 @@ export function MenuFooter({
               </a>
             </p>
           )}
+          {restaurant.allergensNote && <p>{restaurant.allergensNote}</p>}
           <p>Prix nets en euros, service compris.</p>
           {hasPhotos && <p>Photos non contractuelles.</p>}
           <p className="mt-1 flex items-center justify-center gap-2">

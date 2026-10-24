@@ -174,7 +174,7 @@ function DishDetails({
       </div>
       <div className="sticky bottom-0 mt-auto flex min-h-18 items-center justify-between gap-4 border-t border-hairline bg-surface px-5 py-3 sm:px-6">
         <span className="flex flex-col">
-          <span className="font-display text-2xl text-ember-1">
+          <span className="dish-sheet-price font-display text-2xl text-ember-1">
             {hasFormats(item) && "dès "}
             {formatPrice(item.price)}
           </span>
