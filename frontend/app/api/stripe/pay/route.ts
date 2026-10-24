@@ -4,6 +4,7 @@ import { onlineMinimumError } from "@/lib/menu/online-minimum";
 import {
   connectedAccount,
   getStripe,
+  publishableKey as readPublishableKey,
   settlePaymentIntent,
 } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -86,10 +87,10 @@ export async function POST(request: Request) {
   }
   // Publique, mais lue ici plutôt que figée au build : elle est toujours du
   // même mode (test ou live) que la clé secrète qui crée l'intent.
-  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  const publishableKey = readPublishableKey();
   if (!publishableKey) {
     return NextResponse.json(
-      { error: "STRIPE_PUBLISHABLE_KEY manquante." },
+      { error: "STRIPE_PUBLISHABLE_KEY manquante ou d'un autre mode que la clé secrète." },
       { status: 500 }
     );
   }

@@ -17,6 +17,21 @@ export function getStripe(): Stripe {
   return new Stripe(key);
 }
 
+/**
+ * Clé publique remise à Stripe.js, ou null si elle manque ou n'est pas du
+ * même mode (test ou live) que la clé secrète : un intent live ne se
+ * confirme pas avec une clé de test, la feuille de paiement ne se monterait
+ * jamais — sans que rien ne le dise côté serveur.
+ */
+export function publishableKey(): string | null {
+  const key = process.env.STRIPE_PUBLISHABLE_KEY;
+  const secret = process.env.STRIPE_SECRET_KEY;
+  const live = (value: string) => value.includes("_live_");
+  if (key && secret && live(key) === live(secret)) return key;
+  console.error("[stripe] STRIPE_PUBLISHABLE_KEY absente, ou d'un autre mode que STRIPE_SECRET_KEY");
+  return null;
+}
+
 /** Gérant de l'établissement courant : seul à régler et consulter l'encaissement. */
 export function requireGerant() {
   return requireEtablissementGerant("Seul le gérant peut configurer le paiement en ligne.");
