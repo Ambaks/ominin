@@ -10,10 +10,10 @@ import {
   closureActive,
   closesLater,
   closureUntil,
-  dayEndLabel,
   describeTargets,
-  liftedToday,
+  liftedUntil,
   listFr,
+  manualCloseUntil,
   serviceClock,
   targetedItems,
   type ServiceClock,
@@ -85,7 +85,8 @@ export function useClosureToggle(
 /*
  * Pendant le service, d'un geste : fermer la cuisine quand elle s'arrête,
  * la rouvrir pour une table arrivée tard. Le gérant et le cuisinier y ont
- * accès ; le geste vaut jusqu'à la fin de la journée de service.
+ * accès ; le geste vaut jusqu'au prochain changement de l'horaire, au plus
+ * tard la fin de la journée de service.
  */
 export function FermeturesBar({
   closures,
@@ -104,21 +105,13 @@ export function FermeturesBar({
     if (closureActive(closure, clock, dayEndHour)) {
       return `à l’arrêt jusqu’à ${closureUntil(closure, clock, dayEndHour)}`;
     }
-    if (liftedToday(closure, clock)) return "en service · horaire suspendu aujourd’hui";
+    const suspended = liftedUntil(closure, clock, dayEndHour);
+    if (suspended) return `en service · horaire suspendu jusqu’à ${suspended}`;
     const later = closesLater(closure, clock, dayEndHour);
     return later ? `en service · ferme à ${later}` : "en service";
   };
   const confirmingTargets = confirming && describeTargets(confirming, categories);
-  // Levée pendant son horaire, la refermer rend la main à l'horaire : elle
-  // rouvrira à sa fin, pas forcément à la bascule.
-  const confirmingUntil =
-    confirming && liftedToday(confirming, clock)
-      ? closureUntil(
-          { ...confirming, overrideClosed: null, overrideDay: null },
-          clock,
-          dayEndHour
-        )
-      : dayEndLabel(dayEndHour);
+  const confirmingUntil = confirming && manualCloseUntil(confirming, clock, dayEndHour);
 
   return (
     <div
