@@ -5888,7 +5888,7 @@ const caffePanis: Restaurant = {
   slug: "caffe-panis",
   name: "Caffè Panis",
   suivi: true,
-  tagline: "Caffè\u00a0·\u00a0Ristorante\u00a0· Gelateria",
+  tagline: "Caffè\u00a0·\u00a0Ristorante",
   logo: "/caffe-panis/logo.webp",
   logoIsName: true,
   icons: { tab: "/caffe-panis/favicon.png", homeScreen: "/caffe-panis/icon.png" },
@@ -5896,7 +5896,7 @@ const caffePanis: Restaurant = {
   address: "3 Place du Marché aux Fleurs, 34000 Montpellier",
   phone: "+33 4 99 67 65 38",
   hours: "Tous\u00a0les\u00a0jours 9h–\u20601h",
-  highlights: ["De 9h à 1h, 7j/7", "Burrata straight from Puglia"],
+  highlights: ["De 9h à 1h, 7j/7"],
   // Accords provisoires, à régénérer avec backend/scripts/pairings.py.
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.

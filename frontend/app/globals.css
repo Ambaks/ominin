@@ -7634,6 +7634,14 @@ html:has([data-menu-root].theme-caffe-panis) body {
   }
 }
 
+/* Le dock des tickets met la tête en pause, sauf les entrées (règle
+   commune) : le mot-symbole, peint hors de .hero-entrance, restait figé à
+   ses deux premières lettres, et la mosaïque à demi posée. */
+[data-menu-root].theme-caffe-panis:has(.ticket-dock) > header .hero-logo img,
+[data-menu-root].theme-caffe-panis:has(.ticket-dock) > header::after {
+  animation-play-state: running;
+}
+
 /* Le damier du sol, sous le haut de page. */
 .theme-caffe-panis > header.logo-hero::after {
   content: "";
