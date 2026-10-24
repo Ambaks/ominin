@@ -1,3 +1,4 @@
+import { isDrinkCategory } from "@/lib/menu/category-icons";
 import type { MenuCategory } from "@/lib/menu-data";
 import { CompactCard } from "./compact-card";
 import { DishCard } from "./dish-card";
@@ -31,6 +32,8 @@ export function MenuSection({
     const next = category.items[i + 1];
     if (!item.image && (!next || next.image) && run % 2 === 1) lone.add(i);
   });
+
+  const drink = isDrinkCategory(category);
 
   // La première photo de la section, pas son premier article : sans photo,
   // il laissait la vraie première image en différé.
@@ -71,7 +74,7 @@ export function MenuSection({
       {category.compact ? (
         <div className="dish-minis">
           {category.items.map((item) => (
-            <CompactCard key={item.id} item={item} />
+            <CompactCard key={item.id} item={item} drink={drink} />
           ))}
         </div>
       ) : (
@@ -79,7 +82,7 @@ export function MenuSection({
           className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
         >
           {category.items.map((item, i) => (
-            <DishCard key={item.id} item={item} priority={i === firstPhoto} span={lone.has(i)} />
+            <DishCard key={item.id} item={item} drink={drink} priority={i === firstPhoto} span={lone.has(i)} />
           ))}
         </div>
       )}

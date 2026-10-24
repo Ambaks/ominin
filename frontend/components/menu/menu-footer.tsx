@@ -3,6 +3,7 @@ import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { NameWords } from "@/components/menu/name-words";
 import { httpHref } from "@/lib/admin/format";
+import { isDrinkCategory } from "@/lib/menu/category-icons";
 import {
   brandName,
   displayAddress,
@@ -44,8 +45,9 @@ export function MenuFooter({
   const hours = restaurant.hours.trim();
   // Une carte qui imprime des allergènes renvoie aussi vers l'équipe : la liste
   // ne remplace pas la question d'un client allergique.
-  const printsAllergens = restaurant.categories.some((category) =>
-    category.items.some((item) => item.allergens !== undefined)
+  const printsAllergens = restaurant.categories.some(
+    (category) =>
+      !isDrinkCategory(category) && category.items.some((item) => item.allergens !== undefined)
   );
   const hasPhotos =
     Boolean(restaurant.coverImage || restaurant.affiches?.length) ||

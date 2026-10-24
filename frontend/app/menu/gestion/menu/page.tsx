@@ -26,6 +26,7 @@ import {
 } from "@/lib/gestion/terminaux";
 import type { Affiche, Formule } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
+import { isDrinkCategory } from "@/lib/menu/category-icons";
 import { effectiveTarif, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import type { MenuItem } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
@@ -303,6 +304,7 @@ export default function MenuPage() {
                     <MenuItemCard
                       key={item.id}
                       item={item}
+                      drink={isDrinkCategory(category)}
                       printers={showRouting ? printers : []}
                       printerId={routing.get(item.id) ?? null}
                       canRoute={canRoute}
