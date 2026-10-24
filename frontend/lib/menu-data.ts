@@ -5987,14 +5987,14 @@ const caffePanis: Restaurant = {
           name: "Trio d'arancini",
           description: "Trois dodues boulettes frites de risotto au prosciutto et fromage mozza fior di latte, ouuuuh.",
           price: 6.9,
-          image: panisPlat("trio-arancini"),
+          image: panisPlat("ciccio/trio-arancini"),
         },
         {
           id: "prosciutto",
           name: "Prosciutto",
           description: "L'inoubliable jambon en direct de la région de Parme, fondant à souhait.",
           price: 7.9,
-          image: panisPlat("prosciutto"),
+          image: panisPlat("ciccio/prosciutto"),
         },
         {
           id: "burrata-pesto-forever",
@@ -6002,7 +6002,7 @@ const caffePanis: Restaurant = {
           description:
             "Belle burrata straight from Puglia fourrée au pesto de basilic, tomates séchées à l'huile, huile d'olive et basilic frais. Servi avec une boule de pain maison.",
           price: 8.9,
-          image: panisPlat("burrata-pesto-forever"),
+          image: panisPlat("ciccio/burrata-pesto-forever"),
         },
         {
           id: "classic-burrata",
@@ -6018,12 +6018,14 @@ const caffePanis: Restaurant = {
           description:
             "Stracciatella de 125 g fumée et crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive et une pointe de sel de poivre e basta.",
           price: 6.9,
+          image: panisPlat("ciccio/stracciatella-fumee"),
         },
         {
           id: "burrata-truffe-mortadelle",
           name: "Burrata Truffe & Mortadelle",
           description: "Dodue burrata bien fraîche en direct des Pouilles et crème de truffe d'été.",
           price: 10.9,
+          image: panisPlat("ciccio/burrata-truffe-mortadelle"),
         },
       ],
     },
@@ -6037,7 +6039,7 @@ const caffePanis: Restaurant = {
           description:
             "Champignons de Paris cuits finement tranchés, jambon blanc aux herbes, mozza fior di latte, sauce tomates italiennes, olives taggiasche et basilic frais.",
           price: 14.9,
-          image: panisPlat("pizza-mama-king"),
+          image: panisPlat("ciccio/pizza-mama-king"),
         },
         {
           id: "margherita",
@@ -6045,7 +6047,7 @@ const caffePanis: Restaurant = {
           description:
             "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé et basilic frais.",
           price: 11.9,
-          image: panisPlat("pizza-margherita"),
+          image: panisPlat("ciccio/pizza-margherita"),
         },
         {
           id: "puissance-4",
@@ -6053,7 +6055,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème fraîche, gorgonzola, gran formaggio râpé, mozza fior di latte et ciboulette. Du cheesy comme on aime.",
           price: 14.9,
-          image: panisPlat("pizza-puissance-4"),
+          image: panisPlat("ciccio/pizza-puissance-4"),
         },
         {
           id: "stracciatella-versace",
@@ -6061,7 +6063,7 @@ const caffePanis: Restaurant = {
           description:
             "Jambon de Parme, stracciatella fumée bien crémeuse, pecorino romano râpé, roquette fraîche et sauce tomates italiennes en direct de notre producteur fiammante.",
           price: 19.9,
-          image: panisPlat("pizza-stracciatella-versace"),
+          image: panisPlat("ciccio/pizza-stracciatella-versace"),
         },
         {
           id: "capo",
@@ -6069,7 +6071,7 @@ const caffePanis: Restaurant = {
           description:
             "Fines tranches de salame piccante, salsa nduja xxxtra hot, mozza fior di latte, sauce tomates italiennes en direct de notre producteur fiammante et marjolaine fraîche.",
           price: 15.9,
-          image: panisPlat("pizza-capo"),
+          image: panisPlat("ciccio/pizza-capo"),
         },
         {
           id: "green-circle",
@@ -6077,7 +6079,7 @@ const caffePanis: Restaurant = {
           description:
             "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé, aubergines frites et basilic frais.",
           price: 14.9,
-          image: panisPlat("pizza-green-circle"),
+          image: panisPlat("ciccio/pizza-green-circle"),
         },
         {
           id: "truffle-supreme",
@@ -6085,6 +6087,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de truffe d'été à la ricotta, mozza fior di latte, petits champignons de Paris, beaux copeaux de truffe fraîche d'automne, gran formaggio râpé et ciboulette.",
           price: 20.9,
+          image: panisPlat("ciccio/pizza-truffle-supreme"),
         },
         {
           id: "amor-amatriciana",
@@ -6092,6 +6095,7 @@ const caffePanis: Restaurant = {
           description:
             "Pancetta «\u00a0Poitrine de porc\u00a0» et sauce de tomates italiennes pour une extra dose de saveurs, mozza fior di latte, pecorino et basilic frais.",
           price: 15.9,
+          image: panisPlat("ciccio/pizza-amor-amatriciana"),
         },
       ],
     },
@@ -6104,27 +6108,28 @@ const caffePanis: Restaurant = {
           name: "Pasta Carbonara Originale",
           description: "Pasta rigatoni à la sauce carbonara, guanciale de cochon et pecorino.",
           price: 13.9,
-          image: panisPlat("pasta-carbonara"),
+          image: panisPlat("ciccio/pasta-carbonara"),
         },
         {
           id: "alla-bolognese",
           name: "Pasta Alla Bolognese",
           description: "Pasta rigatoni au ragù de bœuf, gran formaggio italiano et feuilles de basilic.",
           price: 14.9,
-          image: panisPlat("pasta-bolognese"),
+          image: panisPlat("ciccio/pasta-bolognese"),
         },
         {
           id: "all-amatriciana",
           name: "Pasta All'Amatriciana",
           description: "Pasta rigatoni à la sauce de tomates italiennes, pancetta de cochon et pecorino.",
           price: 14.9,
-          image: panisPlat("pasta-amatriciana"),
+          image: panisPlat("ciccio/pasta-amatriciana"),
         },
         {
           id: "vivi-e-vechio",
           name: "Pasta Vivi E Vechio",
           description: "Pasta rigatoni à la sauce de tomates italiennes, stracciatella fumée et feuilles de basilic.",
           price: 12.9,
+          image: panisPlat("ciccio/pasta-vivi-e-vechio"),
         },
         {
           id: "con-il-pesto",
@@ -6132,6 +6137,7 @@ const caffePanis: Restaurant = {
           description:
             "Pasta casareccia au pesto de basilic frais, gran formaggio italiano, petites noisettes et feuilles de basilic.",
           price: 12.9,
+          image: panisPlat("ciccio/pasta-pesto"),
         },
         {
           id: "al-tartufo",
@@ -6139,6 +6145,7 @@ const caffePanis: Restaurant = {
           description:
             "Pasta mafaldine à la crème de gorgonzola, jambon truffé, éclat de noisettes, copeaux de parmesan, huile truffée.",
           price: 18.9,
+          image: panisPlat("ciccio/pasta-tartufo"),
         },
       ],
     },
@@ -6151,6 +6158,7 @@ const caffePanis: Restaurant = {
           name: "Les Dwich du Gang",
           description: "Le dwich jambon pâte à pizza bien fluffy, jambon blanc et mozza fior di latte xxtra fondante.",
           price: 6.9,
+          image: panisPlat("ciccio/dwich-du-gang"),
         },
         {
           id: "dwich-regina",
@@ -6158,6 +6166,7 @@ const caffePanis: Restaurant = {
           description:
             "Pâte à pizza bien fluffy, sauce de tomates italiennes en direct de notre producteur fiammante, mozza fior di latte, jambon blanc, champignons de Paris cuits et olives taggiasche.",
           price: 7.9,
+          image: panisPlat("ciccio/dwich-regina"),
         },
         {
           id: "dwich-truffe",
@@ -6165,6 +6174,7 @@ const caffePanis: Restaurant = {
           description:
             "Pâte à pizza bien fluffy, crème de ricotta à la truffe d'été, mozza fior di latte et champignons de Paris cuits.",
           price: 8.9,
+          image: panisPlat("ciccio/dwich-truffe"),
         },
       ],
     },
@@ -6178,14 +6188,14 @@ const caffePanis: Restaurant = {
           description:
             "Le grand classique de la casa bien onctueux et une petite pointe de liqueur de marsala, c'est que du love.",
           price: 6.9,
-          image: panisPlat("tiramisu"),
+          image: panisPlat("ciccio/tiramisu"),
         },
         {
           id: "mousse-big-love",
           name: "Mousse Big-love",
           description: "Inimitable mousse au bon chocolat, praliné noisette et crunchy gaufrette au chocolat au lait.",
           price: 6.9,
-          image: panisPlat("mousse-big-love"),
+          image: panisPlat("ciccio/mousse-big-love"),
         },
         {
           id: "deurty-cookie",
@@ -6193,7 +6203,7 @@ const caffePanis: Restaurant = {
           description:
             "Décadent cookie choco-praliné mi-cuit, noix de pécan, big pépites de chocolat et pour l'overdose de love, cœur fondant ultra coulant à la gianduja.",
           price: 5.9,
-          image: panisPlat("deurty-cookie"),
+          image: panisPlat("ciccio/deurty-cookie"),
         },
       ],
     },
