@@ -63,7 +63,7 @@
   /* Les fiches, les vignettes et le store : la toile crème de la devanture, pleine, posée
      sur le satin par une ombre longue teintée de vert. */
   & :is(.dish-grid > article, .dish-mini, .menu-highlights) {
-    background: linear-gradient(var(--surface), #f6f2e4);
+    background: var(--cp-grain), linear-gradient(var(--surface), #f6f2e4);
     box-shadow: 0 24px 40px -20px rgb(2 20 10 / 0.7);
   }
 
