@@ -6,7 +6,7 @@ import type { Closure, ClosureWindow, MenuTarget } from "./types";
 
 /*
  * L'état des fermetures, lu par l'espace de gestion. C'est le miroir de
- * fermeture_active en base (20261024000002_fermetures_plages.sql), qui seule
+ * fermeture_active en base (20261024000004_fermetures_plages.sql), qui seule
  * fait autorité pour les commandes : tout se compte en heure de service,
  * l'heure de Paris reculée de dayEndHour.
  */
