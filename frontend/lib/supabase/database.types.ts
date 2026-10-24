@@ -1902,11 +1902,13 @@ export type Database = {
           days: number[] | null
           description: string | null
           disponible: boolean
+          ends_at: string | null
           etablissement_id: string
           etapes: Json
           id: string
           name: string
           price: number
+          starts_at: string | null
         }
         Insert: {
           affiche_id?: string | null
@@ -1915,11 +1917,13 @@ export type Database = {
           days?: number[] | null
           description?: string | null
           disponible?: boolean
+          ends_at?: string | null
           etablissement_id: string
           etapes?: Json
           id?: string
           name: string
           price: number
+          starts_at?: string | null
         }
         Update: {
           affiche_id?: string | null
@@ -1928,11 +1932,13 @@ export type Database = {
           days?: number[] | null
           description?: string | null
           disponible?: boolean
+          ends_at?: string | null
           etablissement_id?: string
           etapes?: Json
           id?: string
           name?: string
           price?: number
+          starts_at?: string | null
         }
         Relationships: [
           {

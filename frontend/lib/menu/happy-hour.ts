@@ -1,5 +1,6 @@
 import { parisParts, toMinutes } from "@/lib/collect/hours";
 import { formatHeure } from "@/lib/gestion/fermetures";
+import type { Formule } from "@/lib/gestion/types";
 import type { MenuCategory, MenuItem, RuleHours } from "@/lib/menu-data";
 import { isDrinkCategory } from "./category-icons";
 import { fitsVignette } from "./compact-preview";
@@ -11,6 +12,8 @@ import { cents } from "./tarifs";
  * avec des heures en est une ; une majoration (le tarif week-end) ou une
  * remise de toute la journée n'en sont pas. Elle se lit sur la carte déjà
  * aux prix du moment : ce qu'elle annonce est ce que place_order facturera.
+ * Les formules à heures (le petit déjeuner de 9 h à 10 h 30) s'y rangent
+ * aussi : elles n'existent que pendant leur créneau.
  */
 
 export const HAPPY_HOUR_SECTION_ID = "happy-hour";
@@ -29,6 +32,12 @@ export interface HappyHourOffer {
   rule: string;
 }
 
+/** Une formule à heures, et ce que coûteraient ses plats à la carte, quand on le sait. */
+export interface HappyHourFormule {
+  formule: Formule & { hours: RuleHours };
+  wasPrice?: number;
+}
+
 export interface HappyHour {
   /** Le nom de la règle (« Aperitivo Happy Hour »), ou « Happy hour » quand plusieurs se chevauchent. */
   title: string;
@@ -36,6 +45,7 @@ export interface HappyHour {
   hours: RuleHours;
   /** Par catégorie, dans l'ordre de la carte. */
   groups: { id: string; category: string; offers: HappyHourOffer[] }[];
+  formules: HappyHourFormule[];
 }
 
 /** Minutes passées et restantes d'une fenêtre, à `minutes` (heure de Paris) ; null hors fenêtre. */
@@ -69,29 +79,60 @@ function offersOf(item: MenuItem): HappyHourOffer[] {
   return offers;
 }
 
-export function happyHourOf(categories: MenuCategory[], at: Date): HappyHour | null {
+/**
+ * Les plats d'une formule à la carte : pour chaque étape obligatoire, le
+ * moins cher de ses choix, au prix de la carte (hors happy hour). Inconnu dès
+ * qu'un choix n'est pas un article de la carte (un croissant saisi à part).
+ */
+function wasPriceOf(formule: Formule, itemsById: Map<string, MenuItem>): number | undefined {
+  let total = 0;
+  for (const etape of formule.etapes.filter((etape) => etape.obligatoire)) {
+    const prices = etape.articles.map((article) => {
+      const item = article.itemId ? itemsById.get(article.itemId) : undefined;
+      return item ? (item.tarif?.basePrice ?? item.price) : undefined;
+    });
+    if (prices.length === 0 || prices.some((price) => price === undefined)) return undefined;
+    total += Math.min(...(prices as number[]));
+  }
+  return total > formule.price ? cents(total) : undefined;
+}
+
+/** `formules` : celles du moment (jours et heures déjà vérifiés). */
+export function happyHourOf(
+  categories: MenuCategory[],
+  formules: Formule[],
+  at: Date
+): HappyHour | null {
   const minutes = parisParts(at).minutes;
   const groups = categories.flatMap((category) => {
     const offers = category.items.flatMap(offersOf);
     return offers.length > 0 ? [{ id: category.id, category: category.name, offers }] : [];
   });
   const offers = groups.flatMap((group) => group.offers);
-  if (offers.length === 0) return null;
+  const itemsById = new Map(categories.flatMap((category) => category.items.map((item) => [item.id, item])));
+  const timed = formules.flatMap((formule) =>
+    formule.hours
+      ? [{ formule: { ...formule, hours: formule.hours }, wasPrice: wasPriceOf(formule, itemsById) }]
+      : []
+  );
+  const windows = [...offers.map((offer) => offer.hours), ...timed.map(({ formule }) => formule.hours)];
+  if (windows.length === 0) return null;
   const left = (hours: RuleHours) => windowAt(hours, minutes)?.left ?? 0;
-  const last = offers.reduce((a, b) => (left(b.hours) > left(a.hours) ? b : a));
+  const last = windows.reduce((a, b) => (left(b) > left(a) ? b : a));
   const rules = new Set(offers.map((offer) => offer.rule));
   return {
-    title: rules.size === 1 ? last.rule : "Happy hour",
-    hours: last.hours,
+    title: rules.size === 1 ? [...rules][0] : "Happy hour",
+    hours: last,
     groups,
+    formules: timed,
   };
 }
 
 /**
  * La section « Happy hour » : ses articles, repris de leur catégorie (qui les
  * garde), juste avant les boissons — sans boissons, avant la première
- * catégorie qui en a. En vignettes quand la carte en montre et que tous s'y
- * prêtent.
+ * catégorie qui en a, sinon en tête. En vignettes quand la carte en montre et
+ * que tous s'y prêtent. Ses formules, la page les pose en tête de section.
  */
 export function withHappyHourSection(
   categories: MenuCategory[],
@@ -109,7 +150,7 @@ export function withHappyHourSection(
       items.every(fitsVignette) && { compact: true as const }),
   };
   const drinks = categories.findIndex((category) => isDrinkCategory(category.name));
-  const at =
-    drinks >= 0 ? drinks : categories.findIndex((category) => category.items.some((item) => ids.has(item.id)));
+  const offered = categories.findIndex((category) => category.items.some((item) => ids.has(item.id)));
+  const at = Math.max(0, drinks >= 0 ? drinks : offered);
   return [...categories.slice(0, at), section, ...categories.slice(at)];
 }

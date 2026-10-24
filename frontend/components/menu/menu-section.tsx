@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { MenuCategory } from "@/lib/menu-data";
 import { CompactCard } from "./compact-card";
 import { DishCard } from "./dish-card";
@@ -5,10 +6,13 @@ import { DishCard } from "./dish-card";
 export function MenuSection({
   category,
   first,
+  children,
 }: {
   category: MenuCategory;
   /** Première section de la carte : sa première photo se charge d'emblée. */
   first?: boolean;
+  /** Avant les articles : les formules de la happy hour. */
+  children?: ReactNode;
 }) {
   /* Rien à lire sous les noms (des suppléments, des boissons) et une photo
      pour chacun : la section peut se montrer en vignettes plutôt qu'en
@@ -68,7 +72,12 @@ export function MenuSection({
           </p>
         )}
       </div>
-      {category.compact ? (
+      {children && (
+        <div className={category.items.length > 0 ? "mb-4 sm:mb-6 lg:mb-8" : undefined}>
+          {children}
+        </div>
+      )}
+      {category.items.length === 0 ? null : category.compact ? (
         <div className="dish-minis">
           {category.items.map((item) => (
             <CompactCard key={item.id} item={item} />

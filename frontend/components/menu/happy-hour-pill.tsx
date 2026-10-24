@@ -5,9 +5,12 @@ import { parisParts } from "@/lib/collect/hours";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { formatHeure } from "@/lib/gestion/fermetures";
 import { formatWait, useNow } from "@/lib/gestion/use-now";
+import type { Formule } from "@/lib/gestion/types";
+import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu/format";
 import { type HappyHour, windowAt } from "@/lib/menu/happy-hour";
 import { AddToOrder } from "./add-to-order";
+import { FormuleModal, openFormule } from "./formules";
 import { Sheet } from "./sheet";
 
 /** Un verre à cocktail, sa rondelle sur le bord. */
@@ -85,6 +88,9 @@ function Offers({
     const offers = group.offers.filter((offer) => windowAt(offer.hours, minutes));
     return offers.length > 0 ? [{ ...group, offers }] : [];
   });
+  const formules = happyHour.formules.filter(({ formule }) => windowAt(formule.hours, minutes));
+  const { closed } = useCart();
+  const [composing, setComposing] = useState<Formule | null>(null);
 
   return (
     <div className="happy-hour-sheet">
@@ -109,6 +115,41 @@ function Offers({
         )}
       </header>
       <div className="happy-hour-offers">
+        {formules.length > 0 && (
+          <section>
+            <h3 className="font-display">Formules</h3>
+            <ul>
+              {formules.map(({ formule, wasPrice }) => {
+                const served = openFormule(formule, closed);
+                return (
+                  <li key={formule.id}>
+                    <span className="happy-hour-thumb" aria-hidden>
+                      {[...formule.name][0]}
+                    </span>
+                    <span className="flex min-w-0 flex-col">
+                      <span className="font-display leading-tight">{formule.name}</span>
+                      <small>{formule.etapes.map((etape) => etape.name).join(" · ")}</small>
+                    </span>
+                    <span className="happy-hour-price">
+                      {wasPrice !== undefined && <s>{formatPrice(wasPrice)}</s>}
+                      <b className="font-display">{formatPrice(formule.price)}</b>
+                    </span>
+                    <div className="dish-action">
+                      <button
+                        type="button"
+                        disabled={!served}
+                        aria-haspopup="dialog"
+                        aria-label={`Composer : ${formule.name}`}
+                        onClick={() => setComposing(served)}
+                        className="ember-gradient rounded-full text-background disabled:opacity-60"
+                      />
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        )}
         {groups.map((group) => (
           <section key={group.id}>
             <h3 className="font-display">{group.category}</h3>
@@ -146,6 +187,7 @@ function Offers({
           </section>
         ))}
       </div>
+      {composing && <FormuleModal formule={composing} onClose={() => setComposing(null)} />}
     </div>
   );
 }
