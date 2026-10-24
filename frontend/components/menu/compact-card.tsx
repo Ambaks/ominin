@@ -2,6 +2,7 @@ import { formatPrice } from "@/lib/menu/format";
 import type { MenuItem, OptionChoice } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
 import { Allergens } from "./dish-card";
+import { DishOpener } from "./dish-sheet";
 import { keepHyphenated } from "./keep-hyphenated";
 import { RewardHint } from "./reward-hint";
 
@@ -29,13 +30,17 @@ function formatsInfo(choices: OptionChoice[]) {
  * ou ses formats (« 6 cl ou bouteille ») — le prix affiché est alors celui
  * du premier —, le prix et le « + » en bas. Une section ne passe en
  * vignettes que faite d'articles sans accord, pastille ni mention : la
- * fiche n'en montre pas.
+ * fiche n'en montre pas. Toucher la fiche ouvre celle du plat (DishOpener),
+ * le « + » passe au-dessus (z-1, élément flex sans position) et ajoute.
  */
 export function CompactCard({ item }: { item: MenuItem }) {
   const formats = item.options?.find((group) => group.formats)?.choices;
 
   return (
-    <article data-item={item.id} className="dish-mini">
+    <article
+      data-item={item.id}
+      className="dish-mini has-[.dish-open:focus-visible]:outline-2 has-[.dish-open:focus-visible]:outline-offset-2 has-[.dish-open:focus-visible]:outline-ember-2"
+    >
       <div className="dish-mini-thumb" aria-hidden>
         {item.image ? (
           // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
@@ -67,7 +72,7 @@ export function CompactCard({ item }: { item: MenuItem }) {
           {formats && <small>dès</small>}
           <span>{formatPrice(item.price)}</span>
         </p>
-        <div className="dish-action">
+        <div className="dish-action z-1">
           <AddToOrder item={item} />
         </div>
       </div>
@@ -75,6 +80,7 @@ export function CompactCard({ item }: { item: MenuItem }) {
         <Allergens item={item} />
         <RewardHint itemId={item.id} />
       </div>
+      <DishOpener item={item} />
     </article>
   );
 }
