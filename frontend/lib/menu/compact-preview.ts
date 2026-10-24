@@ -10,7 +10,8 @@ const THUMB_WIDTH = 200;
 
 const espresso = unsplash("photo-1510707577719-ae7c14805e3a", THUMB_WIDTH);
 const photo = (id: number) => pexels(`${id}/pexels-photo-${id}.jpeg`, THUMB_WIDTH);
-// Alcools forts et vins : la vraie bouteille, étiquette recadrée.
+// Alcools, vins, bulles, apéritifs : la vraie bouteille, sans étiquette quand
+// la carte ne dit pas la marque ; carrés de 1200 px, nets jusque dans la fiche.
 const bottle = (slug: string) => `/caffe-panis/bouteilles/${slug}.webp`;
 
 const PREVIEW: Record<string, Record<string, string>> = {
@@ -32,28 +33,28 @@ const PREVIEW: Record<string, Record<string, string>> = {
   },
   "caffe-panis/Alcools forts": {
     Baileys: bottle("baileys"),
-    Limoncello: photo(21854837),
+    Limoncello: bottle("limoncello"),
     Mentheuse: bottle("mentheuse"),
     Croqueuse: bottle("croqueuse"),
     Pulpeuse: bottle("pulpeuse"),
     "Get 27": bottle("get-27"),
     "Whisky Ballantine's": bottle("whisky-ballantines"),
     Jägermeister: bottle("jagermeister"),
-    Vodka: photo(4946713),
-    Tequila: photo(32912387),
+    Vodka: bottle("vodka"),
+    Tequila: bottle("tequila"),
     "Rhum Captain Morgan": bottle("rhum-captain-morgan"),
     "Gin Beefeater": bottle("gin-beefeater"),
     "Bourbon Four Roses": bottle("bourbon-four-roses"),
     "Whisky Jack Daniel's": bottle("whisky-jack-daniels"),
     "Cognac Hennessy": bottle("cognac-hennessy"),
     "Armagnac Samalens": bottle("armagnac-samalens"),
-    Calvados: photo(7809749),
+    Calvados: bottle("calvados"),
     "Poire Williams": photo(7809750),
     "Vodka Belvedere": bottle("vodka-belvedere"),
     "Whisky Chivas 12 ans": bottle("whisky-chivas-12-ans"),
     "Whisky Aberlour 12 ans": bottle("whisky-aberlour-12-ans"),
     Bacardi: bottle("bacardi"),
-    "Rhum agricole Martinique": photo(15523624),
+    "Rhum agricole Martinique": bottle("rhum-agricole-martinique"),
     "Rhum Bumbu": bottle("rhum-bumbu"),
     "Rhum Gouverneur": bottle("rhum-gouverneur"),
   },
@@ -65,19 +66,19 @@ const PREVIEW: Record<string, Record<string, string>> = {
     "Fuzetea Pêche": "/big-smash/fuze-tea-peche.webp",
   },
   "caffe-panis/Bulles": {
-    Prosecco: photo(12151233),
-    "Champagne Robert-Allait": photo(20303995),
-    Pavone: photo(6728572),
+    Prosecco: bottle("prosecco"),
+    "Champagne Robert-Allait": bottle("champagne-robert-allait"),
+    Pavone: bottle("pavone"),
   },
   "caffe-panis/Apéritifs": {
-    "Pastis Panis": photo(27848730),
-    Kir: photo(8983396),
-    Suze: photo(18142598),
-    Muscat: photo(15130312),
-    Porto: photo(14472650),
-    Campari: photo(32443614),
-    Martini: photo(34437244),
-    Lillet: photo(128242),
+    "Pastis Panis": bottle("pastis-panis"),
+    Kir: bottle("kir"),
+    Suze: bottle("suze"),
+    Muscat: bottle("muscat"),
+    Porto: bottle("porto"),
+    Campari: bottle("campari"),
+    Martini: bottle("martini"),
+    Lillet: bottle("lillet"),
   },
   "caffe-panis/Boissons fraîches": {
     Pepsi: photo(11942006),
@@ -154,7 +155,7 @@ const PREVIEW: Record<string, Record<string, string>> = {
     "Dry Panis": photo(21085810),
   },
   "caffe-panis/Vins rouges": {
-    "Pays d'Hérault rouge": photo(7597560),
+    "Pays d'Hérault rouge": bottle("pays-d-herault-rouge"),
     "Sans Chichi": bottle("sans-chichi"),
     "Côte du Rhône": bottle("cotes-du-rhone"),
     "Salut de la Terre": bottle("salut-de-la-terre"),
@@ -169,7 +170,7 @@ const PREVIEW: Record<string, Record<string, string>> = {
     "Les Hautes Terres": bottle("les-hautes-terres"),
   },
   "caffe-panis/Vins rosés": {
-    "Pays d'Hérault rosé": photo(4906328),
+    "Pays d'Hérault rosé": bottle("pays-d-herault-rose"),
     Pive: bottle("pive"),
     "Inédit rosé": bottle("inedit-rose"),
     "Château Lancyre": bottle("chateau-lancyre-rose"),
