@@ -1,4 +1,5 @@
 import type { MenuCategory } from "@/lib/menu-data";
+import { CompactCard } from "./compact-card";
 import { DishCard } from "./dish-card";
 
 export function MenuSection({
@@ -67,13 +68,21 @@ export function MenuSection({
           </p>
         )}
       </div>
-      <div
-        className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
-      >
-        {category.items.map((item, i) => (
-          <DishCard key={item.id} item={item} priority={i === firstPhoto} span={lone.has(i)} />
-        ))}
-      </div>
+      {category.compact ? (
+        <div className="dish-minis">
+          {category.items.map((item) => (
+            <CompactCard key={item.id} item={item} />
+          ))}
+        </div>
+      ) : (
+        <div
+          className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
+        >
+          {category.items.map((item, i) => (
+            <DishCard key={item.id} item={item} priority={i === firstPhoto} span={lone.has(i)} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

@@ -13,6 +13,7 @@ import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import { CartProvider } from "@/lib/menu/cart";
+import { withCompactPreview } from "@/lib/menu/compact-preview";
 import { FORMULES_LINK } from "@/lib/menu/format";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
 import { DemoLoyaltyProvider } from "@/lib/menu/loyalty-demo";
@@ -215,7 +216,7 @@ export default async function MenuPreviewPage({
             bottomPadding="pb-10"
           >
             {formules.length > 0 && <FormulesSection formules={formules} />}
-            {restaurant.categories.map((category) => (
+            {withCompactPreview(slug, restaurant.categories).map((category) => (
               <MenuSection
                 key={category.id}
                 category={category}
