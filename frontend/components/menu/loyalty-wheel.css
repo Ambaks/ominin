@@ -83,6 +83,58 @@
   --felt-lit: color-mix(in srgb, var(--cr-bleu) 70%, #fff);
   --felt-golden-slice: var(--cr-bleu-profond);
 }
+/*
+  Rosemarie : le bleu marine des traits de l'affiche pour le tapis, ses
+  aplats pour les parts (jaune, orange, rouge, blanc), un cadre jaune. La
+  part gagnante redessinée seule (.wheel-lit) garde sa couleur : d'où
+  data-slice plutôt que :nth-of-type. Jour de roue dorée : les parts
+  colorées passent au tapis, leurs points à l'or.
+*/
+.theme-rosemarie .wheel-stage {
+  --felt-1: var(--rm-navy);
+  --felt-2: color-mix(in srgb, var(--rm-navy-deep) 70%, #000);
+  --felt-golden-slice: var(--rm-navy-deep);
+}
+.theme-rosemarie .wheel-slice-a[data-slice="0"] path {
+  fill: var(--rm-yellow);
+}
+.theme-rosemarie .wheel-slice-a[data-slice="2"] path {
+  fill: var(--rm-sun);
+}
+.theme-rosemarie .wheel-slice-a[data-slice="4"] path {
+  fill: var(--rm-poppy);
+}
+.theme-rosemarie .wheel-slice-a:is([data-slice="0"], [data-slice="2"]) text {
+  fill: var(--rm-navy-deep);
+}
+.theme-rosemarie .wheel-slice-a[data-slice="4"] text {
+  fill: #fff;
+}
+.theme-rosemarie .wheel-stage[data-golden] .wheel-slice-a text {
+  fill: var(--gold-1);
+}
+.theme-rosemarie .wheel-slice-b text {
+  fill: var(--rm-navy);
+}
+.theme-rosemarie .wheel-rim {
+  stroke: var(--rm-yellow);
+}
+/* Le bouton à plat, jaune de l'affiche lettré de bleu marine. */
+.theme-rosemarie :is(.wheel-launch, .wheel-continue) {
+  color: var(--rm-navy-deep);
+  background: var(--rm-yellow);
+  box-shadow:
+    inset 0 -3px 0 color-mix(in srgb, var(--rm-navy-deep) 18%, transparent),
+    0 10px 28px -8px color-mix(in srgb, var(--rm-yellow) 55%, transparent);
+}
+/* La marge garde entière la dernière lettre penchée, que truncate couperait. */
+.theme-rosemarie .wheel-stage h3 {
+  padding-inline-end: 0.15em;
+  font-family: var(--brand-hand);
+  /* « Bravo, Margaux ! » tient à 320 px, à côté des deux boutons. */
+  font-size: clamp(1.5rem, 8vw, 2rem);
+  letter-spacing: 0;
+}
 /* Jour de roue dorée : la salle passe à l'or, des éclats scintillent. */
 .wheel-stage[data-golden] {
   background:

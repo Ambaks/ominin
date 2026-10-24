@@ -8,9 +8,12 @@ import {
   Barlow_Semi_Condensed,
   Bebas_Neue,
   Bodoni_Moda,
+  Bowlby_One,
+  Caveat,
   Chakra_Petch,
   Cinzel,
   Cormorant_Garamond,
+  Courier_Prime,
   DM_Sans,
   Didact_Gothic,
   Fraunces,
@@ -309,6 +312,33 @@ const chakraPetch = Chakra_Petch({
   preload: false,
 });
 
+/**
+ * Rosemarie — l'identité de juin 2026 : « ROSEMARIE » en capitales très grasses
+ * et rondes, tracées à la main (Bowlby One en a la masse et les panses) ;
+ * les titres de son chevalet écrits au feutre (Caveat) ; les plats tapés
+ * à la machine, comme sur la carte papier (Courier Prime).
+ */
+const bowlbyOne = Bowlby_One({
+  variable: "--font-bowlby-one",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  preload: false,
+});
+
+const courierPrime = Courier_Prime({
+  variable: "--font-courier-prime",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  preload: false,
+});
+
 export const brandFontVariables = [
   archivo,
   archivoBlack,
@@ -333,6 +363,9 @@ export const brandFontVariables = [
   unbounded,
   chakraPetch,
   adventPro,
+  bowlbyOne,
+  caveat,
+  courierPrime,
 ]
   .map((font) => font.variable)
   .join(" ");

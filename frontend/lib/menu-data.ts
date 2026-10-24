@@ -11,6 +11,7 @@ import bohoAccords from "@/lib/menu/accords/boho.json";
 import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import allergenesDemo from "@/lib/menu/allergenes-demo.json";
+import rosemarieAccords from "@/lib/menu/accords/rosemarie.json";
 import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
 import leVictoriaAccords from "@/lib/menu/accords/le-victoria.json";
 import cafeDesArtsAccords from "@/lib/menu/accords/cafe-des-arts.json";
@@ -247,6 +248,8 @@ export interface Restaurant {
   themeColor?: string;
   /** Tableau des allergènes publié par l'établissement, lié en pied de carte. */
   allergensUrl?: string;
+  /** La mention allergènes de la carte papier, reprise en pied de carte. */
+  allergensNote?: string;
   /** Ce qui pend à la guirlande de « Ma carte » (fidélité) ; des lanternes par défaut. */
   loyaltyMotif?: GarlandMotif;
   /**
@@ -10033,6 +10036,398 @@ const cafe3Graces: Restaurant = {
 };
 
 /*
+ * Rosemarie — 3 rue des Sœurs Noires, Saint-Roch : cantine méditerranéenne,
+ * petites assiettes, plats, cocktails infusés maison. Aucune carte en ligne
+ * (les liens « menu » de leurs trois sites sont morts) : la carte de l'été
+ * 2026, celle de leur nouvelle identité, lue sur le chevalet de la rue (photo
+ * de client, Restaurant Guru), dans son ordre. Chaque ligne y est une seule
+ * phrase : le nom est ce qui précède la première virgule (la deuxième pour
+ * « Roquette », qui seule ne nommerait pas le plat), le reste la
+ * description. Les boissons hors cocktails n'y figurent pas. Sources :
+ * demos/rosemarie/docs/.
+ */
+const rosemarie: Restaurant = {
+  slug: "rosemarie",
+  name: "Rosemarie",
+  suivi: true,
+  tagline: "cantine méditerranéenne",
+  // Notre proposition, faute de fichier : le R du mot-symbole, blanc sur le jaune.
+  icons: { tab: "/rosemarie/favicon.png", homeScreen: "/rosemarie/icon.png" },
+  themeColor: "#f8c800",
+  address: "3 rue des Sœurs Noires, 34000 Montpellier",
+  phone: "",
+  hours: "Lun.–sam. 9h–\u20601h · dim. 9h–\u2060minuit",
+  allergensNote: "Nous tenons à votre disposition la liste des ingrédients allergènes.",
+  highlights: ["Ouvert 7j/7, midi & soir", "Service continu"],
+  pairings: rosemarieAccords,
+  loyaltyWheel: roueDuJour,
+  // Les paliers de Caffè Panis (1 € = 1 point), sur la carte de Rosemarie.
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "granite",
+        label: "1 cocktail granité offert",
+        points: 50,
+        items: ["granite-rhum-romarin", "granite-vodka-griottes", "granite-goyave"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert ou 1 glace offert",
+        points: 100,
+        items: ["abricots-rotis", "citron-biscotti", "ananas-caramelise", "soupe-pasteque", "glace-chouchous", "glace-zezettes", "glace-oreillettes", "glace-nature"],
+      },
+      {
+        id: "petite-assiette",
+        label: "1 petite assiette offerte",
+        points: 150,
+        items: ["focaccia", "burrata", "jambon-serrano", "babaganoush", "houmous-petit-pois", "gaspacho-verde", "croquettes-poisson", "labneh", "beignets-courgettes", "panzerotto", "polenta-frite"],
+      },
+      {
+        id: "plat",
+        label: "1 plat offert",
+        points: 250,
+        items: ["carpaccio-boeuf", "tartare-veau", "calamars-setoise", "roquette-encornet", "paccheri-ragu", "effiloche-porc", "pave-truite", "clafoutis-tomates", "boulettes-poulet", "persille-boeuf"],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Margaux",
+      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      history: [
+        { kind: "gain", points: 4, table: 6, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 7, table: 12, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 31, table: 3, rewards: null, daysAgo: 8 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 8 },
+        { kind: "gain", points: 24, table: 9, rewards: null, daysAgo: 15 },
+      ],
+    },
+  },
+  categories: [
+    {
+      id: "cocktails-granites",
+      name: "Cocktails granités",
+      boissons: true,
+      items: [
+        {
+          id: "granite-rhum-romarin",
+          name: "Rhum infusé au romarin",
+          description: "Jus de coco, citron vert pressé & sirop de vanille.",
+          price: 6.5,
+          image: pexelsRecadre("1590154/pexels-photo-1590154.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "granite-vodka-griottes",
+          name: "Vodka infusée aux griottes & basilic",
+          description: "Jus de pomme & sucre de canne.",
+          price: 6.5,
+          image: pexelsRecadre("27626307/pexels-photo-27626307.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "granite-goyave",
+          name: "Nectar de goyave",
+          description: "Sirop de grenadine, jus de pomme (sans alcool).",
+          price: 6,
+          image: pexels("8375246/pexels-photo-8375246.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        {
+          id: "cocktail-cachaca",
+          name: "Cachaça infusée ananas",
+          description: "Liqueur thym & verveine, citron vert et sirop de cassonade.",
+          price: 9,
+          image: pexelsRecadre("12049920/pexels-photo-12049920.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "cocktail-gin-hibiscus",
+          name: "Gin infusé hibiscus",
+          description: "Liqueur sureau infusé à la menthe, limonade.",
+          price: 9,
+          image: pexels("35992010/pexels-photo-35992010.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "cocktail-tequila-framboise",
+          name: "Tequila infusée framboises",
+          description: "Liqueur de bergamote, sirop d'agave & jus de cranberry.",
+          price: 9,
+          image: pexels("2110923/pexels-photo-2110923.jpeg", 800),
+          ...ALCOOL,
+        },
+      ],
+    },
+    {
+      id: "petites-assiettes",
+      name: "Petites assiettes & tapas",
+      items: [
+        {
+          id: "focaccia",
+          name: "Focaccia",
+          description: "Olives à la grecque & romarin.",
+          price: 6,
+          image: pexels("38860516/pexels-photo-38860516.jpeg", 800),
+        },
+        {
+          id: "burrata",
+          name: "Burrata",
+          description: "Pesto romesco, parmesan & épinards.",
+          price: 8.5,
+          image: pexels("29380174/pexels-photo-29380174.jpeg", 800),
+        },
+        {
+          id: "jambon-serrano",
+          name: "Jambon Serrano",
+          description: "18 mois.",
+          price: 6.5,
+          image: pexels("19688911/pexels-photo-19688911.jpeg", 800),
+        },
+        {
+          id: "babaganoush",
+          name: "Babaganoush",
+          description: "Zaatar, grenades & granny smith.",
+          price: 7,
+          image: pexels("4768983/pexels-photo-4768983.jpeg", 800),
+        },
+        {
+          id: "houmous-petit-pois",
+          name: "Houmous de petit pois",
+          description: "Zaatar.",
+          price: 6.5,
+          image: pexels("20507447/pexels-photo-20507447.jpeg", 800),
+        },
+        {
+          id: "gaspacho-verde",
+          name: "Gaspacho verde",
+          description: "Menthe & concombres.",
+          price: 7,
+          image: pexels("15239056/pexels-photo-15239056.jpeg", 800),
+        },
+        {
+          id: "croquettes-poisson",
+          name: "Croquettes de poisson",
+          description: "Olives, aneth, persil & mayo épicée.",
+          price: 7,
+          image: pexels("17598323/pexels-photo-17598323.jpeg", 800),
+        },
+        {
+          id: "labneh",
+          name: "Labneh",
+          description: "Olives kalamata, pistaches vertes, pain pita maison.",
+          price: 8,
+          image: pexels("14930577/pexels-photo-14930577.jpeg", 800),
+        },
+        {
+          id: "beignets-courgettes",
+          name: "Beignets courgettes",
+          description: "Menthe, provolone fumé & yaourt grec aux herbes.",
+          price: 7,
+          image: pexels("38163967/pexels-photo-38163967.jpeg", 800),
+        },
+        {
+          id: "panzerotto",
+          name: "Panzerotto au bœuf",
+          description: "Mozzarella, olives & petit pois.",
+          price: 6.5,
+          image: pexels("28442527/pexels-photo-28442527.jpeg", 800),
+        },
+        {
+          id: "polenta-frite",
+          name: "Polenta frite",
+          description: "Aïoli.",
+          price: 6.5,
+          image: pexels("37296919/pexels-photo-37296919.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "salades-viandes-poissons",
+      name: "Salades, viandes & poissons",
+      items: [
+        {
+          id: "carpaccio-boeuf",
+          name: "Carpaccio de bœuf poivré",
+          description: "Pousses d'épinards & pecorino.",
+          price: 17,
+          image: pexels("17478679/pexels-photo-17478679.jpeg", 800),
+        },
+        {
+          id: "tartare-veau",
+          name: "Tartare de veau vitello",
+          description: "Roquette & frites.",
+          price: 17,
+          image: pexels("20081518/pexels-photo-20081518.jpeg", 800),
+        },
+        {
+          id: "calamars-setoise",
+          name: "Calamars à la sétoise",
+          description: "Riz rouge de Camargue aux olives.",
+          price: 17,
+          image: pexels("1618943/pexels-photo-1618943.jpeg", 800),
+        },
+        {
+          id: "roquette-encornet",
+          name: "Roquette, tentacule d'encornet rôtie",
+          description: "Pastèque sumac, vinaigrette framboise.",
+          price: 16.5,
+          image: pexels("8971797/pexels-photo-8971797.jpeg", 800),
+        },
+        {
+          id: "paccheri-ragu",
+          name: "Paccheri al ragù",
+          description: "Sauce mijotée tomate & bœuf, pecorino.",
+          price: 15.5,
+          image: pexels("15230669/pexels-photo-15230669.jpeg", 800),
+        },
+        {
+          id: "effiloche-porc",
+          name: "Éffiloché de porc des Pyrénées",
+          description: "Coleslaw méditerranéen, pita & sauce barbecue.",
+          price: 16,
+          image: pexelsRecadre("18354021/pexels-photo-18354021.jpeg", 800),
+        },
+        {
+          id: "pave-truite",
+          name: "Pavé de truite rôtie",
+          description: "Ajo blanco, salade fenouil & condiment tomate rougail.",
+          price: 17,
+          image: pexels("4663250/pexels-photo-4663250.jpeg", 800),
+        },
+        {
+          id: "clafoutis-tomates",
+          name: "Clafoutis tomates",
+          description: "Chèvre, olives noires & roquette.",
+          price: 15,
+          image: pexels("5419185/pexels-photo-5419185.jpeg", 800),
+        },
+        {
+          id: "boulettes-poulet",
+          name: "Boulettes de poulet panées",
+          description: "Citron confit, menthe, taboulé méditerranéen.",
+          price: 16,
+          image: pexels("1765012/pexels-photo-1765012.jpeg", 800),
+        },
+        {
+          id: "persille-boeuf",
+          name: "Persillé de bœuf",
+          description: "Jus de moelle fumé, frites & salade.",
+          price: 19,
+          image: unsplash("photo-1504973960431-1c467e159aa4", 800),
+        },
+      ],
+    },
+    {
+      id: "garnitures",
+      name: "Garnitures",
+      items: [
+        {
+          id: "riz-rouge",
+          name: "Riz rouge de Camargue aux olives",
+          price: 5.5,
+          image: pexels("6659610/pexels-photo-6659610.jpeg", 800),
+        },
+        {
+          id: "frites",
+          name: "Frites",
+          description: "Sel de Camargue & romarin.",
+          price: 5.5,
+          image: pexels("7687530/pexels-photo-7687530.jpeg", 800),
+        },
+        {
+          id: "coleslaw",
+          name: "Coleslaw",
+          price: 5.5,
+          image: pexelsRecadre("29930364/pexels-photo-29930364.jpeg", 800),
+        },
+        {
+          id: "taboule",
+          name: "Taboulé méditerranéen",
+          price: 6,
+          image: pexels("15108402/pexels-photo-15108402.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Pâtisseries & desserts",
+      items: [
+        {
+          id: "abricots-rotis",
+          name: "Abricots rôtis",
+          description: "Romarin, verveine, fromage blanc.",
+          price: 7,
+          image: pexels("2739274/pexels-photo-2739274.jpeg", 800),
+        },
+        {
+          id: "citron-biscotti",
+          name: "Citron biscotti al limone",
+          description: "Crème limone.",
+          price: 7,
+          image: pexels("3026801/pexels-photo-3026801.jpeg", 800),
+        },
+        {
+          id: "ananas-caramelise",
+          name: "Ananas caramélisé",
+          description: "Ganache chocolat, crumble cacahuète & coulis ananas.",
+          price: 7,
+          image: pexels("30649014/pexels-photo-30649014.jpeg", 800),
+        },
+        {
+          id: "soupe-pasteque",
+          name: "Soupe glacée pastèque",
+          description: "Framboises et basilic.",
+          price: 6.5,
+          image: pexels("37279441/pexels-photo-37279441.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "glaces",
+      name: "Glaces italiennes à la fleur de lait",
+      items: [
+        {
+          id: "glace-chouchous",
+          name: "Chouchous",
+          description: "Caramel beurre salé & noisettes.",
+          price: 7,
+          image: pexelsRecadre("35756355/pexels-photo-35756355.jpeg", 800),
+        },
+        {
+          id: "glace-zezettes",
+          name: "Zézettes de Sète",
+          description: "Coulis ananas piment d'Espelette & oranges confites.",
+          price: 6.5,
+          image: pexels("34281009/pexels-photo-34281009.jpeg", 800),
+        },
+        {
+          id: "glace-oreillettes",
+          name: "Oreillettes de Montpellier",
+          description: "Coulis de framboises, pralines roses.",
+          price: 6.5,
+          image: pexelsRecadre("1352281/pexels-photo-1352281.jpeg", 800),
+        },
+        {
+          id: "glace-nature",
+          name: "Glace au lait nature",
+          price: 5,
+          image: pexels("1294943/pexels-photo-1294943.jpeg", 800),
+        },
+      ],
+    },
+  ],
+};
+
+/*
  * Les allergènes des démos, supposés d'après le nom, la description et la
  * recette d'usage (scripts : aucun ; à régénérer à la main). Quelques plats
  * par démo restent sans : la fiche montre alors « non renseignés ». Ceux que
@@ -10081,6 +10476,7 @@ const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [lEntrepot.slug]: lEntrepot,
   [lePulp.slug]: lePulp,
   [cafe3Graces.slug]: cafe3Graces,
+  [rosemarie.slug]: rosemarie,
 });
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
@@ -10108,6 +10504,7 @@ const themeClasses: Record<string, string> = {
   [lEntrepot.slug]: "theme-l-entrepot",
   [lePulp.slug]: "theme-le-pulp",
   [cafe3Graces.slug]: "theme-cafe-3-graces",
+  [rosemarie.slug]: "theme-rosemarie",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {

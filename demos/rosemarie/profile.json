@@ -1,0 +1,94 @@
+{
+  "slug": "rosemarie",
+  "name": "Rosemarie",
+  "tagline": "cantine méditerranéenne",
+  "status": "prospect — démo du 2026-10-24 (aucun contact encore)",
+  "demo": {
+    "menu": "/menu/demo/rosemarie"
+  },
+  "cuisine": "Cantine méditerranéenne : petites assiettes et tapas, salades, viandes et poissons, desserts, glaces italiennes à la fleur de lait ; cocktails infusés maison, dont des cocktails granités.",
+  "address": "3 rue des Sœurs Noires, 34000 Montpellier",
+  "city": "Montpellier (Saint-Roch, terrasse sur la placette derrière l'église Saint-Roch)",
+  "phone": "non affiché : 04 67 66 15 95 sur plusieurs annuaires, absent de Google",
+  "email": "rosemariemontpellier@gmail.com",
+  "hours": "Lun.–sam. 9h–1h, dim. 9h–minuit (Google, Restaurant Guru, Privateaser) ; Instagram : « OUVERTE 7/7 midi & soir », service continu",
+  "website": "trois sites d'agence sans carte : rosemarie-montpellier.fr (Digimenu, liens « MENU » morts, détourné par du spam casino en décembre 2025), rosemariemontpellier.fr (Optimaps, lien Google), rosemarie-restaurant.fr (OptiPage) ; Zenchef pour les événements seulement",
+  "socials": {
+    "instagram": "@rosemariemontpellier (8 534 abonnés, « La cantine méditerranéenne… NO RESA »)",
+    "facebook": "RosemaryMontpellier (lié depuis l'ancien site, non vérifié)",
+    "google_maps": "4,5/5 sur 7 553 avis — « Rosemarie - Restaurant Méditerranéen Montpellier »"
+  },
+  "legal": {
+    "raison_sociale": "WALTIS (enseignes ROSEMARIE, ROSEMARIE Y GELATO) — rattachement probable, par l'enseigne déclarée à SIRENE",
+    "forme": "SAS",
+    "siren": "410 302 715",
+    "naf": "56.10A",
+    "president": "LC CONSEIL (président : Louis Gérard Cipriani)",
+    "creation": "20/12/1996",
+    "notes": "Siège au 6 rue des Sœurs Noires (SIRENE) ; HOLDING W4 de L. Cipriani au 3. Second établissement « ROSEMARIE LA CAVE A MANGER », 2 rue Saint-Paul, créé le 01/08/2024, introuvable en ligne. Aucun lien trouvé avec JSK Holding (Belkhir)."
+  },
+  "design": {
+    "primary_color": "#F8C800",
+    "secondary_color": "#004070",
+    "accent_color": "#008830, #F08000, #E00810 (affiche)",
+    "style_notes": "Identité de juin 2026 (avatar Instagram, affiche du 24/06/2026, chemise de la carte) : « ROSEMARIE » en capitales grasses et rondes, jaune tournesol sur blanc, « cantine méditerranéenne » à la main dessous. Affiche en aplats naïfs : jaune, vert pin, orange, rouge, bleu marine. Carte papier : feuille blanche, titres au feutre de couleurs différentes, texte à la machine à écrire, cadres festonnés. Palette mesurée sur l'affiche (sample_palette) : jaune #F8C800 34 %, blanc 29 %, vert #008830 24 %, orange #F08000 8 %, bleu #004070 2 %, rouge #E00810 2 %. Polices : Bowlby One pour le mot-symbole (comparée côte à côte avec l'affiche : masse et panses rondes ; dessin exact du logo inconnu, tracé à la main), Caveat pour les titres au feutre du chevalet, Courier Prime pour la machine à écrire, DM Sans pour l'interface. Dispositifs : bandeaux jaunes festonnés (franges des parasols) pour les arguments et le pied de page ; ronde des couleurs des titres reprise du chevalet ; boutons bleu marine (le seul ton de l'affiche qui porte un texte blanc).",
+    "logo": "aucun fichier : le nom est composé en Bowlby One. Icône (frontend/public/rosemarie/icon.png) : notre proposition, le R blanc sur le jaune.",
+    "interior_vibe": "salles voûtées en pierre, papier peint botanique, mobilier chiné ; terrasse sous les pins, parasols crème à franges, chaises dépareillées jaunes, rouges, sarcelle ; assiettes peintes bleu et blanc",
+    "reference_images": [
+      "docs/avatar-instagram-2026.jpg",
+      "docs/affiche-identite-2026-06-24.jpg",
+      "docs/chemise-carte-2026-09-12.jpg",
+      "docs/carte-ete-2026-chevalet.jpg",
+      "docs/ancien-logo-olive.jpg"
+    ]
+  },
+  "menu": {
+    "source": "Aucune carte en ligne. Carte de l'été 2026 (nouvelle identité, après le 6 juillet 2026 d'après Instagram) lue sur la photo du chevalet de la rue prise par un client (Restaurant Guru, docs/carte-ete-2026-chevalet.jpg), recoupée avec la chemise de table (docs/carte-ete-2026-chemise.jpg). Transcription et cartes antérieures : docs/recherche-carte.md.",
+    "categories_summary": [
+      "Cocktails granités — 3, 6 et 6,50 €",
+      "Cocktails — 3, 9 €",
+      "Petites assiettes & tapas — 11, 6 à 8,50 €",
+      "Salades, viandes & poissons — 10, 15 à 19 €",
+      "Garnitures — 4, 5,50 et 6 €",
+      "Pâtisseries & desserts — 4, 6,50 et 7 €",
+      "Glaces italiennes à la fleur de lait — 4, 5 à 7 €"
+    ],
+    "options_a_valider": [
+      "La carte d'automne 2026 existe (Instagram du 1er octobre : « Figues rôties, betterave, thym citron, syphon chèvre & noix », absent de la carte d'été) et n'a été trouvée nulle part : la démo montre la carte d'été.",
+      "Aucune boisson hors cocktails : vins, bières, softs, cafés ne sont publiés nulle part (seuls des avis citent une carafe de 50 cl à 7 € et une pinte d'IPA à 10 €, non repris).",
+      "Chaque ligne de la carte est une seule phrase : le nom affiché est ce qui précède la première virgule, le reste devient la description (« Focaccia » / « Olives à la grecque & romarin. »). Exception : « Roquette, tentacule d'encornet rôtie » (coupé à la deuxième virgule, « Roquette » seule ne nommant pas le plat). Choix d'affichage, à valider.",
+      "Typographie corrigée à l'affichage : « boeuf » → « bœuf », « sel de camargue » → « de Camargue », majuscule en tête de description et point final. Gardés tels qu'imprimés : « Éffiloché », « petit pois », « rôtie » (tentacule), « Babaganoush ».",
+      "Chevalet et chemise diffèrent un peu : cocktail à la cachaça (« liqueur thym & verveine, citron vert et sirop de cassonade » sur le chevalet, « liqueur thym/verveine, citron vert, sirop de sucre de cannes » sur la chemise), « Frites » / « Frites maison ». Le chevalet est retenu.",
+      "Ordre des sections et des plats : celui du chevalet.",
+      "Bandeau : « Ouvert 7j/7, midi & soir » et « Service continu », d'Instagram. Notre choix d'arguments.",
+      "Aucune option de commande (cuisson, accompagnement) : la carte n'en donne pas.",
+      "Fidélité de démo : paliers de Caffè Panis (1 € = 1 point ; 50 granité, 100 dessert ou glace, 150 petite assiette, 250 plat), habituée fictive « Margaux ». La roue du jour est celle de Panis.",
+      "« Le combo parfait » : 25 accords écrits pour la démo à partir des seuls ingrédients imprimés (pas de vins ni de bières publiés), relus par la boucle des accords.",
+      "Photos : banque d'images, aucune photo de leurs plats (Instagram en a, de @johanna_pocobene_pro_ ; à demander).",
+      "Pied de carte : « Nous tenons à votre disposition la liste des ingrédients allergènes. » — mention du chevalet (partiellement lisible) et de la carte de printemps 2026 (lisible). La suite lue sur le chevalet, « et la traçabilité des viandes », reste à confirmer."
+    ]
+  },
+  "offers": [],
+  "research": {
+    "date": "2026-10-24",
+    "fichiers": "docs/recherche-carte.md",
+    "methode": "Pages ouvertes directement ; Instagram (stories « CARTE »), Pappers, Tripadvisor, Petit Futé bloqués.",
+    "menu_qr": "Aucun menu QR ni commande à table : carte papier (chevalet, chemises). Les trois sites n'ont pas de carte qui marche.",
+    "avis": "Éloges : terrasse et cadre, assiettes de saison originales (focaccia, babaganoush, houmous, calamars à la sétoise), prix, équipe, options végétariennes, cocktails. Reproches : attente aux heures de pointe, service lent ou distant, petites portions.",
+    "age": "Instagram du 24/06/2026 : « 10 ans de Rosemarie » ; SIRENE : établissement de 2019 ; Mapstr : 2023."
+  },
+  "questions_owner": [
+    "Le décideur est-il Louis Cipriani (LC Conseil, WALTIS) ? Adresse du contrat : 3 ou 6 rue des Sœurs Noires ?",
+    "La carte d'automne en cours, et la carte des boissons (vins, bières, softs, cafés, volumes en cl) ?",
+    "Y a-t-il une formule du midi ou un plat du jour aujourd'hui ?",
+    "Le logo en vectoriel, les polices exactes, et les droits de l'illustration (@so_me_ma_sen) ?",
+    "Quelle caisse, et veulent-ils le paiement à table ?",
+    "Leurs photos de plats (@johanna_pocobene_pro_) pour remplacer la banque d'images ?",
+    "Le téléphone à afficher (04 67 66 15 95 ?) ?",
+    "« Rosemarie la Cave à manger » (2 rue Saint-Paul) : ouverte, en projet, fermée ?",
+    "Le comptoir de glaces (ROSEMARIE Y GELATO) vend-il à emporter ? Intérêt pour le click & collect ?",
+    "Le domaine canonique, et qui gère les trois sites (le domaine à tiret a été détourné en décembre 2025) ?",
+    "Quand le chevalet et la chemise diffèrent, laquelle fait foi ?",
+    "Les noms de plats découpés à la première virgule leur conviennent-ils ?"
+  ]
+}

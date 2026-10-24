@@ -148,7 +148,7 @@ export function LoyaltyCard({
                 // eslint-disable-next-line @next/next/no-img-element -- logo du dossier public
                 <img src={logo} alt="" className="size-6.5 object-contain" />
               )}
-              <span className="font-display text-[22px] uppercase leading-none tracking-[0.14em]">
+              <span className="loyalty-card-brand font-display text-[22px] uppercase leading-none tracking-[0.14em]">
                 {brand}
               </span>
             </>

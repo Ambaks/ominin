@@ -402,7 +402,7 @@ export function LoyaltyWheel({
     const big = slices[i].points === top;
     const gilded = big || (goldenToday && i % 2 === 1);
     return (
-      <g key={i} className={`wheel-slice ${gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`}`}>
+      <g key={i} data-slice={i} className={`wheel-slice ${gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`}`}>
         <path d={slicePath(i, step)} fill={gilded ? `url(#${titleId}-gold)` : undefined} />
         <g transform={`rotate(${i * step})`}>
           {big && (

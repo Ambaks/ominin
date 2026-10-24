@@ -121,5 +121,6 @@ export function maskContact(contact: string): string {
   const pairs = contact.match(/\d{1,2}/g) ?? [];
   return pairs
     .map((pair, i) => (i === 0 || i >= pairs.length - 2 ? pair : "••"))
-    .join(" ");
+    // Insécables : un numéro coupé laissait « 78 » seul en fin de ligne.
+    .join("\u00a0");
 }
