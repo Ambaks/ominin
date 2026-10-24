@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
+import { EtoileMenu } from "@/components/menu/etoile/etoile-menu";
 import { MenuBody } from "@/components/menu/menu-body";
 import { AffichesBanner, FormulesSection, FormuleTiles } from "@/components/menu/formules";
 import { HappyHourPill } from "@/components/menu/happy-hour-pill";
@@ -14,13 +15,19 @@ import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
-import { brandFontVariables } from "@/lib/menu/brand-fonts";
+import { brandFontVariables, etoileFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
 import { withCompactPreview } from "@/lib/menu/compact-preview";
 import { HAPPY_HOUR_SECTION_ID, happyHourOf, withHappyHourSection } from "@/lib/menu/happy-hour";
 import { FORMULES_LINK } from "@/lib/menu/format";
-import { brandName, hasVelours, restaurantThemeClass } from "@/lib/menu-data";
+import {
+  brandName,
+  etoileScene,
+  etoileSceneCategories,
+  hasVelours,
+  restaurantThemeClass,
+} from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -68,6 +75,7 @@ export async function generateMetadata({
       images,
     },
     twitter: { card: "summary_large_image", title, description, images },
+    ...(etoileScene(slug) && { robots: { index: false, follow: false } }),
     // Le raccourci d'écran d'accueil porte ses icônes et son nom, pas ceux d'Ominin.
     ...(restaurant.icons && {
       icons: {
@@ -127,6 +135,54 @@ export default async function MenuPage({
   // le QR peut être unique ou celui d'une table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
 
+  const cartConfig = {
+    slug,
+    // La table du QR suit la commande, en fast food aussi : le client y
+    // retire au comptoir, la table reste notée (voir show_table_number).
+    tableNumber: null,
+    tableFromUrl: true,
+    orderingEnabled,
+    serviceMode,
+    barPickup: fastFood && barPickup,
+    restaurantName: restaurant.name,
+    onlinePayment: orderingEnabled && onlinePayment,
+    onlineMinOrder,
+    paymentProvider,
+    squareLocationId,
+    tableTracking: orderingEnabled && !fastFood && restaurant.suivi === true,
+    loyalty,
+    // Sans commande, rien à fermer : pas de relecture.
+    etablissementId: orderingEnabled ? id : undefined,
+    closedItems: orderingEnabled ? closedItems : undefined,
+    pairings,
+    formuleOffers,
+  };
+
+  // La scène de L'Étoile remplace la carte : la commande d'un QR de table y
+  // est apportée à la table, celle d'un QR sans table se retire au bar.
+  if (etoileScene(slug)) {
+    const sceneCategories = etoileSceneCategories(restaurant.categories);
+    return (
+      <CartProvider
+        config={{
+          ...cartConfig,
+          tableDelivery: true,
+          drinksOnly: sceneCategories.every((category) => category.boissons),
+        }}
+      >
+        <div
+          data-menu-root
+          data-slug={slug}
+          className={`${etoileFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col`}
+        >
+          <EtoileMenu restaurant={{ ...restaurant, categories: sceneCategories }} />
+          <TicketTracker />
+          <CartBar />
+        </div>
+      </CartProvider>
+    );
+  }
+
   // La happy hour se lit sur la carte telle qu'elle s'affiche (vignettes et
   // leurs photos comprises) ; sa section s'ajoute aux catégories, dans la
   // roue aussi.
@@ -185,30 +241,7 @@ export default async function MenuPage({
   };
 
   return (
-    <CartProvider
-      config={{
-        slug,
-        // La table du QR suit la commande, en fast food aussi : le client y
-        // retire au comptoir, la table reste notée (voir show_table_number).
-        tableNumber: null,
-        tableFromUrl: true,
-        orderingEnabled,
-        serviceMode,
-        barPickup: fastFood && barPickup,
-        restaurantName: restaurant.name,
-        onlinePayment: orderingEnabled && onlinePayment,
-        onlineMinOrder,
-        paymentProvider,
-        squareLocationId,
-        tableTracking: orderingEnabled && !fastFood && restaurant.suivi === true,
-        loyalty,
-        // Sans commande, rien à fermer : pas de relecture.
-        etablissementId: orderingEnabled ? id : undefined,
-        closedItems: orderingEnabled ? closedItems : undefined,
-        pairings,
-        formuleOffers,
-      }}
-    >
+    <CartProvider config={cartConfig}>
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
           la barre est fixed mais reste dans le sous-arbre des variables. */}
       <LoyaltyMemberProvider

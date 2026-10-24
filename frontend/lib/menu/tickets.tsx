@@ -68,7 +68,7 @@ export interface Ticket {
   lines: TicketLine[];
   /** En cuisine : quand elle sera prête. Rien ne la calcule encore hors aperçu. */
   estimate: ReadyEstimate | null;
-  /** Aperçu à table : rien que des boissons, la salutation du service change. */
+  /** Rien que des boissons (aperçu à table, ou carte qui n'en a pas d'autres) : la salutation du service change. */
   drinksOnly?: boolean;
   /** Aperçu à table : rien que des boissons chaudes (une tasse au salut). */
   hotDrinksOnly?: boolean;
@@ -132,6 +132,11 @@ interface TicketsValue {
   table: number | null;
   /** La commande se retire au bar, sur présentation de son code. */
   barPickup: boolean;
+  /**
+   * Retrait au bar servi à table (CartConfig.tableDelivery) : la table du QR
+   * où un serveur apporte la commande et scanne son code ; null sinon.
+   */
+  deliverTo: number | null;
   /**
    * À table et au bar : la commande servie que la page salue, une à la fois.
    * Le salut attend qu'aucune feuille ne soit ouverte (TicketTracker).
@@ -256,6 +261,13 @@ const SPOKEN_FAST_FOOD_BAR: Partial<Record<OrderStatus, string>> = {
   payee: "en préparation.",
 };
 
+/** Retrait au bar servi à table : prête, un serveur l'apporte et scanne le code. */
+const SPOKEN_DELIVERY: Partial<Record<OrderStatus, string>> = {
+  ...SPOKEN_FAST_FOOD_BAR,
+  prete: "prête\u00a0! Un serveur vous l’apporte\u00a0: montrez-lui votre code.",
+  servie: "servie à votre table.",
+};
+
 const unknownTicket = (id: string): Ticket => ({
   id,
   number: null,
@@ -377,6 +389,8 @@ export function TicketsProvider({
   preview = false,
   table = null,
   barPickup = false,
+  deliverTo = null,
+  drinksOnly = false,
   children,
 }: {
   slug: string;
@@ -386,6 +400,10 @@ export function TicketsProvider({
   table?: number | null;
   /** Retrait au bar : en fast food, ou à table dans l'aperçu. */
   barPickup?: boolean;
+  /** Retrait au bar servi à table : la table du QR. */
+  deliverTo?: number | null;
+  /** Rien que des boissons à la carte : chaque commande se salue comme telle. */
+  drinksOnly?: boolean;
   children: React.ReactNode;
 }) {
   // À table, à part : un QR sans table ne reprend pas les commandes d'une table.
@@ -409,6 +427,7 @@ export function TicketsProvider({
           saved.map((id, index) => ({
             ...unknownTicket(id),
             number: table === null ? null : index + 1,
+            drinksOnly: drinksOnly || undefined,
           }))
         );
       }
@@ -444,7 +463,9 @@ export function TicketsProvider({
           }
           const spoken = ticket.paying
             ? "paiement en cours."
-            : (barPickup ? SPOKEN_FAST_FOOD_BAR : SPOKEN)[ticket.status!];
+            : (barPickup ? (deliverTo !== null ? SPOKEN_DELIVERY : SPOKEN_FAST_FOOD_BAR) : SPOKEN)[
+                ticket.status!
+              ];
           const time = readyTime(ticket);
           return spoken
             ? `Commande n° ${ticket.number}\u00a0: ${spoken}${time ? ` Prête vers ${time}.` : ""}`
@@ -556,11 +577,15 @@ export function TicketsProvider({
                     tip: order.tip,
                     atCounter: table !== null && order.status === "en_attente",
                   }
-                : { ...unknownTicket(orderId), number: table === null ? null : current.length + 1 },
+                : {
+                    ...unknownTicket(orderId),
+                    number: table === null ? null : current.length + 1,
+                    drinksOnly: drinksOnly || undefined,
+                  },
             ]
       );
     },
-    [preview, storageKey, table]
+    [preview, storageKey, table, drinksOnly]
   );
 
   // from : l'état que la minuterie a vu ; passé à la main entre-temps, la
@@ -620,6 +645,7 @@ export function TicketsProvider({
       simulated: preview,
       table,
       barPickup,
+      deliverTo,
       served: tickets.find((ticket) => ticket.id === toGreet[0]) ?? null,
       dismissServed: () => {
         setToGreet((current) => current.slice(1));
@@ -644,6 +670,7 @@ export function TicketsProvider({
       step,
       table,
       barPickup,
+      deliverTo,
       toGreet,
     ]
   );

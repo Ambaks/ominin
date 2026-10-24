@@ -1041,9 +1041,11 @@ export function CartBar() {
                       <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-sans text-xs font-normal normal-case tracking-normal text-muted">
                         {cart.collect
                           ? "À emporter"
-                          : cart.fastFood || barPickup
-                            ? `À récupérer au ${counter}`
-                            : `Table ${cart.tableNumber}`}
+                          : barPickup && cart.tableDelivery && cart.tableNumber !== null
+                            ? `Servie à la table ${cart.tableNumber}`
+                            : cart.fastFood || barPickup
+                              ? `À récupérer au ${counter}`
+                              : `Table ${cart.tableNumber}`}
                         {paymentStep && (
                           <>
                             <span aria-hidden className="flex w-10 gap-1">

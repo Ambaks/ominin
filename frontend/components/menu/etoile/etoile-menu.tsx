@@ -167,14 +167,9 @@ interface Chapter extends ChapterDef {
   items: MenuItem[];
 }
 
-export function EtoileMenu({
-  restaurant,
-  tableNumber,
-}: {
-  restaurant: Restaurant;
-  tableNumber: number | null;
-}) {
+export function EtoileMenu({ restaurant }: { restaurant: Restaurant }) {
   const cart = useCart();
+  const { tableNumber } = cart;
   const noSheet = useNoSheet();
   const rootRef = useRef<HTMLDivElement>(null);
   const skyRef = useRef<HTMLDivElement>(null);
@@ -627,7 +622,7 @@ export function EtoileMenu({
           <p className="et-hero-meta">
             <span>Club &amp; Rooftop</span>
             <span>
-              {tableNumber !== null && <>Table {pad(tableNumber)}</>}
+              {tableNumber !== null ? <>Table {pad(tableNumber)}</> : cart.barPickup && "Retrait au bar"}
             </span>
           </p>
           <div className="et-hero-body">

@@ -186,6 +186,13 @@ export interface CartConfig {
    */
   barPickup?: boolean;
   /**
+   * Retrait au bar servi à table (L'Étoile) : la commande d'un QR de table
+   * est apportée à la table, son code scanné là ; sans table, au bar.
+   */
+  tableDelivery?: boolean;
+  /** Rien que des boissons à la carte (un club) : chaque commande se salue comme telle. */
+  drinksOnly?: boolean;
+  /**
    * Suivi à table (Restaurant.suivi) : chaque commande passée se suit au bas
    * de l'écran jusqu'au service. Ignoré en aperçu (demoSuivi) et en fast food.
    */
@@ -483,7 +490,13 @@ export function CartProvider({
   return (
     <CartContext.Provider value={value}>
       {config.serviceMode === "fast_food" ? (
-        <TicketsProvider slug={config.slug} preview={config.preview} barPickup={config.barPickup}>
+        <TicketsProvider
+          slug={config.slug}
+          preview={config.preview}
+          barPickup={config.barPickup}
+          deliverTo={config.barPickup && config.tableDelivery ? tableNumber : null}
+          drinksOnly={config.drinksOnly}
+        >
           {children}
         </TicketsProvider>
       ) : config.preview && config.demoSuivi ? (

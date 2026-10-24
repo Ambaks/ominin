@@ -10504,6 +10504,9 @@ const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [rosemarie.slug]: rosemarie,
 });
 
+/** La démo d'Ominin Club (scripts/club-demo.ts), servie en direct par la scène de L'Étoile. */
+const ETOILE_LIVE_SLUG = "l-etoile-demo";
+
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
  * menu public et les démos aux couleurs du restaurant. Absente ⇒ thème
  * Ominin par défaut. */
@@ -10522,6 +10525,7 @@ const themeClasses: Record<string, string> = {
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
   [lEtoile.slug]: "theme-l-etoile",
+  [ETOILE_LIVE_SLUG]: "theme-l-etoile",
   [cafeRiche.slug]: "theme-cafe-riche",
   [cafePoulard.slug]: "theme-cafe-poulard",
   [lePetitNice.slug]: "theme-le-petit-nice",
@@ -10539,6 +10543,27 @@ export function restaurantThemeClass(slug: string): string | undefined {
 /** Les cartes posées sur le velours animé (components/menu/panis-backdrop) : ses règles visent le thème de Caffè Panis. */
 export function hasVelours(slug: string): boolean {
   return slug === "caffe-panis";
+}
+
+/**
+ * Le menu en direct que la scène de L'Étoile (components/menu/etoile)
+ * habille : la démo d'Ominin Club, hors des moteurs de recherche.
+ */
+export function etoileScene(slug: string): boolean {
+  return slug === ETOILE_LIVE_SLUG;
+}
+
+/**
+ * La carte en base habillée par la scène : chaque catégorie reprend, par son
+ * nom, l'identifiant et la nature de celle du registre, sur lesquels la scène
+ * range ses chapitres. Une catégorie inconnue du registre n'y paraît pas.
+ */
+export function etoileSceneCategories(categories: MenuCategory[]): MenuCategory[] {
+  const byName = new Map(lEtoile.categories.map((category) => [category.name, category]));
+  return categories.map((category) => {
+    const scene = byName.get(category.name);
+    return scene ? { ...category, id: scene.id, boissons: scene.boissons } : category;
+  });
 }
 
 export function getRestaurant(slug: string): Restaurant | undefined {

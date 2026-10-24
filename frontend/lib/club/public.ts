@@ -143,6 +143,8 @@ export type BookingTicket = {
     name: string;
     address: string | null;
     paymentProvider: Club["paymentProvider"];
+    /** Le club prend les commandes au menu QR : sa carte se commande pendant la soirée. */
+    ordering: boolean;
   };
 };
 
@@ -156,7 +158,7 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
+      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, offre), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
     )
     .eq("token", token)
     .maybeSingle();
@@ -198,6 +200,7 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
       name: data.etablissements.name,
       address: data.etablissements.address,
       paymentProvider: data.etablissements.payment_provider ?? "stripe",
+      ordering: data.etablissements.offre === "smart" || data.etablissements.offre === "connect",
     },
   };
 }

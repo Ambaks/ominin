@@ -2,20 +2,25 @@
  * La démo d'Ominin Club, à envoyer aux clubs : L'Étoile, club fictif (pas
  * d'adresse, pas de téléphone), sur la salle du seed, réglée par le
  * fournisseur « demo » (aucun débit). Visible à club.ominin.com/l-etoile-demo,
- * son espace de gestion ouvert au compte CLUB_DEMO_EMAIL.
+ * son espace de gestion ouvert au compte CLUB_DEMO_EMAIL. Sa carte de L'Étoile
+ * se commande au menu QR (menu.ominin.com/m/l-etoile-demo) : retirée au bar
+ * sans table, apportée à la table avec ?table=<n>.
  *
  * Usage, depuis frontend/ :  npm run club:demo
  * Lit frontend/.env.local : NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
  * CLUB_DEMO_EMAIL, CLUB_DEMO_PASSWORD. N'efface rien : il crée le club s'il
- * manque, rétablit l'accès du compte et ajoute les vendredis et samedis des
- * semaines à venir qui n'ont pas encore leur soirée. À relancer pour
- * prolonger la démo.
+ * manque, ouvre la commande (carte et tables ajoutées si absentes),
+ * rétablit l'accès du compte et ajoute les vendredis et samedis des semaines
+ * à venir qui n'ont pas encore leur soirée. À relancer pour prolonger la démo.
  */
 
 import { createClient } from "@supabase/supabase-js";
+import { SEED_TABLE_COUNT } from "../lib/gestion/constants";
+import { getRestaurant } from "../lib/menu-data";
 import type { Database, Json } from "../lib/supabase/database.types";
 import { check, must } from "../lib/supabase/result";
 import { insertFloor, night, ZONES } from "./club-floor";
+import { insertCarte } from "./insert-carte";
 
 function required(name: string): string {
   const value = process.env[name];
@@ -103,6 +108,45 @@ async function ensureClub(): Promise<string> {
   return club.id;
 }
 
+/**
+ * La commande au menu QR, en fast food avec retrait au bar : la table d'un QR
+ * de table reste notée et s'affiche à l'équipe, qui y apporte la commande.
+ */
+async function ensureOrdering(clubId: string) {
+  check(
+    await db
+      .from("etablissements")
+      .update({
+        offre: "connect",
+        service_mode: "fast_food",
+        bar_pickup: true,
+        show_table_number: true,
+        online_payment: true,
+      })
+      .eq("id", clubId)
+  );
+
+  // La démo reste utilisable sans passer par Stripe, comme seed-restaurant.
+  const subscribed = must(
+    await db.from("subscriptions").select("etablissement_id").eq("etablissement_id", clubId).eq("product", "offre")
+  );
+  if (subscribed.length === 0) {
+    check(await db.from("subscriptions").insert({ etablissement_id: clubId, product: "offre", status: "active" }));
+  }
+
+  const categories = must(await db.from("categories").select("id").eq("etablissement_id", clubId).limit(1));
+  if (categories.length === 0) await insertCarte(db, clubId, getRestaurant("l-etoile")!);
+
+  const tables = must(await db.from("tables").select("id").eq("etablissement_id", clubId).limit(1));
+  if (tables.length === 0) {
+    check(
+      await db
+        .from("tables")
+        .insert(Array.from({ length: SEED_TABLE_COUNT }, (_, i) => ({ etablissement_id: clubId, number: i + 1 })))
+    );
+  }
+}
+
 async function ensureOwner(clubId: string, email: string, password: string) {
   const { data: list, error } = await db.auth.admin.listUsers({ perPage: 1000 });
   if (error) throw new Error(error.message);
@@ -172,6 +216,7 @@ async function addNights(clubId: string): Promise<number> {
 async function main() {
   console.log(`Base visée : ${new URL(url).host} · club « ${SLUG} »`);
   const clubId = await ensureClub();
+  await ensureOrdering(clubId);
   await ensureOwner(clubId, required("CLUB_DEMO_EMAIL"), required("CLUB_DEMO_PASSWORD"));
   const added = await addNights(clubId);
   console.log(`Démo prête : ${added} soirée(s) ajoutée(s), accès gérant rétabli pour ${process.env.CLUB_DEMO_EMAIL}.`);
