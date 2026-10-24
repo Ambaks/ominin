@@ -11,6 +11,7 @@ import {
 } from "react";
 import { createPortal } from "react-dom";
 import type { LiquidOrigin, LiquidSheet } from "./liquid-sheet";
+import "./panis-sheets.css";
 
 /**
  * Le réglage de défilement du navigateur avant toute feuille, lu une fois :
@@ -35,6 +36,43 @@ let pendingBack: Promise<void> | null = null;
  */
 let mountedSheets = 0;
 const sheetListeners = new Set<() => void>();
+
+/** La hauteur de la dernière feuille montée : une feuille en relais (swap) en part. */
+let lastSheetHeight: number | null = null;
+
+/*
+ * D'une vue à l'autre (la commande, le règlement, le paiement ; le ticket qui
+ * prend le relais), la feuille changeait de hauteur d'un coup : son bord
+ * sautait de 200 px. Un thème qui déclare --sheet-morph (une durée) et
+ * --sheet-morph-easing la fait passer d'une hauteur à l'autre ; sans eux — les
+ * autres thèmes, le mouvement réduit —, rien ne change.
+ */
+const SHEET_MORPH = "sheet-morph";
+
+function morphHeight(panel: HTMLElement, from: number | null) {
+  if (!from) return;
+  const style = getComputedStyle(panel);
+  // La minification réécrit les durées (380ms devient .38s) : l'unité est lue.
+  const raw = style.getPropertyValue("--sheet-morph").trim();
+  const duration = parseFloat(raw) * (raw.endsWith("ms") ? 1 : 1000);
+  if (!duration) return;
+  // Une vue qui change en plein glissement : la hauteur visée se mesure sans lui.
+  for (const running of panel.getAnimations()) {
+    if (running.id === SHEET_MORPH) running.cancel();
+  }
+  const to = panel.offsetHeight;
+  if (to === from) return;
+  // Le contenu, plus haut que la feuille le temps qu'elle grandisse, n'y fait
+  // pas paraître de barre de défilement.
+  const morph = panel.animate(
+    [
+      { height: `${from}px`, overflowY: "hidden" },
+      { height: `${to}px`, overflowY: "hidden" },
+    ],
+    { duration, easing: style.getPropertyValue("--sheet-morph-easing").trim() || undefined }
+  );
+  morph.id = SHEET_MORPH;
+}
 
 function countSheet(delta: 1 | -1) {
   mountedSheets += delta;
@@ -126,6 +164,7 @@ export function Sheet({
   enter = "rise",
   origin,
   card = false,
+  morphKey,
   children,
 }: {
   /** Appelé une fois la feuille descendue. */
@@ -149,6 +188,8 @@ export function Sheet({
    * peine voilé : on lit le plat sans perdre la carte de vue.
    */
   card?: boolean;
+  /** La vue montrée (étape, paiement) : quand elle change, la hauteur glisse (morphHeight). */
+  morphKey?: string;
   labelledBy?: string;
   label?: string;
   /**
@@ -178,6 +219,34 @@ export function Sheet({
   });
 
   const close = () => setClosing(true);
+
+  // Sa hauteur au dernier rendu, tenue à jour hors des changements de vue :
+  // lue avant que la nouvelle vue ne soit mesurée.
+  const height = useRef<number | null>(null);
+  useEffect(() => {
+    const panel = panelRef.current;
+    if (!panel) return;
+    const observer = new ResizeObserver(() => {
+      // Retirée de la page, elle mesure 0 : pas une hauteur d'où partir.
+      if (!panel.offsetHeight) return;
+      height.current = panel.offsetHeight;
+      lastSheetHeight = height.current;
+    });
+    observer.observe(panel);
+    return () => observer.disconnect();
+  }, []);
+
+  // En relais, elle part de la hauteur de celle qu'elle remplace.
+  useLayoutEffect(() => {
+    if (entrance === "swap" && panelRef.current) morphHeight(panelRef.current, lastSheetHeight);
+  }, [entrance]);
+
+  const morphed = useRef(morphKey);
+  useLayoutEffect(() => {
+    if (morphed.current === morphKey) return;
+    morphed.current = morphKey;
+    if (panelRef.current) morphHeight(panelRef.current, height.current);
+  }, [morphKey]);
 
   // Avant la peinture : le premier état du liquide est posé, la feuille ne paraît pas pleine un instant.
   useLayoutEffect(() => {
@@ -426,7 +495,7 @@ export function Sheet({
 
   return createPortal(
     <div
-      className={`fixed inset-0 z-50 flex justify-center ${card ? "items-center p-4" : "items-end sm:items-center sm:p-4"} ${
+      className={`sheet-overlay fixed inset-0 z-50 flex justify-center ${card ? "items-center p-4" : "items-end sm:items-center sm:p-4"} ${
         liquid
           ? ""
           : `${card ? "bg-black/40 backdrop-blur-[6px]" : "bg-black/60 backdrop-blur-sm"} transition-opacity duration-200 ${closing ? "opacity-0" : ""}`

@@ -4180,6 +4180,12 @@ html:has(.theme-l-adresse) body {
   scroll-margin-bottom: var(--cart-foot, 0px);
 }
 
+/* Le pourboire, replié au comptoir (CartBar) : absent, sauf là où un thème
+   le fait glisser. */
+.cart-tip-fold:not([data-open]) {
+  display: none;
+}
+
 /* La barre du panier (et, en fast food, les pastilles des commandes) flotte
    sur le bas de page : tant qu'elle est là, le pied s'allonge d'autant, dans
    sa propre couleur. */

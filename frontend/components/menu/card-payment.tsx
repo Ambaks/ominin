@@ -199,7 +199,7 @@ export function CardPaymentForm({
   const titleRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => titleRef.current?.focus(), []);
   return (
-    <div className="flex flex-col gap-5 p-5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+    <div data-card-state={state} className="flex flex-col gap-5 p-5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       {/* Des paragraphes : un titre y prendrait le filet de titre des thèmes. */}
       <header className="rise flex flex-col items-center gap-1 text-center">
         <p
@@ -210,7 +210,7 @@ export function CardPaymentForm({
           Paiement
         </p>
         {merchant && <p className="max-w-full truncate text-sm font-medium">{merchant}</p>}
-        <p className="font-display text-3xl font-semibold lining-nums tabular-nums text-ember-1">
+        <p className="payment-due font-display text-3xl font-semibold lining-nums tabular-nums text-ember-1">
           {due}
         </p>
         {tipAmount > 0 && (
@@ -235,7 +235,7 @@ export function CardPaymentForm({
       </section>
 
       <section className="rise flex flex-col gap-5" style={{ animationDelay: "140ms" }}>
-        <div className={`relative ${state === "loading" ? "min-h-28" : ""}`}>
+        <div className={`card-fields relative ${state === "loading" ? "min-h-28" : ""}`}>
           {card}
           {state === "loading" && (
             <div aria-hidden className="absolute inset-0 flex flex-col gap-px overflow-hidden rounded-2xl border border-hairline">
@@ -251,7 +251,7 @@ export function CardPaymentForm({
           type="button"
           onClick={onPay}
           disabled={state !== "ready"}
-          className="ember-gradient flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-background transition active:scale-[0.99] disabled:opacity-60"
+          className="sheet-cta ember-gradient flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-background transition active:scale-[0.99] disabled:opacity-60"
         >
           {state === "paying" ? (
             <>

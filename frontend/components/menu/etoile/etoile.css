@@ -1181,7 +1181,7 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
   text-transform: uppercase;
 }
 
-.theme-l-etoile [role="dialog"] .cart-title span {
+.theme-l-etoile [role="dialog"] .cart-title span:not(.cart-title-text) {
   font-family: var(--brand-sans);
   letter-spacing: 0.2em;
   text-transform: uppercase;
