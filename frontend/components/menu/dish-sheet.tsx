@@ -12,13 +12,13 @@ import { Sheet } from "./sheet";
 
 /*
  * Toute la carte d'un plat ouvre sa fiche : la photo en grand, la
- * description entière, les allergènes un par un. Un bouton posé sur elle, en
+ * description entière, les allergènes un par un (pas pour une boisson). Un bouton posé sur elle, en
  * dernier : le titre reste tel que les thèmes le composent (capitales,
  * pointillés jusqu'au prix). Le bouton d'ajout passe au-dessus (.dish-action,
  * z-1 sans position : le compte au panier garde la carte pour repère) et
  * ajoute sans ouvrir ; le reste de sa rangée laisse passer le toucher.
  */
-export function DishOpener({ item }: { item: MenuItem }) {
+export function DishOpener({ item, drink }: { item: MenuItem; drink?: boolean }) {
   const [open, setOpen] = useState(false);
   const titleId = useId();
   return (
@@ -36,7 +36,7 @@ export function DishOpener({ item }: { item: MenuItem }) {
       />
       {open && (
         <Sheet card backdropCloses labelledBy={titleId} onClosed={() => setOpen(false)}>
-          {(close) => <DishDetails item={item} titleId={titleId} close={close} />}
+          {(close) => <DishDetails item={item} drink={drink} titleId={titleId} close={close} />}
         </Sheet>
       )}
     </>
@@ -117,7 +117,17 @@ function Allergens({ allergens }: { allergens?: Allergen[] }) {
   );
 }
 
-function DishDetails({ item, titleId, close }: { item: MenuItem; titleId: string; close: () => void }) {
+function DishDetails({
+  item,
+  drink,
+  titleId,
+  close,
+}: {
+  item: MenuItem;
+  drink?: boolean;
+  titleId: string;
+  close: () => void;
+}) {
   const lines = [...(item.description?.split("\n") ?? []), ...(item.tarifs ? [item.tarifs] : [])];
   return (
     <>
@@ -158,13 +168,13 @@ function DishDetails({ item, titleId, close }: { item: MenuItem; titleId: string
         {item.noticeHours ? (
           <p className="text-sm font-semibold text-ember-2">À commander {item.noticeHours}&nbsp;h à l&apos;avance</p>
         ) : null}
-        <Allergens allergens={item.allergens} />
+        {!drink && <Allergens allergens={item.allergens} />}
         {item.pairing && <p className="font-display text-[15px] italic text-ember-1/85">{item.pairing}</p>}
         <RewardHint itemId={item.id} />
       </div>
       <div className="sticky bottom-0 mt-auto flex min-h-18 items-center justify-between gap-4 border-t border-hairline bg-surface px-5 py-3 sm:px-6">
         <span className="flex flex-col">
-          <span className="font-display text-2xl text-ember-1">
+          <span className="dish-sheet-price font-display text-2xl text-ember-1">
             {hasFormats(item) && "dès "}
             {formatPrice(item.price)}
           </span>

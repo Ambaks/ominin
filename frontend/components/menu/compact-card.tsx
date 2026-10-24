@@ -34,7 +34,7 @@ function formatsInfo(choices: OptionChoice[]) {
  * fiche n'en montre pas. Toucher la fiche ouvre celle du plat (DishOpener),
  * le « + » passe au-dessus (z-1, élément flex sans position) et ajoute.
  */
-export function CompactCard({ item }: { item: MenuItem }) {
+export function CompactCard({ item, drink }: { item: MenuItem; drink?: boolean }) {
   const formats = item.options?.find((group) => group.formats)?.choices;
 
   return (
@@ -78,10 +78,10 @@ export function CompactCard({ item }: { item: MenuItem }) {
         </div>
       </div>
       <div className="dish-mini-extra">
-        <Allergens item={item} />
+        {!drink && <Allergens item={item} />}
         <RewardHint itemId={item.id} compact />
       </div>
-      <DishOpener item={item} />
+      <DishOpener item={item} drink={drink} />
     </article>
   );
 }

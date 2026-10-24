@@ -141,15 +141,19 @@ export function withHappyHourSection(
   if (!happyHour) return categories;
   const ids = new Set(happyHour.groups.flatMap((group) => group.offers.map((offer) => offer.item.id)));
   const items = categories.flatMap((category) => category.items.filter((item) => ids.has(item.id)));
+  const drinkItemIds = categories
+    .filter(isDrinkCategory)
+    .flatMap((category) => category.items.filter((item) => ids.has(item.id)).map((item) => item.id));
   const section: MenuCategory = {
     id: HAPPY_HOUR_SECTION_ID,
     name: "Happy hour",
     tagline: `Jusqu’à ${formatHeure(happyHour.hours.endsAt)}`,
     items,
+    drinkItemIds,
     ...(categories.some((category) => category.compact) &&
       items.every(fitsVignette) && { compact: true as const }),
   };
-  const drinks = categories.findIndex((category) => isDrinkCategory(category.name));
+  const drinks = categories.findIndex(isDrinkCategory);
   const offered = categories.findIndex((category) => category.items.some((item) => ids.has(item.id)));
   const at = Math.max(0, drinks >= 0 ? drinks : offered);
   return [...categories.slice(0, at), section, ...categories.slice(at)];
