@@ -1,7 +1,7 @@
 {
   "slug": "caffe-panis",
   "name": "Caffè Panis",
-  "tagline": "Caffè · Ristorante · Gelateria",
+  "tagline": "Caffè · Ristorante",
   "status": "client — en production depuis le 2026-10-19 (démo de visite du 2026-10-14)",
   "demo": {
     "menu": "/menu/demo/caffe-panis",
@@ -65,8 +65,8 @@
       "Ordre des sections : notre choix, celui d'une carte de salle (Antipasti, Pizze, Pastas, Dwich, Desserts, Boissons). La source, la carte Ciccio Gang d'Uber Eats, ouvre sur les Dwich : à remettre si le gérant y tient.",
       "Café Illy : sans photo (aucune photo ne disait plus que le nom).",
       "Orthographe et typographie de la source corrigées à l'affichage, noms des plats gardés : « Stracciatella Fumee 125 G » → « Stracciatella fumée 125 g » ; « rapé » → « râpé » (Margherita, Stracciatella Versace) ; « roquette fraiche » → « fraîche » ; « Jambon de parme » → « de Parme » ; « Champignons de paris cuit » → « de Paris cuits » (comme sur le Dwich Regina) et « olive taggiasche » → « , olives taggiasche » (Mama King) ; « champignons de paris » → « de Paris » (Truffle Suprême) ; « puglia » → « Puglia », « pouilles » → « Pouilles » ; « boeuf » → « bœuf » ; guillemets droits de \"Poitrine de porc\" → guillemets français ; « All'amatriciana » → « All'Amatriciana », comme les autres noms de pâtes ; « huiles truffée » → « huile truffée. » (point final, comme les autres descriptions). « Pasta Vivi E Vechio » gardé tel quel (jeu de mots possible).",
-      "Accroche « Caffè · Ristorante · Gelateria » : espaces insécables avant chaque point médian et autour du premier, pour que la ligne ne se coupe jamais avant un point ; sous 360 px, l'espacement des lettres se resserre pour qu'elle tienne sur une ligne.",
-      "Bandeau du store : « De 9h à 1h, 7j/7 » (Instagram « OUVERT 7/7 | 9H - 1H ») et « Burrata straight from Puglia », mot pour mot de la carte (Classic Burrata, Burrata Pesto Forever). Notre choix d'argument, à valider.",
+      "Accroche « Caffè · Ristorante » : espaces insécables autour du point médian, pour que la ligne ne se coupe jamais ; « Gelateria » retirée le 2026-10-24 (pas de glaces l'hiver, demande du gérant). Sous 360 px, l'espacement des lettres se resserre pour qu'elle tienne sur une ligne.",
+      "Bandeau du store : « De 9h à 1h, 7j/7 » (Instagram « OUVERT 7/7 | 9H - 1H ») seul : « Burrata straight from Puglia » retiré le 2026-10-24 à la demande du gérant.",
       "Ordre dans chaque section : les plats avec photo d'abord, puis ceux sans photo, chacun dans l'ordre de la source. Choix d'affichage, la transcription ne change pas ; ordre de la source dans docs/recherche-carte.md."
     ]
   },
