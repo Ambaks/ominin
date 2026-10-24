@@ -7695,7 +7695,7 @@ html:has([data-menu-root].theme-caffe-panis) body {
   opacity: 0.35;
 }
 
-.theme-caffe-panis .dish-grid > article {
+.theme-caffe-panis :is(.dish-grid > article, .dish-mini) {
   background: var(--surface);
   box-shadow: 0 1px 2px rgba(21, 38, 27, 0.05);
 }
@@ -7708,6 +7708,272 @@ html:has([data-menu-root].theme-caffe-panis) body {
 .theme-caffe-panis > footer {
   border-top: 0;
   background: var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x, var(--cp-green);
+}
+
+/* Une section en vignettes (MenuCategory.compact) : deux articles par
+   rangée au téléphone, trois sur tablette, quatre au bureau. Sous 360 px,
+   un par rangée, en ligne : la colonne du nom y tombait à 70 px,
+   « Limoncel/lo ». */
+.dish-minis {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0.5rem;
+}
+
+@media (min-width: 22.5rem) {
+  .dish-minis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 48rem) {
+  .dish-minis {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .dish-minis {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* La vignette à gauche ; le nom et son format en haut, le prix et le
+   « + » en bas : d'une fiche à l'autre de la rangée, les prix s'alignent.
+   Le nom tient en deux lignes dès 390 px (plus, la fiche voisine gardait
+   un trou), en trois en dessous, jamais coupé. Le « + » à côté du prix,
+   pas sur la vignette : il en cachait le tiers ; à la marge droite des
+   lignes : la roue des catégories, au repos, tient à sa droite. Les
+   allergènes et la fidélité sur toute la largeur, dessous. */
+.dish-mini {
+  position: relative;
+  /* Pour le corps du prix (.dish-mini-price) : la mesure est celle du
+     contenu de la fiche. */
+  container-type: inline-size;
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr);
+  grid-template-rows: 1fr auto;
+  column-gap: 0.5rem;
+  row-gap: 0.375rem;
+  padding: 0.625rem 0.875rem 0.625rem 0.5rem;
+  border: 1px solid var(--hairline);
+  border-radius: 1rem;
+  background: var(--surface);
+}
+
+.dish-mini-thumb {
+  grid-row: 1 / span 2;
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: var(--hairline);
+  box-shadow: 0 0 0 1px var(--hairline);
+  color: var(--ember-1);
+  font-family: var(--brand-display, inherit);
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+.dish-mini-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.dish-mini-text {
+  min-width: 0;
+  padding-top: 0.125rem;
+}
+
+.dish-mini-name {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow-wrap: break-word;
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+
+.dish-mini-info {
+  margin-top: 0.125rem;
+  overflow-wrap: break-word;
+  color: var(--muted);
+  font-size: 0.6875rem;
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* « Les petites gâteries de Marie-Antoinette » : la description entière,
+   jamais coupée ; ses retours à la ligne (une composition) gardés. */
+.dish-mini-description {
+  white-space: pre-line;
+}
+
+.dish-mini-tarif {
+  color: var(--ember-1);
+  font-weight: 600;
+
+  & s {
+    color: var(--muted);
+    font-weight: 400;
+  }
+}
+
+/* Le prix cède la place au « + » : « dès » passe au-dessus. Indisponible,
+   le libellé passe sous le prix plutôt que de déborder. */
+.dish-mini-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.25rem;
+
+  &:has(> .dish-action > span) {
+    flex-wrap: wrap;
+  }
+}
+
+.dish-mini-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 0.25em;
+  min-width: 0;
+  color: var(--ember-1);
+  font-size: 0.875rem;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 1.2;
+  white-space: nowrap;
+
+  & small {
+    font-size: 0.625rem;
+  }
+
+  /* « 90,00 € » à côté du « + », dans une fiche de 360 px. */
+  @container (width < 9.125rem) {
+    font-size: 0.8125rem;
+  }
+}
+
+.dish-mini-extra {
+  display: grid;
+  grid-column: 1 / -1;
+  gap: 0.25rem;
+
+  &:empty {
+    display: none;
+  }
+}
+
+/* Le « + » des lignes (voir plus haut), plus petit. Sa zone de toucher,
+   une bordure transparente (44 px de haut, 52 de large), déborde le rond
+   sans grandir la ligne du prix. Sans position, il laisse le compte au
+   panier se poser sur la fiche ; sans rétrécissement à l'appui, qui lui
+   rendait une position (scale) et faisait sauter le compte sur lui. */
+[data-menu-root] .dish-mini .dish-action > button {
+  position: static;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: content-box;
+  width: 1.75rem;
+  height: 1.75rem;
+  min-height: 0;
+  margin: -0.75rem;
+  padding: 0;
+  border: solid transparent;
+  border-width: 0.5rem 0.75rem;
+  /* Le rayon de la bordure moins sa largeur, axe par axe : un rond, pas un
+     carré arrondi. */
+  border-radius: 1.625rem / 1.375rem;
+  background-clip: padding-box;
+  outline-offset: -0.25rem;
+  font-size: 0;
+
+  &:active {
+    scale: none;
+  }
+
+  &::before {
+    content: "";
+    width: 0.6875rem;
+    height: 0.6875rem;
+    background:
+      linear-gradient(currentColor, currentColor) center / 100% 0.125rem no-repeat,
+      linear-gradient(currentColor, currentColor) center / 0.125rem 100% no-repeat;
+  }
+
+  &[data-added]::before {
+    width: 0.375rem;
+    height: 0.625rem;
+    translate: 0 -12%;
+    rotate: 45deg;
+    background: none;
+    border: solid currentColor;
+    border-width: 0 0.125rem 0.125rem 0;
+  }
+}
+
+/* Le compte au panier au coin haut gauche de la fiche, au-dessus de la
+   vignette : au coin du « + », il couvrait le « + » ou le nom. La fiche se
+   teinte tant que l'article est au panier. */
+[data-menu-root] .dish-mini .cart-count {
+  top: 0.375rem;
+  right: auto;
+  left: 0.375rem;
+  min-width: 1.125rem;
+  padding: 0 0.25rem;
+  box-shadow: 0 0 0 1px var(--ember-1), 0 0 0 3px var(--surface);
+  font-size: 0.6875rem;
+  line-height: 1.125rem;
+}
+
+[data-menu-root] .dish-mini:has([data-in-cart]) {
+  border-color: var(--ember-1);
+  background: color-mix(in srgb, var(--ember-1) 10%, var(--surface));
+  box-shadow: inset 0 0 0 1px var(--ember-1);
+}
+
+.dish-mini .dish-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-inline-start: auto;
+}
+
+.dish-mini .dish-action > span {
+  padding: 0.125rem 0.5rem;
+  font-size: 0.6875rem;
+}
+
+/* La roue des catégories ne passe que sur la colonne de droite : à gauche,
+   la place revient au nom. */
+@media (22.5rem <= width < 48rem) {
+  .dish-mini:nth-child(odd) {
+    padding-right: 0.5rem;
+  }
+}
+
+/* Un par rangée : le prix et le « + » à droite du nom, sur une ligne. */
+@media (width < 22.5rem) {
+  .dish-mini {
+    grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+    grid-template-rows: auto;
+    align-items: center;
+  }
+
+  .dish-mini-thumb {
+    grid-row: auto;
+  }
+
+  .dish-mini-foot {
+    gap: 0.75rem;
+  }
 }
 
 /*

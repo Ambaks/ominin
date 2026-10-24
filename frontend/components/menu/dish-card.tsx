@@ -64,7 +64,7 @@ function Description({ text, tarifs, detail }: { text?: string; tarifs?: string;
 }
 
 /** Les allergènes que l'établissement déclare pour ce plat. */
-function Allergens({ item }: { item: MenuItem }) {
+export function Allergens({ item }: { item: MenuItem }) {
   if (!item.allergens?.length) return null;
   return (
     <p className="dish-allergens text-xs leading-relaxed text-faint">

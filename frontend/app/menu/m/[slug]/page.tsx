@@ -15,6 +15,7 @@ import { TicketTracker } from "@/components/menu/order-ticket";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
+import { withCompactPreview } from "@/lib/menu/compact-preview";
 import { FORMULES_LINK } from "@/lib/menu/format";
 import { brandName, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
@@ -239,7 +240,7 @@ export default async function MenuPage({
                 La carte est en préparation — revenez bientôt.
               </p>
             ) : (
-              restaurant.categories.map((category) => (
+              withCompactPreview(slug, restaurant.categories).map((category) => (
                 <MenuSection
                   key={category.id}
                   category={category}

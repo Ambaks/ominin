@@ -163,6 +163,11 @@ export interface MenuCategory {
    * « chaudes » : la salutation porte une tasse, sinon un verre à pied.
    */
   boissons?: true | "chaudes";
+  /**
+   * Une longue liste à parcourir d'un coup d'œil : deux articles par rangée
+   * au téléphone, la photo en vignette ronde à côté du nom (CompactCard).
+   */
+  compact?: true;
 }
 
 /**
