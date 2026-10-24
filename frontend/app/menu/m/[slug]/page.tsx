@@ -12,12 +12,13 @@ import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
+import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
 import { withCompactPreview } from "@/lib/menu/compact-preview";
 import { FORMULES_LINK } from "@/lib/menu/format";
-import { brandName, restaurantThemeClass } from "@/lib/menu-data";
+import { brandName, hasVelours, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { menuSiteUrl } from "@/lib/site";
 
@@ -209,6 +210,7 @@ export default async function MenuPage({
               __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
             }}
           />
+          {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop />}
           <MenuTicker items={restaurant.ticker} />
           <Hero
             restaurant={restaurant}

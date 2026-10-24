@@ -10102,6 +10102,11 @@ export function restaurantThemeClass(slug: string): string | undefined {
   return themeClasses[slug];
 }
 
+/** Les cartes posées sur le velours animé (components/menu/panis-backdrop) : ses règles visent le thème de Caffè Panis. */
+export function hasVelours(slug: string): boolean {
+  return slug === "caffe-panis";
+}
+
 export function getRestaurant(slug: string): Restaurant | undefined {
   return restaurants[slug];
 }

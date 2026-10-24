@@ -10,6 +10,7 @@ import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
 import { TicketTracker } from "@/components/menu/order-ticket";
+import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import { CartProvider } from "@/lib/menu/cart";
@@ -21,6 +22,7 @@ import { resolveFormuleOffers, resolvePairings } from "@/lib/menu/pairings";
 import {
   brandName,
   getRestaurant,
+  hasVelours,
   restaurantThemeClass,
   type DemoLoyalty,
   type MenuItem,
@@ -201,6 +203,7 @@ export default async function MenuPreviewPage({
           data-service={fastFood ? "fast-food" : undefined}
           className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
+          {themeClass && hasVelours(slug) && <PanisBackdrop />}
           <MenuTicker items={restaurant.ticker} />
           <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} />
           <MenuHighlights highlights={restaurant.highlights} />
