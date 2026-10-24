@@ -202,6 +202,37 @@ const BAR_STAGES: Partial<Record<OrderStatus, Stage>> = {
   },
 };
 
+const DELIVERY_STEPS = ["Reçue", "En préparation", "À votre table"] as const;
+
+/** Retrait au bar servi à table : un serveur apporte la commande et scanne son code. */
+const DELIVERY_STAGES: Partial<Record<OrderStatus, Stage>> = {
+  ...BAR_STAGES,
+  en_preparation: {
+    title: "En préparation",
+    body: "Un serveur vous l’apporte à\u00a0table dès qu’elle est prête.",
+    step: 1,
+    chip: "En préparation",
+  },
+  prete: {
+    title: "C’est prêt\u00a0!",
+    body: "Un serveur arrive à votre table\u00a0:\nmontrez-lui ce code.",
+    step: 2,
+    chip: "En route",
+  },
+  servie: {
+    title: "",
+    body: "Servie à votre table.\nUne autre envie\u00a0? La carte reste ouverte.",
+    step: DELIVERY_STEPS.length,
+    chip: "Servie",
+  },
+  annulee: {
+    title: "Commande annulée",
+    body: "Adressez-vous à un\u00a0serveur.",
+    step: -1,
+    chip: "Annulée",
+  },
+};
+
 /** Retrait au bar, le règlement en ligne commencé : il se finit, ou se fait au bar. */
 const BAR_PAYING: Stage = {
   ...PAYING,
@@ -215,8 +246,16 @@ const SETTLED_AT_COUNTER =
 const SETTLED_AT_BAR =
   "Réglée au\u00a0bar\u00a0: elle est en\u00a0préparation.\nCette page vous prévient dès qu’elle est prête.";
 
-/** table : à table, ses étapes et ses mots ; bar : retrait au bar, en fast food ou à table (aperçu). */
-const stageOf = (ticket: Ticket, table: number | null, bar = false): Stage | null => {
+/**
+ * table : à table, ses étapes et ses mots ; bar : retrait au bar, en fast food
+ * ou à table (aperçu) ; delivered : retrait au bar servi à table.
+ */
+const stageOf = (
+  ticket: Ticket,
+  table: number | null,
+  bar = false,
+  delivered = false
+): Stage | null => {
   if (!ticket.status) return null;
   if (ticket.status === "en_attente" && ticket.paying) {
     return bar ? BAR_PAYING : table === null ? PAYING : TABLE_PAYING;
@@ -224,11 +263,11 @@ const stageOf = (ticket: Ticket, table: number | null, bar = false): Stage | nul
   if (table === null && !bar) return STAGES[ticket.status] ?? null;
   // En fast food, payée veut dire en préparation, jusqu'à « prête ».
   const status = table === null && ticket.status === "payee" ? "en_preparation" : ticket.status;
-  const stage = (bar ? BAR_STAGES : TABLE_STAGES)[status];
+  const stage = (bar ? (delivered ? DELIVERY_STAGES : BAR_STAGES) : TABLE_STAGES)[status];
   if (!stage) return null;
   if (status === "servie") return { ...stage, title: servedGreeting(ticket) };
   if (status === "en_preparation" && ticket.atCounter) {
-    return { ...stage, body: bar ? SETTLED_AT_BAR : SETTLED_AT_COUNTER };
+    return { ...stage, body: bar && !delivered ? SETTLED_AT_BAR : SETTLED_AT_COUNTER };
   }
   return stage;
 };
@@ -345,7 +384,7 @@ function TableOrders({
                 </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-xs font-semibold">
-                    {stageOf(order, table, tickets?.barPickup)?.chip ?? "…"}
+                    {stageOf(order, table, tickets?.barPickup, tickets?.deliverTo != null)?.chip ?? "…"}
                     {current && <span className="font-normal text-muted"> (celle-ci)</span>}
                   </span>
                   <span className="block truncate text-xs text-muted">
@@ -398,10 +437,17 @@ function OrderTicket({
   const [footScrolls, setFootScrolls] = useState(false);
   const table = tickets?.table ?? null;
   const bar = tickets?.barPickup ?? false;
+  const deliverTo = tickets?.deliverTo ?? null;
   // Suivie comme à table : à table, ou au bar — la commande servie y est saluée.
   const followed = table !== null || bar;
-  const steps = bar ? BAR_STEPS : table === null ? STEPS : TABLE_STEPS;
-  const stage = stageOf(ticket, table, bar);
+  const steps = bar
+    ? deliverTo !== null
+      ? DELIVERY_STEPS
+      : BAR_STEPS
+    : table === null
+      ? STEPS
+      : TABLE_STEPS;
+  const stage = stageOf(ticket, table, bar, deliverTo !== null);
   const tracked = !!stage && stage.step >= 0;
   const ready = ticket.status === "prete";
   // Retrait au bar, prête : le code à montrer au bar.
@@ -537,7 +583,13 @@ function OrderTicket({
           {/* Le titre de la feuille : le lecteur d'écran l'annonce avec le numéro. */}
           <h2 id={titleId} className="mt-5 flex flex-col items-center">
             <span className="order-ticket-label text-[11px] font-semibold uppercase tracking-[0.3em] text-muted">
-              {bar ? "Retrait au bar" : table === null ? "Votre numéro" : `Table ${table}`}
+              {deliverTo !== null
+                ? `Table ${deliverTo}`
+                : bar
+                  ? "Retrait au bar"
+                  : table === null
+                    ? "Votre numéro"
+                    : `Table ${table}`}
             </span>
             {ticket.number === null ? (
               <span aria-busy className="shimmer mt-3 block h-24 w-40 rounded-2xl" />
@@ -1137,7 +1189,7 @@ export function TicketTracker() {
             className="ticket-dock-column flex w-full max-w-md items-end gap-2"
           >
             {active.map((ticket) => {
-              const stage = stageOf(ticket, table, tickets.barPickup);
+              const stage = stageOf(ticket, table, tickets.barPickup, tickets.deliverTo !== null);
               const ready = ticket.status === "prete";
               const due = ticket.status === "en_attente";
               const done = !isActiveTicket(ticket);
@@ -1222,8 +1274,8 @@ export function TicketTracker() {
           {(dismiss) => (
             <ServeBox
               ticket={greeting}
-              table={table}
-              bar={tickets.barPickup}
+              table={tickets.deliverTo ?? table}
+              bar={tickets.barPickup && tickets.deliverTo === null}
               titleId={serveTitleId}
               onClose={dismiss}
             />

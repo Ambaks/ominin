@@ -22,8 +22,9 @@ import { createClient } from "@supabase/supabase-js";
 import { SEED_TABLE_COUNT } from "../lib/gestion/constants";
 import { getRestaurant } from "../lib/menu-data";
 import { formatPrice } from "../lib/menu/format";
-import type { Database, Json, TablesInsert } from "../lib/supabase/database.types";
+import type { Database, Json } from "../lib/supabase/database.types";
 import { must } from "../lib/supabase/result";
+import { insertCarte } from "./insert-carte";
 
 const [slug, email, password] = process.argv.slice(2);
 const restaurant = slug ? getRestaurant(slug) : undefined;
@@ -86,62 +87,7 @@ async function main() {
   });
   if (subscriptionError) throw new Error(subscriptionError.message);
 
-  const categories = must(
-    await db
-      .from("categories")
-      .insert(
-        restaurant!.categories.map((category, position) => ({
-          etablissement_id: etab.id,
-          name: category.name,
-          tagline: category.tagline ?? null,
-          position,
-        }))
-      )
-      .select("id")
-  );
-
-  const itemSeeds = restaurant!.categories.flatMap((category, i) =>
-    category.items.map((item) => ({ categoryId: categories[i].id, item }))
-  );
-  // Les groupes conditionnels (`when`) ne vivent que côté client : place_order
-  // exigerait un groupe caché et la gestion perdrait la condition.
-  const conditionnel = itemSeeds.find(({ item }) => item.options?.some((group) => group.when));
-  if (conditionnel) {
-    throw new Error(
-      `${conditionnel.item.id} a un groupe conditionnel (when) : place_order et la gestion ne le gèrent pas encore.`
-    );
-  }
-  const items = must(
-    await db
-      .from("items")
-      .insert(
-        itemSeeds.map(({ categoryId, item }): TablesInsert<"items"> => ({
-          etablissement_id: etab.id,
-          category_id: categoryId,
-          name: item.name,
-          description: item.description ?? null,
-          price: item.price,
-          image: item.image ?? null,
-          badges: item.badges ?? [],
-          pairing: item.pairing ?? null,
-          detail: item.detail ?? null,
-          disponible: item.disponible ?? true,
-          stock: item.stock ?? null,
-          options: toJson(item.options ?? []),
-          // Absent du registre ⇒ la valeur par défaut de la colonne (10 %).
-          // Un alcool porté à 20 % dans le registre doit l'être aussi en
-          // caisse : le seed perdait ce taux.
-          vat_rate: item.vatRate,
-          print_name: item.printName ?? null,
-          notice_hours: item.noticeHours ?? null,
-        })),
-        // La liste des colonnes vient des clés, undefined compris : sans
-        // missing=default, un taux absent partait en NULL et violait le
-        // not null de vat_rate au lieu de prendre les 10 % par défaut.
-        { defaultToNull: false }
-      )
-      .select("id")
-  );
+  const { categories, items } = await insertCarte(db, etab.id, restaurant!);
 
   // Une boutique de click & collect n'a pas de salle.
   const tables = restaurant!.collect
@@ -188,8 +134,8 @@ async function main() {
   }
 
   console.log(
-    `« ${restaurant!.name} » inséré (${restaurant!.collect ? "click & collect" : "offre connect"}) : ${categories.length} catégories, ` +
-      `${items.length} plats, ${tables.length} tables — ${accountNote}.`
+    `« ${restaurant!.name} » inséré (${restaurant!.collect ? "click & collect" : "offre connect"}) : ${categories} catégories, ` +
+      `${items} plats, ${tables.length} tables — ${accountNote}.`
   );
   // Les formules du registre ne servent qu'à l'aperçu : leurs articles
   // pointent sur des identifiants du registre, pas sur les plats insérés.

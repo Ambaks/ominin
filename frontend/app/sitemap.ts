@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
+import { etoileScene } from "@/lib/menu-data";
 import {
   agentsSiteUrl,
   clipSiteUrl,
@@ -49,7 +50,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const features = row.etablissement_settings?.features as
         | { qr?: boolean }
         | null;
-      if (features?.qr === false) continue;
+      // La démo d'Ominin Club ne se référence pas (etoileScene).
+      if (features?.qr === false || etoileScene(slug)) continue;
       routes.push({
         url: `${menuSiteUrl}/m/${slug}`,
         lastModified: created_at ? new Date(created_at) : undefined,
