@@ -38,7 +38,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { club, event } = found;
   const title = `${event.title} — ${club.name}`;
   const description = `${formatNight(event.startsAt)}, ${formatHours(event.startsAt, event.endsAt)}. Choisissez votre offre et réservez votre table en ligne.`;
-  return { title, description, openGraph: { title, description } };
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    ...(club.paymentProvider === "demo" && { robots: { index: false, follow: false } }),
+  };
 }
 
 export default async function EventPage({ params }: { params: Params }) {

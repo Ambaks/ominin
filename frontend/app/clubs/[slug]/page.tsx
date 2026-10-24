@@ -22,7 +22,12 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   if (!club) return {};
   const title = `${club.name} — Réserver une table`;
   const description = `${club.tagline ? `${club.tagline}. ` : ""}Choisissez votre offre, réglez en ligne, présentez votre QR code à l'entrée : le club vous attribue la table.`;
-  return { title, description, openGraph: { title, description } };
+  return {
+    title,
+    description,
+    openGraph: { title, description },
+    ...(club.paymentProvider === "demo" && { robots: { index: false, follow: false } }),
+  };
 }
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
