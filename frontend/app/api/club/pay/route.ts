@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { settleClubIntent, settleDemoPayment } from "@/lib/club/settle";
-import { connectedAccount, getStripe } from "@/lib/stripe/server";
+import { connectedAccount, getStripe, publishableKey as readPublishableKey } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -48,9 +48,12 @@ export async function POST(request: Request) {
       { status: 409 }
     );
   }
-  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  const publishableKey = readPublishableKey();
   if (!publishableKey) {
-    return NextResponse.json({ error: "STRIPE_PUBLISHABLE_KEY manquante." }, { status: 500 });
+    return NextResponse.json(
+      { error: "STRIPE_PUBLISHABLE_KEY manquante ou d'un autre mode que la clé secrète." },
+      { status: 500 }
+    );
   }
 
   const stripe = getStripe();
