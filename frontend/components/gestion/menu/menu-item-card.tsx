@@ -22,6 +22,7 @@ import {
 
 export function MenuItemCard({
   item,
+  drink = false,
   printers = [],
   printerId = null,
   canRoute = false,
@@ -35,6 +36,8 @@ export function MenuItemCard({
   onPrinterChange,
 }: {
   item: MenuItem;
+  /** Rangé dans une catégorie de boissons : le menu n'en montre pas les allergènes. */
+  drink?: boolean;
   printers?: Printer[];
   printerId?: string | null;
   canRoute?: boolean;
@@ -127,13 +130,15 @@ export function MenuItemCard({
         )}
 
         {/* Ce qui manque encore se voit : sans allergènes, le menu renvoie le client à l'équipe. */}
-        <p className={`text-xs ${item.allergens === undefined ? "text-ember-2" : "text-faint"}`}>
-          {item.allergens === undefined
-            ? "Allergènes non renseignés"
-            : item.allergens.length === 0
-              ? "Aucun allergène"
-              : allergenLine(item.allergens)}
-        </p>
+        {!drink && (
+          <p className={`text-xs ${item.allergens === undefined ? "text-ember-2" : "text-faint"}`}>
+            {item.allergens === undefined
+              ? "Allergènes non renseignés"
+              : item.allergens.length === 0
+                ? "Aucun allergène"
+                : allergenLine(item.allergens)}
+          </p>
+        )}
 
         {item.badges && item.badges.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

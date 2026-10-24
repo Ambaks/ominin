@@ -92,7 +92,18 @@ function Pairing({ pairing }: { pairing?: string }) {
 }
 
 /** Large photo card for featured items. */
-function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
+function FeaturedCard({
+  item,
+  drink,
+  priority,
+  span,
+}: {
+  item: MenuItem;
+  /** Une boisson : ni allergènes sur la fiche, ni dans sa feuille. */
+  drink?: boolean;
+  priority?: boolean;
+  span?: boolean;
+}) {
   return (
     <article
       // data-item : un thème peut marquer un plat précis (globals.css).
@@ -162,18 +173,18 @@ function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boo
         <DishIndicators item={item} />
         <Description text={item.description} tarifs={item.tarifs} detail={item.detail} />
         <Notice hours={item.noticeHours} />
-        <Allergens item={item} />
+        {!drink && <Allergens item={item} />}
         <Pairing pairing={item.pairing} />
         <RewardHint itemId={item.id} compact />
         <div className="dish-action pointer-events-none z-1 mt-1 flex justify-end *:pointer-events-auto">
           <AddToOrder item={item} />
         </div>
       </div>
-      <DishOpener item={item} />
+      <DishOpener item={item} drink={drink} />
     </article>
   );
 }
 
-export function DishCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
-  return <FeaturedCard item={item} priority={priority} span={span} />;
+export function DishCard(props: { item: MenuItem; drink?: boolean; priority?: boolean; span?: boolean }) {
+  return <FeaturedCard {...props} />;
 }

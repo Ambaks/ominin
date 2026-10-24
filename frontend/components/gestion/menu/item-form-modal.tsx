@@ -12,6 +12,7 @@ import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { AllergenIcon } from "@/components/menu/allergen-icon";
+import { isDrinkCategory } from "@/lib/menu/category-icons";
 import { ALLERGEN_LABELS, BADGE_LABELS } from "@/lib/menu/format";
 import { type Allergen, type Badge, type MenuCategory, type MenuItem } from "@/lib/menu-data";
 import {
@@ -56,6 +57,9 @@ export function ItemFormModal({
     String(item?.vatRate ?? DEFAULT_VAT_RATE)
   );
   const [categoryId, setCategoryId] = useState(initialCategoryId);
+  // Une boisson ne montre pas d'allergènes sur le menu : rien à saisir.
+  const current = categories.find((entry) => entry.id === categoryId);
+  const drink = current ? isDrinkCategory(current) : false;
   const [options, setOptions] = useState<OptionGroupDraft[]>(
     optionsToDraft(item?.options)
   );
@@ -234,7 +238,9 @@ export function ItemFormModal({
           />
         </Field>
 
-        <AllergensField value={allergens} onChange={setAllergens} />
+        {!drink && (
+          <AllergensField value={allergens} onChange={setAllergens} />
+        )}
 
         <div className="grid gap-4 sm:grid-cols-2">
           <Field
