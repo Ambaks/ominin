@@ -4437,6 +4437,7 @@ html:has(.ticket-dock) {
    fin. */
 [data-menu-root]:has([role="dialog"]) > header,
 [data-menu-root]:has([role="dialog"]) > header *,
+[data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) > header::before,
 [data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) > header::after,
 /* L'entrée du héros (.hero-entrance) va à son terme : figée par les
    pastilles, qui restent, elle laissait le texte à demi effacé. La bande des
@@ -5731,8 +5732,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /*
   Les adresses de l'Écusson (Montpellier) — Le Novelty, Le Victoria,
   Café des Arts, Caffè Panis, Le Petit Nice, et la Brasserie Laissac, à sa
-  lisière ; Rosemarie, à Saint-Roch, s'y range. Chaque thème est tiré de leur identité (site, logo, enseigne :
-  demos/<slug>/profile.json).
+  lisière ; Rosemarie, à Saint-Roch, s'y range. Chaque thème est tiré de
+  leur identité (site, logo, enseigne : demos/<slug>/profile.json).
 
   Leurs cartes sont surtout faites de lignes sans photo (boissons, plats en
   attente de photo) : une ligne par article, nom et prix à gauche, le bouton
@@ -12652,7 +12653,7 @@ html:has([data-menu-root].theme-le-pulp) body {
   --rm-sun: #f08000;
   --rm-poppy: #e00810;
   --rm-green: #2f5446;
-  --rm-mustard: #8a6000;
+  --rm-pine: #008830;
   --rm-orange: #c05200;
   --rm-red: #c8102e;
   /* Le feston des parasols : des demi-cercles le long du bord. */
@@ -12752,7 +12753,7 @@ html:has([data-menu-root].theme-rosemarie) body {
   order: 2;
   margin-top: 0.35rem;
   padding-inline: 0;
-  color: var(--rm-mustard);
+  color: var(--rm-navy);
   font-family: var(--brand-hand);
   font-size: clamp(1.25rem, 4.6vw, 2.6rem);
   font-weight: 600;
@@ -12765,6 +12766,93 @@ html:has([data-menu-root].theme-rosemarie) body {
   display: none;
 }
 
+/*
+  Le monde de l'affiche au pied du nom, posé sur le bandeau jaune : le
+  soleil, le pin, le papillon (le papillon bat des ailes, le reste ne bouge
+  pas). Nos dessins, à leur manière : à faire valider par l'illustratrice.
+*/
+.theme-rosemarie > header.logo-hero::after,
+.theme-rosemarie > header.logo-hero::before {
+  content: "";
+  position: absolute;
+  /* Au-dessus des calques de fond du haut de page, sous le nom. */
+  z-index: 1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.theme-rosemarie > header.logo-hero::after {
+  inset: 0;
+  background-image: url("/rosemarie/soleil.svg"), url("/rosemarie/pin.svg");
+  background-position:
+    left 1.375rem bottom 0.875rem,
+    right 0.375rem bottom 0;
+  background-size: 4rem, 8.25rem;
+}
+
+.theme-rosemarie > header.logo-hero::before {
+  bottom: 2.5rem;
+  left: 46%;
+  width: 2.5rem;
+  aspect-ratio: 130 / 110;
+  background-image: url("/rosemarie/papillon.svg");
+  rotate: -12deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* En longues propriétés : le raccourci remettrait en route le papillon
+     que la règle commune met en pause sous une feuille ouverte. */
+  .theme-rosemarie > header.logo-hero::before {
+    animation-name: rm-papillon;
+    animation-duration: 1.8s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+}
+
+@keyframes rm-papillon {
+  to {
+    scale: 0.72 1;
+    translate: 0 -0.25rem;
+  }
+}
+
+/* Tablette et petit écran de bureau : le nom prend toute la largeur, le
+   monde de l'affiche reste en bande sous l'accroche ; le papillon s'écarte
+   du milieu, où passe « Découvrir la carte ». */
+@media (min-width: 48rem) {
+  .theme-rosemarie > header.logo-hero::after {
+    background-position:
+      left 6% bottom 1rem,
+      right 5% bottom 0;
+    background-size: 6rem, 9rem;
+  }
+
+  .theme-rosemarie > header.logo-hero::before {
+    bottom: 3rem;
+    left: 26%;
+    width: 3.5rem;
+  }
+}
+
+/* Au large, le soleil et le pin encadrent le nom. */
+@media (min-width: 90rem) {
+  .theme-rosemarie > header.logo-hero::after {
+    background-position:
+      left 7% bottom -1.25rem,
+      right 4% bottom 0;
+    background-size: 9.5rem, 11.5rem;
+  }
+
+  .theme-rosemarie > header.logo-hero::before {
+    bottom: 3.75rem;
+    left: 47%;
+    width: 5.25rem;
+  }
+}
+
 [data-menu-root].theme-rosemarie .hero-contact {
   display: none;
 }
@@ -12774,7 +12862,7 @@ html:has([data-menu-root].theme-rosemarie) body {
 @media (max-width: 47.99rem) {
   [data-menu-root].theme-rosemarie > header.logo-hero {
     min-height: 0;
-    padding-block: 4.25rem 2.5rem;
+    padding-block: 4.25rem 6.5rem;
   }
 
   .theme-rosemarie .hero-cue {
@@ -12785,7 +12873,13 @@ html:has([data-menu-root].theme-rosemarie) body {
 @media (min-width: 64rem) {
   [data-menu-root].theme-rosemarie > header.logo-hero {
     min-height: 0;
-    padding-block: 4rem 4.5rem;
+    padding-block: 4rem 9rem;
+  }
+}
+
+@media (min-width: 90rem) {
+  [data-menu-root].theme-rosemarie > header.logo-hero {
+    padding-bottom: 4.5rem;
   }
 }
 
@@ -12800,6 +12894,7 @@ html:has([data-menu-root].theme-rosemarie) body {
 .theme-rosemarie .menu-highlights::after {
   content: "";
   position: absolute;
+  pointer-events: none;
   inset: 100% 0 auto;
   height: var(--rm-feston-h);
   background: var(--rm-yellow);
@@ -12831,8 +12926,9 @@ html:has([data-menu-root].theme-rosemarie) body {
   }
 }
 
+/* Le jaune du chevalet ne se lit pas sur le blanc : le vert du pin de l'affiche. */
 .theme-rosemarie #cocktails .category-heading {
-  color: var(--rm-mustard);
+  color: var(--rm-pine);
 }
 
 .theme-rosemarie #petites-assiettes .category-heading {
@@ -12882,7 +12978,7 @@ html:has([data-menu-root].theme-rosemarie) body {
 
 /* La chasse fixe de la machine à écrire écarte la virgule et le « € » :
    resserrés, les prix se lisent d'un bloc. */
-.theme-rosemarie :is(.dish-price, .cart-total) {
+.theme-rosemarie :is(.dish-price, .cart-total, .dish-sheet-price) {
   letter-spacing: -0.06em;
 }
 
@@ -12921,6 +13017,7 @@ html:has([data-menu-root].theme-rosemarie) body {
 .theme-rosemarie > footer::before {
   content: "";
   position: absolute;
+  pointer-events: none;
   inset: auto 0 100%;
   height: var(--rm-feston-h);
   background: var(--rm-yellow);
@@ -12944,8 +13041,11 @@ html:has([data-menu-root].theme-rosemarie) body {
     inset 0 0 0 1px rgba(0, 48, 79, 0.12);
 }
 
+/* Le soleil et le papillon de l'affiche dans le blanc de la carte. */
 .theme-rosemarie .loyalty-card-bg {
   background:
+    url("/rosemarie/papillon.svg") 52% 30% / 2.5rem no-repeat,
+    url("/rosemarie/soleil-carte.svg") right -1.375rem top 3.625rem / 5.25rem no-repeat,
     radial-gradient(70% 60% at 88% 110%, color-mix(in srgb, var(--rm-sun) 35%, transparent), transparent 65%),
     radial-gradient(60% 50% at 0% 0%, rgba(255, 255, 255, 0.35), transparent 70%),
     var(--rm-yellow);
@@ -12970,6 +13070,15 @@ html:has([data-menu-root].theme-rosemarie) body {
 
 .theme-rosemarie .loyalty-garland .spark {
   fill: var(--rm-yellow);
+}
+
+.theme-rosemarie .loyalty-garland .halo {
+  fill: var(--rm-sun);
+}
+
+/* Sur le tapis bleu marine de la roue, l'anneau de focus passe au jaune. */
+.theme-rosemarie .wheel-stage :focus-visible {
+  outline-color: var(--rm-yellow);
 }
 
 @theme inline {

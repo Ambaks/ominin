@@ -60,12 +60,15 @@
       "Typographie corrigée à l'affichage : « boeuf » → « bœuf », « sel de camargue » → « de Camargue », majuscule en tête de description et point final. Gardés tels qu'imprimés : « Éffiloché », « petit pois », « rôtie » (tentacule), « Babaganoush ».",
       "Chevalet et chemise diffèrent un peu : cocktail à la cachaça (« liqueur thym & verveine, citron vert et sirop de cassonade » sur le chevalet, « liqueur thym/verveine, citron vert, sirop de sucre de cannes » sur la chemise), « Frites » / « Frites maison ». Le chevalet est retenu.",
       "Ordre des sections et des plats : celui du chevalet.",
-      "Bandeau : « Ouvert 7j/7, midi & soir » et « Service continu », d'Instagram. Notre choix d'arguments.",
+      "Bandeau : « Ouvert 7j/7 » et « Service continu », d'Instagram (« OUVERTE 7/7 midi & soir », « service continu ») ; « midi & soir » retiré, la salle ouvrant à 9h. Notre choix d'arguments.",
       "Aucune option de commande (cuisson, accompagnement) : la carte n'en donne pas.",
       "Fidélité de démo : paliers de Caffè Panis (1 € = 1 point ; 50 granité, 100 dessert ou glace, 150 petite assiette, 250 plat), habituée fictive « Margaux ». La roue du jour est celle de Panis.",
-      "« Le combo parfait » : 25 accords écrits pour la démo à partir des seuls ingrédients imprimés (pas de vins ni de bières publiés), relus par la boucle des accords.",
+      "« Le combo parfait » : 30 accords écrits pour la démo à partir des seuls ingrédients imprimés (pas de vins ni de bières publiés), relus par la boucle des accords.",
       "Photos : banque d'images, aucune photo de leurs plats (Instagram en a, de @johanna_pocobene_pro_ ; à demander).",
-      "Pied de carte : « Nous tenons à votre disposition la liste des ingrédients allergènes. » — mention du chevalet (partiellement lisible) et de la carte de printemps 2026 (lisible). La suite lue sur le chevalet, « et la traçabilité des viandes », reste à confirmer."
+      "Pied de carte : « Nous tenons à votre disposition la liste des ingrédients allergènes et la traçabilité des viandes. » — mention du chevalet, complète sur la chemise de table.",
+      "Horaires « Lun.–sam. 9h–1h · dim. 9h–minuit » : Google, Restaurant Guru, Privateaser ; la carte n'en imprime pas, Instagram dit seulement « 7/7 midi & soir ». À confirmer.",
+      "Motifs de l'affiche (soleil, pin, papillon) dans le haut de page et sur « Ma carte » : nos dessins à la manière de l'affiche (illustration de @so_me_ma_sen), pas leurs fichiers. À valider avec eux.",
+      "Allergènes de la démo supposés d'après les recettes d'usage (lib/menu/allergenes-demo.json) ; Tartare de veau vitello, Éffiloché de porc et Riz rouge laissés « non renseignés » (sauces et cuisson non imprimées). Jamais repris en ligne."
     ]
   },
   "offers": [],

@@ -6,22 +6,22 @@
     { "with": "Burrata", "why": "Griotte et basilic glacés coupent la crème de la burrata." }
   ],
   "Nectar de goyave": [
-    { "with": "Beignets courgettes", "why": "Face au provolone fumé, la goyave joue le sucré." }
+    { "with": "Beignets courgettes", "why": "La goyave glacée tient tête au provolone fumé des beignets." }
   ],
   "Cachaça infusée ananas": [
     { "with": "Croquettes de poisson", "why": "Ananas et citron vert réveillent l'aneth et la mayo épicée." }
   ],
   "Gin infusé hibiscus": [
-    { "with": "Babaganoush", "why": "Menthe et limonade aèrent le babaganoush, zaatar et grenade." }
+    { "with": "Babaganoush", "why": "Limonade et menthe rafraîchissent zaatar, grenade et granny smith." }
   ],
   "Tequila infusée framboises": [
-    { "with": "Labneh", "why": "Bergamote et cranberry réveillent olives et pistaches du labneh." }
+    { "with": "Labneh", "why": "Acidulée, la cranberry tranche le crémeux du labneh." }
   ],
   "Focaccia": [
     { "with": "Burrata", "why": "À déposer sur la focaccia : burrata, pesto romesco et épinards." }
   ],
   "Burrata": [
-    { "with": "Jambon Serrano", "why": "Le serrano 18 mois ajoute son sel à la crème de la burrata." }
+    { "with": "Jambon Serrano", "why": "Le serrano 18 mois relève la burrata et son pesto romesco." }
   ],
   "Jambon Serrano": [
     { "with": "Cachaça infusée ananas", "why": "Le sucré-acide de l'ananas équilibre le sel du serrano." }
@@ -30,34 +30,34 @@
     { "with": "Focaccia", "why": "Olives et romarin : la focaccia à tremper dans le babaganoush." }
   ],
   "Houmous de petit pois": [
-    { "with": "Cachaça infusée ananas", "why": "Thym et verveine de la liqueur répondent au zaatar du houmous." }
+    { "with": "Jambon Serrano", "why": "Le serrano 18 mois ponctue la douceur du petit pois." }
   ],
   "Gaspacho verde": [
-    { "with": "Gin infusé hibiscus", "why": "Le sureau à la menthe retrouve la menthe et le concombre du gaspacho." }
+    { "with": "Gin infusé hibiscus", "why": "La menthe du sureau fait écho à celle du gaspacho." }
   ],
   "Croquettes de poisson": [
-    { "with": "Rhum infusé au romarin", "why": "Le coco-vanille glacé du granité apaise la mayo épicée." }
+    { "with": "Rhum infusé au romarin", "why": "Le citron vert glacé du granité rafraîchit la mayo épicée." }
   ],
   "Labneh": [
-    { "with": "Nectar de goyave", "why": "Sucrée et glacée, la goyave tempère le salé des olives kalamata." }
+    { "with": "Nectar de goyave", "why": "Glacée et fruitée, la goyave fait ressortir les olives kalamata." }
   ],
   "Beignets courgettes": [
-    { "with": "Tequila infusée framboises", "why": "Vive, la cranberry coupe le fumé du provolone et le yaourt." }
+    { "with": "Tequila infusée framboises", "why": "Aigre-douce, la cranberry fait face au provolone fumé." }
   ],
   "Panzerotto au bœuf": [
-    { "with": "Gin infusé hibiscus", "why": "Menthe et limonade tranchent mozzarella, olives et bœuf." }
+    { "with": "Gin infusé hibiscus", "why": "Limonade et sureau allègent le bœuf et la mozzarella du panzerotto." }
   ],
   "Polenta frite": [
     { "with": "Cachaça infusée ananas", "why": "Le citron vert de la cachaça allège la friture et l'aïoli." }
   ],
   "Carpaccio de bœuf poivré": [
-    { "with": "Tequila infusée framboises", "why": "L'agrume doux de la bergamote tient tête au poivre du carpaccio." }
+    { "with": "Tequila infusée framboises", "why": "Le parfum de la bergamote prolonge le poivre du carpaccio." }
   ],
   "Tartare de veau vitello": [
-    { "with": "Gin infusé hibiscus", "why": "Menthe et limonade avivent le tartare, sa roquette et ses frites." }
+    { "with": "Gin infusé hibiscus", "why": "Menthe et limonade ravivent le veau et la roquette." }
   ],
   "Calamars à la sétoise": [
-    { "with": "Tequila infusée framboises", "why": "La bergamote apporte aux calamars le trait d'agrume qu'il leur faut." }
+    { "with": "Cachaça infusée ananas", "why": "Thym et verveine de la liqueur parfument calamars et riz aux olives." }
   ],
   "Roquette, tentacule d'encornet rôtie": [
     { "with": "Vodka infusée aux griottes & basilic", "why": "Basilic glacé pour la pastèque, griotte pour la vinaigrette framboise." }
@@ -75,7 +75,7 @@
     { "with": "Vodka infusée aux griottes & basilic", "why": "Le basilic répond aux tomates, la griotte au chèvre." }
   ],
   "Boulettes de poulet panées": [
-    { "with": "Houmous de petit pois", "why": "Un houmous de petit pois au zaatar pour tremper les boulettes panées." }
+    { "with": "Houmous de petit pois", "why": "Le houmous au zaatar fait sauce pour les boulettes panées." }
   ],
   "Persillé de bœuf": [
     { "with": "Vodka infusée aux griottes & basilic", "why": "La griotte glacée tranche le jus de moelle fumé." }
@@ -87,6 +87,6 @@
     { "with": "Rhum infusé au romarin", "why": "Le coco-vanille du granité arrondit le citron de la crème limone." }
   ],
   "Ananas caramélisé": [
-    { "with": "Chouchous", "why": "La glace Chouchous, caramel beurre salé, fond sur la ganache." }
+    { "with": "Chouchous", "why": "La glace Chouchous ajoute son caramel beurre salé à la ganache." }
   ]
 }

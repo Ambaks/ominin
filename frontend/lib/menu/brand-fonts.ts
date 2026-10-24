@@ -336,6 +336,8 @@ const courierPrime = Courier_Prime({
   variable: "--font-courier-prime",
   subsets: ["latin"],
   weight: ["400", "700"],
+  // L'italique dessiné : le nom de l'habitué sur la carte de fidélité.
+  style: ["normal", "italic"],
   preload: false,
 });
 

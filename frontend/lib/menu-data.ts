@@ -3406,7 +3406,7 @@ const articleFormats = (
 
 const ALCOOL = { vatRate: 20 } as const;
 
-/** La roue du jour de Caffè Panis, reprise telle quelle par les aperçus de l'Écusson. */
+/** La roue du jour de Caffè Panis, reprise telle quelle par les aperçus de l'Écusson et Rosemarie. */
 const roueDuJour: LoyaltyWheelConfig = {
   // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
   slices: [
@@ -10057,8 +10057,8 @@ const rosemarie: Restaurant = {
   address: "3 rue des Sœurs Noires, 34000 Montpellier",
   phone: "",
   hours: "Lun.–sam. 9h–\u20601h · dim. 9h–\u2060minuit",
-  allergensNote: "Nous tenons à votre disposition la liste des ingrédients allergènes.",
-  highlights: ["Ouvert 7j/7, midi & soir", "Service continu"],
+  allergensNote: "Nous tenons à votre disposition la liste des ingrédients allergènes et la traçabilité des viandes.",
+  highlights: ["Ouvert 7j/7", "Service continu"],
   pairings: rosemarieAccords,
   loyaltyWheel: roueDuJour,
   // Les paliers de Caffè Panis (1 € = 1 point), sur la carte de Rosemarie.
@@ -10239,7 +10239,7 @@ const rosemarie: Restaurant = {
           name: "Panzerotto au bœuf",
           description: "Mozzarella, olives & petit pois.",
           price: 6.5,
-          image: pexels("28442527/pexels-photo-28442527.jpeg", 800),
+          image: pexelsRecadre("28442527/pexels-photo-28442527.jpeg", 800),
         },
         {
           id: "polenta-frite",
@@ -10378,7 +10378,7 @@ const rosemarie: Restaurant = {
         {
           id: "ananas-caramelise",
           name: "Ananas caramélisé",
-          description: "Ganache chocolat, crumble cacahuète & coulis ananas.",
+          description: "Ganache chocolat, crumble cacahuète et coulis ananas.",
           price: 7,
           image: pexels("30649014/pexels-photo-30649014.jpeg", 800),
         },
@@ -10407,7 +10407,7 @@ const rosemarie: Restaurant = {
           name: "Zézettes de Sète",
           description: "Coulis ananas piment d'Espelette & oranges confites.",
           price: 6.5,
-          image: pexels("34281009/pexels-photo-34281009.jpeg", 800),
+          image: pexelsRecadre("34281009/pexels-photo-34281009.jpeg", 800),
         },
         {
           id: "glace-oreillettes",
