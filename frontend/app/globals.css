@@ -4443,6 +4443,7 @@ html:has(.ticket-dock) {
    fin. */
 [data-menu-root]:has([role="dialog"]) > header,
 [data-menu-root]:has([role="dialog"]) > header *,
+[data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) > header::before,
 [data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) > header::after,
 /* L'entrée du héros (.hero-entrance) va à son terme : figée par les
    pastilles, qui restent, elle laissait le texte à demi effacé. La bande des
@@ -5737,8 +5738,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /*
   Les adresses de l'Écusson (Montpellier) — Le Novelty, Le Victoria,
   Café des Arts, Caffè Panis, Le Petit Nice, et la Brasserie Laissac, à sa
-  lisière. Chaque thème est tiré de leur identité (site, logo, enseigne :
-  demos/<slug>/profile.json).
+  lisière ; Rosemarie, à Saint-Roch, s'y range. Chaque thème est tiré de
+  leur identité (site, logo, enseigne : demos/<slug>/profile.json).
 
   Leurs cartes sont surtout faites de lignes sans photo (boissons, plats en
   attente de photo) : une ligne par article, nom et prix à gauche, le bouton
@@ -5755,7 +5756,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
     [data-slug="le-club"],
-    [data-slug="cafe-3-graces"]
+    [data-slug="cafe-3-graces"],
+    [data-slug="rosemarie"]
   ) {
   /* Une ligne par article : le nom et son prix, la description dessous, le
      bouton « + » à droite, de largeur fixe pour que les prix s'alignent. Son
@@ -5979,7 +5981,7 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
 /* Sous la barre, la jauge de lecture se lisait comme l'onglet courant mal
    placé (sous « Tapas », « Cocktails » allumé), et au Novelty doublait son
    soulignement d'or. */
-:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) .rail-progress {
+:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-rosemarie) .rail-progress {
   display: none;
 }
 
@@ -5993,7 +5995,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
     [data-slug="brasserie-laissac"],
     [data-slug="le-petit-nice"],
     [data-slug="le-club"],
-    [data-slug="cafe-3-graces"]
+    [data-slug="cafe-3-graces"],
+    [data-slug="rosemarie"]
   ) > header.logo-hero {
   min-height: 50svh;
 }
@@ -6012,7 +6015,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="rosemarie"]
     )
     .dish-grid {
     display: flex;
@@ -6028,7 +6032,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="rosemarie"]
     )
     .dish-grid
     > article:has(.dish-photo) {
@@ -6062,7 +6067,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="rosemarie"]
     ) {
     /* La carte sur deux colonnes, centrée : en une seule de 48rem, elle
        laissait 600 px de vide de chaque côté à 1 920, et un prix filait à
@@ -6168,7 +6174,8 @@ html.light [data-menu-root]:not([class*="theme-"]) .logo-white {
           [data-slug="brasserie-laissac"],
           [data-slug="le-petit-nice"],
           [data-slug="le-club"],
-          [data-slug="cafe-3-graces"]
+          [data-slug="cafe-3-graces"],
+          [data-slug="rosemarie"]
         )
     ) {
     & > header.logo-hero {
@@ -7438,7 +7445,7 @@ html:has([data-menu-root].theme-cafe-des-arts) body {
   --cp-ivory: #eeeac7;
   --cp-mosaic: repeating-conic-gradient(#151515 0 25%, #f7f3e6 0 50%);
   /* Le grain d'une carte imprimée, posé sur les fiches et les feuilles. */
-  --cp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .2 0 0 0 0 .14 .55 0 0 0 -.2475'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px;
+  --cp-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' seed='7' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .12 0 0 0 0 .2 0 0 0 0 .14 .462 0 0 0 -.2079'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E") 0 0 / 180px;
 
   --background: #f6f1e2;
   --foreground: #15261b;
@@ -7499,6 +7506,21 @@ html:has([data-menu-root].theme-caffe-panis) body {
 .theme-caffe-panis .font-display {
   font-weight: 600;
   font-variation-settings: "SOFT" 100;
+}
+
+/* La happy hour à l'orange de l'Apérol, le damier sur l'en-tête de ses offres. */
+.theme-caffe-panis {
+  --happy: #c2410c;
+  --happy-light: #f26b1d;
+  --happy-ink: #fff8ec;
+}
+
+.theme-caffe-panis .happy-hour-head::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.5rem;
+  background: var(--cp-mosaic) 0 0 / 0.5rem 0.5rem;
 }
 
 /* Le dessin de titrage, celui du mot-symbole. */
@@ -7680,7 +7702,7 @@ html:has([data-menu-root].theme-caffe-panis) body {
   opacity: 0.35;
 }
 
-.theme-caffe-panis :is(.dish-grid > article, .dish-mini) {
+.theme-caffe-panis :is(.dish-grid > article, .dish-mini, .formule-tile) {
   background: var(--cp-grain), var(--surface);
   box-shadow: 0 1px 2px rgba(21, 38, 27, 0.05);
 }
@@ -7879,7 +7901,7 @@ html:has([data-menu-root].theme-caffe-panis) body {
    sans grandir la ligne du prix. Sans position, il laisse le compte au
    panier se poser sur la fiche ; sans rétrécissement à l'appui, qui lui
    rendait une position (scale) et faisait sauter le compte sur lui. */
-[data-menu-root] .dish-mini .dish-action > button {
+[data-menu-root] :is(.dish-mini, .happy-hour-offers) .dish-action > button {
   position: static;
   display: flex;
   align-items: center;
@@ -7926,7 +7948,7 @@ html:has([data-menu-root].theme-caffe-panis) body {
 /* Le compte au panier au coin haut gauche de la fiche, au-dessus de la
    vignette : au coin du « + », il couvrait le « + » ou le nom. La fiche se
    teinte tant que l'article est au panier. */
-[data-menu-root] .dish-mini .cart-count {
+[data-menu-root] :is(.dish-mini, .happy-hour-offers) .cart-count {
   top: 0.375rem;
   right: auto;
   left: 0.375rem;
@@ -9294,7 +9316,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
   est d'emblée dans son état final ; seuls restent les états (la coche
   d'ajout, le trait de l'onglet courant), sans transition.
 */
-[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+[data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-rosemarie) {
   /* Le tiroir : vif au départ, amorti à l'arrivée, sans rebond. */
   --ec-tiroir: cubic-bezier(0.32, 0.72, 0, 1);
   /* Le petit dépassement d'une pastille ou d'une coche qui se pose. */
@@ -9317,7 +9339,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-rosemarie) {
     /* Le filet du héros se trace depuis son milieu. */
     & .hero-rule {
       animation: ec-trait 0.9s var(--ec-trace) both;
@@ -9389,7 +9411,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 
   /* Au bureau, la feuille est au centre de l'écran : elle se pose. */
   @media (min-width: 40rem) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-rosemarie) {
       & .sheet-rise {
         animation-name: ec-feuille-pose;
       }
@@ -9410,7 +9432,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
 */
 @media screen and (prefers-reduced-motion: no-preference) {
   @supports (animation-timeline: view()) {
-    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+    [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-rosemarie) {
       & .category-head {
         view-timeline-name: --ec-titre;
         animation: ec-entree linear backwards;
@@ -9436,7 +9458,7 @@ html:has([data-menu-root].theme-cafe-riche) body {
        la grille (le filet est son fond) : leur contenu monte dans la tuile
        immobile. Sa coupe (overflow: hidden) ferait d'elle le défilement de
        référence : la ligne de temps est donc nommée sur la tuile. */
-    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces)[data-menu-root] .dish-grid > article {
+    :is(.theme-cafe-riche, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-rosemarie)[data-menu-root] .dish-grid > article {
       animation: ec-entree linear backwards;
       animation-timeline: view();
       animation-range: entry 0% entry 70%;
@@ -10915,7 +10937,8 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
       [data-slug="brasserie-laissac"],
       [data-slug="le-petit-nice"],
       [data-slug="le-club"],
-      [data-slug="cafe-3-graces"]
+      [data-slug="cafe-3-graces"],
+      [data-slug="rosemarie"]
     ) {
     --dock-width: min(68rem, 100% - 5rem);
   }
@@ -11116,7 +11139,7 @@ html:has([data-menu-root].theme-cafe-3-graces) body {
 /* La salutation se pose après la feuille : la marque d'un rebond, le titre,
    le filet qui se trace, la commande ; puis la signature de la maison. */
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces) {
+  [data-menu-root]:is(.theme-cafe-riche, .theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-caffe-panis, .theme-brasserie-laissac, .theme-le-petit-nice, .theme-le-club, .theme-cafe-3-graces, .theme-rosemarie) {
     & .serve-box-mark {
       animation: ec-pastille 0.45s var(--ec-rebond) 0.2s backwards;
     }
@@ -12627,6 +12650,456 @@ html:has([data-menu-root].theme-le-pulp) body {
 .theme-le-pulp .footer-name img {
   height: 4.5rem;
   filter: drop-shadow(0 0 12px rgba(248, 152, 24, 0.3));
+}
+
+/*
+  Rosemarie (3 rue des Sœurs Noires, Saint-Roch) — cantine méditerranéenne.
+  L'identité de juin 2026 (avatar Instagram, affiche, chemise de la carte) :
+  « ROSEMARIE » en capitales grasses et rondes, jaune tournesol sur blanc,
+  « cantine méditerranéenne » à la main dessous ; l'affiche, un aplat jaune
+  où passent le vert du pin, l'orange et le rouge du soleil, le bleu marine
+  des traits. La carte papier : feuille blanche, titres au feutre d'une
+  couleur à l'autre, plats tapés à la machine.
+
+  La page reprend la feuille blanche et le mot-symbole jaune ; le jaune de
+  l'affiche fait les bandeaux (arguments, pied de page), festonnés comme
+  les franges des parasols de la terrasse ; les titres au feutre gardent la
+  ronde des couleurs du chevalet ; les plats en machine à écrire. Boutons
+  bleu marine, le seul ton de l'affiche qui porte un texte blanc.
+*/
+.theme-rosemarie {
+  --rm-yellow: #f8c800;
+  --rm-navy: #004070;
+  --rm-navy-deep: #00304f;
+  --rm-sun: #f08000;
+  --rm-poppy: #e00810;
+  --rm-green: #2f5446;
+  --rm-pine: #008830;
+  --rm-orange: #c05200;
+  --rm-red: #c8102e;
+  /* Le feston des parasols : des demi-cercles le long du bord. */
+  --rm-feston-h: 0.75rem;
+  --rm-feston: radial-gradient(circle at 50% 0, #000 0.55rem, transparent 0.58rem) 0 0 / 1.4rem var(--rm-feston-h) repeat-x;
+
+  --background: #fffdf7;
+  --foreground: #1c2430;
+
+  --surface: #ffffff;
+  --surface-raised: #ffffff;
+  --hairline: rgba(0, 64, 112, 0.14);
+
+  --muted: #4a5360;
+  --faint: #5b6470;
+
+  /* L'encre des boutons est le blanc du fond : le bleu marine la porte à 10:1. */
+  --ember-1: var(--rm-navy);
+  --ember-2: var(--rm-navy);
+  --ember-3: var(--rm-navy-deep);
+
+  --shimmer-highlight: rgba(248, 200, 0, 0.18);
+  --glow-inner: rgba(248, 200, 0, 0.1);
+  --glow-outer: rgba(248, 200, 0, 0.06);
+
+  --brand-display: var(--font-courier-prime), ui-monospace, monospace;
+  --brand-sans: var(--font-dm-sans), var(--font-instrument-sans), sans-serif;
+  --brand-wordmark: var(--font-bowlby-one), var(--brand-display);
+  --brand-hand: var(--font-caveat), cursive;
+  font-family: var(--brand-sans);
+
+  color-scheme: light;
+}
+
+html:has([data-menu-root].theme-rosemarie),
+html:has([data-menu-root].theme-rosemarie) body {
+  background-color: #fffdf7;
+}
+
+.theme-rosemarie :focus-visible {
+  outline: 2px solid var(--rm-navy);
+  outline-offset: 3px;
+}
+
+.theme-rosemarie .ember-gradient {
+  background-image: none;
+  background-color: var(--ember-1);
+}
+
+.theme-rosemarie .ember-text {
+  background-image: none;
+  color: var(--ember-1);
+  -webkit-text-fill-color: currentColor;
+}
+
+/* La machine à écrire de la carte : grasse pour les noms et les prix. */
+.theme-rosemarie .font-display {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+/* Le haut de page : la feuille blanche, le mot-symbole jaune, son accroche
+   écrite dessous, comme sur l'avatar. */
+[data-menu-root].theme-rosemarie > header.logo-hero {
+  --hero-glow-1: transparent;
+  --hero-glow-2: transparent;
+  --hero-glow-3: transparent;
+  background: var(--background);
+}
+
+.theme-rosemarie > header.logo-hero .hero-gradient-drift {
+  display: none;
+}
+
+.theme-rosemarie .hero-lockup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.theme-rosemarie .hero-name {
+  order: 1;
+  margin-top: 0;
+  padding-inline: 0;
+  color: var(--rm-yellow);
+  font-family: var(--brand-wordmark);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 13.5vw, 8.5rem);
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 0.9;
+}
+
+/* Plus précis que la règle commune de l'Écusson sur l'accroche (centrée, en
+   petites capitales) ; à l'échelle du nom, comme sous l'avatar. */
+[data-menu-root].theme-rosemarie .hero-tagline {
+  order: 2;
+  margin-top: 0.35rem;
+  padding-inline: 0;
+  color: var(--rm-navy);
+  font-family: var(--brand-hand);
+  font-size: clamp(1.25rem, 4.6vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-align: left;
+  text-transform: none;
+}
+
+.theme-rosemarie .hero-rule {
+  display: none;
+}
+
+/*
+  Le monde de l'affiche au pied du nom, posé sur le bandeau jaune : le
+  soleil, le pin, le papillon (le papillon bat des ailes, le reste ne bouge
+  pas). Nos dessins, à leur manière : à faire valider par l'illustratrice.
+*/
+.theme-rosemarie > header.logo-hero::after,
+.theme-rosemarie > header.logo-hero::before {
+  content: "";
+  position: absolute;
+  /* Au-dessus des calques de fond du haut de page, sous le nom. */
+  z-index: 1;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.theme-rosemarie > header.logo-hero::after {
+  inset: 0;
+  background-image: url("/rosemarie/soleil.svg"), url("/rosemarie/pin.svg");
+  background-position:
+    left 1.375rem bottom 0.875rem,
+    right 0.375rem bottom 0;
+  background-size: 4rem, 8.25rem;
+}
+
+.theme-rosemarie > header.logo-hero::before {
+  bottom: 2.5rem;
+  left: 46%;
+  width: 2.5rem;
+  aspect-ratio: 130 / 110;
+  background-image: url("/rosemarie/papillon.svg");
+  rotate: -12deg;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  /* En longues propriétés : le raccourci remettrait en route le papillon
+     que la règle commune met en pause sous une feuille ouverte. */
+  .theme-rosemarie > header.logo-hero::before {
+    animation-name: rm-papillon;
+    animation-duration: 1.8s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+  }
+}
+
+@keyframes rm-papillon {
+  to {
+    scale: 0.72 1;
+    translate: 0 -0.25rem;
+  }
+}
+
+/* Tablette et petit écran de bureau : le nom prend toute la largeur, le
+   monde de l'affiche reste en bande sous l'accroche ; le papillon s'écarte
+   du milieu, où passe « Découvrir la carte ». */
+@media (min-width: 48rem) {
+  .theme-rosemarie > header.logo-hero::after {
+    background-position:
+      left 6% bottom 1rem,
+      right 5% bottom 0;
+    background-size: 6rem, 9rem;
+  }
+
+  .theme-rosemarie > header.logo-hero::before {
+    bottom: 3rem;
+    left: 26%;
+    width: 3.5rem;
+  }
+}
+
+/* Au large, le soleil et le pin encadrent le nom. */
+@media (min-width: 90rem) {
+  .theme-rosemarie > header.logo-hero::after {
+    background-position:
+      left 7% bottom -1.25rem,
+      right 4% bottom 0;
+    background-size: 9.5rem, 11.5rem;
+  }
+
+  .theme-rosemarie > header.logo-hero::before {
+    bottom: 3.75rem;
+    left: 47%;
+    width: 5.25rem;
+  }
+}
+
+[data-menu-root].theme-rosemarie .hero-contact {
+  display: none;
+}
+
+/* Au téléphone, le nom dégage la pastille de fidélité, et la carte commence
+   juste sous l'accroche, sans « Découvrir la carte ». */
+@media (max-width: 47.99rem) {
+  [data-menu-root].theme-rosemarie > header.logo-hero {
+    min-height: 0;
+    padding-block: 4.25rem 6.5rem;
+  }
+
+  .theme-rosemarie .hero-cue {
+    display: none;
+  }
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-rosemarie > header.logo-hero {
+    min-height: 0;
+    padding-block: 4rem 9rem;
+  }
+}
+
+@media (min-width: 90rem) {
+  [data-menu-root].theme-rosemarie > header.logo-hero {
+    padding-bottom: 4.5rem;
+  }
+}
+
+/* Les arguments sur l'aplat jaune de l'affiche, écrits au feutre bleu
+   marine ; le bas festonné comme la toile des parasols. */
+.theme-rosemarie .menu-highlights {
+  position: relative;
+  border: 0;
+  background: var(--rm-yellow);
+}
+
+.theme-rosemarie .menu-highlights::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 100% 0 auto;
+  height: var(--rm-feston-h);
+  background: var(--rm-yellow);
+  mask: var(--rm-feston);
+}
+
+.theme-rosemarie .menu-highlights li {
+  color: var(--rm-navy);
+  font-family: var(--brand-hand);
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-transform: none;
+}
+
+/* Les titres au feutre, d'une couleur à l'autre comme sur le chevalet ; le
+   jaune et l'orange foncés jusqu'au 3:1 d'un grand texte sur le blanc. */
+[data-menu-root].theme-rosemarie .category-heading {
+  color: var(--rm-green);
+  font-family: var(--brand-hand);
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
+@media (min-width: 64rem) {
+  [data-menu-root].theme-rosemarie .category-heading {
+    font-size: 3.5rem;
+  }
+}
+
+/* Le jaune du chevalet ne se lit pas sur le blanc : le vert du pin de l'affiche. */
+.theme-rosemarie #cocktails .category-heading {
+  color: var(--rm-pine);
+}
+
+.theme-rosemarie #petites-assiettes .category-heading {
+  color: var(--rm-orange);
+}
+
+.theme-rosemarie #garnitures .category-heading {
+  color: var(--rm-red);
+}
+
+.theme-rosemarie #glaces .category-heading {
+  color: var(--rm-navy);
+}
+
+.theme-rosemarie .category-rule {
+  height: 2px;
+  opacity: 0.2;
+}
+
+/* Au feutre, comme les titres : les noms longs tiennent en deux lignes.
+   L'écriture penchée déborde de sa boîte, que line-clamp coupe : un peu de
+   marge garde la dernière lettre entière. */
+.theme-rosemarie .category-wheel-label {
+  padding-inline-end: 0.15em;
+  font-family: var(--brand-hand);
+  font-size: 1.875rem;
+  letter-spacing: 0;
+}
+
+/* Les titres des feuilles (panier, « Ma carte ») au feutre, comme la roue. */
+[data-menu-root].theme-rosemarie :is(.cart-title, .loyalty-sheet-title) {
+  font-family: var(--brand-hand);
+  font-size: 1.875rem;
+  letter-spacing: 0;
+  line-height: 1.1;
+}
+
+.theme-rosemarie .dish-grid > article {
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(0, 48, 79, 0.05);
+}
+
+/* Les plats comme la carte les tape. */
+[data-menu-root].theme-rosemarie .dish-body :is(p, li):not(.dish-notice) {
+  font-family: var(--brand-display);
+}
+
+/* La chasse fixe de la machine à écrire écarte la virgule et le « € » :
+   resserrés, les prix se lisent d'un bloc. */
+.theme-rosemarie :is(.dish-price, .cart-total, .dish-sheet-price) {
+  letter-spacing: -0.06em;
+}
+
+.theme-rosemarie .dish-price {
+  color: var(--rm-navy);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+[data-menu-root].theme-rosemarie .dish-photo {
+  background-color: var(--hairline);
+}
+
+[data-menu-root].theme-rosemarie .dish-photo-fade {
+  display: none;
+}
+
+[data-menu-root].theme-rosemarie .cart-count {
+  background-color: var(--rm-yellow);
+  color: var(--rm-navy);
+}
+
+/* Le pied de page sur l'aplat jaune, festonné en haut. */
+.theme-rosemarie > footer {
+  --background: var(--rm-yellow);
+  --foreground: var(--rm-navy-deep);
+  --surface: #ffd935;
+  --hairline: rgba(0, 48, 79, 0.25);
+  --muted: #2b3a48;
+  --faint: #2b3a48;
+  position: relative;
+  border-top: 0;
+  color: var(--foreground);
+  background-color: var(--background);
+}
+
+.theme-rosemarie > footer::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: auto 0 100%;
+  height: var(--rm-feston-h);
+  background: var(--rm-yellow);
+  mask: var(--rm-feston);
+  rotate: 180deg;
+}
+
+.theme-rosemarie .footer-name {
+  font-family: var(--brand-wordmark);
+  font-weight: 400;
+  text-transform: uppercase;
+  color: var(--rm-navy-deep);
+}
+
+/* « Ma carte » : l'aplat jaune de l'affiche, le mot-symbole en bleu marine ;
+   les lanternes s'allument à l'orange du soleil. */
+.theme-rosemarie .loyalty-card {
+  color: var(--rm-navy-deep);
+  box-shadow:
+    0 22px 44px -20px rgba(0, 48, 79, 0.45),
+    inset 0 0 0 1px rgba(0, 48, 79, 0.12);
+}
+
+/* Le soleil et le papillon de l'affiche dans le blanc de la carte. */
+.theme-rosemarie .loyalty-card-bg {
+  background:
+    url("/rosemarie/papillon.svg") 52% 30% / 2.5rem no-repeat,
+    url("/rosemarie/soleil-carte.svg") right -1.375rem top 3.625rem / 5.25rem no-repeat,
+    radial-gradient(70% 60% at 88% 110%, color-mix(in srgb, var(--rm-sun) 35%, transparent), transparent 65%),
+    radial-gradient(60% 50% at 0% 0%, rgba(255, 255, 255, 0.35), transparent 70%),
+    var(--rm-yellow);
+}
+
+.theme-rosemarie .loyalty-card-brand {
+  font-family: var(--brand-wordmark);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.theme-rosemarie .loyalty-garland :is(.glass, .shade) {
+  fill: #fff;
+  stroke: color-mix(in srgb, var(--rm-navy) 40%, transparent);
+}
+
+.theme-rosemarie .loyalty-garland .bulb.on .glass,
+.theme-rosemarie .loyalty-garland .lantern.on .shade {
+  fill: var(--rm-sun);
+  stroke: var(--rm-orange);
+}
+
+.theme-rosemarie .loyalty-garland .spark {
+  fill: var(--rm-yellow);
+}
+
+.theme-rosemarie .loyalty-garland .halo {
+  fill: var(--rm-sun);
+}
+
+/* Sur le tapis bleu marine de la roue, l'anneau de focus passe au jaune. */
+.theme-rosemarie .wheel-stage :focus-visible {
+  outline-color: var(--rm-yellow);
 }
 
 @theme inline {
@@ -14185,6 +14658,244 @@ html:has(.groupe-dialog:modal) {
   .reward-hint-bar > i,
   .reward-hint[data-earned] .reward-hint-bar::after {
     animation: none;
+  }
+}
+
+/*
+  Happy hour (components/menu/happy-hour-pill.tsx). La pastille, en bas à
+  gauche, monte au-dessus de la barre du panier et des tickets comme le pied
+  de page. Toutes les 3,6 s, la pièce fait un tour en sautant, le verre
+  trinque, une onde part de la pastille et un reflet la traverse.
+*/
+:where([data-menu-root]) {
+  --happy: var(--ember-1);
+  --happy-light: var(--ember-2);
+  --happy-ink: var(--background);
+}
+
+.happy-hour-pill {
+  position: fixed;
+  left: 1rem;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 1rem);
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.875rem 0.25rem 0.25rem;
+  border: 1px solid color-mix(in srgb, var(--happy) 55%, transparent);
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--foreground);
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: 0 18px 40px -12px rgb(0 0 0 / 0.6), inset 0 1px 0 rgb(255 255 255 / 0.6);
+  cursor: pointer;
+  animation: loyalty-pop 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+
+  & small {
+    font-size: 0.6875rem;
+    font-weight: 600;
+    color: var(--happy);
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: linear-gradient(105deg, transparent 40%, color-mix(in srgb, var(--happy-light) 28%, transparent) 50%, transparent 60%) 130% 0 / 250% 100% no-repeat;
+    pointer-events: none;
+    animation: happy-hour-sheen 3.6s ease-in-out 1.2s infinite;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border: 1.5px solid var(--happy-light);
+    border-radius: inherit;
+    opacity: 0;
+    pointer-events: none;
+    animation: loyalty-ping 3.6s cubic-bezier(0.16, 1, 0.3, 1) 1.2s infinite;
+  }
+}
+
+[data-menu-root]:has(.cart-bar) .happy-hour-pill {
+  bottom: 6rem;
+}
+
+[data-menu-root]:has(.ticket-dock) .happy-hour-pill {
+  bottom: var(--dock-band);
+}
+
+.happy-hour-coin {
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--happy-light) 70%, white), var(--happy-light) 45%, var(--happy));
+  color: var(--happy-ink);
+  box-shadow: inset 0 -2px 0 rgb(0 0 0 / 0.18), 0 2px 6px color-mix(in srgb, var(--happy) 45%, transparent);
+  animation: happy-hour-roll 3.6s cubic-bezier(0.45, 0, 0.2, 1) 1.2s infinite;
+
+  & svg {
+    transform-origin: 50% 90%;
+    animation: happy-hour-clink 3.6s ease-in-out 1.2s infinite;
+  }
+}
+
+@keyframes happy-hour-roll {
+  0%, 62% { transform: perspective(120px) rotateY(0); }
+  70% { transform: perspective(120px) rotateY(180deg) translateY(-3px) scale(1.12); }
+  80% { transform: perspective(120px) rotateY(360deg); }
+  86% { transform: perspective(120px) rotateY(360deg) translateY(-1.5px); }
+  92%, 100% { transform: perspective(120px) rotateY(360deg); }
+}
+@keyframes happy-hour-clink {
+  0%, 20% { rotate: 0deg; }
+  28% { rotate: -14deg; }
+  36% { rotate: 10deg; }
+  44%, 100% { rotate: 0deg; }
+}
+@keyframes happy-hour-sheen {
+  0%, 60% { background-position: 130% 0; }
+  85%, 100% { background-position: -30% 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .happy-hour-pill,
+  .happy-hour-pill::before,
+  .happy-hour-pill::after,
+  .happy-hour-coin,
+  .happy-hour-coin svg {
+    animation: none;
+  }
+}
+
+.happy-hour-sheet {
+  display: flex;
+  flex-direction: column;
+  max-height: min(82svh, 46rem);
+  background: var(--surface);
+}
+
+.happy-hour-head {
+  position: relative;
+  padding: 1.5rem 3.5rem 1.125rem 1.25rem;
+  background: linear-gradient(135deg, var(--happy-light), var(--happy));
+  color: var(--happy-ink);
+}
+
+.happy-hour-kicker {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+
+  &::before {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: currentColor;
+    box-shadow: 0 0 0 4px color-mix(in srgb, currentColor 30%, transparent);
+  }
+}
+
+.happy-hour-close {
+  position: absolute;
+  top: 1rem;
+  right: 0.75rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background: rgb(0 0 0 / 0.18);
+  cursor: pointer;
+}
+
+.happy-hour-progress {
+  display: block;
+  height: 0.375rem;
+  margin-top: 0.625rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, currentColor 30%, transparent);
+  overflow: hidden;
+
+  & > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: currentColor;
+  }
+}
+
+.happy-hour-offers {
+  overflow-y: auto;
+  padding: 0.25rem 1.25rem 1.25rem;
+
+  & h3 {
+    margin: 1.125rem 0 0.375rem;
+    font-size: 1.0625rem;
+    color: var(--ember-1);
+  }
+
+  & li {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.75rem 1fr auto auto;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.5rem;
+  }
+
+  & li + li {
+    border-top: 1px solid var(--hairline);
+  }
+
+  & small {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+}
+
+.happy-hour-thumb {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--ember-1) 14%, var(--surface));
+  color: var(--ember-1);
+  font-family: var(--brand-display);
+
+  & img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.happy-hour-price {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.1;
+
+  & s {
+    font-size: 0.75rem;
+    color: var(--muted);
+  }
+
+  & b {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--happy);
   }
 }
 

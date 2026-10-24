@@ -1,4 +1,5 @@
 import { normalizeText } from "@/lib/admin/format";
+import type { MenuCategory } from "@/lib/menu-data";
 
 /*
  * Icônes des catégories de la carte, pour le rail vertical (CategoryRail).
@@ -248,6 +249,20 @@ function candidates(name: string): IconId[] {
     return false;
   };
   return RULES.filter(([, expressions]) => expressions.some(found)).map(([icon]) => icon);
+}
+
+const DRINKS = new Set<IconId>([
+  "mocktail", "beerBottle", "coffee", "irishCoffee", "tea", "icedDrink", "smoothie", "milkshake",
+  "soda", "water", "cocktail", "spirit", "tumbler", "shot", "wine", "champagne", "grapes", "beer",
+]);
+
+/** Une catégorie de boissons : sur la carte, ses fiches ne parlent pas
+ * d'allergènes. Son nom ne doit rien reconnaître qui se mange (« Cocktails
+ * signature » oui, « Desserts & boissons » non) : dans le doute, ils restent. */
+export function isDrinkCategory({ name, boissons }: Pick<MenuCategory, "name" | "boissons">): boolean {
+  if (boissons) return true;
+  const found = candidates(name).filter((id) => id !== "star" && id !== "heart");
+  return found.length > 0 && found.every((id) => DRINKS.has(id));
 }
 
 /** Les icônes des catégories d'une carte, chacune différente autant que

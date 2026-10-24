@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { DayPicker } from "@/components/gestion/day-picker";
+import { HoursField } from "@/components/gestion/hours-field";
 import { MenuTargetPicker } from "@/components/gestion/menu-target-picker";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
@@ -280,41 +281,14 @@ export function RuleForm({
 
         <DayPicker value={days} onChange={setDays} />
 
-        <div className="flex flex-col gap-2.5">
-          <label className="flex items-center gap-3">
-            <Toggle
-              checked={allDay}
-              onChange={setAllDay}
-              label="Toute la journée"
-            />
-            <span className="text-sm">Toute la journée</span>
-          </label>
-          {!allDay && (
-            <div className="flex flex-wrap items-center gap-2">
-              <input
-                type="time"
-                value={startsAt}
-                onChange={(event) => setStartsAt(event.target.value)}
-                aria-label="Heure de début"
-                className={`${inputClass} w-32`}
-              />
-              <span className="text-sm text-faint">→</span>
-              <input
-                type="time"
-                value={endsAt}
-                onChange={(event) => setEndsAt(event.target.value)}
-                aria-label="Heure de fin"
-                className={`${inputClass} w-32`}
-              />
-              {startsAt !== "" && endsAt !== "" && startsAt >= endsAt && (
-                <span className="w-full text-xs text-faint">
-                  Le créneau passe minuit : il se rattache au jour où il
-                  commence.
-                </span>
-              )}
-            </div>
-          )}
-        </div>
+        <HoursField
+          allDay={allDay}
+          onAllDayChange={setAllDay}
+          startsAt={startsAt}
+          onStartsAtChange={setStartsAt}
+          endsAt={endsAt}
+          onEndsAtChange={setEndsAt}
+        />
 
         <MenuTargetPicker
           categories={categories}

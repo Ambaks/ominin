@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
 import { FormulesSection } from "@/components/menu/formules";
+import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
@@ -16,6 +17,7 @@ import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import { CartProvider } from "@/lib/menu/cart";
 import { withCompactPreview } from "@/lib/menu/compact-preview";
 import { FORMULES_LINK } from "@/lib/menu/format";
+import { demoTarifs, happyHourOf, withHappyHourSection } from "@/lib/menu/happy-hour";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
 import { DemoLoyaltyProvider } from "@/lib/menu/loyalty-demo";
 import { resolveFormuleOffers, resolvePairings } from "@/lib/menu/pairings";
@@ -29,6 +31,7 @@ import {
   type Restaurant,
 } from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
+import { applyTarifs } from "@/lib/menu/tarifs";
 
 /*
  * Aperçu de la carte d'un prospect, servi depuis le registre statique
@@ -62,10 +65,16 @@ import { tableParam } from "@/lib/menu/table-param";
  *
  * ?categories=top|rail|wheel essaie une autre présentation des catégories
  * que celle de l'établissement.
+ *
+ * Un établissement doté d'une happy hour d'aperçu (demoHappyHour) la montre
+ * à toute heure : pastille, offres et section, comme en production.
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
 const DEMO_TABLE = 1;
+
+/** Durée (heures) de la happy hour d'aperçu, ouverte à l'heure pile qui précède la visite. */
+const DEMO_HAPPY_HOUR_LENGTH = 3;
 
 /** Les paliers d'aperçu, rapprochés des articles de la carte comme fetchRestaurant. */
 function demoProgram(restaurant: Restaurant): LoyaltyProgram | null {
@@ -89,8 +98,18 @@ export async function generateMetadata({
   params,
 }: PageProps<"/menu/demo/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const restaurant = getRestaurant(slug);
-  if (!restaurant) notFound();
+  const registered = getRestaurant(slug);
+  if (!registered) notFound();
+  const now = new Date();
+  const restaurant = registered.demoHappyHour
+    ? {
+        ...registered,
+        categories: applyTarifs(
+          registered.categories,
+          demoTarifs(registered.demoHappyHour, now, DEMO_HAPPY_HOUR_LENGTH)
+        ),
+      }
+    : registered;
   // Titre, description et aperçu de lien propres à l'établissement : sans
   // eux, un lien de démo envoyé au gérant (WhatsApp, SMS) montrait la
   // promesse commerciale et le logo d'Ominin.
@@ -141,8 +160,18 @@ export default async function MenuPreviewPage({
   // ?table=7 : le numéro d'une vraie table de l'établissement, pour une
   // capture ; illisible, la table fictive.
   const tableNumber = tableParam(table) ?? DEMO_TABLE;
-  const restaurant = getRestaurant(slug);
-  if (!restaurant) notFound();
+  const registered = getRestaurant(slug);
+  if (!registered) notFound();
+  const now = new Date();
+  const restaurant = registered.demoHappyHour
+    ? {
+        ...registered,
+        categories: applyTarifs(
+          registered.categories,
+          demoTarifs(registered.demoHappyHour, now, DEMO_HAPPY_HOUR_LENGTH)
+        ),
+      }
+    : registered;
 
   const themeClass = theme === "ominin" ? undefined : restaurantThemeClass(slug);
   const suivi = !fastFood && Boolean(restaurant.suivi);
@@ -153,9 +182,12 @@ export default async function MenuPreviewPage({
   // ne se montre pas. Ses jours de service, eux, ne filtrent pas l'aperçu,
   // montré n'importe quel jour.
   const formules = (restaurant.formules ?? []).filter((formule) => formule.disponible);
+  const shown = withCompactPreview(slug, restaurant.categories);
+  const happyHour = happyHourOf(shown, [], now);
+  const sections = withHappyHourSection(shown, happyHour);
   const categoryLinks = [
     ...(formules.length > 0 ? [FORMULES_LINK] : []),
-    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+    ...sections.map(({ id, name }) => ({ id, name })),
   ];
 
   return (
@@ -219,7 +251,7 @@ export default async function MenuPreviewPage({
             bottomPadding="pb-10"
           >
             {formules.length > 0 && <FormulesSection formules={formules} />}
-            {withCompactPreview(slug, restaurant.categories).map((category) => (
+            {sections.map((category) => (
               <MenuSection
                 key={category.id}
                 category={category}
@@ -230,6 +262,7 @@ export default async function MenuPreviewPage({
             ))}
           </MenuBody>
           <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
+          {happyHour && <HappyHourPill happyHour={happyHour} />}
           {loyalty && (
             <LoyaltyWelcome
               brand={brandName(restaurant)}

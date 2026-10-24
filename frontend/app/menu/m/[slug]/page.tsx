@@ -4,7 +4,8 @@ import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
-import { AffichesBanner, FormulesSection } from "@/components/menu/formules";
+import { AffichesBanner, FormulesSection, FormuleTiles } from "@/components/menu/formules";
+import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
@@ -17,6 +18,7 @@ import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
 import { withCompactPreview } from "@/lib/menu/compact-preview";
+import { HAPPY_HOUR_SECTION_ID, happyHourOf, withHappyHourSection } from "@/lib/menu/happy-hour";
 import { FORMULES_LINK } from "@/lib/menu/format";
 import { brandName, hasVelours, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
@@ -116,7 +118,8 @@ export default async function MenuPage({
   // qu'aucune affiche ne porte.
   const affiches = restaurant.affiches ?? [];
   const affichesInHero = restaurant.poster != null && affiches.length > 0;
-  const tiles = formules.filter((formule) => !formule.affiche);
+  // Une formule à heures (le petit déjeuner) se range dans la happy hour.
+  const tiles = formules.filter((formule) => !formule.affiche && !formule.hours);
   const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
 
   const orderingEnabled = offre === "smart" || offre === "connect";
@@ -124,9 +127,26 @@ export default async function MenuPage({
   // le QR peut être unique ou celui d'une table.
   const fastFood = orderingEnabled && serviceMode === "fast_food";
 
+  // La happy hour se lit sur la carte telle qu'elle s'affiche (vignettes et
+  // leurs photos comprises) ; sa section s'ajoute aux catégories, dans la
+  // roue aussi.
+  const categories = withCompactPreview(slug, restaurant.categories);
+  const happyHour = happyHourOf(categories, formules, new Date());
+  const sections = withHappyHourSection(categories, happyHour);
+  const happyHourTiles = happyHour && happyHour.formules.length > 0 && (
+    <FormuleTiles
+      formules={happyHour.formules.map(({ formule }) => formule)}
+      wasPrices={Object.fromEntries(
+        happyHour.formules.flatMap(({ formule, wasPrice }) =>
+          wasPrice === undefined ? [] : [[formule.id, wasPrice]]
+        )
+      )}
+    />
+  );
+
   const categoryLinks = [
     ...(showFormules ? [FORMULES_LINK] : []),
-    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+    ...sections.map(({ id, name }) => ({ id, name })),
   ];
 
   /*
@@ -242,14 +262,16 @@ export default async function MenuPage({
                 La carte est en préparation — revenez bientôt.
               </p>
             ) : (
-              withCompactPreview(slug, restaurant.categories).map((category) => (
+              sections.map((category) => (
                 <MenuSection
                   key={category.id}
                   category={category}
                   // La première photo ne se charge d'emblée qu'en tête de carte :
                   // sous des formules, elle est déjà loin sous le premier écran.
                   first={category.id === categoryLinks[0]?.id}
-                />
+                >
+                  {category.id === HAPPY_HOUR_SECTION_ID && happyHourTiles}
+                </MenuSection>
               ))
             )}
           </MenuBody>
@@ -258,6 +280,7 @@ export default async function MenuPage({
             themeToggle={!restaurantThemeClass(slug)}
           />
           {callServer && <CallServerButton />}
+          {happyHour && <HappyHourPill happyHour={happyHour} />}
           <LoyaltyWelcome
             brand={brandName(restaurant)}
             logo={restaurant.logo}

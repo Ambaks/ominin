@@ -342,6 +342,8 @@ function formuleColumns(
     price: input.price,
     disponible: input.disponible,
     days: input.days ?? null,
+    starts_at: input.hours?.startsAt ?? null,
+    ends_at: input.hours?.endsAt ?? null,
     etapes: toJson(input.etapes),
     affiche_id: input.affiche?.id ?? null,
     affiche_rang: input.affiche?.rang ?? null,
@@ -1262,17 +1264,10 @@ export async function deletePriceRule(ruleId: string): Promise<void> {
 // ---------------------------------------------------------------------------
 // Fermetures
 
-export interface ClosureInput {
-  name: string;
-  /** null ⇒ fermeture à la main seulement. */
-  days: number[] | null;
-  startsAt: string | null;
-  endsAt: string | null;
-  targets: MenuTarget[];
-}
+export type ClosureInput = Pick<Closure, "name" | "windows" | "openWindows" | "targets">;
 
 /**
- * Fermeture et cibles en une transaction (enregistrer_fermeture) : les autres
+ * Fermeture, plages et cibles en une transaction (enregistrer_fermeture) : les autres
  * appareils, prévenus par l'événement de la fermeture, la relisent entière.
  * closureId null ⇒ nouvelle fermeture.
  */
@@ -1286,9 +1281,12 @@ async function saveClosure(
       p_etablissement: etablissementId(),
       p_closure: closureId,
       p_name: input.name,
-      p_days: input.days,
-      p_starts_at: input.startsAt,
-      p_ends_at: input.endsAt,
+      p_open_windows: input.openWindows,
+      p_windows: input.windows.map((window) => ({
+        days: window.days,
+        starts_at: window.startsAt,
+        ends_at: window.endsAt,
+      })),
       p_targets: input.targets.map((target) =>
         target.kind === "category"
           ? { category_id: target.id }
@@ -1297,7 +1295,8 @@ async function saveClosure(
     })
   );
   const closure = {
-    ...rowToClosure({ ...row, closure_targets: [] }),
+    ...rowToClosure({ ...row, closure_windows: [], closure_targets: [] }),
+    windows: input.windows,
     targets: input.targets,
   };
   apply((draft) => {
@@ -1322,7 +1321,7 @@ export async function deleteClosure(closureId: string): Promise<void> {
 }
 
 /**
- * Fermer ou rouvrir pour le reste de la journée de service (gérant ou
+ * Fermer ou rouvrir jusqu'au prochain changement de l'horaire (gérant ou
  * cuisinier). La base décide du forçage : si l'horaire donne déjà l'état
  * demandé, elle l'efface.
  */
@@ -1341,7 +1340,7 @@ export async function toggleClosure(
     const closure = draft.closures.find((c) => c.id === closureId);
     if (!closure) throw new Error("Fermeture introuvable.");
     closure.overrideClosed = row.override_closed;
-    closure.overrideDay = row.override_day;
+    closure.overrideUntil = row.override_until;
     return closure;
   });
 }

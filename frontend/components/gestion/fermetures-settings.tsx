@@ -12,26 +12,75 @@ import { toMinutes } from "@/lib/collect/hours";
 import * as api from "@/lib/gestion/api";
 import { WAIT_TICK_MS, WEEK_DAYS } from "@/lib/gestion/constants";
 import {
+  byWindowOrder,
   closureActive,
   dayEndLabel,
   describeSchedule,
   describeTargets,
   emptyWindow,
   formatHeure,
-  liftedToday,
+  liftedUntil,
   serviceClock,
   serviceMinutes,
 } from "@/lib/gestion/fermetures";
-import type { Closure, MenuTarget } from "@/lib/gestion/types";
+import type { Closure, ClosureWindow, MenuTarget } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import type { MenuCategory } from "@/lib/menu-data";
 
 /*
  * Fermetures (gérant) : ce que le client ne commande plus passé une heure,
  * ou d'un geste depuis Commandes. Le BOHO ferme sa cuisine à 22 h et garde
- * le bar ; un autre coupe tout sauf les desserts. Chaque fermeture nomme ce
- * qu'elle coupe et, si elle revient chaque jour, à quelle heure.
+ * le bar ; le Caffè Panis ne sert ses plats que midi et soir. Chaque
+ * fermeture nomme ce qu'elle coupe et, si elle revient chaque jour, ses
+ * plages : celles où c'est coupé, ou celles où c'est servi.
  */
+
+/** Une plage en cours de saisie : heure de fin vide ⇒ jusqu'à la bascule. */
+type WindowDraft = Omit<ClosureWindow, "endsAt"> & { endsAt: string };
+
+const ALL_DAYS = WEEK_DAYS.map((day) => day.iso);
+
+const MODES = [
+  { open: false, label: "Coupé pendant ces plages" },
+  { open: true, label: "Servi pendant ces plages seulement" },
+];
+
+/** Ce que la plage saisie donnera, ou ce qui l'empêche d'être enregistrée. */
+function windowHint(
+  window: WindowDraft,
+  openWindows: boolean,
+  dayEndHour: number
+): { text: string; valid: boolean; error?: boolean } {
+  const { startsAt, endsAt } = window;
+  if (window.days.length === 0) return { text: "Choisissez au moins un jour.", valid: false };
+  if (startsAt === "") return { text: "Indiquez l’heure de début.", valid: false };
+  if (endsAt !== "" && emptyWindow(startsAt, endsAt, dayEndHour)) {
+    return {
+      text:
+        startsAt === endsAt
+          ? "La fin doit être après le début."
+          : `La fin tombe avant le début\u00a0: votre journée de service bascule à ${dayEndLabel(dayEndHour)}.`,
+      valid: false,
+      error: true,
+    };
+  }
+  if (endsAt === "" || serviceMinutes(endsAt, dayEndHour) === 0) {
+    return {
+      text: `${openWindows ? "Servi" : "Coupé"} jusqu’à la fin de la journée de service (${dayEndLabel(dayEndHour)}).`,
+      valid: true,
+    };
+  }
+  if (toMinutes(endsAt) < toMinutes(startsAt)) {
+    return {
+      text: "La plage passe minuit\u00a0: elle se rattache au jour où elle commence.",
+      valid: true,
+    };
+  }
+  return {
+    text: openWindows ? `Coupé de nouveau à ${formatHeure(endsAt)}.` : `Rouvre à ${formatHeure(endsAt)}.`,
+    valid: true,
+  };
+}
 
 function ClosureForm({
   closure,
@@ -53,17 +102,21 @@ function ClosureForm({
   const toast = useToast();
   const [name, setName] = useState(closure?.name ?? "");
   const [targets, setTargets] = useState<MenuTarget[]>(closure?.targets ?? []);
-  const [scheduled, setScheduled] = useState(closure ? closure.startsAt !== null : true);
-  const [days, setDays] = useState<number[]>(
-    closure?.days ?? WEEK_DAYS.map((day) => day.iso)
+  const [scheduled, setScheduled] = useState(closure ? closure.windows.length > 0 : true);
+  const [openWindows, setOpenWindows] = useState(closure?.openWindows ?? false);
+  const [windows, setWindows] = useState<WindowDraft[]>(
+    closure?.windows.length
+      ? closure.windows.map((window) => ({ ...window, endsAt: window.endsAt ?? "" }))
+      : [{ days: ALL_DAYS, startsAt: "", endsAt: "" }]
   );
-  const [startsAt, setStartsAt] = useState(closure?.startsAt?.slice(0, 5) ?? "");
-  const [endsAt, setEndsAt] = useState(closure?.endsAt?.slice(0, 5) ?? "");
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const windowEmpty =
-    scheduled && startsAt !== "" && endsAt !== "" && emptyWindow(startsAt, endsAt, dayEndHour);
+  const hints = windows.map((window) => windowHint(window, openWindows, dayEndHour));
+  const updateWindow = (index: number, patch: Partial<WindowDraft>) =>
+    setWindows((current) =>
+      current.map((window, i) => (i === index ? { ...window, ...patch } : window))
+    );
   const nameTaken = takenNames.some(
     (taken) => taken.toLocaleLowerCase("fr") === name.trim().toLocaleLowerCase("fr")
   );
@@ -71,7 +124,7 @@ function ClosureForm({
     name.trim().length > 0 &&
     !nameTaken &&
     targets.length > 0 &&
-    (!scheduled || (days.length > 0 && startsAt !== "" && !windowEmpty));
+    (!scheduled || hints.every((hint) => hint.valid));
 
   const submit = async () => {
     if (!valid) return;
@@ -79,9 +132,12 @@ function ClosureForm({
     try {
       const input: api.ClosureInput = {
         name: name.trim(),
-        days: scheduled ? days : null,
-        startsAt: scheduled ? startsAt : null,
-        endsAt: scheduled && endsAt !== "" ? endsAt : null,
+        windows: scheduled
+          ? windows
+              .map((window) => ({ ...window, endsAt: window.endsAt || null }))
+              .sort(byWindowOrder)
+          : [],
+        openWindows: scheduled && openWindows,
         targets,
       };
       if (closure) await api.updateClosure(closure.id, input);
@@ -191,45 +247,94 @@ function ClosureForm({
           </label>
           {scheduled ? (
             <>
-              <DayPicker value={days} onChange={setDays} />
-              <div className="flex flex-wrap items-end gap-3">
-                <Field label="Dès" required>
-                  <input
-                    type="time"
-                    value={startsAt}
-                    onChange={(event) => setStartsAt(event.target.value)}
-                    className={`${inputClass} w-32`}
-                  />
-                </Field>
-                <Field label="Jusqu’à">
-                  <input
-                    type="time"
-                    value={endsAt}
-                    onChange={(event) => setEndsAt(event.target.value)}
-                    className={`${inputClass} w-32`}
-                  />
-                </Field>
+              <div role="radiogroup" aria-label="Les plages indiquent" className="flex flex-wrap gap-2">
+                {MODES.map((mode) => (
+                  <button
+                    key={mode.label}
+                    type="button"
+                    role="radio"
+                    aria-checked={openWindows === mode.open}
+                    onClick={() => setOpenWindows(mode.open)}
+                    className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
+                      openWindows === mode.open
+                        ? "ember-gradient text-background"
+                        : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                    }`}
+                  >
+                    {mode.label}
+                  </button>
+                ))}
               </div>
-              <p className={`text-xs leading-relaxed ${windowEmpty ? "text-ember-3" : "text-faint"}`}>
-                {startsAt === ""
-                  ? "Indiquez l’heure de début, ou désactivez «\u00a0À heure fixe\u00a0» pour une fermeture à la main."
-                  : windowEmpty
-                    ? startsAt === endsAt
-                      ? "La fin doit être après le début."
-                      : `La fin tombe avant le début\u00a0: votre journée de service bascule à ${dayEndLabel(dayEndHour)}.`
-                    : endsAt === "" || serviceMinutes(endsAt, dayEndHour) === 0
-                      ? `Tout rouvre à la fin de la journée de service (${dayEndLabel(dayEndHour)}).`
-                      : toMinutes(endsAt) < toMinutes(startsAt)
-                        ? "Le créneau passe minuit\u00a0: il se rattache au jour où il commence."
-                        : `Rouvre à ${formatHeure(endsAt)}.`}
-              </p>
-              {startsAt !== "" && toMinutes(startsAt) < dayEndHour * 60 && (
+              {openWindows && (
                 <p className="text-xs leading-relaxed text-faint">
-                  Avant {dayEndLabel(dayEndHour)}, c’est encore la nuit de la
-                  veille&nbsp;: «&nbsp;lundi dès {formatHeure(startsAt)}&nbsp;»
-                  ferme dans la nuit de lundi à mardi.
+                  En dehors de ces plages, vos clients voient «&nbsp;Plus
+                  servi&nbsp;». Un jour sans plage, rien n’est servi.
                 </p>
               )}
+              <ul className="flex flex-col gap-3">
+                {windows.map((window, index) => (
+                  <li
+                    key={index}
+                    className="flex flex-col gap-3 rounded-xl border border-hairline p-3"
+                  >
+                    <DayPicker
+                      value={window.days}
+                      onChange={(days) => updateWindow(index, { days })}
+                    />
+                    <div className="flex flex-wrap items-end gap-3">
+                      <Field label="De" required>
+                        <input
+                          type="time"
+                          value={window.startsAt}
+                          aria-label={`Plage ${index + 1}, début`}
+                          onChange={(event) => updateWindow(index, { startsAt: event.target.value })}
+                          className={`${inputClass} w-32`}
+                        />
+                      </Field>
+                      <Field label="Jusqu’à">
+                        <input
+                          type="time"
+                          value={window.endsAt}
+                          aria-label={`Plage ${index + 1}, fin`}
+                          onChange={(event) => updateWindow(index, { endsAt: event.target.value })}
+                          className={`${inputClass} w-32`}
+                        />
+                      </Field>
+                      {windows.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setWindows((current) => current.filter((_, i) => i !== index))}
+                          className="ml-auto py-2.5 text-sm font-semibold text-muted transition-colors hover:text-ember-3"
+                        >
+                          Retirer
+                        </button>
+                      )}
+                    </div>
+                    <p className={`text-xs leading-relaxed ${hints[index].error ? "text-ember-3" : "text-faint"}`}>
+                      {hints[index].text}
+                    </p>
+                    {window.startsAt !== "" && toMinutes(window.startsAt) < dayEndHour * 60 && (
+                      <p className="text-xs leading-relaxed text-faint">
+                        Avant {dayEndLabel(dayEndHour)}, c’est encore la nuit de la
+                        veille&nbsp;: «&nbsp;lundi à {formatHeure(window.startsAt)}&nbsp;»
+                        tombe dans la nuit de lundi à mardi.
+                      </p>
+                    )}
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                onClick={() =>
+                  setWindows((current) => [
+                    ...current,
+                    { days: current[current.length - 1]?.days ?? ALL_DAYS, startsAt: "", endsAt: "" },
+                  ])
+                }
+                className="self-start rounded-full border border-dashed border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+              >
+                + Plage
+              </button>
             </>
           ) : (
             <p className="text-xs leading-relaxed text-faint">
@@ -266,10 +371,10 @@ export function FermeturesSettings({
       <div>
         <h2 className="font-display text-lg font-medium">Fermeture de la cuisine</h2>
         <p className="mt-1 text-sm leading-relaxed text-muted">
-          Arrêtez une partie de la carte à heure fixe, ou d’un geste pendant
-          le service depuis Commandes. Vos clients voient «&nbsp;Plus
-          servi&nbsp;» sur les plats concernés&nbsp;; tout rouvre à la fin de
-          la journée de service ({dayEndLabel(dayEndHour)}).
+          Arrêtez une partie de la carte à heure fixe, ne la servez qu’à ses
+          heures, ou coupez-la d’un geste pendant le service depuis Commandes.
+          Vos clients voient «&nbsp;Plus servi&nbsp;» sur les plats
+          concernés.
         </p>
       </div>
 
@@ -282,6 +387,7 @@ export function FermeturesSettings({
         <ul className="flex flex-col gap-2">
           {closures.map((closure) => {
             const active = closureActive(closure, clock, dayEndHour);
+            const suspended = liftedUntil(closure, clock, dayEndHour);
             return (
               <li key={closure.id}>
                 <button
@@ -305,9 +411,9 @@ export function FermeturesSettings({
                         À l’arrêt
                       </span>
                     ) : (
-                      liftedToday(closure, clock) && (
+                      suspended && (
                         <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px] font-semibold text-muted">
-                          Horaire suspendu aujourd’hui
+                          Horaire suspendu jusqu’à {suspended}
                         </span>
                       )
                     )}

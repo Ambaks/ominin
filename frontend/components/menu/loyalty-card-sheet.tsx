@@ -87,7 +87,7 @@ export function LoyaltyCardSheet({
         <div className="flex flex-col gap-6 px-5 pb-8 pt-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 id={titleId} className="font-display text-2xl font-medium">
+              <h3 id={titleId} className="loyalty-sheet-title font-display text-2xl font-medium">
                 Ma carte
               </h3>
               <p className="text-xs text-muted">

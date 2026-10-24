@@ -392,7 +392,7 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
 const closuresQuery = (supabase: Client, etablissementId: string) =>
   supabase
     .from("closures")
-    .select("*, closure_targets(*)")
+    .select("*, closure_windows(*), closure_targets(*)")
     .eq("etablissement_id", etablissementId)
     .order("created_at", { ascending: true });
 

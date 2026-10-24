@@ -340,8 +340,11 @@ function shared(names: string[]): string {
     : names.join(", ");
 }
 
-/** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
-export function AddToOrder({ item }: { item: MenuItem }) {
+/**
+ * Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a ;
+ * `format` y coche d'avance ce format (l'offre de happy hour : le 50 cl).
+ */
+export function AddToOrder({ item, format }: { item: MenuItem; format?: string }) {
   const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, collect } =
     useCart();
   const [modalOpen, setModalOpen] = useState(false);
@@ -462,6 +465,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       {modalOpen && (
         <OptionsModal
           item={item}
+          format={format}
           onClose={() => {
             setModalOpen(false);
             revealAboveCartBar(buttonRef.current);
@@ -480,17 +484,23 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 export function OptionsModal({
   item,
   reward,
+  format,
   onClose,
   onAdded,
 }: {
   item: MenuItem;
   reward?: { id: string; points: number };
+  /** Un choix du groupe des formats, coché d'avance. */
+  format?: string;
   onClose: () => void;
   onAdded: () => void;
 }) {
   const { addLine, track } = useCart();
   const groups = item.options ?? [];
-  const [selected, setSelected] = useState<Record<string, string[]>>({});
+  const [selected, setSelected] = useState<Record<string, string[]>>(() => {
+    const formats = groups.find((group) => group.formats);
+    return formats && format ? { [formats.id]: [format] } : {};
+  });
   // Un plat offert se compose seul : ses accords se paieraient en euros.
   const sheetPairings = useSheetPairings(item.id);
   const pairings = reward ? [] : sheetPairings;
