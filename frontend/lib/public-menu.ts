@@ -1,8 +1,9 @@
-import type { OpeningHours } from "@/lib/collect/hours";
+import { parisParts, type OpeningHours } from "@/lib/collect/hours";
 import { assembleCategories, rowToAffiche, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
 import { itemFormatsLine } from "@/lib/menu/format";
+import { windowAt } from "@/lib/menu/happy-hour";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
 import { getRestaurant, type CategoryLayout, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
@@ -181,15 +182,19 @@ export async function fetchRestaurant(slug: string): Promise<{
   // (la base le refuserait) ; une étape obligatoire vidée emporte sa formule,
   // une facultative disparaît (formule_line n'exige que les obligatoires), et
   // une formule sans plus aucune étape ne se vend pas à vide.
-  // Hors de ses jours, la formule n'apparaît pas (formule_du_jour en base).
+  // Hors de ses jours ou de ses heures, la formule n'apparaît pas
+  // (formule_du_jour et dans_les_heures en base).
   const today = serviceIsoDay(
     etablissement.etablissement_settings?.day_end_hour ?? 0
   );
+  const minutes = parisParts(new Date()).minutes;
   const formules = etablissement.formules
     .map(rowToFormule)
     .filter(
       (formule) =>
-        formule.disponible && (!formule.days || formule.days.includes(today))
+        formule.disponible &&
+        (!formule.days || formule.days.includes(today)) &&
+        (!formule.hours || windowAt(formule.hours, minutes) !== null)
     )
     .map((formule) => ({
       ...formule,

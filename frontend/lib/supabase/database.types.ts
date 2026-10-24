@@ -1902,11 +1902,13 @@ export type Database = {
           days: number[] | null
           description: string | null
           disponible: boolean
+          ends_at: string | null
           etablissement_id: string
           etapes: Json
           id: string
           name: string
           price: number
+          starts_at: string | null
         }
         Insert: {
           affiche_id?: string | null
@@ -1915,11 +1917,13 @@ export type Database = {
           days?: number[] | null
           description?: string | null
           disponible?: boolean
+          ends_at?: string | null
           etablissement_id: string
           etapes?: Json
           id?: string
           name: string
           price: number
+          starts_at?: string | null
         }
         Update: {
           affiche_id?: string | null
@@ -1928,11 +1932,13 @@ export type Database = {
           days?: number[] | null
           description?: string | null
           disponible?: boolean
+          ends_at?: string | null
           etablissement_id?: string
           etapes?: Json
           id?: string
           name?: string
           price?: number
+          starts_at?: string | null
         }
         Relationships: [
           {
@@ -6379,9 +6385,11 @@ export type Database = {
         Args: { p_at?: string; p_etablissement: string }
         Returns: {
           choice_id: string | null
+          ends_at: string | null
           item_id: string
           price: number
           rule_name: string
+          starts_at: string | null
         }[]
       }
       ungroup_tables: { Args: { p_group_id: string }; Returns: undefined }

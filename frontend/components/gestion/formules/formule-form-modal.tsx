@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { HoursField } from "@/components/gestion/hours-field";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { PriceInput } from "@/components/ui/price-input";
@@ -46,6 +47,9 @@ export function FormuleFormModal({
   const [days, setDays] = useState<number[]>(
     formule?.days ?? WEEK_DAYS.map((day) => day.iso)
   );
+  const [allDay, setAllDay] = useState(!formule?.hours);
+  const [startsAt, setStartsAt] = useState(formule?.hours?.startsAt.slice(0, 5) ?? "");
+  const [endsAt, setEndsAt] = useState(formule?.hours?.endsAt.slice(0, 5) ?? "");
   const [etapes, setEtapes] = useState<EtapeDraft[]>(
     formule ? etapesToDraft(formule.etapes) : [emptyEtape()]
   );
@@ -56,7 +60,8 @@ export function FormuleFormModal({
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    if (!name.trim() || parsedPrice === null || days.length === 0) return;
+    const hoursValid = allDay || (startsAt !== "" && endsAt !== "" && startsAt !== endsAt);
+    if (!name.trim() || parsedPrice === null || days.length === 0 || !hoursValid) return;
 
     const input: api.FormuleInput = {
       name: name.trim(),
@@ -67,6 +72,7 @@ export function FormuleFormModal({
         days.length === WEEK_DAYS.length
           ? undefined
           : [...days].sort((a, b) => a - b),
+      hours: allDay ? undefined : { startsAt, endsAt },
       etapes: draftToEtapes(etapes),
       affiche: formule ? formule.affiche : slot,
     };
@@ -188,6 +194,25 @@ export function FormuleFormModal({
             Jours de service : la soirée compte jusqu&rsquo;à l&rsquo;heure de
             fin de journée de l&rsquo;établissement.
           </span>
+        </div>
+
+        <div className="flex flex-col gap-1.5">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+            Heures
+          </span>
+          <HoursField
+            allDay={allDay}
+            onAllDayChange={setAllDay}
+            startsAt={startsAt}
+            onStartsAtChange={setStartsAt}
+            endsAt={endsAt}
+            onEndsAtChange={setEndsAt}
+          />
+          {!allDay && (
+            <span className="text-xs text-faint">
+              Proposée seulement à ces heures, avec la happy hour sur le menu client.
+            </span>
+          )}
         </div>
 
         <Field label="Étapes">

@@ -144,12 +144,20 @@ export interface MenuItem {
   tarif?: AppliedTarif;
 }
 
+/** Les heures d'une règle de tarif (« 15:00:00 » à « 20:00:00 ») ; la fin peut passer minuit. */
+export interface RuleHours {
+  startsAt: string;
+  endsAt: string;
+}
+
 /** Le tarif planifié en cours sur un article, tel qu'on l'explique au client. */
 export interface AppliedTarif {
   /** Nom donné par le restaurant : « Tarif week-end ». */
   name: string;
   /** Prix de la carte, à barrer quand la règle est une remise. */
   basePrice: number;
+  /** Absent : la règle vaut toute la journée, ou elle ne vise qu'un format (le sien porte ses heures). */
+  hours?: RuleHours;
 }
 
 export interface MenuCategory {
@@ -166,6 +174,12 @@ export interface MenuCategory {
    * « chaudes » : la salutation porte une tasse, sinon un verre à pied.
    */
   boissons?: true | "chaudes";
+  /**
+   * Section faite d'articles repris d'autres catégories (la happy hour) :
+   * ceux qui viennent d'une catégorie de boissons, qui suivent sa règle
+   * (pas d'allergènes sur la fiche) quand la section mêle plats et verres.
+   */
+  drinkItemIds?: string[];
   /**
    * Une longue liste à parcourir d'un coup d'œil : deux articles par rangée
    * au téléphone, la photo en vignette ronde à côté du nom (CompactCard).

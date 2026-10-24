@@ -1,5 +1,5 @@
 import type { OpeningHours } from "@/lib/collect/hours";
-import type { CategoryLayout, MenuCategory, OptionGroup } from "@/lib/menu-data";
+import type { CategoryLayout, MenuCategory, OptionGroup, RuleHours } from "@/lib/menu-data";
 import type { VisiteId } from "./visites";
 
 export type Offre = "digital" | "smart" | "connect";
@@ -278,6 +278,8 @@ export interface Formule {
   disponible: boolean;
   /** Jours de service où elle est proposée (1 = lundi … 7) ; absent = tous. */
   days?: number[];
+  /** Ses heures (« 09:00:00 » → « 10:30:00 ») ; absent = toute la journée. */
+  hours?: RuleHours;
   etapes: Etape[];
   /** Son emplacement sur une affiche des offres (rang 1 = à gauche) ; absent ⇒ tuile. */
   affiche?: { id: string; rang: number };

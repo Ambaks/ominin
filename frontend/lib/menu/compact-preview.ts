@@ -1,4 +1,4 @@
-import type { MenuCategory } from "@/lib/menu-data";
+import type { MenuCategory, MenuItem } from "@/lib/menu-data";
 import { pexels } from "./images";
 
 /*
@@ -181,20 +181,17 @@ const PREVIEW: Record<string, Record<string, string>> = {
   },
 };
 
+/**
+ * La vignette ne montre ni accord, ni pastille, ni mention, ni délai : une
+ * section qui en porte reste en lignes.
+ */
+export const fitsVignette = (item: MenuItem) =>
+  !item.pairing && !item.badges?.length && !item.tags?.length && !item.spice && !item.noticeHours;
+
 export function withCompactPreview(slug: string, categories: MenuCategory[]): MenuCategory[] {
   return categories.map((category) => {
     const photos = PREVIEW[`${slug}/${category.name}`];
-    // La vignette ne montre ni accord, ni pastille, ni mention, ni délai :
-    // une section qui en porte reste en lignes.
-    const plain = category.items.every(
-      (item) =>
-        !item.pairing &&
-        !item.badges?.length &&
-        !item.tags?.length &&
-        !item.spice &&
-        !item.noticeHours
-    );
-    if (!photos || !plain) {
+    if (!photos || !category.items.every(fitsVignette)) {
       return category;
     }
     return {

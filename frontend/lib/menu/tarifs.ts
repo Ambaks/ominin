@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { MenuCategory, MenuItem } from "@/lib/menu-data";
+import type { MenuCategory, MenuItem, RuleHours } from "@/lib/menu-data";
 import type { Database } from "@/lib/supabase/database.types";
 
 /*
@@ -15,6 +15,8 @@ import type { Database } from "@/lib/supabase/database.types";
 export interface Tarif {
   price: number;
   ruleName: string;
+  /** null : la règle vaut toute la journée. */
+  hours: RuleHours | null;
 }
 
 /**
@@ -38,7 +40,14 @@ export async function fetchActiveTarifs(
   return new Map(
     (data ?? []).map((row) => [
       tarifKey(row.item_id, row.choice_id),
-      { price: Number(row.price), ruleName: row.rule_name },
+      {
+        price: Number(row.price),
+        ruleName: row.rule_name,
+        hours:
+          row.starts_at && row.ends_at
+            ? { startsAt: row.starts_at, endsAt: row.ends_at }
+            : null,
+      },
     ])
   );
 }
@@ -60,7 +69,7 @@ export function effectiveTarif(
   return null;
 }
 
-const cents = (amount: number) => Math.round(amount * 100) / 100;
+export const cents = (amount: number) => Math.round(amount * 100) / 100;
 
 /**
  * Un article au prix du moment. Quand un format a son propre tarif (le verre
@@ -78,7 +87,7 @@ function withTarif(item: MenuItem, tarifs: TarifMap): MenuItem {
   });
   const ruleName = (own ?? formatTarifs[0])?.ruleName;
   if (!ruleName) return item;
-  const tarif = { name: ruleName, basePrice: item.price };
+  const tarif = { name: ruleName, basePrice: item.price, ...(own?.hours && { hours: own.hours }) };
   if (!formats || formatTarifs.length === 0) return { ...item, price, tarif };
 
   const full = formats.choices.map(
@@ -91,7 +100,11 @@ function withTarif(item: MenuItem, tarifs: TarifMap): MenuItem {
       ...choice,
       supplement: cents(full[index] - base),
       ...(choiceTarif && {
-        tarif: { name: choiceTarif.ruleName, basePrice: cents(item.price + choice.supplement) },
+        tarif: {
+          name: choiceTarif.ruleName,
+          basePrice: cents(item.price + choice.supplement),
+          ...(choiceTarif.hours && { hours: choiceTarif.hours }),
+        },
       }),
     };
   });

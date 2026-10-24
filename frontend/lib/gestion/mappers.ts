@@ -103,6 +103,8 @@ export function rowToFormule(row: Tables<"formules">): Formule {
     price: Number(row.price),
     disponible: row.disponible,
     days: row.days ?? undefined,
+    hours:
+      row.starts_at && row.ends_at ? { startsAt: row.starts_at, endsAt: row.ends_at } : undefined,
     etapes: row.etapes as unknown as Etape[],
     affiche:
       row.affiche_id && row.affiche_rang

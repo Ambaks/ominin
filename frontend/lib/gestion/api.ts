@@ -342,6 +342,8 @@ function formuleColumns(
     price: input.price,
     disponible: input.disponible,
     days: input.days ?? null,
+    starts_at: input.hours?.startsAt ?? null,
+    ends_at: input.hours?.endsAt ?? null,
     etapes: toJson(input.etapes),
     affiche_id: input.affiche?.id ?? null,
     affiche_rang: input.affiche?.rang ?? null,
