@@ -127,7 +127,6 @@ export default function MenuPage() {
   const editingCategoryId = editingItem
     ? categories.find((c) => c.items.some((item) => item.id === editingItem.id))?.id
     : undefined;
-  const menuItems = categories.flatMap((c) => c.items);
   // Les tarifs planifiés se règlent ici, devant l'article ou la catégorie
   // qu'ils touchent — c'est là que le gérant regarde ses prix.
   const canTarif = can("etablissement.edit");
@@ -448,7 +447,7 @@ export default function MenuPage() {
         <FormuleFormModal
           formule={editingFormule ?? undefined}
           slot={formuleSlot}
-          menuItems={menuItems}
+          categories={categories}
           onClose={() => {
             setCreatingFormule(false);
             setEditingFormule(null);

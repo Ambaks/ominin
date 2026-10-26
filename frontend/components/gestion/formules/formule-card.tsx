@@ -6,7 +6,8 @@ import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
 import { formatHeure } from "@/lib/gestion/fermetures";
 import { formatDays } from "@/lib/gestion/format";
-import { useGestionAccess } from "@/lib/gestion/store";
+import { etapeArticles } from "@/lib/gestion/formules";
+import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Formule } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 
@@ -22,6 +23,7 @@ export function FormuleCard({
   const { can } = useGestionAccess();
   const run = useRunMutation();
   const canEdit = can("formules.edit");
+  const categories = useGestion()?.categories ?? [];
 
   return (
     <article
@@ -58,7 +60,7 @@ export function FormuleCard({
             key={etape.id}
             className="rounded-full border border-hairline px-2.5 py-1 text-[11px] text-muted"
           >
-            {etape.name} · {etape.articles.length} choix
+            {etape.name} · {etapeArticles(etape, categories).length} choix
           </span>
         ))}
       </div>
