@@ -1,0 +1,39 @@
+# Tests SQL de l'espace commercial
+
+Scripts d'assertions des lots 1 à 3 (cahier `docs/espace-commercial.md`, suivi
+dans `docs/espace-commercial-suivi.md`). Chaque script rejoue un critère
+d'acceptation en appelant les fonctions comme le ferait PostgREST : sous le
+rôle `authenticated` d'un commercial A, d'un commercial B, d'un admin, ou sous
+`service_role`. Tout tourne dans une transaction annulée à la fin.
+
+## Lancer
+
+Docker Desktop démarré, depuis la racine du dépôt (Git Bash) :
+
+```sh
+bash supabase/tests/commercial/run.sh              # base neuve + tous les tests
+SKIP_SETUP=1 bash supabase/tests/commercial/run.sh 03   # relancer un script sur la base déjà montée
+KEEP=0 bash supabase/tests/commercial/run.sh       # supprimer le conteneur à la fin
+```
+
+`run.sh` démarre un Postgres 16 jetable (`postgis/postgis:16-3.4-alpine`,
+conteneur `omicom-pg`, port 54371), applique `supabase/tests/stubs.sql` (ce que
+la plateforme Supabase fournit : rôles, `auth`, `storage`, extensions), puis
+toutes les migrations, puis chaque `NN_*.sql` avec `psql -v ON_ERROR_STOP=1`,
+et enfin `concurrence.sh` (deux sessions réelles qui déclarent le même
+restaurant). Le premier échec arrête tout et affiche `ÉCHEC : <critère>`.
+
+Les constantes du contrat sont lues dans `frontend/lib/legal/constants.ts` et
+passées à `psql` (`-v CONFIRM_DAYS=7` …) : `01_reglages.sql` vérifie que
+`commercial_settings` les recopie.
+
+## Fichiers
+
+- `fixtures.inc` : comptes (admin, commerciaux A, B, C non signé, D terminé),
+  version du contrat, restaurants libres et cas de refus ; aides `pg_temp.act`,
+  `pg_temp.ok`, `pg_temp.fails`.
+- `01_reglages.sql` : réglages, droits sur les fonctions, quotas (critère 2 bis).
+- `02_declarations.sql` : déclarer, confirmer, refuser, échéances (critères 1 à 5, 10).
+- `03_visibilite.sql` : ce que voit chacun, passage sans suite, recherche (critères 6, 7).
+- `04_reflet.sql` : reflet `crm_leads`, Léa, opposition, fin de contrat, admin (critères 8, 9, 9 bis, 9 ter ; 13.2).
+- `concurrence.sh` : deux déclarations simultanées (critère 3).
