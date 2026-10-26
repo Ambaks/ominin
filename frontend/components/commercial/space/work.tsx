@@ -304,7 +304,7 @@ export function Contacts({ sheet, onChange }: { sheet: Sheet; onChange: () => vo
     <section className="flex flex-col gap-2.5">
       <SectionTitle
         aside={
-          <button type="button" onClick={() => setEditing({ role: "" })} className="text-sm font-semibold text-ember-1">
+          <button type="button" onClick={() => setEditing({ role: "" })} className="inline-flex min-h-11 items-center text-sm font-semibold text-ember-1">
             + Ajouter
           </button>
         }

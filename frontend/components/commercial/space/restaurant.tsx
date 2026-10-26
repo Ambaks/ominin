@@ -96,7 +96,7 @@ export function RestaurantScreen({ id }: { id: string }) {
   return (
     <div className="flex flex-col gap-7">
       <div>
-        <Link href={spaceHref("/restaurants")} className="mb-3 inline-flex items-center gap-1 text-sm text-muted">
+        <Link href={spaceHref("/restaurants")} className="mb-1 inline-flex min-h-11 items-center gap-1 text-sm text-muted">
           <ChevronLeftIcon className="size-4" />
           Restaurants
         </Link>

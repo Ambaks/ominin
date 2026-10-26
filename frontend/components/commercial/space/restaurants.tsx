@@ -217,7 +217,7 @@ export function RestaurantsScreen() {
       <section className="flex flex-col gap-2.5">
         <SectionTitle
           aside={
-            <Link href={spaceHref("/restaurants/nouveau")} className="text-sm font-semibold text-ember-1">
+            <Link href={spaceHref("/restaurants/nouveau")} className="inline-flex min-h-11 items-center text-sm font-semibold text-ember-1">
               + Ajouter
             </Link>
           }
