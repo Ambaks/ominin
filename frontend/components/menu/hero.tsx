@@ -322,8 +322,8 @@ function PosterHero({
           )}
         </div>
         <h1 className="sr-only">{brandName(restaurant)}</h1>
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
         {saison && <SaisonFrame saison={saison} />}
+        <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
       </div>
 
       {banner}

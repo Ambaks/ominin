@@ -67,8 +67,11 @@
   container-type: size;
 }
 
+/* Avant le fondu bas du hero, qui reste le dernier calque du cadre (le
+   velours le masque ainsi, panis-backdrop.css), et pourtant devant lui. */
 .saison-frame {
   position: absolute;
+  z-index: 1;
   inset: 0;
   overflow: hidden;
 }
