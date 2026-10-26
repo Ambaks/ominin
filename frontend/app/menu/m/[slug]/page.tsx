@@ -13,6 +13,7 @@ import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
+import { SaisonAmbient } from "@/components/menu/saison/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
@@ -99,7 +100,7 @@ export default async function MenuPage({
   const data = await getRestaurant(slug);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
-  const { restaurant, serviceMode, callServer, loyalty, formules } = data;
+  const { restaurant, serviceMode, callServer, loyalty, formules, saison } = data;
 
   // Les affiches des offres se montrent sous l'affiche du restaurant ; sans
   // elle, en tête de la section des formules, avant les tuiles de celles
@@ -185,6 +186,7 @@ export default async function MenuPage({
           data-menu-root
           data-slug={slug}
           data-service={fastFood ? "fast-food" : undefined}
+          data-saison={saison ?? undefined}
           className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
           {/* « < » échappé : un nom ou une description contenant
@@ -203,7 +205,9 @@ export default async function MenuPage({
             banner={
               affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
             }
+            saison={saison ?? undefined}
           />
+          {saison && <SaisonAmbient saison={saison} />}
           <MenuHighlights highlights={restaurant.highlights} />
           {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
               tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
