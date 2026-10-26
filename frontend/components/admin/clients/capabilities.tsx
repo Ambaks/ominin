@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -248,13 +248,26 @@ function CategoryLayoutCard({
   );
 }
 
-const SAISON_CHOICES: { id: Saison | null; label: string; body: string }[] = [
-  { id: null, label: "Aucune", body: "Le menu tel que le restaurant l'a voulu." },
-  { id: "automne", label: "Automne", body: "Lanternes dorées, feuilles qui tombent sur toute la carte." },
+const SAISON_CHOICES: { id: Saison | null; label: string; body: string; icon: React.ReactNode }[] = [
+  {
+    id: null,
+    label: "Aucune",
+    body: "Le menu tel que le restaurant l'a voulu.",
+    icon: <path d="M6 3h12v18H6zM9.5 8h5M9.5 12h5M9.5 16h3" />,
+  },
+  {
+    id: "automne",
+    label: "Automne",
+    body: "Des feuilles qui tombent sur toute la carte.",
+    icon: <path d="M5 19C5 10.5 10.5 5 20 4c-.5 9.5-6 15-15 15zM5 19l9-9" />,
+  },
   {
     id: "halloween",
     label: "Halloween",
-    body: "La nuit, la lune, la sorcière, les toiles, l'araignée, les fantômes et le chat noir.",
+    body: "La carte passe à la nuit : feuilles, araignée, fantômes et chat noir. Toiles, brume et citrouilles sur le cadre de l'affiche, s'il y en a une.",
+    icon: (
+      <path d="M12 7c-5 0-8 2.7-8 6.5S7 20 12 20s8-2.7 8-6.5S17 7 12 7zM12 7c-1.8 1.7-2.5 4-2.5 6.5S10.2 18.3 12 20M12 7c1.8 1.7 2.5 4 2.5 6.5S13.8 18.3 12 20M12 7V4.5c0-.8.7-1.5 1.5-1.5" />
+    ),
   },
 ];
 
@@ -265,7 +278,12 @@ function finLabel(fin: string): string {
 /*
  * L'habillage de saison du menu QR. Ominin seul le pose : le gérant ne le
  * voit pas dans sa gestion. La date de fin est le dernier jour de service où
- * il s'affiche ; sans date, il reste jusqu'à ce qu'on l'éteigne ici.
+ * il s'affiche ; sans date, il reste jusqu'à ce qu'on repasse sur « Aucune ».
+ *
+ * La date ne s'enregistre qu'une fois saisie : à la sortie du champ, sur
+ * Entrée, ou au choix dans le calendrier. Chrome publie une valeur dès le
+ * premier chiffre de l'année (0002-10-31) ; l'enregistrer éteindrait la saison
+ * en pleine frappe.
  */
 function SaisonCard({
   client,
@@ -276,6 +294,8 @@ function SaisonCard({
 }) {
   const toast = useToast();
   const [saving, setSaving] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const keyDown = useRef(false);
 
   const persist = async (saison: Saison | null, saisonFin: string | null) => {
     const previous = client;
@@ -292,22 +312,43 @@ function SaisonCard({
     }
   };
 
-  const shown = activeSaison(client.saison, client.saisonFin, client.dayEndHour);
-  const status = !client.saison
-    ? null
-    : !shown
-      ? `Date passée (${finLabel(client.saisonFin as string)}) : le menu ne l'affiche plus.`
-      : client.saisonFin
-        ? `Sur le menu jusqu'à la fermeture du ${finLabel(client.saisonFin)}.`
-        : "Sur le menu jusqu'à ce qu'on l'éteigne ici.";
+  // Une date à moitié tapée (validity.badInput) n'efface pas celle enregistrée.
+  const commitFin = (input: HTMLInputElement) => {
+    setDraft(null);
+    if (input.validity.badInput) return;
+    const fin = input.value || null;
+    if (fin !== client.saisonFin) void persist(client.saison, fin);
+  };
+
+  const fin = client.saisonFin;
+  const status = !client.saison ? null : fin === null ? (
+    <p role="status" className="text-xs leading-relaxed text-muted">
+      Reste sur le menu jusqu&rsquo;à ce que vous choisissiez « Aucune ».
+    </p>
+  ) : activeSaison(client.saison, fin, client.dayEndHour) ? (
+    <p role="status" className="text-xs leading-relaxed text-muted">
+      Sur le menu jusqu&rsquo;à la fermeture du {finLabel(fin)}, puis il retrouve son
+      habillage habituel.
+    </p>
+  ) : (
+    <p
+      role="status"
+      className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-ember-1/40 bg-ember-1/10 px-3 py-2 text-xs leading-relaxed"
+    >
+      <span className="rounded-full border border-ember-1/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-1">
+        Date passée
+      </span>
+      Le {finLabel(fin)} est passé : le menu ne montre plus la saison.
+    </p>
+  );
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-3 pb-2">
       <div>
         <h3 className="font-display text-base font-medium">Saison du menu QR</h3>
-        <p className="mt-0.5 text-xs leading-relaxed text-faint">
-          Posée par Ominin seulement : le gérant ne la voit pas dans sa gestion. Le menu
-          la montre à la prochaine mise à jour de son cache, en une minute au plus.
+        <p className="mt-0.5 text-xs leading-relaxed text-muted">
+          Réservée à Ominin : le gérant ne la voit pas dans sa gestion. Le menu
+          l&rsquo;affiche en une minute environ.
         </p>
       </div>
       <div role="radiogroup" aria-label="Saison du menu QR" className="grid gap-3 sm:grid-cols-3">
@@ -326,7 +367,21 @@ function SaisonCard({
               }`}
             >
               <span className="flex items-center justify-between gap-3">
-                <span className="font-display text-base font-medium">{option.label}</span>
+                <span className="flex items-center gap-2.5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className={`size-5 ${selected ? "text-ember-1" : "text-muted"}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    {option.icon}
+                  </svg>
+                  <span className="font-display text-base font-medium">{option.label}</span>
+                </span>
                 <span
                   aria-hidden
                   className={`flex size-5 items-center justify-center rounded-full border ${
@@ -341,15 +396,32 @@ function SaisonCard({
           );
         })}
       </div>
+      <p className="text-xs leading-relaxed text-muted">
+        Lune, sorcière, chauves-souris et lanternes allumées ne se posent que sur
+        une affiche dont Ominin a relevé les repères.
+      </p>
       {client.saison && (
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-medium text-muted">Jusqu&rsquo;au (inclus)</span>
             <input
               type="date"
-              value={client.saisonFin ?? ""}
-              disabled={saving}
-              onChange={(event) => void persist(client.saison, event.target.value || null)}
+              value={draft ?? client.saisonFin ?? ""}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") commitFin(event.currentTarget);
+                else keyDown.current = true;
+              }}
+              onKeyUp={() => {
+                keyDown.current = false;
+              }}
+              onChange={(event) => {
+                if (keyDown.current) setDraft(event.target.value);
+                else commitFin(event.currentTarget);
+              }}
+              onBlur={(event) => {
+                keyDown.current = false;
+                if (draft !== null) commitFin(event.currentTarget);
+              }}
               className={inputClass}
             />
           </label>
@@ -358,14 +430,14 @@ function SaisonCard({
               type="button"
               onClick={() => void persist(client.saison, null)}
               disabled={saving}
-              className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40 disabled:opacity-50"
             >
               Sans date de fin
             </button>
           )}
         </div>
       )}
-      {status && <p className="text-xs leading-relaxed text-faint">{status}</p>}
+      {status}
     </section>
   );
 }
