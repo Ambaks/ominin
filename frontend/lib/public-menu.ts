@@ -278,6 +278,7 @@ export async function fetchRestaurant(slug: string): Promise<{
       suivi: staticData?.suivi,
       poster: staticData?.poster,
       affiches,
+      formulesPill: staticData?.formulesPill,
       highlights: staticData?.highlights,
       ticker: staticData?.ticker,
       categoryLayout: etablissement.category_layout as CategoryLayout,

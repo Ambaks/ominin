@@ -297,6 +297,11 @@ export interface Restaurant {
    * section des formules.
    */
   affiches?: AfficheMenu[];
+  /**
+   * Affiches et formules dans une pastille en bas à gauche
+   * (components/menu/formules-pill.tsx), plus en tête de carte.
+   */
+  formulesPill?: boolean;
   address: string;
   phone: string;
   hours: string;
@@ -780,6 +785,7 @@ const boho: Restaurant = {
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
   poster: "/boho/poster.webp",
+  formulesPill: true,
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
