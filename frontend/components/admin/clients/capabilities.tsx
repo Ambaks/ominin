@@ -280,10 +280,12 @@ function finLabel(fin: string): string {
  * voit pas dans sa gestion. La date de fin est le dernier jour de service où
  * il s'affiche ; sans date, il reste jusqu'à ce qu'on repasse sur « Aucune ».
  *
- * La date ne s'enregistre qu'une fois saisie : à la sortie du champ, sur
- * Entrée, ou au choix dans le calendrier. Chrome publie une valeur dès le
- * premier chiffre de l'année (0002-10-31) ; l'enregistrer éteindrait la saison
- * en pleine frappe.
+ * Chrome publie une valeur dès le premier chiffre de l'année (0002-10-31) ;
+ * l'enregistrer éteindrait la saison en pleine frappe, comme « 01 » tapé
+ * avant « 31 ». Une date à venir s'enregistre aussitôt (choix dans le
+ * calendrier, frappe achevée) ; le reste attend la sortie du champ ou Entrée,
+ * et une saisie incomplète ou d'une année passée y retrouve la date
+ * enregistrée.
  */
 function SaisonCard({
   client,
@@ -293,53 +295,58 @@ function SaisonCard({
   onChange: (client: Client) => void;
 }) {
   const toast = useToast();
-  const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState<string | null>(null);
-  const keyDown = useRef(false);
+  const queue = useRef(Promise.resolve());
+  const latest = useRef(0);
+  const saved = useRef({ saison: client.saison, saisonFin: client.saisonFin });
 
-  const persist = async (saison: Saison | null, saisonFin: string | null) => {
-    const previous = client;
+  // Les écritures partent l'une après l'autre : la dernière demandée l'emporte
+  // en base comme à l'écran. Seul l'échec de la dernière ramène l'écran à ce
+  // que la base contient.
+  const persist = (saison: Saison | null, saisonFin: string | null) => {
     const next = { ...client, saison, saisonFin: saison ? saisonFin : null };
+    const write = ++latest.current;
     onChange(next);
-    setSaving(true);
-    try {
-      await saveSaison(client.id, next.saison, next.saisonFin);
-    } catch (error) {
-      onChange(previous);
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  // Une date à moitié tapée (validity.badInput) n'efface pas celle enregistrée.
-  const commitFin = (input: HTMLInputElement) => {
-    setDraft(null);
-    if (input.validity.badInput) return;
-    const fin = input.value || null;
-    if (fin !== client.saisonFin) void persist(client.saison, fin);
+    queue.current = queue.current.then(async () => {
+      try {
+        await saveSaison(next.id, next.saison, next.saisonFin);
+        saved.current = { saison: next.saison, saisonFin: next.saisonFin };
+      } catch (error) {
+        if (write === latest.current) onChange({ ...next, ...saved.current });
+        toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      }
+    });
   };
 
   const fin = client.saisonFin;
+
+  const plausible = (value: string) => parseInt(value, 10) >= new Date().getFullYear();
+
+  const saveFin = (value: string | null) => {
+    setDraft(null);
+    if (value !== fin) persist(client.saison, value);
+  };
+
+  const commitFin = (input: HTMLInputElement) => {
+    if (input.validity.badInput || (input.value && !plausible(input.value))) {
+      setDraft(null);
+      input.value = fin ?? "";
+    } else {
+      saveFin(input.value || null);
+    }
+  };
+
   const status = !client.saison ? null : fin === null ? (
-    <p role="status" className="text-xs leading-relaxed text-muted">
-      Reste sur le menu jusqu&rsquo;à ce que vous choisissiez « Aucune ».
-    </p>
+    "Reste sur le menu jusqu’à ce que vous choisissiez « Aucune »."
   ) : activeSaison(client.saison, fin, client.dayEndHour) ? (
-    <p role="status" className="text-xs leading-relaxed text-muted">
-      Sur le menu jusqu&rsquo;à la fermeture du {finLabel(fin)}, puis il retrouve son
-      habillage habituel.
-    </p>
+    `Sur le menu jusqu’à la fermeture du ${finLabel(fin)}, puis il retrouve son habillage habituel.`
   ) : (
-    <p
-      role="status"
-      className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-ember-1/40 bg-ember-1/10 px-3 py-2 text-xs leading-relaxed"
-    >
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-ember-1/40 bg-ember-1/10 px-3 py-2 text-foreground">
       <span className="rounded-full border border-ember-1/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-1">
         Date passée
       </span>
       Le {finLabel(fin)} est passé : le menu ne montre plus la saison.
-    </p>
+    </span>
   );
 
   return (
@@ -360,9 +367,8 @@ function SaisonCard({
               type="button"
               role="radio"
               aria-checked={selected}
-              disabled={saving}
-              onClick={() => selected || void persist(option.id, client.saisonFin)}
-              className={`flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors disabled:cursor-wait ${
+              onClick={() => selected || persist(option.id, client.saisonFin)}
+              className={`flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors ${
                 selected ? "border-ember-2/60 bg-surface-raised" : "border-hairline hover:border-ember-2/30"
               }`}
             >
@@ -396,48 +402,45 @@ function SaisonCard({
           );
         })}
       </div>
-      <p className="text-xs leading-relaxed text-muted">
-        Lune, sorcière, chauves-souris et lanternes allumées ne se posent que sur
-        une affiche dont Ominin a relevé les repères.
-      </p>
+      {client.saison === "halloween" && (
+        <p className="text-xs leading-relaxed text-muted">
+          Lune, sorcière, chauves-souris et lanternes allumées ne se posent que sur
+          une affiche dont Ominin a relevé les repères.
+        </p>
+      )}
       {client.saison && (
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-medium text-muted">Jusqu&rsquo;au (inclus)</span>
             <input
               type="date"
-              value={draft ?? client.saisonFin ?? ""}
+              value={draft ?? fin ?? ""}
+              onChange={(event) => {
+                const { value } = event.target;
+                if (value && activeSaison(client.saison, value, client.dayEndHour)) saveFin(value);
+                else setDraft(value);
+              }}
               onKeyDown={(event) => {
                 if (event.key === "Enter") commitFin(event.currentTarget);
-                else keyDown.current = true;
               }}
-              onKeyUp={() => {
-                keyDown.current = false;
-              }}
-              onChange={(event) => {
-                if (keyDown.current) setDraft(event.target.value);
-                else commitFin(event.currentTarget);
-              }}
-              onBlur={(event) => {
-                keyDown.current = false;
-                if (draft !== null) commitFin(event.currentTarget);
-              }}
+              onBlur={(event) => commitFin(event.currentTarget)}
               className={inputClass}
             />
           </label>
-          {client.saisonFin && (
+          {fin && (
             <button
               type="button"
-              onClick={() => void persist(client.saison, null)}
-              disabled={saving}
-              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40 disabled:opacity-50"
+              onClick={() => persist(client.saison, null)}
+              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
             >
               Sans date de fin
             </button>
           )}
         </div>
       )}
-      {status}
+      <div role="status" className="text-xs leading-relaxed text-muted empty:-mt-3">
+        {status}
+      </div>
     </section>
   );
 }
@@ -578,7 +581,9 @@ export function Capabilities({
         <CategoryLayoutCard client={client} onChange={onChange} />
       )}
 
-      {client.products.offre && <SaisonCard client={client} onChange={onChange} />}
+      {client.products.offre && (
+        <SaisonCard key={client.id} client={client} onChange={onChange} />
+      )}
 
       <p className="text-xs leading-relaxed text-faint">
         Une case laissée telle que l&rsquo;offre la donne ne s&rsquo;enregistre

@@ -147,7 +147,7 @@
 .saison-lantern-face {
   aspect-ratio: 60 / 44;
   color: #ffc35c;
-  filter: drop-shadow(0 0 3px rgba(255, 150, 40, 0.95));
+  background: radial-gradient(closest-side, rgba(255, 150, 40, 0.45), transparent);
   animation: saison-flicker 2.3s linear infinite;
 }
 
@@ -163,8 +163,8 @@
   translate: -50% -50%;
   background:
     radial-gradient(ellipse 22% 46% at 22% 50%, #ffd45a 40%, transparent 72%),
-    radial-gradient(ellipse 22% 46% at 78% 50%, #ffd45a 40%, transparent 72%);
-  filter: drop-shadow(0 0 2px rgba(255, 190, 60, 0.9));
+    radial-gradient(ellipse 22% 46% at 78% 50%, #ffd45a 40%, transparent 72%),
+    radial-gradient(closest-side, rgba(255, 190, 60, 0.35), transparent);
   animation:
     saison-watch 9s infinite,
     saison-blink 3.3s infinite;
@@ -231,7 +231,7 @@
   color: #130c13;
   translate: -50% -50%;
   visibility: hidden;
-  animation: saison-fly 9s linear infinite both;
+  animation: saison-fly 24s linear infinite both;
 }
 
 .saison-bat svg,
@@ -273,11 +273,11 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 24%;
+  width: 30%;
   color: #120b14;
   translate: -50% -50%;
   visibility: hidden;
-  animation: saison-broom 22s 3s linear infinite both;
+  animation: saison-broom 24s linear infinite both;
 }
 
 .saison-witch svg {
@@ -397,12 +397,12 @@
   animation-delay: -17s;
 }
 
-/* Posées au-dessus du fondu bas du cadre (15 % sur le velours de BOHO,
-   panis-backdrop.css ; 4rem de dégradé ailleurs, hero.tsx) : entières, à
-   pleine lumière, sur le sol de l'affiche. */
+/* Posées bien au-dessus du fondu bas du cadre (15 % sur le velours de
+   BOHO, panis-backdrop.css ; 4rem de dégradé ailleurs, hero.tsx), entre
+   l'enseigne et l'accroche de l'affiche : entières, à pleine lumière. */
 .saison-pumpkin {
   position: absolute;
-  bottom: max(15%, 4.5rem);
+  bottom: max(23%, 4.5rem);
 }
 
 .saison-pumpkin--left {
@@ -424,9 +424,41 @@
 
 .saison-pumpkin-glow {
   position: absolute;
-  inset: -60% -50% -10%;
-  background: radial-gradient(ellipse at 50% 62%, rgba(var(--saison-glow), 0.36), transparent 62%);
+  inset: -45% -70%;
+  background: radial-gradient(closest-side, rgba(var(--saison-glow), 0.34), rgba(var(--saison-glow), 0.1) 55%, transparent);
   animation: saison-flicker 2.3s linear infinite;
+}
+
+/* Au bureau, le panorama : plus grandes, en retrait des bords. */
+@media (min-width: 64rem) {
+  .saison-pumpkin--left {
+    left: 56px;
+    width: 84px;
+  }
+
+  .saison-pumpkin--right {
+    right: 48px;
+    width: 66px;
+  }
+}
+
+/* La lueur des lanternes, posée sur le cadre (fondu normal) : deux halos
+   au sol, là où sont les citrouilles ; à l'automne, une lumière ambrée
+   tombe aussi du haut. */
+.saison-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 38% 22% at 6% 74%, rgba(var(--saison-glow), 0.26), transparent),
+    radial-gradient(ellipse 38% 22% at 94% 74%, rgba(var(--saison-glow), 0.22), transparent);
+}
+
+.saison-glow[data-saison="automne"] {
+  background:
+    linear-gradient(rgba(255, 150, 60, 0.2), rgba(255, 150, 60, 0.06) 40%, transparent 60%),
+    radial-gradient(ellipse 60% 30% at 50% 0, rgba(255, 170, 80, 0.22), transparent),
+    radial-gradient(ellipse 45% 26% at 4% 78%, rgba(255, 140, 50, 0.24), transparent),
+    radial-gradient(ellipse 45% 26% at 96% 78%, rgba(255, 140, 50, 0.2), transparent);
 }
 
 /* ——— Les feuilles : la chute (translate) et le balancement (transform) sur
@@ -465,11 +497,13 @@
   --drop: 100lvh;
 }
 
+/* Sur le hero, elles s'effacent dans le haut de l'affiche, avant le logo,
+   l'enseigne et l'accroche. */
 .saison-fall--frame {
   position: absolute;
   inset: 0;
   container-type: size;
-  --drop: 100cqh;
+  --drop: 34cqh;
 }
 
 .saison-leaf {
@@ -489,6 +523,18 @@
   animation: saison-tumble 6s linear infinite;
 }
 
+/* Au téléphone, la carte ne laisse que des marges étroites : trois
+   feuilles, plus petites, plutôt que des éclats derrière les fiches. */
+@media (width < 42rem) {
+  .saison-leaves .saison-leaf {
+    scale: 0.7;
+  }
+
+  .saison-leaves .saison-leaf:nth-child(n + 4) {
+    display: none;
+  }
+}
+
 /* ——— Fixés à l'écran, devant la carte : araignée, fantômes, chat ———
    Sous la barre du panier (z-40) et les feuilles modales. Araignée et
    fantômes partagent une boucle de 40 s, chacun dans son créneau. */
@@ -502,8 +548,8 @@
 
 /* Dans la marge droite des fiches : son fil ne barre ni prix ni bouton. */
 .saison-spider--drop {
-  right: 2px;
-  width: 22px;
+  right: 8px;
+  width: 16px;
 }
 
 .saison-spider--drop .saison-spider-line {
@@ -562,25 +608,39 @@
   animation: saison-blink 5s infinite;
 }
 
-/* Le chat n'existe que posé : sur la barre du panier, à son extrémité
-   gauche, ou sur une pastille d'offre (formules, happy hour), qui tient le
-   même coin, au-dessus de la barre s'il y en a une. Leurs hauteurs :
+/* Le chat guette derrière son perchoir (sous lui : z-30 contre z-40) : la
+   barre du panier, à son bout gauche, ou une pastille d'offre (formules,
+   happy hour), qui tient le même coin, au-dessus de la barre s'il y en a
+   une. Seuls ses oreilles et ses yeux dépassent (22 px) ; à chaque ajout,
+   il monte s'y asseoir, bondit, reste, redescend. Leurs hauteurs :
    globals.css (.offer-pill : pièce 2rem, retrait 2 × 0,25rem, filet 2 px ;
-   barre : 3,25rem posée à 1rem) et cart-bar.tsx (max-w-md centrée). Et
-   jamais sur le texte du hero : il ne vient qu'une fois le hero sorti du
-   bas de l'écran (frise de défilement, plus bas) ; sans elle, pas de chat. */
+   barre : 3,25rem posée à 1rem) et cart-bar.tsx (max-w-md centrée). Il
+   n'apparaît qu'une fois le hero sorti du bas de l'écran (plus bas) ; sans
+   frise de défilement ni requête de style, pas de chat. */
 .saison-cat {
   position: absolute;
   left: var(--cat-x);
   bottom: var(--cat-y);
   width: 50px;
   color: #120b10;
-  visibility: hidden;
+  display: none;
 }
 
-[data-menu-root]:is(:has(.cart-bar), :has(.offer-pill)) .saison-cat-body {
+.saison-cat-body {
+  translate: 0 36px;
   transform-origin: 50% 100%;
-  animation: saison-cat-arrive 0.8s 0.7s both;
+}
+
+.saison-cat svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+@property --saison-hero-gone {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 0;
 }
 
 @supports (animation-timeline: view()) {
@@ -592,23 +652,38 @@
     view-timeline: --saison-hero block;
   }
 
-  /* Le hero quitte la zone du chat (bas de l'écran) entre ces deux
-     points : le chat y bondit sur son perchoir, au rythme du défilement. */
-  [data-menu-root]:is(:has(.cart-bar), :has(.offer-pill)) .saison-cat {
-    animation: saison-cat-gate linear both;
+  /* Le hero a quitté la zone du chat, en bas de l'écran : une bascule nette
+     (un pour cent de course), lue par la requête de style ci-dessous. */
+  .saison-ambient {
+    animation: saison-hero-gone linear both;
     animation-timeline: --saison-hero;
-    animation-range: exit 14% exit 30%;
+    animation-range: exit 22% exit 23%;
+  }
+
+  /* Le hero entièrement sorti de l'écran, son décor ne se peint plus. */
+  :is(.saison-poster, .saison-frame) {
+    animation: saison-offstage linear both;
+    animation-timeline: --saison-hero;
+    animation-range: exit 99% exit 100%;
+  }
+}
+
+/* Il apparaît à la bascule : la tête surgit de derrière le perchoir. */
+@container style(--saison-hero-gone: 1) {
+  [data-menu-root]:is(:has(.cart-bar), :has(.offer-pill)) .saison-cat {
+    display: block;
+    animation: saison-cat-peek 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both;
   }
 }
 
 [data-menu-root]:has(.cart-bar) .saison-cat {
-  --cat-x: calc(max(1rem, 50% - 14rem) + 0.875rem);
-  --cat-y: calc(4.25rem - 2px);
+  --cat-x: calc(max(1rem, 50% - 14rem) + 1.75rem);
+  --cat-y: 4.25rem;
 }
 
 [data-menu-root]:has(.offer-pill) .saison-cat {
-  --cat-x: 1.375rem;
-  --cat-y: calc(var(--pill-bottom, env(safe-area-inset-bottom, 0px) + 1rem) + var(--pill-rise, 0px) + 2.5rem);
+  --cat-x: 2.25rem;
+  --cat-y: calc(var(--pill-bottom, env(safe-area-inset-bottom, 0px) + 1rem) + var(--pill-rise, 0px) + 2.5rem + 2px);
 }
 
 [data-menu-root]:has(.offer-pill):has(.cart-bar) .saison-cat {
@@ -623,29 +698,25 @@
   --pill-rise: calc(2.5rem + 2px + 0.625rem);
 }
 
-/* La barre en pastille à droite (globals.css) : pas de bord gauche où s'asseoir. */
+/* La barre en pastille à droite, à côté du dock ou à l'horizontale
+   (globals.css) : pas de bord gauche où guetter. */
+[data-menu-root]:has(.cart-bar):has(.ticket-dock):not(:has(.offer-pill)) .saison-cat {
+  display: none;
+}
+
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
   [data-menu-root]:has(.cart-bar):not(:has(.offer-pill)) .saison-cat {
     display: none;
   }
 }
 
-.saison-cat svg {
-  display: block;
-  width: 100%;
-  overflow: visible;
-  transform-origin: 50% 100%;
+/* Deux noms pour rejouer la visite à chaque ajout. */
+[data-menu-root]:has(.cart-bump-a) .saison-cat-body {
+  animation: saison-cat-visit-a 3.9s;
 }
 
-/* Un ajout fait sauter la barre : le chat bondit. L'élan attend la fin de
-   son arrivée, qui le cache encore au premier ajout : jamais les deux à la
-   fois. */
-[data-menu-root]:has(.cart-bump-a):not(:has(.offer-pill)) .saison-cat svg {
-  animation: saison-cat-hop-a 0.6s 0.08s;
-}
-
-[data-menu-root]:has(.cart-bump-b):not(:has(.offer-pill)) .saison-cat svg {
-  animation: saison-cat-hop-b 0.6s 0.08s;
+[data-menu-root]:has(.cart-bump-b) .saison-cat-body {
+  animation: saison-cat-visit-b 3.9s;
 }
 
 .saison-cat-tail {
@@ -697,22 +768,26 @@
   pointer-events: none;
 }
 
-/* Une feuille ouverte, une commande suivie au dock : le décor s'arrête,
-   comme le hero (globals.css). Le chat finit d'arriver : posé sur la
-   pastille au-dessus du dock, il y resterait sinon invisible. */
-[data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock))
-  :is(.saison-poster, .saison-frame, .saison-leaves, .saison-ambient) *:not(.saison-cat, .saison-cat-body),
-[data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) .saison-moon::before,
-[data-menu-root][data-saison]:is(:has([role="dialog"]), :has(.ticket-dock)) .category-head::after {
+/* Une feuille ouverte : le décor s'arrête, comme le hero (globals.css). */
+[data-menu-root]:has([role="dialog"]) :is(.saison-poster, .saison-frame, .saison-leaves, .saison-ambient) *,
+[data-menu-root]:has([role="dialog"]) .saison-moon::before,
+[data-menu-root][data-saison]:has([role="dialog"]) .category-head::after {
   animation-play-state: paused;
 }
 
-/* Sans mouvement : une scène posée. La sorcière devant la lune et deux
-   chauves-souris figées en vol (l'instant choisi de leur boucle), le chat
-   seulement sur sa barre ou sa pastille ; ni feuilles, ni fantômes, ni
-   araignée qui descend, ni nuages. */
+/* Une commande suivie au dock, parfois des minutes : fantômes et araignée
+   s'en vont plutôt que de s'y figer. */
+[data-menu-root]:has(.ticket-dock) :is(.saison-ghost, .saison-spider--drop) {
+  display: none;
+  animation: none;
+}
+
+/* Sans mouvement : une scène posée. La sorcière à côté de la lune et deux
+   chauves-souris figées en vol, loin d'elle (l'instant choisi de leur
+   boucle), le chat qui guette derrière son perchoir ; ni feuilles, ni
+   fantômes, ni araignée qui descend, ni nuages. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.saison-poster, .saison-frame, .saison-leaves, .saison-ambient) *:not(.saison-witch, .saison-bat--still, .saison-cat),
+  :is(.saison-poster, .saison-frame, .saison-leaves, .saison-ambient) *:not(.saison-witch, .saison-bat--still),
   .saison-moon::before,
   [data-saison] .category-head::after {
     animation: none !important;
@@ -726,11 +801,7 @@
   }
 
   .saison-witch {
-    --still: -2.2s;
-  }
-
-  .saison-cat {
-    animation-name: saison-cat-reveal !important;
+    --still: -3.3s;
   }
 
   .saison-bat:not(.saison-bat--still),
@@ -820,31 +891,44 @@
   }
 }
 
-/* À vitesse constante d'un point à l'autre, inclinée dans sa montée ou son
-   piqué ; elle s'efface avant le bout de sa course, puis se cache. */
+/* Sur sa courbe à vitesse constante (cinq points, saison.tsx), inclinée
+   dans sa montée ou son piqué ; elle paraît, s'efface avant le bout de sa
+   course, puis ne se peint plus jusqu'au tour suivant. */
 @keyframes saison-fly {
   0% {
     transform: translate(var(--x0), var(--y0)) rotate(var(--r0)) scale(0.5);
     opacity: 0;
     visibility: visible;
+    display: none;
   }
-  8%,
-  52% {
+  0.01%,
+  27% {
+    visibility: visible;
+    display: block;
+  }
+  3%,
+  23% {
     opacity: 1;
   }
-  28% {
-    transform: translate(var(--x1), var(--y1)) rotate(var(--r1)) scale(0.8);
+  6.75% {
+    transform: translate(var(--x1), var(--y1)) rotate(var(--r1)) scale(0.65);
   }
-  62% {
-    transform: translate(var(--x2), var(--y2)) rotate(var(--r2)) scale(1.1);
+  13.5% {
+    transform: translate(var(--x2), var(--y2)) rotate(var(--r2)) scale(0.8);
+  }
+  20.25% {
+    transform: translate(var(--x3), var(--y3)) rotate(var(--r3)) scale(0.95);
+  }
+  27% {
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4)) scale(1.1);
     opacity: 0;
-    visibility: visible;
   }
-  62.01%,
+  27.01%,
   100% {
-    transform: translate(var(--x2), var(--y2)) rotate(var(--r2)) scale(1.1);
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4)) scale(1.1);
     opacity: 0;
     visibility: hidden;
+    display: none;
   }
 }
 
@@ -871,24 +955,36 @@
   }
 }
 
-/* Une courbe douce : elle monte devant la lune puis redescend, le nez dans
-   le sens de sa trajectoire. */
+/* Un arc : elle monte au-dessus de la lune puis redescend, à vitesse
+   constante, le nez sur la tangente (saison.tsx). */
 @keyframes saison-broom {
   0% {
-    transform: translate(112cqw, var(--y0)) rotate(9deg);
+    transform: translate(var(--x0), var(--y0)) rotate(var(--r0));
     visibility: visible;
+    display: none;
   }
-  10% {
-    transform: translate(var(--x1), var(--y1)) rotate(0deg);
-  }
-  34% {
-    transform: translate(-24cqw, var(--y2)) rotate(-11deg);
+  0.01%,
+  31% {
     visibility: visible;
+    display: block;
   }
-  34.01%,
+  7.75% {
+    transform: translate(var(--x1), var(--y1)) rotate(var(--r1));
+  }
+  15.5% {
+    transform: translate(var(--x2), var(--y2)) rotate(var(--r2));
+  }
+  23.25% {
+    transform: translate(var(--x3), var(--y3)) rotate(var(--r3));
+  }
+  31% {
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4));
+  }
+  31.01%,
   100% {
-    transform: translate(-24cqw, var(--y2)) rotate(-11deg);
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4));
     visibility: hidden;
+    display: none;
   }
 }
 
@@ -953,8 +1049,16 @@
 }
 
 @keyframes saison-fall {
-  to {
+  0% {
+    opacity: 0;
+  }
+  6%,
+  80% {
+    opacity: 1;
+  }
+  100% {
     translate: 0 calc(var(--drop) + 20%);
+    opacity: 0;
   }
 }
 
@@ -993,11 +1097,13 @@
   2% {
     translate: 0 -100%;
     visibility: hidden;
+    display: none;
     animation-timing-function: cubic-bezier(0.5, 0, 1, 0.6);
   }
   2.01%,
   22.99% {
     visibility: visible;
+    display: block;
   }
   7% {
     translate: 0 31vh;
@@ -1026,6 +1132,7 @@
   100% {
     translate: 0 -100%;
     visibility: hidden;
+    display: none;
   }
 }
 
@@ -1037,11 +1144,13 @@
     transform: translateX(-100%) rotate(-6deg);
     opacity: 0;
     visibility: hidden;
+    display: none;
     animation-timing-function: cubic-bezier(0.3, 1.5, 0.6, 1);
   }
   32.01%,
   48.49% {
     visibility: visible;
+    display: block;
   }
   35% {
     transform: translateX(-60%) rotate(4deg);
@@ -1058,6 +1167,7 @@
     transform: translateX(-100%) rotate(-2deg);
     opacity: 0;
     visibility: hidden;
+    display: none;
   }
 }
 
@@ -1067,11 +1177,13 @@
     transform: translateX(100%) rotate(6deg);
     opacity: 0;
     visibility: hidden;
+    display: none;
     animation-timing-function: cubic-bezier(0.3, 1.5, 0.6, 1);
   }
   66.01%,
   82.49% {
     visibility: visible;
+    display: block;
   }
   69% {
     transform: translateX(60%) rotate(-4deg);
@@ -1088,6 +1200,7 @@
     transform: translateX(100%) rotate(2deg);
     opacity: 0;
     visibility: hidden;
+    display: none;
   }
 }
 
@@ -1145,10 +1258,16 @@
 
 @keyframes saison-watch {
   0%,
-  8%,
-  62%,
+  7.9%,
+  62.1%,
   100% {
     opacity: 0;
+    display: none;
+  }
+  8%,
+  62% {
+    opacity: 0;
+    display: block;
   }
   14%,
   30%,
@@ -1161,127 +1280,115 @@
   }
 }
 
-@keyframes saison-cat-gate {
-  0% {
-    translate: -40px 46px;
-    opacity: 0;
-    visibility: hidden;
+@keyframes saison-hero-gone {
+  from {
+    --saison-hero-gone: 0;
   }
-  0.01% {
-    visibility: visible;
-  }
-  55% {
-    translate: -14px -18px;
-    opacity: 1;
-  }
-  100% {
-    translate: 0 0;
-    opacity: 1;
-    visibility: visible;
+  to {
+    --saison-hero-gone: 1;
   }
 }
 
-/* Sans mouvement : il apparaît en fondu, sur place. */
-@keyframes saison-cat-reveal {
-  0% {
-    opacity: 0;
-    visibility: hidden;
+@keyframes saison-offstage {
+  from {
+    display: block;
   }
-  0.01% {
-    visibility: visible;
-  }
-  100% {
-    opacity: 1;
-    visibility: visible;
+  to {
+    display: none;
   }
 }
 
-/* L'arrivée du chat : un bond en arc depuis le coin, de derrière la barre,
-   réception écrasée, puis il se pose. */
-@keyframes saison-cat-arrive {
-  0% {
-    translate: -64px 70px;
-    rotate: -6deg;
-    scale: 1;
-    opacity: 0;
-    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+/* La tête surgit de derrière le perchoir, dépasse un peu, se pose. */
+@keyframes saison-cat-peek {
+  from {
+    translate: 0 26px;
+    rotate: -4deg;
   }
-  14% {
-    opacity: 1;
-  }
-  48% {
-    translate: -24px -40px;
-    rotate: -3deg;
-    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
-  }
-  70% {
-    scale: 1;
-  }
-  78% {
+  to {
     translate: 0 0;
     rotate: 0deg;
-    scale: 1.12 0.84;
-    animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
-  }
-  90% {
-    scale: 0.96 1.04;
-  }
-  100% {
-    translate: 0 0;
-    rotate: 0deg;
-    scale: 1;
-    opacity: 1;
   }
 }
 
-/* Le saut sur place : ramassé, étiré au sommet, chute qui accélère,
-   réception écrasée, retour. Deux noms pour rejouer à chaque ajout. */
-@keyframes saison-cat-hop-a {
+/* La visite : il monte sur le perchoir, se ramasse, bondit (étiré au
+   sommet, chute qui accélère, réception écrasée), reste deux secondes et
+   demie, redescend guetter. */
+@keyframes saison-cat-visit-a {
   0% {
+    translate: 0 36px;
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  9% {
+    translate: 0 0;
     transform: translateY(0) scale(1, 1);
     animation-timing-function: ease-out;
   }
-  16% {
+  13% {
     transform: translateY(0) scale(1.08, 0.86);
     animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
   }
-  46% {
+  21% {
     transform: translateY(-34%) scale(0.94, 1.08);
     animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
   }
-  72% {
+  28% {
     transform: translateY(0) scale(1.1, 0.86);
     animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
   }
-  86% {
+  32% {
     transform: translateY(0) scale(0.97, 1.03);
   }
+  36%,
   100% {
     transform: translateY(0) scale(1, 1);
+  }
+  88% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4);
+  }
+  100% {
+    translate: 0 36px;
   }
 }
 
-@keyframes saison-cat-hop-b {
+@keyframes saison-cat-visit-b {
   0% {
+    translate: 0 36px;
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  9% {
+    translate: 0 0;
     transform: translateY(0) scale(1, 1);
     animation-timing-function: ease-out;
   }
-  16% {
+  13% {
     transform: translateY(0) scale(1.08, 0.86);
     animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
   }
-  46% {
+  21% {
     transform: translateY(-34%) scale(0.94, 1.08);
     animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
   }
-  72% {
+  28% {
     transform: translateY(0) scale(1.1, 0.86);
     animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
   }
-  86% {
+  32% {
     transform: translateY(0) scale(0.97, 1.03);
   }
+  36%,
   100% {
     transform: translateY(0) scale(1, 1);
   }
+  88% {
+    translate: 0 0;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4);
+  }
+  100% {
+    translate: 0 36px;
+  }
 }
+
+

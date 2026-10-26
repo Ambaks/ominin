@@ -14,19 +14,22 @@ import "./saison.css";
  * (prefers-reduced-motion) le décor reste posé, immobile (saison.css).
  */
 
-/* Les chauves-souris quittent la lune : trois points de vol en % de
-   l'affiche, comptés depuis la lune, une taille, une durée et un départ
-   propres ; `still` : l'instant (s) où elles restent posées sans mouvement. */
-const BATS: { from: number[]; via: number[]; to: number[]; size: number; dur: number; delay: number; still?: number }[] = [
-  { from: [-2, 2.5], via: [-20, -1.5], to: [-64, -16.5], size: 12, dur: 9, delay: 0, still: 3.6 },
-  { from: [1, 4.5], via: [11, -3.5], to: [32, -12.5], size: 9, dur: 10.4, delay: 0.5 },
-  { from: [-3, 6.5], via: [-28, 7.5], to: [-80, 15.5], size: 14, dur: 10, delay: 1.1, still: 2.2 },
-  { from: [4, 5.5], via: [-10, 15.5], to: [-42, 33.5], size: 8, dur: 11.5, delay: 1.6 },
-  { from: [0, 1.5], via: [-11, -6.5], to: [-32, -18.5], size: 7, dur: 8.2, delay: 2.4 },
+/* Le ciel d'Halloween tient sur une boucle de 24 s : trois chauves-souris
+   quittent la lune, puis la sorcière passe, puis les deux dernières ; jamais
+   tout le monde à la fois. Chaque vol : trois points en % de l'affiche,
+   comptés depuis la lune (une courbe douce passe par eux), une taille, un
+   départ ; `still` : l'instant de sa course (s) où elle reste figée sans
+   mouvement. */
+const BATS: { from: number[]; via: number[]; to: number[]; size: number; delay: number; still?: number }[] = [
+  { from: [-2, 2.5], via: [-20, -1.5], to: [-64, -16.5], size: 12, delay: 0 },
+  { from: [1, 4.5], via: [11, -3.5], to: [32, -12.5], size: 9, delay: 0.6, still: 2 },
+  { from: [-3, 6.5], via: [-28, 7.5], to: [-80, 15.5], size: 14, delay: 1.3 },
+  { from: [4, 5.5], via: [-10, 15.5], to: [-42, 33.5], size: 8, delay: 16.5, still: 2.4 },
+  { from: [0, 1.5], via: [-11, -6.5], to: [-32, -18.5], size: 7, delay: 17.3 },
 ];
 
-/** La sorcière entre plus bas que la lune, passe devant elle, ressort plus bas encore. */
-const BROOM = { rise: 3, top: -1, fall: 12 };
+/** La sorcière entre à droite plus bas que la lune, s'élève jusqu'à elle, ressort à gauche plus bas encore. */
+const BROOM = { start: 112, end: -24, rise: 10, top: 0, fall: 18, delay: 7.5 };
 
 /* Les feuilles : position (% de la colonne ou du cadre), taille (px), chute,
    balancement et culbute (s), départ (s, négatif : déjà en l'air à
@@ -42,15 +45,20 @@ const LEAVES = [
   { x: 84, size: 22, fall: 15, sway: 3.2, tumble: 4, delay: -13, shape: 2, tint: 1 },
   { x: 36, size: 26, fall: 11, sway: 4.4, tumble: 6.5, delay: -2, shape: 1, tint: 0 },
 ];
+/* Sur le hero, hors des textes de l'affiche : au téléphone elles
+   s'effacent avant le logo, en panorama elles longent les bords
+   (saison.css). Plus grandes à l'automne, seule saison sans personnages. */
 const FRAME_LEAVES = [
-  { x: 14, size: 26, fall: 12, sway: 4.4, tumble: 5, delay: -4, shape: 0, tint: 2 },
-  { x: 80, size: 30, fall: 16, sway: 5.6, tumble: 7, delay: -10, shape: 1, tint: 5 },
-  { x: 56, size: 22, fall: 10, sway: 3.2, tumble: 4.5, delay: -1, shape: 2, tint: 7 },
-  { x: 33, size: 28, fall: 14, sway: 4.4, tumble: 6, delay: -8, shape: 0, tint: 0 },
+  { x: 7, size: 30, fall: 9, sway: 4.4, tumble: 5, delay: -4, shape: 0, tint: 2 },
+  { x: 90, size: 34, fall: 12, sway: 5.6, tumble: 7, delay: -9, shape: 1, tint: 5 },
+  { x: 24, size: 26, fall: 8, sway: 3.2, tumble: 4.5, delay: -1, shape: 2, tint: 7 },
+  { x: 74, size: 40, fall: 11, sway: 4.4, tumble: 6, delay: -6, shape: 0, tint: 0 },
+  { x: 46, size: 44, fall: 13, sway: 5.6, tumble: 8, delay: -11, shape: 1, tint: 3 },
 ];
 /** Halloween : moins de feuilles, la scène a d'autres personnages. */
 const HALLOWEEN_LEAVES = 5;
 const HALLOWEEN_FRAME_LEAVES = 3;
+const HALLOWEEN_FRAME_SCALE = 0.75;
 
 /* Le limbe, sa moitié à l'ombre de la nervure. */
 const LEAF_TINTS = [
@@ -237,19 +245,17 @@ function Bat() {
   );
 }
 
-const BROOMSTICK = "M8 36 118 47";
+/* D'un seul tenant, de profil vers la gauche : chapeau pointu à la pointe
+   recourbée, cheveux et cape au vent, bras tendu au manche, botte pointue ;
+   le balai s'effile vers l'avant, son fagot s'évase à l'arrière. */
 const WITCH =
-  "M114 45c10 0 18-4 26-6-6 8-4 14-2 22-8-6-16-8-26-9ZM68 33c8-4 20-4 30-12-4 9-10 15-22 19ZM58 42c-4-8-6-16-6-22 0-5 4-8 9-6 7 3 10 13 11 27Zm1-2-8 9h-7l-1 2h10l9-8ZM57 24 45 35l-2 3 3 1 13-10ZM47 11a5 5 0 1 0 10 0 5 5 0 1 0-10 0ZM40 8.5 66 5l.3 2.4L40.6 11ZM45 8c1-6 4-10 9-13 4-2 8-2 12-6-1 5-5 8-9 10-2 2-3 5-3 8Zm11 4c5 1 9 6 15 6-5 2-10 0-14-3Z";
+  "M6 44 106 50.5 106 55 6 46.2ZM104 49.5c10-5 26-11 46-15l-6 6 9 1-7 5 9 3-7 3 7 5-10-1 3 4-11-2c-6 1-14 1-23-1-4-1-7-3-10-4ZM90 49c-2-9-8-19-18-25-6-3-12 0-14 6-2 8 2 16 8 20ZM56 18a6 6 0 1 0 12 0 6 6 0 1 0-12 0ZM56.5 18 50 21l7 .5ZM46 13c8-3 24-4 34-1-8 3-24 3-34 1ZM54 12c4-8 10-14 18-18 6-3 12-2 16 2-4-2-8-1-11 2-4 4-7 9-7 14ZM66 16c8 0 16 2 24 6-8 1-16 0-22-1ZM68 24c12-4 28-4 44-6 8-1 16-4 22-8-4 8-8 14-16 18 6 0 10 2 14 6-12 2-28 2-42 6-6-4-14-10-22-12ZM64 28c-6 6-12 12-18 16l3 3c6-4 13-9 19-14ZM80 50c-8 1-18 2-24 5-1 3 0 7 2 9l-6 3c4 1 9 0 11-2-1-4-1-7 1-8 6-1 12-2 18-3Z";
 
-/** La sorcière sur son balai, de profil vers la gauche : une silhouette qui passe devant la lune. */
+/** La sorcière sur son balai : une silhouette qui passe devant la lune. */
 function Witch() {
   return (
-    <svg viewBox="0 -14 140 84" aria-hidden>
-      <g className="saison-rim" strokeWidth="2.2">
-        <path d={BROOMSTICK} strokeWidth="5" strokeLinecap="round" />
-        <path d={WITCH} />
-      </g>
-      <path d={BROOMSTICK} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+    <svg viewBox="2 -12 160 82" aria-hidden>
+      <path d={WITCH} className="saison-rim" strokeWidth="2.8" />
       <path d={WITCH} />
     </svg>
   );
@@ -357,7 +363,7 @@ function Spider({ className }: { className: string }) {
           </g>
           <circle cx="18.4" cy="16.4" r=".9" className="saison-spider-eye" />
           <circle cx="21.6" cy="16.4" r=".9" className="saison-spider-eye" />
-          </svg>
+        </svg>
       </div>
     </div>
   );
@@ -395,11 +401,11 @@ function Ghost({ side }: { side: "left" | "right" }) {
           <path d={GHOST_SLEEVES} fill={`url(#${id})`} />
           <path d={GHOST_SHEET} fill={`url(#${id})`} />
           <path d={GHOST_SHEET} fill={`url(#${id}-shade)`} />
-          <g className="saison-ghost-eyes" fill="#2a1d33" fillOpacity=".78">
+          <g className="saison-ghost-eyes" fill="#2a1d33" fillOpacity=".78" style={{ animationDelay: side === "left" ? "-1.7s" : "-3.6s" }}>
             <path d="M29 30c3-1 5 2 5 6s-2 7-4 7-4-3-4-7c0-3 1-5 3-6Z" />
             <path d="M51 30c-3-1-5 2-5 6s2 7 4 7 4-3 4-7c0-3-1-5-3-6Z" />
           </g>
-          </svg>
+        </svg>
       </div>
     </div>
   );
@@ -433,7 +439,7 @@ function Cat() {
               <path d={CAT_EAR} className="saison-cat-ear" />
               <path d={CAT_HEAD} />
             </g>
-            <g className="saison-cat-eyes">
+            <g className="saison-cat-eyes" style={{ animationDelay: "-2.1s" }}>
               <path d="M35.5 38q3.5-3.6 7 0-3.5 3.6-7 0ZM47.5 38q3.5-3.6 7 0-3.5 3.6-7 0Z" fill="#ffb93f" />
               <ellipse cx="39" cy="38" rx=".9" ry="2.5" fill="#1a1014" />
               <ellipse cx="51" cy="38" rx=".9" ry="2.5" fill="#1a1014" />
@@ -459,11 +465,37 @@ export function SaisonSky({ saison }: { saison: Saison }) {
   return <div className="saison-sky" data-saison={saison} aria-hidden />;
 }
 
-/** L'inclinaison d'une chauve-souris sur un tronçon : elle penche du côté où elle monte ou plonge. */
-function roll([x0, y0]: number[], [x1, y1]: number[]) {
-  const deg = (Math.atan((y1 - y0) / (x1 - x0)) * 180) / Math.PI / 2;
-  return Math.max(-12, Math.min(12, deg));
+/**
+ * Un vol en courbe douce passant par `via` à mi-course, échantillonné en
+ * cinq points également espacés le long de la courbe : vitesse constante
+ * d'un point à l'autre, et un cap (degrés, borné) qui suit la tangente.
+ * Rendu en variables --x0…--x4, --y0…--y4, --r0…--r4 (saison.css).
+ */
+function flight(from: number[], via: number[], to: number[], bank: number, limit: number) {
+  const ctrl = [0, 1].map((k) => 2 * via[k] - (from[k] + to[k]) / 2);
+  const point = (t: number) =>
+    [0, 1].map((k) => (1 - t) ** 2 * from[k] + 2 * (1 - t) * t * ctrl[k] + t ** 2 * to[k]);
+  const fine = Array.from({ length: 65 }, (_, i) => point(i / 64));
+  const lengths = [0];
+  for (let i = 1; i < fine.length; i++) {
+    lengths.push(lengths[i - 1] + Math.hypot(fine[i][0] - fine[i - 1][0], fine[i][1] - fine[i - 1][1]));
+  }
+  const total = lengths[lengths.length - 1];
+  const vars: Record<string, string> = {};
+  for (let k = 0; k <= 4; k++) {
+    const i = lengths.findIndex((l) => l >= (total * k) / 4 - 1e-9);
+    const t = i / 64;
+    const dx = 2 * (1 - t) * (ctrl[0] - from[0]) + 2 * t * (to[0] - ctrl[0]);
+    const dy = 2 * (1 - t) * (ctrl[1] - from[1]) + 2 * t * (to[1] - ctrl[1]);
+    const heading = (Math.atan(dy / dx) * 180) / Math.PI;
+    vars[`--x${k}`] = `${fine[i][0].toFixed(2)}cqw`;
+    vars[`--y${k}`] = `${fine[i][1].toFixed(2)}cqh`;
+    vars[`--r${k}`] = `${Math.max(-limit, Math.min(limit, heading * bank)).toFixed(1)}deg`;
+  }
+  return vars;
 }
+
+const fromMoon = (moon: SaisonSpot, [x, y]: number[]) => [moon.x + x, moon.y + y];
 
 /** Sur l'affiche : nuit, lune, lanternes, guirlande, bougies, regards, chauves-souris, sorcière. */
 export function SaisonPoster({ saison, spots }: { saison: Saison; spots: SaisonSpots }) {
@@ -499,35 +531,30 @@ export function SaisonPoster({ saison, spots }: { saison: Saison; spots: SaisonS
                 className="saison-witch"
                 style={
                   {
-                    "--x1": `${moon.x}cqw`,
-                    "--y0": `${moon.y + BROOM.rise}cqh`,
-                    "--y1": `${moon.y + BROOM.top}cqh`,
-                    "--y2": `${moon.y + BROOM.fall}cqh`,
+                    ...flight(
+                      [BROOM.start, moon.y + BROOM.rise],
+                      [moon.x, moon.y + BROOM.top],
+                      [BROOM.end, moon.y + BROOM.fall],
+                      1,
+                      18
+                    ),
+                    animationDelay: `${BROOM.delay}s`,
                   } as React.CSSProperties
                 }
               >
                 <Witch />
               </div>
-              {BATS.map(({ from, via, to, size, dur, delay, still }, i) => (
+              {BATS.map(({ from, via, to, size, delay, still }, i) => (
                 <div
                   key={i}
                   className={still ? "saison-bat saison-bat--still" : "saison-bat"}
                   style={
                     {
                       width: `${size}%`,
-                      "--x0": `${moon.x + from[0]}cqw`,
-                      "--y0": `${moon.y + from[1]}cqh`,
-                      "--x1": `${moon.x + via[0]}cqw`,
-                      "--y1": `${moon.y + via[1]}cqh`,
-                      "--x2": `${moon.x + to[0]}cqw`,
-                      "--y2": `${moon.y + to[1]}cqh`,
-                      "--r0": `${roll(from, via)}deg`,
-                      "--r1": `${(roll(from, via) + roll(via, to)) / 2}deg`,
-                      "--r2": `${roll(via, to)}deg`,
+                      ...flight(fromMoon(moon, from), fromMoon(moon, via), fromMoon(moon, to), 0.5, 12),
                       "--still": still && `${-still}s`,
                       "--flap": `${0.3 * (0.85 + (i % 3) * 0.15)}s`,
                       "--flap-delay": `${-0.07 * i}s`,
-                      animationDuration: `${dur}s`,
                       animationDelay: `${delay}s`,
                     } as React.CSSProperties
                   }
@@ -546,9 +573,12 @@ export function SaisonPoster({ saison, spots }: { saison: Saison; spots: SaisonS
 /** Sur le cadre du hero : ses feuilles ; à Halloween, les toiles d'angle, l'araignée, la brume, les citrouilles. */
 export function SaisonFrame({ saison }: { saison: Saison }) {
   const halloween = saison === "halloween";
-  const leaves = halloween ? FRAME_LEAVES.slice(0, HALLOWEEN_FRAME_LEAVES) : FRAME_LEAVES;
+  const leaves = halloween
+    ? FRAME_LEAVES.slice(0, HALLOWEEN_FRAME_LEAVES).map((leaf) => ({ ...leaf, size: leaf.size * HALLOWEEN_FRAME_SCALE }))
+    : FRAME_LEAVES;
   return (
     <div className="saison-frame" aria-hidden>
+      <div className="saison-glow" data-saison={saison} />
       {halloween && (
         <div className="saison-fog">
           <span />
