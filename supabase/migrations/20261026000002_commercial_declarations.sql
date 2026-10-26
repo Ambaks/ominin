@@ -50,6 +50,8 @@ create table public.commercial_settings (
   -- Similarité de nom (pg_trgm, 0 à 1) au-delà de laquelle une déclaration
   -- ou une inscription lève l'alerte « déjà client ? » / « nom différent ».
   name_similarity numeric check (name_similarity > 0 and name_similarity < 1),
+  -- Démos du Kit (slugs de /menu/demo), choisies par l'admin.
+  kit_demo_slugs text[] not null default '{}',
   updated_at timestamptz not null default now()
 );
 
@@ -90,6 +92,8 @@ alter table public.commerciaux
   add column notice_given_at timestamptz,
   add column ended_at timestamptz,
   add column end_reason text check (end_reason in ('term', 'resignation', 'breach', 'immediate', 'mutual')),
+  -- Rappel de l'option envoyé à l'admin (une fois, avant l'échéance).
+  add column option_reminded_at timestamptz,
   add constraint commerciaux_end_reason check ((ended_at is null) = (end_reason is null));
 
 -- ---------------------------------------------------------------------------
@@ -546,6 +550,13 @@ create policy "commercial-docs self read" on storage.objects
     and (storage.foldername(name))[1] in (
       select id::text from public.commerciaux where user_id = (select auth.uid())
     )
+  );
+-- Le deck du Kit (kit/), déposé par l'admin : lu par tout commercial.
+create policy "commercial-docs kit read" on storage.objects
+  for select to authenticated
+  using (
+    bucket_id = 'commercial-docs' and (storage.foldername(name))[1] = 'kit'
+    and exists (select 1 from public.commerciaux where user_id = (select auth.uid()))
   );
 create policy "commercial-docs self upload" on storage.objects
   for insert to authenticated

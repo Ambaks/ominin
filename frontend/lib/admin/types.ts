@@ -80,7 +80,7 @@ export interface Activity {
 
 export interface Contact {
   id: string;
-  firstName: string;
+  firstName: string | null;
   lastName: string | null;
   role: string | null;
   phone: string | null;
@@ -127,15 +127,32 @@ export interface Lead {
   createdAt: string;
 }
 
+/** Déclaration d'un commercial sur la fiche (espace commercial). */
+export interface LeadDeclaration {
+  id: string;
+  status: Database["public"]["Enums"]["commercial_declaration_status"];
+  declaredAt: string;
+  confirmDeadline: string | null;
+  reservedUntil: string | null;
+  step: number;
+  commercial: string;
+}
+
 /** Détail complet d'une fiche, chargé à l'ouverture du panneau. */
 export interface LeadDetail {
   restaurant: Restaurant;
   lead: Lead;
   contacts: Contact[];
-  /** Antéchronologique. */
+  /** Antéchronologique, hors travail des commerciaux. */
   activities: Activity[];
   tasks: TaskRow[];
   appointments: AppointmentRow[];
+  /** Client que la fiche est devenue (établissement ou boutique). */
+  client: { kind: "etablissement" | "shop"; id: string; name: string; endedAt: string | null } | null;
+  inTalksOverride: boolean | null;
+  declarations: LeadDeclaration[];
+  /** Journal, relances et rendez-vous des commerciaux : à ouvrir en cas de litige seulement (art. 2.3). */
+  commercialWork: { activities: Activity[]; tasks: TaskRow[]; appointments: AppointmentRow[] };
 }
 
 export interface AdminState {

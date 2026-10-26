@@ -115,3 +115,35 @@ export const confidentialite: LegalDocument = {
     },
   ],
 };
+
+/*
+ * Prospection par des commerciaux indépendants (espace commercial, 2026-10).
+ * Les articles concernés sont complétés sans en changer la numérotation :
+ * finalités et sources (art. 2), destinataires (art. 4), droits — opposition
+ * de vive voix — (art. 6). Révision d'information, sans préavis : elle
+ * n'engage pas les clients, qui ne signent pas ce document. Statut RGPD des
+ * commerciaux à faire valider par l'avocat avec la version 2 de leur contrat.
+ */
+const PROSPECTION: Record<string, string[]> = {
+  "Article 2": [
+    "Prospection par des commerciaux indépendants — Ominin confie aussi la présentation de ses solutions à des commerciaux indépendants (apporteurs d'affaires), liés à elle par contrat. Ils enregistrent, pour le compte d'Ominin et dans son outil, les informations publiques sur l'établissement, les coordonnées professionnelles de l'interlocuteur rencontré (nom, fonction, téléphone et adresse e-mail professionnels) et ce qu'ils ont retenu de leur passage (équipement, intérêt, objections). Ces données viennent de l'interlocuteur lui-même, rencontré en personne, ou de sources publiques (site de l'établissement, annuaires, fiche Google). Base légale : l'intérêt légitime d'Ominin à prospecter des professionnels pour une offre liée à leur activité (art. 6.1.f), dans les mêmes limites que ci-dessus. Ominin en est responsable de traitement.",
+  ],
+  "Article 4": [
+    "Les commerciaux indépendants d'Ominin n'accèdent qu'aux données des établissements qu'ils prospectent, pour la durée de leur contrat, et sont tenus à la confidentialité. À la fin de leur contrat, leur accès est fermé et les données conservées sur leur appareil sont effacées.",
+  ],
+  "Article 6": [
+    "Vous pouvez vous opposer à la prospection à tout moment : par le lien de désinscription présent dans chaque message, en écrivant à l'adresse indiquée à l'article 1, ou de vive voix auprès du commercial qui vous rend visite. Votre opposition est enregistrée aussitôt : plus aucun commercial ni aucun message d'Ominin ne vous sollicite.",
+  ],
+};
+
+export const confidentialite20261026: LegalDocument = {
+  ...confidentialite,
+  version: "2026-10-26",
+  effectiveFrom: parisEffectiveDate("2026-10-26"),
+  summary: "Prospection par des commerciaux indépendants : finalité, sources, destinataires et droit d'opposition de vive voix.",
+  reacceptance: false,
+  articles: confidentialite.articles.map((article) => {
+    const added = PROSPECTION[article.heading.split(" — ")[0]];
+    return added ? { ...article, body: [...article.body, ...added] } : article;
+  }),
+};

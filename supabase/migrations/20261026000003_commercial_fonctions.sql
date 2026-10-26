@@ -1173,6 +1173,9 @@ begin
     raise exception 'Interlocuteur introuvable.' using errcode = 'P0002';
   end if;
   if v_id is null then
+    if nullif(btrim(v ->> 'title'), '') is null or (v ->> 'start_at') is null then
+      raise exception 'Indiquez l''objet et l''heure du rendez-vous.';
+    end if;
     insert into public.crm_appointments (
       restaurant_id, contact_id, title, start_at, end_at, location, type, status,
       created_by, declaration_id)
@@ -1185,11 +1188,11 @@ begin
     returning id into v_id;
   else
     update public.crm_appointments
-    set contact_id = (v ->> 'contact_id')::uuid,
+    set contact_id = case when v ? 'contact_id' then (v ->> 'contact_id')::uuid else contact_id end,
         title = coalesce(nullif(btrim(v ->> 'title'), ''), title),
         start_at = coalesce((v ->> 'start_at')::timestamptz, start_at),
-        end_at = (v ->> 'end_at')::timestamptz,
-        location = nullif(btrim(v ->> 'location'), ''),
+        end_at = case when v ? 'end_at' then (v ->> 'end_at')::timestamptz else end_at end,
+        location = case when v ? 'location' then nullif(btrim(v ->> 'location'), '') else location end,
         type = coalesce((v ->> 'type')::public.crm_appointment_type, type),
         status = coalesce((v ->> 'status')::public.crm_appointment_status, status)
     where id = v_id and declaration_id = d.id;
@@ -1221,6 +1224,42 @@ begin
       end_reason = 'resignation'
   where id = me.id;
   return least(v_end, public.commercial_contract_end(me));
+end;
+$$;
+
+-- Ce que l'espace affiche du compte : identité, contrat, fin, et les
+-- réglages dont les écrans ont besoin. Ouverte à tout compte invité, signé ou
+-- non : l'écran de signature s'en sert aussi.
+create function public.commercial_account()
+returns jsonb
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+declare
+  c public.commerciaux;
+  cfg public.commercial_settings := public.commercial_cfg();
+  v_end timestamptz;
+begin
+  select * into c from public.commerciaux where user_id = auth.uid();
+  if c.id is null then
+    return null;
+  end if;
+  v_end := public.commercial_contract_end(c);
+  return jsonb_build_object(
+    'id', c.id, 'email', c.email, 'first_name', c.first_name, 'last_name', c.last_name,
+    'siret', c.siret, 'address', c.address, 'phone', c.phone,
+    'signed', exists (select 1 from public.legal_acceptances a where a.commercial_id = c.id and a.scope = 'commercial'),
+    'signed_in_force', exists (select 1 from public.legal_acceptances a
+                               where a.commercial_id = c.id and a.scope = 'commercial'
+                                 and a.version_id = public.commercial_version_in_force()),
+    'contract_end', v_end,
+    'ended', v_end <= now(),
+    'notice_given_at', c.notice_given_at,
+    'option_exercised_at', c.option_exercised_at,
+    'kit_demo_slugs', to_jsonb(cfg.kit_demo_slugs),
+    'note_max', cfg.retained_note_max_chars);
 end;
 $$;
 
@@ -1570,6 +1609,7 @@ begin
     'commercial_task_upsert(uuid, jsonb)',
     'commercial_appointment_upsert(uuid, jsonb)',
     'commercial_resign()',
+    'commercial_account()',
     'admin_decide_declaration(uuid, text, text)',
     'admin_record_email_declaration(uuid, uuid, timestamptz, public.ominin_product[], jsonb)',
     'admin_reassign_declaration(uuid, uuid, text, text)',

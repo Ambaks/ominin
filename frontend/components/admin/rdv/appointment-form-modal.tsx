@@ -10,7 +10,7 @@ import {
   APPOINTMENT_DURATIONS_MIN,
   APPOINTMENT_TYPE_LABELS,
 } from "@/lib/admin/constants";
-import { fromDatetimeLocalValue } from "@/lib/admin/format";
+import { contactName, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { useLeadDetail } from "@/lib/admin/lead-cache";
 import { useAdmin } from "@/lib/admin/store";
 import type { AppointmentType, LeadLite } from "@/lib/admin/types";
@@ -181,7 +181,7 @@ export function AppointmentFormModal({
               <option value="">—</option>
               {(detail?.contacts ?? []).map((contact) => (
                 <option key={contact.id} value={contact.id}>
-                  {contact.firstName} {contact.lastName ?? ""}
+                  {contactName(contact)}
                 </option>
               ))}
             </select>

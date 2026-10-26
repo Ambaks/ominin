@@ -161,3 +161,27 @@ revoke execute on function public.admin_link_client(uuid, uuid, uuid) from publi
 revoke execute on function public.admin_set_client_ended(uuid, timestamptz) from public, anon;
 grant execute on function public.admin_link_client(uuid, uuid, uuid) to authenticated;
 grant execute on function public.admin_set_client_ended(uuid, timestamptz) to authenticated;
+
+-- Clients en service (hors démos) et la fiche qui les porte : la liste de
+-- l'outil de rattachement, et le choix du client à relier depuis une fiche.
+create function public.admin_client_places()
+returns table (kind text, id uuid, name text, restaurant_id uuid, restaurant_name text, client_ended_at timestamptz)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select 'etablissement', e.id, e.name, r.id, r.name, r.client_ended_at
+  from public.etablissements e
+  left join public.crm_restaurants r on r.etablissement_id = e.id and r.deleted_at is null
+  where not e.demo and public.is_admin()
+  union all
+  select 'shop', s.id, s.name, r.id, r.name, r.client_ended_at
+  from public.shops s
+  left join public.crm_restaurants r on r.shop_id = s.id and r.deleted_at is null
+  where not s.demo and public.is_admin()
+  order by 3;
+$$;
+
+revoke execute on function public.admin_client_places() from public, anon;
+grant execute on function public.admin_client_places() to authenticated;

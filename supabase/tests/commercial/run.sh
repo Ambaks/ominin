@@ -15,7 +15,7 @@ psql_run() { MSYS_NO_PATHCONV=1 docker exec -i "$name" psql -U postgres -v ON_ER
 
 if [ "${SKIP_SETUP:-0}" != "1" ]; then
   docker rm -f "$name" >/dev/null 2>&1 || true
-  docker run -d --name "$name" -e POSTGRES_PASSWORD=postgres -p "$port:5432" postgis/postgis:16-3.4-alpine >/dev/null
+  docker run -d --name "$name" -e POSTGRES_PASSWORD=postgres -e POSTGRES_INITDB_ARGS="--encoding=UTF8 --locale=C" -p "$port:5432" postgis/postgis:16-3.4-alpine >/dev/null
   # L'image installe postgis par un premier serveur temporaire : attendre le vrai.
   until docker logs "$name" 2>&1 | grep -q "init process complete"; do sleep 1; done
   until docker exec "$name" pg_isready -U postgres -q 2>/dev/null; do sleep 1; done
