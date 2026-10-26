@@ -2052,6 +2052,7 @@ export type Database = {
           etablissement_id: string
           id: string
           role: Database["public"]["Enums"]["member_role"]
+          token: string
         }
         Insert: {
           created_at?: string
@@ -2059,6 +2060,7 @@ export type Database = {
           etablissement_id: string
           id?: string
           role: Database["public"]["Enums"]["member_role"]
+          token?: string
         }
         Update: {
           created_at?: string
@@ -2066,6 +2068,7 @@ export type Database = {
           etablissement_id?: string
           id?: string
           role?: Database["public"]["Enums"]["member_role"]
+          token?: string
         }
         Relationships: [
           {
@@ -5691,6 +5694,7 @@ export type Database = {
       }
     }
     Functions: {
+      accept_invitation: { Args: { p_token: string }; Returns: string }
       admin_set_category_layout: {
         Args: { p_etablissement: string; p_layout: string }
         Returns: undefined
