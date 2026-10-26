@@ -5,6 +5,7 @@ import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
 import { AffichesBanner, FormulesSection, FormuleTiles } from "@/components/menu/formules";
+import { FormulesPill } from "@/components/menu/formules-pill";
 import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
@@ -102,12 +103,13 @@ export default async function MenuPage({
 
   // Les affiches des offres se montrent sous l'affiche du restaurant ; sans
   // elle, en tête de la section des formules, avant les tuiles de celles
-  // qu'aucune affiche ne porte.
+  // qu'aucune affiche ne porte. Avec la pastille des formules, tout y passe.
   const affiches = restaurant.affiches ?? [];
-  const affichesInHero = restaurant.poster != null && affiches.length > 0;
+  const inPill = Boolean(restaurant.formulesPill);
+  const affichesInHero = !inPill && restaurant.poster != null && affiches.length > 0;
   // Une formule à heures (le petit déjeuner) se range dans la happy hour.
   const tiles = formules.filter((formule) => !formule.affiche && !formule.hours);
-  const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
+  const showFormules = !inPill && (tiles.length > 0 || (!affichesInHero && affiches.length > 0));
 
   const cartConfig = menuCartConfig(slug, data);
   const { orderingEnabled } = cartConfig;
@@ -244,6 +246,9 @@ export default async function MenuPage({
           />
           {callServer && <CallServerButton />}
           {happyHour && <HappyHourPill happyHour={happyHour} />}
+          {inPill && (affiches.length > 0 || tiles.length > 0) && (
+            <FormulesPill affiches={affiches} formules={tiles} />
+          )}
           <LoyaltyWelcome
             brand={brandName(restaurant)}
             logo={restaurant.logo}
