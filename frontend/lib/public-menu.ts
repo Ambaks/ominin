@@ -277,6 +277,7 @@ export async function fetchRestaurant(slug: string): Promise<{
       loyaltyWheel: staticData?.loyaltyWheel,
       suivi: staticData?.suivi,
       poster: staticData?.poster,
+      posterWide: staticData?.posterWide,
       affiches,
       formulesPill: staticData?.formulesPill,
       highlights: staticData?.highlights,
