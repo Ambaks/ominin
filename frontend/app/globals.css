@@ -9,6 +9,15 @@
 @custom-variant wall (@media (min-width: 96rem) and (min-height: 66rem));
 @custom-variant below-wall (@media not all and (min-width: 96rem) and (min-height: 66rem));
 
+/* Où l'affiche panoramique (posterWide) remplace celle en hauteur : le
+   bureau, et toute fenêtre ou tablette en paysage d'au moins 640 px. Même
+   requête que la <source> de PosterHero (POSTER_WIDE_MEDIA). */
+@custom-variant poster-wide {
+  @media (min-width: 64rem), (min-width: 40rem) and (orientation: landscape) {
+    @slot;
+  }
+}
+
 /*
   Ominin menu — "candlelit trattoria" premium theme.
   Dark (default): warm near-black surfaces, ember gradient accents
