@@ -1,11 +1,12 @@
 /*
-  Le velours de Caffè Panis (panis-backdrop.tsx). Le calque est fixe, à la
+  Le velours (panis-backdrop.tsx). Le calque est fixe, à la
   plus grande hauteur d'écran (la barre d'adresse et le clavier ne le
   redimensionnent pas) ; posé hors du thème, il ne retombe jamais dans le
   flux. La racine isole ses couches : il se peint au-dessus de son fond crème
-  et sous tout le reste. Sans WebGL utilisable, le vert profond du satin à
-  plat : les titres ivoire restent lisibles. Le haut et le pied de page
-  laissent voir le satin : pas de couture entre l'enseigne et le menu.
+  et sous tout le reste. Sans WebGL utilisable, la teinte profonde du satin
+  à plat (posée par le composant) : les titres clairs restent lisibles. Le
+  haut et le pied de page laissent voir le satin : pas de couture entre
+  l'enseigne et le menu.
 */
 .panis-backdrop {
   position: fixed;
@@ -14,7 +15,6 @@
   height: 100lvh;
   z-index: -1;
   pointer-events: none;
-  background: #0a2a17;
 
   & > canvas {
     display: block;
@@ -130,5 +130,42 @@
 @media (min-width: 48rem) {
   [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) .dish-grid > article p:has(> .reward-hint-bar) {
     white-space: nowrap;
+  }
+}
+
+/* BOHO : la carte nuit prune posée sur le satin prune. L'affiche se fond
+   dans le satin au lieu d'un aplat ; les fiches gardent leur prune plein,
+   décollées par une ombre longue et un liseré rosé. */
+[data-menu-root].theme-boho:has(> .panis-backdrop) {
+  isolation: isolate;
+  background: transparent;
+
+  & > header {
+    background: transparent;
+  }
+
+  & > header > div:first-child {
+    mask-image: linear-gradient(black 85%, transparent);
+
+    & > div:last-child {
+      display: none;
+    }
+  }
+
+  & > footer {
+    background: linear-gradient(rgb(20 8 14 / 0.35), rgb(20 8 14 / 0.6));
+    border-top-color: rgb(229 176 114 / 0.25);
+  }
+
+  & .category-heading {
+    text-shadow:
+      0 1px 18px rgb(14 5 10 / 0.95),
+      0 0 2px rgb(14 5 10 / 0.6);
+  }
+
+  & :is(.dish-grid > article, .dish-mini, .menu-highlights) {
+    background: var(--surface);
+    border-color: rgb(229 176 114 / 0.16);
+    box-shadow: 0 24px 40px -20px rgb(8 2 6 / 0.85);
   }
 }

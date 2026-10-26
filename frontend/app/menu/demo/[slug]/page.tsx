@@ -235,7 +235,7 @@ export default async function MenuPreviewPage({
           data-service={fastFood ? "fast-food" : undefined}
           className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
-          {themeClass && hasVelours(slug) && <PanisBackdrop />}
+          {themeClass && hasVelours(slug) && <PanisBackdrop slug={slug} />}
           <MenuTicker items={restaurant.ticker} />
           <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} />
           <MenuHighlights highlights={restaurant.highlights} />

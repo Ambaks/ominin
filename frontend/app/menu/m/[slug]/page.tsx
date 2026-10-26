@@ -195,7 +195,7 @@ export default async function MenuPage({
               __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
             }}
           />
-          {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop />}
+          {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop slug={slug} />}
           <MenuTicker items={restaurant.ticker} />
           <Hero
             restaurant={restaurant}

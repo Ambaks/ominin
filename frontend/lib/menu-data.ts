@@ -8,6 +8,7 @@ import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
+import { veloursPalettes } from "@/components/menu/velours-palettes";
 import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import allergenesDemo from "@/lib/menu/allergenes-demo.json";
@@ -290,6 +291,11 @@ export interface Restaurant {
    * elle tient lieu de hero à elle seule, sans texte superposé.
    */
   poster?: string;
+  /**
+   * La même affiche en panorama (srcset), pour les écrans en paysage : en
+   * hauteur, elle n'y occupait qu'une colonne entre deux marges floutées.
+   */
+  posterWide?: string;
   /**
    * Affiches des offres, de la plus ancienne à la plus récente. Sous
    * l'affiche du restaurant (poster), elles prennent la place de l'adresse
@@ -785,6 +791,8 @@ const boho: Restaurant = {
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
   poster: "/boho/poster.webp",
+  posterWide:
+    "/boho/poster-wide-1600.webp 1600w, /boho/poster-wide-2400.webp 2400w, /boho/poster-wide-3040.webp 3040w",
   formulesPill: true,
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
@@ -10546,9 +10554,9 @@ export function restaurantThemeClass(slug: string): string | undefined {
   return themeClasses[slug];
 }
 
-/** Les cartes posées sur le velours animé (components/menu/panis-backdrop) : ses règles visent le thème de Caffè Panis. */
+/** Les cartes posées sur le velours animé (components/menu/panis-backdrop), à leurs teintes. */
 export function hasVelours(slug: string): boolean {
-  return slug === "caffe-panis";
+  return slug in veloursPalettes;
 }
 
 /**

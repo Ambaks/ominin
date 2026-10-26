@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from "react";
 import "./panis-backdrop.css";
+import { veloursPalettes, type VeloursPalette } from "./velours-palettes";
 
 /*
- * Le velours de Caffè Panis : un satin vert bouteille animé sous toute la
- * carte (menu QR et aperçu, voir hasVelours). Un canevas WebGL fixe, sous les
- * fiches ; sans WebGL utilisable, le vert du satin à plat (CSS).
+ * Le velours : un satin animé sous toute la carte (menu QR et aperçu, voir
+ * hasVelours), aux teintes de l'établissement (velours-palettes.ts). Un
+ * canevas WebGL fixe, sous les fiches ; sans WebGL utilisable, la teinte du
+ * satin à plat.
  */
 
 const VERT = "attribute vec2 aPos;void main(){gl_Position=vec4(aPos,0.,1.);}";
@@ -20,8 +22,8 @@ const VERT = "attribute vec2 aPos;void main(){gl_Position=vec4(aPos,0.,1.);}";
    sous le mot-symbole. Un grain de tissu fixe, un dither triangulaire
    contre les aplats en escalier, une vignette pour creuser les bords. Au
    téléphone, où le satin ne se voit qu'entre les fiches, des plis plus serrés
-   et un vert plus clair : chaque gouttière montre une crête et un creux. */
-const VELOURS = `
+   et une teinte plus claire : chaque gouttière montre une crête et un creux. */
+const velours = ({ deep, mid, sheen }: VeloursPalette) => `
 precision highp float;
 uniform vec2 uRes;
 uniform float uTime;
@@ -54,14 +56,14 @@ void main(){
   vec3 l=normalize(vec3(-.3+.25*sin(uScroll*1.7)+.3*sin(uTime*.07),.75+.12*sin(uTime*.037+1.),.6));
   float diff=clamp(dot(n,l),0.,1.);
   float d=clamp(dot(n,normalize(l+vec3(0.,0.,1.))),0.,1.);
-  vec3 deep=mix(vec3(.035,.15,.08),vec3(.05,.22,.115),portrait);
-  vec3 mid=mix(vec3(.08,.33,.17),vec3(.1,.4,.21),portrait);
+  vec3 deep=mix(vec3(${deep[0]}),vec3(${deep[1]}),portrait);
+  vec3 mid=mix(vec3(${mid[0]}),vec3(${mid[1]}),portrait);
   vec3 col=mix(deep,mid,smoothstep(.25,.8,diff))*(mix(.8,.88,portrait)+mix(.2,.12,portrait)*smoothstep(-.5,.6,h));
   float hero=1.-.3*(1.-clamp(uScroll*2.5,0.,1.))*smoothstep(.55,.85,gl_FragCoord.y/uRes.y);
   float d8=d*d;d8*=d8;d8*=d8;
   float d40=d8*d8;d40*=d40*d8;
   float sheen=(d40*.2+d40*d40*d40*.22+d8*.02)*(.7+.3*sin(uTime*.2+h*2.));
-  col+=vec3(.6,.74,.58)*sheen*hero;
+  col+=vec3(${sheen})*sheen*hero;
   vec2 c=gl_FragCoord.xy/uRes-.5;
   col*=1.-mix(.15,.08,portrait)*dot(c,c);
   col+=(ign(gl_FragCoord.xy*.7)-.5)*.012;
@@ -76,8 +78,8 @@ const renderScale = (width: number, height: number) =>
 /* Un canevas neuf à chaque montage : le contexte perdu au démontage ne se
    réutilise pas. Rendu à 24 images par seconde au repos, à 60 pendant un
    défilement, pour que le satin suive la carte sans à-coups. Un rendu
-   logiciel ou sans précision haute garde le vert à plat (CSS). */
-function startVelours(host: HTMLElement) {
+   logiciel ou sans précision haute garde la teinte à plat. */
+function startVelours(host: HTMLElement, palette: VeloursPalette) {
   const canvas = host.appendChild(document.createElement("canvas"));
   const gl = canvas.getContext("webgl", {
     alpha: false,
@@ -125,7 +127,7 @@ function startVelours(host: HTMLElement) {
     const program = gl.createProgram();
     for (const [type, source] of [
       [gl.VERTEX_SHADER, VERT],
-      [gl.FRAGMENT_SHADER, VELOURS],
+      [gl.FRAGMENT_SHADER, velours(palette)],
     ] as const) {
       const shader = gl.createShader(type);
       if (!shader) return false;
@@ -243,8 +245,9 @@ function startVelours(host: HTMLElement) {
   };
 }
 
-export function PanisBackdrop() {
+export function PanisBackdrop({ slug }: { slug: string }) {
   const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => (ref.current ? startVelours(ref.current) : undefined), []);
-  return <div ref={ref} className="panis-backdrop" aria-hidden="true" />;
+  const palette = veloursPalettes[slug];
+  useEffect(() => (ref.current ? startVelours(ref.current, palette) : undefined), [palette]);
+  return <div ref={ref} className="panis-backdrop" style={{ background: palette.flat }} aria-hidden="true" />;
 }

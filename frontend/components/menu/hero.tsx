@@ -259,9 +259,14 @@ function LogoHero({
   );
 }
 
+/* La variante poster-wide de globals.css. */
+const POSTER_WIDE_MEDIA = "(min-width: 64rem), (min-width: 40rem) and (orientation: landscape)";
+
 /**
- * L'affiche remplit l'écran, moins la bande de contact : rognée sur les côtés
- * en portrait, entière en paysage, où sa copie floutée comble les marges.
+ * L'affiche remplit l'écran (moins les formules, s'il y en a) : rognée sur les côtés
+ * en portrait, entière en paysage, où sa copie floutée comble les marges —
+ * sauf si l'établissement a son panorama (posterWide), qui couvre alors tout
+ * le cadre.
  */
 function PosterHero({
   restaurant,
@@ -272,6 +277,7 @@ function PosterHero({
   poster: string;
   banner?: React.ReactNode;
 }) {
+  const wide = restaurant.posterWide;
   return (
     <header className="flex h-svh w-full flex-col bg-background">
       <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden">
@@ -279,33 +285,31 @@ function PosterHero({
         <img
           src={poster}
           alt=""
-          className="absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl"
+          className={`absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl ${wide ? "poster-wide:hidden" : ""}`}
         />
-        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
-        <img
-          src={poster}
-          alt=""
-          fetchPriority="high"
-          className="hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
-        />
+        <picture className="contents">
+          {wide && <source media={POSTER_WIDE_MEDIA} srcSet={wide} sizes="100vw" />}
+          <img
+            src={poster}
+            alt=""
+            fetchPriority="high"
+            className={`hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] ${
+              wide ? "poster-wide:w-full poster-wide:object-cover poster-wide:[mask-image:none]" : ""
+            }`}
+          />
+        </picture>
         <h1 className="sr-only">{brandName(restaurant)}</h1>
         <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
       </div>
 
-      {banner ?? (
-        <ContactPills
-          restaurant={restaurant}
-          className="hero-entrance flex flex-wrap justify-center gap-2 px-5 py-4 text-xs text-muted lg:gap-3 lg:text-sm"
-          style={heroDelay("350ms")}
-        />
-      )}
+      {banner}
     </header>
   );
 }
 
 /**
- * `banner` (les formules en visuel) prend, sous l'affiche, la place de
- * l'adresse et du téléphone : le pied de page les porte déjà.
+ * `banner` : les formules en visuel, sous l'affiche. L'adresse et le
+ * téléphone n'y figurent pas : le pied de page les porte déjà.
  * `firstSectionId` : la première section de la page, que vise « Découvrir la
  * carte » — les formules quand elles ouvrent la carte, sinon la première
  * catégorie.
