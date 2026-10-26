@@ -106,6 +106,16 @@ const PRODUCTS: readonly ProductConfig[] = [
     rewriteOverrides: LEGAL_OVERRIDES,
   },
   {
+    host: process.env.NEXT_PUBLIC_COMMERCIAL_HOST,
+    prefix: "/commercial",
+    // Pas d'inscription publique : on n'entre que sur invitation, par le
+    // lien reçu à l'adresse invitée.
+    privatePaths: ["/espace"],
+    afterLogin: "/espace",
+    legacyPaths: [],
+    rewriteOverrides: LEGAL_OVERRIDES,
+  },
+  {
     host: process.env.NEXT_PUBLIC_ADMIN_HOST,
     prefix: "/admin",
     // CRM interne : tout est privé sauf /connexion (exclu par la garde) et

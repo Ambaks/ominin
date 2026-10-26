@@ -10,8 +10,8 @@ import { isPublished } from "@/lib/legal/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   LegalVersionError,
+  type ClientDoc,
   type LegalBlock,
-  type LegalDoc,
   type LegalDocument,
 } from "@/lib/legal/types";
 
@@ -200,7 +200,7 @@ function numbered(articles: LegalDocument["articles"]) {
  * toujours servir le texte en vigueur, et taire un préavis qu'on ne peut pas
  * confirmer vaut mieux qu'en afficher un que l'e-mail n'a peut-être pas donné.
  */
-async function announcedVersion(doc: LegalDoc) {
+async function announcedVersion(doc: ClientDoc) {
   const next = pendingVersion(doc);
   if (!next) return undefined;
   try {
@@ -211,7 +211,29 @@ async function announcedVersion(doc: LegalDoc) {
   }
 }
 
-export async function LegalPage({ doc }: { doc: LegalDoc }) {
+/** Articles numérotés et ancrés d'un document, sans la coquille de page. */
+export function LegalArticles({ document }: { document: LegalDocument }) {
+  return numbered(document.articles).map(({ entry, id, label, title }) => (
+    <section key={id} id={id} className="scroll-mt-8 break-inside-avoid">
+      {label && (
+        <a
+          href={`#${id}`}
+          className={`${legalLabelClass} transition-colors hover:text-ember-2`}
+        >
+          {label}
+        </a>
+      )}
+      <h2 className={`mt-2 ${legalHeadingClass}`}>{title}</h2>
+      <div className="mt-4 space-y-4">
+        {entry.body.map((block, blockIndex) => (
+          <Block key={`${id}-${blockIndex}`} block={block} />
+        ))}
+      </div>
+    </section>
+  ));
+}
+
+export async function LegalPage({ doc }: { doc: ClientDoc }) {
   /*
    * La version se résout ici, et son absence se rend en page plutôt qu'en
    * 500 : ces adresses sont citées dans le contrat lui-même, un client qui
@@ -241,7 +263,7 @@ export async function LegalPage({ doc }: { doc: LegalDoc }) {
     );
   }
 
-  const next = await announcedVersion(document.doc);
+  const next = await announcedVersion(doc);
 
   return (
     <LegalShell
@@ -250,29 +272,11 @@ export async function LegalPage({ doc }: { doc: LegalDoc }) {
       meta={`Version ${document.version} · en vigueur depuis le ${frenchDate(
         document.effectiveFrom
       )}`}
-      current={document.doc}
+      current={doc}
       fingerprint={shortHash(documentHash(document))}
     >
       {next && <PendingNotice next={next} />}
-
-      {numbered(document.articles).map(({ entry, id, label, title }) => (
-        <section key={id} id={id} className="scroll-mt-8 break-inside-avoid">
-          {label && (
-            <a
-              href={`#${id}`}
-              className={`${legalLabelClass} transition-colors hover:text-ember-2`}
-            >
-              {label}
-            </a>
-          )}
-          <h2 className={`mt-2 ${legalHeadingClass}`}>{title}</h2>
-          <div className="mt-4 space-y-4">
-            {entry.body.map((block, blockIndex) => (
-              <Block key={`${id}-${blockIndex}`} block={block} />
-            ))}
-          </div>
-        </section>
-      ))}
+      <LegalArticles document={document} />
     </LegalShell>
   );
 }

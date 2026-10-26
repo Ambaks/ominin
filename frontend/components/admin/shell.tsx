@@ -35,6 +35,7 @@ import {
   ShareIcon,
   SlidersIcon,
   StoreIcon,
+  UserIcon,
 } from "./icons";
 import { LeadPanelHost } from "./lead/lead-panel-host";
 import { NotificationsButton } from "./notifications";
@@ -96,6 +97,7 @@ const SECTIONS: Section[] = [
         icon: ShareIcon,
         products: SOCIAL_PRODUCTS,
       },
+      { href: "/commerciaux", label: "Commerciaux", icon: UserIcon },
     ],
   },
   {

@@ -11,7 +11,19 @@ export class LegalVersionError extends Error {
 }
 
 /** Documents versionnés, acceptés ou simplement publiés (miroir de l'enum SQL). */
-export type LegalDoc = "cgv" | "dpa" | "confidentialite";
+export type LegalDoc = "cgv" | "dpa" | "confidentialite" | "commercial";
+
+/**
+ * Documents qui engagent les clients d'Ominin. Eux seuls sont annoncés aux
+ * gérants à la publication et soumis au préavis de révision des CGV : le
+ * contrat de commercial lie Ominin à ses apporteurs, et une nouvelle version
+ * ne vaut que pour ceux qui la signent.
+ */
+export const CLIENT_DOCS = ["cgv", "dpa", "confidentialite"] as const satisfies readonly LegalDoc[];
+export type ClientDoc = (typeof CLIENT_DOCS)[number];
+
+export const isClientDoc = (doc: LegalDoc): doc is ClientDoc =>
+  (CLIENT_DOCS as readonly LegalDoc[]).includes(doc);
 
 /** Documents que le client accepte — les autres sont informatifs. */
 export const SIGNED_DOCS = ["cgv", "dpa"] as const satisfies readonly LegalDoc[];
@@ -44,6 +56,12 @@ export interface LegalDocument {
   lead: string;
   /** Ce qui change depuis la version précédente, montré à la réacceptation. */
   summary: string;
+  /**
+   * Résumé montré au-dessus du formulaire de signature, hors empreinte : une
+   * aide à la lecture, rédigée avec la version qu'elle résume pour vieillir
+   * avec elle.
+   */
+  essentials?: string[];
   /**
    * false : révision applicable sans préavis ni réacceptation, sur décision de
    * l'éditeur — la signature d'une version antérieure du document vaut pour

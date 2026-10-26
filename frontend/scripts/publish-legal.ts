@@ -26,7 +26,7 @@ import {
 import { documents } from "../lib/legal/documents";
 import { frenchDate } from "../lib/legal/format";
 import { documentHash, shortHash } from "../lib/legal/hash";
-import type { LegalDoc, LegalDocument } from "../lib/legal/types";
+import { isClientDoc, type LegalDoc, type LegalDocument } from "../lib/legal/types";
 import { siteUrl } from "../lib/site";
 import type { Database } from "../lib/supabase/database.types";
 
@@ -67,6 +67,7 @@ const problems: string[] = [];
 function checkNotice(document: LegalDocument, isFirstVersion: boolean) {
   // Révision sans réacceptation (LegalDocument.reacceptance) : sans préavis.
   if (isFirstVersion || document.reacceptance === false) return;
+  if (!isClientDoc(document.doc)) return;
   // Arrondi vers le bas : « au moins 30 jours » ne peut pas être satisfait
   // par 29 jours et 16 heures.
   const days = Math.floor(
@@ -208,7 +209,8 @@ function noticeHtml(published: LegalDocument[], site: string) {
  * à leur prochaine connexion : leur envoyer l'information après coup serait
  * la découvrir par un écran de blocage.
  */
-async function notify(published: LegalDocument[]) {
+async function notify(all: LegalDocument[]) {
+  const published = all.filter((document) => isClientDoc(document.doc));
   if (!published.length) return;
 
   const to = await recipients();

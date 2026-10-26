@@ -17,6 +17,8 @@ export const RATE_LIMITS = {
   callServer: { max: 10, windowSeconds: 600 },
   /** Invitations d'équipe, par gérant. */
   teamInvite: { max: 20, windowSeconds: DAY_S },
+  /** Liens de connexion à l'espace commercial, par IP et par adresse demandée. */
+  commercialLink: { max: 5, windowSeconds: HOUR_S },
   /** Légendes générées par IA, par clipper. */
   clipCaptions: { max: 30, windowSeconds: DAY_S },
 } as const;
