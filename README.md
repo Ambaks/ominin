@@ -1083,9 +1083,11 @@ section, pushes and writes the team journal (see `CLAUDE.md`, Workflow).
 The prospecting agent's code is complete; these dashboard steps make it live.
 Order matters.
 
-1. **Google Cloud** (one project for both APIs):
-   - Enable **Places API (New)** → create an API key restricted to it →
-     `GOOGLE_PLACES_API_KEY`.
+1. **Google Cloud**:
+   - Discovery needs nothing: it reads the latest Overture Maps release
+     (open data, no key) and checks unclear closures with Recherche
+     d'entreprises (free, no key). Places API (New) →
+     `GOOGLE_PLACES_API_KEY` is only for Ominin Agents.
    - Enable **Gmail API** → OAuth consent screen (External), publishing
      status **"In production"** (in "Testing" the refresh token dies after
      7 days) → create an OAuth client of type **Desktop app** →
@@ -1113,7 +1115,7 @@ Order matters.
 5. **Vercel**: add `OUTREACH_UNSUBSCRIBE_SECRET` (same value as Render).
 6. **GitHub** repo secrets: `BACKEND_URL` (the Render URL, no trailing
    slash) + `AGENT_TRIGGER_SECRET`. The workflows in
-   `.github/workflows/agent-*.yml` (discovery 3×/day, outreach, inbox,
+   `.github/workflows/agent-*.yml` (discovery weekly, outreach, inbox,
    weekly autoresearch) then run on schedule; each also has a manual "Run
    workflow" button, and `agent-enrich` is manual-only (one qualification
    batch on demand).

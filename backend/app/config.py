@@ -21,30 +21,26 @@ class Settings(BaseSettings):
     # Outreach agent — shared secret required on every /agent/* trigger.
     agent_trigger_secret: str = ""
 
-    # Google Places API (New). Text Search caps at ~60 results per query, so
-    # coverage comes from query variety — terms × quartiers × villes — rotated
-    # a few combinations per nightly run, least recently served first. A query
-    # yielding zero new restaurants discovery_query_max_empty times in a row
-    # is retired (state in outreach_discovery_queries).
-    google_places_api_key: str = ""
+    # Léa's discovery: every place of these Overture basic categories in
+    # each city's commune (postcodes + bbox from geo.api.gouv.fr), read from
+    # the latest Overture Maps release — open data (CDLA-Permissive-2.0,
+    # storage allowed), no key, no bill. Places Overture leaves without an
+    # operating status are checked against SIRENE (Recherche d'entreprises).
     outreach_cities: str = "Montpellier,Toulouse"
-    discovery_query_terms: str = (
-        "restaurant,pizzeria,brasserie,bistrot,crêperie,restaurant italien,"
-        "restaurant japonais,restaurant asiatique,restaurant indien,burger"
+    discovery_categories: str = (
+        "restaurant,fast_food_restaurant,casual_eatery,bar,cafe,coffee_shop"
     )
-    # "Ville:Quartier|Quartier;Ville:…" — joués en plus des requêtes ville
-    # entière.
-    discovery_neighborhoods: str = (
-        "Montpellier:Écusson|Beaux-Arts|Boutonnet|Port Marianne|Antigone|"
-        "Figuerolles|Les Arceaux;"
-        "Toulouse:Capitole|Carmes|Saint-Cyprien|Saint-Michel|Saint-Aubin|"
-        "Les Chalets|Jeanne d'Arc"
-    )
-    # Sized with the 3 daily discovery runs so the funnel (~15 % of
-    # discovered prospects qualify) can feed outreach_daily_limit. Every
-    # page fetched is a billed Enterprise-SKU Text Search call.
-    discovery_queries_per_run: int = 100
-    discovery_query_max_empty: int = 2
+    overture_stac_url: str = "https://stac.overturemaps.org/catalog.json"
+    communes_api_url: str = "https://geo.api.gouv.fr/communes"
+    sirene_search_url: str = "https://recherche-entreprises.api.gouv.fr/search"
+    discovery_timeout_seconds: int = 30
+    # Ids per "already in the CRM?" query — they ride in the URL.
+    discovery_id_chunk: int = 200
+
+    # Google Places API (New), used by Ominin Agents' discovery only. Text
+    # Search caps at ~60 results per query; every page fetched is a billed
+    # Enterprise-SKU call.
+    google_places_api_key: str = ""
     discovery_max_pages_per_query: int = 5
 
     # Gmail (OAuth refresh token from scripts/gmail_auth.py)
