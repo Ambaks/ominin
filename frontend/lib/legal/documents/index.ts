@@ -1,5 +1,6 @@
 import { LegalVersionError, type LegalDoc, type LegalDocument, type SignedDoc } from "../types";
 import { cgv, cgv20261007, cgv20261007b, cgv20261011, cgv20261016 } from "./cgv";
+import { commercial } from "./commercial";
 import { confidentialite } from "./confidentialite";
 import { dpa } from "./dpa";
 
@@ -22,6 +23,7 @@ export const documents: Record<LegalDoc, LegalDocument[]> = {
   cgv: [cgv, cgv20261007, cgv20261007b, cgv20261011, cgv20261016],
   dpa: [dpa],
   confidentialite: [confidentialite],
+  commercial: [commercial],
 };
 
 const byEffectiveDate = (a: LegalDocument, b: LegalDocument) =>
@@ -74,4 +76,4 @@ export const signedVersionsInForce = (
   dpa: versionInForce("dpa", at).version,
 });
 
-export { cgv, confidentialite, dpa };
+export { cgv, commercial, confidentialite, dpa };

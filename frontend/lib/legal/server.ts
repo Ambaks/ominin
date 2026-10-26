@@ -6,6 +6,7 @@ import { documentHash, shortHash } from "./hash";
 import {
   LegalVersionError,
   SIGNED_DOCS,
+  isClientDoc,
   type AcceptedTerms,
   type LegalDocument,
   type SignedDoc,
@@ -57,7 +58,7 @@ function clientIp(request: Request): string | null {
 }
 
 /** Preuve technique du clic, telle que la voit le serveur. */
-function requestFingerprint(request: Request) {
+export function requestFingerprint(request: Request) {
   return {
     ip: clientIp(request),
     user_agent:
@@ -87,6 +88,10 @@ async function versionIds(admin: Admin): Promise<Record<SignedDoc, string>> {
    * divergence n'éclatait qu'à la date d'effet, en panne.
    */
   for (const row of data ?? []) {
+    // Le contrat de commercial a sa propre vérification
+    // (lib/legal/commercial.ts) : une divergence de son texte ne doit pas
+    // couper les paiements des restaurants.
+    if (!isClientDoc(row.doc)) continue;
     const document = findVersion(row.doc, row.version);
     if (!document) continue;
     const expected = documentHash(document);

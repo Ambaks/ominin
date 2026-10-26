@@ -29,6 +29,23 @@ export const PRICE_NOTICE_DAYS = 30;
  */
 export const WITHDRAWAL_DAYS = 14;
 
+/**
+ * Contrat de commercial (documents/commercial.ts) : part du chiffre
+ * d'affaires net encaissé sur chaque Client Apporté. Les relevés mensuels la
+ * calculent avec cette valeur — celle que le commercial a signée.
+ */
+export const COMMERCIAL_COMMISSION_PERCENT = 15;
+
+/** Durée ferme du contrat de commercial, sans reconduction tacite. */
+export const COMMERCIAL_TERM_MONTHS = 24;
+
+/** Prolongation qu'Ominin seule peut lever au terme de la durée ferme. */
+export const COMMERCIAL_OPTION_YEARS = 3;
+
+/** Durée totale si l'option est levée, telle que le contrat l'écrit. */
+export const COMMERCIAL_TOTAL_YEARS =
+  COMMERCIAL_TERM_MONTHS / 12 + COMMERCIAL_OPTION_YEARS;
+
 /** Chemins publics des documents, identiques sur tous les hôtes produits. */
 export const LEGAL_PATHS = {
   cgv: "/cgv",
