@@ -49,11 +49,18 @@ class Settings(BaseSettings):
     gmail_refresh_token: str = ""
     gmail_sender_email: str = "omininsupport@gmail.com"
     gmail_sender_name: str = "Léa Moreau"
+    # Phone line of Léa's signature; empty = no line. Kept out of the repo.
+    gmail_sender_phone: str = ""
 
     # Claude model used for qualification, cold emails, reply drafts,
     # and autoresearch analysis — with adaptive thinking on, at this effort.
     outreach_model: str = "claude-opus-5"
     outreach_effort: str = "high"
+
+    # The demo Léa's cold email links to, and the cities where the team
+    # comes to the restaurant — elsewhere she offers a call or a video call.
+    outreach_demo_url: str = "https://menu.ominin.com/demo/caffe-panis"
+    outreach_onsite_cities: str = "Montpellier,Toulouse"
 
     # Batching / limits. Each outreach run composes and sends up to the full
     # daily cap in one pass; remaining cron runs that day exit immediately.
