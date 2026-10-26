@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import type { MonthLine, Statement } from "@/lib/commercial/api";
+import { displayName } from "@/lib/commercial/record";
 import { statementCsv, statementFilename, statementPdf } from "@/lib/commercial/statement";
 import { createClient } from "@/lib/supabase/server";
 
@@ -30,9 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteContext<"/api/c
       },
     });
   }
-  const who = data.commerciaux;
-  const name = [who?.first_name, who?.last_name].filter(Boolean).join(" ") || (who?.email ?? "");
-  return new Response(new Uint8Array(await statementPdf(statement, name)), {
+  return new Response(new Uint8Array(await statementPdf(statement, displayName(data.commerciaux))), {
     headers: {
       "Content-Type": "application/pdf",
       "Content-Disposition": `inline; filename="${statementFilename(statement.month)}"`,

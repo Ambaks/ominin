@@ -23,12 +23,9 @@ function Title({ children }: { children: React.ReactNode }) {
 
 const SMALL = "rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground";
 
-/** Déclaration active d'une fiche : en attente, ou réservée et pas échue. */
+/** Déclaration active d'une fiche : en attente, ou réservée (états effectifs, calculés en base). */
 export function activeDeclaration(detail: LeadDetail) {
-  const now = new Date().toISOString();
-  return detail.declarations.find(
-    (d) => d.status === "pending" || (d.status === "confirmed" && (d.reservedUntil ?? "") > now)
-  );
+  return detail.declarations.find((d) => d.status === "pending" || d.status === "confirmed");
 }
 
 /*

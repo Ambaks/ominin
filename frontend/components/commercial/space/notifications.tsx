@@ -61,7 +61,7 @@ export function Notifications() {
           </button>
         )}
         {(Object.keys(PUSH_EVENT_LABELS) as PushEventKey[]).map((key) => (
-          <div key={key} className="flex items-center justify-between gap-3">
+          <label key={key} className="flex min-h-11 cursor-pointer items-center justify-between gap-3">
             <span>{PUSH_EVENT_LABELS[key]}</span>
             <Toggle
               checked={prefs[key] !== false}
@@ -72,7 +72,7 @@ export function Notifications() {
               }}
               label={PUSH_EVENT_LABELS[key]}
             />
-          </div>
+          </label>
         ))}
       </div>
     </section>

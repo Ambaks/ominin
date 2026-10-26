@@ -2,18 +2,15 @@ import { ContractToSign, Signed } from "@/components/commercial/contract";
 import { AccountPanel } from "@/components/commercial/space/account";
 import { Documents } from "@/components/commercial/space/money";
 import { Notifications } from "@/components/commercial/space/notifications";
-import type { CommercialAccount } from "@/lib/commercial/api";
+import { commercialAccount } from "@/lib/commercial/session";
 import { latestCommercialSignature } from "@/lib/legal/commercial";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 /** Compte : identité, contrat signé, nouvelle version à signer, résiliation. */
 export default async function ComptePage() {
-  const supabase = await createClient();
-  const { data } = await supabase.rpc("commercial_account");
-  const account = data as unknown as CommercialAccount;
+  const account = (await commercialAccount())!;
   const admin = createAdminClient();
   const signature = await latestCommercialSignature(admin, account.id);
 

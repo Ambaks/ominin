@@ -92,6 +92,8 @@ export function RestaurantScreen({ id }: { id: string }) {
       ? `${restaurant.latitude},${restaurant.longitude}`
       : [restaurant.address, restaurant.city].filter(Boolean).join(", ");
   const free = state.kind === "free" && !state.in_talks;
+  // L'opposition se note sur sa déclaration, ou après son propre passage sur une fiche libre.
+  const canOptOut = Boolean(mine) || (free && sheet.history.some((entry) => entry.mine && entry.status === "passage"));
 
   return (
     <div className="flex flex-col gap-7">
@@ -183,7 +185,7 @@ export function RestaurantScreen({ id }: { id: string }) {
         <button type="button" onClick={() => setDialog("privacy")} className={ghostButton}>
           Montrer la mention d’information (QR)
         </button>
-        {(mine || free) && (
+        {canOptOut && (
           <button type="button" onClick={() => setDialog("optout")} className={ghostButton}>
             Le restaurant ne veut plus être contacté
           </button>

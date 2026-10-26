@@ -11,7 +11,8 @@
 --     paid_at — seulement si l'admin les a inclus (décision n° 2) ;
 --   Factures Ominin : ominin_invoice_payments, lignes d'abonnement et de
 --     commission facturée seulement (prix Stripe éligibles réglés par l'admin),
---     plus les encaissements hors Stripe saisis par l'admin.
+--     remises déduites, avoirs retranchés au mois de l'encaissement, plus les
+--     encaissements hors Stripe saisis par l'admin.
 -- La période : de commission_from à commission_from + durée, bornée par le
 -- départ du client. Le relevé fige ses lignes à l'envoi ; ce que la base
 -- apprend ensuite d'un mois figé devient une régularisation automatique.
@@ -23,8 +24,8 @@ alter table public.commercial_settings
   add column club_fees_included boolean;
 
 -- ---------------------------------------------------------------------------
--- Encaissements des factures Ominin (webhook invoice.paid) et saisies hors
--- Stripe de l'admin (stripe_invoice_id nul).
+-- Encaissements des factures Ominin (webhooks invoice.paid et credit_note.*)
+-- et saisies hors Stripe de l'admin (stripe_invoice_id nul).
 create table public.ominin_invoice_payments (
   id uuid primary key default gen_random_uuid(),
   etablissement_id uuid references public.etablissements (id),
@@ -32,12 +33,13 @@ create table public.ominin_invoice_payments (
   stripe_invoice_id text unique,
   eligible_ht_cents int not null check (eligible_ht_cents >= 0),
   paid_at timestamptz not null,
-  -- Facture annulée après coup : sort de l'assiette (régularisation).
-  voided_at timestamptz,
+  -- Part éligible des avoirs émis sur la facture (régularisation).
+  credited_cents int not null default 0,
   note text,
   created_at timestamptz not null default now(),
   check (num_nonnulls(etablissement_id, shop_id) = 1),
-  check (stripe_invoice_id is not null or note is not null)
+  check (stripe_invoice_id is not null or note is not null),
+  check (credited_cents between 0 and eligible_ht_cents)
 );
 create index ominin_invoice_payments_etablissement_idx on public.ominin_invoice_payments (etablissement_id, paid_at);
 create index ominin_invoice_payments_shop_idx on public.ominin_invoice_payments (shop_id, paid_at);
@@ -81,9 +83,8 @@ as $$
               where cfg.club_fees_included and p.etablissement_id = c.etablissement_id
                 and p.status = 'payee' and p.refunded_at is null and not e.demo
                 and p.paid_at >= span.lo and p.paid_at < span.hi), 0),
-    coalesce((select sum(i.eligible_ht_cents)::bigint from public.ominin_invoice_payments i, span
-              where i.voided_at is null
-                and (i.etablissement_id = c.etablissement_id or i.shop_id = c.shop_id)
+    coalesce((select sum(i.eligible_ht_cents - i.credited_cents)::bigint from public.ominin_invoice_payments i, span
+              where (i.etablissement_id = c.etablissement_id or i.shop_id = c.shop_id)
                 and i.paid_at >= span.lo and i.paid_at < span.hi), 0);
 $$;
 revoke execute on function public.commercial_base(public.commercial_clients, timestamptz, timestamptz)
@@ -135,14 +136,17 @@ create table public.commercial_statements (
   lines jsonb not null default '[]',
   adjustments jsonb not null default '[]',
   total_cents bigint not null default 0,
-  status text not null default 'draft' check (status in ('draft', 'sent', 'invoiced', 'paid', 'contested')),
+  status text not null default 'draft' check (status in ('draft', 'sent', 'invoiced', 'paid')),
   sent_at timestamptz,
   invoice_path text,
   invoice_received_at timestamptz,
   detail_requested_at timestamptz,
   detail_sent_at timestamptz,
+  -- Contestation (art. 5.4) : n'en change pas l'état, l'admin la clôt.
   contested_at timestamptz,
   contest_note text,
+  contest_resolved_at timestamptz,
+  contest_resolution text,
   paid_at timestamptz,
   created_at timestamptz not null default now(),
   unique (commercial_id, month)
@@ -242,6 +246,7 @@ revoke execute on function public.commercial_draft_statement(uuid, date) from pu
 
 -- Tâche quotidienne, le 1er du mois (et en rattrapage les jours suivants) :
 -- brouillon du mois écoulé pour chaque commercial qui a des Clients Apportés.
+-- Le relevé final (art. 8.1) a sa propre fonction, plus bas.
 create function public.commercial_draft_statements()
 returns int
 language plpgsql
@@ -341,13 +346,66 @@ as $$
 begin
   perform public.admin_require();
   update public.commercial_statements
-  set status = case when status = 'contested' then status else 'paid' end, paid_at = now()
-  where id = p_statement and status in ('sent', 'invoiced', 'contested') and paid_at is null;
+  set status = 'paid', paid_at = now()
+  where id = p_statement and status in ('sent', 'invoiced');
   if not found then
     raise exception 'Relevé introuvable ou déjà payé.';
   end if;
 end;
 $$;
+
+-- Clôture d'une contestation : la réponse d'Ominin, lue par le commercial
+-- dans Argent ; une correction passe par une régularisation.
+create function public.admin_statement_resolve(p_statement uuid, p_resolution text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  perform public.admin_require();
+  if nullif(btrim(p_resolution), '') is null then
+    raise exception 'Écrivez la réponse faite au commercial.';
+  end if;
+  update public.commercial_statements
+  set contest_resolved_at = now(), contest_resolution = btrim(p_resolution)
+  where id = p_statement and contested_at is not null and contest_resolved_at is null;
+  if not found then
+    raise exception 'Aucune contestation ouverte sur ce relevé.';
+  end if;
+end;
+$$;
+
+-- Relevé final (art. 8.1) : dès la fin du contrat, brouillon du mois de la
+-- fin, recalculé chaque jour tant qu'il n'est pas envoyé ; la tâche
+-- quotidienne rappelle à l'admin l'échéance de l'envoi.
+create function public.commercial_final_statements()
+returns table (commercial_id uuid, statement_id uuid, due_at timestamptz)
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  c record;
+begin
+  for c in
+    select m.id, m.ended_at, (date_trunc('month', m.ended_at at time zone 'Europe/Paris'))::date as month
+    from public.commerciaux m
+    where m.ended_at <= now()
+      and not exists (
+        select 1 from public.commercial_statements s
+        where s.commercial_id = m.id and s.status <> 'draft'
+          and s.month = (date_trunc('month', m.ended_at at time zone 'Europe/Paris'))::date)
+  loop
+    commercial_id := c.id;
+    statement_id := public.commercial_draft_statement(c.id, c.month);
+    due_at := c.ended_at + make_interval(days => (public.commercial_cfg()).final_statement_days);
+    return next;
+  end loop;
+end;
+$$;
+revoke execute on function public.commercial_final_statements() from public, anon, authenticated;
+grant execute on function public.commercial_final_statements() to service_role;
 
 create function public.admin_statement_detail_sent(p_statement uuid)
 returns void
@@ -443,8 +501,7 @@ begin
   update public.commercial_statements
   set invoice_path = p_path, invoice_received_at = now(),
       status = case when status = 'sent' then 'invoiced' else status end
-  where id = p_statement and commercial_id = me.id and status in ('sent', 'invoiced', 'contested')
-    and paid_at is null;
+  where id = p_statement and commercial_id = me.id and status in ('sent', 'invoiced');
   if not found then
     raise exception 'Ce relevé n''attend pas de facture.';
   end if;
@@ -478,7 +535,8 @@ begin
 end;
 $$;
 
--- Contestation écrite, dans le délai contractuel après la réception.
+-- Contestation écrite, une par relevé, dans le délai contractuel après la
+-- réception ; le relevé garde son état (payé reste payé).
 create function public.commercial_contest(p_statement uuid, p_note text)
 returns void
 language plpgsql
@@ -492,8 +550,8 @@ begin
     raise exception 'Expliquez ce que vous contestez.';
   end if;
   update public.commercial_statements
-  set status = 'contested', contested_at = now(), contest_note = btrim(p_note)
-  where id = p_statement and commercial_id = me.id and status in ('sent', 'invoiced', 'paid')
+  set contested_at = now(), contest_note = btrim(p_note)
+  where id = p_statement and commercial_id = me.id and status <> 'draft' and contested_at is null
     and sent_at > now() - make_interval(months => (public.commercial_cfg()).contest_months);
   if not found then
     raise exception 'Ce relevé ne peut plus être contesté (délai de l''article 5.4 dépassé ou déjà contesté).';
@@ -537,6 +595,31 @@ as $$
 $$;
 revoke execute on function public.commercial_urssaf_due(uuid) from public, anon, authenticated;
 
+-- Rappel URSSAF par e-mail (tâche quotidienne) : une fois par attestation
+-- attendue, c'est-à-dire pas de nouveau rappel avant le prochain dépôt.
+create function public.commercial_urssaf_reminders()
+returns int
+language sql
+security definer
+set search_path = ''
+as $$
+  with queued as (
+    insert into public.commercial_emails (commercial_id, kind)
+    select m.id, 'urssaf' from public.commerciaux m
+    where (m.ended_at is null or m.ended_at > now())
+      and public.commercial_urssaf_due(m.id)
+      and not exists (
+        select 1 from public.commercial_emails e
+        where e.commercial_id = m.id and e.kind = 'urssaf'
+          and e.created_at > coalesce((select max(d.uploaded_at) from public.commercial_documents d
+                                       where d.commercial_id = m.id and d.kind = 'urssaf'), '-infinity'))
+    returning 1
+  )
+  select count(*)::int from queued;
+$$;
+revoke execute on function public.commercial_urssaf_reminders() from public, anon, authenticated;
+grant execute on function public.commercial_urssaf_reminders() to service_role;
+
 -- L'écran Argent : estimation du mois, relevés, échéances.
 create function public.commercial_money()
 returns jsonb
@@ -557,6 +640,8 @@ as $$
         'paid_at', s.paid_at, 'detail_requested_at', s.detail_requested_at,
         'detail_due', s.detail_requested_at + make_interval(days => cfg.detail_response_days),
         'detail_sent_at', s.detail_sent_at, 'contested_at', s.contested_at,
+        'contest_note', s.contest_note, 'contest_resolved_at', s.contest_resolved_at,
+        'contest_resolution', s.contest_resolution,
         'contest_until', s.sent_at + make_interval(months => cfg.contest_months))
         order by s.month desc)
       from public.commercial_statements s, me
@@ -577,7 +662,7 @@ language sql
 security definer
 set search_path = ''
 as $$
-  with me as (select * from public.commercial_me('money')),
+  with me as (select * from public.commercial_me('work')),
   cfg as (select * from public.commercial_cfg()),
   month as (
     select (date_trunc('month', now() at time zone 'Europe/Paris')) at time zone 'Europe/Paris' as lo
@@ -652,6 +737,7 @@ begin
     'admin_statement_adjust(uuid, text, bigint)',
     'admin_statement_send(uuid)',
     'admin_statement_paid(uuid)',
+    'admin_statement_resolve(uuid, text)',
     'admin_statement_detail_sent(uuid)',
     'admin_record_payment(uuid, uuid, int, timestamptz, text)',
     'admin_month_lines(uuid, date)',

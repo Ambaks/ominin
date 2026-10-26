@@ -7,9 +7,10 @@ import { frenchDate } from "@/lib/legal/format";
 import { commercialPrefix, commercialSiteUrl } from "@/lib/site";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import type { MonthLine, PushEventKey, Statement } from "./api";
-import { END_LABELS, LEA_LABELS, REFUSAL_LABELS, type EndReason, type RefusalReason } from "./labels";
+import { END_LABELS, LEA_LABELS, REFUSAL_LABELS, monthLabel, type EndReason, type RefusalReason } from "./labels";
 import { notifyCommercial } from "./push";
-import { monthLabel, statementCsv, statementFilename, statementPdf } from "./statement";
+import { displayName } from "./record";
+import { statementCsv, statementFilename, statementPdf } from "./statement";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -55,11 +56,16 @@ interface Message {
   attachments?: () => Promise<MailAttachment[]>;
 }
 
-const fullName = (row: OutboxRow) =>
-  [row.commerciaux.first_name, row.commerciaux.last_name].filter(Boolean).join(" ") || row.commerciaux.email;
-
-/** Relevé envoyé (art. 5.1) et détail des encaissements (art. 5.4). */
-function composeStatement(row: OutboxRow): Message | null {
+/** Relevé envoyé (art. 5.1), détail des encaissements (art. 5.4), attestation URSSAF due (art. 2.5). */
+function composeAccount(row: OutboxRow): Message | null {
+  if (row.kind === "urssaf") {
+    return {
+      subject: "Attestation URSSAF à déposer",
+      heading: "Votre attestation de vigilance URSSAF.",
+      body: "Vos commissions relev&eacute;es atteignent le seuil de l&rsquo;article 2.5 du contrat : d&eacute;posez dans votre espace, rubrique Compte, une attestation de vigilance URSSAF de moins de six mois.",
+      path: "/espace/compte",
+    };
+  }
   const s = row.commercial_statements;
   if (!s) return null;
   const label = monthLabel(s.month);
@@ -74,7 +80,7 @@ function composeStatement(row: OutboxRow): Message | null {
         {
           filename: statementFilename(s.month),
           contentType: "application/pdf",
-          content: Buffer.from(await statementPdf(s, fullName(row))),
+          content: Buffer.from(await statementPdf(s, displayName(row.commerciaux))),
         },
       ],
     };
@@ -96,7 +102,7 @@ function composeStatement(row: OutboxRow): Message | null {
 /** Sujet et corps HTML de chaque sorte d'e-mail. */
 function compose(row: OutboxRow): Message | null {
   const d = row.commercial_declarations;
-  if (!d) return composeStatement(row);
+  if (!d) return composeAccount(row);
   const r = d.crm_restaurants;
   const declared = frenchDate(d.declared_at);
   const path = `/espace/restaurants/${d.restaurant_id}`;
@@ -143,12 +149,13 @@ function compose(row: OutboxRow): Message | null {
         heading: "Le restaurant s’oppose à la prospection.",
         body: `${where(r)} a demand&eacute; &agrave; ne plus &ecirc;tre contact&eacute;. Votre d&eacute;claration est close : merci de ne plus le d&eacute;marcher (article 6.1 du contrat).`,
         path,
+        push: "opposition",
       };
     case "lea_reply":
       return {
         subject: `${r.name} a répondu à Ominin`,
         heading: "Le restaurant a répondu à Ominin.",
-        body: `${where(r)}, que vous avez d&eacute;clar&eacute;, a r&eacute;pondu &agrave; un ancien e-mail d&rsquo;Ominin : ${escapeHtml(LEA_LABELS[row.detail ?? ""] ?? "r&eacute;ponse")}. Ominin la traite ; votre d&eacute;claration n&rsquo;est pas modifi&eacute;e.`,
+        body: `${where(r)}, que vous avez d&eacute;clar&eacute;, a r&eacute;pondu &agrave; un ancien e-mail d&rsquo;Ominin : ${escapeHtml(LEA_LABELS[row.detail ?? ""] ?? "réponse")}. Ominin la traite ; votre d&eacute;claration n&rsquo;est pas modifi&eacute;e.`,
         path,
       };
     case "released":
@@ -208,6 +215,16 @@ export async function flushOutbox(admin: Admin): Promise<{ sent: number; failed:
           tag: `commercial-${row.id}`,
           url: `${commercialPrefix}${message.path}`,
         }).catch((cause) => console.error("[commercial] notification non envoyée", cause));
+      }
+      // Une inscription par lien prévient aussi les admins : Projet lancé,
+      // Client Apporté à valider s'il lève une alerte.
+      if (row.kind === "signed" && row.commercial_declarations) {
+        await notifyOwners(OWNERS, {
+          title: `Inscrit · ${row.commercial_declarations.crm_restaurants.name}`,
+          body: `Client Apporté de ${displayName(row.commerciaux)}. À suivre dans le Projet.`,
+          tag: `inscription-${row.declaration_id}`,
+          url: "/commerciaux?onglet=inscriptions",
+        }).catch((cause) => console.error("[commercial] notification admin non envoyée", cause));
       }
     } catch (cause) {
       failed++;

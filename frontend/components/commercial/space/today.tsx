@@ -203,7 +203,7 @@ export function TodayScreen() {
                       <input
                         type="date"
                         aria-label={`Reporter « ${task.title} »`}
-                        className="absolute inset-0 cursor-pointer opacity-0"
+                        className="absolute inset-0 cursor-pointer text-base opacity-0"
                         onChange={(event) => event.target.value && taskPostpone(task, event.target.value)}
                       />
                     </label>

@@ -36,13 +36,6 @@ def _category(types: list[str]) -> str:
     return "restaurant"
 
 
-def _address_component(place: dict, kind: str) -> str | None:
-    for component in place.get("addressComponents", []):
-        if kind in component.get("types", []):
-            return component.get("longText")
-    return None
-
-
 def run_discovery(*, flush=None) -> dict:
     sb = get_supabase()
     stats = {
@@ -157,7 +150,7 @@ def _ingest_one(sb, place: dict, stats: dict) -> None:
         stats["errors"] += 1
         return
     location = place.get("location", {})
-    city = _address_component(place, "locality")
+    city = places.address_component(place, "locality")
     phone = place.get("nationalPhoneNumber")
 
     duplicates = sb.rpc(
@@ -186,7 +179,7 @@ def _ingest_one(sb, place: dict, stats: dict) -> None:
                     "category": _category(place.get("types", [])),
                     "address": place.get("formattedAddress"),
                     "city": city,
-                    "postal_code": _address_component(place, "postal_code"),
+                    "postal_code": places.address_component(place, "postal_code"),
                     "latitude": location.get("latitude"),
                     "longitude": location.get("longitude"),
                     "phone": phone,

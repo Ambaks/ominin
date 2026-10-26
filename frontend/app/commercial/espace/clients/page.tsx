@@ -1,48 +1,29 @@
 import { PageTitle, SectionTitle, cardClass } from "@/components/commercial/space/ui";
-import { CHURN_DROP_RATIO, CHURN_MIN_PREVIOUS_SESSIONS, CLIENT_PERIOD_DAYS } from "@/lib/admin/constants";
+import { churnWindows, isDropping, sessionsOf } from "@/lib/admin/churn";
 import { formatEuros } from "@/lib/admin/format";
 import type { MyClient } from "@/lib/commercial/api";
+import { requireRunningContract } from "@/lib/commercial/session";
 import { frenchDate } from "@/lib/legal/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
 /*
- * Ceux qui décrochent, selon la règle de l'admin (Synthèse des clients) :
- * visites du menu en baisse d'au moins CHURN_DROP_RATIO sur la période face à
- * la précédente. Le commercial n'en voit que l'alerte, jamais les chiffres.
+ * Ceux qui décrochent, selon la règle du point du matin de l'admin
+ * (lib/admin/churn.ts). Le commercial n'en voit que l'alerte, jamais les chiffres.
  */
 async function dropping(ids: string[]): Promise<Set<string>> {
   if (!ids.length) return new Set();
-  const admin = createAdminClient();
-  const period = CLIENT_PERIOD_DAYS[1] * DAY_MS;
-  const now = Date.now();
-  const [current, previous] = await Promise.all(
-    [
-      [now - period, now],
-      [now - 2 * period, now - period],
-    ].map(([from, to]) =>
-      admin
-        .rpc("admin_service_figures", { p_from: new Date(from).toISOString(), p_to: new Date(to).toISOString() })
-        .then((result) => result.data ?? [])
-    )
-  );
-  return new Set(
-    ids.filter((id) => {
-      const before = previous.find((row) => row.id === id)?.sessions ?? 0;
-      const after = current.find((row) => row.id === id)?.sessions ?? 0;
-      return before >= CHURN_MIN_PREVIOUS_SESSIONS && after <= before * (1 - CHURN_DROP_RATIO);
-    })
-  );
+  const { current, previous } = await churnWindows(createAdminClient(), Date.now());
+  return new Set(ids.filter((id) => isDropping(sessionsOf(previous, id), sessionsOf(current, id))));
 }
 
 const STEP_DONE = "done";
 
 /** Clients : chaque Client Apporté, son intégration, ce qu'il a rapporté à Ominin ce mois-ci. */
 export default async function ClientsPage() {
+  await requireRunningContract();
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("commercial_my_clients");
   if (error) throw new Error(error.message);

@@ -160,10 +160,11 @@ as $$
          or (p_shop is not null and scope = 'shop' and shop_id = p_shop));
 $$;
 
--- Nom ou téléphone trop différents de la fiche : l'inscription attend la
--- validation de l'admin (null : rien à signaler).
+-- L'inscription attend la validation de l'admin (null : rien à signaler)
+-- quand le client est déjà relié à une autre fiche, ou quand son nom ou son
+-- téléphone sont trop loin de la fiche.
 create function public.commercial_signup_alert(
-  r public.crm_restaurants,
+  d public.commercial_declarations,
   p_etablissement uuid,
   p_shop uuid
 )
@@ -173,19 +174,25 @@ stable
 security definer
 set search_path = ''
 as $$
-  with client as (
+  with r as (select * from public.crm_restaurants where id = d.restaurant_id),
+  client as (
     select e.name, public.phone_digits(e.phone) as phone from public.etablissements e where e.id = p_etablissement
     union all
     select s.name, public.phone_digits(s.contact_phone) from public.shops s where s.id = p_shop
   ),
   cfg as (select name_similarity from public.commercial_cfg())
   select nullif(concat_ws(' ; ',
+    (select 'relié à la fiche « ' || x.name || ' »' from public.crm_restaurants x
+     where x.deleted_at is null and x.id <> d.restaurant_id
+       and ((p_etablissement is not null and x.etablissement_id = p_etablissement)
+            or (p_shop is not null and x.shop_id = p_shop))
+     limit 1),
     case when cfg.name_similarity is not null
               and extensions.similarity(lower(client.name), lower(r.name)) < cfg.name_similarity
          then 'nom « ' || client.name || ' » loin de la fiche « ' || r.name || ' »' end,
     case when client.phone is not null and r.phone_normalized is not null and client.phone <> r.phone_normalized
          then 'téléphone différent de la fiche' end), '')
-  from client, cfg;
+  from client, cfg, r;
 $$;
 
 create function public.commercial_add_client(
@@ -200,12 +207,10 @@ security definer
 set search_path = ''
 as $$
 declare
-  r public.crm_restaurants;
   v_alert text;
   v_id uuid;
 begin
-  select * into r from public.crm_restaurants where id = d.restaurant_id;
-  v_alert := case when p_validated then null else public.commercial_signup_alert(r, p_etablissement, p_shop) end;
+  v_alert := case when p_validated then null else public.commercial_signup_alert(d, p_etablissement, p_shop) end;
   insert into public.commercial_clients (declaration_id, etablissement_id, shop_id, commission_from, validated_at, alert)
   values (d.id, p_etablissement, p_shop,
           public.commercial_first_acceptance(d.declared_at, p_etablissement, p_shop),
@@ -216,7 +221,7 @@ end;
 $$;
 
 revoke execute on function public.commercial_first_acceptance(timestamptz, uuid, uuid) from public, anon, authenticated;
-revoke execute on function public.commercial_signup_alert(public.crm_restaurants, uuid, uuid) from public, anon, authenticated;
+revoke execute on function public.commercial_signup_alert(public.commercial_declarations, uuid, uuid) from public, anon, authenticated;
 revoke execute on function public.commercial_add_client(public.commercial_declarations, uuid, uuid, boolean) from public, anon, authenticated;
 
 -- Déclarations déjà marquées signées par l'admin au lot 1 : leur Client
@@ -379,7 +384,8 @@ as $$
 $$;
 
 -- Rattache le lien au compte qui l'ouvre (à la création du compte, ou à
--- l'ouverture si le gérant est déjà connecté). Un lien sert un seul compte.
+-- l'ouverture si le gérant est déjà connecté). Un lien sert un seul compte,
+-- et jamais celui d'un commercial ou d'un admin qui l'ouvre pour voir.
 create function public.signup_link_claim(p_token text, p_product public.ominin_product)
 returns boolean
 language plpgsql
@@ -392,6 +398,10 @@ begin
   if d.id is null then
     return false;
   end if;
+  if exists (select 1 from public.commerciaux where user_id = auth.uid())
+     or exists (select 1 from public.admin_users where user_id = auth.uid()) then
+    raise exception 'Ce lien est celui du gérant du restaurant : ouvrez-le depuis son compte, pas depuis un compte commercial ou admin.';
+  end if;
   if d.signup_user_id is not null and d.signup_user_id <> auth.uid() then
     raise exception 'Ce lien d''inscription a déjà servi à un autre compte.';
   end if;
@@ -403,7 +413,9 @@ end;
 $$;
 
 -- La signature : à l'acceptation des CGV par le compte rattaché au lien.
--- Une déclaration encore en attente est d'abord confirmée (13.2 n° 11).
+-- Une déclaration encore en attente est d'abord confirmée (13.2 n° 11). Un
+-- client qui avait accepté des conditions avant la déclaration était déjà
+-- celui d'Ominin : rouvrir un lien ne l'attribue pas.
 create function public.commercial_on_client_acceptance()
 returns trigger
 language plpgsql
@@ -438,6 +450,14 @@ begin
   limit 1
   for update;
   if d.id is null then
+    return new;
+  end if;
+  if exists (
+    select 1 from public.legal_acceptances a
+    where a.id <> new.id and a.accepted_at < d.declared_at and a.scope = new.scope
+      and ((new.scope = 'etablissement' and a.etablissement_id = new.etablissement_id)
+           or (new.scope = 'shop' and a.shop_id = new.shop_id))
+  ) then
     return new;
   end if;
   perform public.commercial_settle(d.restaurant_id);
@@ -675,6 +695,9 @@ begin
     select id into v_existing from public.crm_restaurants
     where source = 'google_places' and external_id = v_place;
     if v_existing is not null then
+      -- Rendre une fiche par son identifiant Google est une recherche : sans
+      -- ce compte, on aspirerait la base sans quota.
+      perform public.commercial_count_search(me.id);
       return v_existing;
     end if;
   end if;
@@ -740,7 +763,7 @@ declare
 begin
   if jsonb_typeof(p_prefs) <> 'object' or exists (
     select 1 from jsonb_each(p_prefs) e
-    where e.key not in ('relance', 'rdv', 'demo', 'inscription', 'expiration', 'releve')
+    where e.key not in ('relance', 'rdv', 'demo', 'inscription', 'expiration', 'releve', 'opposition')
        or jsonb_typeof(e.value) <> 'boolean'
   ) then
     raise exception 'Préférences invalides.';
@@ -822,6 +845,64 @@ end;
 $$;
 
 -- ---------------------------------------------------------------------------
+-- Notifications du matin (tâche quotidienne) : par commercial, ses relances
+-- dues d'ici la fin de la journée à Paris et ses réservations qui expirent
+-- dans EXPIRY_WARNING_DAYS (réglage), sur ses seules déclarations actives.
+create function public.commercial_morning()
+returns table (commercial_id uuid, tasks int, expiring int)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with cfg as (select * from public.commercial_cfg()),
+  day_end as (
+    select (date_trunc('day', now() at time zone 'Europe/Paris') + interval '1 day') at time zone 'Europe/Paris' as at
+  ),
+  active as (
+    select d.*, public.commercial_status_at(d) as eff, public.commercial_reserved_until(d) as until
+    from public.commercial_declarations d
+    join public.commerciaux c on c.id = d.commercial_id
+    where d.status in ('pending', 'confirmed') and (c.ended_at is null or c.ended_at > now())
+  )
+  select a.commercial_id,
+         count(t.id) filter (where t.id is not null)::int,
+         count(distinct a.id) filter (
+           where a.eff = 'confirmed' and cfg.expiry_warning_days is not null
+             and a.until < now() + make_interval(days => cfg.expiry_warning_days))::int
+  from active a
+  left join public.crm_tasks t
+    on t.declaration_id = a.id and t.status = 'open' and t.due_at < (select at from day_end)
+  cross join cfg
+  where a.eff in ('pending', 'confirmed')
+  group by a.commercial_id
+  having count(t.id) > 0 or count(distinct a.id) filter (
+           where a.eff = 'confirmed' and cfg.expiry_warning_days is not null
+             and a.until < now() + make_interval(days => cfg.expiry_warning_days)) > 0;
+$$;
+revoke execute on function public.commercial_morning() from public, anon, authenticated;
+grant execute on function public.commercial_morning() to service_role;
+
+-- Un rendez-vous du commercial, pour son export .ics.
+create function public.commercial_appointment(p_appointment uuid)
+returns jsonb
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  with me as (select * from public.commercial_me('work'))
+  select jsonb_build_object(
+    'id', ap.id, 'title', ap.title, 'start_at', ap.start_at, 'end_at', ap.end_at,
+    'location', coalesce(ap.location, r.address), 'restaurant', r.name)
+  from public.crm_appointments ap
+  join public.commercial_declarations d on d.id = ap.declaration_id
+  join public.crm_restaurants r on r.id = d.restaurant_id, me
+  where ap.id = p_appointment and d.commercial_id = me.id
+    and public.commercial_status_at(d) in ('pending', 'confirmed');
+$$;
+
+-- ---------------------------------------------------------------------------
 -- Droits
 do $$
 declare
@@ -829,6 +910,7 @@ declare
 begin
   foreach v_fn in array array[
     'commercial_signup_link(uuid)',
+    'commercial_appointment(uuid)',
     'signup_link_claim(text, public.ominin_product)',
     'commercial_request_demo(uuid, text, text[])',
     'commercial_count_places()',

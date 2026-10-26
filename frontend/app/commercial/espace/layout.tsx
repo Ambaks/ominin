@@ -2,8 +2,8 @@ import { redirect } from "next/navigation";
 import { ContactLink, ContractToSign, Notice } from "@/components/commercial/contract";
 import { CommercialShell } from "@/components/commercial/shell";
 import { SpaceShell } from "@/components/commercial/space/shell";
-import type { CommercialAccount } from "@/lib/commercial/api";
 import { commercialPrefix } from "@/lib/site";
+import { commercialAccount } from "@/lib/commercial/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -13,7 +13,8 @@ export const dynamic = "force-dynamic";
  * Garde de l'espace (le proxy la double) : un compte invité qui n'a encore
  * signé aucune version ne voit que le contrat à signer ; signé, il entre dans
  * l'outil. Le compte se lit par commercial_account(), rattaché à la session,
- * jamais par l'adresse e-mail.
+ * jamais par l'adresse e-mail. Après la fin du contrat, les écrans de travail
+ * renvoient vers Argent (requireRunningContract).
  */
 export default async function EspaceLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient();
@@ -23,9 +24,7 @@ export default async function EspaceLayout({ children }: { children: React.React
   if (!user?.email) redirect(`${commercialPrefix}/connexion`);
   const email = user.email.toLowerCase();
 
-  const { data, error } = await supabase.rpc("commercial_account");
-  if (error) throw new Error(error.message);
-  const account = data as unknown as CommercialAccount | null;
+  const account = await commercialAccount();
 
   if (!account) {
     return (

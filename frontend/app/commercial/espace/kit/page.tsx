@@ -1,13 +1,12 @@
 import { ShareLink } from "@/components/commercial/space/share-link";
 import { PageTitle, SectionTitle, cardClass, ghostButton } from "@/components/commercial/space/ui";
-import type { CommercialAccount } from "@/lib/commercial/api";
+import { requireRunningContract } from "@/lib/commercial/session";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
 import { collectOffer, pricingSection } from "@/lib/landing-data";
 import { DEMO_SLUG, formatPrice } from "@/lib/menu/format";
 import { shopOffer } from "@/lib/shop-landing-data";
 import { getRestaurant } from "@/lib/menu-data";
 import { collectSiteUrl, commercialPrefix, menuSiteUrl, shopSiteUrl, siteUrl } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -18,9 +17,7 @@ export const dynamic = "force-dynamic";
  * (article 2.2).
  */
 export default async function KitPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.rpc("commercial_account");
-  const account = data as unknown as CommercialAccount;
+  const account = await requireRunningContract();
   const demos = [
     { name: "Démo Ominin", url: `${menuSiteUrl}/m/${DEMO_SLUG}` },
     ...account.kit_demo_slugs.flatMap((slug) => {

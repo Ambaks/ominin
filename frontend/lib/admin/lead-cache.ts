@@ -37,21 +37,21 @@ function notify() {
   for (const listener of listeners) listener();
 }
 
-/** Étape la plus haute cochée d'une déclaration (step_done_at). */
-const topStep = (steps: unknown) =>
-  Math.max(0, ...Object.keys((steps ?? {}) as Record<string, string>).map(Number));
-
 async function fetchDetail(restaurantId: string): Promise<LeadDetail> {
   const supabase = createClient();
-  const row = must(
-    await supabase
+  // Les déclarations dans leur état effectif (confirmée de droit, échue),
+  // calculé en base comme partout ailleurs.
+  const [row, declarations] = await Promise.all([
+    supabase
       .from("crm_restaurants")
       .select(
-        "*, lead:crm_leads(*), contacts:crm_contacts(*), activities:crm_activities(*), tasks:crm_tasks(*), appointments:crm_appointments(*), etablissement:etablissements!crm_restaurants_etablissement_id_fkey(name), shop:shops!crm_restaurants_shop_id_fkey(name), declarations:commercial_declarations(id, status, declared_at, confirm_deadline, reserved_until, step_done_at, commerciaux(email, first_name, last_name))"
+        "*, lead:crm_leads(*), contacts:crm_contacts(*), activities:crm_activities(*), tasks:crm_tasks(*), appointments:crm_appointments(*), etablissement:etablissements!crm_restaurants_etablissement_id_fkey(name), shop:shops!crm_restaurants_shop_id_fkey(name)"
       )
       .eq("id", restaurantId)
       .single()
-  );
+      .then(must),
+    supabase.rpc("admin_restaurant_declarations", { p_restaurant: restaurantId }).then(must),
+  ]);
   if (!row.lead) throw new Error("Fiche sans lead associé.");
   // Le travail des commerciaux (declaration_id) reste à part : l'admin ne le
   // consulte qu'en cas de litige, d'opposition ou de conflit (art. 2.3).
@@ -82,20 +82,15 @@ async function fetchDetail(restaurantId: string): Promise<LeadDetail> {
           }
         : null,
     inTalksOverride: row.in_talks_override,
-    declarations: row.declarations
-      .filter((d) => d.status !== "passage")
-      .map((d) => ({
-        id: d.id,
-        status: d.status,
-        declaredAt: d.declared_at,
-        confirmDeadline: d.confirm_deadline,
-        reservedUntil: d.reserved_until,
-        step: topStep(d.step_done_at),
-        commercial:
-          [d.commerciaux?.first_name, d.commerciaux?.last_name].filter(Boolean).join(" ") ||
-          (d.commerciaux?.email ?? ""),
-      }))
-      .sort((a, b) => b.declaredAt.localeCompare(a.declaredAt)),
+    declarations: declarations.map((d) => ({
+      id: d.id,
+      status: d.effective_status,
+      declaredAt: d.declared_at,
+      confirmDeadline: d.confirm_deadline,
+      reservedUntil: d.reserved_until,
+      step: d.step,
+      commercial: d.commercial_name,
+    })),
     commercialWork: {
       activities: theirs(row.activities).map(rowToActivity).sort(byDate),
       tasks: theirs(row.tasks).map(rowToTask).sort(byDue),

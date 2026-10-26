@@ -25,29 +25,6 @@ import {
 
 type Sheet = api.RestaurantSheet;
 
-const icsDate = (iso: string) => iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
-
-/** Le rendez-vous au format iCalendar, à ouvrir dans l'agenda du téléphone. */
-function icsHref(rdv: api.Appointment, restaurant: string): string {
-  const end = rdv.end_at ?? rdv.start_at;
-  const text = (value: string) => value.replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
-  const ics = [
-    "BEGIN:VCALENDAR",
-    "VERSION:2.0",
-    "PRODID:-//Ominin//Espace commercial//FR",
-    "BEGIN:VEVENT",
-    `UID:${rdv.id}@ominin`,
-    `DTSTAMP:${icsDate(new Date().toISOString())}`,
-    `DTSTART:${icsDate(new Date(rdv.start_at).toISOString())}`,
-    `DTEND:${icsDate(new Date(end).toISOString())}`,
-    `SUMMARY:${text(`${rdv.title} · ${restaurant}`)}`,
-    ...(rdv.location ? [`LOCATION:${text(rdv.location)}`] : []),
-    "END:VEVENT",
-    "END:VCALENDAR",
-  ].join("\r\n");
-  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
-}
-
 /*
  * Le travail d'un commercial sur sa déclaration : étapes, journal, relances,
  * rendez-vous, interlocuteurs, fiche retenue. Chaque geste écrit en base par
@@ -77,11 +54,15 @@ export function Steps({ sheet, onChange }: { sheet: Sheet; onChange: () => void 
                     onChange();
                   })
                 }
-                className={`mt-0.5 grid size-7 shrink-0 place-items-center rounded-full border transition-colors ${
-                  doneAt ? "ember-gradient border-transparent text-background" : "border-hairline text-transparent"
-                }`}
+                className="-m-2 grid size-11 shrink-0 place-items-center"
               >
-                <CheckIcon className="size-4" />
+                <span
+                  className={`grid size-7 place-items-center rounded-full border transition-colors ${
+                    doneAt ? "ember-gradient border-transparent text-background" : "border-hairline text-transparent"
+                  }`}
+                >
+                  <CheckIcon className="size-4" />
+                </span>
               </button>
               <button
                 type="button"
@@ -204,8 +185,7 @@ export function FollowUps({ sheet, onChange }: { sheet: Sheet; onChange: () => v
               </span>
             </span>
             <a
-              href={icsHref(rdv, sheet.restaurant.name)}
-              download={`rendez-vous-${rdv.id}.ics`}
+              href={`/api/commercial/rdv/${rdv.id}`}
               className={ghostButton}
               aria-label="Ajouter à mon agenda"
             >

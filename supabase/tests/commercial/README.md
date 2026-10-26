@@ -21,7 +21,7 @@ conteneur `omicom-pg`, port 54371), applique `supabase/tests/stubs.sql` (ce que
 la plateforme Supabase fournit : rôles, `auth`, `storage`, extensions), puis
 toutes les migrations, puis chaque `NN_*.sql` avec `psql -v ON_ERROR_STOP=1`,
 et enfin `concurrence.sh` (deux sessions réelles qui déclarent le même
-restaurant). Le premier échec arrête tout et affiche `ÉCHEC : <critère>`.
+restaurant, puis le même commercial au plafond). Le premier échec arrête tout et affiche `ÉCHEC : <critère>`.
 
 Les constantes du contrat sont lues dans `frontend/lib/legal/constants.ts` et
 passées à `psql` (`-v CONFIRM_DAYS=7` …) : `01_reglages.sql` vérifie que
@@ -36,7 +36,8 @@ passées à `psql` (`-v CONFIRM_DAYS=7` …) : `01_reglages.sql` vérifie que
 - `02_declarations.sql` : déclarer, confirmer, refuser, échéances (critères 1 à 5, 10).
 - `03_visibilite.sql` : ce que voit chacun, passage sans suite, recherche (critères 6, 7).
 - `04_reflet.sql` : reflet `crm_leads`, Léa, opposition, fin de contrat, admin (critères 8, 9, 9 bis, 9 ter ; 13.2).
-- `concurrence.sh` : deux déclarations simultanées (critère 3).
+- `concurrence.sh` : deux déclarations simultanées du même restaurant (critère 3), puis du même commercial au plafond de 1.
 - `05_liens.sql` : liens fiche ↔ client, outil de rattachement (4.1, 13.2 n° 5).
 - `06_inscription.sql` : lien d'inscription, Client Apporté, Projet, inscription sans lien, démos, Google, carte, fusion (lot 2).
-- `07_commissions.sql` : assiette recalculée à la main sur les cinq sources, relevés, régularisations (lot 3).
+- `07_commissions.sql` : assiette recalculée à la main sur les cinq sources, avoirs, relevés, régularisations, contestation et sa clôture, relevé final, rappel URSSAF (lot 3).
+- `08_defauts.sql` : chaque défaut de la vérification indépendante corrigé côté base, rejoué (client déjà en service, déclaration reçue par e-mail, plafond et réservation échue, fin de contrat, opposition, lien capturé, quota, relances du jour).

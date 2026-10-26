@@ -127,7 +127,7 @@ export interface Lead {
   createdAt: string;
 }
 
-/** Déclaration d'un commercial sur la fiche (espace commercial). */
+/** Déclaration d'un commercial sur la fiche (espace commercial), dans son état effectif. */
 export interface LeadDeclaration {
   id: string;
   status: Database["public"]["Enums"]["commercial_declaration_status"];

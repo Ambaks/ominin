@@ -9,7 +9,7 @@ import { signContract } from "@/lib/legal/client";
 import { collectProduct } from "@/lib/products";
 import { createClient } from "@/lib/supabase/client";
 import { announceSignup } from "@/lib/signup-notify";
-import { usePrefill, useSignupLink } from "@/lib/commercial/signup-link";
+import { SignupLinkError, usePrefill, useSignupLink } from "@/lib/commercial/signup-link";
 
 /*
  * Inscription click & collect : nom, adresse, SIRET facultatif. Pas d'offre
@@ -33,7 +33,7 @@ export function CollectSignupForm() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [siret, setSiret] = useState("");
-  const link = useSignupLink("collect");
+  const { info: link, error: linkError } = useSignupLink("collect");
   usePrefill(name, setName, link?.name);
   usePrefill(address, setAddress, link && [link.address, link.postal_code, link.city].filter(Boolean).join(", "));
   const [error, setError] = useState<string | null>(null);
@@ -129,6 +129,7 @@ export function CollectSignupForm() {
       onSubmit={onSubmit}
       className="flex w-full max-w-md flex-col gap-5 rounded-2xl border border-hairline bg-surface p-6"
     >
+      <SignupLinkError error={linkError} />
       <Field label="Nom du restaurant" required>
         <input
           value={name}

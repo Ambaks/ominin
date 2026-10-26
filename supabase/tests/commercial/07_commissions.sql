@@ -1,6 +1,6 @@
 -- Lot 3 : l'assiette sur les cinq sources, recalculée à la main au centime,
 -- matériel exclu ; le relevé s'envoie, se facture, se paie, se conteste ;
--- régularisation automatique d'un mois figé.
+-- régularisation automatique d'un mois figé ; relevé final ; rappel URSSAF.
 begin;
 \i /work/tests/fixtures.inc
 
@@ -59,8 +59,10 @@ insert into public.club_payments (booking_id, etablissement_id, name, amount_cen
 set local session_replication_role = origin;
 insert into public.ominin_invoice_payments (etablissement_id, stripe_invoice_id, eligible_ht_cents, paid_at) values
   (:'e', 'in_ok', 2900, '2026-09-25 09:00+02'),
-  (:'e', 'in_void', 4000, '2026-09-25 09:00+02');
-update public.ominin_invoice_payments set voided_at = now() where stripe_invoice_id = 'in_void';
+  (:'e', 'in_avoir', 4000, '2026-09-25 09:00+02');
+update public.ominin_invoice_payments set credited_cents = 4000 where stripe_invoice_id = 'in_avoir';
+select pg_temp.ok(pg_temp.fails('update public.ominin_invoice_payments set credited_cents = 4001 where stripe_invoice_id = ''in_avoir'''),
+  '4.4. un avoir ne dépasse pas la part éligible de la facture');
 
 -- Recalcul à la main, septembre, frais Club exclus (réglage vide) :
 --   E : Menu 250 + Collect 120 = 370 ; facture 2 900 ; Club 0 → 3 270 → 15 % = 490,5 → 491
@@ -120,12 +122,13 @@ select public.commercial_statement_invoice(:'st9', :'a' || '/factures/septembre.
 select public.commercial_request_detail(:'st9');
 select pg_temp.ok(pg_temp.fails(format('select public.commercial_request_detail(%L)', :'st9')), '5.7. détail : une fois par trimestre');
 select public.commercial_contest(:'st9', 'La commande du 12 manque');
+select pg_temp.ok(pg_temp.fails(format('select public.commercial_contest(%L, ''encore'')', :'st9')), '5.7. une contestation par relevé');
 select pg_temp.act(:'b_user');
 select pg_temp.ok((select count(*) from public.commercial_statements) = 0, '7.2. B ne lit pas les relevés de A');
 select pg_temp.ok(pg_temp.fails(format('select public.commercial_contest(%L, ''x'')', :'st9')), '7.2. B ne conteste pas pour A');
 select pg_temp.reset();
-select pg_temp.ok(status = 'contested' and invoice_received_at is not null and detail_requested_at is not null,
-  '5.7. facturé, détail demandé, contesté')
+select pg_temp.ok(status = 'invoiced' and contested_at is not null and invoice_received_at is not null and detail_requested_at is not null,
+  '5.7. facturé, détail demandé, contesté (la contestation ne change pas l''état)')
 from public.commercial_statements where id = :'st9';
 select pg_temp.ok((select (s ->> 'payment_due')::timestamptz = (s ->> 'invoice_received_at')::timestamptz + interval '30 days'
   and (s ->> 'detail_due')::timestamptz = (s ->> 'detail_requested_at')::timestamptz + interval '15 days'
@@ -135,18 +138,29 @@ select pg_temp.act(:'admin');
 select public.admin_statement_detail_sent(:'st9');
 select public.admin_statement_paid(:'st9');
 select pg_temp.reset();
-select pg_temp.ok(paid_at is not null and detail_sent_at is not null, '6. payé, détail envoyé')
+select pg_temp.ok(status = 'paid' and paid_at is not null and detail_sent_at is not null, '6. payé alors que contesté, détail envoyé')
 from public.commercial_statements where id = :'st9';
+-- Clôture de la contestation : par l'admin seul, une fois, lue dans Argent.
+select pg_temp.act(:'a_user');
+select pg_temp.ok(pg_temp.fails(format('select public.admin_statement_resolve(%L, ''x'')', :'st9')), '6.4. clôture réservée à l''admin');
+select pg_temp.act(:'admin');
+select pg_temp.ok(pg_temp.fails(format('select public.admin_statement_resolve(%L, '' '')', :'st9')), '6.4. clôture motivée');
+select public.admin_statement_resolve(:'st9', 'Commande du 12 ajoutée par régularisation');
+select pg_temp.ok(pg_temp.fails(format('select public.admin_statement_resolve(%L, ''bis'')', :'st9')), '6.4. une contestation se clôt une fois');
+select pg_temp.act(:'a_user');
+select pg_temp.ok((select s ->> 'contest_resolution' from jsonb_array_elements(public.commercial_money() -> 'statements') s
+  where (s ->> 'id')::uuid = :'st9') = 'Commande du 12 ajoutée par régularisation' , '5.7. Argent : réponse à la contestation');
+select pg_temp.reset();
 -- Contestation hors délai refusée.
-update public.commercial_statements set sent_at = now() - interval '4 months', status = 'sent' where id = :'st9';
+update public.commercial_statements set sent_at = now() - interval '4 months', contested_at = null where id = :'st9';
 select pg_temp.act(:'a_user');
 select pg_temp.ok(pg_temp.fails(format('select public.commercial_contest(%L, ''trop tard'')', :'st9')), '5.7. contestation sous 3 mois');
 select pg_temp.reset();
-update public.commercial_statements set sent_at = now() where id = :'st9';
+update public.commercial_statements set sent_at = now(), contested_at = now() where id = :'st9';
 
--- Ce que la base apprend après coup : la facture de septembre est annulée.
--- Septembre recalculé : E 370 → 55,5 → 56 ; S 150 → 206, contre 641 relevés.
-update public.ominin_invoice_payments set voided_at = now() where stripe_invoice_id = 'in_ok';
+-- Ce que la base apprend après coup : un avoir sur toute la facture de
+-- septembre. Septembre recalculé : E 370 → 55,5 → 56 ; S 150 → 206, contre 641 relevés.
+update public.ominin_invoice_payments set credited_cents = 2900 where stripe_invoice_id = 'in_ok';
 select pg_temp.act(:'admin');
 select public.admin_statement_draft(:'a', '2026-10-01');
 select pg_temp.reset();
@@ -155,8 +169,14 @@ select pg_temp.ok(adjustments @> '[{"auto": true, "cents": -435, "month": "2026-
 from public.commercial_statements where id = :'st10';
 select pg_temp.act(:'admin');
 select public.admin_statement_send(:'st10');
+select public.admin_statement_paid(:'st10');
 select public.admin_statement_draft(:'a', '2026-11-01') as st11 \gset
+select pg_temp.act(:'a_user');
+select public.commercial_contest(:'st10', 'Régularisation incomprise');
 select pg_temp.reset();
+select pg_temp.ok(status = 'paid' and paid_at is not null and contested_at is not null,
+  '10. contester un relevé payé ne lui retire pas son paiement')
+from public.commercial_statements where id = :'st10';
 select pg_temp.ok(not (adjustments @> '[{"month": "2026-09-01"}]'::jsonb), '4.4. une régularisation ne se répète pas')
 from public.commercial_statements where id = :'st11';
 
@@ -173,10 +193,32 @@ select pg_temp.reset();
 -- Relevés envoyés : septembre 626, octobre 150 - 435 = -285, soit 341.
 update public.commercial_settings set urssaf_threshold_cents = 341;
 select pg_temp.ok(public.commercial_urssaf_due(:'a'), '5.8. attestation URSSAF due au seuil');
+select pg_temp.act_service();
+select pg_temp.ok(public.commercial_urssaf_reminders() = 1, '7.4. rappel URSSAF par e-mail');
+select pg_temp.ok(public.commercial_urssaf_reminders() = 0, '7.4. un seul rappel par attestation attendue');
+select pg_temp.reset();
+select pg_temp.ok(exists (select 1 from public.commercial_emails where commercial_id = :'a' and kind = 'urssaf' and sent_at is null),
+  '7.4. rappel URSSAF dans la file d''envoi');
 select pg_temp.act(:'a_user');
 select public.commercial_add_document('urssaf', :'a' || '/pieces/urssaf.pdf');
 select pg_temp.reset();
 select pg_temp.ok(not public.commercial_urssaf_due(:'a'), '5.8. due de nouveau tous les six mois seulement');
+
+-- Relevé final (art. 8.1) : D, contrat terminé, a son brouillon du mois de
+-- la fin, à envoyer dans les 30 jours ; recalculé, jamais dédoublé.
+select pg_temp.act_service();
+select statement_id as fin, due_at from public.commercial_final_statements() where commercial_id = :'d' \gset
+select pg_temp.ok(not exists (select 1 from public.commercial_final_statements() where commercial_id = :'a'),
+  '8.1. pas de relevé final pour un contrat en cours');
+select pg_temp.ok((select statement_id from public.commercial_final_statements() where commercial_id = :'d') = :'fin',
+  '8.1. relevé final recalculé, pas dédoublé');
+select pg_temp.reset();
+select pg_temp.ok(s.status = 'draft' and s.month = date_trunc('month', m.ended_at at time zone 'Europe/Paris')::date
+  and :'due_at'::timestamptz = m.ended_at + interval '30 days', '8.1. relevé final du mois de la fin, échéance à 30 jours')
+from public.commercial_statements s join public.commerciaux m on m.id = s.commercial_id where s.id = :'fin';
+select pg_temp.act(:'d_user');
+select pg_temp.ok(pg_temp.fails('select public.commercial_my_clients()'), '4.6. contrat terminé : plus d''écran Clients');
+select pg_temp.reset();
 
 -- Encaissement hors Stripe saisi par l'admin.
 select pg_temp.act(:'admin');

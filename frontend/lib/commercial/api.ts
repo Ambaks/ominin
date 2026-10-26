@@ -220,10 +220,12 @@ async function call<T>(promise: PromiseLike<{ data: unknown; error: { message: s
   return data as T;
 }
 
-/** Envoie les e-mails du contrat que le geste vient de mettre en file. */
-export function flushEmails() {
-  void fetch("/api/commercial/envois", { method: "POST" }).catch(() => undefined);
-}
+/** Envoie les e-mails du contrat que le geste vient de mettre en file (espace et admin). */
+export const flushEmails = (): Promise<void> =>
+  fetch("/api/commercial/envois", { method: "POST" }).then(
+    () => undefined,
+    () => undefined
+  );
 
 export const today = (since: string | null) =>
   call<Today>(db().rpc("commercial_today", { p_since: since as string }));
@@ -264,7 +266,7 @@ export async function declare(restaurantId: string, products: Product[], contact
       p_contact: contact as unknown as Json,
     })
   );
-  flushEmails();
+  void flushEmails();
   return result;
 }
 
@@ -292,7 +294,7 @@ export const saveRetained = (declarationId: string, retained: Retained) =>
 
 export async function optOut(restaurantId: string) {
   await call<null>(db().rpc("commercial_opt_out", { p_restaurant: restaurantId }));
-  flushEmails();
+  void flushEmails();
 }
 
 export const log = (declarationId: string, type: ActivityType, text: string) =>
@@ -377,7 +379,7 @@ export interface NearbyRestaurant {
 export const nearby = (lat: number, lng: number) =>
   call<NearbyRestaurant[]>(db().rpc("commercial_nearby", { p_lat: lat, p_lng: lng }));
 
-export type PushEventKey = "relance" | "rdv" | "demo" | "inscription" | "expiration" | "releve";
+export type PushEventKey = "relance" | "rdv" | "demo" | "inscription" | "expiration" | "releve" | "opposition";
 
 export const setPushPrefs = (prefs: Partial<Record<PushEventKey, boolean>>) =>
   call<null>(db().rpc("commercial_set_push_prefs", { p_prefs: prefs as Json }));
@@ -399,7 +401,6 @@ export interface MyClient {
   steps: { position: number; title: string; status: string }[];
 }
 
-export const myClients = () => call<MyClient[]>(db().rpc("commercial_my_clients"));
 
 export interface MonthLine {
   client_id: string;
@@ -418,7 +419,7 @@ export interface Statement {
   lines: MonthLine[];
   adjustments: { label: string; cents: number; month?: string; auto: boolean }[];
   total_cents: number;
-  status: "sent" | "invoiced" | "paid" | "contested";
+  status: "sent" | "invoiced" | "paid";
   sent_at: string;
   invoice_path: string | null;
   invoice_received_at: string | null;
@@ -428,6 +429,9 @@ export interface Statement {
   detail_due: string | null;
   detail_sent_at: string | null;
   contested_at: string | null;
+  contest_note: string | null;
+  contest_resolved_at: string | null;
+  contest_resolution: string | null;
   contest_until: string;
 }
 

@@ -323,7 +323,7 @@ create table public.commercial_emails (
   declaration_id uuid references public.commercial_declarations (id),
   kind text not null check (kind in (
     'confirmed', 'refused', 'signed', 'opposition', 'lea_reply',
-    'released', 'statement', 'detail', 'demo_ready')),
+    'released', 'statement', 'detail', 'demo_ready', 'urssaf')),
   -- Précision propre à la sorte (classification d'une réponse à Léa…).
   detail text,
   created_at timestamptz not null default now(),
@@ -551,15 +551,34 @@ create policy "commercial-docs self read" on storage.objects
       select id::text from public.commerciaux where user_id = (select auth.uid())
     )
   );
--- Le deck du Kit (kit/), déposé par l'admin : lu par tout commercial.
+-- Le deck du Kit (kit/), déposé par l'admin : lu par tout commercial dont
+-- le contrat court (après la fin : argent, relevés et contrat seulement).
 create policy "commercial-docs kit read" on storage.objects
   for select to authenticated
   using (
     bucket_id = 'commercial-docs' and (storage.foldername(name))[1] = 'kit'
-    and exists (select 1 from public.commerciaux where user_id = (select auth.uid()))
+    and exists (
+      select 1 from public.commerciaux
+      where user_id = (select auth.uid()) and (ended_at is null or ended_at > now())
+    )
   );
 create policy "commercial-docs self upload" on storage.objects
   for insert to authenticated
+  with check (
+    bucket_id = 'commercial-docs'
+    and (storage.foldername(name))[1] in (
+      select id::text from public.commerciaux where user_id = (select auth.uid())
+    )
+  );
+-- Redéposer une pièce au même nom (upsert) : dans son seul dossier.
+create policy "commercial-docs self update" on storage.objects
+  for update to authenticated
+  using (
+    bucket_id = 'commercial-docs'
+    and (storage.foldername(name))[1] in (
+      select id::text from public.commerciaux where user_id = (select auth.uid())
+    )
+  )
   with check (
     bucket_id = 'commercial-docs'
     and (storage.foldername(name))[1] in (

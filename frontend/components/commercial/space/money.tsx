@@ -4,22 +4,16 @@ import { useCallback, useEffect, useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useRunMutation } from "@/components/ui/toast";
-import { formatEuros } from "@/lib/admin/format";
 import * as api from "@/lib/commercial/api";
+import { euros, monthLabel } from "@/lib/commercial/labels";
 import { frenchDate } from "@/lib/legal/format";
 import { useAccount } from "./shell";
 import { ErrorNote, PageTitle, SectionTitle, Skeleton, cardClass, errorMessage, ghostButton, primaryButton } from "./ui";
-
-const euros = (cents: number) => formatEuros(cents / 100);
-
-const monthLabel = (month: string) =>
-  new Date(`${month}T12:00:00Z`).toLocaleDateString("fr-FR", { month: "long", year: "numeric", timeZone: "Europe/Paris" });
 
 const STATUS: Record<api.Statement["status"], string> = {
   sent: "À facturer",
   invoiced: "Facture reçue",
   paid: "Payé",
-  contested: "Contesté",
 };
 
 function StatementCard({ statement, canAskDetail, onChange }: {
@@ -39,7 +33,10 @@ function StatementCard({ statement, canAskDetail, onChange }: {
       <button type="button" onClick={() => setOpen(!open)} className="flex items-center justify-between gap-3 text-left">
         <span>
           <span className="block font-medium capitalize">{monthLabel(statement.month)}</span>
-          <span className="text-xs text-muted">{STATUS[statement.status]}</span>
+          <span className="text-xs text-muted">
+            {STATUS[statement.status]}
+            {statement.contested_at && !statement.contest_resolved_at ? " · contesté" : ""}
+          </span>
         </span>
         <span className="font-display text-xl">{euros(statement.total_cents)}</span>
       </button>
@@ -54,7 +51,10 @@ function StatementCard({ statement, canAskDetail, onChange }: {
           ))}
           {statement.adjustments.map((adjustment) => (
             <p key={`${adjustment.label}-${adjustment.cents}`} className="flex justify-between gap-3">
-              <span className="text-muted">{adjustment.label}</span>
+              <span className="text-muted">
+                {adjustment.label}
+                {adjustment.month ? ` (${monthLabel(adjustment.month)})` : ""}
+              </span>
               <span>{euros(adjustment.cents)}</span>
             </p>
           ))}
@@ -70,7 +70,18 @@ function StatementCard({ statement, canAskDetail, onChange }: {
             {statement.detail_sent_at ? ", envoyé." : `, réponse avant le ${frenchDate(statement.detail_due!)}.`}
           </p>
         )}
-        {statement.contested_at && <p>Contesté le {frenchDate(statement.contested_at)}.</p>}
+        {statement.contested_at && (
+          <p>
+            Contesté le {frenchDate(statement.contested_at)} : {statement.contest_note}
+          </p>
+        )}
+        {statement.contest_resolved_at ? (
+          <p className="text-foreground">
+            Réponse d’Ominin le {frenchDate(statement.contest_resolved_at)} : {statement.contest_resolution}
+          </p>
+        ) : (
+          statement.contested_at && <p>Ominin examine votre contestation.</p>
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">

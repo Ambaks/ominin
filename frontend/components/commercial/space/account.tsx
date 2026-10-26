@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useRunMutation } from "@/components/ui/toast";
 import { resign } from "@/lib/commercial/api";
+import { commercialName } from "@/lib/commercial/record";
 import { COMMERCIAL_NOTICE_MONTHS } from "@/lib/legal/constants";
 import { frenchDate } from "@/lib/legal/format";
 import { commercialPrefix } from "@/lib/site";
@@ -18,7 +19,6 @@ export function AccountPanel() {
   const router = useRouter();
   const run = useRunMutation();
   const [confirming, setConfirming] = useState(false);
-  const name = [account.first_name, account.last_name].filter(Boolean).join(" ");
 
   const signOut = async () => {
     await createClient().auth.signOut();
@@ -32,7 +32,11 @@ export function AccountPanel() {
         <SectionTitle>Identité</SectionTitle>
         <dl className={`${cardClass} grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-sm`}>
           <dt className="text-muted">Nom</dt>
-          <dd>{name ? `${name} EI` : "—"}</dd>
+          <dd>
+            {account.first_name && account.last_name
+              ? commercialName({ firstName: account.first_name, lastName: account.last_name })
+              : "—"}
+          </dd>
           <dt className="text-muted">SIRET</dt>
           <dd>{account.siret ?? "—"}</dd>
           <dt className="text-muted">Adresse</dt>

@@ -178,9 +178,15 @@ revoke execute on function public.commercial_in_talks(public.crm_restaurants) fr
 revoke execute on function public.commercial_state(public.crm_restaurants, uuid) from public, anon, authenticated;
 
 -- Refus d'office applicable à ce commercial sur ce restaurant, ou null.
--- « declared » ne voit que les déclarations des autres : redéclarer la
--- sienne est une erreur, pas un refus.
-create function public.commercial_refusal(r public.crm_restaurants, p_commercial uuid)
+-- « declared » ne voit que les déclarations des autres (hors p_ignore, la
+-- concurrente qu'une déclaration reçue par e-mail va refuser) : redéclarer
+-- la sienne est une erreur, pas un refus. Le plafond compte les déclarations
+-- actives lues comme telles (une réservation échue ne compte plus, 13.2 n° 10).
+create function public.commercial_refusal(
+  r public.crm_restaurants,
+  p_commercial uuid,
+  p_ignore uuid default null
+)
 returns public.commercial_refusal_reason
 language sql
 stable
@@ -193,13 +199,14 @@ as $$
     when exists (
       select 1 from public.commercial_declarations d
       where d.restaurant_id = r.id and d.status in ('pending', 'confirmed')
-        and d.commercial_id <> p_commercial
+        and d.commercial_id <> p_commercial and d.id is distinct from p_ignore
     ) then 'declared'
     when public.commercial_in_talks(r) then 'in_talks'
     when r.outreach_opted_out_at is not null then 'opted_out'
     when cfg.declaration_cap is not null and (
       select count(*) from public.commercial_declarations d
       where d.commercial_id = p_commercial and d.status in ('pending', 'confirmed')
+        and public.commercial_status_at(d) in ('pending', 'confirmed')
     ) >= cfg.declaration_cap then 'cap'
     when cfg.cooldown_days is not null and exists (
       select 1 from public.commercial_declarations d
@@ -210,7 +217,7 @@ as $$
   end
   from cfg;
 $$;
-revoke execute on function public.commercial_refusal(public.crm_restaurants, uuid) from public, anon, authenticated;
+revoke execute on function public.commercial_refusal(public.crm_restaurants, uuid, uuid) from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------------
 -- Échéances : confirmation de droit et expiration, pour un restaurant (avant
@@ -836,6 +843,9 @@ begin
   if coalesce(cardinality(p_products), 0) = 0 then
     raise exception 'Choisissez l''offre visée.';
   end if;
+  -- Une déclaration à la fois par commercial : sans ce verrou, deux
+  -- déclarations simultanées passeraient chacune sous le plafond.
+  perform 1 from public.commerciaux where id = me.id for update;
   select * into r from public.crm_restaurants
   where id = p_restaurant and deleted_at is null
   for update;
@@ -1029,7 +1039,11 @@ $$;
 
 -- « Le restaurant ne veut plus être contacté » (art. 6.1) : l'opposition est
 -- posée sur la fiche et chaque adresse connue entre dans la liste
--- d'opposition ; le trigger d'opposition abandonne la déclaration.
+-- d'opposition ; le trigger d'opposition abandonne la déclaration. Seul
+-- celui qui a rencontré le restaurant la pose (4.2 : rien ne s'écrit sans
+-- déclaration ou passage sans suite) : le titulaire de la déclaration
+-- active, ou l'auteur d'un passage sur une fiche libre. Jamais sur un
+-- client d'Ominin, dont la relation passe par Ominin.
 create function public.commercial_opt_out(p_restaurant uuid)
 returns void
 language plpgsql
@@ -1046,11 +1060,22 @@ begin
   if r.id is null then
     raise exception 'Restaurant introuvable.' using errcode = 'P0002';
   end if;
+  perform public.commercial_settle(r.id);
+  if public.commercial_is_client(r) then
+    raise exception 'Ce restaurant est client d''Ominin : transmettez sa demande à Ominin.';
+  end if;
   if exists (
     select 1 from public.commercial_declarations
     where restaurant_id = r.id and status in ('pending', 'confirmed') and commercial_id <> me.id
   ) then
     raise exception 'Ce restaurant est réservé par un autre commercial : transmettez sa demande à Ominin.';
+  end if;
+  if not exists (
+    select 1 from public.commercial_declarations
+    where restaurant_id = r.id and commercial_id = me.id
+      and (status in ('pending', 'confirmed') or status = 'passage')
+  ) then
+    raise exception 'Déclarez ce restaurant ou notez votre passage avant d''enregistrer son opposition.';
   end if;
   insert into public.outreach_suppressions (email, reason, restaurant_id)
   select distinct lower(e), 'manual', r.id
@@ -1359,6 +1384,7 @@ begin
   if v_version is null then
     raise exception 'Ce commercial n''avait pas signé son contrat à cette date.';
   end if;
+  perform 1 from public.commerciaux where id = p_commercial for update;
   select * into r from public.crm_restaurants
   where id = p_restaurant and deleted_at is null
   for update;
@@ -1376,6 +1402,12 @@ begin
     if other.status = 'confirmed' or other.declared_at <= p_declared_at then
       raise exception 'Une déclaration plus ancienne ou déjà confirmée garde ce restaurant : conflit à trancher.';
     end if;
+  end if;
+
+  -- Les refus d'office sont jugés d'abord, la concurrente mise à part : elle
+  -- n'est refusée que si la déclaration reçue par e-mail passe.
+  v_reason := public.commercial_refusal(r, p_commercial, other.id);
+  if v_reason is null and other.id is not null then
     update public.commercial_declarations
     set status = 'refused', refusal_reason = 'declared',
         decision_note = 'Déclaration antérieure reçue par e-mail', ended_at = now()
@@ -1383,8 +1415,6 @@ begin
     insert into public.commercial_emails (commercial_id, declaration_id, kind, detail)
     values (other.commercial_id, other.id, 'refused', 'declared');
   end if;
-
-  v_reason := public.commercial_refusal(r, p_commercial);
   if v_reason is not null then
     insert into public.commercial_declarations (
       restaurant_id, commercial_id, contract_version_id, status, channel, declared_at,
@@ -1414,8 +1444,9 @@ begin
   set status = 'cancelled', error = 'reserved_by_commercial'
   where restaurant_id = r.id and direction = 'outbound'
     and status in ('draft', 'pending_approval', 'approved');
+  -- Datée d'avant l'échéance de confirmation : confirmée de droit dès la saisie.
   perform public.commercial_settle(r.id);
-  return jsonb_build_object('id', v_id, 'status', 'pending');
+  return jsonb_build_object('id', v_id, 'status', (select status from public.commercial_declarations where id = v_id));
 end;
 $$;
 
@@ -1584,6 +1615,53 @@ begin
 end;
 $$;
 
+-- Les déclarations d'une fiche (fiche Restaurants de l'admin), au statut
+-- effectif : l'écran ne recalcule rien.
+create function public.admin_restaurant_declarations(p_restaurant uuid)
+returns table (
+  id uuid, effective_status public.commercial_declaration_status, declared_at timestamptz,
+  confirm_deadline timestamptz, reserved_until timestamptz, step int, commercial_name text
+)
+language plpgsql
+stable
+security definer
+set search_path = ''
+as $$
+begin
+  perform public.admin_require();
+  return query
+    select d.id, public.commercial_status_at(d), d.declared_at, d.confirm_deadline,
+           public.commercial_reserved_until(d), public.commercial_top_step(d.step_done_at),
+           coalesce(nullif(btrim(concat_ws(' ', c.first_name, c.last_name)), ''), c.email)
+    from public.commercial_declarations d
+    join public.commerciaux c on c.id = d.commercial_id
+    where d.restaurant_id = p_restaurant and d.status <> 'passage'
+    order by d.declared_at desc;
+end;
+$$;
+
+-- Option de prolongation (art. 3.3) à décider : les commerciaux dont le
+-- terme arrive dans OPTION_REMINDER_DAYS (réglage), sans option levée ni
+-- rappel déjà fait. Le rappel est noté ici : la tâche quotidienne prévient
+-- l'admin une fois.
+create function public.commercial_option_reminders()
+returns table (id uuid, name text, contract_end timestamptz)
+language sql
+security definer
+set search_path = ''
+as $$
+  update public.commerciaux c
+  set option_reminded_at = now()
+  from public.commercial_cfg() cfg
+  where cfg.option_reminder_days is not null
+    and c.ended_at is null and c.option_exercised_at is null and c.option_reminded_at is null
+    and public.commercial_contract_end(c) - make_interval(days => cfg.option_reminder_days) <= now()
+  returning c.id, coalesce(nullif(btrim(concat_ws(' ', c.first_name, c.last_name)), ''), c.email),
+            public.commercial_contract_end(c);
+$$;
+revoke execute on function public.commercial_option_reminders() from public, anon, authenticated;
+grant execute on function public.commercial_option_reminders() to service_role;
+
 -- ---------------------------------------------------------------------------
 -- Droits : les fonctions de l'espace et de l'admin s'appellent connecté ;
 -- chacune vérifie elle-même qui appelle.
@@ -1615,7 +1693,8 @@ begin
     'admin_reassign_declaration(uuid, uuid, text, text)',
     'admin_mark_signed(uuid, uuid, uuid)',
     'admin_set_in_talks(uuid, boolean)',
-    'admin_declarations()'
+    'admin_declarations()',
+    'admin_restaurant_declarations(uuid)'
   ] loop
     execute format('revoke execute on function public.%s from public, anon', v_fn);
     execute format('grant execute on function public.%s to authenticated', v_fn);

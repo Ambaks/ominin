@@ -5,7 +5,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { Field, inputClass } from "@/components/ui/field";
 import { slugify } from "@/lib/shop/format";
 import { createShop } from "@/lib/shop/gestion-api";
-import { usePrefill, useSignupLink } from "@/lib/commercial/signup-link";
+import { SignupLinkError, usePrefill, useSignupLink } from "@/lib/commercial/signup-link";
 
 /** Création de la boutique de la personne connectée (nom, adresse, préfixe des commandes). */
 export function CreateShopForm() {
@@ -21,7 +21,7 @@ export function CreateShopForm() {
     if (!slugTouched) setSlug(slugify(value));
     if (!prefix) setPrefix(value.replace(/[^a-z0-9]/gi, "").slice(0, 2).toUpperCase());
   };
-  const link = useSignupLink("shop");
+  const { info: link, error: linkError } = useSignupLink("shop");
   usePrefill(name, onName, link?.name);
 
   const onSubmit = async (event: React.FormEvent) => {
@@ -44,6 +44,7 @@ export function CreateShopForm() {
         <h1 className="font-display text-2xl font-medium">Votre boutique</h1>
         <p className="max-w-sm text-sm text-muted">Quelques informations pour ouvrir votre espace. Tout le reste se règle ensuite.</p>
       </div>
+      <SignupLinkError error={linkError} />
       <form onSubmit={onSubmit} className="flex w-full max-w-sm flex-col gap-5 rounded-3xl border border-hairline bg-surface p-6">
         <Field label="Nom de la boutique" required>
           <input className={inputClass} value={name} onChange={(e) => onName(e.target.value)} placeholder="MyBox" required />

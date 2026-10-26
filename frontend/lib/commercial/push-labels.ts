@@ -8,4 +8,5 @@ export const PUSH_EVENT_LABELS: Record<PushEventKey, string> = {
   inscription: "Restaurant inscrit",
   expiration: "Réservation qui expire",
   releve: "Relevé disponible",
+  opposition: "Restaurant qui s’oppose à la prospection",
 };

@@ -15,32 +15,31 @@ import {
   markStatementPaid,
   openDocument,
   recordPayment,
+  resolveContest,
   sendStatement,
   type ClientPlace,
   type CommercialRow,
   type StatementRow,
 } from "@/lib/admin/commerciaux";
 import { downloadCsv, toCsv } from "@/lib/admin/csv";
-import { formatDate, formatEuros, fromDatetimeLocalValue } from "@/lib/admin/format";
+import { formatDate, fromDatetimeLocalValue } from "@/lib/admin/format";
+import { euros, monthLabel } from "@/lib/commercial/labels";
 import { GHOST_BUTTON } from "./commerciaux-tab";
 
 const PRIMARY = "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50";
-const euros = (cents: number) => formatEuros(cents / 100);
-const monthLabel = (month: string) =>
-  new Date(`${month}T12:00:00Z`).toLocaleDateString("fr-FR", { month: "long", year: "numeric", timeZone: "Europe/Paris" });
 
 const STATUS: Record<string, string> = {
   draft: "Brouillon",
   sent: "Envoyé, facture attendue",
   invoiced: "Facture reçue",
   paid: "Payé",
-  contested: "Contesté",
 };
 
 /*
  * Relevés (lot 3) : le brouillon du mois écoulé (créé par la tâche du 1er,
  * recalculable), les régularisations, l'envoi par e-mail avec son PDF, puis
- * facture reçue, détail demandé, contestation, paiement ; export CSV.
+ * facture reçue, détail demandé, contestation et sa réponse, paiement ;
+ * export CSV des relevés, détail CSV d'un relevé.
  */
 export function RelevesTab() {
   const toast = useToast();
@@ -48,6 +47,7 @@ export function RelevesTab() {
   const [commerciaux, setCommerciaux] = useState<CommercialRow[]>([]);
   const [adjusting, setAdjusting] = useState<StatementRow | null>(null);
   const [paying, setPaying] = useState(false);
+  const [resolving, setResolving] = useState<StatementRow | null>(null);
 
   const load = useCallback(() => fetchStatements().then(setRows), []);
   useEffect(() => {
@@ -83,6 +83,7 @@ export function RelevesTab() {
         { header: "Facture reçue", value: (row) => row.invoice_received_at && formatDate(row.invoice_received_at) },
         { header: "Payé", value: (row) => row.paid_at && formatDate(row.paid_at) },
         { header: "Contesté", value: (row) => row.contest_note },
+        { header: "Réponse", value: (row) => row.contest_resolution },
       ])
     );
 
@@ -122,17 +123,28 @@ export function RelevesTab() {
               </div>
               {row.adjustments.map((adjustment) => (
                 <p key={`${adjustment.label}-${adjustment.cents}`} className="text-xs text-muted">
-                  {adjustment.label} : {euros(adjustment.cents)}
+                  {adjustment.label}
+                  {adjustment.month ? ` (${monthLabel(adjustment.month)})` : ""} : {euros(adjustment.cents)}
                 </p>
               ))}
               {row.detail_requested_at && !row.detail_sent_at && (
                 <p className="text-xs text-ember-3">Détail demandé le {formatDate(row.detail_requested_at)} : à envoyer.</p>
               )}
-              {row.contested_at && <p className="text-xs text-ember-3">Contesté : {row.contest_note}</p>}
+              {row.contested_at && (
+                <p className={`text-xs ${row.contest_resolved_at ? "text-muted" : "text-ember-3"}`}>
+                  Contesté le {formatDate(row.contested_at)} : {row.contest_note}
+                  {row.contest_resolved_at && ` — répondu le ${formatDate(row.contest_resolved_at)} : ${row.contest_resolution}`}
+                </p>
+              )}
               <div className="flex flex-wrap gap-2">
                 <a href={`/api/commercial/releves/${row.id}`} target="_blank" className={GHOST_BUTTON}>
                   PDF
                 </a>
+                {row.status !== "draft" && (
+                  <a href={`/api/commercial/releves/${row.id}?format=csv`} className={GHOST_BUTTON}>
+                    Détail CSV
+                  </a>
+                )}
                 {row.status === "draft" && (
                   <>
                     <button type="button" onClick={() => setAdjusting(row)} className={GHOST_BUTTON}>
@@ -153,6 +165,11 @@ export function RelevesTab() {
                     Envoyer le détail
                   </button>
                 )}
+                {row.contested_at && !row.contest_resolved_at && (
+                  <button type="button" onClick={() => setResolving(row)} className={GHOST_BUTTON}>
+                    Répondre à la contestation
+                  </button>
+                )}
                 {row.status !== "draft" && !row.paid_at && (
                   <button type="button" onClick={() => void run(() => markStatementPaid(row.id), "Payé.")} className={GHOST_BUTTON}>
                     Marquer payé
@@ -166,6 +183,16 @@ export function RelevesTab() {
 
       {adjusting && <AdjustModal row={adjusting} onClose={() => setAdjusting(null)} onDone={() => { setAdjusting(null); void load(); }} />}
       {paying && <PaymentModal onClose={() => setPaying(false)} />}
+      {resolving && (
+        <ResolveModal
+          row={resolving}
+          onClose={() => setResolving(null)}
+          onDone={() => {
+            setResolving(null);
+            void load();
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -198,6 +225,38 @@ function AdjustModal({ row, onClose, onDone }: { row: StatementRow; onClose: () 
         </Field>
         <Field label="Commission en euros" required hint="Négative pour une déduction.">
           <input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" className={inputClass} />
+        </Field>
+      </div>
+    </Modal>
+  );
+}
+
+function ResolveModal({ row, onClose, onDone }: { row: StatementRow; onClose: () => void; onDone: () => void }) {
+  const toast = useToast();
+  const [resolution, setResolution] = useState("");
+  const submit = async () => {
+    try {
+      await resolveContest(row.id, resolution.trim());
+      toast.success("Contestation close.");
+      onDone();
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Une erreur est survenue.");
+    }
+  };
+  return (
+    <Modal
+      title={`Contestation · ${monthLabel(row.month)}`}
+      onClose={onClose}
+      footer={
+        <button type="button" disabled={!resolution.trim()} onClick={() => void submit()} className={PRIMARY}>
+          Clore
+        </button>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <p className="text-sm text-muted">{row.contest_note}</p>
+        <Field label="Réponse au commercial" required hint="Lue dans son espace. Une correction passe par une régularisation sur le relevé suivant.">
+          <textarea value={resolution} onChange={(event) => setResolution(event.target.value)} rows={4} className={`${inputClass} resize-none`} />
         </Field>
       </div>
     </Modal>

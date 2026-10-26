@@ -1,4 +1,5 @@
-import { commercialName } from "@/lib/commercial/record";
+import { flushEmails } from "@/lib/commercial/api";
+import { commercialName, displayName } from "@/lib/commercial/record";
 import { KIT_DECK_PATH } from "@/lib/commercial/kit";
 import type { Product } from "@/lib/commercial/labels";
 import { createClient } from "@/lib/supabase/client";
@@ -131,11 +132,6 @@ export interface EmailState {
 }
 
 export const fetchDeclarations = () => createClient().rpc("admin_declarations").then(must);
-
-/** Envoie les e-mails du contrat que la décision vient de mettre en file. */
-async function flushEmails() {
-  await fetch("/api/commercial/envois", { method: "POST" }).catch(() => undefined);
-}
 
 export async function decide(id: string, decision: "confirm" | "refuse", reason: string) {
   check(
@@ -290,7 +286,7 @@ export async function fetchDemoRequests(): Promise<DemoRow[]> {
       demo_url: row.demo_url,
       created_at: row.created_at,
       restaurant: row.commercial_declarations.crm_restaurants.name,
-      commercial: [who.first_name, who.last_name].filter(Boolean).join(" ") || who.email,
+      commercial: displayName(who),
     };
   });
 }
@@ -334,7 +330,7 @@ export async function fetchPendingClients(): Promise<PendingClient[]> {
       alert: row.alert,
       created_at: row.created_at,
       name: row.commercial_declarations.crm_restaurants.name,
-      commercial: [who.first_name, who.last_name].filter(Boolean).join(" ") || who.email,
+      commercial: displayName(who),
     };
   });
 }
@@ -366,6 +362,8 @@ export interface StatementRow {
   detail_sent_at: string | null;
   contested_at: string | null;
   contest_note: string | null;
+  contest_resolved_at: string | null;
+  contest_resolution: string | null;
   paid_at: string | null;
 }
 
@@ -373,14 +371,14 @@ export async function fetchStatements(): Promise<StatementRow[]> {
   const rows = await createClient()
     .from("commercial_statements")
     .select(
-      "id, commercial_id, month, total_cents, status, adjustments, sent_at, invoice_path, invoice_received_at, detail_requested_at, detail_sent_at, contested_at, contest_note, paid_at, commerciaux(email, first_name, last_name)"
+      "id, commercial_id, month, total_cents, status, adjustments, sent_at, invoice_path, invoice_received_at, detail_requested_at, detail_sent_at, contested_at, contest_note, contest_resolved_at, contest_resolution, paid_at, commerciaux(email, first_name, last_name)"
     )
     .order("month", { ascending: false })
     .then(must);
   return rows.map(({ commerciaux: who, ...row }) => ({
     ...row,
     adjustments: row.adjustments as unknown as StatementRow["adjustments"],
-    commercial: [who.first_name, who.last_name].filter(Boolean).join(" ") || who.email,
+    commercial: displayName(who),
   }));
 }
 
@@ -399,6 +397,11 @@ export async function sendStatement(id: string) {
 
 export async function markStatementPaid(id: string) {
   check(await createClient().rpc("admin_statement_paid", { p_statement: id }));
+}
+
+/** Réponse d'Ominin à une contestation (art. 5.4), lue par le commercial dans Argent. */
+export async function resolveContest(id: string, resolution: string) {
+  check(await createClient().rpc("admin_statement_resolve", { p_statement: id, p_resolution: resolution }));
 }
 
 export async function markDetailSent(id: string) {

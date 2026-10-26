@@ -1,6 +1,6 @@
-import { formatEuros } from "@/lib/admin/format";
 import { COMMERCIAL_COMMISSION_PERCENT, COMMERCIAL_PAYMENT_DAYS } from "@/lib/legal/constants";
 import type { MonthLine, Statement } from "./api";
+import { euros, monthLabel } from "./labels";
 import { LAYOUT, pdfWriter } from "./pdf";
 
 /*
@@ -10,11 +10,6 @@ import { LAYOUT, pdfWriter } from "./pdf";
  */
 
 type StatementLike = Pick<Statement, "month" | "lines" | "adjustments" | "total_cents" | "sent_at">;
-
-const euros = (cents: number) => formatEuros(cents / 100);
-
-export const monthLabel = (month: string) =>
-  new Date(`${month}T12:00:00Z`).toLocaleDateString("fr-FR", { month: "long", year: "numeric", timeZone: "Europe/Paris" });
 
 export const statementFilename = (month: string) => `releve-ominin-${month.slice(0, 7)}.pdf`;
 
@@ -43,7 +38,9 @@ export async function statementPdf(statement: StatementLike, commercial: string)
   }
   if (statement.adjustments.length) {
     doc.heading("Régularisations");
-    for (const adjustment of statement.adjustments) doc.row(euros(adjustment.cents), adjustment.label);
+    for (const adjustment of statement.adjustments) {
+      doc.row(euros(adjustment.cents), adjustment.month ? `${adjustment.label} (${monthLabel(adjustment.month)})` : adjustment.label);
+    }
   }
   doc.heading("Total");
   doc.row("Commission due", euros(statement.total_cents));

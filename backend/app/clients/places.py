@@ -38,3 +38,10 @@ def search_text(query: str, page_token: str | None = None) -> dict:
     )
     response.raise_for_status()
     return response.json()
+
+
+def address_component(place: dict, kind: str) -> str | None:
+    for component in place.get("addressComponents", []):
+        if kind in component.get("types", []):
+            return component.get("longText")
+    return None

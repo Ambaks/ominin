@@ -9,7 +9,8 @@ const PRODUCTS: readonly Product[] = ["menu", "collect", "shop"];
  * pré-remplir le tunnel et, si le gérant est connecté, rattache le lien à
  * son compte — c'est ce rattachement qui, à l'acceptation des CGV, en fait le
  * Client Apporté du commercial. Le jeton seul est la preuve : la base n'en
- * garde que l'empreinte.
+ * garde que l'empreinte. Un refus (lien d'un autre compte, compte commercial
+ * ou admin) revient avec son motif, affiché dans le tunnel.
  */
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as { token?: unknown; product?: unknown } | null;
@@ -31,6 +32,6 @@ export async function POST(request: Request) {
     p_token: token,
     p_product: product,
   });
-  if (claimError) return NextResponse.json({ error: claimError.message }, { status: 409 });
+  if (claimError) return NextResponse.json({ info, error: claimError.message }, { status: 409 });
   return NextResponse.json({ info, claimed });
 }

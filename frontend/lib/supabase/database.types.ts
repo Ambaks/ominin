@@ -1760,6 +1760,8 @@ export type Database = {
           adjustments: Json
           commercial_id: string
           contest_note: string | null
+          contest_resolution: string | null
+          contest_resolved_at: string | null
           contested_at: string | null
           created_at: string
           detail_requested_at: string | null
@@ -1778,6 +1780,8 @@ export type Database = {
           adjustments?: Json
           commercial_id: string
           contest_note?: string | null
+          contest_resolution?: string | null
+          contest_resolved_at?: string | null
           contested_at?: string | null
           created_at?: string
           detail_requested_at?: string | null
@@ -1796,6 +1800,8 @@ export type Database = {
           adjustments?: Json
           commercial_id?: string
           contest_note?: string | null
+          contest_resolution?: string | null
+          contest_resolved_at?: string | null
           contested_at?: string | null
           created_at?: string
           detail_requested_at?: string | null
@@ -3740,6 +3746,7 @@ export type Database = {
       ominin_invoice_payments: {
         Row: {
           created_at: string
+          credited_cents: number
           eligible_ht_cents: number
           etablissement_id: string | null
           id: string
@@ -3747,10 +3754,10 @@ export type Database = {
           paid_at: string
           shop_id: string | null
           stripe_invoice_id: string | null
-          voided_at: string | null
         }
         Insert: {
           created_at?: string
+          credited_cents?: number
           eligible_ht_cents: number
           etablissement_id?: string | null
           id?: string
@@ -3758,10 +3765,10 @@ export type Database = {
           paid_at: string
           shop_id?: string | null
           stripe_invoice_id?: string | null
-          voided_at?: string | null
         }
         Update: {
           created_at?: string
+          credited_cents?: number
           eligible_ht_cents?: number
           etablissement_id?: string | null
           id?: string
@@ -3769,7 +3776,6 @@ export type Database = {
           paid_at?: string
           shop_id?: string | null
           stripe_invoice_id?: string | null
-          voided_at?: string | null
         }
         Relationships: [
           {
@@ -6784,6 +6790,18 @@ export type Database = {
         Returns: string
       }
       admin_require: { Args: never; Returns: undefined }
+      admin_restaurant_declarations: {
+        Args: { p_restaurant: string }
+        Returns: {
+          commercial_name: string
+          confirm_deadline: string
+          declared_at: string
+          effective_status: Database["public"]["Enums"]["commercial_declaration_status"]
+          id: string
+          reserved_until: string
+          step: number
+        }[]
+      }
       admin_service_figures: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -6855,6 +6873,10 @@ export type Database = {
       }
       admin_statement_paid: {
         Args: { p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_resolve: {
+        Args: { p_resolution: string; p_statement: string }
         Returns: undefined
       }
       admin_statement_send: {
@@ -7029,6 +7051,7 @@ export type Database = {
         Args: { p_kind: string; p_path: string }
         Returns: undefined
       }
+      commercial_appointment: { Args: { p_appointment: string }; Returns: Json }
       commercial_appointment_upsert: {
         Args: { p_appointment: Json; p_declaration: string }
         Returns: string
@@ -7173,6 +7196,14 @@ export type Database = {
         Args: { p_restaurant: string }
         Returns: number
       }
+      commercial_final_statements: {
+        Args: never
+        Returns: {
+          commercial_id: string
+          due_at: string
+          statement_id: string
+        }[]
+      }
       commercial_find_duplicates: {
         Args: {
           p_city?: string
@@ -7254,6 +7285,14 @@ export type Database = {
           shop_cents: number
         }[]
       }
+      commercial_morning: {
+        Args: never
+        Returns: {
+          commercial_id: string
+          expiring: number
+          tasks: number
+        }[]
+      }
       commercial_my_active: {
         Args: { p_declaration: string }
         Returns: {
@@ -7308,6 +7347,14 @@ export type Database = {
         }[]
       }
       commercial_opt_out: { Args: { p_restaurant: string }; Returns: undefined }
+      commercial_option_reminders: {
+        Args: never
+        Returns: {
+          contract_end: string
+          id: string
+          name: string
+        }[]
+      }
       commercial_passage: {
         Args: {
           p_reason: Database["public"]["Enums"]["commercial_end_reason"]
@@ -7327,6 +7374,7 @@ export type Database = {
       commercial_refusal: {
         Args: {
           p_commercial: string
+          p_ignore?: string
           r: Database["public"]["Tables"]["crm_restaurants"]["Row"]
         }
         Returns: Database["public"]["Enums"]["commercial_refusal_reason"]
@@ -7415,6 +7463,7 @@ export type Database = {
         Args: { p_commercial: string }
         Returns: boolean
       }
+      commercial_urssaf_reminders: { Args: never; Returns: number }
       commercial_version_in_force: { Args: never; Returns: string }
       contribuer_table: {
         Args: {
