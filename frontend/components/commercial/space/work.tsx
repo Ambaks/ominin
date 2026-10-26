@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { CheckIcon } from "@/components/gestion/icons";
-import { PhoneIcon, WhatsappIcon } from "@/components/admin/icons";
+import { CalendarIcon, PhoneIcon, WhatsappIcon } from "@/components/admin/icons";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useRunMutation } from "@/components/ui/toast";
@@ -24,6 +24,29 @@ import {
 } from "./ui";
 
 type Sheet = api.RestaurantSheet;
+
+const icsDate = (iso: string) => iso.replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+
+/** Le rendez-vous au format iCalendar, à ouvrir dans l'agenda du téléphone. */
+function icsHref(rdv: api.Appointment, restaurant: string): string {
+  const end = rdv.end_at ?? rdv.start_at;
+  const text = (value: string) => value.replace(/([,;\\])/g, "\\$1").replace(/\n/g, "\\n");
+  const ics = [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Ominin//Espace commercial//FR",
+    "BEGIN:VEVENT",
+    `UID:${rdv.id}@ominin`,
+    `DTSTAMP:${icsDate(new Date().toISOString())}`,
+    `DTSTART:${icsDate(new Date(rdv.start_at).toISOString())}`,
+    `DTEND:${icsDate(new Date(end).toISOString())}`,
+    `SUMMARY:${text(`${rdv.title} · ${restaurant}`)}`,
+    ...(rdv.location ? [`LOCATION:${text(rdv.location)}`] : []),
+    "END:VEVENT",
+    "END:VCALENDAR",
+  ].join("\r\n");
+  return `data:text/calendar;charset=utf-8,${encodeURIComponent(ics)}`;
+}
 
 /*
  * Le travail d'un commercial sur sa déclaration : étapes, journal, relances,
@@ -180,6 +203,14 @@ export function FollowUps({ sheet, onChange }: { sheet: Sheet; onChange: () => v
                 {rdv.location ? ` · ${rdv.location}` : ""}
               </span>
             </span>
+            <a
+              href={icsHref(rdv, sheet.restaurant.name)}
+              download={`rendez-vous-${rdv.id}.ics`}
+              className={ghostButton}
+              aria-label="Ajouter à mon agenda"
+            >
+              <CalendarIcon className="size-4" />
+            </a>
             <button
               type="button"
               onClick={() =>

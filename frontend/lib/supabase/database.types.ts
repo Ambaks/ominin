@@ -1256,6 +1256,61 @@ export type Database = {
           },
         ]
       }
+      commercial_clients: {
+        Row: {
+          alert: string | null
+          commission_from: string | null
+          created_at: string
+          declaration_id: string
+          etablissement_id: string | null
+          id: string
+          shop_id: string | null
+          validated_at: string | null
+        }
+        Insert: {
+          alert?: string | null
+          commission_from?: string | null
+          created_at?: string
+          declaration_id: string
+          etablissement_id?: string | null
+          id?: string
+          shop_id?: string | null
+          validated_at?: string | null
+        }
+        Update: {
+          alert?: string | null
+          commission_from?: string | null
+          created_at?: string
+          declaration_id?: string
+          etablissement_id?: string | null
+          id?: string
+          shop_id?: string | null
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_clients_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_clients_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_clients_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commercial_declarations: {
         Row: {
           admin_notified_at: string | null
@@ -1284,6 +1339,10 @@ export type Database = {
           restaurant_id: string
           retained: Json
           retained_updated_at: string | null
+          signup_product: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at: string | null
+          signup_token_hash: string | null
+          signup_user_id: string | null
           status: Database["public"]["Enums"]["commercial_declaration_status"]
           step_done_at: Json
         }
@@ -1314,6 +1373,10 @@ export type Database = {
           restaurant_id: string
           retained?: Json
           retained_updated_at?: string | null
+          signup_product?: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at?: string | null
+          signup_token_hash?: string | null
+          signup_user_id?: string | null
           status: Database["public"]["Enums"]["commercial_declaration_status"]
           step_done_at?: Json
         }
@@ -1344,6 +1407,10 @@ export type Database = {
           restaurant_id?: string
           retained?: Json
           retained_updated_at?: string | null
+          signup_product?: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at?: string | null
+          signup_token_hash?: string | null
+          signup_user_id?: string | null
           status?: Database["public"]["Enums"]["commercial_declaration_status"]
           step_done_at?: Json
         }
@@ -1385,6 +1452,79 @@ export type Database = {
           },
         ]
       }
+      commercial_demo_requests: {
+        Row: {
+          created_at: string
+          declaration_id: string
+          demo_url: string | null
+          done_at: string | null
+          id: string
+          note: string | null
+          photos: string[]
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          declaration_id: string
+          demo_url?: string | null
+          done_at?: string | null
+          id?: string
+          note?: string | null
+          photos?: string[]
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          declaration_id?: string
+          demo_url?: string | null
+          done_at?: string | null
+          id?: string
+          note?: string | null
+          photos?: string[]
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_demo_requests_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_documents: {
+        Row: {
+          commercial_id: string
+          id: string
+          kind: string
+          path: string
+          uploaded_at: string
+        }
+        Insert: {
+          commercial_id: string
+          id?: string
+          kind: string
+          path: string
+          uploaded_at?: string
+        }
+        Update: {
+          commercial_id?: string
+          id?: string
+          kind?: string
+          path?: string
+          uploaded_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_documents_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commercial_emails: {
         Row: {
           commercial_id: string
@@ -1396,6 +1536,7 @@ export type Database = {
           kind: string
           last_error: string | null
           sent_at: string | null
+          statement_id: string | null
         }
         Insert: {
           commercial_id: string
@@ -1407,6 +1548,7 @@ export type Database = {
           kind: string
           last_error?: string | null
           sent_at?: string | null
+          statement_id?: string | null
         }
         Update: {
           commercial_id?: string
@@ -1418,6 +1560,7 @@ export type Database = {
           kind?: string
           last_error?: string | null
           sent_at?: string | null
+          statement_id?: string | null
         }
         Relationships: [
           {
@@ -1432,6 +1575,48 @@ export type Database = {
             columns: ["declaration_id"]
             isOneToOne: false
             referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_emails_statement_id_fkey"
+            columns: ["statement_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_statements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_push_subscriptions: {
+        Row: {
+          auth: string
+          commercial_id: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+        }
+        Insert: {
+          auth: string
+          commercial_id: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+        }
+        Update: {
+          auth?: string
+          commercial_id?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_push_subscriptions_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
             referencedColumns: ["id"]
           },
         ]
@@ -1468,6 +1653,7 @@ export type Database = {
       commercial_settings: {
         Row: {
           appointment_reminder_minutes: number | null
+          club_fees_included: boolean | null
           commission_percent: number
           confirm_days: number
           contest_months: number
@@ -1475,6 +1661,7 @@ export type Database = {
           declaration_cap: number | null
           detail_interval_months: number
           detail_response_days: number
+          eligible_stripe_prices: string[]
           expiry_warning_days: number | null
           final_statement_days: number
           id: boolean
@@ -1500,6 +1687,7 @@ export type Database = {
         }
         Insert: {
           appointment_reminder_minutes?: number | null
+          club_fees_included?: boolean | null
           commission_percent: number
           confirm_days: number
           contest_months: number
@@ -1507,6 +1695,7 @@ export type Database = {
           declaration_cap?: number | null
           detail_interval_months: number
           detail_response_days: number
+          eligible_stripe_prices?: string[]
           expiry_warning_days?: number | null
           final_statement_days: number
           id?: boolean
@@ -1532,6 +1721,7 @@ export type Database = {
         }
         Update: {
           appointment_reminder_minutes?: number | null
+          club_fees_included?: boolean | null
           commission_percent?: number
           confirm_days?: number
           contest_months?: number
@@ -1539,6 +1729,7 @@ export type Database = {
           declaration_cap?: number | null
           detail_interval_months?: number
           detail_response_days?: number
+          eligible_stripe_prices?: string[]
           expiry_warning_days?: number | null
           final_statement_days?: number
           id?: boolean
@@ -1564,6 +1755,71 @@ export type Database = {
         }
         Relationships: []
       }
+      commercial_statements: {
+        Row: {
+          adjustments: Json
+          commercial_id: string
+          contest_note: string | null
+          contested_at: string | null
+          created_at: string
+          detail_requested_at: string | null
+          detail_sent_at: string | null
+          id: string
+          invoice_path: string | null
+          invoice_received_at: string | null
+          lines: Json
+          month: string
+          paid_at: string | null
+          sent_at: string | null
+          status: string
+          total_cents: number
+        }
+        Insert: {
+          adjustments?: Json
+          commercial_id: string
+          contest_note?: string | null
+          contested_at?: string | null
+          created_at?: string
+          detail_requested_at?: string | null
+          detail_sent_at?: string | null
+          id?: string
+          invoice_path?: string | null
+          invoice_received_at?: string | null
+          lines?: Json
+          month: string
+          paid_at?: string | null
+          sent_at?: string | null
+          status?: string
+          total_cents?: number
+        }
+        Update: {
+          adjustments?: Json
+          commercial_id?: string
+          contest_note?: string | null
+          contested_at?: string | null
+          created_at?: string
+          detail_requested_at?: string | null
+          detail_sent_at?: string | null
+          id?: string
+          invoice_path?: string | null
+          invoice_received_at?: string | null
+          lines?: Json
+          month?: string
+          paid_at?: string | null
+          sent_at?: string | null
+          status?: string
+          total_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_statements_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commerciaux: {
         Row: {
           address: string | null
@@ -1578,6 +1834,7 @@ export type Database = {
           option_exercised_at: string | null
           option_reminded_at: string | null
           phone: string | null
+          push_prefs: Json
           siret: string | null
           user_id: string | null
         }
@@ -1594,6 +1851,7 @@ export type Database = {
           option_exercised_at?: string | null
           option_reminded_at?: string | null
           phone?: string | null
+          push_prefs?: Json
           siret?: string | null
           user_id?: string | null
         }
@@ -1610,6 +1868,7 @@ export type Database = {
           option_exercised_at?: string | null
           option_reminded_at?: string | null
           phone?: string | null
+          push_prefs?: Json
           siret?: string | null
           user_id?: string | null
         }
@@ -1720,6 +1979,7 @@ export type Database = {
           id: string
           location: string | null
           notes: string | null
+          reminded_at: string | null
           restaurant_id: string
           start_at: string
           status: Database["public"]["Enums"]["crm_appointment_status"]
@@ -1737,6 +1997,7 @@ export type Database = {
           id?: string
           location?: string | null
           notes?: string | null
+          reminded_at?: string | null
           restaurant_id: string
           start_at: string
           status?: Database["public"]["Enums"]["crm_appointment_status"]
@@ -1754,6 +2015,7 @@ export type Database = {
           id?: string
           location?: string | null
           notes?: string | null
+          reminded_at?: string | null
           restaurant_id?: string
           start_at?: string
           status?: Database["public"]["Enums"]["crm_appointment_status"]
@@ -1939,6 +2201,7 @@ export type Database = {
           latitude: number | null
           longitude: number | null
           menu_url: string | null
+          merged_into: string | null
           name: string
           outreach_opted_out_at: string | null
           owner_email: string | null
@@ -1973,6 +2236,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           menu_url?: string | null
+          merged_into?: string | null
           name: string
           outreach_opted_out_at?: string | null
           owner_email?: string | null
@@ -2007,6 +2271,7 @@ export type Database = {
           latitude?: number | null
           longitude?: number | null
           menu_url?: string | null
+          merged_into?: string | null
           name?: string
           outreach_opted_out_at?: string | null
           owner_email?: string | null
@@ -2027,6 +2292,13 @@ export type Database = {
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_restaurants_merged_into_fkey"
+            columns: ["merged_into"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
             referencedColumns: ["id"]
           },
           {
@@ -3464,6 +3736,57 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      ominin_invoice_payments: {
+        Row: {
+          created_at: string
+          eligible_ht_cents: number
+          etablissement_id: string | null
+          id: string
+          note: string | null
+          paid_at: string
+          shop_id: string | null
+          stripe_invoice_id: string | null
+          voided_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          eligible_ht_cents: number
+          etablissement_id?: string | null
+          id?: string
+          note?: string | null
+          paid_at: string
+          shop_id?: string | null
+          stripe_invoice_id?: string | null
+          voided_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          eligible_ht_cents?: number
+          etablissement_id?: string | null
+          id?: string
+          note?: string | null
+          paid_at?: string
+          shop_id?: string | null
+          stripe_invoice_id?: string | null
+          voided_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ominin_invoice_payments_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ominin_invoice_payments_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       order_items: {
         Row: {
@@ -6233,6 +6556,14 @@ export type Database = {
         Returns: undefined
       }
       accept_invitation: { Args: { p_token: string }; Returns: string }
+      admin_add_client: {
+        Args: {
+          p_declaration: string
+          p_etablissement?: string
+          p_shop?: string
+        }
+        Returns: string
+      }
       admin_agents_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -6319,6 +6650,10 @@ export type Database = {
           step: number
           tacit: boolean
         }[]
+      }
+      admin_deliver_demo: {
+        Args: { p_request: string; p_url: string }
+        Returns: undefined
       }
       admin_link_client: {
         Args: {
@@ -6411,6 +6746,14 @@ export type Database = {
           sessions: number
         }[]
       }
+      admin_merge_restaurants: {
+        Args: { p_drop: string; p_keep: string; p_note: string }
+        Returns: undefined
+      }
+      admin_month_lines: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: Json[]
+      }
       admin_reassign_declaration: {
         Args: {
           p_commercial: string
@@ -6429,6 +6772,16 @@ export type Database = {
           p_restaurant: string
         }
         Returns: Json
+      }
+      admin_record_payment: {
+        Args: {
+          p_cents: number
+          p_etablissement: string
+          p_note: string
+          p_paid_at: string
+          p_shop: string
+        }
+        Returns: string
       }
       admin_require: { Args: never; Returns: undefined }
       admin_service_figures: {
@@ -6474,6 +6827,41 @@ export type Database = {
           to_prepare: number
         }[]
       }
+      admin_signup_matches: {
+        Args: never
+        Returns: {
+          commercial_name: string
+          created_at: string
+          declaration_id: string
+          id: string
+          kind: string
+          name: string
+          reason: string
+          restaurant_id: string
+          restaurant_name: string
+        }[]
+      }
+      admin_statement_adjust: {
+        Args: { p_cents: number; p_label: string; p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_detail_sent: {
+        Args: { p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_draft: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: string
+      }
+      admin_statement_paid: {
+        Args: { p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_send: {
+        Args: { p_statement: string }
+        Returns: undefined
+      }
+      admin_validate_client: { Args: { p_client: string }; Returns: undefined }
       articles_fermes: {
         Args: { p_at?: string; p_etablissement: string }
         Returns: string[]
@@ -6628,9 +7016,78 @@ export type Database = {
         Returns: undefined
       }
       commercial_account: { Args: never; Returns: Json }
+      commercial_add_client: {
+        Args: {
+          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
+          p_etablissement: string
+          p_shop: string
+          p_validated: boolean
+        }
+        Returns: string
+      }
+      commercial_add_document: {
+        Args: { p_kind: string; p_path: string }
+        Returns: undefined
+      }
       commercial_appointment_upsert: {
         Args: { p_appointment: Json; p_declaration: string }
         Returns: string
+      }
+      commercial_base: {
+        Args: {
+          c: Database["public"]["Tables"]["commercial_clients"]["Row"]
+          p_from: string
+          p_to: string
+        }
+        Returns: {
+          club_cents: number
+          invoice_cents: number
+          menu_cents: number
+          shop_cents: number
+        }[]
+      }
+      commercial_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          admin_notified_at: string | null
+          channel: string
+          client_alert: string | null
+          commercial_id: string
+          confirm_deadline: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          contact_id: string | null
+          contract_version_id: string | null
+          created_at: string
+          decision_document: string | null
+          decision_note: string | null
+          declared_at: string
+          end_reason:
+            | Database["public"]["Enums"]["commercial_end_reason"]
+            | null
+          ended_at: string | null
+          id: string
+          reassigned_from: string | null
+          refusal_reason:
+            | Database["public"]["Enums"]["commercial_refusal_reason"]
+            | null
+          reserved_until: string | null
+          restaurant_id: string
+          retained: Json
+          retained_updated_at: string | null
+          signup_product: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at: string | null
+          signup_token_hash: string | null
+          signup_user_id: string | null
+          status: Database["public"]["Enums"]["commercial_declaration_status"]
+          step_done_at: Json
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commercial_declarations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       commercial_cfg: {
         Args: never
@@ -6684,10 +7141,15 @@ export type Database = {
         Args: { p_contact: Json; p_declaration: string }
         Returns: string
       }
+      commercial_contest: {
+        Args: { p_note: string; p_statement: string }
+        Returns: undefined
+      }
       commercial_contract_end: {
         Args: { c: Database["public"]["Tables"]["commerciaux"]["Row"] }
         Returns: string
       }
+      commercial_count_places: { Args: never; Returns: undefined }
       commercial_count_search: {
         Args: { p_commercial: string }
         Returns: undefined
@@ -6701,6 +7163,11 @@ export type Database = {
         }
         Returns: Json
       }
+      commercial_draft_statement: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: string
+      }
+      commercial_draft_statements: { Args: never; Returns: number }
       commercial_expire_due: { Args: never; Returns: number }
       commercial_expire_due_for: {
         Args: { p_restaurant: string }
@@ -6725,6 +7192,10 @@ export type Database = {
           reason: string
           state: Json
         }[]
+      }
+      commercial_first_acceptance: {
+        Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
+        Returns: string
       }
       commercial_in_talks: {
         Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
@@ -6767,6 +7238,22 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      commercial_money: { Args: never; Returns: Json }
+      commercial_month_estimate: { Args: never; Returns: Json }
+      commercial_month_lines: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: {
+          base_cents: number
+          client_id: string
+          club_cents: number
+          commission_cents: number
+          invoice_cents: number
+          menu_cents: number
+          name: string
+          restaurant_id: string
+          shop_cents: number
+        }[]
+      }
       commercial_my_active: {
         Args: { p_declaration: string }
         Returns: {
@@ -6806,7 +7293,20 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      commercial_my_clients: { Args: never; Returns: Json }
       commercial_my_restaurants: { Args: never; Returns: Json }
+      commercial_nearby: {
+        Args: { p_lat: number; p_lng: number }
+        Returns: {
+          address: string
+          category: Database["public"]["Enums"]["crm_restaurant_category"]
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          state: Json
+        }[]
+      }
       commercial_opt_out: { Args: { p_restaurant: string }; Returns: undefined }
       commercial_passage: {
         Args: {
@@ -6832,6 +7332,14 @@ export type Database = {
         Returns: Database["public"]["Enums"]["commercial_refusal_reason"]
       }
       commercial_release_ended: { Args: never; Returns: number }
+      commercial_request_demo: {
+        Args: { p_declaration: string; p_note: string; p_photos: string[] }
+        Returns: string
+      }
+      commercial_request_detail: {
+        Args: { p_statement: string }
+        Returns: string
+      }
       commercial_reserved_until: {
         Args: {
           d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
@@ -6856,17 +7364,38 @@ export type Database = {
         }[]
       }
       commercial_search_limit: { Args: never; Returns: number }
+      commercial_set_push_prefs: { Args: { p_prefs: Json }; Returns: undefined }
       commercial_set_step: {
         Args: { p_declaration: string; p_done: boolean; p_position: number }
         Returns: Json
       }
       commercial_settle: { Args: { p_restaurant: string }; Returns: undefined }
+      commercial_signup_alert: {
+        Args: {
+          p_etablissement: string
+          p_shop: string
+          r: Database["public"]["Tables"]["crm_restaurants"]["Row"]
+        }
+        Returns: string
+      }
+      commercial_signup_link: {
+        Args: { p_declaration: string }
+        Returns: string
+      }
       commercial_state: {
         Args: {
           p_commercial: string
           r: Database["public"]["Tables"]["crm_restaurants"]["Row"]
         }
         Returns: Json
+      }
+      commercial_statement_invoice: {
+        Args: { p_path: string; p_statement: string }
+        Returns: undefined
+      }
+      commercial_statement_total: {
+        Args: { p_adjustments: Json; p_lines: Json }
+        Returns: number
       }
       commercial_status_at: {
         Args: {
@@ -6880,7 +7409,12 @@ export type Database = {
         Returns: string
       }
       commercial_today: { Args: { p_since: string }; Returns: Json }
+      commercial_today_base: { Args: { p_since: string }; Returns: Json }
       commercial_top_step: { Args: { p_steps: Json }; Returns: number }
+      commercial_urssaf_due: {
+        Args: { p_commercial: string }
+        Returns: boolean
+      }
       commercial_version_in_force: { Args: never; Returns: string }
       contribuer_table: {
         Args: {
@@ -7385,9 +7919,11 @@ export type Database = {
       }
       projet_add_client: {
         Args: {
+          p_declaration?: string
           p_etablissement?: string
           p_name: string
           p_product: Database["public"]["Enums"]["ominin_product"]
+          p_restaurant?: string
           p_shop?: string
         }
         Returns: string
@@ -7468,6 +8004,14 @@ export type Database = {
           revenue_cents: number
         }[]
       }
+      signup_link_claim: {
+        Args: {
+          p_product: Database["public"]["Enums"]["ominin_product"]
+          p_token: string
+        }
+        Returns: boolean
+      }
+      signup_link_info: { Args: { p_token: string }; Returns: Json }
       staff_code_ok: {
         Args: { p_code: string; p_staff_id: string }
         Returns: boolean

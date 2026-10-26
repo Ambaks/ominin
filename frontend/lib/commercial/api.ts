@@ -326,3 +326,166 @@ export const upsertAppointment = (
   );
 
 export const resign = () => call<string>(db().rpc("commercial_resign"));
+
+// ---------------------------------------------------------------------------
+// Lot 2 : inscription, démos, carte, notifications
+
+/** Nouveau lien d'inscription (le précédent ne vaut plus) : le jeton, en clair une seule fois. */
+export const signupLink = (declarationId: string) =>
+  call<string>(db().rpc("commercial_signup_link", { p_declaration: declarationId }));
+
+/** Photos de la carte déposées dans commercial-docs/<commercial>/demos/<déclaration>/. */
+export async function requestDemo(commercialId: string, declarationId: string, note: string, photos: File[]) {
+  const paths: string[] = [];
+  for (const [index, photo] of photos.entries()) {
+    const path = `${commercialId}/demos/${declarationId}/${index + 1}-${photo.name.replace(/[^\w.-]/g, "_")}`;
+    const { error } = await db().storage.from("commercial-docs").upload(path, photo, { upsert: true });
+    if (error) throw new Error(error.message);
+    paths.push(path);
+  }
+  return call<string>(
+    db().rpc("commercial_request_demo", { p_declaration: declarationId, p_note: note, p_photos: paths })
+  );
+}
+
+export interface DemoRequest {
+  id: string;
+  status: "requested" | "done" | "cancelled";
+  demo_url: string | null;
+  created_at: string;
+}
+
+export const demoRequests = (declarationId: string) =>
+  call<DemoRequest[]>(
+    db()
+      .from("commercial_demo_requests")
+      .select("id, status, demo_url, created_at")
+      .eq("declaration_id", declarationId)
+      .order("created_at", { ascending: false })
+  );
+
+export interface NearbyRestaurant {
+  id: string;
+  name: string;
+  address: string | null;
+  latitude: number;
+  longitude: number;
+  category: string;
+  state: RestaurantState;
+}
+
+export const nearby = (lat: number, lng: number) =>
+  call<NearbyRestaurant[]>(db().rpc("commercial_nearby", { p_lat: lat, p_lng: lng }));
+
+export type PushEventKey = "relance" | "rdv" | "demo" | "inscription" | "expiration" | "releve";
+
+export const setPushPrefs = (prefs: Partial<Record<PushEventKey, boolean>>) =>
+  call<null>(db().rpc("commercial_set_push_prefs", { p_prefs: prefs as Json }));
+
+// ---------------------------------------------------------------------------
+// Lot 3 : Clients et Argent
+
+export interface MyClient {
+  id: string;
+  restaurant_id: string;
+  name: string;
+  etablissement_id: string | null;
+  shop_id: string | null;
+  commission_from: string | null;
+  commission_until: string | null;
+  client_ended_at: string | null;
+  validated: boolean;
+  base_cents: number | null;
+  steps: { position: number; title: string; status: string }[];
+}
+
+export const myClients = () => call<MyClient[]>(db().rpc("commercial_my_clients"));
+
+export interface MonthLine {
+  client_id: string;
+  name: string;
+  menu_cents: number;
+  shop_cents: number;
+  club_cents: number;
+  invoice_cents: number;
+  base_cents: number;
+  commission_cents: number;
+}
+
+export interface Statement {
+  id: string;
+  month: string;
+  lines: MonthLine[];
+  adjustments: { label: string; cents: number; month?: string; auto: boolean }[];
+  total_cents: number;
+  status: "sent" | "invoiced" | "paid" | "contested";
+  sent_at: string;
+  invoice_path: string | null;
+  invoice_received_at: string | null;
+  payment_due: string | null;
+  paid_at: string | null;
+  detail_requested_at: string | null;
+  detail_due: string | null;
+  detail_sent_at: string | null;
+  contested_at: string | null;
+  contest_until: string;
+}
+
+export interface Money {
+  estimate: { month: string; percent: number; lines: MonthLine[] };
+  statements: Statement[];
+  next_detail_at: string | null;
+  urssaf_due: boolean;
+  documents: { kind: "sirene" | "urssaf"; uploaded_at: string }[];
+}
+
+export const money = () => call<Money>(db().rpc("commercial_money"));
+
+/** Fichier déposé dans commercial-docs/<commercial>/<dossier>/ (lecture : titulaire et admins). */
+async function upload(commercialId: string, folder: "factures" | "pieces", name: string, file: File) {
+  const path = `${commercialId}/${folder}/${name}-${file.name.replace(/[^\w.-]/g, "_")}`;
+  const { error } = await db().storage.from("commercial-docs").upload(path, file, { upsert: true });
+  if (error) throw new Error(error.message);
+  return path;
+}
+
+export async function sendInvoice(commercialId: string, statementId: string, file: File) {
+  const path = await upload(commercialId, "factures", statementId, file);
+  await call<null>(db().rpc("commercial_statement_invoice", { p_statement: statementId, p_path: path }));
+}
+
+export const requestDetail = (statementId: string) =>
+  call<string>(db().rpc("commercial_request_detail", { p_statement: statementId }));
+
+export const contest = (statementId: string, note: string) =>
+  call<null>(db().rpc("commercial_contest", { p_statement: statementId, p_note: note }));
+
+export async function addDocument(commercialId: string, kind: "sirene" | "urssaf", file: File) {
+  const path = await upload(commercialId, "pieces", kind, file);
+  await call<null>(db().rpc("commercial_add_document", { p_kind: kind, p_path: path }));
+}
+
+export interface GooglePlace {
+  external_id: string;
+  name: string;
+  address: string | null;
+  city: string | null;
+  postal_code: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  phone: string | null;
+  website: string | null;
+  google_maps_url: string | null;
+}
+
+/** Recherche Google (route serveur, quota du jour du commercial). */
+export async function googleSearch(query: string): Promise<GooglePlace[]> {
+  const response = await fetch("/api/commercial/places", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ query }),
+  });
+  const result = (await response.json().catch(() => ({}))) as { places?: GooglePlace[]; error?: string };
+  if (!response.ok) throw new Error(result.error ?? "La recherche Google a échoué.");
+  return result.places ?? [];
+}

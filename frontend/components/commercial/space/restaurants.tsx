@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { PlusIcon, SearchIcon } from "@/components/admin/icons";
+import { CrosshairIcon, GlobeIcon, PlusIcon, SearchIcon } from "@/components/admin/icons";
 import { inputClass } from "@/components/ui/field";
 import { formatRelative } from "@/lib/admin/format";
 import * as api from "@/lib/commercial/api";
@@ -36,6 +37,102 @@ function ResultRow({ result }: { result: api.SearchResult }) {
         <StatePill state={result.state} />
       </Link>
     </li>
+  );
+}
+
+/*
+ * Pas dans la base ? Google, côté serveur et au quota du jour. Ajouter un
+ * résultat crée sa fiche (ou rend celle qui porte déjà son identifiant).
+ */
+function GoogleSearch({ query }: { query: string }) {
+  const router = useRouter();
+  const [places, setPlaces] = useState<api.GooglePlace[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [checking, setChecking] = useState<{ place: api.GooglePlace; duplicates: api.SearchResult[] } | null>(null);
+
+  const create = async (place: api.GooglePlace) => {
+    const id = await api.createRestaurant({ ...place } as unknown as Record<string, string | number | undefined>);
+    router.push(spaceHref(`/restaurants/${id}`));
+  };
+
+  const act = async (step: () => Promise<void>) => {
+    setBusy(true);
+    setError(null);
+    try {
+      await step();
+    } catch (cause) {
+      setError(errorMessage(cause));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (!places) {
+    return (
+      <div className="flex flex-col gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void act(async () => setPlaces(await api.googleSearch(query)))}
+          className={ghostButton}
+        >
+          <GlobeIcon className="size-4" />
+          Pas dans la liste ? Chercher sur Google
+        </button>
+        {error && <p role="alert" className="text-sm text-ember-3">{error}</p>}
+      </div>
+    );
+  }
+  return (
+    <section className="flex flex-col gap-2.5">
+      <SectionTitle>Sur Google</SectionTitle>
+      {error && <p role="alert" className="text-sm text-ember-3">{error}</p>}
+      <ul className="flex flex-col gap-2">
+        {places.map((place) => (
+          <li key={place.external_id} className={`${cardClass} flex items-center justify-between gap-3`}>
+            <span className="min-w-0">
+              <span className="block truncate font-medium">{place.name}</span>
+              <span className="block truncate text-sm text-muted">{place.address}</span>
+            </span>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                void act(async () => {
+                  const duplicates = await api.findDuplicates({
+                    name: place.name,
+                    city: place.city ?? undefined,
+                    phone: place.phone ?? undefined,
+                    lat: place.latitude ?? undefined,
+                    lng: place.longitude ?? undefined,
+                  });
+                  if (duplicates.length) setChecking({ place, duplicates });
+                  else await create(place);
+                })
+              }
+              className={ghostButton}
+            >
+              Ouvrir
+            </button>
+          </li>
+        ))}
+      </ul>
+      {checking && (
+        <div className={`${cardClass} flex flex-col gap-2`}>
+          <p className="text-sm font-medium">« {checking.place.name} » est peut-être déjà dans la base :</p>
+          {checking.duplicates.map((duplicate) => (
+            <Link key={duplicate.id} href={spaceHref(`/restaurants/${duplicate.id}`)} className="flex items-center justify-between gap-2 text-sm">
+              <span className="truncate">{duplicate.name}</span>
+              <StatePill state={duplicate.state} />
+            </Link>
+          ))}
+          <button type="button" disabled={busy} onClick={() => void act(() => create(checking.place))} className={ghostButton}>
+            Ce n’est aucun de ceux-là : créer la fiche
+          </button>
+        </div>
+      )}
+    </section>
   );
 }
 
@@ -89,7 +186,13 @@ export function RestaurantsScreen() {
         </button>
       </form>
 
+      <Link href={spaceHref("/restaurants/autour")} className={ghostButton}>
+        <CrosshairIcon className="size-4" />
+        Autour de moi
+      </Link>
+
       {searchError && <ErrorNote message={searchError} />}
+      {results && !searchError && <GoogleSearch query={query} />}
       {results && !searchError && (
         <section className="flex flex-col gap-2.5">
           <SectionTitle>Résultats</SectionTitle>

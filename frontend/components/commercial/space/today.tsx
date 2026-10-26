@@ -32,6 +32,10 @@ function newsLine(item: api.Today["news"][number]): string {
       return `Déclaration refusée : ${REFUSAL_LABELS[item.reason as RefusalReason] ?? ""}`;
     case "signed":
       return "Inscrit chez Ominin : c’est un Client Apporté";
+    case "demo_ready":
+      return "Sa démo à ses couleurs est prête";
+    case "statement":
+      return "Votre relevé de commission est disponible";
     default:
       return `Déclaration close : ${END_LABELS[item.reason as EndReason]?.toLowerCase() ?? ""}`;
   }
@@ -109,8 +113,11 @@ export function TodayScreen() {
           <ul className="flex flex-col gap-2">
             {data.news.map((item) => (
               <li key={`${item.kind}-${item.restaurant_id}-${item.at}`}>
-                <Link href={spaceHref(`/restaurants/${item.restaurant_id}`)} className={`${cardClass} block`}>
-                  <p className="font-medium">{item.name}</p>
+                <Link
+                  href={spaceHref(item.restaurant_id ? `/restaurants/${item.restaurant_id}` : "/argent")}
+                  className={`${cardClass} block`}
+                >
+                  <p className="font-medium">{item.name ?? "Argent"}</p>
                   <p className="mt-0.5 text-sm text-muted">{newsLine(item)}</p>
                 </Link>
               </li>

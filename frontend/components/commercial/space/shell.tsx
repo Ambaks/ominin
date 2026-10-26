@@ -5,12 +5,14 @@ import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { CalendarIcon, PresentationIcon, StoreIcon } from "@/components/admin/icons";
+import { PaymentsIcon, TeamIcon } from "@/components/gestion/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import type { CommercialAccount } from "@/lib/commercial/api";
 import { frenchDate } from "@/lib/legal/format";
 import { commercialPrefix } from "@/lib/site";
 import { clearDeviceData } from "./device";
+import { COMMERCIAL_PUSH } from "./notifications";
 
 const AccountContext = createContext<CommercialAccount | null>(null);
 
@@ -35,6 +37,8 @@ const TABS: Tab[] = [
   { path: "", label: "Aujourd’hui", icon: CalendarIcon },
   { path: "/restaurants", label: "Restaurants", icon: StoreIcon },
   { path: "/kit", label: "Kit", icon: PresentationIcon },
+  { path: "/clients", label: "Clients", icon: TeamIcon },
+  { path: "/argent", label: "Argent", icon: PaymentsIcon, afterEnd: true },
 ];
 
 function Banner({ children, href }: { children: React.ReactNode; href?: string }) {
@@ -70,6 +74,10 @@ export function SpaceShell({
   useEffect(() => {
     // Article 6.5 : fin du contrat, les données des prospects quittent l'appareil.
     if (account.ended) clearDeviceData();
+    // Le worker garde le deck pour le montrer hors ligne, et porte les notifications.
+    else if ("serviceWorker" in navigator) {
+      void navigator.serviceWorker.register(COMMERCIAL_PUSH.worker!, { scope: COMMERCIAL_PUSH.scope });
+    }
   }, [account.ended]);
 
   const isActive = (tab: Tab) => {

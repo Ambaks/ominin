@@ -5,6 +5,7 @@ import { Wordmark } from "@/components/brand/wordmark";
 import { Field, inputClass } from "@/components/ui/field";
 import { slugify } from "@/lib/shop/format";
 import { createShop } from "@/lib/shop/gestion-api";
+import { usePrefill, useSignupLink } from "@/lib/commercial/signup-link";
 
 /** Création de la boutique de la personne connectée (nom, adresse, préfixe des commandes). */
 export function CreateShopForm() {
@@ -20,6 +21,8 @@ export function CreateShopForm() {
     if (!slugTouched) setSlug(slugify(value));
     if (!prefix) setPrefix(value.replace(/[^a-z0-9]/gi, "").slice(0, 2).toUpperCase());
   };
+  const link = useSignupLink("shop");
+  usePrefill(name, onName, link?.name);
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();

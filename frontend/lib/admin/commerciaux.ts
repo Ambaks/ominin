@@ -257,3 +257,181 @@ export async function deckUploaded(): Promise<boolean> {
   const { data } = await createClient().storage.from("commercial-docs").list("kit");
   return Boolean(data?.some((file) => `kit/${file.name}` === KIT_DECK_PATH));
 }
+
+// ---------------------------------------------------------------------------
+// Lot 2 : démos, inscriptions, fusion
+
+export interface DemoRow {
+  id: string;
+  status: string;
+  note: string | null;
+  photos: string[];
+  demo_url: string | null;
+  created_at: string;
+  restaurant: string;
+  commercial: string;
+}
+
+export async function fetchDemoRequests(): Promise<DemoRow[]> {
+  const rows = await createClient()
+    .from("commercial_demo_requests")
+    .select(
+      "id, status, note, photos, demo_url, created_at, commercial_declarations(crm_restaurants(name), commerciaux(email, first_name, last_name))"
+    )
+    .order("created_at", { ascending: false })
+    .then(must);
+  return rows.map((row) => {
+    const who = row.commercial_declarations.commerciaux;
+    return {
+      id: row.id,
+      status: row.status,
+      note: row.note,
+      photos: row.photos,
+      demo_url: row.demo_url,
+      created_at: row.created_at,
+      restaurant: row.commercial_declarations.crm_restaurants.name,
+      commercial: [who.first_name, who.last_name].filter(Boolean).join(" ") || who.email,
+    };
+  });
+}
+
+/** Un fichier du bucket privé commercial-docs, ouvert dans un onglet (lecture admin). */
+export async function openDocument(path: string) {
+  const { data, error } = await createClient().storage.from("commercial-docs").download(path);
+  if (error) throw new Error(error.message);
+  window.open(URL.createObjectURL(data), "_blank", "noopener");
+}
+
+export async function deliverDemo(id: string, url: string) {
+  check(await createClient().rpc("admin_deliver_demo", { p_request: id, p_url: url }));
+  await flushEmails();
+}
+
+export type SignupMatch = Database["public"]["Functions"]["admin_signup_matches"]["Returns"][number];
+
+export const fetchSignupMatches = () => createClient().rpc("admin_signup_matches").then(must);
+
+export interface PendingClient {
+  id: string;
+  alert: string | null;
+  created_at: string;
+  name: string;
+  commercial: string;
+}
+
+/** Inscriptions par lien trop différentes de la fiche : hors relevé avant validation. */
+export async function fetchPendingClients(): Promise<PendingClient[]> {
+  const rows = await createClient()
+    .from("commercial_clients")
+    .select("id, alert, created_at, commercial_declarations(crm_restaurants(name), commerciaux(email, first_name, last_name))")
+    .is("validated_at", null)
+    .order("created_at")
+    .then(must);
+  return rows.map((row) => {
+    const who = row.commercial_declarations.commerciaux;
+    return {
+      id: row.id,
+      alert: row.alert,
+      created_at: row.created_at,
+      name: row.commercial_declarations.crm_restaurants.name,
+      commercial: [who.first_name, who.last_name].filter(Boolean).join(" ") || who.email,
+    };
+  });
+}
+
+export async function validateClient(id: string) {
+  check(await createClient().rpc("admin_validate_client", { p_client: id }));
+}
+
+export async function mergeRestaurants(keep: string, drop: string, note: string) {
+  check(await createClient().rpc("admin_merge_restaurants", { p_keep: keep, p_drop: drop, p_note: note }));
+  await flushEmails();
+}
+
+// ---------------------------------------------------------------------------
+// Lot 3 : relevés
+
+export interface StatementRow {
+  id: string;
+  commercial_id: string;
+  commercial: string;
+  month: string;
+  total_cents: number;
+  status: string;
+  adjustments: { label: string; cents: number; month?: string; auto: boolean }[];
+  sent_at: string | null;
+  invoice_path: string | null;
+  invoice_received_at: string | null;
+  detail_requested_at: string | null;
+  detail_sent_at: string | null;
+  contested_at: string | null;
+  contest_note: string | null;
+  paid_at: string | null;
+}
+
+export async function fetchStatements(): Promise<StatementRow[]> {
+  const rows = await createClient()
+    .from("commercial_statements")
+    .select(
+      "id, commercial_id, month, total_cents, status, adjustments, sent_at, invoice_path, invoice_received_at, detail_requested_at, detail_sent_at, contested_at, contest_note, paid_at, commerciaux(email, first_name, last_name)"
+    )
+    .order("month", { ascending: false })
+    .then(must);
+  return rows.map(({ commerciaux: who, ...row }) => ({
+    ...row,
+    adjustments: row.adjustments as unknown as StatementRow["adjustments"],
+    commercial: [who.first_name, who.last_name].filter(Boolean).join(" ") || who.email,
+  }));
+}
+
+export async function draftStatement(commercialId: string, month: string) {
+  must(await createClient().rpc("admin_statement_draft", { p_commercial: commercialId, p_month: month }));
+}
+
+export async function adjustStatement(id: string, label: string, cents: number) {
+  check(await createClient().rpc("admin_statement_adjust", { p_statement: id, p_label: label, p_cents: cents }));
+}
+
+export async function sendStatement(id: string) {
+  check(await createClient().rpc("admin_statement_send", { p_statement: id }));
+  await flushEmails();
+}
+
+export async function markStatementPaid(id: string) {
+  check(await createClient().rpc("admin_statement_paid", { p_statement: id }));
+}
+
+export async function markDetailSent(id: string) {
+  check(await createClient().rpc("admin_statement_detail_sent", { p_statement: id }));
+  await flushEmails();
+}
+
+export async function recordPayment(input: { kind: string; id: string; cents: number; paidAt: string; note: string }) {
+  must(
+    await createClient().rpc("admin_record_payment", {
+      p_etablissement: input.kind === "etablissement" ? input.id : (null as unknown as string),
+      p_shop: input.kind === "shop" ? input.id : (null as unknown as string),
+      p_cents: input.cents,
+      p_paid_at: input.paidAt,
+      p_note: input.note,
+    })
+  );
+}
+
+/** Commission estimée d'un commercial pour le mois en cours (heure de Paris). */
+export async function monthCommission(commercialId: string): Promise<number> {
+  const month = new Date().toLocaleDateString("sv-SE", { timeZone: "Europe/Paris" }).slice(0, 7) + "-01";
+  const lines = await createClient().rpc("admin_month_lines", { p_commercial: commercialId, p_month: month }).then(must);
+  return (lines as { commission_cents: number }[]).reduce((sum, line) => sum + line.commission_cents, 0);
+}
+
+/** Nouvel établissement du même exploitant (art. 4.4), sur la même déclaration. */
+export async function addSameOwner(declarationId: string, place: { kind: string; id: string }) {
+  must(
+    await createClient().rpc("admin_add_client", {
+      p_declaration: declarationId,
+      p_etablissement: place.kind === "etablissement" ? place.id : undefined,
+      p_shop: place.kind === "shop" ? place.id : undefined,
+    })
+  );
+}

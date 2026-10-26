@@ -5,8 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 
 /*
  * Le deck commercial déposé par l'admin (13.2 n° 4). Servi par cette route,
- * et non par une URL signée : le worker de l'espace le met en cache tel quel
- * pour le montrer hors ligne.
+ * sous l'espace, et non par une URL signée : le worker de l'espace le met en
+ * cache tel quel pour le montrer hors ligne (public/commercial-sw.js).
  */
 export async function GET() {
   const supabase = await createClient();

@@ -338,7 +338,7 @@ interface Deliverable {
 export async function sendToSubscriptions(
   subscriptions: Deliverable[],
   payload: PushPayload,
-  table: "push_subscriptions" | "admin_push_subscriptions" = "push_subscriptions"
+  table: "push_subscriptions" | "admin_push_subscriptions" | "commercial_push_subscriptions" = "push_subscriptions"
 ): Promise<void> {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;

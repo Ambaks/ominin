@@ -11,11 +11,12 @@ import {
   exerciseOption,
   fetchCommerciaux,
   inviteCommercial,
+  monthCommission,
   removeCommercial,
   type CommercialRow,
   type EndReason,
 } from "@/lib/admin/commerciaux";
-import { formatDate, formatTime, fromDatetimeLocalValue } from "@/lib/admin/format";
+import { formatDate, formatEuros, formatTime, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { commercialSiteUrl } from "@/lib/site";
 
 export const GHOST_BUTTON =
@@ -29,6 +30,15 @@ function contractLine(row: CommercialRow): string {
     return `${signed} · ${past ? "terminé" : "prend fin"} le ${formatDate(row.endedAt)}${row.endReason ? ` (${CONTRACT_END_LABELS[row.endReason]})` : ""}`;
   }
   return `${signed}${row.optionExercisedAt ? " · option levée" : ""}`;
+}
+
+/** Commission estimée du mois en cours (même calcul que le relevé). */
+function MonthCommission({ commercialId }: { commercialId: string }) {
+  const [cents, setCents] = useState<number | null>(null);
+  useEffect(() => {
+    void monthCommission(commercialId).then(setCents);
+  }, [commercialId]);
+  return cents === null ? null : <> · {formatEuros(cents / 100)} ce mois-ci</>;
 }
 
 function EndContractModal({
@@ -197,6 +207,7 @@ export function CommerciauxTab() {
                   <p className="mt-1 text-xs text-muted">
                     {row.active} déclaration{row.active > 1 ? "s" : ""} en cours · {row.signedRestaurants} inscrit
                     {row.signedRestaurants > 1 ? "s" : ""}
+                    {row.signedRestaurants > 0 && <MonthCommission commercialId={row.id} />}
                   </p>
                 )}
               </div>

@@ -1,5 +1,7 @@
 import { ContractToSign, Signed } from "@/components/commercial/contract";
 import { AccountPanel } from "@/components/commercial/space/account";
+import { Documents } from "@/components/commercial/space/money";
+import { Notifications } from "@/components/commercial/space/notifications";
 import type { CommercialAccount } from "@/lib/commercial/api";
 import { latestCommercialSignature } from "@/lib/legal/commercial";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -18,6 +20,8 @@ export default async function ComptePage() {
   return (
     <div className="flex flex-col gap-8">
       <AccountPanel />
+      <Documents />
+      {!account.ended && <Notifications />}
       {!account.signed_in_force && !account.ended && (
         <section className="rounded-2xl border border-ember-2/30 bg-surface p-5">
           <ContractToSign admin={admin} commercial={account} signature={signature} />

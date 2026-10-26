@@ -19,6 +19,7 @@ import {
   PassageSheet,
   PrivacyNotice,
 } from "./sheets";
+import { DemoCard, SignupLinkCard } from "./signup";
 import { ErrorNote, SectionTitle, Skeleton, StatePill, cardClass, errorMessage, ghostButton, primaryButton, telHref } from "./ui";
 import { Contacts, FollowUps, Journal, LeaExchanges, RetainedCard, Steps } from "./work";
 
@@ -166,6 +167,8 @@ export function RestaurantScreen({ id }: { id: string }) {
       {mine && (
         <>
           <Steps sheet={sheet} onChange={() => void load()} />
+          {mine.status === "confirmed" && <SignupLinkCard sheet={sheet} />}
+          <DemoCard sheet={sheet} />
           <FollowUps sheet={sheet} onChange={() => void load()} />
           <Journal sheet={sheet} onChange={() => void load()} />
           <Contacts sheet={sheet} onChange={() => void load()} />

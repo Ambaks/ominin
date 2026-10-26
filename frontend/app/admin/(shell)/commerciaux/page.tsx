@@ -3,6 +3,9 @@
 import { useEffect, useState } from "react";
 import { CommerciauxTab } from "@/components/admin/commerciaux/commerciaux-tab";
 import { DeclarationsTab } from "@/components/admin/commerciaux/declarations-tab";
+import { DemosTab } from "@/components/admin/commerciaux/demos-tab";
+import { InscriptionsTab } from "@/components/admin/commerciaux/inscriptions-tab";
+import { RelevesTab } from "@/components/admin/commerciaux/releves-tab";
 import { ReglagesTab } from "@/components/admin/commerciaux/reglages-tab";
 import { PillTabs } from "@/components/ui/pill-tabs";
 
@@ -16,6 +19,9 @@ import { PillTabs } from "@/components/ui/pill-tabs";
 const TABS = [
   { id: "commerciaux", label: "Commerciaux" },
   { id: "declarations", label: "Déclarations" },
+  { id: "inscriptions", label: "Inscriptions" },
+  { id: "demos", label: "Démos à faire" },
+  { id: "releves", label: "Relevés" },
   { id: "reglages", label: "Réglages" },
 ] as const;
 
@@ -43,6 +49,9 @@ export default function CommerciauxPage() {
       <PillTabs tabs={[...TABS]} activeId={tab} onSelect={(id) => setTab(id as TabId)} />
       {tab === "commerciaux" && <CommerciauxTab />}
       {tab === "declarations" && <DeclarationsTab />}
+      {tab === "inscriptions" && <InscriptionsTab />}
+      {tab === "demos" && <DemosTab />}
+      {tab === "releves" && <RelevesTab />}
       {tab === "reglages" && <ReglagesTab />}
     </div>
   );

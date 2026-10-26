@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { planTrial } from "@/lib/landing-data";
+import { recordInvoicePaid, recordInvoiceVoided } from "@/lib/commercial/invoices";
 import { handleShopSubscriptionEvent } from "@/lib/shop/subscription";
 import { getStripe } from "@/lib/stripe/server";
 import { STARTER_FLAG } from "@/lib/stripe/starter";
@@ -79,6 +80,15 @@ export async function POST(request: Request) {
   }
 
   switch (event.type) {
+    // Factures payées ou annulées, restaurants (metadata.etablissement_id) et
+    // boutiques (metadata.shop_id) : l'assiette des commerciaux (lot 3).
+    case "invoice.paid":
+      await recordInvoicePaid(stripe, event.data.object);
+      break;
+    case "invoice.voided":
+    case "invoice.marked_uncollectible":
+      await recordInvoiceVoided(event.data.object);
+      break;
     case "checkout.session.completed": {
       const session = event.data.object as Stripe.Checkout.Session;
 

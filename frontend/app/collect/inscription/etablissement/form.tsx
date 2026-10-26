@@ -9,6 +9,7 @@ import { signContract } from "@/lib/legal/client";
 import { collectProduct } from "@/lib/products";
 import { createClient } from "@/lib/supabase/client";
 import { announceSignup } from "@/lib/signup-notify";
+import { usePrefill, useSignupLink } from "@/lib/commercial/signup-link";
 
 /*
  * Inscription click & collect : nom, adresse, SIRET facultatif. Pas d'offre
@@ -32,6 +33,9 @@ export function CollectSignupForm() {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [siret, setSiret] = useState("");
+  const link = useSignupLink("collect");
+  usePrefill(name, setName, link?.name);
+  usePrefill(address, setAddress, link && [link.address, link.postal_code, link.city].filter(Boolean).join(", "));
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const { contract, contractError } = useContract();

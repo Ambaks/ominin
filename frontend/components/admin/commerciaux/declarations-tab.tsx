@@ -7,6 +7,7 @@ import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import {
+  addSameOwner,
   decide,
   fetchClientPlaces,
   fetchCommerciaux,
@@ -71,6 +72,7 @@ type Action =
   | { kind: "refuse"; row: AdminDeclaration }
   | { kind: "signed"; row: AdminDeclaration }
   | { kind: "reassign"; row: AdminDeclaration }
+  | { kind: "sameOwner"; row: AdminDeclaration }
   | { kind: "email" };
 
 /*
@@ -237,11 +239,24 @@ export function DeclarationsTab() {
                 {row.decision_note ? ` — ${row.decision_note}` : ""} · {formatDate(row.declared_at)}
               </span>
               <Emails emails={row.emails as unknown as EmailState[]} />
+              {row.effective_status === "signed" && (
+                <button type="button" onClick={() => setAction({ kind: "sameOwner", row })} className={`${GHOST_BUTTON} mt-2`}>
+                  + Établissement du même exploitant
+                </button>
+              )}
             </li>
           ))}
         </ul>
       </section>
 
+      {action?.kind === "sameOwner" && (
+        <SignedModal
+          row={action.row}
+          sameOwner
+          onClose={() => setAction(null)}
+          onSubmit={(place) => void run(action.row.id, () => addSameOwner(action.row.id, place), "Client Apporté ajouté.")}
+        />
+      )}
       {action?.kind === "refuse" && (
         <RefuseModal
           row={action.row}
@@ -331,10 +346,13 @@ function usePlaces() {
 
 function SignedModal({
   row,
+  sameOwner,
   onClose,
   onSubmit,
 }: {
   row: AdminDeclaration;
+  /** Nouvel établissement du même exploitant (art. 4.4) plutôt que l'inscription elle-même. */
+  sameOwner?: boolean;
   onClose: () => void;
   onSubmit: (place: { kind: string; id: string }) => void;
 }) {
@@ -343,7 +361,7 @@ function SignedModal({
   const free = (places ?? []).filter((place) => !place.restaurant_id || place.restaurant_id === row.restaurant_id);
   return (
     <Modal
-      title={`Inscrit · ${row.restaurant_name}`}
+      title={sameOwner ? `Même exploitant · ${row.restaurant_name}` : `Inscrit · ${row.restaurant_name}`}
       onClose={onClose}
       footer={
         <button
@@ -355,7 +373,7 @@ function SignedModal({
           }}
           className={PRIMARY}
         >
-          Marquer inscrit
+          {sameOwner ? "Ajouter le Client Apporté" : "Marquer inscrit"}
         </button>
       }
     >
@@ -371,7 +389,9 @@ function SignedModal({
           </select>
         </Field>
         <p className="text-sm text-muted">
-          La déclaration est signée et la fiche reliée au client ; le commercial est prévenu par e-mail (art. 6.2).
+          {sameOwner
+            ? "Même SIREN (siret de l’établissement ou de la boutique) ou pièces à l’appui : il devient un Client Apporté de la même déclaration, pour sa propre période."
+            : "La déclaration est signée et la fiche reliée au client ; le commercial est prévenu par e-mail (art. 6.2)."}
         </p>
       </div>
     </Modal>

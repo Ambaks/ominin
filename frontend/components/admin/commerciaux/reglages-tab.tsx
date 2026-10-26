@@ -59,11 +59,19 @@ const CONTRACT: { key: keyof CommercialSettings; label: string; unit: string }[]
   { key: "contest_months", label: "Contestation d’un relevé", unit: "mois" },
 ];
 
+const list = (value: string) =>
+  value
+    .split(/[\s,]+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
 function SettingsForm() {
   const toast = useToast();
   const [settings, setSettings] = useState<CommercialSettings | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [demos, setDemos] = useState("");
+  const [prices, setPrices] = useState("");
+  const [club, setClub] = useState<"" | "oui" | "non">("");
 
   const load = useCallback(
     () =>
@@ -71,6 +79,8 @@ function SettingsForm() {
         setSettings(loaded);
         setDraft(Object.fromEntries(EDITABLE.map(({ key }) => [key, loaded[key]?.toString() ?? ""])));
         setDemos(loaded.kit_demo_slugs.join(", "));
+        setPrices(loaded.eligible_stripe_prices.join(", "));
+        setClub(loaded.club_fees_included === null ? "" : loaded.club_fees_included ? "oui" : "non");
       }),
     []
   );
@@ -82,10 +92,9 @@ function SettingsForm() {
     try {
       await updateSettings({
         ...Object.fromEntries(EDITABLE.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])),
-        kit_demo_slugs: demos
-          .split(/[\s,]+/)
-          .map((slug) => slug.trim())
-          .filter(Boolean),
+        kit_demo_slugs: list(demos),
+        eligible_stripe_prices: list(prices),
+        club_fees_included: club === "" ? null : club === "oui",
       });
       toast.success("Réglages enregistrés.");
       await load();
@@ -133,6 +142,32 @@ function SettingsForm() {
             </span>
           </label>
           <input id="setting-demos" value={demos} onChange={(event) => setDemos(event.target.value)} className={inputClass} />
+        </li>
+        <li className="flex flex-col gap-2 px-4 py-3">
+          <label htmlFor="setting-prices" className="text-sm">
+            Prix Stripe dans l’assiette des commerciaux
+            <span className="block text-xs text-faint">
+              Identifiants price_… des abonnements et commissions facturées (décision n° 5), séparés par des virgules.
+              Vide : aucune facture ne compte. Le matériel de la commande de démarrage n’y entre jamais.
+            </span>
+          </label>
+          <input id="setting-prices" value={prices} onChange={(event) => setPrices(event.target.value)} className={inputClass} />
+        </li>
+        <li className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <label htmlFor="setting-club" className="min-w-0 flex-1 text-sm">
+            Frais des réservations Club dans l’assiette
+            <span className="block text-xs text-faint">Décision n° 2 : payés par les clients du club. Vide : exclus, à décider.</span>
+          </label>
+          <select
+            id="setting-club"
+            value={club}
+            onChange={(event) => setClub(event.target.value as "" | "oui" | "non")}
+            className={`${inputClass} w-40`}
+          >
+            <option value="">À décider</option>
+            <option value="oui">Inclus</option>
+            <option value="non">Exclus</option>
+          </select>
         </li>
       </ul>
       <button type="button" onClick={() => void save()} className="ember-gradient self-start rounded-full px-5 py-2.5 text-sm font-semibold text-background">

@@ -99,6 +99,9 @@ export interface PushTarget {
   api: string;
   /** Champs propres à la cible, envoyés avec l'abonnement. */
   extra?: Record<string, string>;
+  /** Worker et portée propres (l'espace commercial a les siens) ; défaut : /sw.js sur tout le site. */
+  worker?: string;
+  scope?: string;
 }
 
 const GESTION: PushTarget = { api: "/api/push/subscriptions" };
@@ -139,8 +142,8 @@ export async function enablePush(target: PushTarget = GESTION): Promise<void> {
   if (!pushSupported()) {
     throw new Error("Ce navigateur ne permet pas les notifications.");
   }
-  const registration = await navigator.serviceWorker.register("/sw.js", {
-    scope: "/",
+  const registration = await navigator.serviceWorker.register(target.worker ?? "/sw.js", {
+    scope: target.scope ?? "/",
     updateViaCache: "none",
   });
   const permission = await Notification.requestPermission();
