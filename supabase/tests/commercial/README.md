@@ -37,3 +37,6 @@ passées à `psql` (`-v CONFIRM_DAYS=7` …) : `01_reglages.sql` vérifie que
 - `03_visibilite.sql` : ce que voit chacun, passage sans suite, recherche (critères 6, 7).
 - `04_reflet.sql` : reflet `crm_leads`, Léa, opposition, fin de contrat, admin (critères 8, 9, 9 bis, 9 ter ; 13.2).
 - `concurrence.sh` : deux déclarations simultanées (critère 3).
+- `05_liens.sql` : liens fiche ↔ client, outil de rattachement (4.1, 13.2 n° 5).
+- `06_inscription.sql` : lien d'inscription, Client Apporté, Projet, inscription sans lien, démos, Google, carte, fusion (lot 2).
+- `07_commissions.sql` : assiette recalculée à la main sur les cinq sources, relevés, régularisations (lot 3).
