@@ -10,6 +10,8 @@ import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
+import { SaisonAmbient } from "@/components/menu/saison/saison";
+import { SAISONS } from "@/lib/menu/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
@@ -51,6 +53,9 @@ import { applyTarifs } from "@/lib/menu/tarifs";
  * Un établissement doté d'une fidélité d'aperçu (demoLoyalty) montre la
  * sienne : un habitué reconnu, sa roue, « Ma carte », les points d'une
  * commande — tout gardé dans le navigateur (lib/menu/loyalty-demo).
+ *
+ * ?saison=automne|halloween montre l'habillage de saison que l'admin pose
+ * en production (etablissement_settings.saison), sans y toucher.
  *
  * ?service=fast-food montre le parcours fast food : commande sans table, puis
  * le ticket numéroté, dont l'aperçu fait avancer les étapes à la main.
@@ -155,7 +160,8 @@ export default async function MenuPreviewPage({
   searchParams,
 }: PageProps<"/menu/demo/[slug]">) {
   const { slug } = await params;
-  const { theme, service, table, retrait, categories } = await searchParams;
+  const { theme, service, table, retrait, categories, saison: saisonParam } = await searchParams;
+  const saison = SAISONS.find((s) => s === saisonParam);
   const fastFood = service === "fast-food";
   // ?table=7 : le numéro d'une vraie table de l'établissement, pour une
   // capture ; illisible, la table fictive.
@@ -233,11 +239,13 @@ export default async function MenuPreviewPage({
           data-menu-root
           data-slug={slug}
           data-service={fastFood ? "fast-food" : undefined}
+          data-saison={saison}
           className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
           {themeClass && hasVelours(slug) && <PanisBackdrop slug={slug} />}
           <MenuTicker items={restaurant.ticker} />
-          <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} />
+          <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} saison={saison} />
+          {saison && <SaisonAmbient saison={saison} />}
           <MenuHighlights highlights={restaurant.highlights} />
           {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
               tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au

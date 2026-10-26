@@ -3,7 +3,9 @@ import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { heroDelay } from "@/components/menu/hero-delay";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { NameWords } from "@/components/menu/name-words";
+import { SaisonFrame, SaisonPoster, SaisonSky } from "@/components/menu/saison/saison";
 import { SectionLink } from "@/components/menu/section-link";
+import type { Saison } from "@/lib/menu/saison";
 import {
   brandName,
   displayAddress,
@@ -272,12 +274,18 @@ function PosterHero({
   restaurant,
   poster,
   banner,
+  saison,
 }: {
   restaurant: Restaurant;
   poster: string;
   banner?: React.ReactNode;
+  saison?: Saison;
 }) {
   const wide = restaurant.posterWide;
+  const spots = restaurant.saisonSpots;
+  // Les repères sont mesurés sur l'affiche portrait : le panorama n'a que le
+  // décor du cadre.
+  const portraitOnly = wide ? "contents poster-wide:hidden" : "contents";
   return (
     <header className="flex h-svh w-full flex-col bg-background">
       <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden">
@@ -287,19 +295,35 @@ function PosterHero({
           alt=""
           className={`absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl ${wide ? "poster-wide:hidden" : ""}`}
         />
-        <picture className="contents">
-          {wide && <source media={POSTER_WIDE_MEDIA} srcSet={wide} sizes="100vw" />}
-          <img
-            src={poster}
-            alt=""
-            fetchPriority="high"
-            className={`hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] ${
-              wide ? "poster-wide:w-full poster-wide:object-cover poster-wide:[mask-image:none]" : ""
-            }`}
-          />
-        </picture>
+        {/* La nuit et les lumières de la saison suivent les repères de l'affiche :
+            sans eux, seul le décor du cadre. */}
+        {saison && spots && (
+          <div className={portraitOnly}>
+            <SaisonSky saison={saison} />
+          </div>
+        )}
+        {/* L'habillage de saison se pose en % de l'affiche : il la suit à sa taille. */}
+        <div className={`relative h-full shrink-0 ${wide ? "poster-wide:w-full" : ""}`}>
+          <picture className="contents">
+            {wide && <source media={POSTER_WIDE_MEDIA} srcSet={wide} sizes="100vw" />}
+            <img
+              src={poster}
+              alt=""
+              fetchPriority="high"
+              className={`hero-entrance relative h-full w-auto max-w-none [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] ${
+                wide ? "poster-wide:w-full poster-wide:object-cover poster-wide:[mask-image:none]" : ""
+              }`}
+            />
+          </picture>
+          {saison && spots && (
+            <div className={portraitOnly}>
+              <SaisonPoster saison={saison} spots={spots} />
+            </div>
+          )}
+        </div>
         <h1 className="sr-only">{brandName(restaurant)}</h1>
         <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
+        {saison && <SaisonFrame saison={saison} />}
       </div>
 
       {banner}
@@ -318,14 +342,16 @@ export function Hero({
   restaurant,
   banner,
   firstSectionId,
+  saison,
 }: {
   restaurant: Restaurant;
   banner?: React.ReactNode;
   firstSectionId: string | undefined;
+  saison?: Saison;
 }) {
   if (restaurant.poster) {
     return (
-      <PosterHero restaurant={restaurant} poster={restaurant.poster} banner={banner} />
+      <PosterHero restaurant={restaurant} poster={restaurant.poster} banner={banner} saison={saison} />
     );
   }
 

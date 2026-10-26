@@ -6,6 +6,7 @@ import type { Formule } from "@/lib/gestion/types";
 import { formatPrice, formatsLine } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
+import type { SaisonSpots } from "@/lib/menu/saison";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import { veloursPalettes } from "@/components/menu/velours-palettes";
@@ -291,6 +292,8 @@ export interface Restaurant {
    * elle tient lieu de hero à elle seule, sans texte superposé.
    */
   poster?: string;
+  /** Les repères de l'habillage de saison sur l'affiche (lib/menu/saison). */
+  saisonSpots?: SaisonSpots;
   /**
    * La même affiche en panorama (srcset), pour les écrans en paysage : en
    * hauteur, elle n'y occupait qu'une colonne entre deux marges floutées.
@@ -794,6 +797,39 @@ const boho: Restaurant = {
   posterWide:
     "/boho/poster-wide-1600.webp 1600w, /boho/poster-wide-2400.webp 2400w, /boho/poster-wide-3040.webp 3040w",
   formulesPill: true,
+  // Mesurés sur l'affiche (716 × 1024) : la lune dans le ciel au-dessus de la
+  // pergola, les trois suspensions en rotin, la guirlande, les bougies des
+  // tables, les massifs de part et d'autre du logo.
+  saisonSpots: {
+    moon: { x: 72, y: 6.5, size: 11 },
+    lamps: [
+      { x: 23.2, y: 23.6, size: 30 },
+      { x: 12.6, y: 31.7, size: 19, delay: 0.7 },
+      { x: 69.6, y: 29.6, size: 21, delay: 1.3 },
+    ],
+    lanternFaces: [
+      { x: 23.2, y: 24.4, size: 9.5 },
+      { x: 69.6, y: 30.4, size: 6.4, delay: 0.9 },
+    ],
+    bulbs: [
+      { x: 22.3, y: 9.8, size: 4.4 },
+      { x: 31.8, y: 15.6, size: 4, delay: 1.1 },
+      { x: 42.6, y: 20, size: 3.6, delay: 0.4 },
+      { x: 54.3, y: 23.1, size: 3.4, delay: 1.7 },
+      { x: 63.7, y: 24.4, size: 3.2, delay: 0.9 },
+      { x: 75.8, y: 25.6, size: 2.8, delay: 2.2 },
+      { x: 84.4, y: 27.5, size: 2.6, delay: 1.4 },
+    ],
+    candles: [
+      { x: 19.6, y: 70.3, size: 9 },
+      { x: 41.9, y: 53.6, size: 6, delay: 0.6 },
+      { x: 16.5, y: 54.8, size: 5, delay: 1.2 },
+    ],
+    eyes: [
+      { x: 15.5, y: 44.5, size: 3.2 },
+      { x: 84.5, y: 41, size: 2.6, delay: 4.5 },
+    ],
+  },
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
