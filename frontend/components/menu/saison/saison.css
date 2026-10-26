@@ -1,9 +1,12 @@
 /*
   Habillage de saison (saison.tsx). Tout bouge en transform, translate et
   opacity ; rien ne reçoit le doigt, aucun filtre sur ce qui s'anime (les
-  lueurs sont des dégradés, les liserés des traits peints sous l'aplat), et
-  ce qui sort du champ passe en visibility: hidden : ses boucles internes ne
-  se repeignent plus. Les calques de l'affiche se placent en % de l'image. Ni
+  lueurs sont des dégradés, les liserés des traits peints sous l'aplat). Ce
+  qui sort du champ passe en display: none dans ses propres images clés
+  (visibility en repli), et le décor du hero une fois le hero sorti de
+  l'écran : leurs boucles internes ne se peignent plus. Seul le chat garde
+  visibility, pour ne pas rejouer sa visite. Les calques de l'affiche se
+  placent en % de l'image. Ni
   .saison-sky ni .saison-poster ne forment de contexte d'empilement (pas
   d'opacity animée, pas de containment) : leurs fondus (multiply, screen)
   portent sur l'affiche. Le vol des chauves-souris, en cqw/cqh, a son propre
@@ -89,7 +92,10 @@
   mix-blend-mode: screen;
 }
 
+/* Devant le cadre (z-index 1) : sorcière et chauves-souris passent devant
+   les toiles d'angle, d'une seule pièce. */
 .saison-flight {
+  z-index: 2;
   container-type: size;
 }
 
@@ -228,7 +234,7 @@
   position: absolute;
   left: 0;
   top: 0;
-  color: #130c13;
+  color: #241a3c;
   translate: -50% -50%;
   visibility: hidden;
   animation: saison-fly 24s linear infinite both;
@@ -256,7 +262,7 @@
 .saison-rim {
   fill: none;
   stroke: #cfc6ff;
-  stroke-opacity: 0.5;
+  stroke-opacity: 0.65;
   stroke-linejoin: round;
 }
 
@@ -273,8 +279,8 @@
   position: absolute;
   left: 0;
   top: 0;
-  width: 30%;
-  color: #120b14;
+  width: 28%;
+  color: #241a3c;
   translate: -50% -50%;
   visibility: hidden;
   animation: saison-broom 24s linear infinite both;
@@ -453,6 +459,15 @@
     radial-gradient(ellipse 38% 22% at 94% 74%, rgba(var(--saison-glow), 0.22), transparent);
 }
 
+@media (min-width: 64rem) {
+  .saison-glow[data-saison="halloween"] {
+    background:
+      radial-gradient(ellipse 22% 30% at 5% 74%, rgba(var(--saison-glow), 0.32), transparent),
+      radial-gradient(ellipse 22% 30% at 95% 74%, rgba(var(--saison-glow), 0.28), transparent),
+      radial-gradient(ellipse 70% 22% at 50% 100%, rgba(120, 70, 140, 0.22), transparent);
+  }
+}
+
 .saison-glow[data-saison="automne"] {
   background:
     linear-gradient(rgba(255, 150, 60, 0.2), rgba(255, 150, 60, 0.06) 40%, transparent 60%),
@@ -548,7 +563,7 @@
 
 /* Dans la marge droite des fiches : son fil ne barre ni prix ni bouton. */
 .saison-spider--drop {
-  right: 8px;
+  right: 4px;
   width: 16px;
 }
 
@@ -609,21 +624,28 @@
 }
 
 /* Le chat guette derrière son perchoir (sous lui : z-30 contre z-40) : la
-   barre du panier, à son bout gauche, ou une pastille d'offre (formules,
-   happy hour), qui tient le même coin, au-dessus de la barre s'il y en a
-   une. Seuls ses oreilles et ses yeux dépassent (22 px) ; à chaque ajout,
-   il monte s'y asseoir, bondit, reste, redescend. Leurs hauteurs :
-   globals.css (.offer-pill : pièce 2rem, retrait 2 × 0,25rem, filet 2 px ;
-   barre : 3,25rem posée à 1rem) et cart-bar.tsx (max-w-md centrée). Il
-   n'apparaît qu'une fois le hero sorti du bas de l'écran (plus bas) ; sans
-   frise de défilement ni requête de style, pas de chat. */
+   barre du panier ou une pastille d'offre (formules, happy hour), qui tient
+   le même coin, au-dessus de la barre s'il y en a une. Au repos, seuls ses
+   oreilles et ses yeux dépassent, au-dessus de la marge gauche des fiches,
+   jamais sur leur texte ; corps et queue ne se peignent pas. À chaque
+   ajout, il monte s'asseoir un peu plus loin sur le perchoir, bondit, reste,
+   redescend guetter. Leurs hauteurs : globals.css (.offer-pill : pièce
+   2rem, retrait 2 × 0,25rem, filet 2 px ; barre : 3,25rem posée à 1rem) et
+   cart-bar.tsx (max-w-md centrée). Il n'apparaît qu'une fois le hero sorti
+   du bas de l'écran (plus bas) ; sans frise de défilement ni requête de
+   style, pas de chat. Sa présence passe par visibility et translate, jamais
+   display : la visite en cours ne se rejoue pas quand il revient. */
 .saison-cat {
   position: absolute;
   left: var(--cat-x);
   bottom: var(--cat-y);
   width: 50px;
   color: #120b10;
-  display: none;
+  visibility: hidden;
+  translate: 0 30px;
+  transition:
+    translate 0.22s cubic-bezier(0.55, 0, 1, 0.45),
+    visibility 0s 0.22s;
 }
 
 .saison-cat-body {
@@ -635,6 +657,10 @@
   display: block;
   width: 100%;
   overflow: visible;
+}
+
+.saison-cat-torso {
+  opacity: 0;
 }
 
 @property --saison-hero-gone {
@@ -668,21 +694,27 @@
   }
 }
 
-/* Il apparaît à la bascule : la tête surgit de derrière le perchoir. */
+/* À la bascule, la tête surgit de derrière le perchoir et dépasse un peu ;
+   au retour du hero, elle y replonge, plus vite. */
 @container style(--saison-hero-gone: 1) {
   [data-menu-root]:is(:has(.cart-bar), :has(.offer-pill)) .saison-cat {
-    display: block;
-    animation: saison-cat-peek 0.7s cubic-bezier(0.3, 1.5, 0.5, 1) both;
+    visibility: visible;
+    translate: 0 0;
+    transition:
+      translate 0.55s cubic-bezier(0.3, 1.5, 0.5, 1),
+      visibility 0s;
   }
 }
 
+/* Au repos, la tête au-dessus de la marge gauche des fiches (x ≈ 22 px au
+   téléphone) ; la visite s'assied 12 px plus loin, sur le perchoir. */
 [data-menu-root]:has(.cart-bar) .saison-cat {
-  --cat-x: calc(max(1rem, 50% - 14rem) + 1.75rem);
+  --cat-x: calc(max(1rem, 50% - 14rem) - 1.25rem);
   --cat-y: 4.25rem;
 }
 
 [data-menu-root]:has(.offer-pill) .saison-cat {
-  --cat-x: 2.25rem;
+  --cat-x: -0.25rem;
   --cat-y: calc(var(--pill-bottom, env(safe-area-inset-bottom, 0px) + 1rem) + var(--pill-rise, 0px) + 2.5rem + 2px);
 }
 
@@ -699,18 +731,27 @@
 }
 
 /* La barre en pastille à droite, à côté du dock ou à l'horizontale
-   (globals.css) : pas de bord gauche où guetter. */
+   (globals.css) : pas de bord gauche où guetter ; il replonge. */
 [data-menu-root]:has(.cart-bar):has(.ticket-dock):not(:has(.offer-pill)) .saison-cat {
-  display: none;
+  visibility: hidden;
+  translate: 0 30px;
+  transition:
+    translate 0.22s cubic-bezier(0.55, 0, 1, 0.45),
+    visibility 0s 0.22s;
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
   [data-menu-root]:has(.cart-bar):not(:has(.offer-pill)) .saison-cat {
-    display: none;
+    visibility: hidden;
+    translate: 0 30px;
+    transition:
+      translate 0.22s cubic-bezier(0.55, 0, 1, 0.45),
+      visibility 0s 0.22s;
   }
 }
 
-/* Deux noms pour rejouer la visite à chaque ajout. */
+/* Deux noms pour rejouer la visite à chaque ajout ; la queue ne bat que
+   pendant la visite. */
 [data-menu-root]:has(.cart-bump-a) .saison-cat-body {
   animation: saison-cat-visit-a 3.9s;
 }
@@ -719,10 +760,25 @@
   animation: saison-cat-visit-b 3.9s;
 }
 
+[data-menu-root]:has(.cart-bump-a) .saison-cat-torso {
+  animation: saison-cat-torso-a 3.9s;
+}
+
+[data-menu-root]:has(.cart-bump-b) .saison-cat-torso {
+  animation: saison-cat-torso-b 3.9s;
+}
+
+[data-menu-root]:has(.cart-bump-a) .saison-cat-tail {
+  animation: saison-tail-a 0.65s ease-in-out 6 alternate;
+}
+
+[data-menu-root]:has(.cart-bump-b) .saison-cat-tail {
+  animation: saison-tail-b 0.65s ease-in-out 6 alternate;
+}
+
 .saison-cat-tail {
   transform-box: view-box;
   transform-origin: 62px 104px;
-  animation: saison-tail 2.8s ease-in-out infinite alternate;
 }
 
 .saison-cat-eyes {
@@ -1098,7 +1154,7 @@
     translate: 0 -100%;
     visibility: hidden;
     display: none;
-    animation-timing-function: cubic-bezier(0.5, 0, 1, 0.6);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.7);
   }
   2.01%,
   22.99% {
@@ -1109,7 +1165,7 @@
     translate: 0 31vh;
     animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
   }
-  8.4% {
+  8.9% {
     translate: 0 26vh;
     animation-timing-function: cubic-bezier(0.5, 0, 0.6, 1);
   }
@@ -1181,7 +1237,7 @@
     animation-timing-function: cubic-bezier(0.3, 1.5, 0.6, 1);
   }
   66.01%,
-  82.49% {
+  82.99% {
     visibility: visible;
     display: block;
   }
@@ -1195,7 +1251,10 @@
     opacity: 0.8;
     animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5);
   }
-  82.5%,
+  82.4% {
+    opacity: 0;
+  }
+  83%,
   100% {
     transform: translateX(100%) rotate(2deg);
     opacity: 0;
@@ -1224,7 +1283,16 @@
   }
 }
 
-@keyframes saison-tail {
+@keyframes saison-tail-a {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes saison-tail-b {
   from {
     transform: rotate(-8deg);
   }
@@ -1298,54 +1366,51 @@
   }
 }
 
-/* La tête surgit de derrière le perchoir, dépasse un peu, se pose. */
-@keyframes saison-cat-peek {
-  from {
-    translate: 0 26px;
-    rotate: -4deg;
-  }
-  to {
-    translate: 0 0;
-    rotate: 0deg;
-  }
-}
-
-/* La visite : il monte sur le perchoir, se ramasse, bondit (étiré au
-   sommet, chute qui accélère, réception écrasée), reste deux secondes et
-   demie, redescend guetter. */
+/* La visite : il jaillit sur le perchoir, se reçoit, bondit (ramassé,
+   étiré au sommet, chute qui accélère, réception écrasée), reste, puis
+   redescend guetter. Sa première image est déjà assis, ramassé : un ajout
+   pendant la visite la relance sans le faire retomber derrière le
+   perchoir, il se ramasse et rebondit. */
 @keyframes saison-cat-visit-a {
   0% {
-    translate: 0 36px;
-    transform: translateY(0) scale(1, 1);
-    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+    translate: 12px 0;
+    transform: translateY(0) scale(1.08, 0.62);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
   }
-  9% {
-    translate: 0 0;
+  7% {
+    transform: translateY(-8%) scale(0.95, 1.08);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5);
+  }
+  12% {
+    transform: translateY(0) scale(1.08, 0.88);
+    animation-timing-function: ease-out;
+  }
+  16% {
     transform: translateY(0) scale(1, 1);
     animation-timing-function: ease-out;
   }
-  13% {
+  19% {
     transform: translateY(0) scale(1.08, 0.86);
     animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
   }
-  21% {
+  27% {
     transform: translateY(-34%) scale(0.94, 1.08);
     animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
   }
-  28% {
+  34% {
     transform: translateY(0) scale(1.1, 0.86);
     animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
   }
-  32% {
+  38% {
     transform: translateY(0) scale(0.97, 1.03);
   }
-  36%,
+  42%,
   100% {
     transform: translateY(0) scale(1, 1);
   }
   88% {
-    translate: 0 0;
-    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4);
+    translate: 12px 0;
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
   }
   100% {
     translate: 0 36px;
@@ -1354,41 +1419,66 @@
 
 @keyframes saison-cat-visit-b {
   0% {
-    translate: 0 36px;
-    transform: translateY(0) scale(1, 1);
-    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+    translate: 12px 0;
+    transform: translateY(0) scale(1.08, 0.62);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
   }
-  9% {
-    translate: 0 0;
+  7% {
+    transform: translateY(-8%) scale(0.95, 1.08);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5);
+  }
+  12% {
+    transform: translateY(0) scale(1.08, 0.88);
+    animation-timing-function: ease-out;
+  }
+  16% {
     transform: translateY(0) scale(1, 1);
     animation-timing-function: ease-out;
   }
-  13% {
+  19% {
     transform: translateY(0) scale(1.08, 0.86);
     animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
   }
-  21% {
+  27% {
     transform: translateY(-34%) scale(0.94, 1.08);
     animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
   }
-  28% {
+  34% {
     transform: translateY(0) scale(1.1, 0.86);
     animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
   }
-  32% {
+  38% {
     transform: translateY(0) scale(0.97, 1.03);
   }
-  36%,
+  42%,
   100% {
     transform: translateY(0) scale(1, 1);
   }
   88% {
-    translate: 0 0;
-    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.4);
+    translate: 12px 0;
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
   }
   100% {
     translate: 0 36px;
   }
 }
 
+@keyframes saison-cat-torso-a {
+  0%,
+  97% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
 
+@keyframes saison-cat-torso-b {
+  0%,
+  97% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

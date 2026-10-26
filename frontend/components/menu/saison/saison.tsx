@@ -22,14 +22,14 @@ import "./saison.css";
    mouvement. */
 const BATS: { from: number[]; via: number[]; to: number[]; size: number; delay: number; still?: number }[] = [
   { from: [-2, 2.5], via: [-20, -1.5], to: [-64, -16.5], size: 12, delay: 0 },
-  { from: [1, 4.5], via: [11, -3.5], to: [32, -12.5], size: 9, delay: 0.6, still: 2 },
-  { from: [-3, 6.5], via: [-28, 7.5], to: [-80, 15.5], size: 14, delay: 1.3 },
-  { from: [4, 5.5], via: [-10, 15.5], to: [-42, 33.5], size: 8, delay: 16.5, still: 2.4 },
-  { from: [0, 1.5], via: [-11, -6.5], to: [-32, -18.5], size: 7, delay: 17.3 },
+  { from: [1, 4.5], via: [11, -3.5], to: [32, -12.5], size: 9, delay: 1.7, still: 2 },
+  { from: [-3, 6.5], via: [-28, 7.5], to: [-80, 15.5], size: 14, delay: 3.4 },
+  { from: [4, 5.5], via: [-10, 15.5], to: [-42, 33.5], size: 8, delay: 17.5, still: 2.4 },
+  { from: [0, 1.5], via: [-11, -6.5], to: [-32, -18.5], size: 7, delay: 19.2 },
 ];
 
 /** La sorcière entre à droite plus bas que la lune, s'élève jusqu'à elle, ressort à gauche plus bas encore. */
-const BROOM = { start: 112, end: -24, rise: 10, top: 0, fall: 18, delay: 7.5 };
+const BROOM = { start: 118, end: -26, rise: 10, top: 0, fall: 18, delay: 9.5 };
 
 /* Les feuilles : position (% de la colonne ou du cadre), taille (px), chute,
    balancement et culbute (s), départ (s, négatif : déjà en l'air à
@@ -247,14 +247,15 @@ function Bat() {
 
 /* D'un seul tenant, de profil vers la gauche : chapeau pointu à la pointe
    recourbée, cheveux et cape au vent, bras tendu au manche, botte pointue ;
-   le balai s'effile vers l'avant, son fagot s'évase à l'arrière. */
+   le manche, court, s'effile vers l'avant en suivant le cap, le fagot
+   s'évase à l'arrière. */
 const WITCH =
-  "M6 44 106 50.5 106 55 6 46.2ZM104 49.5c10-5 26-11 46-15l-6 6 9 1-7 5 9 3-7 3 7 5-10-1 3 4-11-2c-6 1-14 1-23-1-4-1-7-3-10-4ZM90 49c-2-9-8-19-18-25-6-3-12 0-14 6-2 8 2 16 8 20ZM56 18a6 6 0 1 0 12 0 6 6 0 1 0-12 0ZM56.5 18 50 21l7 .5ZM46 13c8-3 24-4 34-1-8 3-24 3-34 1ZM54 12c4-8 10-14 18-18 6-3 12-2 16 2-4-2-8-1-11 2-4 4-7 9-7 14ZM66 16c8 0 16 2 24 6-8 1-16 0-22-1ZM68 24c12-4 28-4 44-6 8-1 16-4 22-8-4 8-8 14-16 18 6 0 10 2 14 6-12 2-28 2-42 6-6-4-14-10-22-12ZM64 28c-6 6-12 12-18 16l3 3c6-4 13-9 19-14ZM80 50c-8 1-18 2-24 5-1 3 0 7 2 9l-6 3c4 1 9 0 11-2-1-4-1-7 1-8 6-1 12-2 18-3Z";
+  "M26 45.3Q66 46.6 106 50.5V55Q66 50.4 26 47.6ZM104 49.5c10-5 26-11 46-15l-6 6 9 1-7 5 9 3-7 3 7 5-10-1 3 4-11-2c-6 1-14 1-23-1-4-1-7-3-10-4ZM90 49c-2-9-8-19-18-25-6-3-12 0-14 6-2 8 2 16 8 20ZM56 18a6 6 0 1 0 12 0 6 6 0 1 0-12 0ZM56.5 18 50 21l7 .5ZM46 13c8-3 24-4 34-1-8 3-24 3-34 1ZM54 12c4-8 10-14 18-18 6-3 12-2 16 2-4-2-8-1-11 2-4 4-7 9-7 14ZM66 16c8 0 16 2 24 6-8 1-16 0-22-1ZM68 24c12-4 28-4 44-6 8-1 16-4 22-8-4 8-8 14-16 18 6 0 10 2 14 6-12 2-28 2-42 6-6-4-14-10-22-12ZM64 28c-6 6-12 12-18 16l3 3c6-4 13-9 19-14ZM80 50c-8 1-18 2-24 5-1 3 0 7 2 9l-6 3c4 1 9 0 11-2-1-4-1-7 1-8 6-1 12-2 18-3Z";
 
 /** La sorcière sur son balai : une silhouette qui passe devant la lune. */
 function Witch() {
   return (
-    <svg viewBox="2 -12 160 82" aria-hidden>
+    <svg viewBox="22 -12 140 82" aria-hidden>
       <path d={WITCH} className="saison-rim" strokeWidth="2.8" />
       <path d={WITCH} />
     </svg>
@@ -424,12 +425,14 @@ function Cat() {
     <div className="saison-cat" aria-hidden>
       <div className="saison-cat-body">
         <svg viewBox="0 0 96 112">
-          <g className="saison-cat-tail" fill="none" strokeLinecap="round">
-            <path d={CAT_TAIL} className="saison-rim saison-rim--lantern" strokeWidth="9.6" />
-            <path d={CAT_TAIL} stroke="currentColor" strokeWidth="7" />
+          <g className="saison-cat-torso">
+            <g className="saison-cat-tail" fill="none" strokeLinecap="round">
+              <path d={CAT_TAIL} className="saison-rim saison-rim--lantern" strokeWidth="9.6" />
+              <path d={CAT_TAIL} stroke="currentColor" strokeWidth="7" />
+            </g>
+            <path d={CAT_BODY} className="saison-rim saison-rim--lantern" strokeWidth="2.6" />
+            <path d={CAT_BODY} fill="currentColor" />
           </g>
-          <path d={CAT_BODY} className="saison-rim saison-rim--lantern" strokeWidth="2.6" />
-          <path d={CAT_BODY} fill="currentColor" />
           <g className="saison-cat-head">
             <g className="saison-rim saison-rim--lantern" strokeWidth="2.6">
               <path d={CAT_EAR} className="saison-cat-ear" />
@@ -512,7 +515,7 @@ export function SaisonPoster({ saison, spots }: { saison: Saison; spots: SaisonS
           <span key={i} className="saison-bulb" style={spotStyle(spot, 2 + flicker(i))} />
         ))}
         {spots.candles.map((spot, i) => (
-          <span key={i} className="saison-candle" style={spotStyle(spot, flicker(i + 1) / 2)} />
+          <span key={i} className="saison-candle" style={spotStyle(spot, 1.7 + (i % 3) * 0.2)} />
         ))}
         {halloween && (
           <>
@@ -608,7 +611,9 @@ export function SaisonFrame({ saison }: { saison: Saison }) {
  * Fixé à l'écran, sur la colonne de la carte : les feuilles tombent derrière
  * les fiches (calque sous le contenu, la racine isolée) ; à Halloween,
  * l'araignée et les fantômes passent devant, chacun son tour, et le chat
- * n'apparaît que pour s'asseoir sur la barre du panier ou une pastille d'offre.
+ * guette derrière la barre du panier ou une pastille d'offre, la tête
+ * seule au-dessus, une fois le hero passé ; il monte s'y asseoir à chaque
+ * ajout (saison.css).
  */
 export function SaisonAmbient({ saison }: { saison: Saison }) {
   const halloween = saison === "halloween";

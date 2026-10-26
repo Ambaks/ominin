@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -299,6 +299,12 @@ function SaisonCard({
   const queue = useRef(Promise.resolve());
   const latest = useRef(0);
   const saved = useRef({ saison: client.saison, saisonFin: client.saisonFin });
+  // Le client à jour : un échec ne ramène que la saison, pas les réglages
+  // changés ailleurs pendant l'écriture.
+  const current = useRef(client);
+  useEffect(() => {
+    current.current = client;
+  });
 
   // Les écritures partent l'une après l'autre : la dernière demandée l'emporte
   // en base comme à l'écran. Seul l'échec de la dernière ramène l'écran à ce
@@ -312,7 +318,7 @@ function SaisonCard({
         await saveSaison(next.id, next.saison, next.saisonFin);
         saved.current = { saison: next.saison, saisonFin: next.saisonFin };
       } catch (error) {
-        if (write === latest.current) onChange({ ...next, ...saved.current });
+        if (write === latest.current) onChange({ ...current.current, ...saved.current });
         toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
       }
     });
@@ -320,7 +326,9 @@ function SaisonCard({
 
   const fin = client.saisonFin;
 
-  const plausible = (value: string) => parseInt(value, 10) >= new Date().getFullYear();
+  // Une année à quatre chiffres, pas avant celle-ci.
+  const plausible = (value: string) =>
+    /^\d{4}-/.test(value) && parseInt(value, 10) >= new Date().getFullYear();
 
   const saveFin = (value: string | null) => {
     setDraft(null);
@@ -336,7 +344,11 @@ function SaisonCard({
     }
   };
 
-  const status = !client.saison ? null : fin === null ? (
+  // Une date tapée mais pas encore enregistrée ne laisse pas croire au statut
+  // de l'ancienne.
+  const status = !client.saison ? null : draft !== null && draft !== (fin ?? "") ? (
+    "Pas encore enregistrée : Entrée, ou quittez le champ, pour la poser."
+  ) : fin === null ? (
     "Reste sur le menu jusqu’à ce que vous choisissiez « Aucune »."
   ) : activeSaison(client.saison, fin, client.dayEndHour) ? (
     `Sur le menu jusqu’à la fermeture du ${finLabel(fin)}, puis il retrouve son habillage habituel.`
@@ -417,7 +429,7 @@ function SaisonCard({
               value={draft ?? fin ?? ""}
               onChange={(event) => {
                 const { value } = event.target;
-                if (value && activeSaison(client.saison, value, client.dayEndHour)) saveFin(value);
+                if (plausible(value) && activeSaison(client.saison, value, client.dayEndHour)) saveFin(value);
                 else setDraft(value);
               }}
               onKeyDown={(event) => {
