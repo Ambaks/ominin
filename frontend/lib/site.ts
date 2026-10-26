@@ -87,3 +87,16 @@ const agentsHost = process.env.NEXT_PUBLIC_AGENTS_HOST;
 export const agentsSiteUrl = agentsHost
   ? `${agentsHost.includes("localhost") ? "http" : "https"}://${agentsHost}`
   : `${siteUrl}/agents`;
+
+/*
+ * Espace des commerciaux indépendants. Host absent ⇒ servi sur
+ * ominin.com/commercial. Les liens de connexion envoyés par e-mail passent
+ * par /auth/callback à la racine de l'hôte qui sert l'espace : d'où l'origine
+ * et le préfixe exposés séparément, en plus de l'URL de l'espace.
+ */
+const commercialHost = process.env.NEXT_PUBLIC_COMMERCIAL_HOST;
+export const commercialOrigin = commercialHost
+  ? `${commercialHost.includes("localhost") ? "http" : "https"}://${commercialHost}`
+  : siteUrl;
+export const commercialPrefix = commercialHost ? "" : "/commercial";
+export const commercialSiteUrl = `${commercialOrigin}${commercialPrefix}`;

@@ -62,11 +62,47 @@ async function accessToken(config: NonNullable<ReturnType<typeof mailConfig>>) {
   return data.access_token;
 }
 
+/** `filename` en ASCII imprimable, sans guillemet ni barre oblique inverse. */
+export interface MailAttachment {
+  filename: string;
+  contentType: string;
+  content: Uint8Array;
+}
+
+// RFC 2045 §6.8 : 76 caractères au plus par ligne de base64.
+const BASE64_LINE = /.{1,76}/g;
+const HEADER_FILENAME = /^[\x20\x21\x23-\x5b\x5d-\x7e]+$/;
+
+function multipart(htmlPart: string[], attachments: MailAttachment[]) {
+  const boundary = `ominin-${crypto.randomUUID()}`;
+  return [
+    `Content-Type: multipart/mixed; boundary="${boundary}"`,
+    "",
+    `--${boundary}`,
+    ...htmlPart,
+    ...attachments.flatMap((attachment) => {
+      if (!HEADER_FILENAME.test(attachment.filename)) {
+        throw new Error(`Nom de pièce jointe hors ASCII : ${attachment.filename}`);
+      }
+      return [
+        `--${boundary}`,
+        `Content-Type: ${attachment.contentType}; name="${attachment.filename}"`,
+        `Content-Disposition: attachment; filename="${attachment.filename}"`,
+        "Content-Transfer-Encoding: base64",
+        "",
+        ...(Buffer.from(attachment.content).toString("base64").match(BASE64_LINE) ?? []),
+      ];
+    }),
+    `--${boundary}--`,
+  ];
+}
+
 export async function sendEmail(
   to: string,
   subject: string,
   html: string,
   replyTo?: string,
+  attachments: MailAttachment[] = [],
 ) {
   const config = mailConfig();
   if (!config) {
@@ -79,16 +115,21 @@ export async function sendEmail(
 
   // Sujet en RFC 2047 et corps en base64 : les deux contiennent des accents.
   const encodedSubject = `=?UTF-8?B?${Buffer.from(subject, "utf-8").toString("base64")}?=`;
+  const htmlPart = [
+    'Content-Type: text/html; charset="UTF-8"',
+    "Content-Transfer-Encoding: base64",
+    "",
+    Buffer.from(html, "utf-8").toString("base64"),
+  ];
+  // Sans pièce jointe, le message reste un simple text/html.
+  const body = attachments.length ? multipart(htmlPart, attachments) : htmlPart;
   const mime = [
     `From: "${config.senderName}" <${config.senderEmail}>`,
     `To: ${to}`,
     ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
     `Subject: ${encodedSubject}`,
     "MIME-Version: 1.0",
-    'Content-Type: text/html; charset="UTF-8"',
-    "Content-Transfer-Encoding: base64",
-    "",
-    Buffer.from(html, "utf-8").toString("base64"),
+    ...body,
   ].join("\r\n");
 
   const response = await fetch(GMAIL_SEND_URL, {

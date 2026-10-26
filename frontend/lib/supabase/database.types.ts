@@ -1282,6 +1282,42 @@ export type Database = {
           },
         ]
       }
+      commerciaux: {
+        Row: {
+          address: string | null
+          email: string
+          first_name: string | null
+          id: string
+          invited_at: string
+          last_name: string | null
+          phone: string | null
+          siret: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          email: string
+          first_name?: string | null
+          id?: string
+          invited_at?: string
+          last_name?: string | null
+          phone?: string | null
+          siret?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          email?: string
+          first_name?: string | null
+          id?: string
+          invited_at?: string
+          last_name?: string | null
+          phone?: string | null
+          siret?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contact_requests: {
         Row: {
           company: string | null
@@ -2374,6 +2410,7 @@ export type Database = {
       legal_acceptances: {
         Row: {
           accepted_at: string
+          commercial_id: string | null
           etablissement_id: string | null
           id: string
           ip: unknown
@@ -2389,6 +2426,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string
+          commercial_id?: string | null
           etablissement_id?: string | null
           id?: string
           ip?: unknown
@@ -2404,6 +2442,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string
+          commercial_id?: string | null
           etablissement_id?: string | null
           id?: string
           ip?: unknown
@@ -2418,6 +2457,13 @@ export type Database = {
           version_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "legal_acceptances_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "legal_acceptances_etablissement_id_fkey"
             columns: ["etablissement_id"]
@@ -5649,6 +5695,15 @@ export type Database = {
         Args: { p_etablissement: string; p_layout: string }
         Returns: undefined
       }
+      auth_account_state: {
+        Args: { p_email: string }
+        Returns: {
+          commercial: boolean
+          confirmed: boolean
+          id: string
+          invited: boolean
+        }[]
+      }
       hubrise_record_till_payment: {
         Args: { p_order: string; p_payments: Json }
         Returns: boolean
@@ -6502,8 +6557,8 @@ export type Database = {
         | "hotel_restaurant"
         | "other"
       crm_task_status: "open" | "done" | "cancelled"
-      legal_doc: "cgv" | "dpa" | "confidentialite"
-      legal_scope: "etablissement" | "shop"
+      legal_doc: "cgv" | "dpa" | "confidentialite" | "commercial"
+      legal_scope: "etablissement" | "shop" | "commercial"
       loyalty_entry_kind: "gain" | "depense" | "ajustement" | "roue"
       member_role: "gerant" | "cuisinier" | "serveur"
       menu_stage:
@@ -6781,8 +6836,8 @@ export const Constants = {
         "other",
       ],
       crm_task_status: ["open", "done", "cancelled"],
-      legal_doc: ["cgv", "dpa", "confidentialite"],
-      legal_scope: ["etablissement", "shop"],
+      legal_doc: ["cgv", "dpa", "confidentialite", "commercial"],
+      legal_scope: ["etablissement", "shop", "commercial"],
       loyalty_entry_kind: ["gain", "depense", "ajustement", "roue"],
       member_role: ["gerant", "cuisinier", "serveur"],
       menu_stage: [
