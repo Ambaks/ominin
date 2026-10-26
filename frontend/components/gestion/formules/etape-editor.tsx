@@ -1,12 +1,6 @@
 "use client";
 
 import { ChevronDownIcon, XIcon } from "@/components/gestion/icons";
-import {
-  OptionsEditor,
-  draftToOptions,
-  optionsToDraft,
-  type OptionGroupDraft,
-} from "@/components/gestion/menu/options-editor";
 import { inputClass } from "@/components/ui/field";
 import { IconButton } from "@/components/ui/icon-button";
 import { PriceInput } from "@/components/ui/price-input";
@@ -14,7 +8,7 @@ import { Toggle } from "@/components/ui/toggle";
 import { normalizeText } from "@/lib/admin/format";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import type { Etape } from "@/lib/gestion/types";
-import type { MenuCategory } from "@/lib/menu-data";
+import type { MenuCategory, OptionGroup } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
 
 export interface ArticleDraft {
@@ -23,7 +17,8 @@ export interface ArticleDraft {
   detail: string;
   supplement: string;
   itemId?: string;
-  options: OptionGroupDraft[];
+  /** Options d'un ancien choix hors carte, gardées telles quelles : elles se règlent dans la carte. */
+  options?: OptionGroup[];
 }
 
 export interface EtapeDraft {
@@ -43,7 +38,6 @@ export function emptyArticle(): ArticleDraft {
     name: "",
     detail: "",
     supplement: "",
-    options: [],
   };
 }
 
@@ -92,7 +86,7 @@ export function etapesToDraft(etapes: Etape[]): EtapeDraft[] {
       detail: article.detail ?? "",
       supplement: article.supplement > 0 ? priceToInput(article.supplement) : "",
       itemId: article.itemId,
-      options: optionsToDraft(article.options),
+      options: article.options,
     })),
   }));
 }
@@ -105,17 +99,14 @@ export function draftToEtapes(
   return drafts
     .map((draft) => {
       const articles = draft.articles
-        .map((article) => {
-          const options = draftToOptions(article.options);
-          return {
-            id: article.id,
-            name: article.name.trim(),
-            detail: article.detail.trim() || undefined,
-            supplement: parsePriceInput(article.supplement) ?? 0,
-            itemId: article.itemId,
-            options: options.length ? options : undefined,
-          };
-        })
+        .map((article) => ({
+          id: article.id,
+          name: article.name.trim(),
+          detail: article.detail.trim() || undefined,
+          supplement: parsePriceInput(article.supplement) ?? 0,
+          itemId: article.itemId,
+          options: article.options,
+        }))
         .filter((article) => article.name);
       const category = categories.find((c) => c.id === draft.categoryId);
       const supplements = Object.fromEntries(
@@ -145,15 +136,12 @@ export function EtapeEditor({
   value,
   onChange,
   categories,
-  showOptions,
 }: {
   value: EtapeDraft[];
   onChange: (value: EtapeDraft[]) => void;
   categories: MenuCategory[];
-  showOptions: boolean;
 }) {
   const menuItems = categories.flatMap((category) => category.items);
-  const importCandidates = menuItems.filter((item) => item.options?.length);
 
   const patchEtape = (etapeId: string, patch: Partial<EtapeDraft>) =>
     onChange(
@@ -426,77 +414,43 @@ export function EtapeEditor({
 
                   <details>
                     <summary className="cursor-pointer text-xs font-medium text-muted transition-colors hover:text-foreground">
-                      {showOptions && !linked
-                        ? `Détail et options (${article.options.length})`
-                        : "Détail"}
-                      {linked && " · article de la carte"}
+                      Détail{linked && " · article de la carte"}
                     </summary>
-                    <div className="flex flex-col gap-2 pt-2">
-                      <input
-                        value={article.detail}
-                        onChange={(event) =>
-                          patchArticle(etape.id, article.id, {
-                            detail: event.target.value,
-                          })
-                        }
-                        placeholder="Détail (optionnel)"
-                        className={inputClass}
-                      />
-                      {showOptions &&
-                        (linked ? (
-                          <p className="text-xs text-muted">
-                            Options : celles de l&rsquo;article (
-                            {linked.options?.length ?? 0}), qui se modifient dans
-                            sa fiche.
-                          </p>
-                        ) : (
-                          <OptionsEditor
-                            value={article.options}
-                            onChange={(options) =>
-                              patchArticle(etape.id, article.id, { options })
-                            }
-                            importCandidates={importCandidates}
-                          />
-                        ))}
-                    </div>
+                    <input
+                      value={article.detail}
+                      onChange={(event) =>
+                        patchArticle(etape.id, article.id, {
+                          detail: event.target.value,
+                        })
+                      }
+                      placeholder="Détail (optionnel)"
+                      className={`${inputClass} mt-2`}
+                    />
                   </details>
                 </div>
               );
             })}
 
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <select
-                value=""
-                onChange={(event) => addFromCarte(etape, event.target.value)}
-                aria-label={`Ajouter à ${etape.name || `l'étape ${index + 1}`} depuis la carte`}
-                className={`${inputClass} font-semibold text-ember-1`}
-              >
-                <option value="">+ Ajouter depuis la carte…</option>
-                {categories.map((c) => (
-                  <optgroup key={c.id} label={c.name}>
-                    <option value={`category:${c.id}`} disabled={c.id === etape.categoryId}>
-                      Toute la catégorie ({c.items.length})
+            <select
+              value=""
+              onChange={(event) => addFromCarte(etape, event.target.value)}
+              aria-label={`Ajouter à ${etape.name || `l'étape ${index + 1}`} depuis la carte`}
+              className={`${inputClass} font-semibold text-ember-1`}
+            >
+              <option value="">+ Ajouter depuis la carte…</option>
+              {categories.map((c) => (
+                <optgroup key={c.id} label={c.name}>
+                  <option value={`category:${c.id}`} disabled={c.id === etape.categoryId}>
+                    Toute la catégorie ({c.items.length})
+                  </option>
+                  {c.items.map((item) => (
+                    <option key={item.id} value={`item:${item.id}`} disabled={taken.has(item.id)}>
+                      {item.name}
                     </option>
-                    {c.items.map((item) => (
-                      <option key={item.id} value={`item:${item.id}`} disabled={taken.has(item.id)}>
-                        {item.name}
-                      </option>
-                    ))}
-                  </optgroup>
-                ))}
-              </select>
-              <button
-                type="button"
-                onClick={() =>
-                  patchEtape(etape.id, {
-                    articles: [...etape.articles, emptyArticle()],
-                  })
-                }
-                className="shrink-0 rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-              >
-                + Choix libre
-              </button>
-            </div>
+                  ))}
+                </optgroup>
+              ))}
+            </select>
           </div>
         );
       })}

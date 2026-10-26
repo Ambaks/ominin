@@ -11,7 +11,6 @@ import * as api from "@/lib/gestion/api";
 import { FORMULE_MODELES, WEEK_DAYS } from "@/lib/gestion/constants";
 import { formatHeure } from "@/lib/gestion/fermetures";
 import { formatDays, parsePriceInput, priceToInput } from "@/lib/gestion/format";
-import { useGestionAccess } from "@/lib/gestion/store";
 import type { Formule } from "@/lib/gestion/types";
 import type { MenuCategory } from "@/lib/menu-data";
 import {
@@ -36,7 +35,6 @@ export function FormuleFormModal({
   categories: MenuCategory[];
   onClose: () => void;
 }) {
-  const { hasFeature } = useGestionAccess();
   const toast = useToast();
 
   const [name, setName] = useState(formule?.name ?? "");
@@ -166,7 +164,6 @@ export function FormuleFormModal({
             value={etapes}
             onChange={setEtapes}
             categories={categories}
-            showOptions={hasFeature("options")}
           />
         </div>
 
