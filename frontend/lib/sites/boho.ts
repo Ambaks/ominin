@@ -1,8 +1,8 @@
-import { BOHO_DEMO_SLUG } from "@/lib/menu-data";
+import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
 
 /*
  * Site public du BOHO (Toulouse), restaurant chicha à l'ambiance bohème.
- * Servi pour l'instant sur sa démonstration (menu.ominin.com/m/boho-demo/site),
+ * Servi pour l'instant sur sa démonstration (menu.ominin.com/demo/boho/site),
  * tant que le Boho n'a pas pris l'offre, puis sous son propre slug. Les
  * faits viennent de sa carte papier et de son profil (demos/boho) ; la carte,
  * les prix, l'adresse et les horaires sont relus en base à chaque
