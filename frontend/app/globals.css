@@ -13868,22 +13868,54 @@ body:has(dialog.visite[open]) [data-visite-bord] {
   animation: visite-in 0.24s ease-out;
 }
 
-/* Bandeau des offres : la piste porte trois copies du visuel et recule
-   d'une copie par tour, la suivante prenant exactement sa place. Durée
-   posée en ligne (--marquee-duration), selon le nombre d'offres. */
+/* Bandeau des offres : la piste porte --marquee-copies copies du visuel et
+   recule d'une copie par tour, la suivante prenant exactement sa place.
+   Durée posée en ligne (--marquee-duration), selon le nombre d'offres. */
 @keyframes marquee {
   to {
-    transform: translateX(calc(-100% / 3));
+    transform: translateX(calc(-100% / var(--marquee-copies)));
   }
 }
 
 .marquee-track {
   animation: marquee var(--marquee-duration) linear infinite;
+  will-change: transform;
 }
 
-.marquee-track:hover,
-.marquee-track:active {
-  animation-play-state: paused;
+/* À la souris seulement : au doigt, faire défiler la page en passant sur la
+   bande l'arrêtait net. */
+@media (hover: hover) {
+  .marquee-track:hover {
+    animation-play-state: paused;
+  }
+}
+
+/* La bande d'affiches sous le héros (AffichesStrip) entre et sort par des
+   bords d'écran fondus, plafonnés sur grand écran pour ne pas manger les
+   affiches ; elles gardent leurs coins arrondis nets. Immobile (mouvement
+   réduit), elle se fait défiler au doigt : sans fondu, dont le bord ne
+   suivrait pas le défilement. */
+.affiches-strip {
+  --strip-fade: min(12%, 4rem);
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black var(--strip-fade),
+    black calc(100% - var(--strip-fade)),
+    transparent
+  );
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .affiches-strip {
+    mask-image: none;
+  }
+}
+
+/* Sous la bande, sa marge basse (place des pastilles) suffit avant la
+   première rubrique. */
+[data-menu-root]:has(.affiches-strip) main {
+  padding-top: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {

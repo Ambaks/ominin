@@ -265,10 +265,12 @@ function LogoHero({
 const POSTER_WIDE_MEDIA = "(min-width: 64rem), (min-width: 40rem) and (orientation: landscape)";
 
 /**
- * L'affiche remplit l'écran (moins les formules, s'il y en a) : rognée sur les côtés
- * en portrait, entière en paysage, où sa copie floutée comble les marges —
- * sauf si l'établissement a son panorama (posterWide), qui couvre alors tout
- * le cadre.
+ * L'affiche remplit l'écran (moins les formules, s'il y en a). En portrait,
+ * elle couvre toute la largeur et reste entière en hauteur : sur un écran
+ * trop court pour elle, l'en-tête s'allonge et les formules passent sous la
+ * ligne de flottaison plutôt que de rogner son texte. En paysage, entière,
+ * sa copie floutée comblant les marges — sauf si l'établissement a son
+ * panorama (posterWide), qui couvre alors tout le cadre.
  */
 function PosterHero({
   restaurant,
@@ -277,7 +279,7 @@ function PosterHero({
   saison,
 }: {
   restaurant: Restaurant;
-  poster: string;
+  poster: NonNullable<Restaurant["poster"]>;
   banner?: React.ReactNode;
   saison?: Saison;
 }) {
@@ -287,14 +289,22 @@ function PosterHero({
   // décor du cadre.
   const portraitOnly = wide ? "contents poster-wide:hidden" : "contents";
   return (
-    <header className="flex h-svh w-full flex-col bg-background">
-      <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
-        <img
-          src={poster}
-          alt=""
-          className={`absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl ${wide ? "poster-wide:hidden" : ""}`}
-        />
+    <header
+      className="grid min-h-svh w-full grid-cols-1 grid-rows-[1fr_auto] bg-background poster-wide:h-svh"
+      style={{ "--poster-w": poster.width, "--poster-h": poster.height } as React.CSSProperties}
+    >
+      {/* contain:size : la taille du cadre vient de la grille et de sa hauteur
+          minimale, jamais de l'affiche qu'il contient. isolate : les calques
+          de saison restent dans le cadre, sous les pastilles flottantes. */}
+      <div className="relative isolate flex min-h-[calc(100vw*var(--poster-h)/var(--poster-w))] justify-center overflow-hidden [contain:size] poster-wide:min-h-0">
+        {!wide && (
+          // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres
+          <img
+            src={poster.src}
+            alt=""
+            className="absolute inset-0 hidden size-full scale-110 object-cover opacity-60 blur-2xl poster-wide:block"
+          />
+        )}
         {/* La nuit et les lumières de la saison suivent les repères de l'affiche :
             sans eux, seul le décor du cadre. */}
         {saison && spots && (
@@ -307,11 +317,15 @@ function PosterHero({
           <picture className="contents">
             {wide && <source media={POSTER_WIDE_MEDIA} srcSet={wide} sizes="100vw" />}
             <img
-              src={poster}
+              src={poster.src}
               alt=""
+              width={poster.width}
+              height={poster.height}
               fetchPriority="high"
-              className={`hero-entrance relative h-full w-auto max-w-none [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] ${
-                wide ? "poster-wide:w-full poster-wide:object-cover poster-wide:[mask-image:none]" : ""
+              className={`hero-entrance relative h-full w-auto max-w-none ${
+                wide
+                  ? "poster-wide:w-full poster-wide:object-cover"
+                  : "poster-wide:[mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
               }`}
             />
           </picture>
