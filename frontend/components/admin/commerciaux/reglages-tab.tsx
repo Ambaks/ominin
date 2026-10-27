@@ -42,9 +42,8 @@ const EDITABLE: { key: NumericKey; label: string; unit: string; empty: string; r
   { key: "expiry_warning_days", label: "Prévenir avant l’expiration d’une réservation", unit: "jours", empty: "pas d’alerte" },
   { key: "option_reminder_days", label: "Rappel de l’option avant l’échéance du contrat", unit: "jours", empty: "pas de rappel" },
   { key: "signup_link_days", label: "Validité d’un lien d’inscription", unit: "jours", empty: "liens fermés", required: true },
-  { key: "appointment_reminder_minutes", label: "Rappel avant un rendez-vous", unit: "minutes", empty: "pas de rappel" },
   { key: "nearby_radius_m", label: "Rayon de « Autour de moi »", unit: "mètres", empty: "carte fermée", required: true },
-  { key: "name_similarity", label: "Similarité de nom pour l’alerte « déjà client ? »", unit: "entre 0 et 1", empty: "pas d’alerte" },
+  { key: "name_similarity", label: "Similarité de nom (alerte « déjà client ? », inscription à vérifier)", unit: "entre 0 et 1", empty: "liens d’inscription fermés", required: true },
 ];
 
 const CONTRACT: { key: keyof CommercialSettings; label: string; unit: string }[] = [
@@ -70,6 +69,7 @@ function SettingsForm() {
   const [settings, setSettings] = useState<CommercialSettings | null>(null);
   const [draft, setDraft] = useState<Record<string, string>>({});
   const [demos, setDemos] = useState("");
+  const [followups, setFollowups] = useState("");
   const [prices, setPrices] = useState("");
   const [club, setClub] = useState<"" | "oui" | "non">("");
 
@@ -79,6 +79,7 @@ function SettingsForm() {
         setSettings(loaded);
         setDraft(Object.fromEntries(EDITABLE.map(({ key }) => [key, loaded[key]?.toString() ?? ""])));
         setDemos(loaded.kit_demo_slugs.join(", "));
+        setFollowups((loaded.followup_days ?? []).join(", "));
         setPrices(loaded.eligible_stripe_prices.join(", "));
         setClub(loaded.club_fees_included === null ? "" : loaded.club_fees_included ? "oui" : "non");
       }),
@@ -93,6 +94,7 @@ function SettingsForm() {
       await updateSettings({
         ...Object.fromEntries(EDITABLE.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])),
         kit_demo_slugs: list(demos),
+        followup_days: list(followups).length ? list(followups).map(Number) : null,
         eligible_stripe_prices: list(prices),
         club_fees_included: club === "" ? null : club === "oui",
       });
@@ -134,6 +136,15 @@ function SettingsForm() {
             />
           </li>
         ))}
+        <li className="flex flex-col gap-2 px-4 py-3">
+          <label htmlFor="setting-followups" className="text-sm">
+            Relances après un rendez-vous
+            <span className="block text-xs text-faint">
+              Jours après le rendez-vous, séparés par des virgules (décision du 27/10 : 1, 7, 14). Vide : pas de relance.
+            </span>
+          </label>
+          <input id="setting-followups" value={followups} onChange={(event) => setFollowups(event.target.value)} inputMode="numeric" className={inputClass} />
+        </li>
         <li className="flex flex-col gap-2 px-4 py-3">
           <label htmlFor="setting-demos" className="text-sm">
             Démos du Kit

@@ -221,6 +221,11 @@ export async function linkClient(
   );
 }
 
+/** Départ posé par erreur : la fiche redevient cliente, le Client Apporté clos par ce départ est rouvert. */
+export async function cancelClientDeparture(restaurantId: string) {
+  check(await createClient().rpc("admin_cancel_client_departure", { p_restaurant: restaurantId }));
+}
+
 export async function setClientEnded(restaurantId: string, endedAt: string | null) {
   check(
     await createClient().rpc("admin_set_client_ended", {

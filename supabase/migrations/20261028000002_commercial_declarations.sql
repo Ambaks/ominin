@@ -45,7 +45,9 @@ create table public.commercial_settings (
   expiry_warning_days int check (expiry_warning_days > 0),
   option_reminder_days int check (option_reminder_days > 0),
   signup_link_days int check (signup_link_days > 0),
-  appointment_reminder_minutes int check (appointment_reminder_minutes > 0),
+  -- Relances de suivi après un rendez-vous, en jours (décision de Marwan du
+  -- 27/10 : 1, 7 et 14, saisis par l'admin). Vide : pas de relance.
+  followup_days int[] check (followup_days is null or (cardinality(followup_days) > 0 and 0 < all (followup_days))),
   nearby_radius_m int check (nearby_radius_m > 0),
   -- Similarité de nom (pg_trgm, 0 à 1) au-delà de laquelle une déclaration
   -- ou une inscription lève l'alerte « déjà client ? » / « nom différent ».
@@ -108,7 +110,7 @@ create type public.commercial_refusal_reason as enum
 create type public.commercial_end_reason as enum
   ('not_interested', 'equipped', 'contract_elsewhere', 'closed', 'unreachable',
    'head_office', 'opposition', 'other',
-   'contract_ended', 'merged', 'reassigned');
+   'contract_ended', 'merged', 'reassigned', 'client');
 
 create table public.commercial_declarations (
   id uuid primary key default gen_random_uuid(),
@@ -272,6 +274,9 @@ alter table public.crm_contacts
   add constraint crm_contacts_first_name_check
     check (first_name is null or length(trim(first_name)) between 1 and 120),
   add constraint crm_contacts_identified check (first_name is not null or role is not null);
+-- Auteur d'un interlocuteur : le commercial ne modifie que les siens.
+alter table public.crm_contacts
+  add column created_by uuid default auth.uid() references auth.users (id) on delete set null;
 
 -- Journal, relances et rendez-vous d'une déclaration : visibles de son seul
 -- titulaire (par les fonctions de l'espace) et des admins.
@@ -447,8 +452,8 @@ revoke execute on function public.commercial_reflect(uuid) from public, anon, au
 -- réponse « désinscription » à Léa, bouton du commercial) : la déclaration
 -- active est abandonnée (motif opposition) et son titulaire prévenu, pour
 -- qu'il arrête de démarcher (RGPD art. 21, contrat art. 6.1).
-create function public.commercial_on_opt_out()
-returns trigger
+create function public.commercial_close_for_opposition(p_restaurant uuid)
+returns void
 language plpgsql
 security definer
 set search_path = ''
@@ -458,7 +463,7 @@ declare
 begin
   for d in
     select * from public.commercial_declarations
-    where restaurant_id = new.id and status in ('pending', 'confirmed')
+    where restaurant_id = p_restaurant and status in ('pending', 'confirmed')
   loop
     update public.commercial_declarations
     set status = 'abandoned', end_reason = 'opposition', ended_at = now()
@@ -467,6 +472,18 @@ begin
     insert into public.commercial_emails (commercial_id, declaration_id, kind)
     values (d.commercial_id, d.id, 'opposition');
   end loop;
+end;
+$$;
+revoke execute on function public.commercial_close_for_opposition(uuid) from public, anon, authenticated;
+
+create function public.commercial_on_opt_out()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  perform public.commercial_close_for_opposition(new.id);
   return new;
 end;
 $$;

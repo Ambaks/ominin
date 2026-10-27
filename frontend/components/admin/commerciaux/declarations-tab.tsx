@@ -236,7 +236,8 @@ export function DeclarationsTab() {
                 · {who(row)} · {STATUS_LABELS[row.effective_status]}
                 {row.refusal_reason ? ` (${REFUSAL_LABELS[row.refusal_reason]})` : ""}
                 {row.end_reason ? ` (${END_LABELS[row.end_reason]})` : ""}
-                {row.decision_note ? ` — ${row.decision_note}` : ""} · {formatDate(row.declared_at)}
+                {row.decision_note ? ` — ${row.decision_note}` : ""} · déclaré le {formatDate(row.declared_at)}
+                {row.ended_at && ` · ${row.effective_status === "signed" ? "inscrit" : "clos"} le ${formatDate(row.ended_at)}`}
               </span>
               <Emails emails={row.emails as unknown as EmailState[]} />
               {row.effective_status === "signed" && (

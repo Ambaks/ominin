@@ -242,9 +242,11 @@ end;
 $$;
 revoke execute on function public.commercial_draft_statement(uuid, date) from public, anon, authenticated;
 
--- Tâche quotidienne, le 1er du mois (et en rattrapage les jours suivants) :
--- brouillon du mois écoulé pour chaque commercial qui a des Clients Apportés.
--- Le relevé final (art. 8.1) a sa propre fonction, plus bas.
+-- Tâche quotidienne : brouillon du mois écoulé pour chaque commercial qui a
+-- des Clients Apportés, et de tout mois antérieur jamais relevé depuis sa
+-- première commission qui porte une commission (validation tardive,
+-- encaissement saisi en retard) : aucun mois ne se perd. Le relevé final
+-- (art. 8.1) a sa propre fonction, plus bas.
 create function public.commercial_draft_statements()
 returns int
 language plpgsql
@@ -253,21 +255,31 @@ set search_path = ''
 as $$
 declare
   v_month date := (date_trunc('month', now() at time zone 'Europe/Paris') - interval '1 month')::date;
-  v_commercial uuid;
+  m record;
   v_count int := 0;
 begin
-  for v_commercial in
-    select distinct d.commercial_id
-    from public.commercial_clients c
-    join public.commercial_declarations d on d.id = c.declaration_id
-    where c.validated_at is not null and c.commission_from is not null
-      and not exists (
-        select 1 from public.commercial_statements s
-        where s.commercial_id = d.commercial_id and s.month = v_month and s.status <> 'draft'
-      )
+  for m in
+    select f.commercial_id, g.month::date as month
+    from (
+      select d.commercial_id, min(c.commission_from) as since
+      from public.commercial_clients c
+      join public.commercial_declarations d on d.id = c.declaration_id
+      where c.validated_at is not null and c.commission_from is not null
+      group by d.commercial_id
+    ) f,
+    generate_series(date_trunc('month', f.since at time zone 'Europe/Paris'), v_month::timestamp, interval '1 month') g(month)
+    where not exists (
+      select 1 from public.commercial_statements s
+      where s.commercial_id = f.commercial_id and s.month = g.month::date and s.status <> 'draft'
+    )
+    order by 1, 2
   loop
-    perform public.commercial_draft_statement(v_commercial, v_month);
-    v_count := v_count + 1;
+    if m.month = v_month
+       or exists (select 1 from public.commercial_statements s where s.commercial_id = m.commercial_id and s.month = m.month)
+       or exists (select 1 from public.commercial_month_lines(m.commercial_id, m.month) l where l.commission_cents <> 0) then
+      perform public.commercial_draft_statement(m.commercial_id, m.month);
+      v_count := v_count + 1;
+    end if;
   end loop;
   return v_count;
 end;

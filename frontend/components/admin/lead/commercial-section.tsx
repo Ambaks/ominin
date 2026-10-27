@@ -5,6 +5,7 @@ import { inputClass } from "@/components/ui/field";
 import { useRunMutation } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
+  cancelClientDeparture,
   fetchClientPlaces,
   linkClient,
   setClientEnded,
@@ -62,13 +63,22 @@ export function CommercialSection({ detail }: { detail: LeadDetail }) {
               {detail.client.endedAt && <span className="text-ember-3"> · parti le {formatDate(detail.client.endedAt)}</span>}
             </span>
             {detail.client.endedAt ? (
-              <button
-                type="button"
-                onClick={() => void run(async () => { await setClientEnded(restaurantId, null); refresh(); }, "Client de retour")}
-                className={SMALL}
-              >
-                Client revenu
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => void run(async () => { await setClientEnded(restaurantId, null); refresh(); }, "Client de retour")}
+                  className={SMALL}
+                >
+                  Client revenu
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void run(async () => { await cancelClientDeparture(restaurantId); refresh(); }, "Départ annulé, commission rouverte")}
+                  className={SMALL}
+                >
+                  Départ posé par erreur
+                </button>
+              </>
             ) : (
               <button
                 type="button"

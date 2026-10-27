@@ -1935,7 +1935,6 @@ export type Database = {
       }
       commercial_settings: {
         Row: {
-          appointment_reminder_minutes: number | null
           club_fees_included: boolean | null
           commission_percent: number
           confirm_days: number
@@ -1947,6 +1946,7 @@ export type Database = {
           eligible_stripe_prices: string[]
           expiry_warning_days: number | null
           final_statement_days: number
+          followup_days: number[] | null
           id: boolean
           in_talks_days: number | null
           kit_demo_slugs: string[]
@@ -1969,7 +1969,6 @@ export type Database = {
           urssaf_threshold_cents: number
         }
         Insert: {
-          appointment_reminder_minutes?: number | null
           club_fees_included?: boolean | null
           commission_percent: number
           confirm_days: number
@@ -1981,6 +1980,7 @@ export type Database = {
           eligible_stripe_prices?: string[]
           expiry_warning_days?: number | null
           final_statement_days: number
+          followup_days?: number[] | null
           id?: boolean
           in_talks_days?: number | null
           kit_demo_slugs?: string[]
@@ -2003,7 +2003,6 @@ export type Database = {
           urssaf_threshold_cents: number
         }
         Update: {
-          appointment_reminder_minutes?: number | null
           club_fees_included?: boolean | null
           commission_percent?: number
           confirm_days?: number
@@ -2015,6 +2014,7 @@ export type Database = {
           eligible_stripe_prices?: string[]
           expiry_warning_days?: number | null
           final_statement_days?: number
+          followup_days?: number[] | null
           id?: boolean
           in_talks_days?: number | null
           kit_demo_slugs?: string[]
@@ -2264,11 +2264,11 @@ export type Database = {
           created_by: string | null
           declaration_id: string | null
           end_at: string | null
+          followups_done: number[]
           google_event_id: string | null
           id: string
           location: string | null
           notes: string | null
-          reminded_at: string | null
           restaurant_id: string
           start_at: string
           status: Database["public"]["Enums"]["crm_appointment_status"]
@@ -2282,11 +2282,11 @@ export type Database = {
           created_by?: string | null
           declaration_id?: string | null
           end_at?: string | null
+          followups_done?: number[]
           google_event_id?: string | null
           id?: string
           location?: string | null
           notes?: string | null
-          reminded_at?: string | null
           restaurant_id: string
           start_at: string
           status?: Database["public"]["Enums"]["crm_appointment_status"]
@@ -2300,11 +2300,11 @@ export type Database = {
           created_by?: string | null
           declaration_id?: string | null
           end_at?: string | null
+          followups_done?: number[]
           google_event_id?: string | null
           id?: string
           location?: string | null
           notes?: string | null
-          reminded_at?: string | null
           restaurant_id?: string
           start_at?: string
           status?: Database["public"]["Enums"]["crm_appointment_status"]
@@ -2339,6 +2339,7 @@ export type Database = {
       crm_contacts: {
         Row: {
           created_at: string
+          created_by: string | null
           email: string | null
           first_name: string | null
           id: string
@@ -2352,6 +2353,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
@@ -2365,6 +2367,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
@@ -6888,6 +6891,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      admin_cancel_client_departure: {
+        Args: { p_restaurant: string }
+        Returns: undefined
+      }
       admin_client_places: {
         Args: never
         Returns: {
@@ -7464,17 +7471,7 @@ export type Database = {
         Returns: undefined
       }
       commercial_appointment: { Args: { p_appointment: string }; Returns: Json }
-      commercial_appointment_reminders: {
-        Args: never
-        Returns: {
-          commercial_id: string
-          id: string
-          name: string
-          restaurant_id: string
-          start_at: string
-          title: string
-        }[]
-      }
+      commercial_appointment_followups: { Args: never; Returns: number }
       commercial_appointment_upsert: {
         Args: { p_appointment: Json; p_declaration: string }
         Returns: string
@@ -7580,6 +7577,10 @@ export type Database = {
       }
       commercial_clean_contact: { Args: { p: Json }; Returns: Json }
       commercial_clean_retained: { Args: { p: Json }; Returns: Json }
+      commercial_close_for_opposition: {
+        Args: { p_restaurant: string }
+        Returns: undefined
+      }
       commercial_confirm_due: { Args: never; Returns: number }
       commercial_confirm_due_for: {
         Args: { p_restaurant: string }
@@ -7609,6 +7610,10 @@ export type Database = {
           p_products: Database["public"]["Enums"]["ominin_product"][]
           p_restaurant: string
         }
+        Returns: Json
+      }
+      commercial_demo_requests_of: {
+        Args: { p_declaration: string }
         Returns: Json
       }
       commercial_draft_statement: {
@@ -8663,6 +8668,7 @@ export type Database = {
         | "contract_ended"
         | "merged"
         | "reassigned"
+        | "client"
       commercial_refusal_reason:
         | "client"
         | "declared"
@@ -8978,6 +8984,7 @@ export const Constants = {
         "contract_ended",
         "merged",
         "reassigned",
+        "client",
       ],
       commercial_refusal_reason: [
         "client",

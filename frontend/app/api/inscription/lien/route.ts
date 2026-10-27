@@ -33,5 +33,9 @@ export async function POST(request: Request) {
     p_product: product,
   });
   if (claimError) return NextResponse.json({ info, error: claimError.message }, { status: 409 });
+  // Rattaché : le jeton n'a plus à vivre dans les métadonnées du compte.
+  if (claimed && user.user_metadata?.signup_link === token) {
+    await supabase.auth.updateUser({ data: { signup_link: null } });
+  }
   return NextResponse.json({ info, claimed });
 }

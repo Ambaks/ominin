@@ -57,6 +57,7 @@ export const END_LABELS: Record<EndReason, string> = {
   contract_ended: "Fin de contrat",
   merged: "Fiches fusionnées",
   reassigned: "Réattribué",
+  client: "Fiche fusionnée avec celle d'un client d'Ominin",
 };
 
 export const CONTACT_ROLES = ["Gérant", "Associé", "Responsable de salle", "Autre"] as const;

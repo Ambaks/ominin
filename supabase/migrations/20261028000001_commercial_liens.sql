@@ -147,6 +147,14 @@ begin
   if not public.is_admin() then
     raise exception 'Réservé à l''admin.' using errcode = '42501';
   end if;
+  -- Un client parti, redéclaré, revient par son inscription : effacer le
+  -- départ avant ferait de lui un client existant, jamais attribué.
+  if p_ended_at is null and exists (
+    select 1 from public.commercial_declarations
+    where restaurant_id = p_restaurant and status in ('pending', 'confirmed')
+  ) then
+    raise exception 'Un commercial a déclaré ce client parti : son retour se constate par son inscription (lien ou « marquer signée »), pas ici.';
+  end if;
   update public.crm_restaurants
   set client_ended_at = p_ended_at
   where id = p_restaurant

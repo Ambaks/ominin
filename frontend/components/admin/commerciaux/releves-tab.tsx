@@ -48,6 +48,8 @@ export function RelevesTab() {
   const [adjusting, setAdjusting] = useState<StatementRow | null>(null);
   const [paying, setPaying] = useState(false);
   const [resolving, setResolving] = useState<StatementRow | null>(null);
+  // Mois à (re)calculer : le mois écoulé, ou un mois passé jamais relevé.
+  const [month, setMonth] = useState("");
 
   const load = useCallback(() => fetchStatements().then(setRows), []);
   useEffect(() => {
@@ -70,6 +72,7 @@ export function RelevesTab() {
   lastMonth.setDate(1);
   lastMonth.setMonth(lastMonth.getMonth() - 1);
   const previousMonth = lastMonth.toLocaleDateString("sv-SE", { timeZone: "Europe/Paris" }).slice(0, 7) + "-01";
+  const target = month ? `${month}-01` : previousMonth;
 
   const exportCsv = () =>
     downloadCsv(
@@ -89,15 +92,25 @@ export function RelevesTab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap items-center gap-2">
+        <label className="flex items-center gap-2 text-sm text-muted">
+          Mois
+          <input
+            type="month"
+            value={month || previousMonth.slice(0, 7)}
+            max={previousMonth.slice(0, 7)}
+            onChange={(event) => setMonth(event.target.value)}
+            className={`${inputClass} w-44`}
+          />
+        </label>
         {commerciaux.map((commercial) => (
           <button
             key={commercial.id}
             type="button"
-            onClick={() => void run(() => draftStatement(commercial.id, previousMonth), `Brouillon de ${monthLabel(previousMonth)} recalculé.`)}
+            onClick={() => void run(() => draftStatement(commercial.id, target), `Brouillon de ${monthLabel(target)} recalculé.`)}
             className={GHOST_BUTTON}
           >
-            Recalculer {monthLabel(previousMonth)} · {commercial.name ?? commercial.email}
+            Recalculer {monthLabel(target)} · {commercial.name ?? commercial.email}
           </button>
         ))}
         <button type="button" onClick={() => setPaying(true)} className={GHOST_BUTTON}>

@@ -61,6 +61,17 @@ export function AccountPanel() {
               {account.option_exercised_at && !account.ended ? ", option de prolongation levée par Ominin." : "."}
             </p>
           )}
+          {!account.ended && (
+            <p className="text-muted">
+              Déclarations en cours au plus :{" "}
+              <span className="text-foreground">{account.declaration_cap ?? "pas de plafond"}</span>. Carence après un
+              abandon ou une expiration :{" "}
+              <span className="text-foreground">
+                {account.cooldown_days ? `${account.cooldown_days} jours` : "aucune"}
+              </span>
+              .
+            </p>
+          )}
           {!account.ended && !account.notice_given_at && (
             <button type="button" onClick={() => setConfirming(true)} className={ghostButton}>
               Résilier mon contrat

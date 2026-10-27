@@ -246,16 +246,6 @@ select public.commercial_release_ended();
 select pg_temp.reset();
 select pg_temp.ok((select array_agg(commercial_id) from public.commercial_push_subscriptions) = array[:'a']::uuid[],
   'N10. abonnements push d''un contrat terminé retirés, les autres gardés');
--- Rappels de rendez-vous : déclaration active d'un contrat en cours seulement, une fois.
-update public.commercial_settings set appointment_reminder_minutes = 60;
-insert into public.crm_appointments (restaurant_id, title, start_at, declaration_id) values
-  (:'r13', 'Rdv actif', now() + interval '30 minutes', :'d13'),
-  (:'r10', 'Rdv déclaration signée', now() + interval '30 minutes', :'da'),
-  (:'r13', 'Rdv trop loin', now() + interval '3 hours', :'d13');
-select pg_temp.act_service();
-select pg_temp.ok((select array_agg(title) from public.commercial_appointment_reminders()) = array['Rdv actif'],
-  'N10. rappel : rendez-vous proche d''une déclaration active seulement');
-select pg_temp.ok(not exists (select 1 from public.commercial_appointment_reminders()), 'N10. … une fois');
-select pg_temp.reset();
+-- (Les rappels de rendez-vous sont devenus des relances J+n : 10_defauts3.sql.)
 
 rollback;

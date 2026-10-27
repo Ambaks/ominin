@@ -14,12 +14,14 @@ type Job =
   | "commercial_expire_due"
   | "commercial_release_ended"
   | "commercial_draft_statements"
-  | "commercial_urssaf_reminders";
+  | "commercial_urssaf_reminders"
+  | "commercial_appointment_followups";
 
 /**
  * Tâche quotidienne (workflow commercial-daily) : idempotente, elle écrit
  * les échéances de la base (confirmations de droit, expirations, fins de
- * contrat, brouillons des relevés, rappels URSSAF), envoie ce qui attend
+ * contrat, brouillons des relevés, rappels URSSAF, relances après un
+ * rendez-vous), envoie ce qui attend
  * dans la file des e-mails et prévient l'admin et les commerciaux de ce qui
  * les attend. Toutes les dates se calculent en base.
  */
@@ -35,6 +37,8 @@ export async function runDaily(admin: Admin) {
   // Brouillons des relevés du mois écoulé, tenus à jour jusqu'à leur envoi.
   const statementDrafts = await call("commercial_draft_statements");
   const urssafReminders = await call("commercial_urssaf_reminders");
+  // Relances J+n après un rendez-vous, avant le push du matin qui les compte.
+  const followups = await call("commercial_appointment_followups");
   const optionReminders = await remindOptions(admin);
   const finalStatements = await remindFinalStatements(admin);
   const pushed = await pushMorning(admin);
@@ -46,6 +50,7 @@ export async function runDaily(admin: Admin) {
     released,
     statementDrafts,
     urssafReminders,
+    followups,
     optionReminders,
     finalStatements,
     pushed,

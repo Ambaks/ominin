@@ -1136,12 +1136,17 @@ begin
             v ->> 'phone', v ->> 'email', (v ->> 'is_decision_maker')::boolean)
     returning id into v_id;
   else
+    -- Seuls les interlocuteurs qu'il a saisis pendant sa déclaration se
+    -- modifient : ceux d'Ominin ou d'avant restent tels quels.
     update public.crm_contacts
     set first_name = v ->> 'first_name', last_name = v ->> 'last_name', role = v ->> 'role',
         phone = v ->> 'phone', email = v ->> 'email',
         is_decision_maker = (v ->> 'is_decision_maker')::boolean
-    where id = v_id and restaurant_id = d.restaurant_id;
+    where id = v_id and restaurant_id = d.restaurant_id and created_by = auth.uid() and created_at >= d.declared_at;
     if not found then
+      if exists (select 1 from public.crm_contacts where id = v_id and restaurant_id = d.restaurant_id) then
+        raise exception 'Cet interlocuteur a été saisi par Ominin : il ne se modifie pas ici. Ajoutez-en un autre.';
+      end if;
       raise exception 'Interlocuteur introuvable.' using errcode = 'P0002';
     end if;
   end if;
@@ -1289,7 +1294,9 @@ begin
     'notice_given_at', c.notice_given_at,
     'option_exercised_at', c.option_exercised_at,
     'kit_demo_slugs', to_jsonb(cfg.kit_demo_slugs),
-    'note_max', cfg.retained_note_max_chars);
+    'note_max', cfg.retained_note_max_chars,
+    'declaration_cap', cfg.declaration_cap,
+    'cooldown_days', cfg.cooldown_days);
 end;
 $$;
 
@@ -1328,6 +1335,11 @@ begin
   end if;
   if d.status <> 'pending' or now() >= d.confirm_deadline then
     raise exception 'Cette déclaration n''est plus en attente : le délai de confirmation est échu ou elle est déjà tranchée.';
+  end if;
+  if p_decision = 'confirm' and exists (
+    select 1 from public.commerciaux c where c.id = d.commercial_id and public.commercial_contract_end(c) <= now()
+  ) then
+    raise exception 'Le contrat de ce commercial est terminé : sa déclaration ne se confirme plus.';
   end if;
   if p_decision = 'confirm' then
     update public.commercial_declarations

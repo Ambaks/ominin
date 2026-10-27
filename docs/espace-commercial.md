@@ -567,8 +567,8 @@ Worker propre à l'espace commercial (cache du deck et de la coque, push), disti
 ## 8. Notifications
 
 **E-mail obligatoire** (preuve contractuelle) : décision sur une déclaration, envoi des relevés.
-**Push** (lot 2, si accepté) : relance due, rendez-vous dans `APPOINTMENT_REMINDER_MINUTES`, démo
-prête, restaurant inscrit, réservation qui expire, relevé disponible.
+**Push** (lot 2, si accepté) : relance due (dont les relances J+1, J+7 et J+14 qui suivent un
+rendez-vous, 13.1), démo prête, restaurant inscrit, réservation qui expire, relevé disponible.
 
 ## 9. Données personnelles
 
@@ -663,7 +663,7 @@ calculées sur l'appareil, jamais montrées à l'admin (4.7).
 7. **Google Places** : quota par commercial et par jour, dans la limite gratuite.
 8. **Paramètres** — valeur et emplacement (config, `.env` ou constante ; ceux que la base applique
    — plafond, carence, `IN_TALKS_DAYS`, quotas — vont forcément dans `commercial_settings`) : `IN_TALKS_DAYS`,
-   `EXPIRY_WARNING_DAYS`, `SIGNUP_LINK_DAYS`, `APPOINTMENT_REMINDER_MINUTES`,
+   `EXPIRY_WARNING_DAYS`, `SIGNUP_LINK_DAYS`, jours des relances après un rendez-vous (13.1),
    `OPTION_REMINDER_DAYS`, `PLACES_DAILY_QUOTA`, `SEARCH_MAX_RESULTS`, `SEARCH_DAILY_QUOTA`
    (recherches par commercial et par jour, contre l'aspiration de la base), `RETAINED_NOTE_MAX_CHARS`,
    heure de la tâche, rayon de « Autour de moi », seuil de « nom proche » (alerte « déjà client ? »
@@ -684,6 +684,17 @@ calculées sur l'appareil, jamais montrées à l'admin (4.7).
   (lot 4), couche jeu (lot 5).
 - **Objectif** : une plateforme **simple d'utilisation** et vraiment utile. Chaque écran a une
   action principale évidente ; pas d'écran qui n'aide pas le commercial à vendre.
+- **Rendez-vous** (27 octobre) : pas de rappel push « dans N minutes ». Après chaque rendez-vous
+  tenu (ni annulé ni manqué), la tâche quotidienne crée une relance J+1, J+7 et J+14 dans
+  Aujourd'hui (le push du matin la compte), une seule fois chacune, rien si la déclaration n'est
+  plus active ou le contrat terminé. Les jours sont un réglage (`commercial_settings.followup_days`,
+  1, 7, 14 saisis par l'admin ; vide : pas de relance).
+- **Client parti puis revenu** (27 octobre) : `commercial_clients.ended_at` (contre 13.2 n° 6)
+  fige la fin d'un Client Apporté au départ posé par l'admin ; effacer le départ (client revenu)
+  ne rouvre pas la commission ; un départ posé par erreur s'annule par un geste admin dédié. Un
+  client parti, redéclaré puis inscrit, devient le Client Apporté du nouveau commercial : début à
+  la première acceptation des CGV postérieure à la nouvelle déclaration, ou, sans nouvelle
+  acceptation, à la date où l'admin marque la déclaration signée.
 
 ### 13.2 Corrections finales
 

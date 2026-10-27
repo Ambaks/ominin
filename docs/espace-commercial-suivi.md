@@ -13,10 +13,12 @@ du cahier, expliqué).
 - `SQL nn` : script `supabase/tests/commercial/nn_*.sql`, message d'assertion
   cité entre guillemets (chaque assertion échoue en `ÉCHEC : <message>`).
   Relance : `bash supabase/tests/commercial/run.sh` (README du dossier).
-  Résultat au 27/10, après le second passage de vérification : 143
-  migrations appliquées, 9 scripts et `concurrence.sh` (deux scénarios)
-  passent, 306 assertions. `08_defauts.sql` rejoue les défauts du premier
-  passage, `09_defauts2.sql` ceux du second (N1 à N10).
+  Résultat au 27/10, après le troisième passage de vérification et la
+  fusion de `main` : 145 migrations appliquées (celles de `main` comprises ;
+  les cinq de l'espace renumérotées `20261028000001` à `…05`), 10 scripts et
+  `concurrence.sh` (deux scénarios) passent, 333 assertions.
+  `08_defauts.sql`, `09_defauts2.sql` et `10_defauts3.sql` rejouent les
+  défauts des trois passages.
 - `ÉCRAN` : parcours Playwright + Chrome, 390×844, contre la base locale
   (PostgREST + faux service d'authentification, recette « Real-backend UI »
   de la mémoire du projet ; scripts dans le dossier de travail de la session,
@@ -37,7 +39,7 @@ du cahier, expliqué).
 | Tests SQL | `supabase/tests/stubs.sql`, `supabase/tests/commercial/*` |
 | Espace commercial | `frontend/app/commercial/espace/**`, `frontend/components/commercial/space/*`, `frontend/components/commercial/contract.tsx`, `frontend/lib/commercial/*` |
 | Admin | `frontend/app/admin/(shell)/commerciaux/page.tsx`, `frontend/components/admin/commerciaux/*`, `frontend/components/admin/lead/commercial-section.tsx`, `frontend/lib/admin/commerciaux.ts`, `lead-cache.ts`, `store.ts`, `projet.ts` |
-| Routes | `frontend/app/api/commercial/{envois,cron,places,push,rappels,rdv/[id],releves/[id]}`, `frontend/app/commercial/espace/kit/deck/route.ts`, `frontend/app/api/inscription/lien/route.ts`, `frontend/app/api/stripe/webhook/route.ts` |
+| Routes | `frontend/app/api/commercial/{envois,cron,places,push,rdv/[id],releves/[id]}`, `frontend/app/commercial/espace/kit/deck/route.ts`, `frontend/app/api/inscription/lien/route.ts`, `frontend/app/api/stripe/webhook/route.ts` |
 | Serveur de l'espace | `frontend/lib/commercial/session.ts` (compte lu une fois, écrans de travail fermés après la fin), `frontend/lib/admin/churn.ts` (règle du décrochage, partagée) |
 | Léa et backend | `backend/app/services/{outreach,emailing,inbox}.py` ; `backend/app/routers/places.py` (recherche Google de l'espace) et `backend/app/clients/places.py` (`address_component`, déplacé des deux `discovery.py` sans changement de comportement) |
 | Juridique | `frontend/lib/legal/constants.ts`, `frontend/lib/legal/documents/confidentialite.ts` (nouvelle version), `frontend/lib/legal/documents/commercial-v2.ts` (projet non publié) |
@@ -118,7 +120,7 @@ du cahier, expliqué).
 | 5.3 | Opposition (« ne veut plus être contacté ») : `outreach_opted_out_at`, `outreach_suppressions` pour chaque e-mail connu, abandon ; par le titulaire d'une déclaration active ou l'auteur d'un passage sur une fiche libre, jamais sur un client | fait (corrigé : n'importe quel commercial pouvait la poser, même sur un client) | `commercial_opt_out`, `OptOutSheet`, bouton montré aux seuls ayants droit (`restaurant.tsx`) | SQL 04 « bouton opposition… », « chaque e-mail connu… » ; SQL 08 « §3-6. sans déclaration ni passage : refusée », « sur un client : refusée », « sur le passage d'un autre : refusée », « auteur du passage et titulaire : opposition posée » |
 | 5.3 | Mention d'information en QR vers `/confidentialite` | fait | `PrivacyNotice` (sheets.tsx) | code (bouton visible ÉCRAN 06) |
 | 5.4 / 13.2 n° 4 | Kit : deck (PDF déposé par l'admin, hors ligne, du contrat signé à sa fin), démos avec partage WhatsApp/SMS, offres et prix des pages publiques, simulateur | fait / partiel (cache hors ligne non essayé ; simulateur = lien vers le devis public `/devis`) (corrigé : un invité non signé lisait le deck) | `kit/page.tsx`, `kit/deck/route.ts` (`signed` exigé), policy « kit read » (acceptation du contrat exigée), `public/commercial-sw.js`, démos réglées par l'admin (`kit_demo_slugs`) | ÉCRAN 07 ; SQL 09 « N5. invité non signé : pas de deck », « N5. contrat signé en cours : deck » |
-| 5.4 | Demander une démo à ses couleurs avec photos ; file admin ; livraison → lien et étape 2 | fait | `commercial_request_demo`, `admin_deliver_demo`, `DemoCard`, onglet « Démos à faire » | SQL 06 « étape 2 cochée à la livraison », « commercial prévenu » |
+| 5.4 | Demander une démo à ses couleurs avec photos ; file admin ; livraison → lien et étape 2 | fait (corrigé au troisième passage : depuis N9 la carte ne voyait plus la demande ni le lien livré) | `commercial_request_demo`, `commercial_demo_requests_of` (lecture par fonction), `admin_deliver_demo`, `DemoCard`, onglet « Démos à faire » | SQL 06 « étape 2 cochée à la livraison », « commercial prévenu » ; SQL 10 « B1 bis. … » ; ÉCRAN « démo : la demande envoyée s'affiche », « le lien livré s'affiche » |
 | 5.5 | Lien d'inscription : jeton aléatoire, empreinte seule, `SIGNUP_LINK_DAYS`, `?c=` sur les trois tunnels, nom et adresse pré-remplis ; un nouveau lien garde le compte du gérant déjà rattaché | fait / partiel (pré-remplissage codé dans les trois tunnels, parcouru au navigateur seulement pour le refus) (corrigé : régénérer le lien effaçait le rattachement en silence) | `commercial_signup_link`, `signup_link_info`, `signup_link_claim`, `lib/commercial/signup-link.tsx`, `/api/inscription/lien`, formulaires des trois tunnels | SQL 06 ; ÉCRAN « lien d'inscription créé » ; SQL 09 « N4. le rattachement survit au nouveau lien », « … et l'inscription est attribuée » |
 | 5.5 n° 1 | Rattachement du lien au compte (création ou ouverture connecté) ; jamais à un compte commercial ou admin ; refus affiché ; jeton porté par les métadonnées du compte créé par e-mail (confirmation ouverte dans un autre navigateur) | fait / partiel (confirmation dans un autre navigateur non essayée : pas de service d'e-mail en local) (corrigé : un commercial ou un admin connecté capturait le lien, le gérant recevait un 409 muet, le jeton ne vivait que dans le `localStorage`) | `signup_link_claim`, `auth-form.tsx` (`signup_link` dans les métadonnées), `useSignupLink` (jeton de l'appareil ou du compte), `SignupLinkError` | SQL 06 « lien rattaché au compte », « un lien sert un seul compte » ; SQL 08 « §3-7. le commercial ne capture pas son lien », « l'admin non plus », « lien toujours libre » ; ÉCRAN « lien ouvert par le commercial connecté : refus affiché dans le tunnel » |
 | 5.5 n° 2 | À l'acceptation des CGV (accept ou paiement) : signée, Client Apporté, fiche reliée, client Projet (étapes 1–6), e-mail, push au commercial et aux admins | fait / partiel (pushs non essayés ; **le push aux admins manquait**, il est ajouté à l'envoi de l'e-mail « signé », `outbox.ts`) | trigger `commercial_on_client_acceptance` (sur `legal_acceptances` : couvre les deux chemins), `acceptContract` envoie la file | SQL 06 « déclaration signée… », « client Projet créé… », « reflet signed sous drapeau » |
@@ -163,14 +165,14 @@ du cahier, expliqué).
 | 8 | E-mail obligatoire : décisions, relevés | fait (file) / partiel (Gmail non essayé) | SQL 02, 07 |
 | 8 | Push au commercial : relance due, réservation qui expire (matin), démo prête, inscrit, relevé (avec l'e-mail), opposition ; préférences | code écrit / **non essayé** (pas de clés VAPID en local ; le suivi précédent disait « fait (code) ») | `daily.ts`, `outbox.ts`, `push.ts`, SQL 06 préférences, SQL 08 relances du matin |
 | 8 | Push aux admins : déclaration à trancher, inscription par lien, rappel d'option, relevé final à envoyer | code écrit / **non essayé** (même raison) ; l'inscription et le relevé final **manquaient** au premier rendu | `outbox.ts` (`notifyNewDeclarations`, e-mail « signé »), `daily.ts` |
-| 8 | Push rendez-vous dans `APPOINTMENT_REMINDER_MINUTES` | **non fait** (déclencheur, décision de Marwan attendue) | route `/api/commercial/rappels` prête : `commercial_appointment_reminders` choisit et marque, une fois, les rendez-vous d'une déclaration active d'un contrat en cours (corrigé : déclarations closes et contrats terminés étaient pris) ; **rien ne l'appelle** | SQL 09 « N10. rappel : rendez-vous proche d'une déclaration active seulement », « … une fois » |
+| 8 / 13.1 | Rendez-vous (décision de Marwan du 27/10) : relances J+1, J+7, J+14 après chaque rendez-vous tenu, dans Aujourd'hui, comptées par le push du matin ; une fois chacune ; rien si la déclaration est close ou le contrat terminé. Le rappel « dans N minutes », sa route et `APPOINTMENT_REMINDER_MINUTES` sont retirés | fait (push non essayé) | `commercial_appointment_followups` (tâche quotidienne, avant le push du matin), réglage `followup_days` (Réglages : 1, 7, 14 saisis par l'admin), `crm_appointments.followups_done` | SQL 10 « J+n. … » (5 assertions) ; ÉCRAN « admin Réglages : relances après un rendez-vous » |
 | 8 | Contrat terminé : plus de push sur ses appareils | fait (corrigé) | `commercial_release_ended` retire ses abonnements | SQL 09 « N10. abonnements push d'un contrat terminé retirés… » |
 
 ## Section 9 — Données personnelles
 
 | Réf | Exigence | État | Preuve |
 |---|---|---|---|
-| 9 / 13.2 n° 14 | `/confidentialite` complétée (prospection par des commerciaux, sources, destinataires, opposition de vive voix), nouvelle version du document versionné | fait (texte, version `2026-10-26`, `reacceptance: false`) / **aux fondateurs** : relecture et `npm run legal:publish` | `confidentialite.ts` ; la page sert la nouvelle version dès le déploiement |
+| 9 / 13.2 n° 14 | `/confidentialite` complétée (prospection par des commerciaux, sources, destinataires, opposition de vive voix), nouvelle version du document versionné | fait (texte, version `2026-10-26`, `reacceptance: false`) / **aux fondateurs** : relecture, inscription dans `documents/index.ts`, puis `npm run legal:publish` | `confidentialite.ts` ; **retirée de l'index** (troisième passage) : elle n'est pas servie au déploiement tant qu'elle n'est pas relue |
 | 9 | Opposition en un clic ou de vive voix | fait | SQL 04 |
 | 9 / 13.2 n° 9 | Purge à 3 ans | non fait (reportée par 13.2 n° 9) | — |
 | 9 | Note vocale | hors périmètre (lot 4) | — |
@@ -264,13 +266,34 @@ Rapport du second passage, §4 (N1 à N10), point par point :
 | 7 | Seconde demande de détail impossible à marquer | `detail_sent_at` remis à vide | SQL 09 « N7. … » |
 | 8 | E-mail et réattribution vers un contrat terminé | refusés | SQL 09 « N8. … » |
 | 9 | `client_alert` lisible par le commercial | plus de lecture directe des déclarations ni des Clients Apportés | SQL 06, SQL 09 « N9. … » |
-| 10 | Rappels sur déclarations closes, message Postgres brut, abonnements d'un contrat terminé | `commercial_appointment_reminders`, message lisible sur `/api/commercial/rdv`, abonnements retirés par `commercial_release_ended` ; `--max-time 60` dans `commercial-daily.yml` | SQL 09 « N10. … » |
+| 10 | Rappels sur déclarations closes, message Postgres brut, abonnements d'un contrat terminé | `commercial_appointment_reminders` (remplacé au troisième passage par les relances J+n), message lisible sur `/api/commercial/rdv`, abonnements retirés par `commercial_release_ended` ; `--max-time 60` dans `commercial-daily.yml` | SQL 09 « N10. … » |
 
 Essais du vérificateur rejoués sur la base corrigée (`nouveaux.sql`) : 34 conformes sur 39. Les 5 écarts restants ne sont pas des défauts :
 - C2 et C3 lisaient l'état des déclarations directement en tant que commercial, ce qui est désormais impossible (N9) ; `09_defauts2.sql` prouve la redéclaration par `commercial_restaurant` ;
 - « Clients Apportés de etab3 : a » obtient « b,a » : la ligne de B reste, close à son départ (historique voulu, N2) ;
 - C4 marque signé un client sur une seconde fiche alors qu'il est relié à la première : refusé par la règle « un client, une fiche » (la bonne voie est la fusion) ;
 - K2 compte une mise à jour sans erreur comme « passe » ; elle ne modifie aucune ligne (`09_defauts2.sql` « N6 »).
+
+## Troisième passage de vérification
+
+| Réf | Défaut | Correction | Preuve |
+|---|---|---|---|
+| B1 | Même numéro de migration que `main` (`20261026000001`) ; conflit avec #479 (Léa sur Overture) | migrations renumérotées `20261028000001` à `…05` ; `main` fusionnée (`git merge`, pas de rebase) ; `discovery.py` pris de `main`, la garde des restaurants réservés (outreach, emailing, inbox) intacte ; types régénérés | `run.sh` : 145 migrations ; tsc, lint, build |
+| B1 bis | La carte « Démo à ses couleurs » ne voyait plus la demande ni le lien (régression de N9) | `commercial_demo_requests_of`, fonction de lecture (non `stable` : elle verrouille la déclaration, PostgREST l'aurait lancée en lecture seule — trouvé au navigateur) | SQL 10 « B1 bis » ; ÉCRAN |
+| B2 | Fiche réservée fusionnée dans une fiche en opposition : réservation gardée | `commercial_close_for_opposition`, commune au trigger et à la fusion (reflet, e-mail, push) | SQL 10 « B2 » |
+| B3 | Inscription attribuée à un contrat terminé avant la tâche quotidienne | lien invalide dès la fin (`commercial_by_token`), trigger de signature sans effet pour un contrat terminé | SQL 10 « B3 » |
+| B4 | Mois jamais relevés perdus | la tâche brouillonne tout mois non relevé porteur de commission depuis la première ; l'onglet Relevés choisit le mois à calculer | SQL 10 « B4 » ; ÉCRAN |
+| B5 | Départ posé par erreur sans recours | correction de date suivie ; `admin_cancel_client_departure` rouvre le Client Apporté (bouton « Départ posé par erreur ») | SQL 10 « B5 » |
+| B6 | Retour d'un client selon l'ordre des gestes de l'admin | effacer le départ d'un client redéclaré refusé (message) ; fin figée comptée comme départ ; sans nouvelles CGV, commission depuis le marquage | SQL 10 « B6 » |
+| C2 | Seuil de nom vide : garde-fou désactivé | réglage requis ; sans lui, pas de lien d'inscription | SQL 10 « C2 » |
+| C3 | Confirmation d'une déclaration d'un contrat terminé | refusée | SQL 10 « C3 » |
+| C4 | Réservation fusionnée dans une fiche cliente | close (motif « client », sans toucher au reflet du client), titulaire prévenu, plus d'accès | SQL 10 « C4 » |
+| C5 | Plafond et carence non affichés (v2, art. 4.3 bis) | affichés dans Compte | SQL 10 « C5 » ; ÉCRAN |
+| C6 | Interlocuteurs d'Ominin réécrits par le commercial | `crm_contacts.created_by` ; seuls les siens, saisis pendant sa déclaration, se modifient | SQL 10 « C6 » ; `nouveaux3.sql` S9 conforme |
+| Mineurs | `/confidentialite` servie avant relecture ; jeton gardé dans les métadonnées ; « Inscrit · » à la date de déclaration | retirée de l'index ; jeton effacé après rattachement ; historique « déclaré le … · inscrit le … » | code |
+| Décision | Rendez-vous : J+1, J+7, J+14 | voir section 8 | SQL 10 « J+n » |
+
+Essais du vérificateur rejoués (`nouveaux3.sql`) : 24 conformes sur 31 ; les 7 autres sont attendus : S1 lit la table en direct (lecture par fonction désormais), S3, S4 (×2) et S8 notent un état descriptif (« close ou signalée », « confirmed (puis libérée) », lien nul, aucun Client Apporté sans lien), S5 annule par `admin_set_client_ended(null)` alors que l'annulation est un geste dédié, S9 note « passe » pour l'appel refusé (l'interlocuteur reste intact, S9 suivant conforme).
 
 ## Écarts au cahier
 
@@ -282,7 +305,7 @@ Essais du vérificateur rejoués sur la base corrigée (`nouveaux.sql`) : 34 con
 6. **Démos du Kit** : en plus de la démo Ominin, les démos proposées sont choisies par l'admin dans les Réglages (`kit_demo_slugs`) plutôt qu'une liste écrite dans le code.
 7. **Google Places** : la recherche de l'espace passe par le backend (`POST /places/search`), seul à tenir la clé, l'URL et le masque de champs (ceux de Léa). Conséquence : sur l'offre gratuite de Render, un backend endormi rend la première recherche lente (jusqu'à une minute, comme les jobs lancés depuis l'admin).
 8. **Types** : `database.types.ts` régénéré depuis la base locale de test ; l'ordre des tables change (le fichier précédent n'était pas trié) ; les signatures des fonctions existantes et l'en-tête `graphql_public` de la version de production sont gardés.
-9. **`commercial_clients.ended_at`** (contre 13.2 n° 6, décision de Marwan) : la fin d'un Client Apporté est figée au départ du client et ne se rouvre pas ; un client revenu n'est plus apporté, sauf nouvelle déclaration (4.4). Début de la commission d'un client parti puis redéclaré : la première acceptation des CGV postérieure à la nouvelle déclaration, comme pour tout client. C'est la seule preuve, compatible avec la règle « un client existant n'est pas attribué », qu'il revient par le commercial ; l'ouverture du lien seule ne suffit pas (on ne distingue pas un gérant qui revient d'un gérant qui consulte). Si le client revient sans accepter de nouvelles conditions, l'inscription n'est pas attribuée par le lien : l'admin peut la marquer signée, et la commission démarre à la prochaine acceptation. **À confirmer par Marwan** si ce cas doit plutôt démarrer à la date du marquage.
+9. **`commercial_clients.ended_at`** (contre 13.2 n° 6, décision de Marwan) : la fin d'un Client Apporté est figée au départ du client et ne se rouvre pas ; un client revenu n'est plus apporté, sauf nouvelle déclaration (4.4). Début de la commission d'un client parti puis redéclaré : la première acceptation des CGV postérieure à la nouvelle déclaration, comme pour tout client. C'est la seule preuve, compatible avec la règle « un client existant n'est pas attribué », qu'il revient par le commercial ; l'ouverture du lien seule ne suffit pas (on ne distingue pas un gérant qui revient d'un gérant qui consulte). Si le client revient sans accepter de nouvelles conditions, l'inscription n'est pas attribuée par le lien : l'admin la marque signée, et la commission démarre **à la date de ce marquage** (décision de Marwan, troisième passage). Effacer le départ d'un client redéclaré est refusé (son retour se constate par l'inscription) ; la fin figée d'un Client Apporté précédent compte aussi comme départ. Un départ posé par erreur s'annule (« Départ posé par erreur », `admin_cancel_client_departure`) ; corriger sa date déplace la fin du Client Apporté qu'il avait close.
 
 ## Ce qui reste aux fondateurs
 
@@ -290,12 +313,12 @@ Essais du vérificateur rejoués sur la base corrigée (`nouveaux.sql`) : 34 con
 - **Deck** à déposer (onglet Réglages → Deck du Kit).
 - **Rattachement** des clients en service et des clients du Projet (onglet Réglages → Rattachement) avant la première invitation.
 - **Version 2 du contrat** : relecture par l'avocat de `commercial-v2.ts`, puis inscription dans `documents/index.ts` avec sa date et `npm run legal:publish`.
-- **`/confidentialite`** : relecture, puis `npm run legal:publish` (la version `2026-10-26` est servie dès le déploiement).
+- **`/confidentialite`** : relecture, inscription de `confidentialite20261026` dans `documents/index.ts`, puis `npm run legal:publish` (non servie avant). Le QR de la fiche mène à la version en vigueur, qui ne parle pas encore de prospection.
 - **Migrations** `20261028000001` à `20261028000005` à appliquer (`npm run db:push`).
 - **Variables d'environnement** : aucune nouvelle. La recherche Google utilise `GOOGLE_PLACES_API_KEY` du backend (déjà là pour Léa) et, côté Vercel, `BACKEND_URL` et `AGENT_TRIGGER_SECRET` (déjà là pour l'agent social) ; déjà existantes et utilisées : `CRON_SECRET`, Gmail, VAPID, Stripe.
 - **Backend** : déployer le nouveau routeur `/places` (Render) avec le front.
 - **Stripe** : ajouter `invoice.paid`, `credit_note.created`, `credit_note.updated`, `credit_note.voided` aux événements du webhook ; vérifier sur une facture de test avec coupon et avoir que `ominin_invoice_payments` tombe juste (non essayé ici).
-- **Tâches** : secret `CRON_SECRET` et `MENU_URL` déjà utilisés par `commercial-daily.yml` ; heure 06:30 UTC, celle du point du matin, gardée ; `--max-time 60` comme le workflow copié (`admin-digest.yml`) ; **déclencheur fréquent de `/api/commercial/rappels` à décider** (sans lui, pas de push avant un rendez-vous).
+- **Tâches** : secret `CRON_SECRET` et `MENU_URL` déjà utilisés par `commercial-daily.yml` ; heure 06:30 UTC, celle du point du matin, gardée ; `--max-time 60` comme le workflow copié (`admin-digest.yml`) ; les relances après un rendez-vous passent par cette tâche (réglage `followup_days` à remplir : 1, 7, 14).
 - **Non corrigé** : `admin_signup_matches` et la file d'e-mails ne sont pas paginées (volumes attendus faibles, à reprendre si la file grossit).
 - **Essais manuels** : critères 11 (iPhone), 12 (chronomètre), 13 (e-mails réels), 14 (publication).
 

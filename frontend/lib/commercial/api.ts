@@ -34,6 +34,8 @@ export interface CommercialAccount {
   notice_given_at: string | null;
   option_exercised_at: string | null;
   kit_demo_slugs: string[];
+  declaration_cap: number | null;
+  cooldown_days: number | null;
   note_max: number | null;
 }
 
@@ -358,13 +360,7 @@ export interface DemoRequest {
 }
 
 export const demoRequests = (declarationId: string) =>
-  call<DemoRequest[]>(
-    db()
-      .from("commercial_demo_requests")
-      .select("id, status, demo_url, created_at")
-      .eq("declaration_id", declarationId)
-      .order("created_at", { ascending: false })
-  );
+  call<DemoRequest[]>(db().rpc("commercial_demo_requests_of", { p_declaration: declarationId }));
 
 export interface NearbyRestaurant {
   id: string;
@@ -379,7 +375,7 @@ export interface NearbyRestaurant {
 export const nearby = (lat: number, lng: number) =>
   call<NearbyRestaurant[]>(db().rpc("commercial_nearby", { p_lat: lat, p_lng: lng }));
 
-export type PushEventKey = "relance" | "rdv" | "demo" | "inscription" | "expiration" | "releve" | "opposition";
+export type PushEventKey = "relance" | "demo" | "inscription" | "expiration" | "releve" | "opposition";
 
 export const setPushPrefs = (prefs: Partial<Record<PushEventKey, boolean>>) =>
   call<null>(db().rpc("commercial_set_push_prefs", { p_prefs: prefs as Json }));
