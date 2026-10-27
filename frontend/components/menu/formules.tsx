@@ -704,6 +704,58 @@ export function FormulesSection({
 }
 
 /**
+ * Des formules en lignes, dans la feuille d'une pastille d'offres
+ * (components/menu/offer-pill.tsx). `wasPrice` : le prix à la carte, barré
+ * à côté du sien (la happy hour).
+ */
+export function FormuleOffers({
+  formules,
+}: {
+  formules: { formule: Formule; wasPrice?: number }[];
+}) {
+  const { closed } = useCart();
+  const [composing, setComposing] = useState<Formule | null>(null);
+
+  return (
+    <>
+      <ul>
+        {formules.map(({ formule, wasPrice }) => {
+          const served = openFormule(formule, closed);
+          return (
+            <li key={formule.id}>
+              <span className="offer-thumb" aria-hidden>
+                {[...shortName(formule.name)][0]}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="font-display leading-tight">{formule.name}</span>
+                <small>
+                  {formule.description || formule.etapes.map((etape) => etape.name).join(" · ")}
+                </small>
+              </span>
+              <span className="offer-price">
+                {wasPrice !== undefined && <s>{formatPrice(wasPrice)}</s>}
+                <b className="font-display">{formatPrice(formule.price)}</b>
+              </span>
+              <div className="dish-action">
+                <button
+                  type="button"
+                  disabled={!served}
+                  aria-haspopup="dialog"
+                  aria-label={`Composer : ${formule.name}`}
+                  onClick={() => setComposing(served)}
+                  className="ember-gradient rounded-full text-background disabled:opacity-60"
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {composing && <FormuleModal formule={composing} onClose={() => setComposing(null)} />}
+    </>
+  );
+}
+
+/**
  * Des formules en tuiles, que l'on compose d'un toucher. `wasPrices` : par
  * formule, le prix à la carte barré à côté du sien (la happy hour).
  */

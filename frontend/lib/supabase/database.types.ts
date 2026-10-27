@@ -2085,6 +2085,8 @@ export type Database = {
           features: Json
           order_number_reset_hour: number
           order_tabs: Database["public"]["Enums"]["order_tab"][]
+          saison: Database["public"]["Enums"]["saison"] | null
+          saison_fin: string | null
           updated_at: string
         }
         Insert: {
@@ -2093,6 +2095,8 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          saison?: Database["public"]["Enums"]["saison"] | null
+          saison_fin?: string | null
           updated_at?: string
         }
         Update: {
@@ -2101,6 +2105,8 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          saison?: Database["public"]["Enums"]["saison"] | null
+          saison_fin?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -7048,6 +7054,7 @@ export type Database = {
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
       projet_step_status: "todo" | "doing" | "done" | "blocked"
+      saison: "automne" | "halloween"
       service_mode: "restaurant" | "fast_food"
       shop_discount_type: "percent" | "fixed"
       shop_member_role: "proprietaire" | "equipe"
@@ -7342,6 +7349,7 @@ export const Constants = {
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
       projet_step_status: ["todo", "doing", "done", "blocked"],
+      saison: ["automne", "halloween"],
       service_mode: ["restaurant", "fast_food"],
       shop_discount_type: ["percent", "fixed"],
       shop_member_role: ["proprietaire", "equipe"],

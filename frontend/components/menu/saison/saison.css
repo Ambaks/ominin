@@ -1,0 +1,909 @@
+/*
+  Habillage de saison (saison.tsx). Tout bouge en transform et en opacity ;
+  rien ne reçoit le doigt. Les calques de l'affiche se placent en % de
+  l'image. Ni .saison-sky ni .saison-poster ne forment de contexte
+  d'empilement (pas d'opacity animée, pas de containment) : leurs fondus
+  (multiply, screen) portent sur l'affiche. Le vol des chauves-souris, en
+  cqw/cqh, a son propre conteneur (.saison-flight).
+*/
+
+/* La palette suit la saison : lanternes citrouille à Halloween, ocre à
+   l'automne. Deux attributs : l'emporte sur la classe du thème. Halloween
+   est une nuit sur tous les thèmes, clairs compris : texte et filets
+   suivent le fond, sans quoi une carte crème deviendrait illisible. La
+   teinte des lueurs (--saison-glow) vaut pour tout le menu, hero compris. */
+[data-menu-root][data-saison="halloween"] {
+  --background: #1c1418;
+  --foreground: #f6e9e6;
+  --surface: #271c21;
+  --surface-raised: #31242a;
+  --hairline: rgba(246, 233, 230, 0.11);
+  --muted: #c5a8a4;
+  --faint: #8d7173;
+  --ember-1: #f5a83f;
+  --ember-2: #e8742c;
+  --ember-3: #b5443a;
+  --shimmer-highlight: rgba(245, 168, 63, 0.16);
+  --glow-inner: rgba(245, 168, 63, 0.1);
+  --glow-outer: rgba(232, 116, 44, 0.06);
+  --saison-glow: 255, 140, 40;
+  color-scheme: dark;
+}
+
+[data-menu-root][data-saison="automne"] {
+  --ember-1: #ebb560;
+  --ember-2: #d97d34;
+  --ember-3: #a9472c;
+  --saison-glow: 255, 178, 84;
+}
+
+.saison-sky,
+.saison-poster,
+.saison-frame,
+.saison-ambient {
+  pointer-events: none;
+}
+
+.saison-sky,
+.saison-poster,
+.saison-flight {
+  position: absolute;
+  inset: 0;
+}
+
+/* Halloween : la nuit tombe sur la pergola ; elle s'arrête avant le logo,
+   qui garde sa crème. L'automne : un couchant plus doré. */
+.saison-sky[data-saison="halloween"] {
+  background: linear-gradient(180deg, #2a2360 0%, #463b82 13%, #b4aad8 26%, #fff 34%);
+  mix-blend-mode: multiply;
+}
+
+.saison-sky[data-saison="automne"] {
+  background: radial-gradient(ellipse 90% 55% at 50% 30%, rgba(255, 160, 60, 0.26), transparent 70%);
+  mix-blend-mode: screen;
+}
+
+.saison-flight {
+  container-type: size;
+}
+
+/* Avant le fondu bas du hero, qui reste le dernier calque du cadre (le
+   velours le masque ainsi, panis-backdrop.css), et pourtant devant lui. */
+.saison-frame {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ——— Lumières de l'affiche ——— */
+
+.saison-lamp,
+.saison-bulb,
+.saison-candle,
+.saison-lantern-face {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+}
+
+/* Les grandes lueurs éclairent le rotin (screen) ; ampoules et bougies, trop
+   petites pour que ça se voie, restent en simple transparence : un calque
+   de fondu de moins chacune. */
+.saison-lamp,
+.saison-lantern-face {
+  mix-blend-mode: screen;
+}
+
+.saison-lamp {
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(var(--saison-glow), 0.62),
+    rgba(var(--saison-glow), 0.26) 36%,
+    transparent 68%
+  );
+  animation: saison-flicker 3.4s infinite;
+}
+
+.saison-bulb {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 214, 140, 0.95), rgba(var(--saison-glow), 0.4) 30%, transparent 70%);
+  animation: saison-twinkle 2.6s ease-in-out infinite alternate;
+}
+
+.saison-candle {
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 200, 110, 0.7), rgba(var(--saison-glow), 0.2) 40%, transparent 70%);
+  animation: saison-flicker 1.5s infinite;
+}
+
+.saison-lantern-face {
+  aspect-ratio: 60 / 44;
+  color: #ffc35c;
+  filter: drop-shadow(0 0 3px rgba(255, 150, 40, 0.95));
+  animation: saison-flicker 2.3s infinite;
+}
+
+.saison-eyes {
+  position: absolute;
+  aspect-ratio: 2.4;
+  translate: -50% -50%;
+  background:
+    radial-gradient(ellipse 22% 46% at 22% 50%, #ffd45a 40%, transparent 72%),
+    radial-gradient(ellipse 22% 46% at 78% 50%, #ffd45a 40%, transparent 72%);
+  filter: drop-shadow(0 0 2px rgba(255, 190, 60, 0.9));
+  animation: saison-watch 9s infinite;
+}
+
+.saison-lantern-face svg {
+  display: block;
+  width: 100%;
+  fill: currentColor;
+}
+
+/* ——— La lune et ses nuages ——— */
+
+.saison-moon {
+  position: absolute;
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  animation: saison-moonrise 3s 0.6s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.saison-moon::before {
+  content: "";
+  position: absolute;
+  inset: -110%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 236, 196, 0.42), rgba(196, 180, 255, 0.12) 38%, transparent 62%);
+  animation: saison-breathe 6s ease-in-out infinite alternate;
+}
+
+.saison-moon svg {
+  position: relative;
+  display: block;
+  width: 100%;
+  filter: drop-shadow(0 0 6px rgba(255, 240, 210, 0.7));
+}
+
+.saison-moon-cloud {
+  position: absolute;
+  top: 52%;
+  left: -40%;
+  width: 150%;
+  height: 20%;
+  border-radius: 50%;
+  background: rgba(38, 30, 72, 0.6);
+  filter: blur(3px);
+  animation: saison-cloud 24s linear infinite;
+}
+
+.saison-moon-cloud--late {
+  top: 22%;
+  height: 14%;
+  animation-duration: 31s;
+  animation-delay: -14s;
+}
+
+/* ——— Les chauves-souris ——— */
+
+.saison-bat {
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: #130c13;
+  translate: -50% -50%;
+  animation: saison-fly 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite both;
+}
+
+.saison-bat svg,
+.saison-witch svg {
+  display: block;
+  width: 100%;
+  fill: currentColor;
+  overflow: visible;
+  filter: drop-shadow(0 0 1.5px rgba(214, 198, 255, 0.75));
+  animation: saison-bob 0.9s ease-in-out infinite alternate;
+}
+
+.saison-witch {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 17%;
+  color: #120b14;
+  translate: -50% -50%;
+  animation: saison-broom 22s 3s linear infinite both;
+}
+
+.saison-witch svg {
+  animation: saison-bob 1.6s ease-in-out infinite alternate;
+}
+
+.saison-wing {
+  transform-box: view-box;
+  transform-origin: 0 14px;
+  animation: saison-flap 0.26s ease-in-out infinite alternate;
+}
+
+.saison-bat-eye {
+  fill: #ffb03a;
+}
+
+/* ——— Le cadre : nuit, toiles, brume, citrouilles ——— */
+
+.saison-web {
+  position: absolute;
+  top: 0;
+  color: rgba(238, 228, 236, 0.6);
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
+  transform-origin: 0 0;
+  animation: saison-sway 7s ease-in-out infinite alternate;
+}
+
+.saison-web--left {
+  left: 0;
+}
+
+.saison-web--right {
+  right: 0;
+  transform-origin: 100% 0;
+  animation-delay: -3s;
+}
+
+.saison-dew {
+  fill: #fff;
+  animation: saison-glint 3.6s ease-in-out infinite;
+}
+
+.saison-spider {
+  position: absolute;
+  top: 0;
+  color: #120b10;
+}
+
+.saison-spider-body {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 1.5px rgba(255, 214, 176, 0.7));
+}
+
+.saison-thread {
+  position: absolute;
+  bottom: 62%;
+  left: calc(50% - 0.5px);
+  width: 1px;
+  height: 100vh;
+  background: linear-gradient(to top, rgba(238, 228, 236, 0.75), rgba(238, 228, 236, 0.2));
+}
+
+.saison-spider-legs {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: saison-legs 0.45s ease-in-out infinite alternate;
+}
+
+.saison-spider-eye {
+  fill: #ff6a3d;
+}
+
+.saison-spider--web {
+  left: 104px;
+  width: 30px;
+  animation: saison-dangle 5.5s ease-in-out infinite alternate;
+}
+
+.saison-fog {
+  position: absolute;
+  inset: auto 0 0;
+  height: 30%;
+  -webkit-mask-image: linear-gradient(to top, #000 45%, transparent);
+  mask-image: linear-gradient(to top, #000 45%, transparent);
+}
+
+.saison-fog span {
+  position: absolute;
+  bottom: -30%;
+  left: -30%;
+  width: 120%;
+  height: 90%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(222, 212, 240, 0.42), transparent 66%);
+  animation: saison-drift 19s ease-in-out infinite alternate;
+}
+
+.saison-fog span:nth-child(2) {
+  left: 20%;
+  bottom: -40%;
+  animation-duration: 25s;
+  animation-delay: -9s;
+}
+
+.saison-fog span:nth-child(3) {
+  left: -10%;
+  bottom: -55%;
+  width: 140%;
+  opacity: 0.7;
+  animation-duration: 31s;
+  animation-delay: -17s;
+}
+
+.saison-pumpkin {
+  position: absolute;
+  bottom: 6px;
+}
+
+.saison-pumpkin--left {
+  left: 10px;
+  width: 64px;
+}
+
+.saison-pumpkin--right {
+  right: 14px;
+  width: 48px;
+}
+
+.saison-pumpkin svg {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+
+.saison-pumpkin-glow {
+  position: absolute;
+  inset: -70% -60% -20%;
+  background: radial-gradient(ellipse at 50% 65%, rgba(var(--saison-glow), 0.42), transparent 62%);
+  animation: saison-flicker 2.2s infinite;
+}
+
+.saison-pumpkin-face {
+  fill: #ffd27a;
+  filter: drop-shadow(0 0 2px #ffae3c);
+  animation: saison-flicker 1.8s infinite;
+}
+
+/* ——— Fixé à l'écran : feuilles, araignée, fantômes, chat ———
+   Sous la barre du panier (z-40) et les feuilles modales. */
+
+.saison-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  overflow: hidden;
+}
+
+.saison-leaf {
+  position: absolute;
+  top: 0;
+  opacity: 0.9;
+  animation: saison-fall linear infinite;
+}
+
+.saison-leaf-sway {
+  perspective: 240px;
+  animation: saison-sway-x 3.8s ease-in-out infinite alternate;
+}
+
+.saison-leaf-spin {
+  animation: saison-tumble linear infinite;
+}
+
+.saison-leaf svg {
+  display: block;
+  width: 100%;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* Le long du bord droit des fiches : son fil ne barre ni prix ni bouton. */
+.saison-spider--drop {
+  right: 4%;
+  width: 26px;
+  animation: saison-drop 16s cubic-bezier(0.3, 0.7, 0.4, 1) infinite;
+}
+
+.saison-ghost {
+  position: absolute;
+  width: 72px;
+}
+
+.saison-ghost svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  opacity: 0.94;
+  filter: drop-shadow(0 0 8px rgba(236, 222, 255, 0.45));
+}
+
+.saison-ghost--left {
+  left: 0;
+  top: 56vh;
+  transform-origin: 0 100%;
+  animation: saison-peek-left 18s ease-in-out infinite;
+}
+
+.saison-ghost--right {
+  right: 0;
+  top: 26vh;
+  transform-origin: 100% 100%;
+  animation: saison-peek-right 18s 9s ease-in-out infinite both;
+}
+
+.saison-ghost--right svg {
+  scale: -1 1;
+}
+
+/* L'ourlet ondule : un balancement du bas du drap, pas un tracé redessiné. */
+.saison-ghost-hem {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: saison-hem 1.6s ease-in-out infinite alternate;
+}
+
+.saison-ghost-bob {
+  animation: saison-bob 2.4s ease-in-out infinite alternate;
+}
+
+.saison-ghost-eyes,
+.saison-cat-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: saison-blink 5s infinite;
+}
+
+/* Le chat guette au bas de l'écran ; un panier ouvert, il saute s'asseoir
+   sur la barre. */
+.saison-cat {
+  position: absolute;
+  left: 18px;
+  bottom: 0;
+  width: 62px;
+  color: #120b10;
+  translate: 0 52%;
+  transition: translate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+[data-menu-root]:has(.cart-bar) .saison-cat {
+  translate: 0 -67px;
+}
+
+/* Une pastille d'offre (formules, happy hour) tient le même coin : le chat
+   s'assied dessus, au-dessus de la barre s'il y en a une. Sa hauteur : la
+   pièce (2rem), son retrait (2 × 0,25rem), son filet (2 px) — globals.css,
+   .offer-pill. */
+[data-menu-root]:has(.offer-pill) .saison-cat {
+  translate: 0 calc(-3.5rem - 2px);
+}
+
+[data-menu-root]:has(.offer-pill):has(.cart-bar) .saison-cat {
+  translate: 0 calc(-8.5rem - 2px);
+}
+
+.saison-cat svg {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 0 1.5px rgba(229, 176, 114, 0.65));
+}
+
+[data-menu-root]:has(.cart-bump-a) .saison-cat svg {
+  animation: saison-hop-a 0.55s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+[data-menu-root]:has(.cart-bump-b) .saison-cat svg {
+  animation: saison-hop-b 0.55s cubic-bezier(0.3, 0.7, 0.4, 1);
+}
+
+.saison-cat-silhouette {
+  fill: currentColor;
+}
+
+.saison-cat-tail {
+  color: #120b10;
+  transform-box: view-box;
+  transform-origin: 62px 104px;
+  animation: saison-tail 2.8s ease-in-out infinite alternate;
+}
+
+.saison-cat-eyes {
+  animation-duration: 4.2s;
+}
+
+.saison-cat-eyes path {
+  filter: drop-shadow(0 0 2px rgba(255, 180, 60, 0.9));
+}
+
+.saison-cat-ear {
+  transform-box: view-box;
+  transform-origin: 34px 30px;
+  animation: saison-ear 6s infinite;
+}
+
+/* ——— Sur la carte : toiles d'angle, araignée au bout du filet ——— */
+
+[data-saison="halloween"] .dish-grid > article:nth-child(3n + 2)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 92px;
+  aspect-ratio: 1;
+  background: url("/saison/toile.svg") no-repeat 0 0 / 100%;
+  scale: -1 1;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+[data-saison="halloween"] section:nth-of-type(odd) .category-head {
+  position: relative;
+}
+
+[data-saison="halloween"] section:nth-of-type(odd) .category-head::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  right: 14%;
+  top: 60%;
+  width: 24px;
+  height: 64px;
+  background: url("/saison/araignee.svg") no-repeat 50% 0 / 100% auto;
+  transform-origin: 50% 0;
+  animation: saison-pendulum 3.2s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+/* Une feuille ouverte, une commande suivie au dock : le décor s'arrête,
+   comme le hero (globals.css). */
+[data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) :is(.saison-ambient, .saison-ambient *) {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.saison-poster, .saison-frame, .saison-ambient) *,
+  [data-saison] .category-head::after {
+    animation: none !important;
+    transition: none !important;
+  }
+
+  .saison-bat,
+  .saison-witch,
+  .saison-moon-cloud,
+  .saison-ghost,
+  .saison-spider--drop,
+  .saison-leaf {
+    display: none;
+  }
+}
+
+/* ——— Mouvements ——— */
+
+@keyframes saison-flicker {
+  0%,
+  100% {
+    opacity: 0.86;
+  }
+  7% {
+    opacity: 0.64;
+  }
+  11% {
+    opacity: 0.95;
+  }
+  22% {
+    opacity: 0.78;
+  }
+  35% {
+    opacity: 1;
+  }
+  42% {
+    opacity: 0.7;
+  }
+  48% {
+    opacity: 0.92;
+  }
+  61% {
+    opacity: 0.8;
+  }
+  73% {
+    opacity: 0.98;
+  }
+  81% {
+    opacity: 0.72;
+  }
+  89% {
+    opacity: 0.93;
+  }
+}
+
+@keyframes saison-twinkle {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes saison-moonrise {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+  }
+}
+
+@keyframes saison-breathe {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes saison-cloud {
+  from {
+    transform: translateX(-60%);
+  }
+  to {
+    transform: translateX(80%);
+  }
+}
+
+@keyframes saison-fly {
+  0% {
+    transform: translate(var(--x0), var(--y0)) scale(0.3);
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  28% {
+    transform: translate(var(--x1), var(--y1)) scale(0.7);
+  }
+  52% {
+    transform: translate(var(--x2), var(--y2)) scale(1.1);
+    opacity: 1;
+  }
+  53%,
+  100% {
+    transform: translate(var(--x2), var(--y2)) scale(1.1);
+    opacity: 0;
+  }
+}
+
+@keyframes saison-flap {
+  to {
+    transform: scaleY(-0.5);
+  }
+}
+
+@keyframes saison-bob {
+  from {
+    transform: translateY(-6%);
+  }
+  to {
+    transform: translateY(6%);
+  }
+}
+
+@keyframes saison-sway {
+  from {
+    transform: rotate(-1.2deg);
+  }
+  to {
+    transform: rotate(1.4deg);
+  }
+}
+
+@keyframes saison-glint {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes saison-legs {
+  from {
+    transform: rotate(-4deg);
+  }
+  to {
+    transform: rotate(4deg);
+  }
+}
+
+@keyframes saison-dangle {
+  from {
+    transform: translateY(58px) rotate(-4deg);
+  }
+  to {
+    transform: translateY(86px) rotate(4deg);
+  }
+}
+
+@keyframes saison-drift {
+  from {
+    transform: translateX(-12%);
+  }
+  to {
+    transform: translateX(14%);
+  }
+}
+
+@keyframes saison-fall {
+  from {
+    transform: translateY(-12vh);
+  }
+  to {
+    transform: translateY(112vh);
+  }
+}
+
+@keyframes saison-sway-x {
+  from {
+    transform: translateX(-26px) rotate(-14deg);
+  }
+  to {
+    transform: translateX(26px) rotate(14deg);
+  }
+}
+
+@keyframes saison-tumble {
+  0%,
+  100% {
+    transform: rotateX(18deg) rotateY(-50deg) rotateZ(0deg);
+  }
+  50% {
+    transform: rotateX(-24deg) rotateY(46deg) rotateZ(180deg);
+  }
+  99.99% {
+    transform: rotateX(18deg) rotateY(-50deg) rotateZ(360deg);
+  }
+}
+
+@keyframes saison-drop {
+  0%,
+  4% {
+    transform: translateY(-70px);
+  }
+  18% {
+    transform: translateY(31vh);
+  }
+  22% {
+    transform: translateY(27vh);
+  }
+  26%,
+  58% {
+    transform: translateY(29vh);
+  }
+  72%,
+  100% {
+    transform: translateY(-70px);
+  }
+}
+
+@keyframes saison-peek-left {
+  0%,
+  6% {
+    transform: translateX(-110%) rotate(0deg);
+  }
+  12%,
+  30% {
+    transform: translateX(-30%) rotate(14deg);
+  }
+  36%,
+  100% {
+    transform: translateX(-110%) rotate(0deg);
+  }
+}
+
+@keyframes saison-peek-right {
+  0%,
+  6% {
+    transform: translateX(110%) rotate(0deg);
+  }
+  12%,
+  30% {
+    transform: translateX(30%) rotate(-14deg);
+  }
+  36%,
+  100% {
+    transform: translateX(110%) rotate(0deg);
+  }
+}
+
+@keyframes saison-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes saison-tail {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes saison-ear {
+  0%,
+  88%,
+  100% {
+    transform: rotate(0deg);
+  }
+  91% {
+    transform: rotate(-14deg);
+  }
+  94% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes saison-pendulum {
+  from {
+    transform: rotate(-7deg);
+  }
+  to {
+    transform: rotate(7deg);
+  }
+}
+
+@keyframes saison-watch {
+  0%,
+  8%,
+  62%,
+  100% {
+    opacity: 0;
+  }
+  14%,
+  30%,
+  34%,
+  56% {
+    opacity: 1;
+  }
+  32% {
+    opacity: 0;
+  }
+}
+
+@keyframes saison-broom {
+  0%,
+  6% {
+    transform: translate(108cqw, var(--y0)) rotate(-6deg);
+  }
+  34%,
+  100% {
+    transform: translate(-20cqw, var(--y1)) rotate(4deg);
+  }
+}
+
+@keyframes saison-hop-a {
+  40% {
+    transform: translateY(-22%);
+  }
+}
+
+@keyframes saison-hop-b {
+  40% {
+    transform: translateY(-22%);
+  }
+}
+
+@keyframes saison-hem {
+  from {
+    transform: skewX(-4deg) scaleY(0.98);
+  }
+  to {
+    transform: skewX(4deg) scaleY(1.02);
+  }
+}

@@ -48,12 +48,17 @@ mens jamais sur qui tu es, sur ce que fait Ominin, ni sur ce que tu as \
 observé du restaurant, et tu n'inventes aucune fonctionnalité.\
 """
 
-SIGNATURE = f"""\
-{settings.gmail_sender_name}
-Responsable commerciale — Ominin
-{settings.gmail_sender_email}
-https://menu.ominin.com\
-"""
+SIGNATURE = "\n".join(
+    line
+    for line in (
+        settings.gmail_sender_name,
+        "Responsable commerciale — Ominin",
+        settings.gmail_sender_phone,
+        settings.gmail_sender_email,
+        "ominin.com | menu.ominin.com",
+    )
+    if line
+)
 
 
 def cnil_footer(unsubscribe_url: str) -> str:

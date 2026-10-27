@@ -5,6 +5,7 @@ import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
 import { AffichesBanner, FormulesSection, FormuleTiles } from "@/components/menu/formules";
+import { FormulesPill } from "@/components/menu/formules-pill";
 import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
@@ -12,6 +13,7 @@ import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
+import { SaisonAmbient } from "@/components/menu/saison/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
@@ -98,9 +100,8 @@ export default async function MenuPage({
   // La carte de la démo d'Ominin Club vit sur le sous-domaine du club.
   if (etoileScene(slug)) permanentRedirect(`${clubSiteUrl}/${slug}/carte`);
   // Un établissement à bulles : la table d'une bulle ne commande qu'une fois
-  // ses places payées (BulleTableGate).
-  // Une erreur de lecture des bulles ne coûte jamais la carte : sans elles,
-  // la table commande comme les autres et la base garde le verrou.
+  // ses places payées (BulleTableGate). Une erreur de lecture des bulles ne
+  // coûte jamais la carte : la base garde le verrou.
   const [data, bulleOffer] = await Promise.all([
     getRestaurant(slug),
     fetchBulleOffer(slug).catch((error: unknown) => {
@@ -110,16 +111,17 @@ export default async function MenuPage({
   ]);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
-  const { restaurant, serviceMode, callServer, loyalty, formules } = data;
+  const { restaurant, serviceMode, callServer, loyalty, formules, saison } = data;
 
   // Les affiches des offres se montrent sous l'affiche du restaurant ; sans
   // elle, en tête de la section des formules, avant les tuiles de celles
-  // qu'aucune affiche ne porte.
+  // qu'aucune affiche ne porte. Avec la pastille des formules, tout y passe.
   const affiches = restaurant.affiches ?? [];
-  const affichesInHero = restaurant.poster != null && affiches.length > 0;
+  const inPill = Boolean(restaurant.formulesPill);
+  const affichesInHero = !inPill && restaurant.poster != null && affiches.length > 0;
   // Une formule à heures (le petit déjeuner) se range dans la happy hour.
   const tiles = formules.filter((formule) => !formule.affiche && !formule.hours);
-  const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
+  const showFormules = !inPill && (tiles.length > 0 || (!affichesInHero && affiches.length > 0));
 
   const cartConfig = menuCartConfig(slug, data);
   const { orderingEnabled } = cartConfig;
@@ -195,6 +197,7 @@ export default async function MenuPage({
           data-menu-root
           data-slug={slug}
           data-service={fastFood ? "fast-food" : undefined}
+          data-saison={saison ?? undefined}
           className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
           <BulleTableGate slug={slug} enabled={bulleOffer !== null}>
@@ -206,7 +209,7 @@ export default async function MenuPage({
                 __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
               }}
             />
-            {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop />}
+            {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop slug={slug} />}
             <MenuTicker items={restaurant.ticker} />
             <Hero
               restaurant={restaurant}
@@ -214,7 +217,9 @@ export default async function MenuPage({
               banner={
                 affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
               }
+              saison={saison ?? undefined}
             />
+            {saison && <SaisonAmbient saison={saison} />}
             <MenuHighlights highlights={restaurant.highlights} />
             {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
                 tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
@@ -257,6 +262,9 @@ export default async function MenuPage({
             />
             {callServer && <CallServerButton />}
             {happyHour && <HappyHourPill happyHour={happyHour} />}
+            {inPill && (affiches.length > 0 || tiles.length > 0) && (
+              <FormulesPill affiches={affiches} formules={tiles} />
+            )}
             <LoyaltyWelcome
               brand={brandName(restaurant)}
               logo={restaurant.logo}
