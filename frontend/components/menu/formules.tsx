@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useId, useRef, useState } from "react";
+import { Fragment, useEffect, useId, useRef, useState } from "react";
 import {
   ChoiceRecap,
   ChoiceRow,
@@ -461,45 +461,139 @@ export function FormuleModal({
   );
 }
 
-/**
- * Le bandeau défile en continu : la piste porte trois copies (le keyframe
- * `marquee` recule d'un tiers). Seule la première compte pour les lecteurs
- * d'écran ; les affiches ne s'ouvrent pas au doigt, les boutons dessous si.
- */
-const MARQUEE_COPIES = [0, 1, 2];
+/** Copies de la piste tant que la largeur des affiches n'est pas mesurée, et plancher ensuite. */
+const MIN_MARQUEE_COPIES = 3;
 /** Temps de passage de chaque offre d'une affiche dans le défilement. */
 const SECONDS_PER_OFFRE = 6;
+/** Les affiches entrent juste après l'affiche du restaurant. */
+const AFFICHES_DELAY = "350ms";
+
+/**
+ * La piste des affiches en défilement, sans rien autour. Elle porte des
+ * copies des affiches et le keyframe `marquee` la recule d'une copie par
+ * tour : il en faut assez pour couvrir la largeur visible plus une. Avant
+ * que les images soient chargées, une copie n'a que la largeur de ses
+ * marges ou de son texte de remplacement : la piste reste alors invisible et
+ * à l'arrêt, puis entre comme le héros et part de zéro. Une affiche dont
+ * l'image ne charge pas (adresse saisie fausse, fichier supprimé) quitte la
+ * piste ; sans aucune, rien ne s'affiche. Seule la première copie compte
+ * pour les lecteurs d'écran ; les affiches ne s'ouvrent pas au doigt, les
+ * boutons dessous si.
+ */
+function AffichesTrack({
+  affiches,
+  className,
+  delay,
+}: {
+  affiches: AfficheMenu[];
+  className: string;
+  /** Quand la piste porte seule son entrée : son délai, que le défilement attend aussi. */
+  delay?: string;
+}) {
+  const frame = useRef<HTMLDivElement>(null);
+  const firstCopy = useRef<HTMLDivElement>(null);
+  const [copies, setCopies] = useState(MIN_MARQUEE_COPIES);
+  const [loaded, setLoaded] = useState(false);
+  const [failed, setFailed] = useState<ReadonlySet<string>>(() => new Set());
+  const shown = affiches.filter((affiche) => !failed.has(affiche.id));
+  const shownIds = shown.map((affiche) => affiche.id).join(" ");
+  const formules = shown.flatMap((affiche) => affiche.formules);
+  const offres = shown.reduce((sum, affiche) => sum + affiche.offres, 0);
+  const alt = `Nos offres : ${formules.map((formule) => formule.name).join(", ")}`;
+
+  useEffect(() => {
+    const visible = frame.current;
+    const copy = firstCopy.current;
+    if (!visible || !copy) return;
+    // Une image peut prendre sa taille avant la fin de son chargement, ou
+    // échouer avant l'hydratation : la mesure repasse à chaque chargement ou
+    // échec, et relit l'état de toutes.
+    const images = Array.from(copy.querySelectorAll("img"));
+    const measure = () => {
+      const broken = images
+        .filter((image) => image.complete && image.naturalWidth === 0)
+        .flatMap((image) => image.dataset.affiche ?? []);
+      if (broken.length > 0) {
+        setFailed((previous) =>
+          broken.every((id) => previous.has(id)) ? previous : new Set([...previous, ...broken])
+        );
+        return;
+      }
+      // Masquée (display: none), la copie mesure 0 : rien à diviser.
+      if (!images.every((image) => image.complete) || copy.offsetWidth === 0) return;
+      setLoaded(true);
+      setCopies(
+        Math.max(MIN_MARQUEE_COPIES, Math.ceil(visible.clientWidth / copy.offsetWidth) + 1)
+      );
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(visible);
+    observer.observe(copy);
+    for (const image of images) {
+      image.addEventListener("load", measure);
+      image.addEventListener("error", measure);
+    }
+    return () => {
+      observer.disconnect();
+      for (const image of images) {
+        image.removeEventListener("load", measure);
+        image.removeEventListener("error", measure);
+      }
+    };
+  }, [shownIds]);
+
+  if (shown.length === 0) return null;
+
+  return (
+    <div
+      ref={frame}
+      className={`overflow-hidden motion-reduce:overflow-x-auto ${loaded ? "hero-entrance" : "opacity-0"} ${className}`}
+      style={delay ? heroDelay(delay) : undefined}
+    >
+      <div
+        className="marquee-track flex w-max"
+        style={
+          {
+            "--marquee-duration": `${SECONDS_PER_OFFRE * offres}s`,
+            "--marquee-copies": copies,
+            animationPlayState: loaded ? undefined : "paused",
+            animationDelay: delay,
+          } as React.CSSProperties
+        }
+      >
+        {Array.from({ length: copies }, (_, copy) => (
+          <div
+            key={copy}
+            ref={copy === 0 ? firstCopy : undefined}
+            aria-hidden={copy > 0 || undefined}
+            className={`flex shrink-0 ${copy > 0 ? "motion-reduce:hidden" : ""}`}
+          >
+            {shown.map((affiche, index) => (
+              // eslint-disable-next-line @next/next/no-img-element -- URL téléversée ou saisie par le gérant
+              <img
+                key={affiche.id}
+                src={affiche.image}
+                data-affiche={affiche.id}
+                alt={copy === 0 && index === 0 ? alt : ""}
+                className="mr-3 h-44 w-auto max-w-none rounded-xl lg:h-60"
+              />
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /** Les affiches des offres en défilement, et un bouton par formule placée. */
 function AffichesMarquee({ affiches }: { affiches: AfficheMenu[] }) {
   const [open, setOpen] = useState<Formule | null>(null);
   const servable = useServable();
   const formules = affiches.flatMap((affiche) => affiche.formules);
-  const offres = affiches.reduce((sum, affiche) => sum + affiche.offres, 0);
-  const alt = `Nos offres : ${formules.map((formule) => formule.name).join(", ")}`;
 
   return (
     <>
-      <div className="overflow-hidden rounded-2xl motion-reduce:overflow-x-auto">
-        <div
-          className="marquee-track flex w-max"
-          style={{ "--marquee-duration": `${SECONDS_PER_OFFRE * offres}s` } as React.CSSProperties}
-        >
-          {MARQUEE_COPIES.map((copy) => (
-            <div key={copy} aria-hidden={copy > 0 || undefined} className="flex shrink-0">
-              {affiches.map((affiche, index) => (
-                // eslint-disable-next-line @next/next/no-img-element -- URL téléversée ou saisie par le gérant
-                <img
-                  key={affiche.id}
-                  src={affiche.image}
-                  alt={copy === 0 && index === 0 ? alt : ""}
-                  className={`h-44 w-auto max-w-none lg:h-60 ${affiches.length > 1 ? "pr-3" : ""}`}
-                />
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
+      <AffichesTrack affiches={affiches} className="rounded-2xl" />
       <div className="mt-2 flex flex-wrap gap-2">
         {formules.map((formule) => {
           const served = servable(formule);
@@ -534,13 +628,30 @@ export function AffichesBanner({ affiches }: { affiches: AfficheMenu[] }) {
   return (
     <div
       className="hero-entrance mx-auto w-full max-w-3xl px-4 pt-4 pb-20"
-      style={heroDelay("350ms")}
+      style={heroDelay(AFFICHES_DELAY)}
     >
       <h2 className="mb-3 text-center font-display text-2xl font-medium tracking-tight">
         Nos Offres
       </h2>
       <AffichesMarquee affiches={affiches} />
     </div>
+  );
+}
+
+/**
+ * Les affiches seules, d'un bord à l'autre de l'écran, sous l'affiche du
+ * restaurant : les formules se commandent depuis leur pastille
+ * (Restaurant.formulesPill). Les bords de l'écran s'effacent dans le fond.
+ * mb-16 : la bande passe au-dessus des pastilles flottantes, pas dessous ;
+ * sans affiche chargeable, ni bande ni marge.
+ */
+export function AffichesStrip({ affiches }: { affiches: AfficheMenu[] }) {
+  return (
+    <AffichesTrack
+      affiches={affiches}
+      className="affiches-strip mb-16 motion-reduce:px-4"
+      delay={AFFICHES_DELAY}
+    />
   );
 }
 

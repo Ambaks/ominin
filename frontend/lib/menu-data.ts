@@ -290,9 +290,11 @@ export interface Restaurant {
   demoHappyHour?: { name: string; prices: Record<string, number> };
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
-   * elle tient lieu de hero à elle seule, sans texte superposé.
+   * elle tient lieu de hero à elle seule, sans texte superposé. Ses
+   * dimensions sont celles du fichier, en pixels : le hero en tire la
+   * hauteur qui lui fait couvrir toute la largeur de l'écran.
    */
-  poster?: string;
+  poster?: { src: string; width: number; height: number };
   /** Les repères de l'habillage de saison sur l'affiche (lib/menu/saison). */
   saisonSpots?: SaisonSpots;
   /**
@@ -794,7 +796,7 @@ const boho: Restaurant = {
   name: "BOHO",
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
-  poster: "/boho/poster.webp",
+  poster: { src: "/boho/poster.webp", width: 716, height: 1024 },
   posterWide:
     "/boho/poster-wide-1600.webp 1600w, /boho/poster-wide-2400.webp 2400w, /boho/poster-wide-3040.webp 3040w",
   formulesPill: true,

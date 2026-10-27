@@ -4,7 +4,12 @@ import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
-import { AffichesBanner, FormulesSection, FormuleTiles } from "@/components/menu/formules";
+import {
+  AffichesBanner,
+  AffichesStrip,
+  FormulesSection,
+  FormuleTiles,
+} from "@/components/menu/formules";
 import { FormulesPill } from "@/components/menu/formules-pill";
 import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
@@ -57,7 +62,7 @@ export async function generateMetadata({
   const { restaurant } = data;
   const title = `${brandName(restaurant)} — Menu`;
   const description = `${restaurant.tagline} · ${restaurant.address}`;
-  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const shareImage = restaurant.coverImage ?? restaurant.poster?.src;
   const images = shareImage ? [shareImage] : undefined;
   return {
     title,
@@ -115,10 +120,11 @@ export default async function MenuPage({
 
   // Les affiches des offres se montrent sous l'affiche du restaurant ; sans
   // elle, en tête de la section des formules, avant les tuiles de celles
-  // qu'aucune affiche ne porte. Avec la pastille des formules, tout y passe.
+  // qu'aucune affiche ne porte. Avec la pastille des formules, c'est elle qui
+  // présente les formules : sous l'affiche ne défilent que leurs visuels.
   const affiches = restaurant.affiches ?? [];
   const inPill = Boolean(restaurant.formulesPill);
-  const affichesInHero = !inPill && restaurant.poster != null && affiches.length > 0;
+  const affichesInHero = restaurant.poster != null && affiches.length > 0;
   // Une formule à heures (le petit déjeuner) se range dans la happy hour.
   const tiles = formules.filter((formule) => !formule.affiche && !formule.hours);
   const showFormules = !inPill && (tiles.length > 0 || (!affichesInHero && affiches.length > 0));
@@ -155,7 +161,7 @@ export default async function MenuPage({
    * peuvent lire. L'image n'est jointe que si elle est déjà absolue — un
    * chemin local relatif donnerait une URL fausse hors du domaine du menu.
    */
-  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const shareImage = restaurant.coverImage ?? restaurant.poster?.src;
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Restaurant",
@@ -215,7 +221,11 @@ export default async function MenuPage({
               restaurant={restaurant}
               firstSectionId={categoryLinks[0]?.id}
               banner={
-                affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
+                !affichesInHero ? undefined : inPill ? (
+                  <AffichesStrip affiches={affiches} />
+                ) : (
+                  <AffichesBanner affiches={affiches} />
+                )
               }
               saison={saison ?? undefined}
             />

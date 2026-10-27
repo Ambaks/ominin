@@ -124,7 +124,7 @@ export async function generateMetadata({
   const description = [brandName(restaurant), restaurant.address]
     .filter(Boolean)
     .join(" · ");
-  const shareImage = restaurant.coverImage ?? restaurant.poster;
+  const shareImage = restaurant.coverImage ?? restaurant.poster?.src;
   const images = shareImage ? [shareImage] : undefined;
   return {
     title,

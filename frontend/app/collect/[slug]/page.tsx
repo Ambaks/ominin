@@ -28,7 +28,7 @@ export async function generateMetadata({
   if (!data) notFound();
   const title = `${data.restaurant.name} — Commande à emporter`;
   const description = `Commandez et payez en ligne, retrait chez ${data.restaurant.name} · ${data.restaurant.address}`;
-  const image = data.restaurant.coverImage ?? data.restaurant.poster;
+  const image = data.restaurant.coverImage ?? data.restaurant.poster?.src;
   return {
     title,
     description,
