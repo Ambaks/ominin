@@ -128,8 +128,7 @@ export default function Home() {
 
         <section className="shell py-[var(--section)]">
           <div className="grid gap-y-10 border-t border-line pt-8 md:grid-cols-12 md:gap-x-6 md:gap-y-16">
-            <p className="label text-accent-text md:col-span-2">Le procédé</p>
-            <RiseText text="Qu'est-ce que *l'aérogommage ?*" className="display display-l md:col-span-10" />
+            <RiseText text="Qu'est-ce que *l'aérogommage ?*" className="display display-l md:col-span-10 md:col-start-3" />
             <Reveal className="md:col-span-10 md:col-start-3">
               <p className="lead text-muted lg:columns-2 lg:gap-12">
                 <span className="text-fg">{procede.lede}</span> {procede.body}
@@ -143,17 +142,17 @@ export default function Home() {
             <SectionHead n="01" />
 
             <h3 className="display display-l">{featured.title}</h3>
-            <div className="mt-12 grid gap-6 md:grid-cols-3">
-              <div className="relative hidden aspect-[9/16] overflow-hidden md:block">
+            <div className="mt-12 grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-6">
+              <div className="relative aspect-[9/16] overflow-hidden">
                 <VideoLoop {...featured.filmBefore} className="absolute inset-0 size-full" />
-                <span className="label absolute bottom-4 left-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
-                  Avant · toute la galerie
+                <span className="label absolute bottom-2 left-2 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm md:bottom-4 md:left-4">
+                  Avant<span className="max-md:hidden"> · toute la galerie</span>
                 </span>
               </div>
               <div className="relative aspect-[9/16] overflow-hidden">
                 <VideoLoop {...featured.film} className="absolute inset-0 size-full" />
-                <span className="label absolute bottom-4 left-4 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm">
-                  Après · toute la galerie
+                <span className="label absolute bottom-2 left-2 bg-basalte/70 px-2.5 py-1.5 text-chaux backdrop-blur-sm md:bottom-4 md:left-4">
+                  Après<span className="max-md:hidden"> · toute la galerie</span>
                 </span>
               </div>
               <BeforeAfter
@@ -161,7 +160,7 @@ export default function Home() {
                 after={featured.compare.after}
                 alt={featured.compare.title}
                 sizes="(min-width: 768px) 30vw, 100vw"
-                className="aspect-[9/16]"
+                className="col-span-2 aspect-[4/5] md:col-span-1 md:aspect-[9/16]"
               />
             </div>
             <p className="mt-6 max-w-xl text-muted">{featured.note}</p>
