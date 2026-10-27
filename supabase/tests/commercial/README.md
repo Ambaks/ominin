@@ -36,10 +36,11 @@ passées à `psql` (`-v CONFIRM_DAYS=7` …) : `01_reglages.sql` vérifie que
 - `02_declarations.sql` : déclarer, confirmer, refuser, échéances (critères 1 à 5, 10).
 - `03_visibilite.sql` : ce que voit chacun, passage sans suite, recherche (critères 6, 7).
 - `04_reflet.sql` : reflet `crm_leads`, Léa, opposition, fin de contrat, admin (critères 8, 9, 9 bis, 9 ter ; 13.2).
-- `concurrence.sh` : deux déclarations simultanées du même restaurant (critère 3), puis du même commercial au plafond de 1.
+- `concurrence.sh` : deux déclarations simultanées du même restaurant (critère 3), puis du même commercial au plafond de 1, puis deux tâches quotidiennes qui créent une seule relance J+1.
 - `05_liens.sql` : liens fiche ↔ client, outil de rattachement (4.1, 13.2 n° 5).
 - `06_inscription.sql` : lien d'inscription, Client Apporté, Projet, inscription sans lien, démos, Google, carte, fusion (lot 2).
 - `07_commissions.sql` : assiette recalculée à la main sur les cinq sources, avoirs, relevés, régularisations, contestation et sa clôture, relevé final, rappel URSSAF (lot 3).
 - `08_defauts.sql` : chaque défaut de la vérification indépendante corrigé côté base, rejoué (client déjà en service, déclaration reçue par e-mail, plafond et réservation échue, fin de contrat, opposition, lien capturé, quota, relances du jour).
 - `09_defauts2.sql` : les défauts du second passage (N1 à N10) : fusion de fiches, client parti puis revenu, e-mail déjà échu, lien régénéré, deck, pièces, détail, contrat terminé, alerte « déjà client ? », rappels et abonnements.
-- `10_defauts3.sql` : le troisième passage : démos lues par fonction, fusion dans une fiche opposée ou cliente, contrat terminé, mois jamais relevés, départ corrigé ou annulé, retour d'un client, seuil de nom, interlocuteurs d'Ominin, plafond et carence affichés, relances J+1/J+7/J+14.
+- `10_defauts3.sql` : le troisième passage : démos lues par fonction, fusion dans une fiche opposée ou cliente, contrat terminé, mois jamais relevés, départ corrigé ou annulé, retour d'un client, seuil de nom, interlocuteurs d'Ominin, plafond et carence affichés.
+- `11_defauts4.sql` : le quatrième passage : régularisation relevée une fois, client en service jamais attribué, rattachement et annulation de départ pendant une redéclaration, correction de départ ciblée, confirmation tacite d'un contrat terminé, relances J+n (rendez-vous fait, jour de l'échéance, retirées après coup, réglage normalisé).

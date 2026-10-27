@@ -13,12 +13,12 @@ du cahier, expliqué).
 - `SQL nn` : script `supabase/tests/commercial/nn_*.sql`, message d'assertion
   cité entre guillemets (chaque assertion échoue en `ÉCHEC : <message>`).
   Relance : `bash supabase/tests/commercial/run.sh` (README du dossier).
-  Résultat au 27/10, après le troisième passage de vérification et la
-  fusion de `main` : 145 migrations appliquées (celles de `main` comprises ;
-  les cinq de l'espace renumérotées `20261028000001` à `…05`), 10 scripts et
-  `concurrence.sh` (deux scénarios) passent, 333 assertions.
-  `08_defauts.sql`, `09_defauts2.sql` et `10_defauts3.sql` rejouent les
-  défauts des trois passages.
+  Résultat au 27/10, après le quatrième passage de vérification et la
+  fusion de `main` (73df961c, sans migration) : 145 migrations appliquées
+  (les cinq de l'espace numérotées `20261028000001` à `…05`), 11 scripts et
+  `concurrence.sh` (trois scénarios : même restaurant, plafond, relances)
+  passent, 344 assertions. `08_defauts.sql` à `11_defauts4.sql` rejouent
+  les défauts des quatre passages.
 - `ÉCRAN` : parcours Playwright + Chrome, 390×844, contre la base locale
   (PostgREST + faux service d'authentification, recette « Real-backend UI »
   de la mémoire du projet ; scripts dans le dossier de travail de la session,
@@ -165,7 +165,7 @@ du cahier, expliqué).
 | 8 | E-mail obligatoire : décisions, relevés | fait (file) / partiel (Gmail non essayé) | SQL 02, 07 |
 | 8 | Push au commercial : relance due, réservation qui expire (matin), démo prête, inscrit, relevé (avec l'e-mail), opposition ; préférences | code écrit / **non essayé** (pas de clés VAPID en local ; le suivi précédent disait « fait (code) ») | `daily.ts`, `outbox.ts`, `push.ts`, SQL 06 préférences, SQL 08 relances du matin |
 | 8 | Push aux admins : déclaration à trancher, inscription par lien, rappel d'option, relevé final à envoyer | code écrit / **non essayé** (même raison) ; l'inscription et le relevé final **manquaient** au premier rendu | `outbox.ts` (`notifyNewDeclarations`, e-mail « signé »), `daily.ts` |
-| 8 / 13.1 | Rendez-vous (décision de Marwan du 27/10) : relances J+1, J+7, J+14 après chaque rendez-vous tenu, dans Aujourd'hui, comptées par le push du matin ; une fois chacune ; rien si la déclaration est close ou le contrat terminé. Le rappel « dans N minutes », sa route et `APPOINTMENT_REMINDER_MINUTES` sont retirés | fait (push non essayé) | `commercial_appointment_followups` (tâche quotidienne, avant le push du matin), réglage `followup_days` (Réglages : 1, 7, 14 saisis par l'admin), `crm_appointments.followups_done` | SQL 10 « J+n. … » (5 assertions) ; ÉCRAN « admin Réglages : relances après un rendez-vous » |
+| 8 / 13.1 | Rendez-vous (décision de Marwan du 27/10) : relances J+1, J+7, J+14 après un rendez-vous noté « fait », créées par la tâche quotidienne **le jour de leur échéance** (une échéance déjà passée ne se rattrape pas : c'est le plus simple, et un rendez-vous noté fait après coup ne déverse pas de relances en retard) ; une fois chacune (index unique, même si deux tâches se croisent) ; retirées si le rendez-vous passe ensuite en annulé, manqué ou reporté ; rien si la déclaration est close ou le contrat terminé. Sur la fiche : « Fait », « Manqué », « Annulé », « Reporter ». Le rappel « dans N minutes » est retiré | fait (push non essayé) | `commercial_appointment_followups`, `crm_tasks.followup_of` / `followup_day`, trigger `crm_appointments_followups`, réglage `followup_days` (dédoublonné et trié à l'enregistrement, écran et base), `work.tsx` | SQL 11 « F6. … », « F7. … » ; `concurrence.sh` (relances) ; ÉCRAN « rendez-vous : gestes Fait, Manqué, Annulé, Reporter », « Manqué enregistré », « Reporter enregistre la nouvelle date » |
 | 8 | Contrat terminé : plus de push sur ses appareils | fait (corrigé) | `commercial_release_ended` retire ses abonnements | SQL 09 « N10. abonnements push d'un contrat terminé retirés… » |
 
 ## Section 9 — Données personnelles
@@ -295,6 +295,20 @@ Essais du vérificateur rejoués sur la base corrigée (`nouveaux.sql`) : 34 con
 
 Essais du vérificateur rejoués (`nouveaux3.sql`) : 24 conformes sur 31 ; les 7 autres sont attendus : S1 lit la table en direct (lecture par fonction désormais), S3, S4 (×2) et S8 notent un état descriptif (« close ou signalée », « confirmed (puis libérée) », lien nul, aucun Client Apporté sans lien), S5 annule par `admin_set_client_ended(null)` alors que l'annulation est un geste dédié, S9 note « passe » pour l'appel refusé (l'interlocuteur reste intact, S9 suivant conforme).
 
+## Quatrième passage de vérification
+
+| Réf | Défaut | Correction | Preuve |
+|---|---|---|---|
+| E4 | Une régularisation portée par deux brouillons était relevée deux fois (7 500 au lieu de 6 000) | `admin_statement_send` recalcule le brouillon juste avant de le figer | SQL 11 « E4 » |
+| E7 | « Marquer signée » attribuait un client en service jamais parti (régression du défaut 1) | `commercial_in_service` dans `commercial_add_client` (refus) ; « depuis le marquage » réservé au client parti avant la déclaration ; dans « marquer signée », le Client Apporté est créé avant que la signature n'efface le départ | SQL 11 « E7 », SQL 10 « B6 » |
+| E1 | L'outil de rattachement effaçait le départ d'un client redéclaré | `admin_link_client` refuse une fiche déclarée | SQL 11 « E1 » |
+| E2 | Départ annulé pendant une redéclaration : réservation sur un client | `commercial_close_for_client` (commune avec la fusion) | SQL 11 « E2 » |
+| E11 | Corriger un départ fermait le Client Apporté d'un autre commercial | la correction ne touche que ce que ce départ avait clos | SQL 11 « E11 » |
+| F6 | Rendez-vous non tenus indiscernables ; relances en retard d'un coup ; relance gardée après annulation | gestes Fait/Manqué/Annulé/Reporter ; relances pour « fait » seulement, le jour de l'échéance ; retirées après coup | SQL 11 « F6 » ; ÉCRAN |
+| F7 | Doublons de relances (réglage, tâches simultanées) | réglage normalisé ; index unique et `on conflict do nothing` | SQL 11 « F7 » ; `concurrence.sh` |
+| E6 | Confirmation tacite d'un contrat terminé (« confirmée » puis « libérée ») | libérée directement, sans e-mail | SQL 11 « E6 » |
+| Qualité | Lecture des démos par ligne ; type `commercial_cfg` périmé ; message d'interlocuteur ; cibles | fonction plpgsql (un appel, refus même sur table vide) ; types régénérés ; message « saisi par un commercial » ; avatar 44×44 et interrupteurs 64×44 de zone tactile | SQL 11 ; ÉCRAN « avatar : zone tactile 44×44 », « interrupteur : zone tactile 64×44 » |
+
 ## Écarts au cahier
 
 1. **Sélection de Léa** : le refus du restaurant réservé se fait dans `_eligible` (même boucle que les autres refus), par `crm_is_reserved`, et non par un `not exists` dans la requête : PostgREST ne l'exprime pas simplement. Comportement prouvé par l'essai LÉA.
@@ -305,7 +319,7 @@ Essais du vérificateur rejoués (`nouveaux3.sql`) : 24 conformes sur 31 ; les 7
 6. **Démos du Kit** : en plus de la démo Ominin, les démos proposées sont choisies par l'admin dans les Réglages (`kit_demo_slugs`) plutôt qu'une liste écrite dans le code.
 7. **Google Places** : la recherche de l'espace passe par le backend (`POST /places/search`), seul à tenir la clé, l'URL et le masque de champs (ceux de Léa). Conséquence : sur l'offre gratuite de Render, un backend endormi rend la première recherche lente (jusqu'à une minute, comme les jobs lancés depuis l'admin).
 8. **Types** : `database.types.ts` régénéré depuis la base locale de test ; l'ordre des tables change (le fichier précédent n'était pas trié) ; les signatures des fonctions existantes et l'en-tête `graphql_public` de la version de production sont gardés.
-9. **`commercial_clients.ended_at`** (contre 13.2 n° 6, décision de Marwan) : la fin d'un Client Apporté est figée au départ du client et ne se rouvre pas ; un client revenu n'est plus apporté, sauf nouvelle déclaration (4.4). Début de la commission d'un client parti puis redéclaré : la première acceptation des CGV postérieure à la nouvelle déclaration, comme pour tout client. C'est la seule preuve, compatible avec la règle « un client existant n'est pas attribué », qu'il revient par le commercial ; l'ouverture du lien seule ne suffit pas (on ne distingue pas un gérant qui revient d'un gérant qui consulte). Si le client revient sans accepter de nouvelles conditions, l'inscription n'est pas attribuée par le lien : l'admin la marque signée, et la commission démarre **à la date de ce marquage** (décision de Marwan, troisième passage). Effacer le départ d'un client redéclaré est refusé (son retour se constate par l'inscription) ; la fin figée d'un Client Apporté précédent compte aussi comme départ. Un départ posé par erreur s'annule (« Départ posé par erreur », `admin_cancel_client_departure`) ; corriger sa date déplace la fin du Client Apporté qu'il avait close.
+9. **`commercial_clients.ended_at`** (contre 13.2 n° 6, décision de Marwan) : la fin d'un Client Apporté est figée au départ du client et ne se rouvre pas ; un client revenu n'est plus apporté, sauf nouvelle déclaration (4.4). Début de la commission d'un client parti puis redéclaré : la première acceptation des CGV postérieure à la nouvelle déclaration, comme pour tout client. C'est la seule preuve, compatible avec la règle « un client existant n'est pas attribué », qu'il revient par le commercial ; l'ouverture du lien seule ne suffit pas (on ne distingue pas un gérant qui revient d'un gérant qui consulte). Si le client revient sans accepter de nouvelles conditions, l'inscription n'est pas attribuée par le lien : l'admin la marque signée, et la commission démarre **à la date de ce marquage** (décision de Marwan) — **seulement s'il était parti avant la déclaration** (départ de la fiche ou fin figée d'un Client Apporté, `commercial_departed_before`). Un client en service à la déclaration (conditions acceptées depuis son dernier départ, ou jamais parti) n'est jamais attribué, ni par le lien ni par « marquer signée » (`commercial_in_service`, refus explicite à l'admin). Effacer le départ d'un client redéclaré est refusé, par `admin_set_client_ended` comme par l'outil de rattachement ; annuler un départ posé par erreur clôt la redéclaration en cours (motif « client »). Corriger la date d'un départ ne déplace que la fin du Client Apporté qu'il avait close.
 
 ## Ce qui reste aux fondateurs
 

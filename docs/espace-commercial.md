@@ -684,17 +684,20 @@ calculées sur l'appareil, jamais montrées à l'admin (4.7).
   (lot 4), couche jeu (lot 5).
 - **Objectif** : une plateforme **simple d'utilisation** et vraiment utile. Chaque écran a une
   action principale évidente ; pas d'écran qui n'aide pas le commercial à vendre.
-- **Rendez-vous** (27 octobre) : pas de rappel push « dans N minutes ». Après chaque rendez-vous
-  tenu (ni annulé ni manqué), la tâche quotidienne crée une relance J+1, J+7 et J+14 dans
-  Aujourd'hui (le push du matin la compte), une seule fois chacune, rien si la déclaration n'est
-  plus active ou le contrat terminé. Les jours sont un réglage (`commercial_settings.followup_days`,
-  1, 7, 14 saisis par l'admin ; vide : pas de relance).
+- **Rendez-vous** (27 octobre) : pas de rappel push « dans N minutes ». Sur la fiche, chaque
+  rendez-vous se note « fait », « manqué », « annulé » ou se reporte. Après un rendez-vous noté
+  fait, la tâche quotidienne crée une relance J+1, J+7 et J+14 dans Aujourd'hui, le jour de chaque
+  échéance (le push du matin la compte ; une échéance passée ne se rattrape pas), une seule fois
+  chacune ; elles disparaissent si le rendez-vous passe ensuite en manqué, annulé ou reporté ; rien
+  si la déclaration n'est plus active ou le contrat terminé. Les jours sont un réglage
+  (`commercial_settings.followup_days`, 1, 7, 14 saisis par l'admin ; vide : pas de relance).
 - **Client parti puis revenu** (27 octobre) : `commercial_clients.ended_at` (contre 13.2 n° 6)
   fige la fin d'un Client Apporté au départ posé par l'admin ; effacer le départ (client revenu)
   ne rouvre pas la commission ; un départ posé par erreur s'annule par un geste admin dédié. Un
   client parti, redéclaré puis inscrit, devient le Client Apporté du nouveau commercial : début à
   la première acceptation des CGV postérieure à la nouvelle déclaration, ou, sans nouvelle
-  acceptation, à la date où l'admin marque la déclaration signée.
+  acceptation, à la date où l'admin marque la déclaration signée — seulement pour un client parti
+  avant la déclaration : un client resté en service n'est jamais attribué.
 
 ### 13.2 Corrections finales
 
