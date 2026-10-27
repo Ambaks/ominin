@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
 import { etoileScene } from "@/lib/menu-data";
 import {
@@ -50,8 +51,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       const features = row.etablissement_settings?.features as
         | { qr?: boolean }
         | null;
-      // La démo d'Ominin Club ne se référence pas (etoileScene).
-      if (features?.qr === false || etoileScene(slug)) continue;
+      // Les démos d'Ominin Club et des bulles du Boho ne se référencent pas.
+      if (features?.qr === false || etoileScene(slug) || slug === BOHO_DEMO_SLUG) continue;
       routes.push({
         url: `${menuSiteUrl}/m/${slug}`,
         lastModified: created_at ? new Date(created_at) : undefined,

@@ -9,6 +9,7 @@ import type { PairingNotes } from "@/lib/menu/pairings";
 import type { SaisonSpots } from "@/lib/menu/saison";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
+import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
 import { veloursPalettes } from "@/components/menu/velours-palettes";
 import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
@@ -10528,16 +10529,10 @@ const withDemoAllergens = (registry: Record<string, Restaurant>): Record<string,
   );
 };
 
-/**
- * La démonstration des bulles du Boho (scripts/bulles-demo.ts) : sa carte en
- * base, habillée comme celle du Boho, son site et ses bulles, tant que le
- * Boho n'a pas pris l'offre.
- */
-export const BOHO_DEMO_SLUG = "boho-demo";
-
 const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
+  // La démonstration des bulles du Boho (lib/bulles/demo) : sa carte en base, habillée comme celle du Boho.
   [BOHO_DEMO_SLUG]: { ...boho, slug: BOHO_DEMO_SLUG },
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,

@@ -1,3 +1,10 @@
+import { parisDate } from "@/lib/collect/hours";
+
+const HOUR_MS = 3_600_000;
+
+/** Le soir de service en cours : avant l'heure de bascule, c'est encore la veille. */
+export const currentServiceDate = (dayEndHour: number) => parisDate(new Date(Date.now() - dayEndHour * HOUR_MS));
+
 /** 120 → « 2 h », 90 → « 1 h 30 », 45 → « 45 min ». */
 export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);

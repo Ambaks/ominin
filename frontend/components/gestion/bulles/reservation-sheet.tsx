@@ -6,9 +6,7 @@ import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import { formatCents, formatHours, formatNight } from "@/lib/club/format";
 import {
-  cancelReservation,
-  createReservation,
-  markArrival,
+  useBulleActions,
   type Bulle,
   type BulleReservation,
   type BulleSource,
@@ -59,6 +57,7 @@ export function ReservationSheet({
   onChanged: () => void;
 }) {
   const toast = useToast();
+  const { markArrival, cancelReservation } = useBulleActions();
   const [busy, setBusy] = useState(false);
   const left = reservation.party_size - reservation.places_paid;
   const confirmed = reservation.status === "confirmee";
@@ -208,6 +207,7 @@ export function NewReservationSheet({
   onChanged: () => void;
 }) {
   const toast = useToast();
+  const { createReservation } = useBulleActions();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [party, setParty] = useState("");

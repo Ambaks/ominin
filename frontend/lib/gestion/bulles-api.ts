@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useState } from "react";
 import { addDays } from "@/lib/bulles/format";
 import { parisInstant } from "@/lib/collect/hours";
 import { createClient } from "@/lib/supabase/client";
@@ -64,8 +64,15 @@ async function loadDay(etablissementId: string, date: string, dayEndHour: number
   ) as BulleReservation[];
 }
 
+/** Les réservations d'un soir (null tant qu'elles se chargent), et de quoi les relire. */
+export type BulleDay = {
+  reservations: BulleReservation[] | null;
+  error: string | null;
+  refresh: () => void;
+};
+
 /** Le soir choisi, relu à chaque changement d'une réservation ou d'une part de l'établissement. */
-export function useBulleDay(etablissementId: string | undefined, date: string, dayEndHour: number) {
+export function useBulleDay(etablissementId: string | undefined, date: string, dayEndHour: number): BulleDay {
   const [day, setDay] = useState<{ key: string; reservations: BulleReservation[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
@@ -127,7 +134,7 @@ export async function cancelReservation(reservationId: string) {
   unwrap(await createClient().rpc("bulle_annuler_reservation", { p_reservation: reservationId }));
 }
 
-export async function createReservation(input: {
+export type NewBulleReservation = {
   bulleId: string;
   startsAt: string;
   name: string;
@@ -135,7 +142,9 @@ export async function createReservation(input: {
   partySize: number;
   source: Exclude<BulleSource, "en_ligne">;
   note: string;
-}) {
+};
+
+export async function createReservation(input: NewBulleReservation) {
   unwrap(
     await createClient().rpc("creer_reservation_bulle", {
       p_bulle: input.bulleId,
@@ -148,6 +157,21 @@ export async function createReservation(input: {
     })
   );
 }
+
+/**
+ * Les gestes de l'accueil sur une réservation. Ceux de la gestion passent par
+ * la session de l'équipe ; la démonstration fournit les siens (par le
+ * serveur, sans compte).
+ */
+export type BulleActions = {
+  markArrival: (reservationId: string, arrived: boolean, paid: boolean) => Promise<void>;
+  cancelReservation: (reservationId: string) => Promise<void>;
+  createReservation: (input: NewBulleReservation) => Promise<void>;
+};
+
+export const BulleActionsContext = createContext<BulleActions>({ markArrival, cancelReservation, createReservation });
+
+export const useBulleActions = () => useContext(BulleActionsContext);
 
 export async function saveReglages(
   etablissementId: string,

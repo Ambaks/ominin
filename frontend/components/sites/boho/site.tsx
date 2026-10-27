@@ -2,12 +2,11 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { FallingLeaves, KilimMark, Orb } from "@/components/sites/boho/marks";
 import { formatDuration } from "@/lib/bulles/format";
-import { bulleUrl } from "@/lib/bulles/links";
+import { bulleUrl, carteUrl } from "@/lib/bulles/links";
 import type { BulleOffer } from "@/lib/bulles/public";
 import { formatCents } from "@/lib/club/format";
 import type { MenuCategory, Restaurant } from "@/lib/menu-data";
 import { bohoLinks, bohoPhotos } from "@/lib/sites/boho";
-import { menuSiteUrl } from "@/lib/site";
 
 /*
  * Le site du Boho en une page, à la manière d'une soirée au jardin : il
@@ -35,7 +34,7 @@ export function BohoSite({
   restaurant: Restaurant;
   offer: BulleOffer | null;
 }) {
-  const menuUrl = `${menuSiteUrl}/m/${restaurant.slug}`;
+  const menuUrl = carteUrl(restaurant.slug);
   const reserveUrl = bulleUrl(restaurant.slug);
   const categories = restaurant.categories.filter((category) => category.items.length > 0);
   const chichas = categories.find(isChicha);
