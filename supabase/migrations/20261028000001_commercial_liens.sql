@@ -118,6 +118,15 @@ begin
   end if;
 
   perform public.crm_assert_client_free(v_id, p_etablissement, p_shop);
+  -- Une fiche déclarée se relie par l'inscription (lien ou « marquer
+  -- signée »), jamais par cet outil : il effacerait un départ ou ferait
+  -- d'une réservation celle d'un client.
+  if exists (
+    select 1 from public.commercial_declarations
+    where restaurant_id = v_id and status in ('pending', 'confirmed')
+  ) then
+    raise exception 'Un commercial a déclaré ce restaurant : il se relie à son client par son inscription (lien ou « marquer signée »).';
+  end if;
   if v_id is null then
     v_id := gen_random_uuid();
     insert into public.crm_restaurants (id, name, slug, address, phone, source)

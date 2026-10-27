@@ -2264,7 +2264,6 @@ export type Database = {
           created_by: string | null
           declaration_id: string | null
           end_at: string | null
-          followups_done: number[]
           google_event_id: string | null
           id: string
           location: string | null
@@ -2282,7 +2281,6 @@ export type Database = {
           created_by?: string | null
           declaration_id?: string | null
           end_at?: string | null
-          followups_done?: number[]
           google_event_id?: string | null
           id?: string
           location?: string | null
@@ -2300,7 +2298,6 @@ export type Database = {
           created_by?: string | null
           declaration_id?: string | null
           end_at?: string | null
-          followups_done?: number[]
           google_event_id?: string | null
           id?: string
           location?: string | null
@@ -2628,6 +2625,8 @@ export type Database = {
           declaration_id: string | null
           description: string | null
           due_at: string | null
+          followup_day: number | null
+          followup_of: string | null
           id: string
           lead_id: string | null
           priority: Database["public"]["Enums"]["crm_priority"]
@@ -2643,6 +2642,8 @@ export type Database = {
           declaration_id?: string | null
           description?: string | null
           due_at?: string | null
+          followup_day?: number | null
+          followup_of?: string | null
           id?: string
           lead_id?: string | null
           priority?: Database["public"]["Enums"]["crm_priority"]
@@ -2658,6 +2659,8 @@ export type Database = {
           declaration_id?: string | null
           description?: string | null
           due_at?: string | null
+          followup_day?: number | null
+          followup_of?: string | null
           id?: string
           lead_id?: string | null
           priority?: Database["public"]["Enums"]["crm_priority"]
@@ -2672,6 +2675,13 @@ export type Database = {
             columns: ["declaration_id"]
             isOneToOne: false
             referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_followup_of_fkey"
+            columns: ["followup_of"]
+            isOneToOne: false
+            referencedRelation: "crm_appointments"
             referencedColumns: ["id"]
           },
           {
@@ -7535,7 +7545,6 @@ export type Database = {
       commercial_cfg: {
         Args: never
         Returns: {
-          appointment_reminder_minutes: number | null
           club_fees_included: boolean | null
           commission_percent: number
           confirm_days: number
@@ -7547,6 +7556,7 @@ export type Database = {
           eligible_stripe_prices: string[]
           expiry_warning_days: number | null
           final_statement_days: number
+          followup_days: number[] | null
           id: boolean
           in_talks_days: number | null
           kit_demo_slugs: string[]
@@ -7577,6 +7587,10 @@ export type Database = {
       }
       commercial_clean_contact: { Args: { p: Json }; Returns: Json }
       commercial_clean_retained: { Args: { p: Json }; Returns: Json }
+      commercial_close_for_client: {
+        Args: { p_note: string; p_restaurant: string }
+        Returns: undefined
+      }
       commercial_close_for_opposition: {
         Args: { p_restaurant: string }
         Returns: undefined
@@ -7615,6 +7629,10 @@ export type Database = {
       commercial_demo_requests_of: {
         Args: { p_declaration: string }
         Returns: Json
+      }
+      commercial_departed_before: {
+        Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
+        Returns: string
       }
       commercial_draft_statement: {
         Args: { p_commercial: string; p_month: string }
@@ -7657,6 +7675,15 @@ export type Database = {
       commercial_first_acceptance: {
         Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
         Returns: string
+      }
+      commercial_in_service: {
+        Args: {
+          p_declared_at: string
+          p_etablissement: string
+          p_ignore?: string
+          p_shop: string
+        }
+        Returns: boolean
       }
       commercial_in_talks: {
         Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }

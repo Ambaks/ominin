@@ -230,29 +230,6 @@ select pg_temp.ok((public.commercial_account() ->> 'declaration_cap')::int = 4 a
   'C5. plafond et carence lus par l''espace');
 select pg_temp.reset();
 
--- ===========================================================================
--- Relances J+1, J+7, J+14 après un rendez-vous (décision de Marwan du 27/10).
-update public.commercial_settings set followup_days = '{1,7,14}', declaration_cap = null, cooldown_days = null;
-insert into public.crm_appointments (restaurant_id, title, start_at, declaration_id, status) values
-  (:'r1', 'Démo', now() - interval '8 days', :'d1', 'completed'),
-  (:'r1', 'Annulé', now() - interval '8 days', :'d1', 'cancelled'),
-  (:'r1', 'Demain', now() + interval '1 day', :'d1', 'scheduled'),
-  (:'r8', 'Rdv d''une déclaration signée', now() - interval '8 days', :'d8', 'completed');
-select pg_temp.act_service();
-select pg_temp.ok(public.commercial_appointment_followups() = 2, 'J+n. rendez-vous tenu il y a 8 jours : relances J+1 et J+7, pas J+14');
-select pg_temp.ok(public.commercial_appointment_followups() = 0, 'J+n. … une seule fois chacune');
-select pg_temp.reset();
-select pg_temp.ok((select array_agg(title order by due_at) from public.crm_tasks where declaration_id = :'d1' and title like 'Relance J+%')
-  = array['Relance J+1 · Démo', 'Relance J+7 · Démo'], 'J+n. relances visibles dans Aujourd''hui, sur la déclaration');
-update public.commerciaux set ended_at = now() - interval '1 hour', end_reason = 'mutual' where id = :'a';
-update public.crm_appointments set start_at = now() - interval '15 days' where title = 'Démo';
-select pg_temp.act_service();
-select pg_temp.ok(public.commercial_appointment_followups() = 0, 'J+n. contrat terminé : plus de relance');
-select pg_temp.reset();
-update public.commerciaux set ended_at = null, end_reason = null where id = :'a';
-update public.commercial_settings set followup_days = null;
-select pg_temp.act_service();
-select pg_temp.ok(public.commercial_appointment_followups() = 0, 'J+n. réglage vide : aucune relance');
-select pg_temp.reset();
+-- (Relances J+1, J+7, J+14 : 11_defauts4.sql, avec leurs règles du quatrième passage.)
 
 rollback;

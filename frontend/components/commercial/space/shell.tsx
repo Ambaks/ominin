@@ -93,12 +93,10 @@ export function SpaceShell({
             <Wordmark suffix="Commercial" />
             <div className="flex items-center gap-2">
               <ThemeToggle />
-              <Link
-                href={spaceHref("/compte")}
-                aria-label="Mon compte"
-                className="ember-gradient grid size-9 place-items-center rounded-full text-xs font-bold text-background"
-              >
-                {initials}
+              <Link href={spaceHref("/compte")} aria-label="Mon compte" className="-m-1 grid size-11 place-items-center">
+                <span className="ember-gradient grid size-9 place-items-center rounded-full text-xs font-bold text-background">
+                  {initials}
+                </span>
               </Link>
             </div>
           </header>

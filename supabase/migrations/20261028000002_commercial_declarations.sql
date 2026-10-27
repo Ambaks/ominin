@@ -68,6 +68,20 @@ insert into public.commercial_settings (
 create trigger commercial_settings_touch before update on public.commercial_settings
   for each row execute function public.set_updated_at();
 
+-- Jours de relance après un rendez-vous : sans doublon, dans l'ordre.
+create function public.commercial_settings_normalize()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  new.followup_days := (select array_agg(distinct n order by n) from unnest(new.followup_days) n);
+  return new;
+end;
+$$;
+create trigger commercial_settings_normalize before insert or update on public.commercial_settings
+  for each row execute function public.commercial_settings_normalize();
+
 alter table public.commercial_settings enable row level security;
 create policy "admin read" on public.commercial_settings
   for select to authenticated using ((select public.is_admin()));

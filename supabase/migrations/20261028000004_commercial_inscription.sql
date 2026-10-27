@@ -63,7 +63,7 @@ as $$
 begin
   update public.commercial_clients
   set ended_at = new.client_ended_at
-  where (ended_at is null or ended_at = old.client_ended_at)
+  where (case when old.client_ended_at is null then ended_at is null else ended_at = old.client_ended_at end)
     and ((new.etablissement_id is not null and etablissement_id = new.etablissement_id)
          or (new.shop_id is not null and shop_id = new.shop_id));
   return new;
@@ -117,8 +117,31 @@ alter table public.commercial_push_subscriptions enable row level security;
 alter table public.commerciaux
   add column push_prefs jsonb not null default '{}' check (jsonb_typeof(push_prefs) = 'object');
 
--- Relances de suivi déjà créées pour un rendez-vous (jours de followup_days).
-alter table public.crm_appointments add column followups_done int[] not null default '{}';
+-- Relance de suivi d'un rendez-vous (jour de followup_days) : une seule par
+-- rendez-vous et par jour, même si deux tâches quotidiennes se croisent.
+alter table public.crm_tasks
+  add column followup_of uuid references public.crm_appointments (id) on delete cascade,
+  add column followup_day int,
+  add constraint crm_tasks_followup check ((followup_of is null) = (followup_day is null));
+create unique index crm_tasks_followup_key on public.crm_tasks (followup_of, followup_day) where followup_of is not null;
+
+-- Rendez-vous annulé, manqué ou reporté après coup : ses relances pas encore
+-- faites disparaissent.
+create function public.commercial_drop_followups()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  delete from public.crm_tasks where followup_of = new.id and status = 'open';
+  return new;
+end;
+$$;
+create trigger crm_appointments_followups
+  after update of status, start_at on public.crm_appointments
+  for each row when (new.status <> 'completed' or new.start_at is distinct from old.start_at)
+  execute function public.commercial_drop_followups();
 
 -- ---------------------------------------------------------------------------
 -- Projet : le client créé à l'inscription garde sa fiche et sa déclaration.
@@ -175,6 +198,47 @@ as $$
     and ((p_etablissement is not null and scope = 'etablissement' and etablissement_id = p_etablissement)
          or (p_shop is not null and scope = 'shop' and shop_id = p_shop));
 $$;
+
+-- Départ d'un client antérieur à une déclaration : celui de sa fiche, ou la
+-- fin figée d'un Client Apporté précédent (elle survit à l'effacement du
+-- départ). Null : jamais parti avant.
+create function public.commercial_departed_before(p_declared_at timestamptz, p_etablissement uuid, p_shop uuid)
+returns timestamptz
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select greatest(
+    (select max(x.client_ended_at) from public.crm_restaurants x
+     where x.deleted_at is null and x.client_ended_at <= p_declared_at
+       and ((p_etablissement is not null and x.etablissement_id = p_etablissement)
+            or (p_shop is not null and x.shop_id = p_shop))),
+    (select max(c.ended_at) from public.commercial_clients c
+     where c.ended_at <= p_declared_at
+       and ((p_etablissement is not null and c.etablissement_id = p_etablissement)
+            or (p_shop is not null and c.shop_id = p_shop))));
+$$;
+
+-- Client en service à la déclaration : des conditions acceptées avant elle,
+-- et depuis son dernier départ s'il était parti (p_ignore : l'acceptation en
+-- cours de traitement). Un tel client n'est jamais attribué.
+create function public.commercial_in_service(p_declared_at timestamptz, p_etablissement uuid, p_shop uuid, p_ignore uuid default null)
+returns boolean
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select exists (
+    select 1 from public.legal_acceptances a
+    where a.id is distinct from p_ignore and a.accepted_at < p_declared_at
+      and a.accepted_at >= coalesce(public.commercial_departed_before(p_declared_at, p_etablissement, p_shop), '-infinity')
+      and ((p_etablissement is not null and a.scope = 'etablissement' and a.etablissement_id = p_etablissement)
+           or (p_shop is not null and a.scope = 'shop' and a.shop_id = p_shop)));
+$$;
+revoke execute on function public.commercial_departed_before(timestamptz, uuid, uuid) from public, anon, authenticated;
+revoke execute on function public.commercial_in_service(timestamptz, uuid, uuid, uuid) from public, anon, authenticated;
 
 -- L'inscription attend la validation de l'admin (null : rien à signaler)
 -- quand le client est déjà relié à une autre fiche, ou quand son nom ou son
@@ -237,18 +301,18 @@ begin
   if v_holder is not null then
     raise exception 'Ce client est déjà le Client Apporté de % : posez d''abord son départ.', v_holder;
   end if;
+  -- Le trigger de signature fait ce contrôle lui-même, avant de relier la fiche.
+  if p_validated and public.commercial_in_service(d.declared_at, p_etablissement, p_shop) then
+    raise exception 'Ce client était déjà en service à la déclaration (conditions acceptées, et pas parti depuis) : il n''est pas attribuable.';
+  end if;
   v_alert := case when p_validated then null else public.commercial_signup_alert(d, p_etablissement, p_shop) end;
   -- Début : la première acceptation des CGV postérieure à la déclaration. Un
-  -- client revenu que l'admin marque signé sans nouvelle acceptation (il en
-  -- avait accepté avant) commence à ce marquage.
+  -- client parti avant la déclaration, marqué signé par l'admin sans
+  -- nouvelle acceptation, commence à ce marquage.
   insert into public.commercial_clients (declaration_id, etablissement_id, shop_id, commission_from, validated_at, alert)
   values (d.id, p_etablissement, p_shop,
           coalesce(public.commercial_first_acceptance(d.declared_at, p_etablissement, p_shop),
-                   case when p_validated and exists (
-                     select 1 from public.legal_acceptances a
-                     where a.accepted_at < d.declared_at
-                       and ((p_etablissement is not null and a.scope = 'etablissement' and a.etablissement_id = p_etablissement)
-                            or (p_shop is not null and a.scope = 'shop' and a.shop_id = p_shop)))
+                   case when p_validated and public.commercial_departed_before(d.declared_at, p_etablissement, p_shop) is not null
                    then now() end),
           case when v_alert is null then now() end, v_alert)
   returning id into v_id;
@@ -308,10 +372,12 @@ begin
   update public.commercial_declarations
   set status = 'signed', ended_at = now(), signup_token_hash = null
   where id = d.id;
+  -- Le Client Apporté d'abord : il lit le départ de la fiche, que la
+  -- signature efface ensuite.
+  perform public.commercial_add_client(d, p_etablissement, p_shop, true);
   update public.crm_restaurants
   set etablissement_id = p_etablissement, shop_id = p_shop, client_ended_at = null
   where id = d.restaurant_id;
-  perform public.commercial_add_client(d, p_etablissement, p_shop, true);
   insert into public.commercial_emails (commercial_id, declaration_id, kind)
   values (d.commercial_id, d.id, 'signed');
   perform public.commercial_reflect(d.id);
@@ -469,7 +535,6 @@ declare
   v_name text;
   v_product public.ominin_product;
   v_projet uuid;
-  v_departed timestamptz;
 begin
   -- Un Client Apporté rattaché avant ses CGV commence à les compter ici.
   update public.commercial_clients
@@ -499,25 +564,12 @@ begin
   if exists (select 1 from public.commerciaux c where c.id = d.commercial_id and public.commercial_contract_end(c) <= now()) then
     return new;
   end if;
-  -- Départ antérieur à la déclaration : celui de la fiche, ou la fin figée
-  -- d'un Client Apporté précédent (elle survit à l'effacement du départ).
-  select greatest(
-           (select max(x.client_ended_at) from public.crm_restaurants x
-            where x.deleted_at is null and x.client_ended_at <= d.declared_at
-              and ((new.scope = 'etablissement' and x.etablissement_id = new.etablissement_id)
-                   or (new.scope = 'shop' and x.shop_id = new.shop_id))),
-           (select max(c.ended_at) from public.commercial_clients c
-            where c.ended_at <= d.declared_at
-              and ((new.scope = 'etablissement' and c.etablissement_id = new.etablissement_id)
-                   or (new.scope = 'shop' and c.shop_id = new.shop_id))))
-  into v_departed;
-  if exists (
-    select 1 from public.legal_acceptances a
-    where a.id <> new.id and a.accepted_at < d.declared_at
-      and a.accepted_at >= coalesce(v_departed, '-infinity') and a.scope = new.scope
-      and ((new.scope = 'etablissement' and a.etablissement_id = new.etablissement_id)
-           or (new.scope = 'shop' and a.shop_id = new.shop_id))
-  ) or exists (
+  if public.commercial_in_service(
+       d.declared_at,
+       case when new.scope = 'etablissement' then new.etablissement_id end,
+       case when new.scope = 'shop' then new.shop_id end,
+       new.id)
+  or exists (
     select 1 from public.commercial_clients c
     where c.ended_at is null
       and ((new.scope = 'etablissement' and c.etablissement_id = new.etablissement_id)
@@ -850,6 +902,32 @@ $$;
 -- quittent ; crm_leads et outreach_prospects gardent la ligne la plus
 -- avancée. Deux déclarations actives : la première confirmée l'emporte,
 -- l'autre est close (motif « fusion ») et son commercial prévenu.
+-- Restaurant devenu (ou redevenu) client sous une réservation : elle est
+-- close, motif « client », sans toucher au reflet du client ; son titulaire
+-- est prévenu et perd l'accès aux interlocuteurs.
+create function public.commercial_close_for_client(p_restaurant uuid, p_note text)
+returns void
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  d public.commercial_declarations;
+begin
+  for d in
+    select * from public.commercial_declarations
+    where restaurant_id = p_restaurant and status in ('pending', 'confirmed')
+  loop
+    update public.commercial_declarations
+    set status = 'abandoned', end_reason = 'client', decision_note = p_note, ended_at = now()
+    where id = d.id;
+    insert into public.commercial_emails (commercial_id, declaration_id, kind, detail)
+    values (d.commercial_id, d.id, 'released', 'client');
+  end loop;
+end;
+$$;
+revoke execute on function public.commercial_close_for_client(uuid, text) from public, anon, authenticated;
+
 create function public.admin_merge_restaurants(p_keep uuid, p_drop uuid, p_note text)
 returns void
 language plpgsql
@@ -946,16 +1024,7 @@ begin
   if k.outreach_opted_out_at is not null then
     perform public.commercial_close_for_opposition(p_keep);
   elsif public.commercial_is_client(k) then
-    for keep_d in
-      select * from public.commercial_declarations
-      where restaurant_id = p_keep and status in ('pending', 'confirmed')
-    loop
-      update public.commercial_declarations
-      set status = 'abandoned', end_reason = 'client', decision_note = btrim(p_note), ended_at = now()
-      where id = keep_d.id;
-      insert into public.commercial_emails (commercial_id, declaration_id, kind, detail)
-      values (keep_d.commercial_id, keep_d.id, 'released', 'client');
-    end loop;
+    perform public.commercial_close_for_client(p_keep, btrim(p_note));
   end if;
   select * into keep_d from public.commercial_declarations
   where restaurant_id = p_keep and status in ('pending', 'confirmed');
@@ -967,7 +1036,8 @@ $$;
 
 -- Départ posé par erreur : la fiche redevient cliente et le Client Apporté
 -- qu'il avait clos est rouvert, comme si de rien n'était ; la régularisation
--- automatique rend au commercial ce que les relevés avaient retranché.
+-- automatique rend au commercial ce que les relevés avaient retranché. Une
+-- redéclaration en cours est close (motif « client »).
 create function public.admin_cancel_client_departure(p_restaurant uuid)
 returns void
 language plpgsql
@@ -996,6 +1066,7 @@ begin
     and ((r.etablissement_id is not null and etablissement_id = r.etablissement_id)
          or (r.shop_id is not null and shop_id = r.shop_id));
   update public.crm_restaurants set client_ended_at = null where id = r.id;
+  perform public.commercial_close_for_client(r.id, 'Départ du client annulé : il n''était pas parti.');
 end;
 $$;
 
@@ -1038,11 +1109,13 @@ $$;
 revoke execute on function public.commercial_morning() from public, anon, authenticated;
 grant execute on function public.commercial_morning() to service_role;
 
--- Relances de suivi après un rendez-vous (décision de Marwan du 27/10) : à
--- chaque jour de followup_days (réglage ; vide : aucune), une relance « J+n »
--- dans Aujourd'hui, créée le matin de ce jour (heure de Paris) par la tâche
--- quotidienne, une seule fois ; le push du matin la compte. Rien pour un
--- rendez-vous annulé ou manqué, une déclaration close ou un contrat terminé.
+-- Relances de suivi après un rendez-vous (décision de Marwan du 27/10) : pour
+-- chaque rendez-vous noté « fait », une relance « J+n » par jour de
+-- followup_days (réglage ; vide : aucune), créée par la tâche quotidienne le
+-- jour même de son échéance (heure de Paris) ; le push du matin la compte.
+-- Une échéance déjà passée (rendez-vous noté fait après coup, tâche qui n'a
+-- pas tourné) ne se rattrape pas. Rien pour une déclaration close ou un
+-- contrat terminé ; une seule fois par jour de relance (index unique).
 create function public.commercial_appointment_followups()
 returns int
 language sql
@@ -1050,32 +1123,24 @@ security definer
 set search_path = ''
 as $$
   with cfg as (select followup_days from public.commercial_cfg() where followup_days is not null),
-  day_end as (
-    select (date_trunc('day', now() at time zone 'Europe/Paris') + interval '1 day') at time zone 'Europe/Paris' as at
-  ),
-  due as (
-    select ap.id, ap.restaurant_id, ap.title, ap.start_at, ap.declaration_id, c.user_id, n
-    from public.crm_appointments ap
-    join public.commercial_declarations d on d.id = ap.declaration_id
-    join public.commerciaux c on c.id = d.commercial_id, cfg, day_end,
-    unnest(cfg.followup_days) n
-    where ap.status in ('scheduled', 'completed')
-      and ap.start_at + make_interval(days => n) < day_end.at
-      and not (n = any (ap.followups_done))
-      and public.commercial_status_at(d) in ('pending', 'confirmed')
-      and public.commercial_contract_end(c) > now()
-  ),
-  marked as (
-    update public.crm_appointments ap
-    set followups_done = ap.followups_done || array(select due.n from due where due.id = ap.id)
-    where ap.id in (select id from due)
-    returning ap.id
+  today as (
+    select (date_trunc('day', now() at time zone 'Europe/Paris')) at time zone 'Europe/Paris' as start,
+           (date_trunc('day', now() at time zone 'Europe/Paris') + interval '1 day') at time zone 'Europe/Paris' as stop
   ),
   created as (
-    insert into public.crm_tasks (restaurant_id, title, due_at, status, created_by, declaration_id)
-    select restaurant_id, left('Relance J+' || n || ' · ' || title, 300), start_at + make_interval(days => n),
-           'open', user_id, declaration_id
-    from due
+    insert into public.crm_tasks (restaurant_id, title, due_at, status, created_by, declaration_id, followup_of, followup_day)
+    select ap.restaurant_id, left('Relance J+' || n || ' · ' || ap.title, 300), ap.start_at + make_interval(days => n),
+           'open', c.user_id, ap.declaration_id, ap.id, n
+    from public.crm_appointments ap
+    join public.commercial_declarations d on d.id = ap.declaration_id
+    join public.commerciaux c on c.id = d.commercial_id, cfg, today,
+    unnest(cfg.followup_days) n
+    where ap.status = 'completed'
+      and ap.start_at + make_interval(days => n) >= today.start
+      and ap.start_at + make_interval(days => n) < today.stop
+      and public.commercial_status_at(d) in ('pending', 'confirmed')
+      and public.commercial_contract_end(c) > now()
+    on conflict (followup_of, followup_day) where followup_of is not null do nothing
     returning 1
   )
   select count(*)::int from created;
@@ -1086,15 +1151,20 @@ grant execute on function public.commercial_appointment_followups() to service_r
 -- Demandes de démo d'une déclaration du commercial, et le lien de la démo livrée.
 create function public.commercial_demo_requests_of(p_declaration uuid)
 returns jsonb
-language sql
+language plpgsql
 security definer
 set search_path = ''
 as $$
-  select coalesce(jsonb_agg(jsonb_build_object(
-           'id', q.id, 'status', q.status, 'demo_url', q.demo_url, 'created_at', q.created_at)
-           order by q.created_at desc), '[]')
-  from public.commercial_demo_requests q
-  where q.declaration_id = (public.commercial_my_active(p_declaration)).id;
+declare
+  d public.commercial_declarations := public.commercial_my_active(p_declaration);
+begin
+  return coalesce((
+    select jsonb_agg(jsonb_build_object(
+             'id', q.id, 'status', q.status, 'demo_url', q.demo_url, 'created_at', q.created_at)
+             order by q.created_at desc)
+    from public.commercial_demo_requests q
+    where q.declaration_id = d.id), '[]');
+end;
 $$;
 
 

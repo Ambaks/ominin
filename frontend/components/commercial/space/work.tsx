@@ -146,16 +146,30 @@ export function FollowUps({ sheet, onChange }: { sheet: Sheet; onChange: () => v
   const run = useRunMutation();
   const declarationId = sheet.mine!.id;
   const [adding, setAdding] = useState<"task" | "appointment" | null>(null);
+  // Rendez-vous à reporter : nouvelle date dans la même feuille que l'ajout.
+  const [moving, setMoving] = useState<api.Appointment | null>(null);
   const [title, setTitle] = useState("");
   const [when, setWhen] = useState("");
   const [where, setWhere] = useState("");
 
   const close = () => {
     setAdding(null);
+    setMoving(null);
     setTitle("");
     setWhen("");
     setWhere("");
   };
+  const setStatus = (rdv: api.Appointment, status: "completed" | "cancelled" | "no_show", done: string) =>
+    void run(async () => {
+      await api.upsertAppointment(declarationId, { id: rdv.id, status });
+      onChange();
+    }, done);
+  const move = () =>
+    void run(async () => {
+      await api.upsertAppointment(declarationId, { id: moving!.id, start_at: fromDatetimeLocalValue(when) });
+      close();
+      onChange();
+    }, "Rendez-vous reporté");
   const add = () =>
     void run(async () => {
       if (adding === "task") {
@@ -176,33 +190,37 @@ export function FollowUps({ sheet, onChange }: { sheet: Sheet; onChange: () => v
       <SectionTitle>À venir</SectionTitle>
       <ul className="flex flex-col gap-2">
         {sheet.appointments.map((rdv) => (
-          <li key={rdv.id} className="flex items-center gap-3 rounded-xl border border-hairline px-4 py-3 text-sm">
-            <span className="min-w-0 flex-1">
-              <span className="block truncate font-medium">{rdv.title}</span>
-              <span className="text-xs text-muted">
-                Rendez-vous {formatDayTime(rdv.start_at)}
-                {rdv.location ? ` · ${rdv.location}` : ""}
+          <li key={rdv.id} className="flex flex-col gap-2.5 rounded-xl border border-hairline px-4 py-3 text-sm">
+            <div className="flex items-center gap-3">
+              <span className="min-w-0 flex-1">
+                <span className="block truncate font-medium">{rdv.title}</span>
+                <span className="text-xs text-muted">
+                  Rendez-vous {formatDayTime(rdv.start_at)}
+                  {rdv.location ? ` · ${rdv.location}` : ""}
+                </span>
               </span>
-            </span>
-            <a
-              href={`/api/commercial/rdv/${rdv.id}`}
-              className={ghostButton}
-              aria-label="Ajouter à mon agenda"
-            >
-              <CalendarIcon className="size-4" />
-            </a>
-            <button
-              type="button"
-              onClick={() =>
-                void run(async () => {
-                  await api.upsertAppointment(declarationId, { id: rdv.id, status: "completed" });
-                  onChange();
-                }, "Rendez-vous fait")
-              }
-              className={ghostButton}
-            >
-              Fait
-            </button>
+              <a
+                href={`/api/commercial/rdv/${rdv.id}`}
+                className={ghostButton}
+                aria-label="Ajouter à mon agenda"
+              >
+                <CalendarIcon className="size-4" />
+              </a>
+            </div>
+            <div className="grid grid-cols-4 gap-1.5">
+              <button type="button" onClick={() => setStatus(rdv, "completed", "Rendez-vous fait")} className={ghostButton}>
+                Fait
+              </button>
+              <button type="button" onClick={() => setStatus(rdv, "no_show", "Rendez-vous manqué")} className={ghostButton}>
+                Manqué
+              </button>
+              <button type="button" onClick={() => setStatus(rdv, "cancelled", "Rendez-vous annulé")} className={ghostButton}>
+                Annulé
+              </button>
+              <button type="button" onClick={() => setMoving(rdv)} className={ghostButton}>
+                Reporter
+              </button>
+            </div>
           </li>
         ))}
         {sheet.tasks.map((task) => (
@@ -234,6 +252,21 @@ export function FollowUps({ sheet, onChange }: { sheet: Sheet; onChange: () => v
           + Rendez-vous
         </button>
       </div>
+      {moving && (
+        <Modal
+          title={`Reporter « ${moving.title} »`}
+          onClose={close}
+          footer={
+            <button type="button" onClick={move} disabled={!when} className={`${primaryButton} w-full`}>
+              Reporter
+            </button>
+          }
+        >
+          <Field label="Nouvelle date" required>
+            <input type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} className={inputClass} />
+          </Field>
+        </Modal>
+      )}
       {adding && (
         <Modal
           title={adding === "task" ? "Nouvelle relance" : "Nouveau rendez-vous"}

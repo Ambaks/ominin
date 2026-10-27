@@ -241,6 +241,14 @@ begin
       and (p_restaurant is null or restaurant_id = p_restaurant)
     for update
   loop
+    -- Contrat terminé : la déclaration est libérée, jamais confirmée.
+    if exists (select 1 from public.commerciaux c where c.id = d.commercial_id and public.commercial_contract_end(c) <= now()) then
+      update public.commercial_declarations
+      set status = 'abandoned', end_reason = 'contract_ended', ended_at = now()
+      where id = d.id;
+      perform public.commercial_reflect(d.id);
+      continue;
+    end if;
     update public.commercial_declarations
     set status = 'confirmed',
         confirmed_at = d.confirm_deadline,
@@ -1144,6 +1152,10 @@ begin
         is_decision_maker = (v ->> 'is_decision_maker')::boolean
     where id = v_id and restaurant_id = d.restaurant_id and created_by = auth.uid() and created_at >= d.declared_at;
     if not found then
+      if exists (select 1 from public.crm_contacts c where c.id = v_id and c.restaurant_id = d.restaurant_id
+                 and exists (select 1 from public.commerciaux m where m.user_id = c.created_by)) then
+        raise exception 'Cet interlocuteur a été saisi par un commercial lors d''une autre déclaration : il ne se modifie pas ici. Ajoutez-en un autre.';
+      end if;
       if exists (select 1 from public.crm_contacts where id = v_id and restaurant_id = d.restaurant_id) then
         raise exception 'Cet interlocuteur a été saisi par Ominin : il ne se modifie pas ici. Ajoutez-en un autre.';
       end if;

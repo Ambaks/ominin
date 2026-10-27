@@ -335,6 +335,12 @@ declare
   s public.commercial_statements;
 begin
   perform public.admin_require();
+  -- Recalculé juste avant d'être figé : une régularisation déjà portée par
+  -- un autre relevé envoyé n'est jamais comptée deux fois.
+  select * into s from public.commercial_statements where id = p_statement and status = 'draft' for update;
+  if s.id is not null then
+    perform public.commercial_draft_statement(s.commercial_id, s.month);
+  end if;
   update public.commercial_statements
   set status = 'sent', sent_at = now()
   where id = p_statement and status = 'draft'

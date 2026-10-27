@@ -94,7 +94,7 @@ function SettingsForm() {
       await updateSettings({
         ...Object.fromEntries(EDITABLE.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])),
         kit_demo_slugs: list(demos),
-        followup_days: list(followups).length ? list(followups).map(Number) : null,
+        followup_days: list(followups).length ? [...new Set(list(followups).map(Number))].sort((a, b) => a - b) : null,
         eligible_stripe_prices: list(prices),
         club_fees_included: club === "" ? null : club === "oui",
       });
