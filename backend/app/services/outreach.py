@@ -163,13 +163,20 @@ def _rotation(sb) -> list[dict]:
     return [control, *(r for r in rows if r["status"] == "active")]
 
 
+def _onsite(city: str | None) -> bool:
+    cities = {c.strip().casefold() for c in settings.outreach_onsite_cities.split(",")}
+    return bool(city) and city.casefold() in cities
+
+
 def _compose_one(sb, restaurant: dict, ai_notes: str | None, variant: dict) -> None:
+    meeting = "possible" if _onsite(restaurant.get("city")) else "pas encore, propose un appel"
     facts = [
         f"Nom : {restaurant['name']}",
         f"Ville : {restaurant.get('city') or 'inconnue'}",
         f"Catégorie : {restaurant.get('category')}",
         f"Cuisine : {restaurant.get('cuisine') or 'inconnue'}",
         f"Notes de personnalisation : {ai_notes or 'aucune'}",
+        f"Rencontre au restaurant : {meeting}",
     ]
     email = parse_structured(
         f"{LEA_PERSONA}\n\n{variant['prompt_rules']}", "\n".join(facts), ColdEmail

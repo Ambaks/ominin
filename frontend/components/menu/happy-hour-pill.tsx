@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useId, useState } from "react";
+import { useEffect, useState } from "react";
 import { parisParts } from "@/lib/collect/hours";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { formatHeure } from "@/lib/gestion/fermetures";
 import { formatWait, useNow } from "@/lib/gestion/use-now";
-import type { Formule } from "@/lib/gestion/types";
-import { useCart } from "@/lib/menu/cart";
 import { formatPrice } from "@/lib/menu/format";
 import { type HappyHour, windowAt } from "@/lib/menu/happy-hour";
 import { AddToOrder } from "./add-to-order";
-import { FormuleModal, openFormule } from "./formules";
-import { Sheet } from "./sheet";
+import { FormuleOffers } from "./formules";
+import { OfferHead, OfferPill } from "./offer-pill";
 
 /** Un verre à cocktail, sa rondelle sur le bord. */
 function Glass({ className }: { className?: string }) {
@@ -26,14 +24,12 @@ function Glass({ className }: { className?: string }) {
 }
 
 /**
- * La happy hour en cours, en bas à gauche : une pastille dont la pièce tourne
- * de temps en temps (globals.css), qui ouvre la liste des offres. Elle s'en va
- * d'elle-même à la fin de la fenêtre, sans attendre que la page se recharge.
+ * La happy hour en cours, en pastille qui ouvre la liste des offres. Elle
+ * s'en va d'elle-même à la fin de la fenêtre, sans attendre que la page se
+ * recharge.
  */
 export function HappyHourPill({ happyHour }: { happyHour: HappyHour }) {
-  const [open, setOpen] = useState(false);
   const [ended, setEnded] = useState(false);
-  const titleId = useId();
   const until = formatHeure(happyHour.hours.endsAt);
 
   useEffect(() => {
@@ -46,28 +42,15 @@ export function HappyHourPill({ happyHour }: { happyHour: HappyHour }) {
   if (ended) return null;
 
   return (
-    <>
-      <button
-        type="button"
-        aria-haspopup="dialog"
-        aria-label={`${happyHour.title}, jusqu’à ${until}`}
-        onClick={() => setOpen(true)}
-        className="happy-hour-pill"
-      >
-        <span className="happy-hour-coin" aria-hidden>
-          <Glass className="size-4" />
-        </span>
-        <span className="flex flex-col text-left leading-tight">
-          Happy hour
-          <small>jusqu’à {until}</small>
-        </span>
-      </button>
-      {open && (
-        <Sheet card backdropCloses labelledBy={titleId} onClosed={() => setOpen(false)}>
-          {(close) => <Offers happyHour={happyHour} titleId={titleId} close={close} />}
-        </Sheet>
-      )}
-    </>
+    <OfferPill
+      className="happy-hour-pill"
+      icon={<Glass className="size-4" />}
+      label="Happy hour"
+      detail={`jusqu’à ${until}`}
+      ariaLabel={`${happyHour.title}, jusqu’à ${until}`}
+    >
+      {(titleId, close) => <Offers happyHour={happyHour} titleId={titleId} close={close} />}
+    </OfferPill>
   );
 }
 
@@ -89,21 +72,10 @@ function Offers({
     return offers.length > 0 ? [{ ...group, offers }] : [];
   });
   const formules = happyHour.formules.filter(({ formule }) => windowAt(formule.hours, minutes));
-  const { closed } = useCart();
-  const [composing, setComposing] = useState<Formule | null>(null);
 
   return (
-    <div className="happy-hour-sheet">
-      <header className="happy-hour-head">
-        <button type="button" onClick={close} aria-label="Fermer" className="happy-hour-close">
-          <svg viewBox="0 0 16 16" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
-            <path d="M3.5 3.5l9 9m0-9-9 9" />
-          </svg>
-        </button>
-        <p className="happy-hour-kicker">En ce moment</p>
-        <h2 id={titleId} className="font-display text-2xl leading-tight">
-          {happyHour.title}
-        </h2>
+    <>
+      <OfferHead kicker="En ce moment" title={happyHour.title} titleId={titleId} close={close}>
         <p className="mt-1 text-sm">
           Jusqu’à {formatHeure(endsAt)}
           {span && <strong> · plus que {formatWait(span.left)}</strong>}
@@ -113,41 +85,12 @@ function Offers({
             <span style={{ width: `${(span.elapsed / span.length) * 100}%` }} />
           </span>
         )}
-      </header>
-      <div className="happy-hour-offers">
+      </OfferHead>
+      <div className="offer-list">
         {formules.length > 0 && (
           <section>
             <h3 className="font-display">Formules</h3>
-            <ul>
-              {formules.map(({ formule, wasPrice }) => {
-                const served = openFormule(formule, closed);
-                return (
-                  <li key={formule.id}>
-                    <span className="happy-hour-thumb" aria-hidden>
-                      {[...formule.name][0]}
-                    </span>
-                    <span className="flex min-w-0 flex-col">
-                      <span className="font-display leading-tight">{formule.name}</span>
-                      <small>{formule.etapes.map((etape) => etape.name).join(" · ")}</small>
-                    </span>
-                    <span className="happy-hour-price">
-                      {wasPrice !== undefined && <s>{formatPrice(wasPrice)}</s>}
-                      <b className="font-display">{formatPrice(formule.price)}</b>
-                    </span>
-                    <div className="dish-action">
-                      <button
-                        type="button"
-                        disabled={!served}
-                        aria-haspopup="dialog"
-                        aria-label={`Composer : ${formule.name}`}
-                        onClick={() => setComposing(served)}
-                        className="ember-gradient rounded-full text-background disabled:opacity-60"
-                      />
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
+            <FormuleOffers formules={formules} />
           </section>
         )}
         {groups.map((group) => (
@@ -156,7 +99,7 @@ function Offers({
             <ul>
               {group.offers.map((offer) => (
                 <li key={`${offer.item.id}:${offer.format?.id ?? ""}`}>
-                  <span className="happy-hour-thumb" aria-hidden>
+                  <span className="offer-thumb" aria-hidden>
                     {offer.item.image ? (
                       // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
                       <img src={offer.item.image} alt="" loading="lazy" />
@@ -174,7 +117,7 @@ function Offers({
                       </small>
                     )}
                   </span>
-                  <span className="happy-hour-price">
+                  <span className="offer-price">
                     <s>{formatPrice(offer.basePrice)}</s>
                     <b className="font-display">{formatPrice(offer.price)}</b>
                   </span>
@@ -187,7 +130,6 @@ function Offers({
           </section>
         ))}
       </div>
-      {composing && <FormuleModal formule={composing} onClose={() => setComposing(null)} />}
-    </div>
+    </>
   );
 }

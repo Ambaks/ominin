@@ -1,0 +1,829 @@
+/*
+ * Les pages des bulles (réserver, suivre sa réservation, payer sa place par
+ * le lien d'un ami), dans la DA du Boho : les jetons et les boutons viennent
+ * de boho.css, chargée avant celle-ci.
+ */
+
+.bo-bulle-site {
+  background:
+    radial-gradient(ellipse 120% 60% at 50% -10%, #6b3328 0%, transparent 60%),
+    var(--bo-nuit);
+}
+
+.bo-header--plain {
+  justify-content: center;
+}
+
+.bo-bulle-main {
+  padding: 1rem 1rem 4rem;
+}
+
+.bo-bulle-page {
+  width: 100%;
+  max-width: 34rem;
+  margin: 0 auto;
+}
+
+.bo-bulle-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin: 0.75rem 0 2rem;
+}
+
+.bo-bulle-title {
+  font-size: clamp(3.75rem, 16vw, 5rem);
+  color: var(--bo-creme);
+}
+
+.bo-stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.bo-h3 {
+  margin: 0;
+  font-family: var(--bo-display);
+  font-weight: 400;
+  font-size: 1.75rem;
+  line-height: 1.15;
+}
+
+.bo-muted {
+  margin: 0;
+  color: var(--bo-muted);
+}
+
+.bo-muted-night {
+  margin: 0;
+  color: var(--bo-texte-nuit);
+}
+
+/* Dans la nuit (le choix du créneau), les textes discrets s'éclaircissent. */
+.bo-night-text .bo-muted,
+.bo-total .bo-muted {
+  color: var(--bo-muted-nuit);
+}
+
+.bo-small {
+  font-size: 0.9375rem;
+  line-height: 1.5;
+}
+
+.bo-button--block {
+  width: 100%;
+}
+
+.bo-link-button {
+  align-self: center;
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  padding: 0 1rem;
+  border: 0;
+  background: none;
+  color: var(--bo-rouge-texte) !important;
+  font: 500 1rem var(--bo-sans);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+}
+
+.bo-night-text .bo-link-button {
+  color: var(--bo-lampe) !important;
+}
+
+.bo-form-error {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 0.875rem;
+  background: rgb(181 68 58 / 0.12);
+  color: var(--bo-rouge-texte);
+  font-size: 0.9375rem;
+}
+
+.bo-night-text .bo-form-error {
+  background: rgb(181 68 58 / 0.25);
+  color: var(--bo-creme);
+}
+
+/* Les cartes sur parchemin, posées dans la nuit. */
+.bo-panel {
+  padding: 1.5rem 1.25rem;
+  border-radius: 1.5rem;
+  background: var(--bo-parchemin);
+  color: var(--bo-nuit);
+}
+
+.bo-panel-script {
+  font-size: 3.25rem;
+  color: var(--bo-rouge);
+}
+
+/* ───────────── Le soir ───────────── */
+
+.bo-days {
+  display: flex;
+  gap: 0.5rem;
+  margin: 0 -1rem;
+  padding: 0 1rem 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.bo-day {
+  display: flex;
+  flex: 0 0 auto;
+  min-width: 4.25rem;
+  min-height: 4.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  border: 1px solid rgb(229 176 114 / 0.4);
+  border-radius: 1.125rem;
+  background: transparent;
+  color: var(--bo-parchemin);
+  font-family: var(--bo-sans);
+  cursor: pointer;
+  transition:
+    background 0.25s,
+    color 0.25s,
+    border-color 0.25s;
+}
+
+.bo-day span {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.bo-day strong {
+  font-family: var(--bo-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.bo-day[aria-pressed="true"] {
+  border-color: var(--bo-parchemin);
+  background: var(--bo-parchemin);
+  color: var(--bo-nuit);
+}
+
+/* ───────────── Créneaux et bulles ───────────── */
+
+.bo-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bo-slot {
+  padding: 1rem;
+  border: 1px solid rgb(229 176 114 / 0.3);
+  border-radius: 1.25rem;
+  background: rgb(244 230 212 / 0.04);
+}
+
+.bo-slot--skeleton {
+  height: 8.5rem;
+  animation: bo-respire 1.6s ease-in-out infinite;
+}
+
+@keyframes bo-respire {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.bo-slot[data-full] {
+  border-style: dashed;
+  opacity: 0.6;
+}
+
+.bo-slot-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.bo-slot-head strong {
+  font-family: var(--bo-display);
+  font-size: 1.375rem;
+  font-weight: 400;
+}
+
+.bo-slot-head span {
+  font-size: 0.875rem;
+  color: var(--bo-muted-nuit);
+}
+
+.bo-slot-bulles {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.bo-pick {
+  --orb: var(--bo-rouge);
+  display: flex;
+  min-height: 5.25rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  border: 1px solid transparent;
+  border-radius: 1rem;
+  background: transparent;
+  color: var(--bo-parchemin);
+  font: 500 0.8125rem var(--bo-sans);
+  cursor: pointer;
+  transition:
+    background 0.25s,
+    border-color 0.25s;
+}
+
+.bo-pick-orb {
+  width: 2.75rem;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 35% 28%,
+    color-mix(in oklab, var(--orb) 40%, white) 0%,
+    var(--orb) 55%,
+    color-mix(in oklab, var(--orb) 45%, black) 100%
+  );
+  box-shadow: 0 0 18px rgb(229 176 114 / 0.25);
+  transition:
+    transform 0.35s var(--bo-ease),
+    box-shadow 0.35s;
+}
+
+.bo-pick:hover:not(:disabled) .bo-pick-orb {
+  transform: scale(1.08);
+}
+
+.bo-pick[aria-pressed="true"] {
+  border-color: var(--bo-lampe);
+  background: rgb(229 176 114 / 0.14);
+}
+
+.bo-pick[aria-pressed="true"] .bo-pick-orb {
+  box-shadow:
+    0 0 0 3px var(--bo-nuit),
+    0 0 0 5px var(--bo-lampe),
+    0 0 28px rgb(229 176 114 / 0.6);
+}
+
+/* Prise : le hublot éteint, barré d'un trait. */
+.bo-pick:disabled {
+  cursor: not-allowed;
+  color: var(--bo-muted-nuit);
+}
+
+.bo-pick:disabled .bo-pick-orb {
+  background: linear-gradient(
+    135deg,
+    transparent 47%,
+    rgb(229 176 114 / 0.45) 47%,
+    rgb(229 176 114 / 0.45) 53%,
+    transparent 53%
+  );
+  box-shadow: inset 0 0 0 1px rgb(229 176 114 / 0.35);
+}
+
+/* ───────────── Le groupe ───────────── */
+
+.bo-steppers {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.bo-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0.75rem;
+  border: 1px solid rgb(229 176 114 / 0.35);
+  border-radius: 1.125rem;
+}
+
+.bo-stepper button {
+  display: grid;
+  width: 3rem;
+  height: 3rem;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid var(--bo-lampe);
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  font: 400 1.5rem/1 var(--bo-sans);
+  cursor: pointer;
+}
+
+.bo-stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.bo-stepper output {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.bo-stepper strong {
+  font-family: var(--bo-display);
+  font-size: 2.25rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.bo-stepper output span {
+  font-size: 0.875rem;
+  color: var(--bo-muted-nuit);
+}
+
+.bo-stepper--paper {
+  border-color: var(--bo-filet);
+}
+
+.bo-stepper--paper button {
+  border-color: var(--bo-caramel);
+}
+
+.bo-stepper--paper output span {
+  color: var(--bo-muted);
+}
+
+/* ───────────── Total ───────────── */
+
+.bo-total {
+  position: sticky;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 0 -1rem;
+  padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgb(37 27 32 / 0) 0%, var(--bo-nuit) 22%);
+}
+
+.bo-total > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid rgb(229 176 114 / 0.25);
+}
+
+.bo-total strong {
+  font-family: var(--bo-display);
+  font-size: 2rem;
+  font-weight: 400;
+}
+
+/* ───────────── Récapitulatif ───────────── */
+
+.bo-recap {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1.1rem;
+  padding: 1.25rem;
+  border-radius: 3.5rem 1.5rem 1.5rem 3.5rem;
+  background: var(--bo-parchemin);
+  color: var(--bo-nuit);
+}
+
+.bo-recap p {
+  margin: 0;
+}
+
+.bo-recap > div {
+  min-width: 0;
+}
+
+.bo-recap-orb {
+  width: 4.5rem;
+  flex: 0 0 auto;
+}
+
+.bo-recap-title {
+  font-family: var(--bo-display);
+  font-size: 1.75rem;
+  line-height: 1.1;
+}
+
+.bo-recap-detail {
+  color: var(--bo-ecorce);
+}
+
+/* ───────────── Coordonnées ───────────── */
+
+.bo-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.bo-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--bo-ecorce);
+}
+
+.bo-field input {
+  min-height: 3.25rem;
+  padding: 0 1rem;
+  border: 1px solid var(--bo-filet);
+  border-radius: 1rem;
+  background: var(--bo-parchemin-2);
+  color: var(--bo-nuit);
+  font: 400 1rem var(--bo-sans);
+  color-scheme: light;
+}
+
+.bo-field input:focus {
+  border-color: var(--bo-ecorce);
+  outline: none;
+  box-shadow: 0 0 0 3px rgb(90 46 31 / 0.25);
+}
+
+.bo-field input[aria-invalid="true"] {
+  border-color: var(--bo-rouge);
+}
+
+.bo-field-error {
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--bo-rouge-texte);
+}
+
+/* ───────────── Paiement ───────────── */
+
+.bo-pay {
+  padding: 1.5rem 1.25rem;
+  border-radius: 1.5rem;
+  background: var(--bo-parchemin);
+  color: var(--bo-nuit);
+}
+
+.bo-pay-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+}
+
+.bo-pay-head p {
+  margin: 0;
+}
+
+.bo-pay-amount {
+  margin: 0.2rem 0;
+  font-family: var(--bo-display);
+  font-size: 2.5rem;
+  font-weight: 400;
+  line-height: 1;
+}
+
+.bo-pay-detail {
+  color: var(--bo-muted);
+  font-size: 0.9375rem;
+}
+
+.bo-pay-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.bo-apple-pay {
+  width: 100%;
+  height: 3rem;
+  border-radius: 999px;
+  -webkit-appearance: -apple-pay-button;
+  -apple-pay-button-type: plain;
+  -apple-pay-button-style: black;
+}
+
+.bo-google-pay {
+  width: 100%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.bo-google-pay[data-shown] {
+  height: 3rem;
+}
+
+.bo-google-pay[data-busy] {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.bo-pay-or {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.25rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bo-muted);
+}
+
+.bo-pay-or::before,
+.bo-pay-or::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--bo-filet);
+}
+
+.bo-card-fields {
+  position: relative;
+  color-scheme: normal;
+}
+
+.bo-card-fields[data-loading] {
+  min-height: 6rem;
+  border-radius: 1rem;
+  background: var(--bo-parchemin-2);
+  animation: bo-respire 1.6s ease-in-out infinite;
+}
+
+/* Square peint son cadre en blanc, après notre feuille. */
+.bo-card-fields .sq-card-iframe-container {
+  background: var(--bo-parchemin-2) !important;
+}
+
+.bo-pay-secure {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--bo-muted);
+}
+
+/* Le compte à rebours de la place tenue (HoldCountdown). */
+.bo-pay .club-countdown {
+  position: relative;
+  display: grid;
+  width: 60px;
+  height: 60px;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.bo-pay .club-countdown svg {
+  position: absolute;
+  inset: 0;
+  transform: rotate(-90deg);
+}
+
+.bo-pay .club-countdown circle {
+  fill: none;
+  stroke-width: 3;
+}
+
+.bo-pay .club-countdown-track {
+  stroke: var(--bo-filet);
+}
+
+.bo-pay .club-countdown-ring {
+  stroke: var(--bo-caramel);
+  stroke-linecap: round;
+}
+
+.bo-pay .club-countdown[data-urgent] .club-countdown-ring {
+  stroke: var(--bo-rouge);
+}
+
+.bo-pay .club-countdown-time {
+  font-size: 0.9375rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ───────────── Partage ───────────── */
+
+.bo-share {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bo-share p {
+  margin: 0;
+  text-align: center;
+}
+
+.bo-share-url {
+  display: flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.25rem 0.25rem 0.25rem 1rem;
+  border: 1px dashed var(--bo-caramel);
+  border-radius: 999px;
+}
+
+.bo-share-url span {
+  flex: 1;
+  overflow: hidden;
+  font-size: 0.875rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--bo-ecorce);
+}
+
+.bo-share-url button {
+  min-height: 2.75rem;
+  padding: 0 1.1rem;
+  border: 0;
+  border-radius: 999px;
+  background: var(--bo-nuit);
+  color: var(--bo-parchemin);
+  font: 500 0.875rem var(--bo-sans);
+  cursor: pointer;
+}
+
+/* ───────────── Le pass ───────────── */
+
+.bo-ticket {
+  --orb: var(--bo-rouge);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1.5rem 1.5rem;
+  border-radius: 50% 50% 1.5rem 1.5rem / 11rem 11rem 1.5rem 1.5rem;
+  background: var(--bo-parchemin);
+  color: var(--bo-nuit);
+  text-align: center;
+}
+
+.bo-ticket p {
+  margin: 0;
+}
+
+.bo-ticket-orb {
+  width: 7.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.bo-ticket[data-status="remboursee"] .bo-ticket-orb,
+.bo-ticket[data-status="annulee"] .bo-ticket-orb {
+  filter: grayscale(0.85);
+  animation: none;
+}
+
+.bo-pill {
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: var(--bo-nuit);
+  color: var(--bo-lampe);
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.bo-ticket[data-status="confirmee"] .bo-pill,
+.bo-ticket[data-status="arrivee"] .bo-pill {
+  background: var(--bo-rouge);
+  color: var(--bo-parchemin-2);
+}
+
+.bo-ticket-title {
+  margin: 0;
+  font-family: var(--bo-display);
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.1;
+}
+
+.bo-ticket-text {
+  color: var(--bo-ecorce);
+  font-size: 0.9375rem;
+}
+
+.bo-ticket-facts {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0.5rem 0 0;
+  border-top: 1px solid var(--bo-filet);
+}
+
+.bo-ticket-facts > div {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.85rem 0.5rem;
+  border-bottom: 1px solid var(--bo-filet);
+}
+
+.bo-ticket-facts > div:nth-child(odd) {
+  border-right: 1px solid var(--bo-filet);
+}
+
+.bo-ticket-facts dt {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--bo-rouge-texte);
+}
+
+.bo-ticket-facts dd {
+  margin: 0;
+  font-weight: 500;
+}
+
+.bo-places {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding-top: 0.5rem;
+}
+
+.bo-seats {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.bo-seats span {
+  width: 1.5rem;
+  aspect-ratio: 1;
+  border: 1.5px solid var(--bo-filet);
+  border-radius: 50%;
+}
+
+/* Les places qui comptent pour confirmer, cerclées de caramel. */
+.bo-seats span[data-minimum] {
+  border-color: var(--bo-caramel);
+}
+
+.bo-seats span[data-paid] {
+  border-color: var(--orb);
+  background: var(--orb);
+}
+
+.bo-payers {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bo-payers li {
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  background: var(--bo-parchemin-2);
+  font-size: 0.875rem;
+}
+
+.bo-ticket-foot {
+  margin-top: 0.5rem !important;
+  font-size: 0.8125rem;
+  color: var(--bo-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bo-slot--skeleton,
+  .bo-card-fields[data-loading] {
+    animation: none;
+  }
+
+  .bo-pick-orb,
+  .bo-day,
+  .bo-pick {
+    transition: none;
+  }
+}

@@ -6,8 +6,10 @@ import type { Formule } from "@/lib/gestion/types";
 import { formatPrice, formatsLine } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
+import type { SaisonSpots } from "@/lib/menu/saison";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
+import { veloursPalettes } from "@/components/menu/velours-palettes";
 import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import allergenesDemo from "@/lib/menu/allergenes-demo.json";
@@ -290,6 +292,13 @@ export interface Restaurant {
    * elle tient lieu de hero à elle seule, sans texte superposé.
    */
   poster?: string;
+  /** Les repères de l'habillage de saison sur l'affiche (lib/menu/saison). */
+  saisonSpots?: SaisonSpots;
+  /**
+   * La même affiche en panorama (srcset), pour les écrans en paysage : en
+   * hauteur, elle n'y occupait qu'une colonne entre deux marges floutées.
+   */
+  posterWide?: string;
   /**
    * Affiches des offres, de la plus ancienne à la plus récente. Sous
    * l'affiche du restaurant (poster), elles prennent la place de l'adresse
@@ -297,6 +306,11 @@ export interface Restaurant {
    * section des formules.
    */
   affiches?: AfficheMenu[];
+  /**
+   * Affiches et formules dans une pastille en bas à gauche
+   * (components/menu/formules-pill.tsx), plus en tête de carte.
+   */
+  formulesPill?: boolean;
   address: string;
   phone: string;
   hours: string;
@@ -780,6 +794,42 @@ const boho: Restaurant = {
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
   poster: "/boho/poster.webp",
+  posterWide:
+    "/boho/poster-wide-1600.webp 1600w, /boho/poster-wide-2400.webp 2400w, /boho/poster-wide-3040.webp 3040w",
+  formulesPill: true,
+  // Mesurés sur l'affiche (716 × 1024) : la lune dans le ciel au-dessus de la
+  // pergola, les trois suspensions en rotin, la guirlande, les bougies des
+  // tables, les massifs de part et d'autre du logo.
+  saisonSpots: {
+    moon: { x: 72, y: 6.5, size: 11 },
+    lamps: [
+      { x: 23.2, y: 23.6, size: 30 },
+      { x: 12.6, y: 31.7, size: 19, delay: 0.7 },
+      { x: 69.6, y: 29.6, size: 21, delay: 1.3 },
+    ],
+    lanternFaces: [
+      { x: 23.2, y: 24.4, size: 9.5 },
+      { x: 69.6, y: 30.4, size: 6.4, delay: 0.9 },
+    ],
+    bulbs: [
+      { x: 22.3, y: 9.8, size: 4.4 },
+      { x: 31.8, y: 15.6, size: 4, delay: 1.1 },
+      { x: 42.6, y: 20, size: 3.6, delay: 0.4 },
+      { x: 54.3, y: 23.1, size: 3.4, delay: 1.7 },
+      { x: 63.7, y: 24.4, size: 3.2, delay: 0.9 },
+      { x: 75.8, y: 25.6, size: 2.8, delay: 2.2 },
+      { x: 84.4, y: 27.5, size: 2.6, delay: 1.4 },
+    ],
+    candles: [
+      { x: 19.6, y: 70.3, size: 9 },
+      { x: 41.9, y: 53.6, size: 6, delay: 0.6 },
+      { x: 16.5, y: 54.8, size: 5, delay: 1.2 },
+    ],
+    eyes: [
+      { x: 15.5, y: 44.5, size: 3.2 },
+      { x: 84.5, y: 41, size: 2.6, delay: 4.5 },
+    ],
+  },
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
@@ -10478,9 +10528,17 @@ const withDemoAllergens = (registry: Record<string, Restaurant>): Record<string,
   );
 };
 
+/**
+ * La démonstration des bulles du Boho (scripts/bulles-demo.ts) : sa carte en
+ * base, habillée comme celle du Boho, son site et ses bulles, tant que le
+ * Boho n'a pas pris l'offre.
+ */
+export const BOHO_DEMO_SLUG = "boho-demo";
+
 const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
+  [BOHO_DEMO_SLUG]: { ...boho, slug: BOHO_DEMO_SLUG },
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
   [bigSmash.slug]: bigSmash,
@@ -10512,6 +10570,7 @@ const ETOILE_LIVE_SLUG = "l-etoile-demo";
  * Ominin par défaut. */
 const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
+  [BOHO_DEMO_SLUG]: "theme-boho",
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
   [bigSmash.slug]: "theme-big-smash",
@@ -10540,9 +10599,9 @@ export function restaurantThemeClass(slug: string): string | undefined {
   return themeClasses[slug];
 }
 
-/** Les cartes posées sur le velours animé (components/menu/panis-backdrop) : ses règles visent le thème de Caffè Panis. */
+/** Les cartes posées sur le velours animé (components/menu/panis-backdrop), à leurs teintes. */
 export function hasVelours(slug: string): boolean {
-  return slug === "caffe-panis";
+  return slug in veloursPalettes;
 }
 
 /**

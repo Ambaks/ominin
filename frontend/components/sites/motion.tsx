@@ -8,12 +8,14 @@ import { useLayoutEffect } from "react";
  * le serveur montre tout. On ne cache ([data-motion] sur la racine) que ce
  * qui est encore sous la ligne de flottaison, et ce avant le premier rendu
  * peint : rien de visible ne clignote, et sans JavaScript rien n’est caché.
+ * Commun aux sites de restaurants (Cyprien, Boho) : chacun nomme sa racine
+ * et habille [data-reveal] dans sa feuille.
  */
-export function CyprienMotion() {
+export function SiteMotion({ root: rootSelector }: { root: string }) {
   const pathname = usePathname();
 
   useLayoutEffect(() => {
-    const root = document.querySelector<HTMLElement>(".cy-site");
+    const root = document.querySelector<HTMLElement>(rootSelector);
     if (!root || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
 
     const observer = new IntersectionObserver(
@@ -54,7 +56,7 @@ export function CyprienMotion() {
       observer.disconnect();
       root.removeEventListener("focusin", revealFocused);
     };
-  }, [pathname]);
+  }, [pathname, rootSelector]);
 
   return null;
 }

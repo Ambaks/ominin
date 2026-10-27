@@ -295,8 +295,8 @@ export function CategoryWheel({ categories }: { categories: CategoryLink[] }) {
       m.pinned = index;
       m.pinnedUntil = performance.now() + PIN_MS;
       track("categorie");
-      // D'un coup, sous le voile : il se lève sur la section arrêtée.
-      jumpToSection(categories[index].id, true, "instant");
+      // La carte défile jusqu'à la section pendant que le voile se lève.
+      jumpToSection(categories[index].id, true);
       m.closeTimer = window.setTimeout(close, CLOSE_DELAY_MS);
     },
     [categories, close, track]

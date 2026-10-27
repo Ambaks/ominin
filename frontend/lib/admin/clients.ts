@@ -2,6 +2,7 @@ import { FEATURES, ORDER_TABS } from "@/lib/gestion/constants";
 import { planFeature, resolveFeatures } from "@/lib/gestion/permissions";
 import type { ActiveProducts, Feature, OrderTab } from "@/lib/gestion/types";
 import type { CategoryLayout } from "@/lib/menu-data";
+import type { Saison } from "@/lib/menu/saison";
 import { createClient } from "@/lib/supabase/client";
 import { check, must } from "@/lib/supabase/result";
 
@@ -23,6 +24,11 @@ export interface Client {
   orderTabs: OrderTab[];
   /** Catégories du menu QR : barre en haut ou rail d'icônes à gauche. */
   categoryLayout: CategoryLayout;
+  /** Habillage de saison du menu QR, et son dernier jour de service (inclus). */
+  saison: Saison | null;
+  saisonFin: string | null;
+  /** Heure de bascule du jour de service : la date de fin s'y lit. */
+  dayEndHour: number;
 }
 
 function isFeature(key: string): key is Feature {
@@ -53,7 +59,7 @@ export async function fetchClients(): Promise<Client[]> {
       .then(must),
     supabase
       .from("etablissement_settings")
-      .select("etablissement_id, features, order_tabs")
+      .select("etablissement_id, features, order_tabs, saison, saison_fin, day_end_hour")
       .then(must),
   ]);
 
@@ -81,6 +87,9 @@ export async function fetchClients(): Promise<Client[]> {
       // Établissement d'avant la colonne : ce que faisait l'écran jusque-là.
       orderTabs: row?.order_tabs ?? ORDER_TABS,
       categoryLayout: etablissement.category_layout as CategoryLayout,
+      saison: row?.saison ?? null,
+      saisonFin: row?.saison_fin ?? null,
+      dayEndHour: row?.day_end_hour ?? 0,
     };
   });
 }
@@ -141,6 +150,31 @@ export async function saveOrderTabs(
         {
           etablissement_id: etablissementId,
           order_tabs: orderTabs,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "etablissement_id" }
+      )
+  );
+}
+
+/**
+ * L'habillage de saison du menu QR : Ominin seul le pose (l'écriture
+ * d'etablissement_settings est réservée à l'admin). Sans saison, pas de date :
+ * une date restée là rallumerait l'ancienne saison au prochain choix.
+ */
+export async function saveSaison(
+  etablissementId: string,
+  saison: Saison | null,
+  fin: string | null
+): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissement_settings")
+      .upsert(
+        {
+          etablissement_id: etablissementId,
+          saison,
+          saison_fin: saison ? fin : null,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "etablissement_id" }

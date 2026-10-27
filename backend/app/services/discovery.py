@@ -1,23 +1,27 @@
 import re
 import unicodedata
-from datetime import UTC, datetime
 
-from app.clients import places
+import httpx
+
+from app.clients import communes, overture, sirene
 from app.clients.supabase import get_supabase
 from app.config import settings
 from app.services import keepalive
+from app.services.emailing import EMAIL_RE
 
-# Places types → crm_restaurant_category. First match wins; anything else
-# falls back to 'restaurant'.
+SOURCE = "overture"
+
+# Overture taxonomy (primary, then basic category) → crm_restaurant_category.
+# Anything else falls back to 'restaurant'.
 CATEGORY_BY_TYPE = {
     "pizza_restaurant": "pizzeria",
+    "brasserie": "brasserie",
     "bakery": "bakery",
     "cafe": "cafe",
     "coffee_shop": "cafe",
     "bar": "bar",
-    "pub": "bar",
     "fast_food_restaurant": "fast_food",
-    "hamburger_restaurant": "fast_food",
+    "burger_restaurant": "fast_food",
     "sandwich_shop": "fast_food",
 }
 
@@ -29,129 +33,157 @@ def _slugify(name: str, place_id: str) -> str:
     return f"{base}-{suffix}"
 
 
-def _category(types: list[str]) -> str:
-    for t in types:
-        if t in CATEGORY_BY_TYPE:
-            return CATEGORY_BY_TYPE[t]
-    return "restaurant"
+def _words(text: str) -> str:
+    ascii_text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
+    return " ".join(re.findall(r"[a-z0-9]+", ascii_text.lower()))
+
+
+def _category(place: dict) -> str:
+    primary = (place.get("taxonomy") or {}).get("primary")
+    return (
+        CATEGORY_BY_TYPE.get(primary)
+        or CATEGORY_BY_TYPE.get(place.get("basic_category"))
+        or "restaurant"
+    )
+
+
+def _national_phone(phone: str) -> str:
+    """+33467606287 (or 33467606287) → 04 67 60 62 87, the format Places
+    stored: dedup compares digits, so both sources must agree on the
+    leading 0."""
+    digits = re.sub(r"\D", "", phone)
+    if digits.startswith("33") and len(digits) == 11:
+        digits = "0" + digits[2:]
+        return " ".join(digits[i : i + 2] for i in range(0, 10, 2))
+    return phone
+
+
+def _first(values: list | None):
+    return values[0] if values else None
 
 
 def run_discovery(*, flush=None) -> dict:
+    """Every place of the configured categories in each outreach city, from
+    the latest Overture release. Reruns are cheap: places already inserted
+    from Overture are skipped before any per-place call."""
     sb = get_supabase()
     stats = {
         "found": 0,
         "inserted": 0,
         "existing": 0,
         "duplicates": 0,
+        "closed": 0,
         "errors": 0,
-        "queries": 0,
     }
+    categories = [c.strip() for c in settings.discovery_categories.split(",") if c.strip()]
+    cities = [c.strip() for c in settings.outreach_cities.split(",") if c.strip()]
+    files = overture.place_files()
 
-    for row in _next_queries(sb):
-        stats["queries"] += 1
+    for city in cities:
         keepalive.ping_if_due()
-        inserted_before = stats["inserted"]
-        page_token: str | None = None
-        for _ in range(settings.discovery_max_pages_per_query):
-            data = places.search_text(row["query"], page_token)
-            found = [
-                p
-                for p in data.get("places", [])
-                if p.get("businessStatus") == "OPERATIONAL" and p.get("id")
-            ]
-            stats["found"] += len(found)
-            _ingest(sb, found, stats)
-            page_token = data.get("nextPageToken")
-            if not page_token:
-                break
-        _close_query(sb, row, stats["inserted"] - inserted_before)
+        try:
+            area = communes.commune(city)
+        except httpx.HTTPError:
+            area = None
+        if area is None:
+            stats["errors"] += 1
+            continue
+        found = []
+        for place in overture.places_in(files, area["bbox"], categories):
+            address = _first(place.get("addresses")) or {}
+            if address.get("postcode") not in area["postcodes"]:
+                continue
+            if place.get("operating_status") == "permanently_closed":
+                stats["closed"] += 1
+                continue
+            found.append(place)
+        stats["found"] += len(found)
+        _ingest(sb, found, stats)
+        if flush:
+            flush(stats)
 
     return stats
 
 
-def _query_matrix() -> list[tuple[str, str]]:
-    """(query, city) combos from config: each term over the whole city, plus
-    each term per quartier."""
-    terms = [t.strip() for t in settings.discovery_query_terms.split(",") if t.strip()]
-    cities = [c.strip() for c in settings.outreach_cities.split(",") if c.strip()]
-    quartiers: dict[str, list[str]] = {}
-    for block in settings.discovery_neighborhoods.split(";"):
-        if ":" not in block:
-            continue
-        city, names = block.split(":", 1)
-        quartiers[city.strip()] = [n.strip() for n in names.split("|") if n.strip()]
-
-    combos: list[tuple[str, str]] = []
-    for city in cities:
-        for term in terms:
-            combos.append((f"{term} à {city}", city))
-            for zone in quartiers.get(city, []):
-                combos.append((f"{term} {zone} {city}", city))
-    return combos
-
-
-def _next_queries(sb) -> list[dict]:
-    """Sync the config matrix into outreach_discovery_queries, then pick the
-    least-recently-served active queries for this run."""
-    sb.table("outreach_discovery_queries").upsert(
-        [{"query": q, "city": city} for q, city in _query_matrix()],
-        on_conflict="query",
-        ignore_duplicates=True,
-    ).execute()
-    return (
-        sb.table("outreach_discovery_queries")
-        .select("id, query, consecutive_empty")
-        .eq("retired", False)
-        .order("last_run_at", desc=False, nullsfirst=True)
-        .limit(settings.discovery_queries_per_run)
-        .execute()
-    ).data
-
-
-def _close_query(sb, row: dict, inserted: int) -> None:
-    empty = 0 if inserted else row["consecutive_empty"] + 1
-    sb.table("outreach_discovery_queries").update(
-        {
-            "consecutive_empty": empty,
-            "retired": empty >= settings.discovery_query_max_empty,
-            "last_run_at": datetime.now(UTC).isoformat(),
-        }
-    ).eq("id", row["id"]).execute()
-
-
 def _ingest(sb, found: list[dict], stats: dict) -> None:
-    if not found:
-        return
     # The (source, external_id) unique index is partial, which PostgREST
     # upserts cannot target — check-then-insert instead. Safe: jobs are
-    # single-flight (runs.start overlap guard).
-    existing = (
-        sb.table("crm_restaurants")
-        .select("external_id")
-        .eq("source", "google_places")
-        .in_("external_id", [p["id"] for p in found])
-        .execute()
-    ).data
-    known = {row["external_id"] for row in existing}
+    # single-flight (runs.start overlap guard). Chunked because the ids
+    # ride in the request URL.
+    ids = [p["id"] for p in found]
+    known: set[str] = set()
+    for i in range(0, len(ids), settings.discovery_id_chunk):
+        rows = (
+            sb.table("crm_restaurants")
+            .select("external_id")
+            .eq("source", SOURCE)
+            .in_("external_id", ids[i : i + settings.discovery_id_chunk])
+            .execute()
+        ).data
+        known.update(row["external_id"] for row in rows)
 
     for place in found:
         if place["id"] in known:
             stats["existing"] += 1
             continue
+        keepalive.ping_if_due()
         try:
             _ingest_one(sb, place, stats)
         except Exception:  # noqa: BLE001 — one bad row must not kill the run
             stats["errors"] += 1
 
 
+def _closed_in_sirene(name: str, postcode: str) -> bool:
+    """Overture leaves many French places without an operating status.
+    Closed means SIRENE has établissements under exactly this name in this
+    postcode and none of them is active. No match, or SIRENE unreachable
+    (it rate-limits), proves nothing: the place is kept and enrichment
+    judges it."""
+    wanted = _words(name)
+    if not wanted:
+        return False
+    try:
+        companies = sirene.search(name, postcode)
+    except httpx.HTTPError:
+        return False
+    states = [
+        etab.get("etat_administratif")
+        for company in companies
+        for etab in company.get("matching_etablissements", [])
+        if wanted
+        in {
+            _words(label)
+            for label in (
+                company.get("nom_raison_sociale"),
+                etab.get("nom_commercial"),
+                *(etab.get("liste_enseignes") or []),
+            )
+            if label
+        }
+    ]
+    return bool(states) and "A" not in states
+
+
 def _ingest_one(sb, place: dict, stats: dict) -> None:
-    name = place.get("displayName", {}).get("text", "").strip()
+    name = ((place.get("names") or {}).get("primary") or "").strip()
     if not name:
         stats["errors"] += 1
         return
-    location = place.get("location", {})
-    city = places.address_component(place, "locality")
-    phone = place.get("nationalPhoneNumber")
+    address = _first(place.get("addresses")) or {}
+    postcode = address.get("postcode")
+    if place.get("operating_status") is None and _closed_in_sirene(name, postcode):
+        stats["closed"] += 1
+        return
+
+    box = place["bbox"]
+    latitude = (box["ymin"] + box["ymax"]) / 2
+    longitude = (box["xmin"] + box["xmax"]) / 2
+    city = address.get("locality")
+    phone = _first(place.get("phones"))
+    phone = _national_phone(phone) if phone else None
+    email = _first(place.get("emails"))
+    if email and not EMAIL_RE.fullmatch(email):
+        email = None
 
     duplicates = sb.rpc(
         "crm_find_duplicates",
@@ -159,33 +191,38 @@ def _ingest_one(sb, place: dict, stats: dict) -> None:
             "p_name": name,
             "p_city": city,
             "p_phone": phone,
-            "p_email": None,
-            "p_lat": location.get("latitude"),
-            "p_lng": location.get("longitude"),
+            "p_email": email,
+            "p_lat": latitude,
+            "p_lng": longitude,
         },
     ).execute()
     if duplicates.data:
         # Already in the CRM under another source — just put it on the
-        # agent's radar without creating a second restaurant.
-        restaurant_id = duplicates.data[0]["restaurant_id"]
+        # agent's radar without creating a second restaurant. A phone or
+        # email match beats a similar name nearby.
+        match = min(duplicates.data, key=lambda d: d["reason"] == "name_proximity")
+        restaurant_id = match["restaurant_id"]
         stats["duplicates"] += 1
     else:
+        locality = " ".join(part for part in (postcode, city) if part)
         inserted = (
             sb.table("crm_restaurants")
             .insert(
                 {
                     "name": name,
                     "slug": _slugify(name, place["id"]),
-                    "category": _category(place.get("types", [])),
-                    "address": place.get("formattedAddress"),
+                    "category": _category(place),
+                    "address": ", ".join(
+                        part for part in (address.get("freeform"), locality) if part
+                    ),
                     "city": city,
-                    "postal_code": places.address_component(place, "postal_code"),
-                    "latitude": location.get("latitude"),
-                    "longitude": location.get("longitude"),
+                    "postal_code": postcode,
+                    "latitude": latitude,
+                    "longitude": longitude,
                     "phone": phone,
-                    "website": place.get("websiteUri"),
-                    "google_maps_url": place.get("googleMapsUri"),
-                    "source": "google_places",
+                    "email": email,
+                    "website": _first(place.get("websites")),
+                    "source": SOURCE,
                     "external_id": place["id"],
                 }
             )

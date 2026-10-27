@@ -9,8 +9,11 @@ import {
   saveCategoryLayout,
   saveOrderTabs,
   saveOverrides,
+  saveSaison,
   type Client,
 } from "@/lib/admin/clients";
+import { inputClass } from "@/components/ui/field";
+import { activeSaison, type Saison } from "@/lib/menu/saison";
 import {
   OFFRE_LABELS,
   ORDER_TAB_HINTS,
@@ -245,6 +248,128 @@ function CategoryLayoutCard({
   );
 }
 
+const SAISON_CHOICES: { id: Saison | null; label: string; body: string }[] = [
+  { id: null, label: "Aucune", body: "Le menu tel que le restaurant l'a voulu." },
+  { id: "automne", label: "Automne", body: "Lanternes dorées, feuilles qui tombent sur toute la carte." },
+  {
+    id: "halloween",
+    label: "Halloween",
+    body: "La nuit, la lune, la sorcière, les toiles, l'araignée, les fantômes et le chat noir.",
+  },
+];
+
+function finLabel(fin: string): string {
+  return new Date(`${fin}T12:00:00`).toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+}
+
+/*
+ * L'habillage de saison du menu QR. Ominin seul le pose : le gérant ne le
+ * voit pas dans sa gestion. La date de fin est le dernier jour de service où
+ * il s'affiche ; sans date, il reste jusqu'à ce qu'on l'éteigne ici.
+ */
+function SaisonCard({
+  client,
+  onChange,
+}: {
+  client: Client;
+  onChange: (client: Client) => void;
+}) {
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const persist = async (saison: Saison | null, saisonFin: string | null) => {
+    const previous = client;
+    const next = { ...client, saison, saisonFin: saison ? saisonFin : null };
+    onChange(next);
+    setSaving(true);
+    try {
+      await saveSaison(client.id, next.saison, next.saisonFin);
+    } catch (error) {
+      onChange(previous);
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const shown = activeSaison(client.saison, client.saisonFin, client.dayEndHour);
+  const status = !client.saison
+    ? null
+    : !shown
+      ? `Date passée (${finLabel(client.saisonFin as string)}) : le menu ne l'affiche plus.`
+      : client.saisonFin
+        ? `Sur le menu jusqu'à la fermeture du ${finLabel(client.saisonFin)}.`
+        : "Sur le menu jusqu'à ce qu'on l'éteigne ici.";
+
+  return (
+    <section className="flex flex-col gap-3">
+      <div>
+        <h3 className="font-display text-base font-medium">Saison du menu QR</h3>
+        <p className="mt-0.5 text-xs leading-relaxed text-faint">
+          Posée par Ominin seulement : le gérant ne la voit pas dans sa gestion. Le menu
+          la montre à la prochaine mise à jour de son cache, en une minute au plus.
+        </p>
+      </div>
+      <div role="radiogroup" aria-label="Saison du menu QR" className="grid gap-3 sm:grid-cols-3">
+        {SAISON_CHOICES.map((option) => {
+          const selected = client.saison === option.id;
+          return (
+            <button
+              key={option.label}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              disabled={saving}
+              onClick={() => selected || void persist(option.id, client.saisonFin)}
+              className={`flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors disabled:cursor-wait ${
+                selected ? "border-ember-2/60 bg-surface-raised" : "border-hairline hover:border-ember-2/30"
+              }`}
+            >
+              <span className="flex items-center justify-between gap-3">
+                <span className="font-display text-base font-medium">{option.label}</span>
+                <span
+                  aria-hidden
+                  className={`flex size-5 items-center justify-center rounded-full border ${
+                    selected ? "border-ember-2" : "border-hairline"
+                  }`}
+                >
+                  {selected && <span className="ember-gradient size-2.5 rounded-full" />}
+                </span>
+              </span>
+              <span className="text-xs leading-relaxed text-muted">{option.body}</span>
+            </button>
+          );
+        })}
+      </div>
+      {client.saison && (
+        <div className="flex flex-wrap items-end gap-3">
+          <label className="flex flex-col gap-1.5">
+            <span className="text-xs font-medium text-muted">Jusqu&rsquo;au (inclus)</span>
+            <input
+              type="date"
+              value={client.saisonFin ?? ""}
+              disabled={saving}
+              onChange={(event) => void persist(client.saison, event.target.value || null)}
+              className={inputClass}
+            />
+          </label>
+          {client.saisonFin && (
+            <button
+              type="button"
+              onClick={() => void persist(client.saison, null)}
+              disabled={saving}
+              className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            >
+              Sans date de fin
+            </button>
+          )}
+        </div>
+      )}
+      {status && <p className="text-xs leading-relaxed text-faint">{status}</p>}
+    </section>
+  );
+}
+
 export function Capabilities({
   client,
   onChange,
@@ -380,6 +505,8 @@ export function Capabilities({
       {client.products.offre && (
         <CategoryLayoutCard client={client} onChange={onChange} />
       )}
+
+      {client.products.offre && <SaisonCard client={client} onChange={onChange} />}
 
       <p className="text-xs leading-relaxed text-faint">
         Une case laissée telle que l&rsquo;offre la donne ne s&rsquo;enregistre

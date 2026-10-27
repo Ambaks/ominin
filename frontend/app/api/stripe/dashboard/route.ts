@@ -13,7 +13,17 @@ export async function POST() {
   if ("error" in auth) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
-  const account = await connectedAccount(createAdminClient(), auth.etablissementId);
+  const admin = createAdminClient();
+  const { data: etab } = await admin
+    .from("etablissements")
+    .select("payment_provider")
+    .eq("id", auth.etablissementId)
+    .maybeSingle();
+  // null : Stripe, le fournisseur historique.
+  const account =
+    (etab?.payment_provider ?? "stripe") === "stripe"
+      ? await connectedAccount(admin, auth.etablissementId)
+      : null;
   if (!account) {
     return NextResponse.json(
       { error: "Aucun compte Stripe n'est relié à cet établissement." },

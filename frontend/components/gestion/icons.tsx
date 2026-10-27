@@ -262,6 +262,17 @@ export function HelpIcon(props: IconProps) {
   );
 }
 
+/** Une bulle et son reflet, posée dans le jardin : les bulles réservables. */
+export function BullesIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="11" r="7.5" />
+      <path d="M8.5 9a4 4 0 0 1 3-3" />
+      <path d="M4 20.5h16" />
+    </Svg>
+  );
+}
+
 /** Un croissant de lune et une étoile : les soirées d'un club. */
 export function SoireesIcon(props: IconProps) {
   return (

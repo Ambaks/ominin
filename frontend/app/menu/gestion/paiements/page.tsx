@@ -302,7 +302,11 @@ export default function PaiementsPage() {
             Tous les encaissements — espèces, carte et en ligne.
           </p>
         </div>
-        <StripeDashboardButton />
+        {/* Un restaurant passé sur Square garde parfois un ancien compte
+            Stripe relié : son espace n'a plus rien à lui montrer. */}
+        {(state.etablissement.paymentProvider ?? "stripe") === "stripe" && (
+          <StripeDashboardButton />
+        )}
       </div>
 
       <div className="flex flex-col gap-2">
