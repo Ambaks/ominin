@@ -13,10 +13,8 @@ import {
 import { ShopClients } from "@/components/admin/clients/shop";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useAdminBasePath } from "@/lib/admin/base-path";
-import {
-  CHURN_DROP_RATIO,
-  CHURN_MIN_PREVIOUS_SESSIONS,
-} from "@/lib/admin/constants";
+import { isDropping } from "@/lib/admin/churn";
+import { CHURN_DROP_RATIO } from "@/lib/admin/constants";
 import { formatEuros, formatPercent } from "@/lib/admin/format";
 import {
   conversionRate,
@@ -70,10 +68,7 @@ function MenuClients() {
     );
     return data.rows.flatMap((row) => {
       const previous = before.get(row.etablissement_id) ?? 0;
-      return previous >= CHURN_MIN_PREVIOUS_SESSIONS &&
-        row.sessions <= previous * (1 - CHURN_DROP_RATIO)
-        ? [{ row, previous }]
-        : [];
+      return isDropping(previous, row.sessions) ? [{ row, previous }] : [];
     });
   }, [data]);
 

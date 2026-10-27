@@ -9,6 +9,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import UTC, datetime
 
 from app.clients.claude import parse_structured
+from app.clients.supabase import get_supabase
 from app.config import settings
 from app.prompts.agents import Qualification, qualify_system
 from app.services import keepalive
@@ -30,7 +31,7 @@ def run(sb, agent: Agent) -> dict:
 
     undecided: list[dict] = []
     with ThreadPoolExecutor(max_workers=settings.enrichment_workers) as pool:
-        futures = [pool.submit(_scrape, sb, agent, p) for p in pending]
+        futures = [pool.submit(_scrape, agent, p) for p in pending]
         for future in as_completed(futures):
             keepalive.ping_if_due()
             try:
@@ -67,7 +68,9 @@ def run(sb, agent: Agent) -> dict:
     return stats
 
 
-def _scrape(sb, agent: Agent, prospect: dict) -> dict:
+def _scrape(agent: Agent, prospect: dict) -> dict:
+    # Worker thread: its own client (see get_supabase).
+    sb = get_supabase()
     site = fetch_site(prospect["website"]) if prospect.get("website") else None
     email = None
     if site:

@@ -11,7 +11,7 @@ import {
   rowToRestaurant,
   rowToTask,
 } from "./mappers";
-import type { LeadDetail } from "./types";
+import type { AppointmentRow, LeadDetail, TaskRow } from "./types";
 
 /*
  * Cache des fiches : le détail d'un restaurant (activités, contacts, tâches,
@@ -39,35 +39,63 @@ function notify() {
 
 async function fetchDetail(restaurantId: string): Promise<LeadDetail> {
   const supabase = createClient();
-  const row = must(
-    await supabase
+  // Les déclarations dans leur état effectif (confirmée de droit, échue),
+  // calculé en base comme partout ailleurs.
+  const [row, declarations] = await Promise.all([
+    supabase
       .from("crm_restaurants")
       .select(
-        "*, lead:crm_leads(*), contacts:crm_contacts(*), activities:crm_activities(*), tasks:crm_tasks(*), appointments:crm_appointments(*)"
+        "*, lead:crm_leads(*), contacts:crm_contacts(*), activities:crm_activities(*), tasks:crm_tasks(*), appointments:crm_appointments(*), etablissement:etablissements!crm_restaurants_etablissement_id_fkey(name), shop:shops!crm_restaurants_shop_id_fkey(name)"
       )
       .eq("id", restaurantId)
       .single()
-  );
+      .then(must),
+    supabase.rpc("admin_restaurant_declarations", { p_restaurant: restaurantId }).then(must),
+  ]);
   if (!row.lead) throw new Error("Fiche sans lead associé.");
+  // Le travail des commerciaux (declaration_id) reste à part : l'admin ne le
+  // consulte qu'en cas de litige, d'opposition ou de conflit (art. 2.3).
+  const own = <T extends { declaration_id: string | null }>(rows: T[]) => rows.filter((r) => !r.declaration_id);
+  const theirs = <T extends { declaration_id: string | null }>(rows: T[]) => rows.filter((r) => r.declaration_id);
+  const byDate = (a: { createdAt: string }, b: { createdAt: string }) => b.createdAt.localeCompare(a.createdAt);
+  const byDue = (a: TaskRow, b: TaskRow) =>
+    Number(a.status !== "open") - Number(b.status !== "open") ||
+    (a.dueAt ?? "9999").localeCompare(b.dueAt ?? "9999");
+  const byStart = (a: AppointmentRow, b: AppointmentRow) => b.startAt.localeCompare(a.startAt);
+  const clientName = row.etablissement?.name ?? row.shop?.name;
   return {
     restaurant: rowToRestaurant(row),
     lead: rowToLead(row.lead),
     contacts: row.contacts
       .map(rowToContact)
       .sort((a, b) => Number(b.isDecisionMaker) - Number(a.isDecisionMaker)),
-    activities: row.activities
-      .map(rowToActivity)
-      .sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
-    tasks: row.tasks
-      .map(rowToTask)
-      .sort(
-        (a, b) =>
-          Number(a.status !== "open") - Number(b.status !== "open") ||
-          (a.dueAt ?? "9999").localeCompare(b.dueAt ?? "9999")
-      ),
-    appointments: row.appointments
-      .map(rowToAppointment)
-      .sort((a, b) => b.startAt.localeCompare(a.startAt)),
+    activities: own(row.activities).map(rowToActivity).sort(byDate),
+    tasks: own(row.tasks).map(rowToTask).sort(byDue),
+    appointments: own(row.appointments).map(rowToAppointment).sort(byStart),
+    client:
+      clientName && (row.etablissement_id || row.shop_id)
+        ? {
+            kind: row.etablissement_id ? "etablissement" : "shop",
+            id: (row.etablissement_id ?? row.shop_id)!,
+            name: clientName,
+            endedAt: row.client_ended_at,
+          }
+        : null,
+    inTalksOverride: row.in_talks_override,
+    declarations: declarations.map((d) => ({
+      id: d.id,
+      status: d.effective_status,
+      declaredAt: d.declared_at,
+      confirmDeadline: d.confirm_deadline,
+      reservedUntil: d.reserved_until,
+      step: d.step,
+      commercial: d.commercial_name,
+    })),
+    commercialWork: {
+      activities: theirs(row.activities).map(rowToActivity).sort(byDate),
+      tasks: theirs(row.tasks).map(rowToTask).sort(byDue),
+      appointments: theirs(row.appointments).map(rowToAppointment).sort(byStart),
+    },
   };
 }
 

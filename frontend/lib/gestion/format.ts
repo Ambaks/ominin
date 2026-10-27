@@ -63,3 +63,15 @@ export function formatPickup(iso: string): string {
     ? formatTime(iso)
     : formatDateTime(iso);
 }
+
+const relative = new Intl.RelativeTimeFormat("fr", { numeric: "auto" });
+
+/** « à l'instant », « il y a 5 minutes », « hier »… ; « jamais » sans date. */
+export function sinceLabel(iso: string | null | undefined): string {
+  if (!iso) return "jamais";
+  const minutes = Math.round((new Date(iso).getTime() - Date.now()) / 60_000);
+  if (Math.abs(minutes) < 1) return "à l'instant";
+  if (Math.abs(minutes) < 60) return relative.format(minutes, "minute");
+  if (Math.abs(minutes) < 60 * 24) return relative.format(Math.round(minutes / 60), "hour");
+  return relative.format(Math.round(minutes / (60 * 24)), "day");
+}

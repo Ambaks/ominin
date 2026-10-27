@@ -7,6 +7,7 @@ import { CollectSettings } from "@/components/gestion/collect-settings";
 import { FermeturesSettings } from "@/components/gestion/fermetures-settings";
 import { GiftIcon } from "@/components/gestion/icons";
 import { fetchHubriseStatus, HubriseSettings } from "@/components/gestion/hubrise-settings";
+import { PopinaSettings } from "@/components/gestion/popina-settings";
 import { hoursProblem, OpeningHoursEditor } from "@/components/gestion/opening-hours-editor";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
@@ -251,6 +252,7 @@ export default function EtablissementPage() {
             />
           )}
           {isGerant && <HubriseSettings />}
+          {isGerant && <PopinaSettings />}
           {/* Sur mobile, la barre du bas n'a pas la place d'un onglet de
               plus : la fidélité se rejoint d'ici. */}
           {hasFeature("fidelite") && (

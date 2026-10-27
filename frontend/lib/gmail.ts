@@ -150,4 +150,7 @@ export async function sendEmail(
       `Envoi d'email : ${response.status}${body ? ` — ${body.slice(0, 300)}` : ""}`
     );
   }
+  // Identifiant Gmail du message : la preuve d'envoi des e-mails contractuels.
+  const sent = (await response.json()) as { id: string };
+  return sent.id;
 }

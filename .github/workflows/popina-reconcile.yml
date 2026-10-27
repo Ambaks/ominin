@@ -1,0 +1,32 @@
+# Filet de la connexion Popina. Les ventes de la caisse arrivent par webhook
+# (app/api/popina/webhook) ; ce passage relit les dernières heures de chaque
+# caisse et rattrape ce qu'un webhook perdu aurait laissé de côté.
+#
+# L'échec du workflow EST le canal d'alerte : la route répond en erreur dès
+# qu'une relecture a échoué.
+name: popina-reconcile
+
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  reconcile:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Relire les ventes des caisses Popina
+        run: |
+          # Sans capture : en cas d'échec, le détail de la route reste au journal.
+          curl -s --fail-with-body --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.MENU_URL }}/api/popina/reconcile"
+      # Échec du workflow : notification à Marwan et Ambaka (une par 6 h au
+      # plus, voir lib/admin/alerts.ts). Jamais bloquant.
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Cron en échec : ${{ github.workflow }}\",\"body\":\"Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"key\":\"${{ github.workflow }}\"}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

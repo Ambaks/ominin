@@ -1,4 +1,6 @@
 import { isIP } from "node:net";
+import { after } from "next/server";
+import { flushOutbox } from "@/lib/commercial/outbox";
 import type { Json } from "@/lib/supabase/database.types";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import { findVersion, signedVersionsInForce, versionInForce } from "./documents";
@@ -178,6 +180,9 @@ export async function acceptContract(
     )
     .select("id");
   if (error) throw new Error(error.message);
+  // Inscrit par le lien d'un commercial : la base vient de mettre en file
+  // l'e-mail qui le prévient (art. 6.2) ; il part après la réponse.
+  after(() => flushOutbox(admin).catch((cause) => console.error("[commercial] envoi après signature", cause)));
   return (data ?? []).map((row) => row.id);
 }
 

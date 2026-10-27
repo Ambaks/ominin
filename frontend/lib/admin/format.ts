@@ -146,3 +146,15 @@ export function normalizeText(value: string): string {
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
 }
+
+/**
+ * Nom d'un interlocuteur ; à défaut sa fonction : un commercial peut le
+ * déclarer réduit à sa fonction (« Gérant »), son nom n'étant pas toujours connu.
+ */
+export function contactName(contact: {
+  firstName: string | null;
+  lastName: string | null;
+  role: string | null;
+}): string {
+  return [contact.firstName, contact.lastName].filter(Boolean).join(" ") || (contact.role ?? "");
+}

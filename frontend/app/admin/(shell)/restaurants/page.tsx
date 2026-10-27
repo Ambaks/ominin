@@ -16,7 +16,7 @@ import { useAdminBasePath } from "@/lib/admin/base-path";
 import { prospectsLabel } from "@/lib/admin/products";
 import { CATEGORY_LABELS, STATUS_LABELS, PRIORITY_LABELS } from "@/lib/admin/constants";
 import { toCsv, downloadCsv, type CsvColumn } from "@/lib/admin/csv";
-import { formatDate, formatRelative } from "@/lib/admin/format";
+import { contactName, formatDate, formatRelative } from "@/lib/admin/format";
 import { setFilters, useFilteredLeads } from "@/lib/admin/filters";
 import { sortLeads, type LeadSortKey } from "@/lib/admin/selectors";
 import { useAdmin } from "@/lib/admin/store";
@@ -76,7 +76,7 @@ function exportColumns(
       header: "Contact principal",
       value: (row) =>
         row.mainContact
-          ? `${row.mainContact.firstName} ${row.mainContact.lastName ?? ""}`.trim()
+          ? contactName(row.mainContact)
           : null,
     },
     {

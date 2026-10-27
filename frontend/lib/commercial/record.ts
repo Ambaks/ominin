@@ -21,6 +21,10 @@ export const parisDateTime = (iso: string) =>
 export const acceptanceStatement = (version: string) =>
   `J’ai lu le contrat de commercial indépendant, version ${version}, notamment sa durée, l’option de prolongation d’Ominin et la commission, et je l’accepte. Je reconnais à cette signature électronique la valeur d’une signature manuscrite.`;
 
+/** Nom d'usage d'un commercial (écrans, notifications) : prénom et nom, à défaut l'adresse. */
+export const displayName = (c: { first_name: string | null; last_name: string | null; email: string }) =>
+  [c.first_name, c.last_name].filter(Boolean).join(" ") || c.email;
+
 /** Le contrat désigne le Commercial comme entrepreneur individuel. */
 export const commercialName = ({
   firstName,

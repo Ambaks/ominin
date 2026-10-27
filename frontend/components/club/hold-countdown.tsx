@@ -22,10 +22,13 @@ export function HoldCountdown({
   remainingMs,
   totalMs,
   onExpire,
+  what = "la table",
 }: {
   remainingMs: number;
   totalMs: number;
   onExpire: () => void;
+  /** Ce qui est tenu, dit au lecteur d'écran à la dernière minute. */
+  what?: string;
 }) {
   const [left, setLeft] = useState(() => Math.max(0, remainingMs));
   const ringRef = useRef<SVGCircleElement>(null);
@@ -85,7 +88,7 @@ export function HoldCountdown({
         {label}
       </span>
       <span className="sr-only" aria-live="polite">
-        {urgent && left > 0 ? "Moins d'une minute pour régler la table." : ""}
+        {urgent && left > 0 ? `Moins d'une minute pour régler ${what}.` : ""}
       </span>
     </div>
   );

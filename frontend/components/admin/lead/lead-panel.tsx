@@ -6,7 +6,7 @@ import { useRunMutation } from "@/components/ui/toast";
 import { inputClass } from "@/components/ui/field";
 import * as api from "@/lib/admin/api";
 import { CATEGORY_LABELS } from "@/lib/admin/constants";
-import { formatDayTime, formatRelative, httpHref } from "@/lib/admin/format";
+import { contactName, formatDayTime, formatRelative, httpHref } from "@/lib/admin/format";
 import { useLeadDetail } from "@/lib/admin/lead-cache";
 import { PRODUCTS, PRODUCT_LABELS, type Product } from "@/lib/admin/products";
 import { useAdmin } from "@/lib/admin/store";
@@ -28,6 +28,7 @@ import { LeadStatusBadge, PriorityBadge } from "../status-badge";
 import { AppointmentFormModal } from "../rdv/appointment-form-modal";
 import { TaskFormModal } from "../tasks/task-form-modal";
 import { ActivityTimeline } from "./activity-timeline";
+import { CommercialSection, activeDeclaration } from "./commercial-section";
 import { NoteComposer } from "./note-composer";
 import { StatusMenu } from "./status-menu";
 import { VisitedFlow } from "./visited-flow";
@@ -141,16 +142,21 @@ export function LeadPanel({
             </p>
           )}
         </div>
-        {detail && (
-          <button
-            type="button"
-            onClick={() => setStatusOpen(true)}
-            title="Changer le statut"
-            className="shrink-0 transition-opacity hover:opacity-80"
-          >
-            <LeadStatusBadge status={detail.lead.status} />
-          </button>
-        )}
+        {detail &&
+          (activeDeclaration(detail) ? (
+            <span title="Statut tenu par le commercial qui a déclaré ce restaurant" className="shrink-0">
+              <LeadStatusBadge status={detail.lead.status} />
+            </span>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setStatusOpen(true)}
+              title="Changer le statut"
+              className="shrink-0 transition-opacity hover:opacity-80"
+            >
+              <LeadStatusBadge status={detail.lead.status} />
+            </button>
+          ))}
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -420,9 +426,9 @@ export function LeadPanel({
                       className="flex items-center gap-2.5 rounded-xl border border-hairline px-3.5 py-2.5 text-sm"
                     >
                       <span className="min-w-0 flex-1 truncate">
-                        {contact.firstName} {contact.lastName ?? ""}
+                        {contactName(contact)}
                         <span className="text-faint">
-                          {contact.role ? ` · ${contact.role}` : ""}
+                          {contact.role && (contact.firstName || contact.lastName) ? ` · ${contact.role}` : ""}
                           {contact.isDecisionMaker ? " · décideur" : ""}
                         </span>
                       </span>
@@ -491,6 +497,8 @@ export function LeadPanel({
                 </ul>
               </section>
             )}
+
+            <CommercialSection detail={detail} />
 
             <section className="flex flex-col gap-2.5">
               <SectionTitle>Activité</SectionTitle>

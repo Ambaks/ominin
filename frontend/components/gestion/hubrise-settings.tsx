@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
+import { sinceLabel } from "@/lib/gestion/format";
 
 /*
  * Connexion de la caisse du restaurant par HubRise (gérant). HubRise est le
@@ -60,17 +61,6 @@ function errorMessage(code: string | null): string {
   if (code === "session_gerant") return "la session du compte gérant n'est plus active.";
   if (code === "configuration") return "HubRise a refusé la configuration. Le détail est dans les journaux.";
   return "réessayez.";
-}
-
-const relative = new Intl.RelativeTimeFormat("fr", { numeric: "auto" });
-
-function since(iso: string | null | undefined): string {
-  if (!iso) return "jamais";
-  const minutes = Math.round((new Date(iso).getTime() - Date.now()) / 60_000);
-  if (Math.abs(minutes) < 1) return "à l'instant";
-  if (Math.abs(minutes) < 60) return relative.format(minutes, "minute");
-  if (Math.abs(minutes) < 60 * 24) return relative.format(Math.round(minutes / 60), "hour");
-  return relative.format(Math.round(minutes / (60 * 24)), "day");
 }
 
 function Identity({ label, name, id }: { label: string; name?: string | null; id?: string | null }) {
@@ -325,7 +315,7 @@ export function HubriseSettings() {
                   <dt className="text-[11px] font-semibold uppercase tracking-wider text-faint">
                     {label}
                   </dt>
-                  <dd className="text-sm text-muted">{since(at)}</dd>
+                  <dd className="text-sm text-muted">{sinceLabel(at)}</dd>
                 </div>
               ))}
             </dl>

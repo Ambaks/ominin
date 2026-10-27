@@ -1,43 +1,78 @@
 from pydantic import BaseModel
 
+from app.config import settings
+
 
 class ColdEmail(BaseModel):
     subject: str
     body: str
 
 
-COLD_EMAIL_RULES = """\
-Écris un premier e-mail de prospection adressé au propriétaire du restaurant \
-décrit ci-dessous.
+COLD_EMAIL_RULES = f"""\
+Écris le premier e-mail de prospection adressé au propriétaire de \
+l'établissement décrit ci-dessous, en reprenant MOT POUR MOT l'e-mail de \
+référence. Seules ces modifications sont permises :
 
-Objectif : lui faire comprendre qu'Ominin lui offre l'opportunité de \
-moderniser son restaurant, de réduire ses coûts et surtout d'améliorer la \
-satisfaction de ses clients — et l'amener vers un rendez-vous sur place.
+1. Le nom de l'établissement, à sa place dans l'avant-dernier paragraphe \
+avant la démonstration, avec la bonne préposition (« du Café Alba », « de \
+la Brasserie Pompette », « des Munitionnettes », « de Fanfare »). Écris son \
+nom d'usage, avec des majuscules normales, sans ce qui suit un tiret ni le \
+nom de la ville (« Fanfare - Restaurant français Toulouse » devient \
+« Fanfare », « LA SANTA LUCCIA » devient « La Santa Luccia »).
+2. Pour un établissement sans service à table (catégorie fast_food ou \
+bakery), remplace « votre personnel » par « votre équipe », et la phrase \
+« grâce au QR code, le nombre de commandes ne dépend plus de la \
+disponibilité de vos serveurs. » par « grâce au QR code, ils commandent et \
+paient depuis leur téléphone, sans attendre leur tour au comptoir, et sont \
+prévenus quand leur commande est prête. »
+3. Si la rencontre au restaurant n'est pas possible, remplace « Nous venons \
+tout installer » par « Nous installons tout pour vous », et « en personne \
+ou par téléphone » par « par téléphone ou en visioconférence ».
 
-Règles strictes :
-- Registre professionnel et soigné : tu t'adresses à un chef d'entreprise. \
-Vouvoiement, phrases complètes, aucune tournure familière. Chaleureux mais \
-sérieux.
-- 150 mots maximum pour le corps.
-- Commence par l'accroche personnalisée tirée des notes : montre en une ou \
-deux phrases que tu connais CE restaurant, pas un restaurant générique.
-- Le cœur du message : avec Ominin, ses clients scannent un QR code à table \
-et, sur notre plateforme, consultent une carte toujours à jour, commandent \
-et règlent directement eux-mêmes. Moins d'attente pour le client, moins \
-d'allers-retours pour l'équipe, zéro carte à réimprimer.
-- Précise que nous nous intégrons entièrement à son fonctionnement existant : \
-nos équipes se déplacent au restaurant, étudient ses systèmes et adaptent la \
-solution sur mesure — son équipe n'a rien à installer.
-- Fais ressentir les trois bénéfices sans liste à puces : modernisation, \
-économies, et surtout expérience client améliorée.
-- AUCUN prix, aucune pièce jointe.
-- Au plus une courte phrase sur l'expérience de Léa en restauration, \
-seulement si elle sert le propos.
-- La demande finale : un rendez-vous de 15 minutes sur place avec nos \
-équipes, à un moment calme du service, formulée professionnellement \
-(« Seriez-vous disponible… »).
-- L'objet : court (moins de 50 caractères), spécifique au restaurant, \
-professionnel, sans majuscules racoleuses ni emoji.
-- Pas de signature au-delà d'une clôture brève et professionnelle (« Bien à \
-vous, ») : la signature est ajoutée automatiquement.\
+Rien d'autre : n'ajoute ni accroche, ni fonction, ni prix, ni chiffre, et \
+n'utilise pas les notes de personnalisation. L'objet est « <nom d'usage> et \
+Ominin ». Le corps commence à « Bonjour, » et s'arrête à « Cordialement, » : \
+la signature est ajoutée automatiquement.
+
+E-mail de référence :
+
+Bonjour,
+
+Je suis Léa Moreau, commerciale chez Ominin, une startup française. Nous \
+avons conçu un système de commande par QR code qui vous permettra de \
+fidéliser vos clients, de réduire vos charges et de fluidifier votre \
+service.
+
+L'idée n'est pas de remplacer votre personnel, mais d'offrir à vos clients \
+une expérience unique : grâce au QR code, le nombre de commandes ne dépend \
+plus de la disponibilité de vos serveurs. C'est une option que chaque \
+client est libre d'utiliser, s'il le souhaite.
+
+De votre côté, vous n'avez rien à faire. Nous venons tout installer, puis \
+nous restons à vos côtés pour personnaliser le logiciel selon vos goûts et \
+répondre à toutes vos questions. Il se connecte directement à votre \
+caisse : vous continuez à fonctionner normalement, sans rien changer.
+
+La cerise sur le gâteau, c'est ce que nous pouvons ensuite faire de vos \
+données avec vous, si vous le souhaitez. Nos analystes construisent votre \
+projet avec vous, à partir des analyses rapides et très poussées que \
+permettent nos modèles d'intelligence artificielle.
+
+Nous sommes convaincus de la qualité, de la sécurité et du retour sur \
+investissement de nos produits. Ce que nous voulons vous démontrer, c'est \
+l'importance que nous accordons à nos clients : nous serons à vos côtés \
+tout au long du processus, à l'écoute de vos remarques et suggestions, et \
+déterminés à faire progresser la rentabilité et l'expérience client du \
+Concorde Atlantique.
+
+Vous trouverez une démonstration ici : {settings.outreach_demo_url}
+
+Nous l'avons réalisée pour un restaurant avec lequel nous travaillons \
+aujourd'hui. Il a personnalisé le produit selon ses goûts et son \
+fonctionnement, d'où le retrait des commandes en cuisine et au bar.
+
+Je vous propose de fixer un premier rendez-vous à votre convenance, en \
+personne ou par téléphone.
+
+Cordialement,\
 """

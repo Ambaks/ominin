@@ -14,6 +14,7 @@ import {
   type FormuleOffer,
   type Pairing,
 } from "@/lib/menu/pairings";
+import { activeSaison, type Saison } from "@/lib/menu/saison";
 import { createPublicClient } from "@/lib/supabase/public";
 
 const ISO_DAYS: Record<string, number> = {
@@ -100,6 +101,8 @@ export async function fetchRestaurant(slug: string): Promise<{
   pairings: Record<string, Pairing[]> | undefined;
   /** Les formules que l'accord du chef propose de compléter ; absent avec lui. */
   formuleOffers: FormuleOffer[] | undefined;
+  /** L'habillage de saison posé par l'admin, s'il n'a pas passé sa date de fin. */
+  saison: Saison | null;
   /** Horaires structurés : les créneaux de retrait du click & collect. */
   openingHours: OpeningHours | null;
   collectSlotMinutes: number;
@@ -111,7 +114,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   // sur la page la plus consultée (chaque scan de QR code).
   const { data: etablissement, error } = await supabase
     .from("etablissements")
-    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*), affiches(*)")
+    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour, saison, saison_fin), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*), affiches(*)")
     .eq("slug", slug)
     .order("position", { referencedTable: "categories", ascending: true })
     .order("position", { referencedTable: "items", ascending: true })
@@ -185,9 +188,9 @@ export async function fetchRestaurant(slug: string): Promise<{
   // une formule sans plus aucune étape ne se vend pas à vide.
   // Hors de ses jours ou de ses heures, la formule n'apparaît pas
   // (formule_du_jour et dans_les_heures en base).
-  const today = serviceIsoDay(
-    etablissement.etablissement_settings?.day_end_hour ?? 0
-  );
+  const settings = etablissement.etablissement_settings;
+  const dayEndHour = settings?.day_end_hour ?? 0;
+  const today = serviceIsoDay(dayEndHour);
   const minutes = parisParts(new Date()).minutes;
   const formules = etablissement.formules
     .map(rowToFormule)
@@ -256,6 +259,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     formules,
     pairings: resolvePairings(categories, staticData?.pairings),
     formuleOffers: staticData?.pairings ? resolveFormuleOffers(formules, categories) : undefined,
+    saison: activeSaison(settings?.saison ?? null, settings?.saison_fin ?? null, dayEndHour),
     openingHours: etablissement.opening_hours as OpeningHours | null,
     collectSlotMinutes: etablissement.collect_slot_minutes,
     restaurant: {
@@ -278,7 +282,10 @@ export async function fetchRestaurant(slug: string): Promise<{
       loyaltyWheel: staticData?.loyaltyWheel,
       suivi: staticData?.suivi,
       poster: staticData?.poster,
+      posterWide: staticData?.posterWide,
+      saisonSpots: staticData?.saisonSpots,
       affiches,
+      formulesPill: staticData?.formulesPill,
       highlights: staticData?.highlights,
       ticker: staticData?.ticker,
       categoryLayout: etablissement.category_layout as CategoryLayout,

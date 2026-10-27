@@ -64,7 +64,8 @@ export type Feature =
   | "produits"
   | "lien_heures"
   | "fidelite"
-  | "soirees";
+  | "soirees"
+  | "bulles";
 
 /**
  * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,
@@ -217,6 +218,8 @@ export interface Order {
   payments: OrderPayment[];
   /** Serveur qui a encaissé : c'est à lui que revient le pourboire. */
   staffId?: string | null;
+  /** Vente saisie sur la caisse Popina : en lecture seule, la caisse fait foi. */
+  fromTill?: boolean;
 }
 
 export interface Table {

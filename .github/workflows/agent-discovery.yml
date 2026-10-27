@@ -1,13 +1,14 @@
-# Découverte de restaurants (Google Places) puis qualification, trois fois
-# par jour. Le sleep laisse la découverte se terminer avant de lancer
-# l'enrichissement. Les deux jobs sont single-flight côté backend : un 409
-# sur l'enrichissement signifie que le lot précédent tourne encore et
-# prendra ces prospects — ce n'est pas un échec.
+# Découverte de restaurants (Overture Maps, nouvelle version environ une
+# fois par mois) puis qualification, chaque lundi. Le sleep laisse la
+# découverte se terminer avant de lancer l'enrichissement. Les deux jobs
+# sont single-flight côté backend : un 409 sur l'enrichissement signifie
+# que le lot précédent tourne encore et prendra ces prospects — ce n'est
+# pas un échec.
 name: agent-discovery
 
 on:
   schedule:
-    - cron: "37 2,10,18 * * *"
+    - cron: "37 2 * * 1"
   workflow_dispatch:
 
 jobs:
