@@ -1,6 +1,6 @@
 /*
  * Les bornes des réglages des bulles : les mêmes que les contrôles de la
- * base (bulle_reglages, 20261026000001_bulles.sql). Le formulaire de la
+ * base (bulle_reglages, 20261027000001_bulles.sql). Le formulaire de la
  * gestion les montre, la base les applique.
  */
 export const BULLE_LIMITS = {
