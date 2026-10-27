@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { CyprienFooter } from "@/components/sites/cyprien/footer";
 import { CyprienHeader } from "@/components/sites/cyprien/header";
-import { CyprienMotion } from "@/components/sites/cyprien/motion";
+import { SiteMotion } from "@/components/sites/motion";
 import { cyprienFontVariables } from "@/lib/menu/brand-fonts";
 import { ogImage, photos } from "@/lib/sites/cyprien";
 import "./cyprien.css";
@@ -48,7 +48,7 @@ export default function CyprienLayout({ children }: { children: React.ReactNode 
         {children}
       </main>
       <CyprienFooter />
-      <CyprienMotion />
+      <SiteMotion root=".cy-site" />
     </div>
   );
 }

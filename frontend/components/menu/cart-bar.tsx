@@ -7,6 +7,7 @@ import {
   pickupNotice,
   type CollectDetails,
 } from "@/components/collect/pickup-fields";
+import { useBulleOrderBlock } from "@/components/bulles/table-gate";
 import { CartPairings } from "@/components/menu/cart-pairings";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { ClaimPoints } from "@/components/menu/claim-points";
@@ -103,6 +104,8 @@ function BinIcon() {
 export function CartBar() {
   const cart = useCart();
   const tickets = useTickets();
+  // La table d'une bulle dont les places ne sont pas toutes payées.
+  const bulleBlock = useBulleOrderBlock();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<SubmitState>("idle");
   const [paymentChoice, setPayment] = useState<PaymentChoice>("carte");
@@ -399,9 +402,11 @@ export function CartBar() {
   const barLabel =
     closedLines.length > 0
       ? "Commande à revoir"
-      : collectShort
-        ? `Encore ${formatPrice(missingCents / 100)} pour commander`
-        : "Voir la commande";
+      : bulleBlock
+        ? "Commande pas encore ouverte"
+        : collectShort
+          ? `Encore ${formatPrice(missingCents / 100)} pour commander`
+          : "Voir la commande";
 
   // Pourboire du règlement par carte, en centimes : pourcentage du total
   // arrondi au centime, ou montant libre — au plus le total, la borne du
@@ -1534,6 +1539,15 @@ export function CartBar() {
                         {closedNotice()}
                       </p>
                     )}
+                    {bulleBlock && (
+                      <p
+                        id={`${hintId}-bulle`}
+                        role="status"
+                        className="mb-3 text-pretty text-xs leading-relaxed text-ember-3"
+                      >
+                        {bulleBlock}
+                      </p>
+                    )}
                     {collectShort && (
                       <p
                         id={`${hintId}-minimum`}
@@ -1565,8 +1579,14 @@ export function CartBar() {
                           type="button"
                           data-cart-continue
                           onClick={() => goTo("reglement")}
-                          disabled={rewardsOnly || closedLines.length > 0}
-                          aria-describedby={closedLines.length > 0 ? `${hintId}-closed` : undefined}
+                          disabled={rewardsOnly || closedLines.length > 0 || bulleBlock !== null}
+                          aria-describedby={
+                            closedLines.length > 0
+                              ? `${hintId}-closed`
+                              : bulleBlock
+                                ? `${hintId}-bulle`
+                                : undefined
+                          }
                           className="sheet-cta ember-gradient min-h-12 min-w-0 flex-1 rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
                         >
                           Continuer · {formatPrice(cart.total)}
@@ -1581,14 +1601,17 @@ export function CartBar() {
                           aria-describedby={
                             closedLines.length > 0
                               ? `${hintId}-closed`
-                              : collectShort
-                                ? `${hintId}-minimum`
-                                : undefined
+                              : bulleBlock
+                                ? `${hintId}-bulle`
+                                : collectShort
+                                  ? `${hintId}-minimum`
+                                  : undefined
                           }
                           disabled={
                             state === "sending" ||
                             rewardsOnly ||
                             closedLines.length > 0 ||
+                            bulleBlock !== null ||
                             collectShort ||
                             tipError !== null
                           }

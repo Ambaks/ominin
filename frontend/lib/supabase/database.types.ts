@@ -169,6 +169,286 @@ export type Database = {
           },
         ]
       }
+      bulle_creneaux: {
+        Row: {
+          etablissement_id: string
+          id: string
+          start_minutes: number
+          weekday: number
+        }
+        Insert: {
+          etablissement_id: string
+          id?: string
+          start_minutes: number
+          weekday: number
+        }
+        Update: {
+          etablissement_id?: string
+          id?: string
+          start_minutes?: number
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_creneaux_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulle_parts: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          hold_expires_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["bulle_part_method"]
+          name: string
+          organiser: boolean
+          paid_at: string | null
+          phone: string | null
+          places: number
+          refunded_at: string | null
+          reservation_id: string
+          square_idempotency_key: string | null
+          square_order_id: string | null
+          square_payment_id: string | null
+          square_refund_id: string | null
+          status: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          email?: string | null
+          etablissement_id: string
+          hold_expires_at?: string | null
+          id?: string
+          method: Database["public"]["Enums"]["bulle_part_method"]
+          name: string
+          organiser?: boolean
+          paid_at?: string | null
+          phone?: string | null
+          places: number
+          refunded_at?: string | null
+          reservation_id: string
+          square_idempotency_key?: string | null
+          square_order_id?: string | null
+          square_payment_id?: string | null
+          square_refund_id?: string | null
+          status?: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          email?: string | null
+          etablissement_id?: string
+          hold_expires_at?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["bulle_part_method"]
+          name?: string
+          organiser?: boolean
+          paid_at?: string | null
+          phone?: string | null
+          places?: number
+          refunded_at?: string | null
+          reservation_id?: string
+          square_idempotency_key?: string | null
+          square_order_id?: string | null
+          square_payment_id?: string | null
+          square_refund_id?: string | null
+          status?: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_parts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bulle_parts_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "bulle_reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulle_reglages: {
+        Row: {
+          booking_days: number
+          duration_minutes: number
+          etablissement_id: string
+          max_party: number
+          min_party: number
+          place_cents: number
+          vat_rate: number
+        }
+        Insert: {
+          booking_days: number
+          duration_minutes: number
+          etablissement_id: string
+          max_party: number
+          min_party: number
+          place_cents: number
+          vat_rate?: number
+        }
+        Update: {
+          booking_days?: number
+          duration_minutes?: number
+          etablissement_id?: string
+          max_party?: number
+          min_party?: number
+          place_cents?: number
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_reglages_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulle_reservations: {
+        Row: {
+          arrived_at: string | null
+          bulle_id: string
+          closed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          email: string | null
+          ends_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          note: string | null
+          party_size: number
+          phone: string | null
+          place_cents: number
+          places_paid: number
+          share_token: string
+          source: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at: string
+          status: Database["public"]["Enums"]["bulle_reservation_status"]
+          token: string
+        }
+        Insert: {
+          arrived_at?: string | null
+          bulle_id: string
+          closed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string | null
+          ends_at: string
+          etablissement_id: string
+          id?: string
+          name: string
+          note?: string | null
+          party_size: number
+          phone?: string | null
+          place_cents: number
+          places_paid?: number
+          share_token?: string
+          source: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at: string
+          status?: Database["public"]["Enums"]["bulle_reservation_status"]
+          token?: string
+        }
+        Update: {
+          arrived_at?: string | null
+          bulle_id?: string
+          closed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string | null
+          ends_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          note?: string | null
+          party_size?: number
+          phone?: string | null
+          place_cents?: number
+          places_paid?: number
+          share_token?: string
+          source?: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at?: string
+          status?: Database["public"]["Enums"]["bulle_reservation_status"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_reservations_bulle_id_fkey"
+            columns: ["bulle_id"]
+            isOneToOne: false
+            referencedRelation: "bulles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bulle_reservations_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulles: {
+        Row: {
+          active: boolean
+          color: string
+          created_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          sort: number
+          table_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          color: string
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          name: string
+          sort?: number
+          table_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          sort?: number
+          table_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulles_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bulles_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: true
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_bookings: {
         Row: {
           arrived_at: string | null
@@ -5708,6 +5988,126 @@ export type Database = {
           invited: boolean
         }[]
       }
+      bulle_annuler_reservation: {
+        Args: { p_reservation: string }
+        Returns: undefined
+      }
+      bulle_marquer_arrivee: {
+        Args: { p_arrived: boolean; p_paid?: boolean; p_reservation: string }
+        Returns: undefined
+      }
+      bulle_rembourser_part: {
+        Args: { p_part: string }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          hold_expires_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["bulle_part_method"]
+          name: string
+          organiser: boolean
+          paid_at: string | null
+          phone: string | null
+          places: number
+          refunded_at: string | null
+          reservation_id: string
+          square_idempotency_key: string | null
+          square_order_id: string | null
+          square_payment_id: string | null
+          status: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bulle_parts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      bulle_table_etat: {
+        Args: { p_slug: string; p_table: number }
+        Returns: {
+          bulle_color: string
+          bulle_name: string
+          ends_at: string
+          ordering: boolean
+          party_size: number
+          places_paid: number
+          reservation_status: Database["public"]["Enums"]["bulle_reservation_status"]
+          share_token: string
+          starts_at: string
+        }[]
+      }
+      bulles_expirer: { Args: never; Returns: number }
+      bulles_planning: {
+        Args: { p_date: string; p_etab: string }
+        Returns: {
+          bulle_id: string
+          ends_at: string
+          libre: boolean
+          starts_at: string
+        }[]
+      }
+      commencer_part_square: {
+        Args: { p_key: string; p_part: string; p_square_order: string }
+        Returns: boolean
+      }
+      contribuer_bulle: {
+        Args: {
+          p_email: string
+          p_hold_seconds: number
+          p_name: string
+          p_phone: string
+          p_places: number
+          p_share_token: string
+        }
+        Returns: {
+          amount_cents: number
+          hold_expires_at: string
+          part_id: string
+          reservation_id: string
+        }[]
+      }
+      creer_reservation_bulle: {
+        Args: {
+          p_bulle: string
+          p_name: string
+          p_note: string
+          p_party: number
+          p_phone: string
+          p_source: Database["public"]["Enums"]["bulle_reservation_source"]
+          p_starts_at: string
+        }
+        Returns: {
+          arrived_at: string | null
+          bulle_id: string
+          closed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          email: string | null
+          ends_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          note: string | null
+          party_size: number
+          phone: string | null
+          place_cents: number
+          places_paid: number
+          share_token: string
+          source: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at: string
+          status: Database["public"]["Enums"]["bulle_reservation_status"]
+          token: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bulle_reservations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       hubrise_record_till_payment: {
         Args: { p_order: string; p_payments: Json }
         Returns: boolean
@@ -6356,6 +6756,10 @@ export type Database = {
         Args: { p_intent: string | null; p_payment: string; p_total: number }
         Returns: string
       }
+      regler_part_bulle: {
+        Args: { p_amount: number; p_part: string; p_square_payment: string | null }
+        Returns: Json
+      }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       reorder_items: { Args: { p_ids: string[] }; Returns: undefined }
       reprint_order_tickets: {
@@ -6391,6 +6795,25 @@ export type Database = {
       cancel_order_item: {
         Args: { p_item_id: string; p_quantity?: number }
         Returns: undefined
+      }
+      reserver_bulle: {
+        Args: {
+          p_bulle: string
+          p_email: string
+          p_hold_seconds: number
+          p_name: string
+          p_party: number
+          p_phone: string
+          p_places: number
+          p_starts_at: string
+        }
+        Returns: {
+          amount_cents: number
+          hold_expires_at: string
+          part_id: string
+          reservation_id: string
+          token: string
+        }[]
       }
       reserver_table: {
         Args: {
@@ -6510,6 +6933,15 @@ export type Database = {
         | "lupin"
         | "mollusques"
       badge: "maison" | "top" | "nouveau"
+      bulle_part_method: "en_ligne" | "sur_place"
+      bulle_part_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      bulle_reservation_source: "en_ligne" | "telephone" | "sur_place"
+      bulle_reservation_status:
+        | "en_attente"
+        | "confirmee"
+        | "arrivee"
+        | "remboursee"
+        | "annulee"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
       club_booking_source: "en_ligne" | "telephone" | "sur_place"
       club_booking_status:
@@ -6784,6 +7216,16 @@ export const Constants = {
         "mollusques",
       ],
       badge: ["maison", "top", "nouveau"],
+      bulle_part_method: ["en_ligne", "sur_place"],
+      bulle_part_status: ["en_attente", "payee", "remboursee", "annulee"],
+      bulle_reservation_source: ["en_ligne", "telephone", "sur_place"],
+      bulle_reservation_status: [
+        "en_attente",
+        "confirmee",
+        "arrivee",
+        "remboursee",
+        "annulee",
+      ],
       clip_post_status: ["en_cours", "publie", "partiel", "echec"],
       club_booking_source: ["en_ligne", "telephone", "sur_place"],
       club_booking_status: [

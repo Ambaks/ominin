@@ -12,12 +12,15 @@ import {
   Caveat,
   Chakra_Petch,
   Cinzel,
+  Corinthia,
   Cormorant_Garamond,
   Courier_Prime,
   DM_Sans,
   Didact_Gothic,
   Fraunces,
+  Gloock,
   Josefin_Sans,
+  Jost,
   Noto_Serif_Display,
   Playball,
   Playfair_Display,
@@ -252,6 +255,35 @@ const cinzel = Cinzel({
 
 /** Les trois polices de Cyprien, pour son site comme pour sa page de commande. */
 export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
+  .map((font) => font.variable)
+  .join(" ");
+
+/**
+ * BOHO — la DA « automne bohème » de son site et de ses bulles : le serif à
+ * fort contraste de son logo (Gloock), l'écriture des formules d'automne
+ * (Corinthia, un mot à la fois), et les capitales espacées de « RESTAURANT »
+ * pour le texte (Jost).
+ */
+const gloock = Gloock({
+  variable: "--font-gloock",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+const corinthia = Corinthia({
+  variable: "--font-corinthia",
+  subsets: ["latin"],
+  weight: "700",
+  preload: false,
+});
+const jost = Jost({
+  variable: "--font-jost",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+export const bohoFontVariables = [gloock, corinthia, jost]
   .map((font) => font.variable)
   .join(" ");
 

@@ -1,6 +1,45 @@
 import { NextResponse } from "next/server";
-import { confirmOrderPaid, verifyWebhookSignature } from "@/lib/square/server";
+import { settlePart } from "@/lib/bulles/settle";
+import {
+  capturedTender,
+  confirmOrderPaid,
+  getMerchantToken,
+  retrieveOrder,
+  verifyWebhookSignature,
+  withFreshToken,
+} from "@/lib/square/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+
+/**
+ * La commande Square d'une place de bulle (/api/bulles/pay) : relue chez
+ * Square, le règlement qu'elle porte est compté s'il ne l'a pas été — part
+ * en attente, mais aussi abandonnée ou fermée entre-temps : regler_part_bulle
+ * dit alors de le rembourser. Rien ne reste débité sans trace.
+ */
+async function settleBullePart(admin: ReturnType<typeof createAdminClient>, squareOrderId: string) {
+  const { data: part } = await admin
+    .from("bulle_parts")
+    .select("id, etablissement_id, square_payment_id")
+    .eq("square_order_id", squareOrderId)
+    .maybeSingle();
+  if (!part) return NextResponse.json({ received: true });
+  try {
+    const merchant = await getMerchantToken(admin, part.etablissement_id);
+    if (!merchant) return NextResponse.json({ received: true });
+    const { order } = await withFreshToken(admin, part.etablissement_id, merchant, (token) =>
+      retrieveOrder(token, squareOrderId)
+    );
+    const tender = capturedTender(order);
+    if (tender && tender.payment_id !== part.square_payment_id) {
+      await settlePart(admin, part.id, tender.payment_id, tender.amount_money?.amount ?? 0);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    console.error("[square] webhook de bulle non traité", { partId: part.id, message });
+    return NextResponse.json({ error: "Traitement impossible." }, { status: 500 });
+  }
+  return NextResponse.json({ received: true });
+}
 
 /*
  * Webhook Square : payment.updated et order.updated. Contrairement à SumUp,
@@ -66,7 +105,8 @@ export async function POST(request: Request) {
     .select("id, etablissement_id, paid_online")
     .eq("square_order_id", squareOrderId)
     .maybeSingle();
-  if (!target || target.paid_online) {
+  if (!target) return settleBullePart(admin, squareOrderId);
+  if (target.paid_online) {
     return NextResponse.json({ received: true });
   }
 
