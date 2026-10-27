@@ -15,6 +15,7 @@
     "seed:restaurant": "tsx --env-file=../backend/.env scripts/seed-restaurant.ts",
     "seed:club": "tsx --env-file=.env.local scripts/seed-club.ts",
     "club:demo": "tsx --env-file=.env.local scripts/club-demo.ts",
+    "bulles:demo": "tsx --env-file=.env.local scripts/bulles-demo.ts",
     "setup:stripe": "tsx --env-file=../backend/.env scripts/setup-stripe.ts",
     "setup:stripe:live": "tsx --env-file=../backend/.env scripts/setup-stripe.ts --live",
     "legal:check": "tsx --env-file=../backend/.env scripts/publish-legal.ts --check",

@@ -25,6 +25,8 @@ import { FORMULES_LINK } from "@/lib/menu/format";
 import { menuCartConfig } from "@/lib/menu/cart-config";
 import { brandName, etoileScene, hasVelours, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
+import { BulleTableGate } from "@/components/bulles/table-gate";
+import { fetchBulleOffer } from "@/lib/bulles/public";
 import { clubSiteUrl, menuSiteUrl } from "@/lib/site";
 
 /*
@@ -97,7 +99,16 @@ export default async function MenuPage({
   const { slug } = await params;
   // La carte de la démo d'Ominin Club vit sur le sous-domaine du club.
   if (etoileScene(slug)) permanentRedirect(`${clubSiteUrl}/${slug}/carte`);
-  const data = await getRestaurant(slug);
+  // Un établissement à bulles : la table d'une bulle ne commande qu'une fois
+  // ses places payées (BulleTableGate). Une erreur de lecture des bulles ne
+  // coûte jamais la carte : la base garde le verrou.
+  const [data, bulleOffer] = await Promise.all([
+    getRestaurant(slug),
+    fetchBulleOffer(slug).catch((error: unknown) => {
+      console.error("[menu] bulles illisibles", { slug, error });
+      return null;
+    }),
+  ]);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
   const { restaurant, serviceMode, callServer, loyalty, formules, saison } = data;
@@ -189,77 +200,79 @@ export default async function MenuPage({
           data-saison={saison ?? undefined}
           className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
-          {/* « < » échappé : un nom ou une description contenant
-              « </script> » fermerait la balise et injecterait du script. */}
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{
-              __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
-            }}
-          />
-          {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop slug={slug} />}
-          <MenuTicker items={restaurant.ticker} />
-          <Hero
-            restaurant={restaurant}
-            firstSectionId={categoryLinks[0]?.id}
-            banner={
-              affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
-            }
-            saison={saison ?? undefined}
-          />
-          {saison && <SaisonAmbient saison={saison} />}
-          <MenuHighlights highlights={restaurant.highlights} />
-          {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
-              tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
-              bout de la carte. */}
-          <TicketTracker />
-          <CartBar />
-          <MenuBody
-            layout={restaurant.categoryLayout}
-            categories={categoryLinks}
-            themeLocked={Boolean(restaurantThemeClass(slug))}
-            bottomPadding="pb-28"
-          >
-            {showFormules && (
-              <FormulesSection
-                formules={tiles}
-                affiches={affichesInHero ? undefined : affiches}
-              />
+          <BulleTableGate slug={slug} enabled={bulleOffer !== null}>
+            {/* « < » échappé : un nom ou une description contenant
+                « </script> » fermerait la balise et injecterait du script. */}
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+              }}
+            />
+            {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop slug={slug} />}
+            <MenuTicker items={restaurant.ticker} />
+            <Hero
+              restaurant={restaurant}
+              firstSectionId={categoryLinks[0]?.id}
+              banner={
+                affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
+              }
+              saison={saison ?? undefined}
+            />
+            {saison && <SaisonAmbient saison={saison} />}
+            <MenuHighlights highlights={restaurant.highlights} />
+            {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+                tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+                bout de la carte. */}
+            <TicketTracker />
+            <CartBar />
+            <MenuBody
+              layout={restaurant.categoryLayout}
+              categories={categoryLinks}
+              themeLocked={Boolean(restaurantThemeClass(slug))}
+              bottomPadding="pb-28"
+            >
+              {showFormules && (
+                <FormulesSection
+                  formules={tiles}
+                  affiches={affichesInHero ? undefined : affiches}
+                />
+              )}
+              {restaurant.categories.length === 0 ? (
+                <p className="py-16 text-center text-sm text-muted">
+                  La carte est en préparation — revenez bientôt.
+                </p>
+              ) : (
+                sections.map((category) => (
+                  <MenuSection
+                    key={category.id}
+                    category={category}
+                    // La première photo ne se charge d'emblée qu'en tête de carte :
+                    // sous des formules, elle est déjà loin sous le premier écran.
+                    first={category.id === categoryLinks[0]?.id}
+                  >
+                    {category.id === HAPPY_HOUR_SECTION_ID && happyHourTiles}
+                  </MenuSection>
+                ))
+              )}
+            </MenuBody>
+            <MenuFooter
+              restaurant={restaurant}
+              themeToggle={!restaurantThemeClass(slug)}
+            />
+            {callServer && <CallServerButton />}
+            {happyHour && <HappyHourPill happyHour={happyHour} />}
+            {inPill && (affiches.length > 0 || tiles.length > 0) && (
+              <FormulesPill affiches={affiches} formules={tiles} />
             )}
-            {restaurant.categories.length === 0 ? (
-              <p className="py-16 text-center text-sm text-muted">
-                La carte est en préparation — revenez bientôt.
-              </p>
-            ) : (
-              sections.map((category) => (
-                <MenuSection
-                  key={category.id}
-                  category={category}
-                  // La première photo ne se charge d'emblée qu'en tête de carte :
-                  // sous des formules, elle est déjà loin sous le premier écran.
-                  first={category.id === categoryLinks[0]?.id}
-                >
-                  {category.id === HAPPY_HOUR_SECTION_ID && happyHourTiles}
-                </MenuSection>
-              ))
-            )}
-          </MenuBody>
-          <MenuFooter
-            restaurant={restaurant}
-            themeToggle={!restaurantThemeClass(slug)}
-          />
-          {callServer && <CallServerButton />}
-          {happyHour && <HappyHourPill happyHour={happyHour} />}
-          {inPill && (affiches.length > 0 || tiles.length > 0) && (
-            <FormulesPill affiches={affiches} formules={tiles} />
-          )}
-          <LoyaltyWelcome
-            brand={brandName(restaurant)}
-            logo={restaurant.logo}
-            icon={restaurant.icons?.homeScreen}
-            wordmark={restaurant.logoIsName}
-            motif={restaurant.loyaltyMotif}
-          />
+            <LoyaltyWelcome
+              brand={brandName(restaurant)}
+              logo={restaurant.logo}
+              icon={restaurant.icons?.homeScreen}
+              wordmark={restaurant.logoIsName}
+              motif={restaurant.loyaltyMotif}
+            />
+          </BulleTableGate>
         </div>
       </LoyaltyMemberProvider>
     </CartProvider>

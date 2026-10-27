@@ -1,0 +1,35 @@
+# Bulles du Boho : une part partie chez Square sans réponse enregistrée est
+# relue (réglée, elle compte), et une réservation restée sans aucun paiement
+# est annulée pour ne plus encombrer le planning de l'accueil. Même cadence
+# que square-expire.
+#
+# L'échec du workflow EST le canal d'alerte : la route signale toute part
+# qu'elle n'a pas pu vérifier.
+name: bulles-expire
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+jobs:
+  expire:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fermer les réservations de bulles échues
+        run: |
+          response=$(curl -sf --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.MENU_URL }}/api/bulles/expire")
+          echo "$response"
+          echo "$response" | grep -q '"failed":\[\]' || {
+            echo "::error::Des parts de bulles n'ont pas pu être traitées."
+            exit 1
+          }
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Cron en échec : ${{ github.workflow }}\",\"body\":\"Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"key\":\"${{ github.workflow }}\"}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

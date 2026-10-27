@@ -12,6 +12,14 @@ export type VeloursPalette = {
   flat: string;
 };
 
+// Aubergine, reflet rosé.
+const bohoVelours: VeloursPalette = {
+  deep: [".058,.031,.069", ".078,.042,.093"],
+  mid: [".199,.101,.219", ".239,.121,.263"],
+  sheen: ".902,.675,.618",
+  flat: "#0f0812",
+};
+
 export const veloursPalettes: Record<string, VeloursPalette> = {
   // Vert bouteille, reflet sauge.
   "caffe-panis": {
@@ -20,11 +28,7 @@ export const veloursPalettes: Record<string, VeloursPalette> = {
     sheen: ".6,.74,.58",
     flat: "#0a2a17",
   },
-  // Aubergine, reflet rosé.
-  boho: {
-    deep: [".058,.031,.069", ".078,.042,.093"],
-    mid: [".199,.101,.219", ".239,.121,.263"],
-    sheen: ".902,.675,.618",
-    flat: "#0f0812",
-  },
+  boho: bohoVelours,
+  // La démonstration des bulles du Boho (lib/menu-data, BOHO_DEMO_SLUG).
+  "boho-demo": bohoVelours,
 };

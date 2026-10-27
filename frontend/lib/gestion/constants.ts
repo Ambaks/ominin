@@ -407,6 +407,12 @@ export const VIEWS: ViewSpec[] = [
     features: [],
   },
   {
+    id: "bulles",
+    label: "Bulles",
+    hint: "Les bulles du jardin réservées en ligne : créneaux, prix par personne, réservations du soir et arrivées. Hors offre : Ominin l'ouvre pour un établissement qui en a.",
+    features: [],
+  },
+  {
     id: "produits",
     label: "Produits",
     hint: "L'onglet compte : l'offre souscrite, le rôle et le catalogue Ominin. Fermé au serveur quoi qu'il arrive.",
