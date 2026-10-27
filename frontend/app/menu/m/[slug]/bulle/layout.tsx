@@ -1,7 +1,7 @@
 import type { Viewport } from "next";
 import { KilimMark } from "@/components/sites/boho/marks";
 import { bohoFontVariables } from "@/lib/menu/brand-fonts";
-import { BOHO_SLUG, BOHO_THEME_COLOR } from "@/lib/sites/boho";
+import { BOHO_SITE_SLUG, BOHO_THEME_COLOR } from "@/lib/sites/boho";
 import { menuSiteUrl } from "@/lib/site";
 import "@/components/sites/boho/boho.css";
 import "@/components/sites/boho/bulles.css";
@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 
 export default async function BulleLayout({ children, params }: LayoutProps<"/menu/m/[slug]/bulle">) {
   const { slug } = await params;
-  const home = slug === BOHO_SLUG ? `${menuSiteUrl}/m/${slug}/site` : `${menuSiteUrl}/m/${slug}`;
+  const home = slug === BOHO_SITE_SLUG ? `${menuSiteUrl}/m/${slug}/site` : `${menuSiteUrl}/m/${slug}`;
   return (
     <div className={`bo-site bo-bulle-site ${bohoFontVariables}`}>
       <header className="bo-header bo-header--plain">

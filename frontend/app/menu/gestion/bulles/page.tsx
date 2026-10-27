@@ -208,11 +208,13 @@ function Board({
                         className="flex min-h-28 flex-col gap-2 rounded-2xl border border-hairline bg-background p-3"
                         style={{ "--bulle": bulle.color } as CSSProperties}
                       >
-                        <div className="flex items-center gap-2 text-sm font-semibold">
-                          <span aria-hidden className="size-3.5 rounded-full bg-(--bulle)" />
-                          {bulle.name}
+                        <div className="flex flex-col gap-0.5">
+                          <span className="flex items-center gap-2 text-sm font-semibold">
+                            <span aria-hidden className="size-3.5 shrink-0 rounded-full bg-(--bulle)" />
+                            {bulle.name}
+                          </span>
                           {bulle.table_id && tableNumber.has(bulle.table_id) && (
-                            <span className="font-normal text-faint">· table {tableNumber.get(bulle.table_id)}</span>
+                            <span className="pl-5.5 text-xs text-faint">Table {tableNumber.get(bulle.table_id)}</span>
                           )}
                         </div>
                         {holder ? (

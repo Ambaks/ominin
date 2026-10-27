@@ -10528,9 +10528,17 @@ const withDemoAllergens = (registry: Record<string, Restaurant>): Record<string,
   );
 };
 
+/**
+ * La démonstration des bulles du Boho (scripts/bulles-demo.ts) : sa carte en
+ * base, habillée comme celle du Boho, son site et ses bulles, tant que le
+ * Boho n'a pas pris l'offre.
+ */
+export const BOHO_DEMO_SLUG = "boho-demo";
+
 const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
+  [BOHO_DEMO_SLUG]: { ...boho, slug: BOHO_DEMO_SLUG },
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
   [bigSmash.slug]: bigSmash,
@@ -10562,6 +10570,7 @@ const ETOILE_LIVE_SLUG = "l-etoile-demo";
  * Ominin par défaut. */
 const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
+  [BOHO_DEMO_SLUG]: "theme-boho",
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
   [bigSmash.slug]: "theme-big-smash",

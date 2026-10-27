@@ -1,11 +1,16 @@
+import { BOHO_DEMO_SLUG } from "@/lib/menu-data";
+
 /*
  * Site public du BOHO (Toulouse), restaurant chicha à l'ambiance bohème.
- * Servi sous menu.ominin.com/m/boho/site en attendant un domaine à lui. Les
+ * Servi pour l'instant sur sa démonstration (menu.ominin.com/m/boho-demo/site),
+ * tant que le Boho n'a pas pris l'offre, puis sous son propre slug. Les
  * faits viennent de sa carte papier et de son profil (demos/boho) ; la carte,
  * les prix, l'adresse et les horaires sont relus en base à chaque
  * revalidation, comme sur son menu QR.
  */
-export const BOHO_SLUG = "boho";
+
+/** L'établissement qui porte le site : la démonstration, avant la vente. */
+export const BOHO_SITE_SLUG = BOHO_DEMO_SLUG;
 
 /** La nuit prune du site (--bo-nuit), pour la barre du navigateur. */
 export const BOHO_THEME_COLOR = "#251b20";

@@ -19,6 +19,11 @@
 --
 -- Le paiement passe par la caisse du restaurant (Square au Boho), comme une
 -- commande du menu, sans commission Ominin.
+--
+-- Rien n'est ouvert ici pour un établissement : les bulles le sont par ses
+-- réglages (bulle_reglages) et la capacité « bulles ». Tant que le Boho ne les
+-- a pas prises, elles vivent sur sa démonstration, boho-demo
+-- (frontend/scripts/bulles-demo.ts) ; le vrai Boho n'en a rien.
 
 create extension if not exists btree_gist with schema extensions;
 
@@ -1108,36 +1113,3 @@ $$;
 
 revoke execute on function public.bulle_annuler_reservation(uuid) from public, anon;
 grant execute on function public.bulle_annuler_reservation(uuid) to authenticated;
-
--- ---------------------------------------------------------------------------
--- Le Boho : 9,90 € la place, de 3 à 8 personnes, 2 h, ses quatre bulles, et
--- des créneaux de deux heures dans ses horaires du soir (16 h – 2 h, le
--- samedi 18 h – 3 h), que le gérant modifie ensuite dans la gestion.
-
-insert into public.bulle_reglages (etablissement_id, place_cents, min_party, max_party, duration_minutes, booking_days)
-select id, 990, 3, 8, 120, 14 from public.etablissements where slug = 'boho';
-
-insert into public.bulles (etablissement_id, name, color, sort)
-select e.id, b.name, b.color, b.sort
-from public.etablissements e
-cross join (values
-  ('La Bleue', '#3e6b78', 1),
-  ('La Rouge', '#b5443a', 2),
-  ('La Grise', '#8a8580', 3),
-  ('La Verte', '#6f7f4e', 4)
-) as b (name, color, sort)
-where e.slug = 'boho';
-
-insert into public.bulle_creneaux (etablissement_id, weekday, start_minutes)
-select e.id, d.weekday, m.start_minutes
-from public.etablissements e
-cross join generate_series(1, 7) as d (weekday)
-cross join (values (960), (1080), (1200), (1320), (1440)) as m (start_minutes)
-where e.slug = 'boho'
-  -- Le samedi, le Boho ouvre à 18 h.
-  and not (d.weekday = 6 and m.start_minutes < 1080);
-
-update public.etablissement_settings s
-set features = s.features || '{"bulles": true}'::jsonb
-from public.etablissements e
-where e.id = s.etablissement_id and e.slug = 'boho';

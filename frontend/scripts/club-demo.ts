@@ -20,6 +20,7 @@ import { getRestaurant } from "../lib/menu-data";
 import type { Database, Json } from "../lib/supabase/database.types";
 import { check, must } from "../lib/supabase/result";
 import { insertFloor, night, ZONES } from "./club-floor";
+import { ensureDemoOwner } from "./demo-owner";
 import { insertCarte } from "./insert-carte";
 
 function required(name: string): string {
@@ -147,37 +148,6 @@ async function ensureOrdering(clubId: string) {
   }
 }
 
-async function ensureOwner(clubId: string, email: string, password: string) {
-  const { data: list, error } = await db.auth.admin.listUsers({ perPage: 1000 });
-  if (error) throw new Error(error.message);
-  let user = list.users.find((candidate) => candidate.email === email);
-  if (user) {
-    const updated = await db.auth.admin.updateUserById(user.id, { password });
-    if (updated.error) throw new Error(updated.error.message);
-  } else {
-    const created = await db.auth.admin.createUser({
-      email,
-      password,
-      email_confirm: true,
-      user_metadata: { visites: [] },
-    });
-    if (created.error) throw new Error(created.error.message);
-    user = created.data.user;
-  }
-  check(
-    await db.from("memberships").upsert(
-      {
-        user_id: user.id,
-        etablissement_id: clubId,
-        role: "gerant",
-        email,
-        display_name: "Gérant L'Étoile",
-      },
-      { onConflict: "user_id,etablissement_id" }
-    )
-  );
-}
-
 async function addNights(clubId: string): Promise<number> {
   const taken = new Set(
     must(await db.from("club_events").select("slug").eq("etablissement_id", clubId)).map((event) => event.slug)
@@ -217,7 +187,11 @@ async function main() {
   console.log(`Base visée : ${new URL(url).host} · club « ${SLUG} »`);
   const clubId = await ensureClub();
   await ensureOrdering(clubId);
-  await ensureOwner(clubId, required("CLUB_DEMO_EMAIL"), required("CLUB_DEMO_PASSWORD"));
+  await ensureDemoOwner(db, clubId, {
+    email: required("CLUB_DEMO_EMAIL"),
+    password: required("CLUB_DEMO_PASSWORD"),
+    displayName: "Gérant L'Étoile",
+  });
   const added = await addNights(clubId);
   console.log(`Démo prête : ${added} soirée(s) ajoutée(s), accès gérant rétabli pour ${process.env.CLUB_DEMO_EMAIL}.`);
 }

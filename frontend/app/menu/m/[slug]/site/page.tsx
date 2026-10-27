@@ -6,13 +6,13 @@ import { SiteMotion } from "@/components/sites/motion";
 import { fetchBulleOffer } from "@/lib/bulles/public";
 import { bohoFontVariables } from "@/lib/menu/brand-fonts";
 import { fetchRestaurant } from "@/lib/public-menu";
-import { BOHO_SLUG, BOHO_THEME_COLOR, bohoPhotos } from "@/lib/sites/boho";
+import { BOHO_SITE_SLUG, BOHO_THEME_COLOR, bohoPhotos } from "@/lib/sites/boho";
 import "@/components/sites/boho/boho.css";
 
 /*
- * Le site du Boho, sous son menu (menu.ominin.com/m/boho/site) en attendant
- * un domaine à lui. Seul le Boho a un site ici : tout autre établissement
- * n'a pas cette page. Rendu puis revalidé comme le menu : la carte et les
+ * Le site du Boho, sous le menu de l'établissement qui le porte
+ * (BOHO_SITE_SLUG : sa démonstration avant la vente) en attendant un domaine
+ * à lui. Tout autre établissement n'a pas cette page. Rendu puis revalidé comme le menu : la carte et les
  * horaires suivent la gestion sans toucher la base à chaque visite.
  */
 export const revalidate = 60;
@@ -30,7 +30,7 @@ export async function generateMetadata({
   params,
 }: PageProps<"/menu/m/[slug]/site">): Promise<Metadata> {
   const { slug } = await params;
-  if (slug !== BOHO_SLUG) notFound();
+  if (slug !== BOHO_SITE_SLUG) notFound();
   return {
     title: "BOHO · Restaurant chicha à Toulouse",
     description,
@@ -52,7 +52,7 @@ export const viewport: Viewport = {
 
 export default async function BohoSitePage({ params }: PageProps<"/menu/m/[slug]/site">) {
   const { slug } = await params;
-  if (slug !== BOHO_SLUG) notFound();
+  if (slug !== BOHO_SITE_SLUG) notFound();
   const [data, offer] = await Promise.all([getRestaurant(slug), fetchBulleOffer(slug)]);
   if (!data) notFound();
 
