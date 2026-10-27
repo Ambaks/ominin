@@ -4250,6 +4250,8 @@ export type Database = {
           payment_mode: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at: string | null
           platform_fee_cents: number | null
+          popina_order_id: string | null
+          source: string | null
           square_idempotency_key: string | null
           square_order_id: string | null
           square_payment_id: string | null
@@ -4282,6 +4284,8 @@ export type Database = {
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
           platform_fee_cents?: number | null
+          popina_order_id?: string | null
+          source?: string | null
           square_idempotency_key?: string | null
           square_order_id?: string | null
           square_payment_id?: string | null
@@ -4314,6 +4318,8 @@ export type Database = {
           payment_mode?: Database["public"]["Enums"]["payment_mode"] | null
           pickup_at?: string | null
           platform_fee_cents?: number | null
+          popina_order_id?: string | null
+          source?: string | null
           square_idempotency_key?: string | null
           square_order_id?: string | null
           square_payment_id?: string | null
@@ -4709,6 +4715,47 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      popina_connections: {
+        Row: {
+          api_key: string
+          connected_at: string
+          etablissement_id: string
+          last_failed_at: string | null
+          last_sale_at: string | null
+          location_id: string
+          location_name: string | null
+          reconciled_at: string | null
+        }
+        Insert: {
+          api_key: string
+          connected_at?: string
+          etablissement_id: string
+          last_failed_at?: string | null
+          last_sale_at?: string | null
+          location_id: string
+          location_name?: string | null
+          reconciled_at?: string | null
+        }
+        Update: {
+          api_key?: string
+          connected_at?: string
+          etablissement_id?: string
+          last_failed_at?: string | null
+          last_sale_at?: string | null
+          location_id?: string
+          location_name?: string | null
+          reconciled_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "popina_connections_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       price_rule_targets: {
         Row: {
@@ -8217,6 +8264,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      import_till_sales: {
+        Args: { p_etablissement_id: string; p_sales: Json }
+        Returns: number
+      }
       inscrire_guest_list: {
         Args: {
           p_email: string
@@ -8618,6 +8669,7 @@ export type Database = {
           starts_at: string | null
         }[]
       }
+      till_import_active: { Args: never; Returns: boolean }
       ungroup_tables: { Args: { p_group_id: string }; Returns: undefined }
       update_order_payment: {
         Args: {

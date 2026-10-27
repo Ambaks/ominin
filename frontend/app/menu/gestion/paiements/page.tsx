@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
 import { StripeDashboardButton } from "@/components/gestion/paiements/stripe-dashboard-button";
+import { TillChip } from "@/components/gestion/commandes/till-chip";
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
@@ -111,9 +112,12 @@ function PaymentRow({
   // Tout encaissement au comptoir se corrige et s'annule ; un règlement en
   // ligne, y compris ceux de l'ancien tunnel click & collect (mode
   // « en_ligne »), est une transaction réelle chez le prestataire : il reste
-  // tel quel.
+  // tel quel. Une vente de la caisse se corrige sur la caisse.
   const editable =
-    order.paymentMode != null && order.paymentMode !== "en_ligne" && !order.paidOnline;
+    order.paymentMode != null &&
+    order.paymentMode !== "en_ligne" &&
+    !order.paidOnline &&
+    !order.fromTill;
   // Une addition partagée n'a pas de montant unique à afficher : ses deux
   // jambes le disent, et c'est la jambe espèces qui porte la monnaie rendue.
   const split = mode === "mixte" ? totalsByMode(order) : null;
@@ -138,6 +142,7 @@ function PaymentRow({
               Emporter
             </span>
           )}
+          {order.fromTill && <TillChip />}
         </div>
         <p className="text-xs text-faint">
           {articleCount} article{articleCount > 1 ? "s" : ""}

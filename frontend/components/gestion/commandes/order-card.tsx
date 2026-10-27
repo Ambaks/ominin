@@ -18,6 +18,7 @@ import { formatPrice } from "@/lib/menu/format";
 import { EtaChooser } from "./eta-chooser";
 import { LineOptions, PaymentChip } from "./order-line";
 import { StatusBadge } from "./status-badge";
+import { TillChip } from "./till-chip";
 
 /**
  * Une commande seule : le suivi d'une commande collect (accepter, prête,
@@ -41,7 +42,7 @@ export function OrderCard({
   const [choosingEta, setChoosingEta] = useState(false);
 
   const isCollect = order.type === "collect";
-  const targets = nextStatuses(order.status, role, order.type);
+  const targets = order.fromTill ? [] : nextStatuses(order.status, role, order.type);
 
   const transition = async (target: OrderStatus, estimatedReadyAt?: string) => {
     try {
@@ -81,6 +82,7 @@ export function OrderCard({
               Emporter
             </span>
           )}
+          {order.fromTill && <TillChip />}
           <h3 className="min-w-0 break-words font-display text-lg font-medium">{heading}</h3>
           <span className="shrink-0 text-[13px] tabular-nums text-muted">
             {formatTime(order.createdAt)}

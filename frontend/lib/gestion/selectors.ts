@@ -250,6 +250,8 @@ export function earlierNumberingDay(order: Order, resetHour: number | null): str
  */
 export function placeLabel(order: Order, tables: Table[], showTable: boolean): string {
   const table = tables.find((candidate) => candidate.id === order.tableId);
+  // Vendue au comptoir de la caisse : ni table ni numéro Ominin.
+  if (order.fromTill && !table) return "Comptoir";
   if (order.orderNumber === undefined) return `Table ${table?.number ?? "—"}`;
   return showTable && table
     ? `N° ${order.orderNumber} · Table ${table.number}`
