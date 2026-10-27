@@ -1,10 +1,10 @@
 import { TIME_ZONE } from "@/lib/collect/hours";
-import type { Database } from "@/lib/supabase/database.types";
+import { Constants, type Database } from "@/lib/supabase/database.types";
 
 /** L'habillage de saison du menu QR, que seul l'admin pose (etablissement_settings.saison). */
 export type Saison = Database["public"]["Enums"]["saison"];
 
-export const SAISONS: Saison[] = ["automne", "halloween"];
+export const SAISONS: readonly Saison[] = Constants.public.Enums.saison;
 
 /** Un repère de l'affiche, en % de sa largeur et de sa hauteur ; `size` en % de la largeur. */
 export interface SaisonSpot {
@@ -38,13 +38,12 @@ export interface SaisonSpots {
 export function activeSaison(
   saison: Saison | null,
   fin: string | null,
-  dayEndHour: number,
-  now = new Date()
+  dayEndHour: number
 ): Saison | null {
   if (!saison) return null;
   if (!fin) return saison;
   const serviceDay = new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(
-    new Date(now.getTime() - dayEndHour * 3_600_000)
+    new Date(Date.now() - dayEndHour * 3_600_000)
   );
   return serviceDay <= fin ? saison : null;
 }

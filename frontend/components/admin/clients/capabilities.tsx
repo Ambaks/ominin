@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Toggle } from "@/components/ui/toggle";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -248,13 +248,26 @@ function CategoryLayoutCard({
   );
 }
 
-const SAISON_CHOICES: { id: Saison | null; label: string; body: string }[] = [
-  { id: null, label: "Aucune", body: "Le menu tel que le restaurant l'a voulu." },
-  { id: "automne", label: "Automne", body: "Lanternes dorées, feuilles qui tombent sur toute la carte." },
+const SAISON_CHOICES: { id: Saison | null; label: string; body: string; icon: React.ReactNode }[] = [
+  {
+    id: null,
+    label: "Aucune",
+    body: "Le menu tel que le restaurant l'a voulu.",
+    icon: <path d="M6 3h12v18H6zM9.5 8h5M9.5 12h5M9.5 16h3" />,
+  },
+  {
+    id: "automne",
+    label: "Automne",
+    body: "Des feuilles qui tombent sur toute la carte.",
+    icon: <path d="M5 19C5 10.5 10.5 5 20 4c-.5 9.5-6 15-15 15zM5 19l9-9" />,
+  },
   {
     id: "halloween",
     label: "Halloween",
-    body: "La nuit, la lune, la sorcière, les toiles, l'araignée, les fantômes et le chat noir.",
+    body: "La carte passe à la nuit : feuilles, araignée, fantômes et chat noir. Toiles, brume et citrouilles sur le cadre de l'affiche, s'il y en a une.",
+    icon: (
+      <path d="M12 7c-5 0-8 2.7-8 6.5S7 20 12 20s8-2.7 8-6.5S17 7 12 7zM12 7c-1.8 1.7-2.5 4-2.5 6.5S10.2 18.3 12 20M12 7c1.8 1.7 2.5 4 2.5 6.5S13.8 18.3 12 20M12 7V4.5c0-.8.7-1.5 1.5-1.5" />
+    ),
   },
 ];
 
@@ -265,7 +278,14 @@ function finLabel(fin: string): string {
 /*
  * L'habillage de saison du menu QR. Ominin seul le pose : le gérant ne le
  * voit pas dans sa gestion. La date de fin est le dernier jour de service où
- * il s'affiche ; sans date, il reste jusqu'à ce qu'on l'éteigne ici.
+ * il s'affiche ; sans date, il reste jusqu'à ce qu'on repasse sur « Aucune ».
+ *
+ * Chrome publie une valeur dès le premier chiffre de l'année (0002-10-31) ;
+ * l'enregistrer éteindrait la saison en pleine frappe, comme « 01 » tapé
+ * avant « 31 ». Une date à venir s'enregistre aussitôt (choix dans le
+ * calendrier, frappe achevée) ; le reste attend la sortie du champ ou Entrée,
+ * et une saisie incomplète ou d'une année passée y retrouve la date
+ * enregistrée.
  */
 function SaisonCard({
   client,
@@ -275,39 +295,79 @@ function SaisonCard({
   onChange: (client: Client) => void;
 }) {
   const toast = useToast();
-  const [saving, setSaving] = useState(false);
+  const [draft, setDraft] = useState<string | null>(null);
+  const queue = useRef(Promise.resolve());
+  const latest = useRef(0);
+  const saved = useRef({ saison: client.saison, saisonFin: client.saisonFin });
+  // Le client à jour : un échec ne ramène que la saison, pas les réglages
+  // changés ailleurs pendant l'écriture.
+  const current = useRef(client);
+  useEffect(() => {
+    current.current = client;
+  });
 
-  const persist = async (saison: Saison | null, saisonFin: string | null) => {
-    const previous = client;
+  // Les écritures partent l'une après l'autre : la dernière demandée l'emporte
+  // en base comme à l'écran. Seul l'échec de la dernière ramène l'écran à ce
+  // que la base contient.
+  const persist = (saison: Saison | null, saisonFin: string | null) => {
     const next = { ...client, saison, saisonFin: saison ? saisonFin : null };
+    const write = ++latest.current;
     onChange(next);
-    setSaving(true);
-    try {
-      await saveSaison(client.id, next.saison, next.saisonFin);
-    } catch (error) {
-      onChange(previous);
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
-    } finally {
-      setSaving(false);
+    queue.current = queue.current.then(async () => {
+      try {
+        await saveSaison(next.id, next.saison, next.saisonFin);
+        saved.current = { saison: next.saison, saisonFin: next.saisonFin };
+      } catch (error) {
+        if (write === latest.current) onChange({ ...current.current, ...saved.current });
+        toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      }
+    });
+  };
+
+  const fin = client.saisonFin;
+
+  // Une année à quatre chiffres, pas avant celle-ci.
+  const plausible = (value: string) =>
+    /^\d{4}-/.test(value) && parseInt(value, 10) >= new Date().getFullYear();
+
+  const saveFin = (value: string | null) => {
+    setDraft(null);
+    if (value !== fin) persist(client.saison, value);
+  };
+
+  const commitFin = (input: HTMLInputElement) => {
+    if (input.validity.badInput || (input.value && !plausible(input.value))) {
+      setDraft(null);
+      input.value = fin ?? "";
+    } else {
+      saveFin(input.value || null);
     }
   };
 
-  const shown = activeSaison(client.saison, client.saisonFin, client.dayEndHour);
-  const status = !client.saison
-    ? null
-    : !shown
-      ? `Date passée (${finLabel(client.saisonFin as string)}) : le menu ne l'affiche plus.`
-      : client.saisonFin
-        ? `Sur le menu jusqu'à la fermeture du ${finLabel(client.saisonFin)}.`
-        : "Sur le menu jusqu'à ce qu'on l'éteigne ici.";
+  // Une date tapée mais pas encore enregistrée ne laisse pas croire au statut
+  // de l'ancienne.
+  const status = !client.saison ? null : draft !== null && draft !== (fin ?? "") ? (
+    "Pas encore enregistrée : Entrée, ou quittez le champ, pour la poser."
+  ) : fin === null ? (
+    "Reste sur le menu jusqu’à ce que vous choisissiez « Aucune »."
+  ) : activeSaison(client.saison, fin, client.dayEndHour) ? (
+    `Sur le menu jusqu’à la fermeture du ${finLabel(fin)}, puis il retrouve son habillage habituel.`
+  ) : (
+    <span className="flex flex-wrap items-center gap-x-2 gap-y-1 rounded-xl border border-ember-1/40 bg-ember-1/10 px-3 py-2 text-foreground">
+      <span className="rounded-full border border-ember-1/40 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-1">
+        Date passée
+      </span>
+      Le {finLabel(fin)} est passé : le menu ne montre plus la saison.
+    </span>
+  );
 
   return (
-    <section className="flex flex-col gap-3">
+    <section className="flex flex-col gap-3 pb-2">
       <div>
         <h3 className="font-display text-base font-medium">Saison du menu QR</h3>
-        <p className="mt-0.5 text-xs leading-relaxed text-faint">
-          Posée par Ominin seulement : le gérant ne la voit pas dans sa gestion. Le menu
-          la montre à la prochaine mise à jour de son cache, en une minute au plus.
+        <p className="mt-0.5 text-xs leading-relaxed text-muted">
+          Réservée à Ominin : le gérant ne la voit pas dans sa gestion. Le menu
+          l&rsquo;affiche en une minute environ.
         </p>
       </div>
       <div role="radiogroup" aria-label="Saison du menu QR" className="grid gap-3 sm:grid-cols-3">
@@ -319,14 +379,27 @@ function SaisonCard({
               type="button"
               role="radio"
               aria-checked={selected}
-              disabled={saving}
-              onClick={() => selected || void persist(option.id, client.saisonFin)}
-              className={`flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors disabled:cursor-wait ${
+              onClick={() => selected || persist(option.id, client.saisonFin)}
+              className={`flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors ${
                 selected ? "border-ember-2/60 bg-surface-raised" : "border-hairline hover:border-ember-2/30"
               }`}
             >
               <span className="flex items-center justify-between gap-3">
-                <span className="font-display text-base font-medium">{option.label}</span>
+                <span className="flex items-center gap-2.5">
+                  <svg
+                    viewBox="0 0 24 24"
+                    className={`size-5 ${selected ? "text-ember-1" : "text-muted"}`}
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden
+                  >
+                    {option.icon}
+                  </svg>
+                  <span className="font-display text-base font-medium">{option.label}</span>
+                </span>
                 <span
                   aria-hidden
                   className={`flex size-5 items-center justify-center rounded-full border ${
@@ -341,31 +414,45 @@ function SaisonCard({
           );
         })}
       </div>
+      {client.saison === "halloween" && (
+        <p className="text-xs leading-relaxed text-muted">
+          Lune, sorcière, chauves-souris et lanternes allumées ne se posent que sur
+          une affiche dont Ominin a relevé les repères.
+        </p>
+      )}
       {client.saison && (
         <div className="flex flex-wrap items-end gap-3">
           <label className="flex flex-col gap-1.5">
             <span className="text-xs font-medium text-muted">Jusqu&rsquo;au (inclus)</span>
             <input
               type="date"
-              value={client.saisonFin ?? ""}
-              disabled={saving}
-              onChange={(event) => void persist(client.saison, event.target.value || null)}
+              value={draft ?? fin ?? ""}
+              onChange={(event) => {
+                const { value } = event.target;
+                if (plausible(value) && activeSaison(client.saison, value, client.dayEndHour)) saveFin(value);
+                else setDraft(value);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") commitFin(event.currentTarget);
+              }}
+              onBlur={(event) => commitFin(event.currentTarget)}
               className={inputClass}
             />
           </label>
-          {client.saisonFin && (
+          {fin && (
             <button
               type="button"
-              onClick={() => void persist(client.saison, null)}
-              disabled={saving}
-              className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+              onClick={() => persist(client.saison, null)}
+              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
             >
               Sans date de fin
             </button>
           )}
         </div>
       )}
-      {status && <p className="text-xs leading-relaxed text-faint">{status}</p>}
+      <div role="status" className="text-xs leading-relaxed text-muted empty:-mt-3">
+        {status}
+      </div>
     </section>
   );
 }
@@ -506,7 +593,9 @@ export function Capabilities({
         <CategoryLayoutCard client={client} onChange={onChange} />
       )}
 
-      {client.products.offre && <SaisonCard client={client} onChange={onChange} />}
+      {client.products.offre && (
+        <SaisonCard key={client.id} client={client} onChange={onChange} />
+      )}
 
       <p className="text-xs leading-relaxed text-faint">
         Une case laissée telle que l&rsquo;offre la donne ne s&rsquo;enregistre
