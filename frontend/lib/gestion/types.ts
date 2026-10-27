@@ -270,6 +270,15 @@ export interface Etape {
   id: string;
   name: string;
   obligatoire: boolean;
+  /**
+   * Toute une catégorie de la carte : ses articles du moment sont des choix,
+   * ceux qu'on y ajoutera plus tard compris. `articles` s'y ajoute.
+   */
+  categoryId?: string;
+  /** Articles de la catégorie retirés de l'étape. */
+  exclus?: string[];
+  /** Supplément d'un article de la catégorie, par son id ; absent ⇒ 0. */
+  supplements?: Record<string, number>;
   articles: Article[];
 }
 

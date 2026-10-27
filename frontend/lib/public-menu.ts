@@ -1,4 +1,5 @@
 import { parisParts, type OpeningHours } from "@/lib/collect/hours";
+import { etapeArticles } from "@/lib/gestion/formules";
 import { assembleCategories, rowToAffiche, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
@@ -205,7 +206,7 @@ export async function fetchRestaurant(slug: string): Promise<{
         ...etape,
         // Un article de la carte suit sa fiche : ses options du moment,
         // comme formule_line en base.
-        articles: etape.articles.flatMap((article) => {
+        articles: etapeArticles(etape, categories).flatMap((article) => {
           if (!article.itemId) return [article];
           const item = itemsById.get(article.itemId);
           return item && item.disponible !== false && item.stock !== 0

@@ -15,6 +15,15 @@ export const TOAST_DURATION_MS = 3000;
 /** Relecture du statut d'abonnement au retour de Stripe Checkout. */
 export const SUBSCRIPTION_POLL_MS = 3000;
 export const TOP_VENTES_COUNT = 5;
+/**
+ * Modèles proposés à la création d'une formule : ses étapes, chacune prenant
+ * la catégorie de la carte qui porte son nom (« Entrées », « Nos plats »…).
+ */
+export const FORMULE_MODELES = [
+  ["Entrée", "Plat"],
+  ["Plat", "Dessert"],
+  ["Entrée", "Plat", "Dessert"],
+] as const;
 /** L'accord du chef : accords proposés à la fois dans le panier du menu QR. */
 export const CART_PAIRINGS_COUNT = 2;
 /** Lignes du panier montrées d'emblée : au-delà, la liste se replie sous l'accord du chef et la fidélité. */
