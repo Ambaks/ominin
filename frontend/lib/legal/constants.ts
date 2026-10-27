@@ -48,7 +48,7 @@ export const COMMERCIAL_TOTAL_YEARS =
 
 /*
  * Délais et seuils du contrat de commercial que la base applique : ils sont
- * recopiés dans commercial_settings (migration 20261026000002), avec le taux,
+ * recopiés dans commercial_settings (migration 20261028000002), avec le taux,
  * la durée et l'option ci-dessus ; supabase/tests/commercial/01_reglages.sql
  * vérifie l'égalité. Changer une valeur ici demande une nouvelle version du
  * contrat et une migration qui met la ligne à jour.

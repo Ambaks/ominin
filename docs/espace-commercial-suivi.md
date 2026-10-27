@@ -33,7 +33,7 @@ du cahier, expliqué).
 
 | Rôle | Fichiers |
 |---|---|
-| Migrations | `supabase/migrations/20261026000001_commercial_liens.sql` (liens fiche ↔ client, rattachement), `…02_commercial_declarations.sql` (réglages, déclarations, gardes, reflet, e-mails, opposition, quotas, bucket), `…03_commercial_fonctions.sql` (fonctions commercial_*, admin_*, tâche quotidienne), `…04_commercial_inscription.sql` (lot 2), `…05_commercial_commissions.sql` (lot 3) |
+| Migrations | `supabase/migrations/20261028000001_commercial_liens.sql` (liens fiche ↔ client, rattachement), `…02_commercial_declarations.sql` (réglages, déclarations, gardes, reflet, e-mails, opposition, quotas, bucket), `…03_commercial_fonctions.sql` (fonctions commercial_*, admin_*, tâche quotidienne), `…04_commercial_inscription.sql` (lot 2), `…05_commercial_commissions.sql` (lot 3) |
 | Tests SQL | `supabase/tests/stubs.sql`, `supabase/tests/commercial/*` |
 | Espace commercial | `frontend/app/commercial/espace/**`, `frontend/components/commercial/space/*`, `frontend/components/commercial/contract.tsx`, `frontend/lib/commercial/*` |
 | Admin | `frontend/app/admin/(shell)/commerciaux/page.tsx`, `frontend/components/admin/commerciaux/*`, `frontend/components/admin/lead/commercial-section.tsx`, `frontend/lib/admin/commerciaux.ts`, `lead-cache.ts`, `store.ts`, `projet.ts` |
@@ -291,7 +291,7 @@ Essais du vérificateur rejoués sur la base corrigée (`nouveaux.sql`) : 34 con
 - **Rattachement** des clients en service et des clients du Projet (onglet Réglages → Rattachement) avant la première invitation.
 - **Version 2 du contrat** : relecture par l'avocat de `commercial-v2.ts`, puis inscription dans `documents/index.ts` avec sa date et `npm run legal:publish`.
 - **`/confidentialite`** : relecture, puis `npm run legal:publish` (la version `2026-10-26` est servie dès le déploiement).
-- **Migrations** `20261026000001` à `20261026000005` à appliquer (`npm run db:push`).
+- **Migrations** `20261028000001` à `20261028000005` à appliquer (`npm run db:push`).
 - **Variables d'environnement** : aucune nouvelle. La recherche Google utilise `GOOGLE_PLACES_API_KEY` du backend (déjà là pour Léa) et, côté Vercel, `BACKEND_URL` et `AGENT_TRIGGER_SECRET` (déjà là pour l'agent social) ; déjà existantes et utilisées : `CRON_SECRET`, Gmail, VAPID, Stripe.
 - **Backend** : déployer le nouveau routeur `/places` (Render) avec le front.
 - **Stripe** : ajouter `invoice.paid`, `credit_note.created`, `credit_note.updated`, `credit_note.voided` aux événements du webhook ; vérifier sur une facture de test avec coupon et avoir que `ominin_invoice_payments` tombe juste (non essayé ici).

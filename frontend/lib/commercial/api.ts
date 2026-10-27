@@ -15,7 +15,7 @@ import type {
  * Appels de l'espace commercial : uniquement les fonctions commercial_* de la
  * base (security definer), qui vérifient l'accès et ne servent que ce que le
  * commercial a le droit de voir. Les fonctions qui rendent du jsonb sont
- * typées ici, d'après leur définition SQL (migration 20261026000003).
+ * typées ici, d'après leur définition SQL (migration 20261028000003).
  */
 
 /** commercial_account() : ce que l'espace affiche du compte. */
