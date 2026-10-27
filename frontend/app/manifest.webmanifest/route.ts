@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
+import { commercialPrefix } from "@/lib/site";
 
 /*
  * Manifeste PWA, selon le site qui le sert. Installer le site sur l'écran
  * d'accueil est le prérequis des notifications push sur iPhone/iPad, et
  * l'app s'ouvre sur start_url : celle de l'espace de gestion (/gestion, sur
  * les sous-domaines menu et collect) n'existe pas sur le host admin, qui
- * s'ouvrait donc sur une 404.
+ * s'ouvrait donc sur une 404. L'espace commercial a le sien : sur son
+ * sous-domaine, ou demandé par ?app=commercial quand il est servi sous
+ * /commercial.
  */
 
 const COMMON = {
@@ -19,8 +22,21 @@ const COMMON = {
 };
 
 export function GET(request: Request) {
-  const admin = request.headers.get("host") === process.env.NEXT_PUBLIC_ADMIN_HOST;
-  const manifest = admin
+  const host = request.headers.get("host");
+  const admin = host === process.env.NEXT_PUBLIC_ADMIN_HOST;
+  const commercial =
+    host === process.env.NEXT_PUBLIC_COMMERCIAL_HOST ||
+    new URL(request.url).searchParams.get("app") === "commercial";
+  const manifest = commercial
+    ? {
+        id: `${commercialPrefix}/espace`,
+        name: "Ominin Commercial",
+        short_name: "Commercial",
+        description: "L'espace des commerciaux Ominin : restaurants, relances, kit et commissions.",
+        start_url: `${commercialPrefix}/espace`,
+        ...COMMON,
+      }
+    : admin
     ? {
         // id distinct : l'iPhone traite l'admin comme une autre app que la gestion.
         id: "/?app=admin",

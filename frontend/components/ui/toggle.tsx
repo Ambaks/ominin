@@ -1,6 +1,6 @@
 "use client";
 
-/* 28 × 48 px : un interrupteur qui se touche du doigt sans viser. */
+/* 28 × 48 px à l'œil, 44 px de zone tactile (marge invisible autour). */
 export function Toggle({
   checked,
   onChange,
@@ -20,7 +20,7 @@ export function Toggle({
       aria-label={label}
       disabled={disabled}
       onClick={() => onChange(!checked)}
-      className={`relative h-7 w-12 shrink-0 rounded-full transition-all ${
+      className={`relative h-7 w-12 shrink-0 rounded-full transition-all before:absolute before:-inset-2 before:content-[''] ${
         checked ? "ember-gradient" : "border border-hairline bg-surface"
       } ${disabled ? "cursor-not-allowed opacity-40" : ""}`}
     >

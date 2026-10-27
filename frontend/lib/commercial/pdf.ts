@@ -10,7 +10,7 @@ import { commercialName, signatureRecord, signatureStatement } from "./record";
  */
 
 /** Mise en page de ce document, en points. */
-const LAYOUT = {
+export const LAYOUT = {
   page: PageSizes.A4,
   margin: 56,
   chrome: 8,
@@ -98,8 +98,12 @@ function wrap(text: string, font: PDFFont, size: number, maxWidth: number) {
   return lines;
 }
 
-export async function signedContractPdf(signature: CommercialSignature) {
-  const { document } = signature;
+/**
+ * Page A4 qui se remplit de haut en bas : paragraphes coupés à la largeur,
+ * lignes « libellé : valeur », saut de page automatique, puis en-tête et
+ * numéros de page posés à la fin. Partagée par le contrat et les relevés.
+ */
+export async function pdfWriter(meta: { title: string; subject: string; date: Date }) {
   const pdf = await PDFDocument.create();
   const regular = await pdf.embedFont(StandardFonts.Helvetica);
   const bold = await pdf.embedFont(StandardFonts.HelveticaBold);
@@ -108,15 +112,14 @@ export async function signedContractPdf(signature: CommercialSignature) {
   const clean = (text: string) =>
     printable(text, charset).replace(/« /g, "«\u00a0").replace(/ ([»:;?!])/g, "\u00a0$1");
 
-  const header = clean(`${document.title} — version ${document.version}`);
+  const header = clean(meta.title);
   pdf.setTitle(header);
   pdf.setAuthor(editorLegalName);
-  pdf.setSubject(clean(`Exemplaire signé — ${commercialName(signature.terms.identity)}`));
+  pdf.setSubject(clean(meta.subject));
   pdf.setLanguage("fr-FR");
-  // Dates de la signature, pas du rendu : mêmes octets à chaque téléchargement.
-  const signedAt = new Date(signature.acceptedAt);
-  pdf.setCreationDate(signedAt);
-  pdf.setModificationDate(signedAt);
+  // Date du document, pas du rendu : mêmes octets à chaque téléchargement.
+  pdf.setCreationDate(meta.date);
+  pdf.setModificationDate(meta.date);
 
   const [pageWidth, pageHeight] = LAYOUT.page;
   const left = LAYOUT.margin;
@@ -150,65 +153,79 @@ export async function signedContractPdf(signature: CommercialSignature) {
     });
   };
 
-  paragraph(document.title, { font: bold, size: LAYOUT.title });
-  paragraph(`Version ${document.version} — exemplaire signé électroniquement`, {
-    color: LAYOUT.muted,
-  });
-
-  y -= LAYOUT.sectionGap;
-  paragraph("Relevé de signature", { font: bold, size: LAYOUT.heading });
-  y -= LAYOUT.paragraphGap;
-  const valueX = left + LAYOUT.labelWidth;
-  for (const [label, value] of signatureRecord(signature)) {
+  /** « Libellé  valeur », la valeur coupée dans sa colonne. */
+  const row = (label: string, value: string) => {
+    const valueX = left + LAYOUT.labelWidth;
     const lines = wrap(clean(value), regular, LAYOUT.body, left + textWidth - valueX);
     const height = lineHeight(LAYOUT.body);
     room(height * lines.length);
-    page.drawText(clean(label), {
-      x: left,
-      y: y - height,
-      size: LAYOUT.body,
-      font: regular,
-      color: LAYOUT.muted,
-    });
+    page.drawText(clean(label), { x: left, y: y - height, size: LAYOUT.body, font: regular, color: LAYOUT.muted });
     for (const line of lines) {
       y -= height;
       page.drawText(line, { x: valueX, y, size: LAYOUT.body, font: regular, color: LAYOUT.ink });
     }
-  }
-  y -= LAYOUT.paragraphGap;
-  paragraph(signatureStatement(signature));
+  };
 
-  for (const article of document.articles) {
+  /** Un titre ne reste pas seul en bas de page. */
+  const heading = (text: string) => {
     y -= LAYOUT.sectionGap;
-    // Un titre ne reste pas seul en bas de page.
     room(lineHeight(LAYOUT.heading) + LAYOUT.keepWithNext * lineHeight(LAYOUT.body));
-    paragraph(article.heading, { font: bold, size: LAYOUT.heading });
+    paragraph(text, { font: bold, size: LAYOUT.heading });
     y -= LAYOUT.paragraphGap;
-    for (const entry of article.body) {
-      if (typeof entry === "string") {
-        paragraph(entry);
-      } else {
-        for (const item of entry) {
-          paragraph(item, { x: left + LAYOUT.bulletIndent, bullet: true });
-        }
-      }
-      y -= LAYOUT.paragraphGap;
-    }
-  }
+  };
 
-  const pages = pdf.getPages();
-  pages.forEach((sheet, index) => {
-    const chrome = { size: LAYOUT.chrome, font: regular, color: LAYOUT.muted };
-    sheet.drawText(header, { ...chrome, x: left, y: pageHeight - LAYOUT.chromeOffset });
-    const number = `page ${index + 1} / ${pages.length}`;
-    sheet.drawText(number, {
-      ...chrome,
-      x: left + textWidth - regular.widthOfTextAtSize(number, LAYOUT.chrome),
-      y: LAYOUT.chromeOffset,
+  const gap = () => {
+    y -= LAYOUT.paragraphGap;
+  };
+
+  const finish = () => {
+    const pages = pdf.getPages();
+    pages.forEach((sheet, index) => {
+      const chrome = { size: LAYOUT.chrome, font: regular, color: LAYOUT.muted };
+      sheet.drawText(header, { ...chrome, x: left, y: pageHeight - LAYOUT.chromeOffset });
+      const number = `page ${index + 1} / ${pages.length}`;
+      sheet.drawText(number, {
+        ...chrome,
+        x: left + textWidth - regular.widthOfTextAtSize(number, LAYOUT.chrome),
+        y: LAYOUT.chromeOffset,
+      });
     });
+    return pdf.save();
+  };
+
+  return { paragraph, row, heading, gap, finish, bold, left };
+}
+
+export async function signedContractPdf(signature: CommercialSignature) {
+  const { document } = signature;
+  const doc = await pdfWriter({
+    title: `${document.title} — version ${document.version}`,
+    subject: `Exemplaire signé — ${commercialName(signature.terms.identity)}`,
+    date: new Date(signature.acceptedAt),
   });
 
-  return pdf.save();
+  doc.paragraph(document.title, { font: doc.bold, size: LAYOUT.title });
+  doc.paragraph(`Version ${document.version} — exemplaire signé électroniquement`, { color: LAYOUT.muted });
+
+  doc.heading("Relevé de signature");
+  for (const [label, value] of signatureRecord(signature)) doc.row(label, value);
+  doc.gap();
+  doc.paragraph(signatureStatement(signature));
+
+  for (const article of document.articles) {
+    doc.heading(article.heading);
+    for (const entry of article.body) {
+      if (typeof entry === "string") {
+        doc.paragraph(entry);
+      } else {
+        for (const item of entry) {
+          doc.paragraph(item, { x: doc.left + LAYOUT.bulletIndent, bullet: true });
+        }
+      }
+      doc.gap();
+    }
+  }
+  return doc.finish();
 }
 
 /** Téléchargement de l'exemplaire : personnel, jamais mis en cache. */

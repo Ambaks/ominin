@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { AuthForm } from "@/components/auth/auth-form";
 import { Wordmark } from "@/components/brand/wordmark";
+import { SignupLinkBanner } from "@/lib/commercial/signup-link";
 
 type Profile = "owner" | "staff";
 
@@ -67,7 +68,12 @@ export function InscriptionTabs({
       }
       signUpData={profile === "staff" ? { profile: "staff" } : undefined}
       authError={authError}
-      beforeCard={<ProfileTabs value={profile} onChange={setProfile} />}
+      beforeCard={
+        <>
+          <SignupLinkBanner product="menu" />
+          <ProfileTabs value={profile} onChange={setProfile} />
+        </>
+      }
     />
   );
 }

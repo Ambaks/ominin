@@ -107,6 +107,9 @@ def _eligible(sb, restaurant: dict) -> bool:
             {"qualification": "disqualified", "disqualify_reason": "suppressed"}
         ).eq("restaurant_id", restaurant["id"]).execute()
         return False
+    if emailing.is_reserved(restaurant["id"]):
+        # Declared by a commercial: his to work until the declaration ends.
+        return False
     prior = (
         sb.table("outreach_emails")
         .select("id, status")
