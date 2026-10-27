@@ -29,6 +29,6 @@ export const veloursPalettes: Record<string, VeloursPalette> = {
     flat: "#0a2a17",
   },
   boho: bohoVelours,
-  // La démonstration des bulles du Boho (lib/menu-data, BOHO_DEMO_SLUG).
+  // La démonstration des bulles du Boho (lib/bulles/demo).
   "boho-demo": bohoVelours,
 };
