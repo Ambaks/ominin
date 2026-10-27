@@ -25,11 +25,14 @@ create index commercial_declarations_signup_user_idx
   on public.commercial_declarations (signup_user_id) where signup_user_id is not null;
 
 -- Client Apporté : un établissement ou une boutique né d'une déclaration
--- (plusieurs pour un même exploitant, art. 4.4). La fin de commission ne se
--- stocke pas : commission_from + durée du contrat, bornée par le départ du
--- client (crm_restaurants.client_ended_at). validated_at nul : inscription
--- suspecte (nom ou téléphone trop différents), hors de tout relevé avant
--- validation par l'admin. commission_from nul : CGV pas encore acceptées.
+-- (plusieurs pour un même exploitant, art. 4.4). La commission court de
+-- commission_from pour la durée du contrat, bornée par ended_at : le départ
+-- du client, figé au moment où l'admin le pose (crm_restaurants
+-- .client_ended_at) et jamais rouvert — un client revenu n'est plus apporté,
+-- sauf nouvelle déclaration, qui crée une nouvelle ligne (4.4). validated_at
+-- nul : inscription suspecte (nom ou téléphone trop différents), hors de tout
+-- relevé avant validation par l'admin. commission_from nul : CGV pas encore
+-- acceptées.
 create table public.commercial_clients (
   id uuid primary key default gen_random_uuid(),
   declaration_id uuid not null references public.commercial_declarations (id),
@@ -38,25 +41,42 @@ create table public.commercial_clients (
   commission_from timestamptz,
   validated_at timestamptz,
   alert text,
+  ended_at timestamptz,
   created_at timestamptz not null default now(),
   check (num_nonnulls(etablissement_id, shop_id) = 1)
 );
 create unique index commercial_clients_etablissement_key
-  on public.commercial_clients (etablissement_id) where etablissement_id is not null;
+  on public.commercial_clients (etablissement_id) where etablissement_id is not null and ended_at is null;
 create unique index commercial_clients_shop_key
-  on public.commercial_clients (shop_id) where shop_id is not null;
+  on public.commercial_clients (shop_id) where shop_id is not null and ended_at is null;
+
+-- Le départ posé sur la fiche clôt le Client Apporté en cours, définitivement :
+-- effacer ensuite la date (client revenu) ne le rouvre pas.
+create function public.commercial_close_clients()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+begin
+  update public.commercial_clients
+  set ended_at = new.client_ended_at
+  where ended_at is null
+    and ((new.etablissement_id is not null and etablissement_id = new.etablissement_id)
+         or (new.shop_id is not null and shop_id = new.shop_id));
+  return new;
+end;
+$$;
+create trigger crm_restaurants_client_ended
+  after update of client_ended_at on public.crm_restaurants
+  for each row when (new.client_ended_at is not null and old.client_ended_at is distinct from new.client_ended_at)
+  execute function public.commercial_close_clients();
 create index commercial_clients_declaration_idx on public.commercial_clients (declaration_id);
 
 alter table public.commercial_clients enable row level security;
 create policy "admin read" on public.commercial_clients
   for select to authenticated using ((select public.is_admin()));
-create policy "self read" on public.commercial_clients
-  for select to authenticated
-  using (declaration_id in (
-    select d.id from public.commercial_declarations d
-    join public.commerciaux c on c.id = d.commercial_id
-    where c.user_id = (select auth.uid())
-  ));
+-- Le commercial lit ses Clients Apportés par commercial_my_clients.
 
 -- Démo aux couleurs du restaurant, demandée depuis le Kit avec des photos de
 -- la carte prises sur place (commercial-docs/<commercial>/demos/…) ; livrée
@@ -209,7 +229,18 @@ as $$
 declare
   v_alert text;
   v_id uuid;
+  v_holder text;
 begin
+  select coalesce(nullif(btrim(concat_ws(' ', m.first_name, m.last_name)), ''), m.email) into v_holder
+  from public.commercial_clients c
+  join public.commercial_declarations od on od.id = c.declaration_id
+  join public.commerciaux m on m.id = od.commercial_id
+  where c.ended_at is null
+    and ((p_etablissement is not null and c.etablissement_id = p_etablissement)
+         or (p_shop is not null and c.shop_id = p_shop));
+  if v_holder is not null then
+    raise exception 'Ce client est déjà le Client Apporté de % : posez d''abord son départ.', v_holder;
+  end if;
   v_alert := case when p_validated then null else public.commercial_signup_alert(d, p_etablissement, p_shop) end;
   insert into public.commercial_clients (declaration_id, etablissement_id, shop_id, commission_from, validated_at, alert)
   values (d.id, p_etablissement, p_shop,
@@ -323,7 +354,8 @@ $$;
 -- Le lien d'inscription
 
 -- Généré par le titulaire d'une déclaration confirmée ; un nouveau lien
--- remplace le précédent. Seule l'empreinte du jeton est gardée.
+-- remplace le précédent. Seule l'empreinte du jeton est gardée. Le compte
+-- du gérant déjà rattaché le reste : l'inscription lui est attribuée.
 create function public.commercial_signup_link(p_declaration uuid)
 returns text
 language plpgsql
@@ -343,8 +375,7 @@ begin
   end if;
   update public.commercial_declarations
   set signup_token_hash = encode(extensions.digest(v_token, 'sha256'), 'hex'),
-      signup_token_expires_at = now() + make_interval(days => v_days),
-      signup_user_id = null
+      signup_token_expires_at = now() + make_interval(days => v_days)
   where id = d.id;
   return v_token;
 end;
@@ -415,7 +446,10 @@ $$;
 -- La signature : à l'acceptation des CGV par le compte rattaché au lien.
 -- Une déclaration encore en attente est d'abord confirmée (13.2 n° 11). Un
 -- client qui avait accepté des conditions avant la déclaration était déjà
--- celui d'Ominin : rouvrir un lien ne l'attribue pas.
+-- celui d'Ominin : rouvrir un lien ne l'attribue pas — sauf s'il était parti
+-- avant la déclaration et n'avait rien accepté depuis son départ (4.4 : un
+-- client parti se redéclare). Un client encore apporté à quelqu'un ne
+-- change jamais de titulaire. Rien n'est signé sans Client Apporté créé.
 create function public.commercial_on_client_acceptance()
 returns trigger
 language plpgsql
@@ -428,6 +462,7 @@ declare
   v_name text;
   v_product public.ominin_product;
   v_projet uuid;
+  v_departed timestamptz;
 begin
   -- Un Client Apporté rattaché avant ses CGV commence à les compter ici.
   update public.commercial_clients
@@ -452,11 +487,22 @@ begin
   if d.id is null then
     return new;
   end if;
+  select max(x.client_ended_at) into v_departed
+  from public.crm_restaurants x
+  where x.deleted_at is null and x.client_ended_at <= d.declared_at
+    and ((new.scope = 'etablissement' and x.etablissement_id = new.etablissement_id)
+         or (new.scope = 'shop' and x.shop_id = new.shop_id));
   if exists (
     select 1 from public.legal_acceptances a
-    where a.id <> new.id and a.accepted_at < d.declared_at and a.scope = new.scope
+    where a.id <> new.id and a.accepted_at < d.declared_at
+      and a.accepted_at >= coalesce(v_departed, '-infinity') and a.scope = new.scope
       and ((new.scope = 'etablissement' and a.etablissement_id = new.etablissement_id)
            or (new.scope = 'shop' and a.shop_id = new.shop_id))
+  ) or exists (
+    select 1 from public.commercial_clients c
+    where c.ended_at is null
+      and ((new.scope = 'etablissement' and c.etablissement_id = new.etablissement_id)
+           or (new.scope = 'shop' and c.shop_id = new.shop_id))
   ) then
     return new;
   end if;
@@ -489,17 +535,11 @@ begin
         client_ended_at = null
     where id = r.id;
   end if;
-  if not exists (
-    select 1 from public.commercial_clients
-    where (new.scope = 'etablissement' and etablissement_id = new.etablissement_id)
-       or (new.scope = 'shop' and shop_id = new.shop_id)
-  ) then
-    perform public.commercial_add_client(
-      d,
-      case when new.scope = 'etablissement' then new.etablissement_id end,
-      case when new.scope = 'shop' then new.shop_id end,
-      false);
-  end if;
+  perform public.commercial_add_client(
+    d,
+    case when new.scope = 'etablissement' then new.etablissement_id end,
+    case when new.scope = 'shop' then new.shop_id end,
+    false);
 
   if new.scope = 'shop' then
     select name into v_name from public.shops where id = new.shop_id;
@@ -692,8 +732,21 @@ begin
     raise exception 'Le nom du restaurant est obligatoire.';
   end if;
   if v_place is not null then
-    select id into v_existing from public.crm_restaurants
-    where source = 'google_places' and external_id = v_place;
+    -- Une fiche fusionnée renvoie à celle qui l'a absorbée.
+    with recursive chain as (
+      select r.id, r.deleted_at, r.merged_into, 0 as depth from public.crm_restaurants r
+      where r.source = 'google_places' and r.external_id = v_place
+      union all
+      select r.id, r.deleted_at, r.merged_into, c.depth + 1
+      from public.crm_restaurants r join chain c on r.id = c.merged_into
+      where c.deleted_at is not null and c.depth < 10
+    )
+    select id into v_existing from chain where deleted_at is null order by depth limit 1;
+    if v_existing is null and exists (
+      select 1 from public.crm_restaurants where source = 'google_places' and external_id = v_place
+    ) then
+      raise exception 'Ce restaurant a été retiré par Ominin.';
+    end if;
     if v_existing is not null then
       -- Rendre une fiche par son identifiant Google est une recherche : sans
       -- ce compte, on aspirerait la base sans quota.
@@ -785,6 +838,8 @@ security definer
 set search_path = ''
 as $$
 declare
+  k public.crm_restaurants;
+  dr public.crm_restaurants;
   keep_d public.commercial_declarations;
   drop_d public.commercial_declarations;
   loser public.commercial_declarations;
@@ -795,7 +850,16 @@ begin
   if p_keep = p_drop or nullif(btrim(p_note), '') is null then
     raise exception 'Une fusion porte sur deux fiches différentes et se motive.';
   end if;
-  perform 1 from public.crm_restaurants where id in (p_keep, p_drop) and deleted_at is null for update;
+  perform 1 from public.crm_restaurants where id in (p_keep, p_drop) for update;
+  select * into k from public.crm_restaurants where id = p_keep and deleted_at is null;
+  select * into dr from public.crm_restaurants where id = p_drop and deleted_at is null;
+  if k.id is null or dr.id is null then
+    raise exception 'Fiche introuvable ou déjà retirée.';
+  end if;
+  -- Un client n'a qu'une fiche vivante : deux fiches reliées sont deux clients.
+  if num_nonnulls(k.etablissement_id, k.shop_id) > 0 and num_nonnulls(dr.etablissement_id, dr.shop_id) > 0 then
+    raise exception 'Les deux fiches sont reliées à des clients différents : ce n''est pas le même restaurant.';
+  end if;
   perform public.commercial_settle(p_keep);
   perform public.commercial_settle(p_drop);
   select * into keep_d from public.commercial_declarations
@@ -820,6 +884,9 @@ begin
   update public.crm_activities set restaurant_id = p_keep, lead_id = null where restaurant_id = p_drop;
   update public.crm_tasks set restaurant_id = p_keep, lead_id = null where restaurant_id = p_drop;
   update public.crm_appointments set restaurant_id = p_keep where restaurant_id = p_drop;
+  update public.projet_clients set restaurant_id = p_keep where restaurant_id = p_drop;
+  update public.outreach_emails set restaurant_id = p_keep where restaurant_id = p_drop;
+  update public.outreach_suppressions set restaurant_id = p_keep where restaurant_id = p_drop;
 
   select * into keep_lead from public.crm_leads where restaurant_id = p_keep;
   select * into drop_lead from public.crm_leads where restaurant_id = p_drop;
@@ -835,7 +902,20 @@ begin
     update public.outreach_prospects set restaurant_id = p_keep where restaurant_id = p_drop;
   end if;
 
-  update public.crm_restaurants set deleted_at = now(), merged_into = p_keep where id = p_drop;
+  -- La fiche retirée lâche son client (index unique), la gardée prend ce que
+  -- la retirée savait : client et départ, opposition, forçage « en discussion ».
+  update public.crm_restaurants
+  set deleted_at = now(), merged_into = p_keep, etablissement_id = null, shop_id = null
+  where id = p_drop;
+  update public.crm_restaurants
+  set etablissement_id = coalesce(k.etablissement_id, dr.etablissement_id),
+      shop_id = coalesce(k.shop_id, dr.shop_id),
+      client_ended_at = case when num_nonnulls(k.etablissement_id, k.shop_id) > 0
+                             then k.client_ended_at else dr.client_ended_at end,
+      outreach_opted_out_at = least(k.outreach_opted_out_at, dr.outreach_opted_out_at),
+      in_talks_override = coalesce(k.in_talks_override, dr.in_talks_override)
+  where id = p_keep;
+
   select * into keep_d from public.commercial_declarations
   where restaurant_id = p_keep and status in ('pending', 'confirmed');
   if keep_d.id is not null then
@@ -882,6 +962,29 @@ as $$
 $$;
 revoke execute on function public.commercial_morning() from public, anon, authenticated;
 grant execute on function public.commercial_morning() to service_role;
+
+-- Rappels de rendez-vous (route /api/commercial/rappels) : ceux qui tombent
+-- dans APPOINTMENT_REMINDER_MINUTES (réglage ; vide : aucun), sur une
+-- déclaration active d'un contrat en cours, marqués rappelés ici, une fois.
+create function public.commercial_appointment_reminders()
+returns table (id uuid, commercial_id uuid, restaurant_id uuid, title text, start_at timestamptz, name text)
+language sql
+security definer
+set search_path = ''
+as $$
+  update public.crm_appointments ap
+  set reminded_at = now()
+  from public.commercial_declarations d, public.commerciaux c, public.crm_restaurants r, public.commercial_cfg() cfg
+  where d.id = ap.declaration_id and c.id = d.commercial_id and r.id = d.restaurant_id
+    and cfg.appointment_reminder_minutes is not null
+    and ap.status = 'scheduled' and ap.reminded_at is null
+    and ap.start_at >= now() and ap.start_at <= now() + make_interval(mins => cfg.appointment_reminder_minutes)
+    and public.commercial_status_at(d) in ('pending', 'confirmed')
+    and public.commercial_contract_end(c) > now()
+  returning ap.id, d.commercial_id, d.restaurant_id, ap.title, ap.start_at, r.name;
+$$;
+revoke execute on function public.commercial_appointment_reminders() from public, anon, authenticated;
+grant execute on function public.commercial_appointment_reminders() to service_role;
 
 -- Un rendez-vous du commercial, pour son export .ics.
 create function public.commercial_appointment(p_appointment uuid)

@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Lancer la tâche quotidienne
         run: |
-          curl -sf --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
+          curl -sf --max-time 60 --retry 3 --retry-delay 20 --retry-all-errors \
             -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
             "${{ secrets.MENU_URL }}/api/commercial/cron"
       - name: Prévenir l'admin

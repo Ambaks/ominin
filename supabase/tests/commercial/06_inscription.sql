@@ -73,11 +73,13 @@ select set_config('role', 'anon', true);
 select pg_temp.ok(public.signup_link_info(:'token') is null, '10 (lot 2). un lien consommé est refusé');
 select pg_temp.reset();
 
--- Le commercial voit son client (lecture directe, RLS « self ») ; B non.
+-- Le commercial voit son client par sa fonction, jamais par la table ; B rien.
 select pg_temp.act(:'a_user');
-select pg_temp.ok((select count(*) from public.commercial_clients) = 1, '7.2. le titulaire lit son Client Apporté');
+select pg_temp.ok(jsonb_array_length(public.commercial_my_clients()) = 1
+  and (select count(*) from public.commercial_clients) = 0
+  and (select count(*) from public.commercial_declarations) = 0, '7.2. le titulaire lit son Client Apporté par commercial_my_clients, aucune table en direct');
 select pg_temp.act(:'b_user');
-select pg_temp.ok((select count(*) from public.commercial_clients) = 0, '7.2. un autre ne le lit pas');
+select pg_temp.ok(jsonb_array_length(public.commercial_my_clients()) = 0, '7.2. un autre ne le lit pas');
 select pg_temp.reset();
 
 -- Lien expiré : refusé.
@@ -141,7 +143,7 @@ select pg_temp.reset();
 select pg_temp.ok(validated_at is not null, '6. rattachée par l''admin : Client Apporté validé')
 from public.commercial_clients where declaration_id = :'d4';
 select pg_temp.act(:'a_user');
-select pg_temp.ok((select count(*) from public.commercial_clients) = 3, '5.6. trois Clients Apportés pour A (r1, r3, r4)');
+select pg_temp.ok(jsonb_array_length(public.commercial_my_clients()) = 3, '5.6. trois Clients Apportés pour A (r1, r3, r4)');
 
 -- Demande de démo, livrée : étape 2 cochée, e-mail au commercial.
 select public.commercial_declare(:'r5', '{menu}', :'contact') ->> 'id' as d5 \gset

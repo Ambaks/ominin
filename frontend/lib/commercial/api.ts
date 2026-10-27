@@ -340,8 +340,8 @@ export const signupLink = (declarationId: string) =>
 export async function requestDemo(commercialId: string, declarationId: string, note: string, photos: File[]) {
   const paths: string[] = [];
   for (const [index, photo] of photos.entries()) {
-    const path = `${commercialId}/demos/${declarationId}/${index + 1}-${photo.name.replace(/[^\w.-]/g, "_")}`;
-    const { error } = await db().storage.from("commercial-docs").upload(path, photo, { upsert: true });
+    const path = `${commercialId}/demos/${declarationId}/${Date.now()}-${index + 1}-${photo.name.replace(/[^\w.-]/g, "_")}`;
+    const { error } = await db().storage.from("commercial-docs").upload(path, photo);
     if (error) throw new Error(error.message);
     paths.push(path);
   }
@@ -445,10 +445,14 @@ export interface Money {
 
 export const money = () => call<Money>(db().rpc("commercial_money"));
 
-/** Fichier déposé dans commercial-docs/<commercial>/<dossier>/ (lecture : titulaire et admins). */
+/**
+ * Fichier déposé dans commercial-docs/<commercial>/<dossier>/ (lecture :
+ * titulaire et admins), sous un nom propre à ce dépôt : une pièce reçue ne
+ * se remplace jamais (aucune réécriture dans le stockage).
+ */
 async function upload(commercialId: string, folder: "factures" | "pieces", name: string, file: File) {
-  const path = `${commercialId}/${folder}/${name}-${file.name.replace(/[^\w.-]/g, "_")}`;
-  const { error } = await db().storage.from("commercial-docs").upload(path, file, { upsert: true });
+  const path = `${commercialId}/${folder}/${name}-${Date.now()}-${file.name.replace(/[^\w.-]/g, "_")}`;
+  const { error } = await db().storage.from("commercial-docs").upload(path, file);
   if (error) throw new Error(error.message);
   return path;
 }

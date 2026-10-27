@@ -84,6 +84,10 @@ update public.crm_restaurants set client_ended_at = '2026-09-20 00:00+02' where 
 select pg_temp.ok((select menu_cents from public.commercial_month_lines(:'a', '2026-09-01') where name = 'Bistrot E') = 250,
   '4.4. fin : bornée par le départ du client');
 update public.crm_restaurants set client_ended_at = null where id = :'r1';
+select pg_temp.ok((select menu_cents from public.commercial_month_lines(:'a', '2026-09-01') where name = 'Bistrot E') = 250,
+  '4.4. un client revenu n''est plus apporté : effacer le départ ne rouvre pas la commission');
+-- Pour la suite du calcul, Client Apporté remis en cours à la main.
+update public.commercial_clients set ended_at = null where etablissement_id = :'e';
 set local session_replication_role = replica;
 insert into public.orders (etablissement_id, type, status, paid_online, platform_fee_cents, created_at, order_number) values
   (:'e', 'sur_place', 'servie', true, 11, '2028-09-09 12:00+02', 6),

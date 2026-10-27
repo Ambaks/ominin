@@ -168,11 +168,9 @@ create index commercial_declarations_confirmed_idx
 alter table public.commercial_declarations enable row level security;
 create policy "admin read" on public.commercial_declarations
   for select to authenticated using ((select public.is_admin()));
-create policy "self read" on public.commercial_declarations
-  for select to authenticated
-  using (commercial_id in (
-    select id from public.commerciaux where user_id = (select auth.uid())
-  ));
+-- Pas de lecture directe pour le commercial : la ligne porte l'alerte « déjà
+-- client ? », qui nomme un client d'Ominin, et le compte rattaché au lien. Il
+-- lit ses déclarations par les fonctions commercial_*.
 
 -- Invariants : un refus seulement depuis l'attente et avant l'échéance ;
 -- aucun retour depuis la confirmation (elle crée le droit) ; les fins sont
@@ -551,15 +549,17 @@ create policy "commercial-docs self read" on storage.objects
       select id::text from public.commerciaux where user_id = (select auth.uid())
     )
   );
--- Le deck du Kit (kit/), déposé par l'admin : lu par tout commercial dont
--- le contrat court (après la fin : argent, relevés et contrat seulement).
+-- Le deck du Kit (kit/), déposé par l'admin : lu par le commercial dont le
+-- contrat est signé et court (avant la signature, rien ; après la fin :
+-- argent, relevés et contrat seulement).
 create policy "commercial-docs kit read" on storage.objects
   for select to authenticated
   using (
     bucket_id = 'commercial-docs' and (storage.foldername(name))[1] = 'kit'
     and exists (
-      select 1 from public.commerciaux
-      where user_id = (select auth.uid()) and (ended_at is null or ended_at > now())
+      select 1 from public.commerciaux c
+      join public.legal_acceptances a on a.commercial_id = c.id and a.scope = 'commercial'
+      where c.user_id = (select auth.uid()) and (c.ended_at is null or c.ended_at > now())
     )
   );
 create policy "commercial-docs self upload" on storage.objects
@@ -570,18 +570,5 @@ create policy "commercial-docs self upload" on storage.objects
       select id::text from public.commerciaux where user_id = (select auth.uid())
     )
   );
--- Redéposer une pièce au même nom (upsert) : dans son seul dossier.
-create policy "commercial-docs self update" on storage.objects
-  for update to authenticated
-  using (
-    bucket_id = 'commercial-docs'
-    and (storage.foldername(name))[1] in (
-      select id::text from public.commerciaux where user_id = (select auth.uid())
-    )
-  )
-  with check (
-    bucket_id = 'commercial-docs'
-    and (storage.foldername(name))[1] in (
-      select id::text from public.commerciaux where user_id = (select auth.uid())
-    )
-  );
+-- Aucune réécriture : chaque dépôt a son propre nom (horodaté), une facture
+-- ou une attestation reçue ne se remplace pas.

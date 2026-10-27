@@ -41,3 +41,4 @@ passées à `psql` (`-v CONFIRM_DAYS=7` …) : `01_reglages.sql` vérifie que
 - `06_inscription.sql` : lien d'inscription, Client Apporté, Projet, inscription sans lien, démos, Google, carte, fusion (lot 2).
 - `07_commissions.sql` : assiette recalculée à la main sur les cinq sources, avoirs, relevés, régularisations, contestation et sa clôture, relevé final, rappel URSSAF (lot 3).
 - `08_defauts.sql` : chaque défaut de la vérification indépendante corrigé côté base, rejoué (client déjà en service, déclaration reçue par e-mail, plafond et réservation échue, fin de contrat, opposition, lien capturé, quota, relances du jour).
+- `09_defauts2.sql` : les défauts du second passage (N1 à N10) : fusion de fiches, client parti puis revenu, e-mail déjà échu, lien régénéré, deck, pièces, détail, contrat terminé, alerte « déjà client ? », rappels et abonnements.

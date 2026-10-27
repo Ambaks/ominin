@@ -1262,6 +1262,7 @@ export type Database = {
           commission_from: string | null
           created_at: string
           declaration_id: string
+          ended_at: string | null
           etablissement_id: string | null
           id: string
           shop_id: string | null
@@ -1272,6 +1273,7 @@ export type Database = {
           commission_from?: string | null
           created_at?: string
           declaration_id: string
+          ended_at?: string | null
           etablissement_id?: string | null
           id?: string
           shop_id?: string | null
@@ -1282,6 +1284,7 @@ export type Database = {
           commission_from?: string | null
           created_at?: string
           declaration_id?: string
+          ended_at?: string | null
           etablissement_id?: string | null
           id?: string
           shop_id?: string | null
@@ -7052,6 +7055,17 @@ export type Database = {
         Returns: undefined
       }
       commercial_appointment: { Args: { p_appointment: string }; Returns: Json }
+      commercial_appointment_reminders: {
+        Args: never
+        Returns: {
+          commercial_id: string
+          id: string
+          name: string
+          restaurant_id: string
+          start_at: string
+          title: string
+        }[]
+      }
       commercial_appointment_upsert: {
         Args: { p_appointment: Json; p_declaration: string }
         Returns: string

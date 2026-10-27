@@ -23,7 +23,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/comm
   const { id } = await params;
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("commercial_appointment", { p_appointment: id });
-  if (error) return NextResponse.json({ error: error.message }, { status: 403 });
+  if (error) return NextResponse.json({ error: "Réservé au commercial qui suit ce restaurant." }, { status: 403 });
   if (!data) return NextResponse.json({ error: "Rendez-vous introuvable." }, { status: 404 });
   const rdv = data as unknown as Appointment;
   const ics = [

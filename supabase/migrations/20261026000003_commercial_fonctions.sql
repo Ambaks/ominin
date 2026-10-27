@@ -134,7 +134,8 @@ as $$
     where ap.restaurant_id = r.id and ap.created_at > w.since
   )
   select coalesce(r.in_talks_override,
-    exists (select 1 from public.projet_clients p where p.restaurant_id = r.id)
+    -- Le Projet d'un client parti ne le garde pas « en discussion ».
+    (r.client_ended_at is null and exists (select 1 from public.projet_clients p where p.restaurant_id = r.id))
     or exists (
       select 1 from public.outreach_emails o, window_start w
       where o.restaurant_id = r.id and o.direction = 'inbound'
@@ -341,6 +342,10 @@ begin
     perform public.commercial_reflect(d.id);
     v_count := v_count + 1;
   end loop;
+  -- Contrat terminé : plus de notification sur ses appareils.
+  delete from public.commercial_push_subscriptions s
+  using public.commerciaux cc
+  where cc.id = s.commercial_id and cc.ended_at <= now();
   return v_count;
 end;
 $$;
@@ -1384,6 +1389,15 @@ begin
   if v_version is null then
     raise exception 'Ce commercial n''avait pas signé son contrat à cette date.';
   end if;
+  if exists (select 1 from public.commerciaux c where c.id = p_commercial and public.commercial_contract_end(c) <= now()) then
+    raise exception 'Le contrat de ce commercial est terminé.';
+  end if;
+  -- Déjà échue à la saisie (confirmée de droit puis fenêtre de signature
+  -- passée) : elle ne réserve plus rien et ne doit écarter personne.
+  if p_declared_at + make_interval(days => cfg.confirm_days) + make_interval(months => cfg.sign_window_months) <= now() then
+    raise exception 'Datée du %, cette déclaration serait déjà échue : elle ne réserve plus le restaurant.',
+      to_char(p_declared_at at time zone 'Europe/Paris', 'DD/MM/YYYY');
+  end if;
   perform 1 from public.commerciaux where id = p_commercial for update;
   select * into r from public.crm_restaurants
   where id = p_restaurant and deleted_at is null
@@ -1487,6 +1501,9 @@ begin
   end if;
   if not exists (select 1 from public.legal_acceptances where commercial_id = p_commercial and scope = 'commercial') then
     raise exception 'Ce commercial n''a pas signé son contrat.';
+  end if;
+  if exists (select 1 from public.commerciaux c where c.id = p_commercial and public.commercial_contract_end(c) <= now()) then
+    raise exception 'Le contrat de ce commercial est terminé.';
   end if;
   v_until := public.commercial_reserved_until(d);
 

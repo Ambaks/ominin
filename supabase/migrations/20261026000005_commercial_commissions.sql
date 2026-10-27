@@ -62,9 +62,7 @@ as $$
   span as (
     select greatest(p_from, c.commission_from) as lo,
            least(p_to, c.commission_from + make_interval(months => cfg.term_months),
-                 coalesce((select r.client_ended_at from public.commercial_declarations d
-                           join public.crm_restaurants r on r.id = d.restaurant_id
-                           where d.id = c.declaration_id), 'infinity')) as hi
+                 coalesce(c.ended_at, 'infinity')) as hi
     from cfg
     where c.commission_from is not null and c.validated_at is not null
   )
@@ -526,7 +524,7 @@ begin
     raise exception 'Une demande de détail par période de % mois : la prochaine est possible à partir du %.',
       cfg.detail_interval_months, to_char(v_last + make_interval(months => cfg.detail_interval_months), 'DD/MM/YYYY');
   end if;
-  update public.commercial_statements set detail_requested_at = now()
+  update public.commercial_statements set detail_requested_at = now(), detail_sent_at = null
   where id = p_statement and commercial_id = me.id and status <> 'draft';
   if not found then
     raise exception 'Relevé introuvable.';
@@ -671,8 +669,8 @@ as $$
     'id', c.id, 'restaurant_id', r.id, 'name', coalesce(e.name, s.name, r.name),
     'etablissement_id', c.etablissement_id, 'shop_id', c.shop_id,
     'commission_from', c.commission_from,
-    'commission_until', least(c.commission_from + make_interval(months => cfg.term_months), r.client_ended_at),
-    'client_ended_at', r.client_ended_at,
+    'commission_until', least(c.commission_from + make_interval(months => cfg.term_months), c.ended_at),
+    'client_ended_at', c.ended_at,
     'validated', c.validated_at is not null,
     'base_cents', (select b.menu_cents + b.shop_cents + b.club_cents + b.invoice_cents
                    from public.commercial_base(c, month.lo, now()) b),

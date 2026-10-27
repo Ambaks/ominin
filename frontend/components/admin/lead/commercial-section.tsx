@@ -73,7 +73,7 @@ export function CommercialSection({ detail }: { detail: LeadDetail }) {
               <button
                 type="button"
                 onClick={() => {
-                  if (!window.confirm(`${detail.client!.name} a quitté Ominin ? La fiche redevient déclarable par un commercial.`)) return;
+                  if (!window.confirm(`${detail.client!.name} a quitté Ominin ? La fiche redevient déclarable par un commercial, et la commission de son commercial s’arrête définitivement, même s’il revient.`)) return;
                   void run(async () => { await setClientEnded(restaurantId, new Date().toISOString()); refresh(); }, "Départ enregistré");
                 }}
                 className={SMALL}
