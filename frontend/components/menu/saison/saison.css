@@ -1,17 +1,31 @@
 /*
-  Habillage de saison (saison.tsx). Tout bouge en transform et en opacity ;
-  rien ne reçoit le doigt. Les calques de l'affiche se placent en % de
-  l'image. Ni .saison-sky ni .saison-poster ne forment de contexte
-  d'empilement (pas d'opacity animée, pas de containment) : leurs fondus
-  (multiply, screen) portent sur l'affiche. Le vol des chauves-souris, en
-  cqw/cqh, a son propre conteneur (.saison-flight).
+  Habillage de saison (saison.tsx). Tout bouge en transform, translate et
+  opacity ; rien ne reçoit le doigt, aucun filtre sur ce qui s'anime (les
+  lueurs sont des dégradés, les liserés des traits peints sous l'aplat). Ce
+  qui sort du champ passe en display: none dans ses propres images clés
+  (visibility en repli), et le décor du hero une fois le hero sorti de
+  l'écran : leurs boucles internes ne se peignent plus. Seul le chat garde
+  visibility, pour ne pas rejouer sa visite. Les calques de l'affiche se
+  placent en % de l'image. Ni
+  .saison-sky ni .saison-poster ne forment de contexte d'empilement (pas
+  d'opacity animée, pas de containment) : leurs fondus (multiply, screen)
+  portent sur l'affiche. Le vol des chauves-souris, en cqw/cqh, a son propre
+  conteneur (.saison-flight).
 */
+
+/* La racine isole ses couches : les feuilles (z-index -1) tombent sur son
+   fond, ou sur le velours, et sous la carte. */
+[data-menu-root][data-saison] {
+  isolation: isolate;
+}
 
 /* La palette suit la saison : lanternes citrouille à Halloween, ocre à
    l'automne. Deux attributs : l'emporte sur la classe du thème. Halloween
    est une nuit sur tous les thèmes, clairs compris : texte et filets
-   suivent le fond, sans quoi une carte crème deviendrait illisible. La
-   teinte des lueurs (--saison-glow) vaut pour tout le menu, hero compris. */
+   suivent le fond, sans quoi une carte crème deviendrait illisible ; une
+   lueur de lanterne tombe du haut de la page (sous l'affiche, s'il y en a
+   une ; le velours garde son fond transparent). La teinte des lueurs
+   (--saison-glow) vaut pour tout le menu, hero compris. */
 [data-menu-root][data-saison="halloween"] {
   --background: #1c1418;
   --foreground: #f6e9e6;
@@ -26,8 +40,16 @@
   --shimmer-highlight: rgba(245, 168, 63, 0.16);
   --glow-inner: rgba(245, 168, 63, 0.1);
   --glow-outer: rgba(232, 116, 44, 0.06);
+  --hero-glow-1: #f5a83f;
+  --hero-glow-2: #e8742c;
+  --hero-glow-3: #b5443a;
+  --hero-halo-1: #f5a83f;
+  --hero-halo-2: #e8742c;
   --saison-glow: 255, 140, 40;
   color-scheme: dark;
+  background:
+    radial-gradient(ellipse 110% 38rem at 50% 0, rgba(var(--saison-glow), 0.2), rgba(var(--saison-glow), 0.06) 55%, transparent 80%),
+    var(--background);
 }
 
 [data-menu-root][data-saison="automne"] {
@@ -37,9 +59,16 @@
   --saison-glow: 255, 178, 84;
 }
 
+/* Le hero sans affiche laisse voir le fond de la racine (même teinte) : la
+   lueur d'Halloween et les feuilles y passent. */
+[data-menu-root][data-saison] > header.logo-hero > .bg-background:first-child {
+  background: transparent;
+}
+
 .saison-sky,
 .saison-poster,
 .saison-frame,
+.saison-leaves,
 .saison-ambient {
   pointer-events: none;
 }
@@ -63,7 +92,10 @@
   mix-blend-mode: screen;
 }
 
+/* Devant le cadre (z-index 1) : sorcière et chauves-souris passent devant
+   les toiles d'angle, d'une seule pièce. */
 .saison-flight {
+  z-index: 2;
   container-type: size;
 }
 
@@ -76,7 +108,7 @@
   overflow: hidden;
 }
 
-/* ——— Lumières de l'affiche ——— */
+/* ——— Lumières de l'affiche : chacune son rythme (saison.tsx) ——— */
 
 .saison-lamp,
 .saison-bulb,
@@ -103,26 +135,32 @@
     rgba(var(--saison-glow), 0.26) 36%,
     transparent 68%
   );
-  animation: saison-flicker 3.4s infinite;
+  animation: saison-flicker 2.7s linear infinite;
 }
 
 .saison-bulb {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 214, 140, 0.95), rgba(var(--saison-glow), 0.4) 30%, transparent 70%);
-  animation: saison-twinkle 2.6s ease-in-out infinite alternate;
+  animation: saison-twinkle 4.3s ease-in-out infinite alternate;
 }
 
 .saison-candle {
   border-radius: 50%;
   background: radial-gradient(circle, rgba(255, 200, 110, 0.7), rgba(var(--saison-glow), 0.2) 40%, transparent 70%);
-  animation: saison-flicker 1.5s infinite;
+  animation: saison-flicker 1.2s linear infinite;
 }
 
 .saison-lantern-face {
   aspect-ratio: 60 / 44;
   color: #ffc35c;
-  filter: drop-shadow(0 0 3px rgba(255, 150, 40, 0.95));
-  animation: saison-flicker 2.3s infinite;
+  background: radial-gradient(closest-side, rgba(255, 150, 40, 0.45), transparent);
+  animation: saison-flicker 2.3s linear infinite;
+}
+
+.saison-lantern-face svg {
+  display: block;
+  width: 100%;
+  fill: currentColor;
 }
 
 .saison-eyes {
@@ -131,15 +169,11 @@
   translate: -50% -50%;
   background:
     radial-gradient(ellipse 22% 46% at 22% 50%, #ffd45a 40%, transparent 72%),
-    radial-gradient(ellipse 22% 46% at 78% 50%, #ffd45a 40%, transparent 72%);
-  filter: drop-shadow(0 0 2px rgba(255, 190, 60, 0.9));
-  animation: saison-watch 9s infinite;
-}
-
-.saison-lantern-face svg {
-  display: block;
-  width: 100%;
-  fill: currentColor;
+    radial-gradient(ellipse 22% 46% at 78% 50%, #ffd45a 40%, transparent 72%),
+    radial-gradient(closest-side, rgba(255, 190, 60, 0.35), transparent);
+  animation:
+    saison-watch 9s infinite,
+    saison-blink 3.3s infinite;
 }
 
 /* ——— La lune et ses nuages ——— */
@@ -167,34 +201,43 @@
   filter: drop-shadow(0 0 6px rgba(255, 240, 210, 0.7));
 }
 
+/* Deux voiles de brume claire passent devant la lune : bords pâles, cœur
+   presque transparent, la lueur reste visible au travers. Ils entrent et
+   sortent loin du disque, en fondu : aucune couture entre deux passages. */
 .saison-moon-cloud {
   position: absolute;
-  top: 52%;
+  top: 56%;
   left: -40%;
   width: 150%;
-  height: 20%;
-  border-radius: 50%;
-  background: rgba(38, 30, 72, 0.6);
-  filter: blur(3px);
-  animation: saison-cloud 24s linear infinite;
+  height: 30%;
+  background: radial-gradient(
+    closest-side,
+    rgba(236, 230, 255, 0.05),
+    rgba(222, 212, 250, 0.2) 50%,
+    rgba(200, 188, 240, 0.08) 78%,
+    transparent
+  );
+  animation: saison-cloud 28s linear infinite;
 }
 
 .saison-moon-cloud--late {
-  top: 22%;
-  height: 14%;
-  animation-duration: 31s;
-  animation-delay: -14s;
+  top: 16%;
+  width: 120%;
+  height: 22%;
+  animation-duration: 37s;
+  animation-delay: -17s;
 }
 
-/* ——— Les chauves-souris ——— */
+/* ——— Les chauves-souris, la sorcière ——— */
 
 .saison-bat {
   position: absolute;
   left: 0;
   top: 0;
-  color: #130c13;
+  color: #241a3c;
   translate: -50% -50%;
-  animation: saison-fly 9s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite both;
+  visibility: hidden;
+  animation: saison-fly 24s linear infinite both;
 }
 
 .saison-bat svg,
@@ -203,41 +246,56 @@
   width: 100%;
   fill: currentColor;
   overflow: visible;
-  filter: drop-shadow(0 0 1.5px rgba(214, 198, 255, 0.75));
   animation: saison-bob 0.9s ease-in-out infinite alternate;
 }
 
-.saison-witch {
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 17%;
-  color: #120b14;
-  translate: -50% -50%;
-  animation: saison-broom 22s 3s linear infinite both;
-}
-
-.saison-witch svg {
-  animation: saison-bob 1.6s ease-in-out infinite alternate;
-}
-
+/* Chaque aile pivote à sa racine : battement vif vers le bas, remontée plus
+   lente, un rythme par chauve-souris. */
 .saison-wing {
   transform-box: view-box;
-  transform-origin: 0 14px;
-  animation: saison-flap 0.26s ease-in-out infinite alternate;
+  transform-origin: 29px 16px;
+  animation: saison-flap var(--flap) var(--flap-delay) linear infinite;
+}
+
+/* Le liseré des silhouettes (saison.tsx) : le tracé en trait clair, sous
+   l'aplat. */
+.saison-rim {
+  fill: none;
+  stroke: #cfc6ff;
+  stroke-opacity: 0.65;
+  stroke-linejoin: round;
+}
+
+.saison-rim--lantern {
+  stroke: #ff9a3c;
+  stroke-opacity: 0.55;
 }
 
 .saison-bat-eye {
   fill: #ffb03a;
 }
 
-/* ——— Le cadre : nuit, toiles, brume, citrouilles ——— */
+.saison-witch {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 28%;
+  color: #241a3c;
+  translate: -50% -50%;
+  visibility: hidden;
+  animation: saison-broom 24s linear infinite both;
+}
+
+.saison-witch svg {
+  animation-duration: 1.6s;
+}
+
+/* ——— Le cadre : toiles, araignée, brume, citrouilles ——— */
 
 .saison-web {
   position: absolute;
   top: 0;
-  color: rgba(238, 228, 236, 0.6);
-  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.35));
+  color: rgba(238, 228, 236, 0.62);
   transform-origin: 0 0;
   animation: saison-sway 7s ease-in-out infinite alternate;
 }
@@ -263,12 +321,15 @@
   color: #120b10;
 }
 
+.saison-spider-line {
+  position: relative;
+}
+
 .saison-spider-body {
   position: relative;
   display: block;
   width: 100%;
   overflow: visible;
-  filter: drop-shadow(0 0 1.5px rgba(255, 214, 176, 0.7));
 }
 
 .saison-thread {
@@ -290,83 +351,208 @@
   fill: #ff6a3d;
 }
 
+/* Au bout de son fil, sous la toile : le balancier pivote au point
+   d'attache, la descente et la remontée glissent à part, avec un arrêt à
+   chaque bout. */
 .saison-spider--web {
   left: 104px;
   width: 30px;
-  animation: saison-dangle 5.5s ease-in-out infinite alternate;
+  transform-origin: 50% 0;
+  animation: saison-swing 3.1s ease-in-out infinite alternate;
 }
 
+.saison-spider--web .saison-spider-line {
+  translate: 0 58px;
+  animation: saison-dangle 7s ease-in-out infinite;
+}
+
+/* Une brume prune, sans bord : elle se perd vers le haut et dans le fondu
+   du bas. */
 .saison-fog {
   position: absolute;
   inset: auto 0 0;
-  height: 30%;
-  -webkit-mask-image: linear-gradient(to top, #000 45%, transparent);
-  mask-image: linear-gradient(to top, #000 45%, transparent);
+  height: 44%;
+  -webkit-mask-image: linear-gradient(to top, #000 35%, transparent);
+  mask-image: linear-gradient(to top, #000 35%, transparent);
 }
 
 .saison-fog span {
   position: absolute;
-  bottom: -30%;
-  left: -30%;
-  width: 120%;
-  height: 90%;
-  border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(222, 212, 240, 0.42), transparent 66%);
-  animation: saison-drift 19s ease-in-out infinite alternate;
+  bottom: 0;
+  left: -25%;
+  width: 110%;
+  height: 72%;
+  background: radial-gradient(closest-side, rgba(150, 104, 170, 0.26), rgba(120, 78, 140, 0.12) 55%, transparent);
+  animation: saison-mist 21s ease-in-out infinite alternate;
 }
 
 .saison-fog span:nth-child(2) {
-  left: 20%;
-  bottom: -40%;
-  animation-duration: 25s;
+  left: 15%;
+  bottom: 12%;
+  height: 56%;
+  animation-duration: 27s;
   animation-delay: -9s;
 }
 
 .saison-fog span:nth-child(3) {
-  left: -10%;
-  bottom: -55%;
-  width: 140%;
-  opacity: 0.7;
-  animation-duration: 31s;
+  left: -5%;
+  width: 120%;
+  height: 48%;
+  opacity: 0.8;
+  animation-duration: 33s;
   animation-delay: -17s;
 }
 
+/* Posées bien au-dessus du fondu bas du cadre (15 % sur le velours de
+   BOHO, panis-backdrop.css ; 4rem de dégradé ailleurs, hero.tsx), entre
+   l'enseigne et l'accroche de l'affiche : entières, à pleine lumière. */
 .saison-pumpkin {
   position: absolute;
-  bottom: 6px;
+  bottom: max(23%, 4.5rem);
 }
 
 .saison-pumpkin--left {
-  left: 10px;
-  width: 64px;
+  left: 8px;
+  width: 54px;
 }
 
 .saison-pumpkin--right {
-  right: 14px;
-  width: 48px;
+  right: 12px;
+  width: 42px;
 }
 
 .saison-pumpkin svg {
   position: relative;
   display: block;
   width: 100%;
+  overflow: visible;
 }
 
 .saison-pumpkin-glow {
   position: absolute;
-  inset: -70% -60% -20%;
-  background: radial-gradient(ellipse at 50% 65%, rgba(var(--saison-glow), 0.42), transparent 62%);
-  animation: saison-flicker 2.2s infinite;
+  inset: -45% -70%;
+  background: radial-gradient(closest-side, rgba(var(--saison-glow), 0.34), rgba(var(--saison-glow), 0.1) 55%, transparent);
+  animation: saison-flicker 2.3s linear infinite;
 }
 
-.saison-pumpkin-face {
-  fill: #ffd27a;
-  filter: drop-shadow(0 0 2px #ffae3c);
-  animation: saison-flicker 1.8s infinite;
+/* Au bureau, le panorama : plus grandes, en retrait des bords. */
+@media (min-width: 64rem) {
+  .saison-pumpkin--left {
+    left: 56px;
+    width: 84px;
+  }
+
+  .saison-pumpkin--right {
+    right: 48px;
+    width: 66px;
+  }
 }
 
-/* ——— Fixé à l'écran : feuilles, araignée, fantômes, chat ———
-   Sous la barre du panier (z-40) et les feuilles modales. */
+/* La lueur des lanternes, posée sur le cadre (fondu normal) : deux halos
+   au sol, là où sont les citrouilles ; à l'automne, une lumière ambrée
+   tombe aussi du haut. */
+.saison-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 38% 22% at 6% 74%, rgba(var(--saison-glow), 0.26), transparent),
+    radial-gradient(ellipse 38% 22% at 94% 74%, rgba(var(--saison-glow), 0.22), transparent);
+}
+
+@media (min-width: 64rem) {
+  .saison-glow[data-saison="halloween"] {
+    background:
+      radial-gradient(ellipse 22% 30% at 5% 74%, rgba(var(--saison-glow), 0.32), transparent),
+      radial-gradient(ellipse 22% 30% at 95% 74%, rgba(var(--saison-glow), 0.28), transparent),
+      radial-gradient(ellipse 70% 22% at 50% 100%, rgba(120, 70, 140, 0.22), transparent);
+  }
+}
+
+.saison-glow[data-saison="automne"] {
+  background:
+    linear-gradient(rgba(255, 150, 60, 0.2), rgba(255, 150, 60, 0.06) 40%, transparent 60%),
+    radial-gradient(ellipse 60% 30% at 50% 0, rgba(255, 170, 80, 0.22), transparent),
+    radial-gradient(ellipse 45% 26% at 4% 78%, rgba(255, 140, 50, 0.24), transparent),
+    radial-gradient(ellipse 45% 26% at 96% 78%, rgba(255, 140, 50, 0.2), transparent);
+}
+
+/* ——— Les feuilles : la chute (translate) et le balancement (transform) sur
+   un élément, la culbute en perspective dans le SVG ——— */
+
+.saison-leaves {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: -1;
+  height: 100vh;
+  height: 100lvh;
+  overflow: hidden;
+}
+
+/* Les calques fixés suivent la colonne de la carte (menu-body.tsx). */
+.saison-column {
+  position: absolute;
+  inset: 0;
+  margin-inline: auto;
+  max-width: 42rem;
+}
+
+@media (min-width: 64rem) {
+  .saison-column {
+    max-width: 64rem;
+  }
+
+  /* Derrière deux colonnes de fiches, les feuilles débordent un peu dans
+     les marges, de part et d'autre de la carte. */
+  .saison-leaves .saison-column {
+    max-width: 80rem;
+  }
+}
+
+.saison-fall {
+  --drop: 100lvh;
+}
+
+/* Sur le hero, elles s'effacent dans le haut de l'affiche, avant le logo,
+   l'enseigne et l'accroche. */
+.saison-fall--frame {
+  position: absolute;
+  inset: 0;
+  container-type: size;
+  --drop: 34cqh;
+}
+
+.saison-leaf {
+  position: absolute;
+  top: 0;
+  translate: 0 -120%;
+  animation-name: saison-fall, saison-sway-x;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite;
+  animation-direction: normal, alternate;
+}
+
+.saison-leaf-tumble {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  animation: saison-tumble 6s linear infinite;
+}
+
+/* Au téléphone, la carte ne laisse que des marges étroites : trois
+   feuilles, plus petites, plutôt que des éclats derrière les fiches. */
+@media (width < 42rem) {
+  .saison-leaves .saison-leaf {
+    scale: 0.7;
+  }
+
+  .saison-leaves .saison-leaf:nth-child(n + 4) {
+    display: none;
+  }
+}
+
+/* ——— Fixés à l'écran, devant la carte : araignée, fantômes, chat ———
+   Sous la barre du panier (z-40) et les feuilles modales. Araignée et
+   fantômes partagent une boucle de 40 s, chacun dans son créneau. */
 
 .saison-ambient {
   position: fixed;
@@ -375,75 +561,59 @@
   overflow: hidden;
 }
 
-.saison-leaf {
-  position: absolute;
-  top: 0;
-  opacity: 0.9;
-  animation: saison-fall linear infinite;
-}
-
-.saison-leaf-sway {
-  perspective: 240px;
-  animation: saison-sway-x 3.8s ease-in-out infinite alternate;
-}
-
-.saison-leaf-spin {
-  animation: saison-tumble linear infinite;
-}
-
-.saison-leaf svg {
-  display: block;
-  width: 100%;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
-}
-
-/* Le long du bord droit des fiches : son fil ne barre ni prix ni bouton. */
+/* Dans la marge droite des fiches : son fil ne barre ni prix ni bouton. */
 .saison-spider--drop {
-  right: 4%;
-  width: 26px;
-  animation: saison-drop 16s cubic-bezier(0.3, 0.7, 0.4, 1) infinite;
+  right: 4px;
+  width: 16px;
+}
+
+.saison-spider--drop .saison-spider-line {
+  translate: 0 -100%;
+  visibility: hidden;
+  animation: saison-drop 40s infinite;
+}
+
+@media (min-width: 42rem) {
+  .saison-spider--drop {
+    right: 0.75rem;
+  }
 }
 
 .saison-ghost {
   position: absolute;
-  width: 72px;
+  width: 64px;
+  opacity: 0;
+  visibility: hidden;
 }
 
 .saison-ghost svg {
   display: block;
   width: 100%;
   overflow: visible;
-  opacity: 0.94;
-  filter: drop-shadow(0 0 8px rgba(236, 222, 255, 0.45));
 }
 
 .saison-ghost--left {
   left: 0;
-  top: 56vh;
+  top: 54vh;
   transform-origin: 0 100%;
-  animation: saison-peek-left 18s ease-in-out infinite;
+  animation: saison-peek-left 40s infinite;
 }
 
 .saison-ghost--right {
   right: 0;
-  top: 26vh;
+  top: 18vh;
   transform-origin: 100% 100%;
-  animation: saison-peek-right 18s 9s ease-in-out infinite both;
+  animation: saison-peek-right 40s infinite;
 }
 
 .saison-ghost--right svg {
   scale: -1 1;
 }
 
-/* L'ourlet ondule : un balancement du bas du drap, pas un tracé redessiné. */
-.saison-ghost-hem {
-  transform-box: fill-box;
-  transform-origin: 50% 0;
-  animation: saison-hem 1.6s ease-in-out infinite alternate;
-}
-
-.saison-ghost-bob {
-  animation: saison-bob 2.4s ease-in-out infinite alternate;
+/* La tête tient, la traîne ondule. */
+.saison-ghost-drift {
+  transform-origin: 50% 25%;
+  animation: saison-float 2.8s ease-in-out infinite alternate;
 }
 
 .saison-ghost-eyes,
@@ -453,66 +623,166 @@
   animation: saison-blink 5s infinite;
 }
 
-/* Le chat guette au bas de l'écran ; un panier ouvert, il saute s'asseoir
-   sur la barre. */
+/* Le chat guette derrière son perchoir (sous lui : z-30 contre z-40) : la
+   barre du panier ou une pastille d'offre (formules, happy hour), qui tient
+   le même coin, au-dessus de la barre s'il y en a une. Au repos, seuls ses
+   oreilles et ses yeux dépassent, au-dessus de la marge gauche des fiches,
+   jamais sur leur texte ; corps et queue ne se peignent pas. À chaque
+   ajout, il monte s'asseoir un peu plus loin sur le perchoir, bondit, reste,
+   redescend guetter. Leurs hauteurs : globals.css (.offer-pill : pièce
+   2rem, retrait 2 × 0,25rem, filet 2 px ; barre : 3,25rem posée à 1rem) et
+   cart-bar.tsx (max-w-md centrée). Il n'apparaît qu'une fois le hero sorti
+   du bas de l'écran (plus bas) ; sans frise de défilement ni requête de
+   style, pas de chat. Sa présence passe par visibility et translate, jamais
+   display : la visite en cours ne se rejoue pas quand il revient. */
 .saison-cat {
   position: absolute;
-  left: 18px;
-  bottom: 0;
-  width: 62px;
+  left: var(--cat-x);
+  bottom: var(--cat-y);
+  width: 50px;
   color: #120b10;
-  translate: 0 52%;
-  transition: translate 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+  visibility: hidden;
+  translate: 0 30px;
+  transition:
+    translate 0.22s cubic-bezier(0.55, 0, 1, 0.45),
+    visibility 0s 0.22s;
 }
 
-[data-menu-root]:has(.cart-bar) .saison-cat {
-  translate: 0 -67px;
-}
-
-/* Une pastille d'offre (formules, happy hour) tient le même coin : le chat
-   s'assied dessus, au-dessus de la barre s'il y en a une. Sa hauteur : la
-   pièce (2rem), son retrait (2 × 0,25rem), son filet (2 px) — globals.css,
-   .offer-pill. */
-[data-menu-root]:has(.offer-pill) .saison-cat {
-  translate: 0 calc(-3.5rem - 2px);
-}
-
-[data-menu-root]:has(.offer-pill):has(.cart-bar) .saison-cat {
-  translate: 0 calc(-8.5rem - 2px);
+.saison-cat-body {
+  translate: 0 36px;
+  transform-origin: 50% 100%;
 }
 
 .saison-cat svg {
   display: block;
   width: 100%;
   overflow: visible;
-  filter: drop-shadow(0 0 1.5px rgba(229, 176, 114, 0.65));
 }
 
-[data-menu-root]:has(.cart-bump-a) .saison-cat svg {
-  animation: saison-hop-a 0.55s cubic-bezier(0.3, 0.7, 0.4, 1);
+.saison-cat-torso {
+  opacity: 0;
 }
 
-[data-menu-root]:has(.cart-bump-b) .saison-cat svg {
-  animation: saison-hop-b 0.55s cubic-bezier(0.3, 0.7, 0.4, 1);
+@property --saison-hero-gone {
+  syntax: "<integer>";
+  inherits: true;
+  initial-value: 0;
 }
 
-.saison-cat-silhouette {
-  fill: currentColor;
+@supports (animation-timeline: view()) {
+  [data-menu-root][data-saison] {
+    timeline-scope: --saison-hero;
+  }
+
+  [data-menu-root][data-saison] > header {
+    view-timeline: --saison-hero block;
+  }
+
+  /* Le hero a quitté la zone du chat, en bas de l'écran : une bascule nette
+     (un pour cent de course), lue par la requête de style ci-dessous. */
+  .saison-ambient {
+    animation: saison-hero-gone linear both;
+    animation-timeline: --saison-hero;
+    animation-range: exit 22% exit 23%;
+  }
+
+  /* Le hero entièrement sorti de l'écran, son décor ne se peint plus. */
+  :is(.saison-poster, .saison-frame) {
+    animation: saison-offstage linear both;
+    animation-timeline: --saison-hero;
+    animation-range: exit 99% exit 100%;
+  }
+}
+
+/* À la bascule, la tête surgit de derrière le perchoir et dépasse un peu ;
+   au retour du hero, elle y replonge, plus vite. */
+@container style(--saison-hero-gone: 1) {
+  [data-menu-root]:is(:has(.cart-bar), :has(.offer-pill)) .saison-cat {
+    visibility: visible;
+    translate: 0 0;
+    transition:
+      translate 0.55s cubic-bezier(0.3, 1.5, 0.5, 1),
+      visibility 0s;
+  }
+}
+
+/* Au repos, la tête au-dessus de la marge gauche des fiches (x ≈ 22 px au
+   téléphone) ; la visite s'assied 12 px plus loin, sur le perchoir. */
+[data-menu-root]:has(.cart-bar) .saison-cat {
+  --cat-x: calc(max(1rem, 50% - 14rem) - 1.25rem);
+  --cat-y: 4.25rem;
+}
+
+[data-menu-root]:has(.offer-pill) .saison-cat {
+  --cat-x: -0.25rem;
+  --cat-y: calc(var(--pill-bottom, env(safe-area-inset-bottom, 0px) + 1rem) + var(--pill-rise, 0px) + 2.5rem + 2px);
+}
+
+[data-menu-root]:has(.offer-pill):has(.cart-bar) .saison-cat {
+  --pill-bottom: 6rem;
+}
+
+[data-menu-root]:has(.offer-pill):has(.ticket-dock) .saison-cat {
+  --pill-bottom: var(--dock-band);
+}
+
+[data-menu-root]:has(.happy-hour-pill):has(.formules-pill) .saison-cat {
+  --pill-rise: calc(2.5rem + 2px + 0.625rem);
+}
+
+/* La barre en pastille à droite, à côté du dock ou à l'horizontale
+   (globals.css) : pas de bord gauche où guetter ; il replonge. */
+[data-menu-root]:has(.cart-bar):has(.ticket-dock):not(:has(.offer-pill)) .saison-cat {
+  visibility: hidden;
+  translate: 0 30px;
+  transition:
+    translate 0.22s cubic-bezier(0.55, 0, 1, 0.45),
+    visibility 0s 0.22s;
+}
+
+@media (orientation: landscape) and (max-height: 500px) and (min-width: 560px) {
+  [data-menu-root]:has(.cart-bar):not(:has(.offer-pill)) .saison-cat {
+    visibility: hidden;
+    translate: 0 30px;
+    transition:
+      translate 0.22s cubic-bezier(0.55, 0, 1, 0.45),
+      visibility 0s 0.22s;
+  }
+}
+
+/* Deux noms pour rejouer la visite à chaque ajout ; la queue ne bat que
+   pendant la visite. */
+[data-menu-root]:has(.cart-bump-a) .saison-cat-body {
+  animation: saison-cat-visit-a 3.9s;
+}
+
+[data-menu-root]:has(.cart-bump-b) .saison-cat-body {
+  animation: saison-cat-visit-b 3.9s;
+}
+
+[data-menu-root]:has(.cart-bump-a) .saison-cat-torso {
+  animation: saison-cat-torso-a 3.9s;
+}
+
+[data-menu-root]:has(.cart-bump-b) .saison-cat-torso {
+  animation: saison-cat-torso-b 3.9s;
+}
+
+[data-menu-root]:has(.cart-bump-a) .saison-cat-tail {
+  animation: saison-tail-a 0.65s ease-in-out 6 alternate;
+}
+
+[data-menu-root]:has(.cart-bump-b) .saison-cat-tail {
+  animation: saison-tail-b 0.65s ease-in-out 6 alternate;
 }
 
 .saison-cat-tail {
-  color: #120b10;
   transform-box: view-box;
   transform-origin: 62px 104px;
-  animation: saison-tail 2.8s ease-in-out infinite alternate;
 }
 
 .saison-cat-eyes {
   animation-duration: 4.2s;
-}
-
-.saison-cat-eyes path {
-  filter: drop-shadow(0 0 2px rgba(255, 180, 60, 0.9));
 }
 
 .saison-cat-ear {
@@ -521,9 +791,9 @@
   animation: saison-ear 6s infinite;
 }
 
-/* ——— Sur la carte : toiles d'angle, araignée au bout du filet ——— */
+/* ——— Sur la carte : toiles dans les photos, araignée au bout du filet ——— */
 
-[data-saison="halloween"] .dish-grid > article:nth-child(3n + 2)::after {
+[data-saison="halloween"] .dish-grid > article:nth-child(3n + 2) .dish-photo::after {
   content: "";
   position: absolute;
   top: 0;
@@ -550,69 +820,90 @@
   height: 64px;
   background: url("/saison/araignee.svg") no-repeat 50% 0 / 100% auto;
   transform-origin: 50% 0;
-  animation: saison-pendulum 3.2s ease-in-out infinite alternate;
+  animation: saison-pendulum 5s ease-in-out infinite alternate;
   pointer-events: none;
 }
 
-/* Une feuille ouverte, une commande suivie au dock : le décor s'arrête,
-   comme le hero (globals.css). */
-[data-menu-root]:is(:has([role="dialog"]), :has(.ticket-dock)) :is(.saison-ambient, .saison-ambient *) {
+/* Une feuille ouverte : le décor s'arrête, comme le hero (globals.css). */
+[data-menu-root]:has([role="dialog"]) :is(.saison-poster, .saison-frame, .saison-leaves, .saison-ambient) *,
+[data-menu-root]:has([role="dialog"]) .saison-moon::before,
+[data-menu-root][data-saison]:has([role="dialog"]) .category-head::after {
   animation-play-state: paused;
 }
 
+/* Une commande suivie au dock, parfois des minutes : fantômes et araignée
+   s'en vont plutôt que de s'y figer. */
+[data-menu-root]:has(.ticket-dock) :is(.saison-ghost, .saison-spider--drop) {
+  display: none;
+  animation: none;
+}
+
+/* Sans mouvement : une scène posée. La sorcière à côté de la lune et deux
+   chauves-souris figées en vol, loin d'elle (l'instant choisi de leur
+   boucle), le chat qui guette derrière son perchoir ; ni feuilles, ni
+   fantômes, ni araignée qui descend, ni nuages. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.saison-poster, .saison-frame, .saison-ambient) *,
+  :is(.saison-poster, .saison-frame, .saison-leaves, .saison-ambient) *:not(.saison-witch, .saison-bat--still),
+  .saison-moon::before,
   [data-saison] .category-head::after {
     animation: none !important;
     transition: none !important;
   }
 
-  .saison-bat,
   .saison-witch,
+  .saison-bat--still {
+    animation-delay: var(--still) !important;
+    animation-play-state: paused !important;
+  }
+
+  .saison-witch {
+    --still: -3.3s;
+  }
+
+  .saison-bat:not(.saison-bat--still),
   .saison-moon-cloud,
   .saison-ghost,
   .saison-spider--drop,
-  .saison-leaf {
+  .saison-leaves,
+  .saison-fall--frame {
     display: none;
   }
 }
 
 /* ——— Mouvements ——— */
 
+/* Une flamme : de longs paliers, quelques sauts francs. */
 @keyframes saison-flicker {
   0%,
   100% {
+    opacity: 0.9;
+  }
+  17% {
+    opacity: 0.84;
+  }
+  19% {
+    opacity: 0.56;
+  }
+  21% {
+    opacity: 0.96;
+  }
+  44% {
     opacity: 0.86;
   }
-  7% {
-    opacity: 0.64;
-  }
-  11% {
-    opacity: 0.95;
-  }
-  22% {
-    opacity: 0.78;
-  }
-  35% {
+  46% {
     opacity: 1;
   }
-  42% {
-    opacity: 0.7;
-  }
-  48% {
-    opacity: 0.92;
-  }
-  61% {
+  62% {
     opacity: 0.8;
   }
-  73% {
-    opacity: 0.98;
+  63% {
+    opacity: 0.62;
   }
-  81% {
-    opacity: 0.72;
-  }
-  89% {
+  65% {
     opacity: 0.93;
+  }
+  84% {
+    opacity: 0.88;
   }
 }
 
@@ -642,39 +933,72 @@
 }
 
 @keyframes saison-cloud {
-  from {
-    transform: translateX(-60%);
+  0% {
+    transform: translateX(-75%);
+    opacity: 0;
   }
-  to {
-    transform: translateX(80%);
+  12%,
+  88% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(95%);
+    opacity: 0;
   }
 }
 
+/* Sur sa courbe à vitesse constante (cinq points, saison.tsx), inclinée
+   dans sa montée ou son piqué ; elle paraît, s'efface avant le bout de sa
+   course, puis ne se peint plus jusqu'au tour suivant. */
 @keyframes saison-fly {
   0% {
-    transform: translate(var(--x0), var(--y0)) scale(0.3);
+    transform: translate(var(--x0), var(--y0)) rotate(var(--r0)) scale(0.5);
+    opacity: 0;
+    visibility: visible;
+    display: none;
+  }
+  0.01%,
+  27% {
+    visibility: visible;
+    display: block;
+  }
+  3%,
+  23% {
+    opacity: 1;
+  }
+  6.75% {
+    transform: translate(var(--x1), var(--y1)) rotate(var(--r1)) scale(0.65);
+  }
+  13.5% {
+    transform: translate(var(--x2), var(--y2)) rotate(var(--r2)) scale(0.8);
+  }
+  20.25% {
+    transform: translate(var(--x3), var(--y3)) rotate(var(--r3)) scale(0.95);
+  }
+  27% {
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4)) scale(1.1);
     opacity: 0;
   }
-  5% {
-    opacity: 1;
-  }
-  28% {
-    transform: translate(var(--x1), var(--y1)) scale(0.7);
-  }
-  52% {
-    transform: translate(var(--x2), var(--y2)) scale(1.1);
-    opacity: 1;
-  }
-  53%,
+  27.01%,
   100% {
-    transform: translate(var(--x2), var(--y2)) scale(1.1);
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4)) scale(1.1);
     opacity: 0;
+    visibility: hidden;
+    display: none;
   }
 }
 
 @keyframes saison-flap {
-  to {
-    transform: scaleY(-0.5);
+  0% {
+    transform: rotate(22deg) scaleY(1.04);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.75, 0.6);
+  }
+  35% {
+    transform: rotate(-18deg) scaleY(0.82);
+    animation-timing-function: cubic-bezier(0.3, 0.3, 0.5, 1);
+  }
+  100% {
+    transform: rotate(22deg) scaleY(1.04);
   }
 }
 
@@ -684,6 +1008,39 @@
   }
   to {
     transform: translateY(6%);
+  }
+}
+
+/* Un arc : elle monte au-dessus de la lune puis redescend, à vitesse
+   constante, le nez sur la tangente (saison.tsx). */
+@keyframes saison-broom {
+  0% {
+    transform: translate(var(--x0), var(--y0)) rotate(var(--r0));
+    visibility: visible;
+    display: none;
+  }
+  0.01%,
+  31% {
+    visibility: visible;
+    display: block;
+  }
+  7.75% {
+    transform: translate(var(--x1), var(--y1)) rotate(var(--r1));
+  }
+  15.5% {
+    transform: translate(var(--x2), var(--y2)) rotate(var(--r2));
+  }
+  23.25% {
+    transform: translate(var(--x3), var(--y3)) rotate(var(--r3));
+  }
+  31% {
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4));
+  }
+  31.01%,
+  100% {
+    transform: translate(var(--x4), var(--y4)) rotate(var(--r4));
+    visibility: hidden;
+    display: none;
   }
 }
 
@@ -715,103 +1072,203 @@
   }
 }
 
-@keyframes saison-dangle {
+@keyframes saison-swing {
   from {
-    transform: translateY(58px) rotate(-4deg);
+    transform: rotate(-1.2deg);
   }
   to {
-    transform: translateY(86px) rotate(4deg);
+    transform: rotate(1.2deg);
   }
 }
 
-@keyframes saison-drift {
+@keyframes saison-dangle {
+  0%,
+  16% {
+    translate: 0 58px;
+  }
+  50%,
+  66% {
+    translate: 0 88px;
+  }
+  100% {
+    translate: 0 58px;
+  }
+}
+
+@keyframes saison-mist {
   from {
-    transform: translateX(-12%);
+    transform: translateX(-10%);
   }
   to {
-    transform: translateX(14%);
+    transform: translateX(12%);
   }
 }
 
 @keyframes saison-fall {
-  from {
-    transform: translateY(-12vh);
+  0% {
+    opacity: 0;
   }
-  to {
-    transform: translateY(112vh);
+  6%,
+  80% {
+    opacity: 1;
+  }
+  100% {
+    translate: 0 calc(var(--drop) + 20%);
+    opacity: 0;
   }
 }
 
 @keyframes saison-sway-x {
   from {
-    transform: translateX(-26px) rotate(-14deg);
+    transform: translateX(-22px) rotate(-16deg);
   }
   to {
-    transform: translateX(26px) rotate(14deg);
+    transform: translateX(22px) rotate(16deg);
   }
 }
 
+/* La culbute : la perspective courbe la feuille à chaque quart de tour. */
 @keyframes saison-tumble {
-  0%,
-  100% {
-    transform: rotateX(18deg) rotateY(-50deg) rotateZ(0deg);
+  0% {
+    transform: perspective(160px) rotateZ(0deg) rotateY(-60deg) rotateX(18deg);
+  }
+  25% {
+    transform: perspective(160px) rotateZ(90deg) rotateY(0deg) rotateX(-34deg);
   }
   50% {
-    transform: rotateX(-24deg) rotateY(46deg) rotateZ(180deg);
+    transform: perspective(160px) rotateZ(180deg) rotateY(55deg) rotateX(8deg);
   }
-  99.99% {
-    transform: rotateX(18deg) rotateY(-50deg) rotateZ(360deg);
+  75% {
+    transform: perspective(160px) rotateZ(270deg) rotateY(-5deg) rotateX(36deg);
+  }
+  100% {
+    transform: perspective(160px) rotateZ(360deg) rotateY(-60deg) rotateX(18deg);
   }
 }
 
+/* Créneau de l'araignée (2 à 23 % de la boucle) : chute qui accélère,
+   rebond au bout du fil, pause, remontée douce. */
 @keyframes saison-drop {
   0%,
-  4% {
-    transform: translateY(-70px);
+  2% {
+    translate: 0 -100%;
+    visibility: hidden;
+    display: none;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.8, 0.7);
   }
-  18% {
-    transform: translateY(31vh);
+  2.01%,
+  22.99% {
+    visibility: visible;
+    display: block;
   }
-  22% {
-    transform: translateY(27vh);
+  7% {
+    translate: 0 31vh;
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
   }
-  26%,
-  58% {
-    transform: translateY(29vh);
+  8.9% {
+    translate: 0 26vh;
+    animation-timing-function: cubic-bezier(0.5, 0, 0.6, 1);
   }
-  72%,
+  9.8% {
+    translate: 0 29.6vh;
+    animation-timing-function: ease-in-out;
+  }
+  11% {
+    translate: 0 28.6vh;
+    animation-timing-function: ease-in-out;
+  }
+  16% {
+    translate: 0 29vh;
+    animation-timing-function: cubic-bezier(0.45, 0, 0.55, 1);
+  }
+  23% {
+    translate: 0 -100%;
+  }
+  23.01%,
   100% {
-    transform: translateY(-70px);
+    translate: 0 -100%;
+    visibility: hidden;
+    display: none;
   }
 }
 
+/* Créneaux des fantômes (32 à 48,5 %, puis 66 à 82,5 %) : entrée qui
+   dépasse, lente inclinaison, fuite brusque. */
 @keyframes saison-peek-left {
   0%,
-  6% {
-    transform: translateX(-110%) rotate(0deg);
+  32% {
+    transform: translateX(-100%) rotate(-6deg);
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+    animation-timing-function: cubic-bezier(0.3, 1.5, 0.6, 1);
   }
-  12%,
-  30% {
-    transform: translateX(-30%) rotate(14deg);
+  32.01%,
+  48.49% {
+    visibility: visible;
+    display: block;
   }
-  36%,
+  35% {
+    transform: translateX(-60%) rotate(4deg);
+    opacity: 0.8;
+    animation-timing-function: ease-in-out;
+  }
+  47% {
+    transform: translateX(-56%) rotate(10deg);
+    opacity: 0.8;
+    animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5);
+  }
+  48.5%,
   100% {
-    transform: translateX(-110%) rotate(0deg);
+    transform: translateX(-100%) rotate(-2deg);
+    opacity: 0;
+    visibility: hidden;
+    display: none;
   }
 }
 
 @keyframes saison-peek-right {
   0%,
-  6% {
-    transform: translateX(110%) rotate(0deg);
+  66% {
+    transform: translateX(100%) rotate(6deg);
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+    animation-timing-function: cubic-bezier(0.3, 1.5, 0.6, 1);
   }
-  12%,
-  30% {
-    transform: translateX(30%) rotate(-14deg);
+  66.01%,
+  82.99% {
+    visibility: visible;
+    display: block;
   }
-  36%,
+  69% {
+    transform: translateX(60%) rotate(-4deg);
+    opacity: 0.8;
+    animation-timing-function: ease-in-out;
+  }
+  81% {
+    transform: translateX(56%) rotate(-10deg);
+    opacity: 0.8;
+    animation-timing-function: cubic-bezier(0.6, 0, 0.9, 0.5);
+  }
+  82.4% {
+    opacity: 0;
+  }
+  83%,
   100% {
-    transform: translateX(110%) rotate(0deg);
+    transform: translateX(100%) rotate(2deg);
+    opacity: 0;
+    visibility: hidden;
+    display: none;
+  }
+}
+
+@keyframes saison-float {
+  from {
+    transform: translateY(-3px) skewX(-3deg);
+  }
+  to {
+    transform: translateY(3px) skewX(3deg);
   }
 }
 
@@ -826,7 +1283,16 @@
   }
 }
 
-@keyframes saison-tail {
+@keyframes saison-tail-a {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(10deg);
+  }
+}
+
+@keyframes saison-tail-b {
   from {
     transform: rotate(-8deg);
   }
@@ -860,10 +1326,16 @@
 
 @keyframes saison-watch {
   0%,
-  8%,
-  62%,
+  7.9%,
+  62.1%,
   100% {
     opacity: 0;
+    display: none;
+  }
+  8%,
+  62% {
+    opacity: 0;
+    display: block;
   }
   14%,
   30%,
@@ -876,34 +1348,137 @@
   }
 }
 
-@keyframes saison-broom {
-  0%,
-  6% {
-    transform: translate(108cqw, var(--y0)) rotate(-6deg);
-  }
-  34%,
-  100% {
-    transform: translate(-20cqw, var(--y1)) rotate(4deg);
-  }
-}
-
-@keyframes saison-hop-a {
-  40% {
-    transform: translateY(-22%);
-  }
-}
-
-@keyframes saison-hop-b {
-  40% {
-    transform: translateY(-22%);
-  }
-}
-
-@keyframes saison-hem {
+@keyframes saison-hero-gone {
   from {
-    transform: skewX(-4deg) scaleY(0.98);
+    --saison-hero-gone: 0;
   }
   to {
-    transform: skewX(4deg) scaleY(1.02);
+    --saison-hero-gone: 1;
+  }
+}
+
+@keyframes saison-offstage {
+  from {
+    display: block;
+  }
+  to {
+    display: none;
+  }
+}
+
+/* La visite : il jaillit sur le perchoir, se reçoit, bondit (ramassé,
+   étiré au sommet, chute qui accélère, réception écrasée), reste, puis
+   redescend guetter. Sa première image est déjà assis, ramassé : un ajout
+   pendant la visite la relance sans le faire retomber derrière le
+   perchoir, il se ramasse et rebondit. */
+@keyframes saison-cat-visit-a {
+  0% {
+    translate: 12px 0;
+    transform: translateY(0) scale(1.08, 0.62);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
+  }
+  7% {
+    transform: translateY(-8%) scale(0.95, 1.08);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5);
+  }
+  12% {
+    transform: translateY(0) scale(1.08, 0.88);
+    animation-timing-function: ease-out;
+  }
+  16% {
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  19% {
+    transform: translateY(0) scale(1.08, 0.86);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  27% {
+    transform: translateY(-34%) scale(0.94, 1.08);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
+  }
+  34% {
+    transform: translateY(0) scale(1.1, 0.86);
+    animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
+  }
+  38% {
+    transform: translateY(0) scale(0.97, 1.03);
+  }
+  42%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  88% {
+    translate: 12px 0;
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  100% {
+    translate: 0 36px;
+  }
+}
+
+@keyframes saison-cat-visit-b {
+  0% {
+    translate: 12px 0;
+    transform: translateY(0) scale(1.08, 0.62);
+    animation-timing-function: cubic-bezier(0.2, 0.8, 0.4, 1);
+  }
+  7% {
+    transform: translateY(-8%) scale(0.95, 1.08);
+    animation-timing-function: cubic-bezier(0.5, 0, 0.9, 0.5);
+  }
+  12% {
+    transform: translateY(0) scale(1.08, 0.88);
+    animation-timing-function: ease-out;
+  }
+  16% {
+    transform: translateY(0) scale(1, 1);
+    animation-timing-function: ease-out;
+  }
+  19% {
+    transform: translateY(0) scale(1.08, 0.86);
+    animation-timing-function: cubic-bezier(0.2, 0.7, 0.4, 1);
+  }
+  27% {
+    transform: translateY(-34%) scale(0.94, 1.08);
+    animation-timing-function: cubic-bezier(0.55, 0, 0.9, 0.5);
+  }
+  34% {
+    transform: translateY(0) scale(1.1, 0.86);
+    animation-timing-function: cubic-bezier(0.3, 0.7, 0.4, 1);
+  }
+  38% {
+    transform: translateY(0) scale(0.97, 1.03);
+  }
+  42%,
+  100% {
+    transform: translateY(0) scale(1, 1);
+  }
+  88% {
+    translate: 12px 0;
+    animation-timing-function: cubic-bezier(0.55, 0, 1, 0.45);
+  }
+  100% {
+    translate: 0 36px;
+  }
+}
+
+@keyframes saison-cat-torso-a {
+  0%,
+  97% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes saison-cat-torso-b {
+  0%,
+  97% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
   }
 }
