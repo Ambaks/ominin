@@ -218,6 +218,8 @@ export interface Order {
   payments: OrderPayment[];
   /** Serveur qui a encaissé : c'est à lui que revient le pourboire. */
   staffId?: string | null;
+  /** Vente saisie sur la caisse Popina : en lecture seule, la caisse fait foi. */
+  fromTill?: boolean;
 }
 
 export interface Table {

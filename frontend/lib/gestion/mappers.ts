@@ -174,6 +174,7 @@ export function rowToOrder(row: OrderRow): Order {
     cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
     tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
     staffId: row.staff_id,
+    fromTill: row.source === "popina" || undefined,
     payments: (row.order_payments ?? []).map((leg) => ({
       mode: leg.mode as OrderPayment["mode"],
       amount: Number(leg.amount),
