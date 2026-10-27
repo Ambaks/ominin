@@ -3,12 +3,22 @@ import type { Formule } from "@/lib/gestion/types";
 // Libellés, mise en forme et adresses de photos vivent dans lib/menu/format
 // et lib/menu/images : un module client les importe de là, sans tirer ce
 // registre dans son paquet.
-import { formatPrice } from "@/lib/menu/format";
+import { formatPrice, formatsLine } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import type { PairingNotes } from "@/lib/menu/pairings";
-import type { GarlandMotif } from "@/lib/menu/loyalty";
+import type { SaisonSpots } from "@/lib/menu/saison";
+import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
+import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
+import { veloursPalettes } from "@/components/menu/velours-palettes";
+import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
+import allergenesDemo from "@/lib/menu/allergenes-demo.json";
+import rosemarieAccords from "@/lib/menu/accords/rosemarie.json";
+import leNoveltyAccords from "@/lib/menu/accords/le-novelty.json";
+import leVictoriaAccords from "@/lib/menu/accords/le-victoria.json";
+import cafeDesArtsAccords from "@/lib/menu/accords/cafe-des-arts.json";
+import brasserieLaissacAccords from "@/lib/menu/accords/brasserie-laissac.json";
 
 export type Badge = "maison" | "top" | "nouveau";
 
@@ -37,6 +47,8 @@ export interface OptionChoice {
   supplement: number;
   /** false : épuisé, grisé sur la carte et refusé à la commande. Absent : disponible. */
   disponible?: boolean;
+  /** Un tarif planifié vise ce format : `supplement` porte déjà son prix. */
+  tarif?: AppliedTarif;
 }
 
 /** Un choix se commande tant qu'il n'est pas marqué épuisé. */
@@ -114,9 +126,10 @@ export interface MenuItem {
   noticeHours?: number;
   /*
    * Piment, mentions et allergènes tels que la carte de l'établissement les
-   * imprime. La base ne les porte pas encore : ils viennent du registre
-   * statique, rattachés par nom sur /menu/m (lib/public-menu.ts).
-   * undefined ⇒ rien d'imprimé, pas « aucun ».
+   * imprime. Les allergènes se saisissent en gestion (items.allergens) ; le
+   * reste vient du registre statique, rattaché par nom sur /menu/m
+   * (lib/public-menu.ts). undefined ⇒ pas renseigné, pas « aucun » ;
+   * [] ⇒ aucun des quatorze.
    */
   /** Force du piment, de 1 à 3 (🌶 à 🌶🌶🌶). */
   spice?: 1 | 2 | 3;
@@ -134,12 +147,20 @@ export interface MenuItem {
   tarif?: AppliedTarif;
 }
 
+/** Les heures d'une règle de tarif (« 15:00:00 » à « 20:00:00 ») ; la fin peut passer minuit. */
+export interface RuleHours {
+  startsAt: string;
+  endsAt: string;
+}
+
 /** Le tarif planifié en cours sur un article, tel qu'on l'explique au client. */
 export interface AppliedTarif {
   /** Nom donné par le restaurant : « Tarif week-end ». */
   name: string;
   /** Prix de la carte, à barrer quand la règle est une remise. */
   basePrice: number;
+  /** Absent : la règle vaut toute la journée, ou elle ne vise qu'un format (le sien porte ses heures). */
+  hours?: RuleHours;
 }
 
 export interface MenuCategory {
@@ -156,6 +177,17 @@ export interface MenuCategory {
    * « chaudes » : la salutation porte une tasse, sinon un verre à pied.
    */
   boissons?: true | "chaudes";
+  /**
+   * Section faite d'articles repris d'autres catégories (la happy hour) :
+   * ceux qui viennent d'une catégorie de boissons, qui suivent sa règle
+   * (pas d'allergènes sur la fiche) quand la section mêle plats et verres.
+   */
+  drinkItemIds?: string[];
+  /**
+   * Une longue liste à parcourir d'un coup d'œil : deux articles par rangée
+   * au téléphone, la photo en vignette ronde à côté du nom (CompactCard).
+   */
+  compact?: true;
 }
 
 /**
@@ -177,6 +209,24 @@ export interface AfficheMenu {
   image: string;
   offres: number;
   formules: Formule[];
+}
+
+export type CategoryLayout = "top" | "rail" | "wheel";
+
+/** La fidélité d'une carte d'aperçu ; la page rapproche les paliers de ses articles. */
+export interface DemoLoyalty {
+  pointsPerEuro: number;
+  /** Du palier le moins cher au plus cher ; items : ids d'articles de la carte. */
+  rewards: { id: string; label: string; points: number; items: string[] }[];
+  /**
+   * L'habitué que l'aperçu reconnaît d'emblée. Son solde est la somme de son
+   * historique, daté à l'ouverture de l'aperçu (il y a `daysAgo` jours).
+   */
+  member: {
+    contact: string;
+    firstName: string;
+    history: (Omit<LoyaltyHistoryEntry, "at"> & { daysAgo: number })[];
+  };
 }
 
 export interface Restaurant {
@@ -215,13 +265,41 @@ export interface Restaurant {
   themeColor?: string;
   /** Tableau des allergènes publié par l'établissement, lié en pied de carte. */
   allergensUrl?: string;
+  /** La mention allergènes de la carte papier, reprise en pied de carte. */
+  allergensNote?: string;
   /** Ce qui pend à la guirlande de « Ma carte » (fidélité) ; des lanternes par défaut. */
   loyaltyMotif?: GarlandMotif;
+  /**
+   * La roue du jour d'un téléphone que la fidélité connaît, une fois sa
+   * carte gagnante d'une commande réglée. Registre seulement : sur le vrai
+   * menu, /api/fidelite/roue la passe au tirage en base (loyalty_wheel_spin) ;
+   * l'aperçu la fait tourner dans le navigateur.
+   */
+  loyaltyWheel?: LoyaltyWheelConfig;
+  /**
+   * Fidélité d'une carte d'aperçu (/menu/demo) : en production, les paliers
+   * vivent en base. Rien ne part, tout se garde dans le navigateur.
+   */
+  demoLoyalty?: DemoLoyalty;
+  /**
+   * Happy hour d'une carte d'aperçu (/menu/demo) : le nom de la règle et le
+   * prix du moment de quelques articles. En production, ce sont les tarifs
+   * planifiés ; l'aperçu l'ouvre autour de l'heure de la visite, pour qu'on
+   * la voie n'importe quand.
+   */
+  demoHappyHour?: { name: string; prices: Record<string, number> };
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
    * elle tient lieu de hero à elle seule, sans texte superposé.
    */
   poster?: string;
+  /** Les repères de l'habillage de saison sur l'affiche (lib/menu/saison). */
+  saisonSpots?: SaisonSpots;
+  /**
+   * La même affiche en panorama (srcset), pour les écrans en paysage : en
+   * hauteur, elle n'y occupait qu'une colonne entre deux marges floutées.
+   */
+  posterWide?: string;
   /**
    * Affiches des offres, de la plus ancienne à la plus récente. Sous
    * l'affiche du restaurant (poster), elles prennent la place de l'adresse
@@ -229,6 +307,11 @@ export interface Restaurant {
    * section des formules.
    */
   affiches?: AfficheMenu[];
+  /**
+   * Affiches et formules dans une pastille en bas à gauche
+   * (components/menu/formules-pill.tsx), plus en tête de carte.
+   */
+  formulesPill?: boolean;
   address: string;
   phone: string;
   hours: string;
@@ -236,6 +319,9 @@ export interface Restaurant {
   highlights?: string[];
   /** Le bandeau défilant des annonces, en haut de la page. */
   ticker?: TickerItem[];
+  /** Catégories en roue posée sur la carte (par défaut), en barre au-dessus
+   * de la carte ou en rail d'icônes à gauche (etablissements.category_layout). */
+  categoryLayout?: CategoryLayout;
   /** Les mots de la carte que l'établissement explique, repris au pied de carte. */
   glossary?: { term: string; definition: string }[];
   /**
@@ -709,6 +795,42 @@ const boho: Restaurant = {
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
   poster: "/boho/poster.webp",
+  posterWide:
+    "/boho/poster-wide-1600.webp 1600w, /boho/poster-wide-2400.webp 2400w, /boho/poster-wide-3040.webp 3040w",
+  formulesPill: true,
+  // Mesurés sur l'affiche (716 × 1024) : la lune dans le ciel au-dessus de la
+  // pergola, les trois suspensions en rotin, la guirlande, les bougies des
+  // tables, les massifs de part et d'autre du logo.
+  saisonSpots: {
+    moon: { x: 72, y: 6.5, size: 11 },
+    lamps: [
+      { x: 23.2, y: 23.6, size: 30 },
+      { x: 12.6, y: 31.7, size: 19, delay: 0.7 },
+      { x: 69.6, y: 29.6, size: 21, delay: 1.3 },
+    ],
+    lanternFaces: [
+      { x: 23.2, y: 24.4, size: 9.5 },
+      { x: 69.6, y: 30.4, size: 6.4, delay: 0.9 },
+    ],
+    bulbs: [
+      { x: 22.3, y: 9.8, size: 4.4 },
+      { x: 31.8, y: 15.6, size: 4, delay: 1.1 },
+      { x: 42.6, y: 20, size: 3.6, delay: 0.4 },
+      { x: 54.3, y: 23.1, size: 3.4, delay: 1.7 },
+      { x: 63.7, y: 24.4, size: 3.2, delay: 0.9 },
+      { x: 75.8, y: 25.6, size: 2.8, delay: 2.2 },
+      { x: 84.4, y: 27.5, size: 2.6, delay: 1.4 },
+    ],
+    candles: [
+      { x: 19.6, y: 70.3, size: 9 },
+      { x: 41.9, y: 53.6, size: 6, delay: 0.6 },
+      { x: 16.5, y: 54.8, size: 5, delay: 1.2 },
+    ],
+    eyes: [
+      { x: 15.5, y: 44.5, size: 3.2 },
+      { x: 84.5, y: 41, size: 2.6, delay: 4.5 },
+    ],
+  },
   address: "72 Avenue des États-Unis, 31200 Toulouse",
   phone: "+33 7 72 29 62 98",
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
@@ -3344,12 +3466,10 @@ const articleFormats = (
   { options = [], ...extra }: Partial<MenuItem> = {},
   groupe: readonly [id: string, name: string] | [] = []
 ): MenuItem => {
-  // Insécables : un format ne se sépare ni de son unité ni de son prix.
-  const tarifs = prix.map(([label, montant]) => `${label} ${formatPrice(montant)}`.replace(/ /g, "\u00a0")).join(" · ");
   return {
     id,
     name,
-    tarifs,
+    tarifs: formatsLine(prix),
     price: prix[0][1],
     options: [groupeFormats(prix, ...groupe), ...options],
     ...extra,
@@ -3357,6 +3477,21 @@ const articleFormats = (
 };
 
 const ALCOOL = { vatRate: 20 } as const;
+
+/** La roue du jour de Caffè Panis, reprise telle quelle par les aperçus de l'Écusson et Rosemarie. */
+const roueDuJour: LoyaltyWheelConfig = {
+  // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
+  slices: [
+    { points: 5, weight: 32 },
+    { points: 10, weight: 26 },
+    { points: 15, weight: 20 },
+    { points: 20, weight: 12 },
+    { points: 30, weight: 6 },
+    { points: 50, weight: 4 },
+  ],
+  // Provisoire, à valider : le 7e jour d'affilée, les points du tour doublent.
+  golden: { every: 7, multiplier: 2 },
+};
 
 /*
  * Le Novelty — 10 rue Saint-Guilhem. Toute la carte vient de leur site
@@ -3496,6 +3631,66 @@ const leNovelty: Restaurant = {
     { text: "Café du matin à 1\u00a0€ de 9h à 12h", tone: "brand" },
     { text: "Formule Goûter 5\u00a0€ tous les jours" },
   ],
+  pairings: leNoveltyAccords,
+  loyaltyWheel: roueDuJour,
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café ou soft offert",
+        points: 50,
+        items: ["cafe", "noisette", "cappuccino", "fuzetea"],
+      },
+      {
+        id: "tapas",
+        label: "1 tapas offerte",
+        points: 100,
+        items: [
+          "sticks-mozzarella",
+          "patatas-bravas",
+          "beignets-calamars",
+          "accras-morue",
+          "croquetas-chorizo",
+          "wings-poulet",
+          "oignons-rings",
+        ],
+      },
+      {
+        id: "cocktail",
+        label: "1 cocktail offert",
+        points: 150,
+        items: [
+          "mojito",
+          "cuba-libre",
+          "ti-punch",
+          "caipirinha",
+          "gin-tonic",
+          "planteur",
+          "spritz",
+        ],
+      },
+      {
+        id: "planche",
+        label: "1 planche offerte",
+        points: 250,
+        items: ["planche-mixte", "planche-charcuterie", "planche-fromages"],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Camille",
+      history: [
+        { kind: "gain", points: 2, table: 4, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 4, table: 9, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 17, table: 3, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 22, table: 7, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       id: "cocktails",
@@ -3972,6 +4167,84 @@ const leVictoria: Restaurant = {
     { text: "Le midi, deux plats du jour au choix à partir de 9,90\u00a0€, à demander au serveur", tone: "brand" },
     { text: "Girafes de bière ou de cocktail de 3 à 5\u00a0L pour les groupes, sur demande" },
   ],
+  // Accords de l'aperçu, à revoir avec le gérant ; sans café à la carte, les desserts n'en ont pas.
+  pairings: leVictoriaAccords,
+  loyaltyWheel: roueDuJour,
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "soft-biere",
+        label: "1 soft ou bière offerte",
+        points: 50,
+        items: [
+          "coca-cola",
+          "fuze-tea",
+          "1664-sans-alcool",
+          "heineken",
+          "kronenbourg",
+          "monaco",
+        ],
+      },
+      {
+        id: "dessert-tapas",
+        label: "1 dessert ou tapas offert",
+        points: 100,
+        items: [
+          "tarte-citron",
+          "tarte-tatin",
+          "moelleux-chocolat",
+          "frite-maison",
+          "wings",
+          "croquetas-chorizo",
+          "stick-mozzarella",
+          "patatas-bravas",
+          "mini-nems",
+          "mini-saucissons",
+          "mini-samossas",
+          "frites-patate-douce",
+          "fish-and-chips",
+        ],
+      },
+      {
+        id: "cocktail",
+        label: "1 cocktail offert",
+        points: 150,
+        items: ["mojito", "cuba-libre", "punch", "sangria", "planteur", "sex-on-the-beach"],
+      },
+      {
+        id: "pizza-tagliatelle",
+        label: "1 pizza ou tagliatelle offerte",
+        points: 250,
+        items: [
+          "margherita",
+          "vegetariana",
+          "4-formaggi",
+          "regina",
+          "chevre-miel",
+          "pizza-poulet",
+          "spezzial",
+          "salmone",
+          "bruschetta-chevre-miel",
+          "tagliatelles-curry",
+          "tagliatelles-bolognaise",
+        ],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Mathilde",
+      history: [
+        { kind: "gain", points: 8, table: 4, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 11, table: 2, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 12, table: 6, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 18, table: 3, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   // Le bar d'abord, comme le store (« Tapas Cocktail ») : tapas, cocktails,
   // bières, puis la cuisine ; les vins, à la bouteille, en fin de carte.
   categories: [
@@ -4601,6 +4874,120 @@ const cafeDesArts: Restaurant = {
     { text: "Restaurant au 1er\u00a0étage", tone: "brand" },
     { text: "Pizzas maison", tone: "accent" },
   ],
+  pairings: cafeDesArtsAccords,
+  loyaltyWheel: roueDuJour,
+  // Les paliers de Caffè Panis, du même groupe (1 € = 1 point), sur cette carte.
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café ou soft offert",
+        points: 50,
+        items: [
+          "cafe",
+          "decafeine",
+          "noisette",
+          "cafe-allonge",
+          "double-cafe",
+          "cafe-creme",
+          "cappuccino",
+          "chocolat-chaud",
+          "sprite",
+          "fanta",
+          "tropico",
+          "orangina",
+          "limonade-pression",
+          "cacolac",
+        ],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert offert",
+        points: 100,
+        items: [
+          "pannacotta",
+          "poire-pochee",
+          "moelleux-chocolat",
+          "tiramisu",
+          "dessert-du-jour",
+          "profiteroles-maison",
+          "creme-brulee",
+          "baba-au-rhum",
+          "cafe-gourmand",
+          "chocolat-liegeois",
+          "cafe-liegeois",
+          "dame-blanche",
+          "delice-des-bois",
+          "mont-blanc",
+          "parfait-caramel",
+          "coconut",
+          "gourmande",
+          "poire-belle-helene",
+          "peche-melba",
+          "banana-split",
+          "profiteroles",
+        ],
+      },
+      {
+        id: "cocktail",
+        label: "1 cocktail offert",
+        points: 150,
+        items: [
+          "pina-colada",
+          "tequila-sunrise",
+          "moscow-mule",
+          "cuba-libre",
+          "bloody-mary",
+          "cosmopolitain",
+          "gin-fizz",
+          "planteur",
+          "mai-tai",
+          "margarita",
+          "sex-on-the-beach",
+          "fiero-spritz",
+          "saint-germain-cocktail",
+        ],
+      },
+      {
+        id: "pizza",
+        label: "1 pizza offerte",
+        points: 250,
+        items: [
+          "pizza-margarita",
+          "pizza-romaine",
+          "pizza-reine",
+          "pizza-royale",
+          "pizza-napolitaine",
+          "pizza-chevre-miel",
+          "pizza-toscana",
+          "pizza-4-fromages",
+          "pizza-4-saisons",
+          "pizza-florentine",
+          "pizza-neptune",
+          "pizza-campione",
+          "pizza-calabrese",
+          "pizza-tartufata",
+          "pizza-indienne",
+          "pizza-norvegienne",
+          "pizza-savoyarde",
+        ],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Léonie",
+      history: [
+        { kind: "gain", points: 4, table: 5, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 8, table: 2, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 17, table: 6, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 24, table: 3, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       id: "menu-brasserie",
@@ -5570,6 +5957,8 @@ const cafeDesArts: Restaurant = {
   ],
 };
 
+const panisPlat = (file: string) => `/caffe-panis/plats/${file}.webp`;
+
 /*
  * Caffè Panis — 3 place du Marché aux Fleurs. Aucune carte de salle en ligne
  * (leur menu Sunday renvoie à « la carte papier ») : la carte entière de
@@ -5583,7 +5972,7 @@ const caffePanis: Restaurant = {
   slug: "caffe-panis",
   name: "Caffè Panis",
   suivi: true,
-  tagline: "Caffè\u00a0·\u00a0Ristorante\u00a0· Gelateria",
+  tagline: "Caffè\u00a0·\u00a0Ristorante",
   logo: "/caffe-panis/logo.webp",
   logoIsName: true,
   icons: { tab: "/caffe-panis/favicon.png", homeScreen: "/caffe-panis/icon.png" },
@@ -5591,11 +5980,82 @@ const caffePanis: Restaurant = {
   address: "3 Place du Marché aux Fleurs, 34000 Montpellier",
   phone: "+33 4 99 67 65 38",
   hours: "Tous\u00a0les\u00a0jours 9h–\u20601h",
-  highlights: ["De 9h à 1h, 7j/7", "Burrata straight from Puglia"],
+  highlights: ["De 9h à 1h, 7j/7"],
   // Accords provisoires, à régénérer avec backend/scripts/pairings.py.
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.
   loyaltyMotif: "fanions",
+  loyaltyWheel: roueDuJour,
+  demoHappyHour: {
+    name: "Aperitivo Happy Hour",
+    prices: { margherita: 9, "cafe-illy": 1.5, "coca-cola": 2 },
+  },
+  // Les paliers de sa fidélité en production (1 € = 1 point).
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café Illy ou soft offert",
+        points: 50,
+        items: ["cafe-illy", "coca-cola", "coca-cola-zero", "fuzetea-peche"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert offert",
+        points: 100,
+        items: ["il-tiramisu", "mousse-big-love", "deurty-cookie"],
+      },
+      {
+        id: "antipasto",
+        label: "1 antipasto offert",
+        points: 150,
+        items: [
+          "trio-arancini",
+          "prosciutto",
+          "burrata-pesto-forever",
+          "classic-burrata",
+          "stracciatella-fumee",
+          "burrata-truffe-mortadelle",
+        ],
+      },
+      {
+        id: "pizza-pasta",
+        label: "1 pizza ou pasta offerte",
+        points: 250,
+        items: [
+          "amor-amatriciana",
+          "mama-king",
+          "margherita",
+          "puissance-4",
+          "stracciatella-versace",
+          "capo",
+          "green-circle",
+          "truffle-supreme",
+          "carbonara-originale",
+          "alla-bolognese",
+          "all-amatriciana",
+          "vivi-e-vechio",
+          "con-il-pesto",
+          "al-tartufo",
+        ],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Giulia",
+      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      history: [
+        { kind: "gain", points: 3, table: 4, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 5, table: 9, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 22, table: 3, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 25, table: 7, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       id: "antipasti",
@@ -5606,14 +6066,14 @@ const caffePanis: Restaurant = {
           name: "Trio d'arancini",
           description: "Trois dodues boulettes frites de risotto au prosciutto et fromage mozza fior di latte, ouuuuh.",
           price: 6.9,
-          image: unsplash("photo-1751199393315-fbcae4eabd4c", 800),
+          image: panisPlat("ciccio/trio-arancini"),
         },
         {
           id: "prosciutto",
           name: "Prosciutto",
           description: "L'inoubliable jambon en direct de la région de Parme, fondant à souhait.",
           price: 7.9,
-          image: pexels("20095427/pexels-photo-20095427.jpeg", 800),
+          image: panisPlat("ciccio/prosciutto"),
         },
         {
           id: "burrata-pesto-forever",
@@ -5621,7 +6081,7 @@ const caffePanis: Restaurant = {
           description:
             "Belle burrata straight from Puglia fourrée au pesto de basilic, tomates séchées à l'huile, huile d'olive et basilic frais. Servi avec une boule de pain maison.",
           price: 8.9,
-          image: pexels("29380177/pexels-photo-29380177.jpeg", 800),
+          image: panisPlat("ciccio/burrata-pesto-forever"),
         },
         {
           id: "classic-burrata",
@@ -5629,7 +6089,7 @@ const caffePanis: Restaurant = {
           description:
             "Burrata de 125 g crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive e basta.",
           price: 6.9,
-          image: pexels("14840767/pexels-photo-14840767.jpeg", 800),
+          image: panisPlat("classic-burrata"),
         },
         {
           id: "stracciatella-fumee",
@@ -5637,12 +6097,14 @@ const caffePanis: Restaurant = {
           description:
             "Stracciatella de 125 g fumée et crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive et une pointe de sel de poivre e basta.",
           price: 6.9,
+          image: panisPlat("ciccio/stracciatella-fumee"),
         },
         {
           id: "burrata-truffe-mortadelle",
           name: "Burrata Truffe & Mortadelle",
           description: "Dodue burrata bien fraîche en direct des Pouilles et crème de truffe d'été.",
           price: 10.9,
+          image: panisPlat("ciccio/burrata-truffe-mortadelle"),
         },
       ],
     },
@@ -5656,7 +6118,7 @@ const caffePanis: Restaurant = {
           description:
             "Champignons de Paris cuits finement tranchés, jambon blanc aux herbes, mozza fior di latte, sauce tomates italiennes, olives taggiasche et basilic frais.",
           price: 14.9,
-          image: pexels("29039064/pexels-photo-29039064.jpeg", 800),
+          image: panisPlat("ciccio/pizza-mama-king"),
         },
         {
           id: "margherita",
@@ -5664,7 +6126,7 @@ const caffePanis: Restaurant = {
           description:
             "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé et basilic frais.",
           price: 11.9,
-          image: pexels("35760006/pexels-photo-35760006.jpeg", 800),
+          image: panisPlat("ciccio/pizza-margherita"),
         },
         {
           id: "puissance-4",
@@ -5672,7 +6134,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème fraîche, gorgonzola, gran formaggio râpé, mozza fior di latte et ciboulette. Du cheesy comme on aime.",
           price: 14.9,
-          image: pexels("15478006/pexels-photo-15478006.jpeg", 800),
+          image: panisPlat("ciccio/pizza-puissance-4"),
         },
         {
           id: "stracciatella-versace",
@@ -5680,7 +6142,7 @@ const caffePanis: Restaurant = {
           description:
             "Jambon de Parme, stracciatella fumée bien crémeuse, pecorino romano râpé, roquette fraîche et sauce tomates italiennes en direct de notre producteur fiammante.",
           price: 19.9,
-          image: pexelsRecadre("8965714/pexels-photo-8965714.jpeg", 800),
+          image: panisPlat("ciccio/pizza-stracciatella-versace"),
         },
         {
           id: "capo",
@@ -5688,7 +6150,7 @@ const caffePanis: Restaurant = {
           description:
             "Fines tranches de salame piccante, salsa nduja xxxtra hot, mozza fior di latte, sauce tomates italiennes en direct de notre producteur fiammante et marjolaine fraîche.",
           price: 15.9,
-          image: pexels("34773770/pexels-photo-34773770.jpeg", 800),
+          image: panisPlat("ciccio/pizza-capo"),
         },
         {
           id: "green-circle",
@@ -5696,7 +6158,7 @@ const caffePanis: Restaurant = {
           description:
             "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé, aubergines frites et basilic frais.",
           price: 14.9,
-          image: pexels("13758318/pexels-photo-13758318.jpeg", 800),
+          image: panisPlat("ciccio/pizza-green-circle"),
         },
         {
           id: "truffle-supreme",
@@ -5704,6 +6166,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de truffe d'été à la ricotta, mozza fior di latte, petits champignons de Paris, beaux copeaux de truffe fraîche d'automne, gran formaggio râpé et ciboulette.",
           price: 20.9,
+          image: panisPlat("ciccio/pizza-truffle-supreme"),
         },
         {
           id: "amor-amatriciana",
@@ -5711,6 +6174,7 @@ const caffePanis: Restaurant = {
           description:
             "Pancetta «\u00a0Poitrine de porc\u00a0» et sauce de tomates italiennes pour une extra dose de saveurs, mozza fior di latte, pecorino et basilic frais.",
           price: 15.9,
+          image: panisPlat("ciccio/pizza-amor-amatriciana"),
         },
       ],
     },
@@ -5723,27 +6187,28 @@ const caffePanis: Restaurant = {
           name: "Pasta Carbonara Originale",
           description: "Pasta rigatoni à la sauce carbonara, guanciale de cochon et pecorino.",
           price: 13.9,
-          image: unsplash("photo-1735640268811-9c614c08b0dc", 800),
+          image: panisPlat("ciccio/pasta-carbonara"),
         },
         {
           id: "alla-bolognese",
           name: "Pasta Alla Bolognese",
           description: "Pasta rigatoni au ragù de bœuf, gran formaggio italiano et feuilles de basilic.",
           price: 14.9,
-          image: pexels("34909192/pexels-photo-34909192.jpeg", 800),
+          image: panisPlat("ciccio/pasta-bolognese"),
         },
         {
           id: "all-amatriciana",
           name: "Pasta All'Amatriciana",
           description: "Pasta rigatoni à la sauce de tomates italiennes, pancetta de cochon et pecorino.",
           price: 14.9,
-          image: pexels("37180268/pexels-photo-37180268.jpeg", 800),
+          image: panisPlat("ciccio/pasta-amatriciana"),
         },
         {
           id: "vivi-e-vechio",
           name: "Pasta Vivi E Vechio",
           description: "Pasta rigatoni à la sauce de tomates italiennes, stracciatella fumée et feuilles de basilic.",
           price: 12.9,
+          image: panisPlat("ciccio/pasta-vivi-e-vechio"),
         },
         {
           id: "con-il-pesto",
@@ -5751,6 +6216,7 @@ const caffePanis: Restaurant = {
           description:
             "Pasta casareccia au pesto de basilic frais, gran formaggio italiano, petites noisettes et feuilles de basilic.",
           price: 12.9,
+          image: panisPlat("ciccio/pasta-pesto"),
         },
         {
           id: "al-tartufo",
@@ -5758,6 +6224,7 @@ const caffePanis: Restaurant = {
           description:
             "Pasta mafaldine à la crème de gorgonzola, jambon truffé, éclat de noisettes, copeaux de parmesan, huile truffée.",
           price: 18.9,
+          image: panisPlat("ciccio/pasta-tartufo"),
         },
       ],
     },
@@ -5770,6 +6237,7 @@ const caffePanis: Restaurant = {
           name: "Les Dwich du Gang",
           description: "Le dwich jambon pâte à pizza bien fluffy, jambon blanc et mozza fior di latte xxtra fondante.",
           price: 6.9,
+          image: panisPlat("ciccio/dwich-du-gang"),
         },
         {
           id: "dwich-regina",
@@ -5777,6 +6245,7 @@ const caffePanis: Restaurant = {
           description:
             "Pâte à pizza bien fluffy, sauce de tomates italiennes en direct de notre producteur fiammante, mozza fior di latte, jambon blanc, champignons de Paris cuits et olives taggiasche.",
           price: 7.9,
+          image: panisPlat("ciccio/dwich-regina"),
         },
         {
           id: "dwich-truffe",
@@ -5784,6 +6253,7 @@ const caffePanis: Restaurant = {
           description:
             "Pâte à pizza bien fluffy, crème de ricotta à la truffe d'été, mozza fior di latte et champignons de Paris cuits.",
           price: 8.9,
+          image: panisPlat("ciccio/dwich-truffe"),
         },
       ],
     },
@@ -5797,14 +6267,14 @@ const caffePanis: Restaurant = {
           description:
             "Le grand classique de la casa bien onctueux et une petite pointe de liqueur de marsala, c'est que du love.",
           price: 6.9,
-          image: pexelsRecadre("27305272/pexels-photo-27305272.jpeg", 800),
+          image: panisPlat("ciccio/tiramisu"),
         },
         {
           id: "mousse-big-love",
           name: "Mousse Big-love",
           description: "Inimitable mousse au bon chocolat, praliné noisette et crunchy gaufrette au chocolat au lait.",
           price: 6.9,
-          image: unsplash("photo-1590080875852-ba44f83ff2db", 800),
+          image: panisPlat("ciccio/mousse-big-love"),
         },
         {
           id: "deurty-cookie",
@@ -5812,7 +6282,7 @@ const caffePanis: Restaurant = {
           description:
             "Décadent cookie choco-praliné mi-cuit, noix de pécan, big pépites de chocolat et pour l'overdose de love, cœur fondant ultra coulant à la gianduja.",
           price: 5.9,
-          image: pexels("14136387/pexels-photo-14136387.jpeg", 800),
+          image: panisPlat("ciccio/deurty-cookie"),
         },
       ],
     },
@@ -6230,6 +6700,79 @@ const brasserieLaissac: Restaurant = {
     // La bio Instagram : « 1 salle, climatisé ».
     { text: "Salle climatisée" },
   ],
+  pairings: brasserieLaissacAccords,
+  loyaltyWheel: roueDuJour,
+  // Les paliers de Caffè Panis (1 € = 1 point), sur la carte de la brasserie.
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "pinte-virgin",
+        label: "1 pinte ou 1 virgin offert",
+        points: 50,
+        items: ["pinte-blonde", "pinte-monaco", "virgin-mojito", "virgin-colada"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert offert",
+        points: 100,
+        items: [
+          "tiramisu",
+          "tarte-tatin",
+          "tarte-citron",
+          "moelleux",
+          "dame-blanche",
+          "cafe-liegeois",
+          "chocolat-liegeois",
+        ],
+      },
+      {
+        id: "planche",
+        label: "1 planche offerte",
+        points: 150,
+        items: ["planche-charcuterie", "planche-fromages"],
+      },
+      {
+        id: "pizza-burger",
+        label: "1 pizza ou burger offert(e)",
+        points: 250,
+        items: [
+          "cheese-burger",
+          "original-burger",
+          "burger-chevre-miel",
+          "rosti-burger",
+          "savoyard",
+          "vegetarien",
+          "chicken",
+          "chicken-avocado",
+          "california-beef",
+          "fish-burger",
+          "chicken-beef",
+          "margherita",
+          "regina",
+          "pizza-chevre-miel",
+          "speziale",
+          "vegetarienne",
+          "pizza-poulet",
+          "pizza-saumon",
+          "quatre-fromaggi",
+        ],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Hugo",
+      history: [
+        { kind: "gain", points: 9, table: 5, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 6, table: 2, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 18, table: 8, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 24, table: 3, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   categories: [
     {
       // L'ardoise du comptoir : « Formule midi à ne pas rater ». Les plats du
@@ -7587,6 +8130,8 @@ const cafeRiche: Restaurant = {
   // « RiCHE » or cerné de bleu, « DEPUIS 1893 », comme sur l'auvent.
   logo: "/cafe-riche/logo.png",
   logoIsName: true,
+  // Leur logo sur la crème de la carte, pour la roue, le sceau de fidélité et l'onglet.
+  icons: { tab: "/cafe-riche/favicon.png", homeScreen: "/cafe-riche/icon.png" },
   themeColor: "#173a6b",
   address: "8 Place de la Comédie, 34000 Montpellier",
   // Leur site et leur fiche Google.
@@ -7595,6 +8140,77 @@ const cafeRiche: Restaurant = {
   // Leur site : « Ouvert 7/7 de 7h à 1h du matin », « produits frais et de
   // saison », « sa terrasse emblématique sur la Place de la Comédie ».
   highlights: ["Ouvert 7/7 de 7h à 1h", "Produits frais et de saison", "Terrasse sur la place de la Comédie"],
+  // Accords écrits à la main sur leur carte, à relire avec eux.
+  pairings: cafeRicheAccords,
+  loyaltyWheel: roueDuJour,
+  // Les paliers de Caffè Panis (1 € = 1 point) sur leur carte, à caler avec eux.
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "cafe-soft",
+        label: "1 café ou soft offert",
+        points: 50,
+        items: ["cafe-expresso", "cappuccino", "cafe-allonge", "coca-cola", "orangina", "perrier"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert offert",
+        points: 100,
+        items: ["profiteroles", "creme-brulee", "tiramisu", "mousse-chocolat", "panna-cotta", "pain-perdu"],
+      },
+      {
+        id: "entree",
+        label: "1 entrée offerte",
+        points: 150,
+        items: [
+          "soupe-poisson",
+          "burrata-pesto",
+          "arancini",
+          "rillettes-thon",
+          "avocat-crevette",
+          "focaccia-chevre-miel",
+          "oeufs-mayonnaise",
+        ],
+      },
+      {
+        id: "plat",
+        label: "1 plat offert",
+        points: 250,
+        items: [
+          "moules-creme",
+          "bavette-echalote",
+          "tartare-boeuf",
+          "moules-roquefort",
+          "fish-and-chips",
+          "rouille-seiche",
+          "seiche-plancha",
+          "supreme-volaille",
+          "carpaccio-boeuf",
+          "burger-le-riche",
+          "burger-chic-chicken",
+          "burger-vegi",
+          "linguines-carbonara",
+          "linguines-vongole",
+          "linguines-pesto",
+        ],
+      },
+    ],
+    member: {
+      contact: "0623456789",
+      firstName: "Mathilde",
+      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      history: [
+        { kind: "gain", points: 4, table: 12, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 16, table: 5, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 29, table: 21, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "gain", points: 9, table: 3, rewards: null, daysAgo: 13 },
+      ],
+    },
+  },
   ticker: [
     { text: "Brasserie historique depuis 1893", tone: "brand" },
     { text: "Plat du jour du lundi au vendredi, uniquement le midi", tone: "accent" },
@@ -9495,9 +10111,429 @@ const cafe3Graces: Restaurant = {
   ],
 };
 
-const restaurants: Record<string, Restaurant> = {
+/*
+ * Rosemarie — 3 rue des Sœurs Noires, Saint-Roch : cantine méditerranéenne,
+ * petites assiettes, plats, cocktails infusés maison. Aucune carte en ligne
+ * (les liens « menu » de leurs trois sites sont morts) : la carte de l'été
+ * 2026, celle de leur nouvelle identité, lue sur le chevalet de la rue (photo
+ * de client, Restaurant Guru), dans son ordre. Chaque ligne y est une seule
+ * phrase : le nom est ce qui précède la première virgule (la deuxième pour
+ * « Roquette », qui seule ne nommerait pas le plat), le reste la
+ * description. Les boissons hors cocktails n'y figurent pas. Sources :
+ * demos/rosemarie/docs/.
+ */
+const rosemarie: Restaurant = {
+  slug: "rosemarie",
+  name: "Rosemarie",
+  suivi: true,
+  tagline: "cantine méditerranéenne",
+  // Notre proposition, faute de fichier : le R du mot-symbole, blanc sur le jaune.
+  icons: { tab: "/rosemarie/favicon.png", homeScreen: "/rosemarie/icon.png" },
+  themeColor: "#f8c800",
+  address: "3 rue des Sœurs Noires, 34000 Montpellier",
+  phone: "",
+  hours: "Lun.–sam. 9h–\u20601h · dim. 9h–\u2060minuit",
+  allergensNote: "Nous tenons à votre disposition la liste des ingrédients allergènes et la traçabilité des viandes.",
+  highlights: ["Ouvert 7j/7", "Service continu"],
+  pairings: rosemarieAccords,
+  loyaltyWheel: roueDuJour,
+  // Les paliers de Caffè Panis (1 € = 1 point), sur la carte de Rosemarie.
+  demoLoyalty: {
+    pointsPerEuro: 1,
+    rewards: [
+      {
+        id: "granite",
+        label: "1 cocktail granité offert",
+        points: 50,
+        items: ["granite-rhum-romarin", "granite-vodka-griottes", "granite-goyave"],
+      },
+      {
+        id: "dessert",
+        label: "1 dessert ou 1 glace offert",
+        points: 100,
+        items: ["abricots-rotis", "citron-biscotti", "ananas-caramelise", "soupe-pasteque", "glace-chouchous", "glace-zezettes", "glace-oreillettes", "glace-nature"],
+      },
+      {
+        id: "petite-assiette",
+        label: "1 petite assiette offerte",
+        points: 150,
+        items: ["focaccia", "burrata", "jambon-serrano", "babaganoush", "houmous-petit-pois", "gaspacho-verde", "croquettes-poisson", "labneh", "beignets-courgettes", "panzerotto", "polenta-frite"],
+      },
+      {
+        id: "plat",
+        label: "1 plat offert",
+        points: 250,
+        items: ["carpaccio-boeuf", "tartare-veau", "calamars-setoise", "roquette-encornet", "paccheri-ragu", "effiloche-porc", "pave-truite", "clafoutis-tomates", "boulettes-poulet", "persille-boeuf"],
+      },
+    ],
+    member: {
+      contact: "0612345678",
+      firstName: "Margaux",
+      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      history: [
+        { kind: "gain", points: 4, table: 6, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "gain", points: 7, table: 12, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
+        { kind: "gain", points: 31, table: 3, rewards: null, daysAgo: 8 },
+        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 8 },
+        { kind: "gain", points: 24, table: 9, rewards: null, daysAgo: 15 },
+      ],
+    },
+  },
+  categories: [
+    {
+      id: "cocktails-granites",
+      name: "Cocktails granités",
+      boissons: true,
+      items: [
+        {
+          id: "granite-rhum-romarin",
+          name: "Rhum infusé au romarin",
+          description: "Jus de coco, citron vert pressé & sirop de vanille.",
+          price: 6.5,
+          image: pexelsRecadre("1590154/pexels-photo-1590154.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "granite-vodka-griottes",
+          name: "Vodka infusée aux griottes & basilic",
+          description: "Jus de pomme & sucre de canne.",
+          price: 6.5,
+          image: pexelsRecadre("27626307/pexels-photo-27626307.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "granite-goyave",
+          name: "Nectar de goyave",
+          description: "Sirop de grenadine, jus de pomme (sans alcool).",
+          price: 6,
+          image: pexels("8375246/pexels-photo-8375246.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "cocktails",
+      name: "Cocktails",
+      boissons: true,
+      items: [
+        {
+          id: "cocktail-cachaca",
+          name: "Cachaça infusée ananas",
+          description: "Liqueur thym & verveine, citron vert et sirop de cassonade.",
+          price: 9,
+          image: pexelsRecadre("12049920/pexels-photo-12049920.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "cocktail-gin-hibiscus",
+          name: "Gin infusé hibiscus",
+          description: "Liqueur sureau infusé à la menthe, limonade.",
+          price: 9,
+          image: pexels("35992010/pexels-photo-35992010.jpeg", 800),
+          ...ALCOOL,
+        },
+        {
+          id: "cocktail-tequila-framboise",
+          name: "Tequila infusée framboises",
+          description: "Liqueur de bergamote, sirop d'agave & jus de cranberry.",
+          price: 9,
+          image: pexels("2110923/pexels-photo-2110923.jpeg", 800),
+          ...ALCOOL,
+        },
+      ],
+    },
+    {
+      id: "petites-assiettes",
+      name: "Petites assiettes & tapas",
+      items: [
+        {
+          id: "focaccia",
+          name: "Focaccia",
+          description: "Olives à la grecque & romarin.",
+          price: 6,
+          image: pexels("38860516/pexels-photo-38860516.jpeg", 800),
+        },
+        {
+          id: "burrata",
+          name: "Burrata",
+          description: "Pesto romesco, parmesan & épinards.",
+          price: 8.5,
+          image: pexels("29380174/pexels-photo-29380174.jpeg", 800),
+        },
+        {
+          id: "jambon-serrano",
+          name: "Jambon Serrano",
+          description: "18 mois.",
+          price: 6.5,
+          image: pexels("19688911/pexels-photo-19688911.jpeg", 800),
+        },
+        {
+          id: "babaganoush",
+          name: "Babaganoush",
+          description: "Zaatar, grenades & granny smith.",
+          price: 7,
+          image: pexels("4768983/pexels-photo-4768983.jpeg", 800),
+        },
+        {
+          id: "houmous-petit-pois",
+          name: "Houmous de petit pois",
+          description: "Zaatar.",
+          price: 6.5,
+          image: pexels("20507447/pexels-photo-20507447.jpeg", 800),
+        },
+        {
+          id: "gaspacho-verde",
+          name: "Gaspacho verde",
+          description: "Menthe & concombres.",
+          price: 7,
+          image: pexels("15239056/pexels-photo-15239056.jpeg", 800),
+        },
+        {
+          id: "croquettes-poisson",
+          name: "Croquettes de poisson",
+          description: "Olives, aneth, persil & mayo épicée.",
+          price: 7,
+          image: pexels("17598323/pexels-photo-17598323.jpeg", 800),
+        },
+        {
+          id: "labneh",
+          name: "Labneh",
+          description: "Olives kalamata, pistaches vertes, pain pita maison.",
+          price: 8,
+          image: pexels("14930577/pexels-photo-14930577.jpeg", 800),
+        },
+        {
+          id: "beignets-courgettes",
+          name: "Beignets courgettes",
+          description: "Menthe, provolone fumé & yaourt grec aux herbes.",
+          price: 7,
+          image: pexels("38163967/pexels-photo-38163967.jpeg", 800),
+        },
+        {
+          id: "panzerotto",
+          name: "Panzerotto au bœuf",
+          description: "Mozzarella, olives & petit pois.",
+          price: 6.5,
+          image: pexelsRecadre("28442527/pexels-photo-28442527.jpeg", 800),
+        },
+        {
+          id: "polenta-frite",
+          name: "Polenta frite",
+          description: "Aïoli.",
+          price: 6.5,
+          image: pexels("37296919/pexels-photo-37296919.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "salades-viandes-poissons",
+      name: "Salades, viandes & poissons",
+      items: [
+        {
+          id: "carpaccio-boeuf",
+          name: "Carpaccio de bœuf poivré",
+          description: "Pousses d'épinards & pecorino.",
+          price: 17,
+          image: pexels("17478679/pexels-photo-17478679.jpeg", 800),
+        },
+        {
+          id: "tartare-veau",
+          name: "Tartare de veau vitello",
+          description: "Roquette & frites.",
+          price: 17,
+          image: pexels("20081518/pexels-photo-20081518.jpeg", 800),
+        },
+        {
+          id: "calamars-setoise",
+          name: "Calamars à la sétoise",
+          description: "Riz rouge de Camargue aux olives.",
+          price: 17,
+          image: pexels("1618943/pexels-photo-1618943.jpeg", 800),
+        },
+        {
+          id: "roquette-encornet",
+          name: "Roquette, tentacule d'encornet rôtie",
+          description: "Pastèque sumac, vinaigrette framboise.",
+          price: 16.5,
+          image: pexels("8971797/pexels-photo-8971797.jpeg", 800),
+        },
+        {
+          id: "paccheri-ragu",
+          name: "Paccheri al ragù",
+          description: "Sauce mijotée tomate & bœuf, pecorino.",
+          price: 15.5,
+          image: pexels("15230669/pexels-photo-15230669.jpeg", 800),
+        },
+        {
+          id: "effiloche-porc",
+          name: "Éffiloché de porc des Pyrénées",
+          description: "Coleslaw méditerranéen, pita & sauce barbecue.",
+          price: 16,
+          image: pexelsRecadre("18354021/pexels-photo-18354021.jpeg", 800),
+        },
+        {
+          id: "pave-truite",
+          name: "Pavé de truite rôtie",
+          description: "Ajo blanco, salade fenouil & condiment tomate rougail.",
+          price: 17,
+          image: pexels("4663250/pexels-photo-4663250.jpeg", 800),
+        },
+        {
+          id: "clafoutis-tomates",
+          name: "Clafoutis tomates",
+          description: "Chèvre, olives noires & roquette.",
+          price: 15,
+          image: pexels("5419185/pexels-photo-5419185.jpeg", 800),
+        },
+        {
+          id: "boulettes-poulet",
+          name: "Boulettes de poulet panées",
+          description: "Citron confit, menthe, taboulé méditerranéen.",
+          price: 16,
+          image: pexels("1765012/pexels-photo-1765012.jpeg", 800),
+        },
+        {
+          id: "persille-boeuf",
+          name: "Persillé de bœuf",
+          description: "Jus de moelle fumé, frites & salade.",
+          price: 19,
+          image: unsplash("photo-1504973960431-1c467e159aa4", 800),
+        },
+      ],
+    },
+    {
+      id: "garnitures",
+      name: "Garnitures",
+      items: [
+        {
+          id: "riz-rouge",
+          name: "Riz rouge de Camargue aux olives",
+          price: 5.5,
+          image: pexels("6659610/pexels-photo-6659610.jpeg", 800),
+        },
+        {
+          id: "frites",
+          name: "Frites",
+          description: "Sel de Camargue & romarin.",
+          price: 5.5,
+          image: pexels("7687530/pexels-photo-7687530.jpeg", 800),
+        },
+        {
+          id: "coleslaw",
+          name: "Coleslaw",
+          price: 5.5,
+          image: pexelsRecadre("29930364/pexels-photo-29930364.jpeg", 800),
+        },
+        {
+          id: "taboule",
+          name: "Taboulé méditerranéen",
+          price: 6,
+          image: pexels("15108402/pexels-photo-15108402.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "desserts",
+      name: "Pâtisseries & desserts",
+      items: [
+        {
+          id: "abricots-rotis",
+          name: "Abricots rôtis",
+          description: "Romarin, verveine, fromage blanc.",
+          price: 7,
+          image: pexels("2739274/pexels-photo-2739274.jpeg", 800),
+        },
+        {
+          id: "citron-biscotti",
+          name: "Citron biscotti al limone",
+          description: "Crème limone.",
+          price: 7,
+          image: pexels("3026801/pexels-photo-3026801.jpeg", 800),
+        },
+        {
+          id: "ananas-caramelise",
+          name: "Ananas caramélisé",
+          description: "Ganache chocolat, crumble cacahuète et coulis ananas.",
+          price: 7,
+          image: pexels("30649014/pexels-photo-30649014.jpeg", 800),
+        },
+        {
+          id: "soupe-pasteque",
+          name: "Soupe glacée pastèque",
+          description: "Framboises et basilic.",
+          price: 6.5,
+          image: pexels("37279441/pexels-photo-37279441.jpeg", 800),
+        },
+      ],
+    },
+    {
+      id: "glaces",
+      name: "Glaces italiennes à la fleur de lait",
+      items: [
+        {
+          id: "glace-chouchous",
+          name: "Chouchous",
+          description: "Caramel beurre salé & noisettes.",
+          price: 7,
+          image: pexelsRecadre("35756355/pexels-photo-35756355.jpeg", 800),
+        },
+        {
+          id: "glace-zezettes",
+          name: "Zézettes de Sète",
+          description: "Coulis ananas piment d'Espelette & oranges confites.",
+          price: 6.5,
+          image: pexelsRecadre("34281009/pexels-photo-34281009.jpeg", 800),
+        },
+        {
+          id: "glace-oreillettes",
+          name: "Oreillettes de Montpellier",
+          description: "Coulis de framboises, pralines roses.",
+          price: 6.5,
+          image: pexelsRecadre("1352281/pexels-photo-1352281.jpeg", 800),
+        },
+        {
+          id: "glace-nature",
+          name: "Glace au lait nature",
+          price: 5,
+          image: pexels("1294943/pexels-photo-1294943.jpeg", 800),
+        },
+      ],
+    },
+  ],
+};
+
+/*
+ * Les allergènes des démos, supposés d'après le nom, la description et la
+ * recette d'usage (scripts : aucun ; à régénérer à la main). Quelques plats
+ * par démo restent sans : la fiche montre alors « non renseignés ». Ceux que
+ * la carte imprime (Baï-Kō) restent les siens. Jamais sur /menu/m : la carte
+ * en ligne ne lit que ceux de la base (lib/public-menu.ts).
+ */
+const withDemoAllergens = (registry: Record<string, Restaurant>): Record<string, Restaurant> => {
+  const table = allergenesDemo as Record<string, Record<string, Allergen[]>>;
+  return Object.fromEntries(
+    Object.entries(registry).map(([slug, restaurant]) => [
+      slug,
+      {
+        ...restaurant,
+        categories: restaurant.categories.map((category) => ({
+          ...category,
+          items: category.items.map((item) => ({
+            ...item,
+            allergens: item.allergens ?? table[slug]?.[item.id],
+          })),
+        })),
+      },
+    ])
+  );
+};
+
+const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
+  // La démonstration des bulles du Boho (lib/bulles/demo) : sa carte en base, habillée comme celle du Boho.
+  [BOHO_DEMO_SLUG]: { ...boho, slug: BOHO_DEMO_SLUG },
   [lzFood.slug]: lzFood,
   [oCroustiPoulet.slug]: oCroustiPoulet,
   [bigSmash.slug]: bigSmash,
@@ -9518,13 +10554,18 @@ const restaurants: Record<string, Restaurant> = {
   [lEntrepot.slug]: lEntrepot,
   [lePulp.slug]: lePulp,
   [cafe3Graces.slug]: cafe3Graces,
-};
+  [rosemarie.slug]: rosemarie,
+});
+
+/** La démo d'Ominin Club (scripts/club-demo.ts), servie en direct par la scène de L'Étoile. */
+const ETOILE_LIVE_SLUG = "l-etoile-demo";
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
  * menu public et les démos aux couleurs du restaurant. Absente ⇒ thème
  * Ominin par défaut. */
 const themeClasses: Record<string, string> = {
   [boho.slug]: "theme-boho",
+  [BOHO_DEMO_SLUG]: "theme-boho",
   [lzFood.slug]: "theme-lz-food",
   [oCroustiPoulet.slug]: "theme-o-crousti-poulet",
   [bigSmash.slug]: "theme-big-smash",
@@ -9538,6 +10579,7 @@ const themeClasses: Record<string, string> = {
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
   [lEtoile.slug]: "theme-l-etoile",
+  [ETOILE_LIVE_SLUG]: "theme-l-etoile",
   [cafeRiche.slug]: "theme-cafe-riche",
   [cafePoulard.slug]: "theme-cafe-poulard",
   [lePetitNice.slug]: "theme-le-petit-nice",
@@ -9545,10 +10587,37 @@ const themeClasses: Record<string, string> = {
   [lEntrepot.slug]: "theme-l-entrepot",
   [lePulp.slug]: "theme-le-pulp",
   [cafe3Graces.slug]: "theme-cafe-3-graces",
+  [rosemarie.slug]: "theme-rosemarie",
 };
 
 export function restaurantThemeClass(slug: string): string | undefined {
   return themeClasses[slug];
+}
+
+/** Les cartes posées sur le velours animé (components/menu/panis-backdrop), à leurs teintes. */
+export function hasVelours(slug: string): boolean {
+  return slug in veloursPalettes;
+}
+
+/**
+ * Le menu en direct que la scène de L'Étoile (components/menu/etoile)
+ * habille : la démo d'Ominin Club, hors des moteurs de recherche.
+ */
+export function etoileScene(slug: string): boolean {
+  return slug === ETOILE_LIVE_SLUG;
+}
+
+/**
+ * La carte en base habillée par la scène : chaque catégorie reprend, par son
+ * nom, l'identifiant et la nature de celle du registre, sur lesquels la scène
+ * range ses chapitres. Une catégorie inconnue du registre n'y paraît pas.
+ */
+export function etoileSceneCategories(categories: MenuCategory[]): MenuCategory[] {
+  const byName = new Map(lEtoile.categories.map((category) => [category.name, category]));
+  return categories.map((category) => {
+    const scene = byName.get(category.name);
+    return scene ? { ...category, id: scene.id, boissons: scene.boissons } : category;
+  });
 }
 
 export function getRestaurant(slug: string): Restaurant | undefined {

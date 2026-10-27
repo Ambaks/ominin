@@ -10,6 +10,9 @@ import {
 } from "@/lib/menu/loyalty";
 import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import { Garland, LoyaltyCard, RewardDrawing } from "./loyalty-card";
+import { UntilTomorrow } from "./until-tomorrow";
+import { WheelGlyph } from "./wheel-glyph";
+import type { LiquidOrigin } from "./liquid-sheet";
 import { Sheet } from "./sheet";
 
 /*
@@ -27,6 +30,7 @@ const day = new Intl.DateTimeFormat("fr-FR", {
 
 function historyLabel(entry: LoyaltyHistoryEntry): string {
   if (entry.kind === "gain") return entry.table ? `Table ${entry.table}` : "Commande";
+  if (entry.kind === "roue") return "Tour de roue";
   if (entry.kind === "depense") {
     if (!entry.rewards) return "Récompense";
     return `${entry.rewards} ${entry.rewards.includes(",") ? "offerts" : "offert"}`;
@@ -41,18 +45,22 @@ export function LoyaltyCardSheet({
   logo,
   wordmark,
   motif,
+  origin,
   onClose,
 }: {
   brand: string;
   logo?: string;
   wordmark?: boolean;
   motif?: GarlandMotif;
+  /** La pastille d'où la feuille naît, quand elle l'a ouverte. */
+  origin?: LiquidOrigin | null;
   onClose: () => void;
 }) {
   const { loyalty } = useCart();
-  const { member, forget, loadHistory } = useLoyaltyMember();
+  const { member, forget, loadHistory, wheel } = useLoyaltyMember();
   const titleId = useId();
   const [history, setHistory] = useState<LoyaltyHistoryEntry[] | null>(null);
+  const waiting = wheel !== null && !wheel.ready;
   // « Ce n'est pas moi » : la feuille descend d'abord, le téléphone est
   // oublié une fois qu'elle est partie.
   const forgetting = useRef(false);
@@ -73,12 +81,13 @@ export function LoyaltyCardSheet({
       }}
       backdropCloses
       labelledBy={titleId}
+      origin={origin}
     >
       {(close) => (
         <div className="flex flex-col gap-6 px-5 pb-8 pt-5">
           <div className="flex items-start justify-between gap-4">
             <div>
-              <h3 id={titleId} className="font-display text-2xl font-medium">
+              <h3 id={titleId} className="loyalty-sheet-title font-display text-2xl font-medium">
                 Ma carte
               </h3>
               <p className="text-xs text-muted">
@@ -120,6 +129,19 @@ export function LoyaltyCardSheet({
             </p>
             <Garland program={loyalty} points={points} motif={motif} />
           </div>
+
+          {waiting && (
+            <p className="flex items-center justify-between gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/5 px-3.5 py-3 text-xs">
+              <span className="inline-flex items-center gap-2 font-semibold">
+                <WheelGlyph className="size-4 text-ember-1" />
+                {wheel.streak > 1 ? `${wheel.streak} jours d’affilée` : "Tour du jour joué"}
+              </span>
+              <span className="text-muted">
+                Prochain tour dans{" "}
+                <UntilTomorrow className="font-semibold tabular-nums text-foreground" />
+              </span>
+            </p>
+          )}
 
           <section className="flex flex-col gap-2.5">
             <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-faint">
@@ -208,7 +230,10 @@ export function LoyaltyCardSheet({
           </section>
 
           <div className="flex items-center justify-between gap-4 border-t border-hairline pt-4 text-xs text-muted">
-            <span>Vos points se cumulent à chaque commande réglée.</span>
+            <span>
+              Vos points se cumulent à chaque commande réglée
+              {wheel ? " et à chaque tour de roue." : "."}
+            </span>
             <button
               type="button"
               onClick={() => {

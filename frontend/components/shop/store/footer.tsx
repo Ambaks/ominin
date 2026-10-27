@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { httpHref } from "@/lib/admin/format";
 import type { Shop } from "@/lib/shop/types";
 import { LockIcon } from "../icons";
 import { shopHref } from "./href";
@@ -56,12 +57,12 @@ export function ShopFooter({ shop, showNewsletter = true }: { shop: Shop; showNe
             </div>
             <div className="flex flex-wrap items-center gap-5 text-[13px] font-medium text-shop-accent-deep">
               {shop.instagram_url && (
-                <a href={shop.instagram_url} target="_blank" rel="noreferrer" className="hover:text-shop-accent">
+                <a href={httpHref(shop.instagram_url)} target="_blank" rel="noreferrer" className="hover:text-shop-accent">
                   Instagram
                 </a>
               )}
               {shop.tiktok_url && (
-                <a href={shop.tiktok_url} target="_blank" rel="noreferrer" className="hover:text-shop-accent">
+                <a href={httpHref(shop.tiktok_url)} target="_blank" rel="noreferrer" className="hover:text-shop-accent">
                   TikTok
                 </a>
               )}

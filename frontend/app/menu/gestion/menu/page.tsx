@@ -26,7 +26,8 @@ import {
 } from "@/lib/gestion/terminaux";
 import type { Affiche, Formule } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
-import { fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
+import { isDrinkCategory } from "@/lib/menu/category-icons";
+import { effectiveTarif, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
 import type { MenuItem } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
 import { createClient } from "@/lib/supabase/client";
@@ -303,6 +304,7 @@ export default function MenuPage() {
                     <MenuItemCard
                       key={item.id}
                       item={item}
+                      drink={isDrinkCategory(category)}
                       printers={showRouting ? printers : []}
                       printerId={routing.get(item.id) ?? null}
                       canRoute={canRoute}
@@ -316,7 +318,7 @@ export default function MenuPage() {
                           categories={categories}
                           canEdit={canTarif}
                           offerNew={!pickupShop}
-                          effective={tarifs.get(item.id) ?? null}
+                          effective={effectiveTarif(tarifs, item)}
                         />
                       }
                       closedBy={closed.get(item.id)}

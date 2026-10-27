@@ -165,13 +165,14 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
         printer_ids = [printer["id"] for printer in printers]
         etab_row = (
             supabase.table("etablissements")
-            .select("name")
+            .select("name, show_table_number")
             .eq("id", device.etablissement_id)
             .single()
             .execute()
             .data
         )
         restaurant_name = etab_row["name"] if etab_row else ""
+        show_table_number = etab_row["show_table_number"] if etab_row else False
         rows = (
             supabase.table("print_jobs")
             .select(
@@ -200,7 +201,9 @@ def sync(body: SyncRequest, device: Device = Depends(require_device)) -> dict:
                 {
                     "id": row["id"],
                     "printer_id": row["printer_id"],
-                    "data": base64.b64encode(render_job(row, restaurant_name)).decode(),
+                    "data": base64.b64encode(
+                        render_job(row, restaurant_name, show_table_number)
+                    ).decode(),
                 }
             )
         if cancelled:

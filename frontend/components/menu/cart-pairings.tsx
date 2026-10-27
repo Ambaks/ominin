@@ -44,7 +44,7 @@ export function CartPairings() {
   return (
     <>
       {(match || suggested.length > 0) && (
-        <section aria-label="L'accord du chef" className={`mt-5 ${chefCard} p-3.5`}>
+        <section aria-label="Le combo parfait" className={`mt-5 ${chefCard} p-3.5`}>
           <ChefTag />
           <ul className="flex flex-col gap-3">
             {match && (
@@ -68,13 +68,13 @@ export function CartPairings() {
                 </SuggestionRow>
               </li>
             )}
-            {suggested.map(({ item, why }) => (
+            {suggested.map(({ item, why, choices }) => (
               <li key={item.id}>
                 <SuggestionRow image={item.image} title={lineName(item)} why={why}>
                   <button
                     type="button"
                     onClick={() => {
-                      addLine(plainLine(item, "panier"));
+                      addLine(plainLine(item, "panier", choices));
                       track("panier", { items: [item.id] });
                     }}
                     aria-label={`Ajouter : ${lineName(item)}, ${formatPrice(item.price)}`}

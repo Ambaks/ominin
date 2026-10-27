@@ -16,7 +16,7 @@ export function ChefTag() {
   return (
     <p className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.1em] text-ember-1">
       <Spark />
-      L&apos;accord du chef
+      Le combo parfait
       <span className="ml-auto text-[10px] font-semibold tracking-[0.08em] text-muted">IA</span>
     </p>
   );
@@ -30,7 +30,7 @@ export const chefCard = "flex flex-col gap-3 rounded-2xl border border-ember-1/3
  * du bouton principal, qu'il ne doit pas concurrencer.
  */
 export const suggestionButton = (on = false) =>
-  `min-h-9 shrink-0 rounded-full border px-3 text-xs font-semibold tabular-nums transition-[color,background-color,border-color,transform] active:scale-95 ${
+  `suggestion-cta min-h-9 shrink-0 rounded-full border px-3 text-xs font-semibold tabular-nums transition-[color,background-color,border-color,transform] active:scale-95 ${
     on ? "border-transparent bg-ember-1 text-background" : "border-ember-1/50 bg-ember-1/15 text-foreground"
   }`;
 
@@ -81,7 +81,7 @@ export function SheetPairings({
   onToggle: (itemId: string) => void;
 }) {
   return (
-    <section aria-label="L'accord du chef" className={`sheet-pairings ${chefCard} p-3`}>
+    <section aria-label="Le combo parfait" className={`sheet-pairings ${chefCard} p-3`}>
       <ChefTag />
       <ul className="flex flex-col gap-2.5">
         {pairings.map(({ item, why }) => {

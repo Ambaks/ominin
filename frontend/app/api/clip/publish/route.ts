@@ -7,6 +7,7 @@ import {
   type ClipPlatform,
 } from "@/lib/clip/provider/types";
 import {
+  ownsClipPath,
   providerUnavailable,
   purgeStaleClips,
   requireClipUser,
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Requête invalide." }, { status: 400 });
   }
   // Chaque clipper ne publie que depuis son propre dossier du bucket.
-  if (!body.path.startsWith(`${user.id}/`)) {
+  if (!ownsClipPath(user.id, body.path)) {
     return NextResponse.json({ error: "Chemin invalide." }, { status: 403 });
   }
   const captions = body.captions ?? {};

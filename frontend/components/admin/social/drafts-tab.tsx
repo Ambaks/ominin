@@ -6,7 +6,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { useRunMutation } from "@/components/ui/toast";
 import { formatDayTime } from "@/lib/admin/format";
 import * as api from "@/lib/admin/social";
-import type { PostStatus, SocialPost } from "@/lib/admin/social";
+import type { PostReview, PostStatus, SocialPost } from "@/lib/admin/social";
 import {
   BRAND_BY_ID,
   PLATFORMS,
@@ -81,6 +81,30 @@ export function DraftsTab({
   );
 }
 
+/** L'avis de l'arbitre : la note, le verdict, et ce qu'il reprochait
+ * encore à la version retenue. */
+function ReviewNote({ review }: { review: PostReview }) {
+  return (
+    <details className="mt-2 text-sm">
+      <summary className="cursor-pointer text-muted">
+        Arbitre :{" "}
+        <span className="font-semibold text-foreground">
+          {review.score.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}/10
+        </span>
+        {review.rounds > 0 && ` · ${review.rounds} réécriture${review.rounds > 1 ? "s" : ""}`}
+      </summary>
+      <p className="mt-1 text-muted">{review.verdict}</p>
+      {review.fixes.length > 0 && (
+        <ul className="mt-1 list-disc pl-5 text-muted">
+          {review.fixes.map((fix) => (
+            <li key={fix}>{fix}</li>
+          ))}
+        </ul>
+      )}
+    </details>
+  );
+}
+
 function DraftCard({
   post,
   onChange,
@@ -119,6 +143,7 @@ function DraftCard({
           </p>
           <p className="mt-1 font-medium">{post.topic}</p>
           <p className="text-sm text-muted">{post.angle}</p>
+          {post.review && <ReviewNote review={post.review} />}
         </div>
         {mode === "view" && post.status !== "redrafting" && (
           <div className="flex flex-wrap gap-2">

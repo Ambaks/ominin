@@ -6,6 +6,15 @@ import type { Allergen, Badge, DishTag, MenuItem, OptionGroup } from "@/lib/menu
  * d'un prix formaté ne télécharge pas toutes les cartes de démonstration.
  */
 
+/**
+ * Où le client règle et retire sa commande — le comptoir, ou le bar au
+ * retrait au bar —, et où elle part une fois réglée.
+ */
+export const counterWords = (bar: boolean) =>
+  bar
+    ? { place: "bar", preparation: "en\u00a0préparation" }
+    : { place: "comptoir", preparation: "en\u00a0cuisine" };
+
 /** La carte de démonstration d'Ominin (landing, démo Collect, espace de test). */
 export const DEMO_SLUG = "trattoria-lucia";
 
@@ -132,3 +141,16 @@ export function addVerb(item: MenuItem): "Composer" | "Choisir" | "Ajouter" {
 export function formatPrice(price: number): string {
   return `${price.toFixed(2).replace(".", ",")}\u00a0€`;
 }
+
+/** Les prix de tous les formats sur une ligne, « Verre 7,00 € · Bouteille 28,00 € » ; insécables, un format ne se sépare ni de son unité ni de son prix. */
+export const formatsLine = (prices: readonly (readonly [label: string, price: number])[]) =>
+  prices.map(([label, price]) => `${label} ${formatPrice(price)}`.replace(/ /g, "\u00a0")).join(" · ");
+
+/**
+ * La ligne des formats d'un article de la base, qui n'en porte pas (le
+ * registre l'écrit à la main, `tarifs`) : relue sur le prix du moment.
+ */
+export const itemFormatsLine = (item: MenuItem) => {
+  const formats = item.options?.find((group) => group.formats);
+  return formats && formatsLine(formats.choices.map((choice) => [choice.name, item.price + choice.supplement]));
+};

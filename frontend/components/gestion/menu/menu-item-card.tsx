@@ -13,7 +13,7 @@ import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Printer } from "@/lib/gestion/terminaux";
-import { BADGE_LABELS, formatPrice } from "@/lib/menu/format";
+import { allergenLine, BADGE_LABELS, formatPrice } from "@/lib/menu/format";
 import {
   hasBlockedRequiredGroup,
   isChoiceAvailable,
@@ -22,6 +22,7 @@ import {
 
 export function MenuItemCard({
   item,
+  drink = false,
   printers = [],
   printerId = null,
   canRoute = false,
@@ -35,6 +36,8 @@ export function MenuItemCard({
   onPrinterChange,
 }: {
   item: MenuItem;
+  /** Rangé dans une catégorie de boissons : le menu n'en montre pas les allergènes. */
+  drink?: boolean;
   printers?: Printer[];
   printerId?: string | null;
   canRoute?: boolean;
@@ -123,6 +126,17 @@ export function MenuItemCard({
         {item.description && (
           <p className="line-clamp-2 text-xs leading-relaxed text-muted">
             {item.description}
+          </p>
+        )}
+
+        {/* Ce qui manque encore se voit : sans allergènes, le menu renvoie le client à l'équipe. */}
+        {!drink && (
+          <p className={`text-xs ${item.allergens === undefined ? "text-ember-2" : "text-faint"}`}>
+            {item.allergens === undefined
+              ? "Allergènes non renseignés"
+              : item.allergens.length === 0
+                ? "Aucun allergène"
+                : allergenLine(item.allergens)}
           </p>
         )}
 

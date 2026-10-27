@@ -32,9 +32,7 @@ const notoSansKr = Noto_Sans_KR({
  */
 const notoSansMath = Noto_Sans_Math({
   variable: "--font-pitch-symbols",
-  subsets: ["math"],
   weight: "400",
-  preload: false,
 });
 
 export const baiKoFonts = [dmSans, bebasNeue, notoSansKr, notoSansMath].map((font) => font.variable).join(" ");

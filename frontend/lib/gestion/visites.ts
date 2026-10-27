@@ -191,7 +191,7 @@ const VISITES: Record<string, Visite> = {
         target: "commandes-fermetures",
         title: "Fermer d’un geste",
         body: (state) =>
-          `Quand la cuisine s’arrête, fermez ici ce qu’elle ne sert plus : vos clients le voient « Plus servi ». Une table arrive tard ? Rouvrez ; sinon tout rouvre seul à ${dayEndLabel(state.dayEndHour)}.`,
+          `Quand la cuisine s’arrête, fermez ici ce qu’elle ne sert plus : vos clients le voient « Plus servi ». Une table arrive tard ? Rouvrez ; sinon tout rouvre seul à l’heure prévue, au plus tard à ${dayEndLabel(state.dayEndHour)}.`,
       },
       {
         target: "commandes-etapes",
@@ -322,7 +322,7 @@ const VISITES: Record<string, Visite> = {
         target: "etablissement-fermetures",
         when: avecCommandes,
         title: "Fermer la cuisine",
-        body: "Choisissez ce qui n’est plus servi — les plats, le bar — à partir de quelle heure et quels jours. Pendant le service, Commandes a un bouton pour fermer ou rouvrir d’un geste ; tout rouvre seul à la fin de la journée.",
+        body: "Choisissez ce qui n’est plus servi — les plats, le bar — à quelles heures et quels jours. Pendant le service, Commandes a un bouton pour fermer ou rouvrir d’un geste ; l’horaire reprend la main à son prochain changement.",
       },
       {
         target: "etablissement-paiement",

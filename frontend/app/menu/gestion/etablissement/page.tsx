@@ -10,6 +10,7 @@ import { fetchHubriseStatus, HubriseSettings } from "@/components/gestion/hubris
 import { hoursProblem, OpeningHoursEditor } from "@/components/gestion/opening-hours-editor";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
+import { CategoryLayoutSettings } from "@/components/gestion/category-layout-settings";
 import { ServiceModeSettings } from "@/components/gestion/service-mode-settings";
 import { TabletSettings } from "@/components/gestion/tablet-settings";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -214,9 +215,15 @@ export default function EtablissementPage() {
           {hasFeature("commandes") && state.etablissement.offre !== null && (
             <ServiceModeSettings
               initialMode={state.etablissement.serviceMode}
+              initialShowTable={state.etablissement.showTableNumber}
+              initialBarPickup={state.etablissement.barPickup}
               slug={state.etablissement.slug}
               resetHour={state.orderNumberResetHour}
             />
+          )}
+          {/* Sans offre Menu, pas de menu QR à présenter. */}
+          {state.etablissement.offre !== null && (
+            <CategoryLayoutSettings initialLayout={state.etablissement.categoryLayout} />
           )}
           {hasFeature("commandes") && (
             <FermeturesSettings

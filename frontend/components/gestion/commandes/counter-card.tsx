@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CounterLines } from "@/components/gestion/commandes/counter-lines";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import {
@@ -13,7 +14,6 @@ import { earlierNumberingDay } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatWait, minutesSince } from "@/lib/gestion/use-now";
-import { formatPrice } from "@/lib/menu/format";
 
 /*
  * Une commande fast food dans l'onglet À servir : son numéro, en grand — c'est
@@ -26,14 +26,14 @@ import { formatPrice } from "@/lib/menu/format";
  * (en-tête en dégradé, comme le ticket du client quand sa commande est
  * prête), celle en préparation reste sobre. Le temps écoulé depuis la
  * commande dit qui attend depuis le plus longtemps ; le contenu se lit en
- * clair pour vérifier le sac, et une quantité au-delà de 1 ressort. Les
- * lignes ont leur rendu à elles : celui de l'addition (order-line) reste
- * dense.
+ * clair pour vérifier le sac (CounterLines, partagé avec le scan du retrait
+ * au bar) — celui de l'addition (order-line) reste dense.
  */
 export function CounterCard({
   order,
   now,
   resetHour,
+  table,
   readOnly = false,
   setStatus = api.updateOrderStatus,
 }: {
@@ -44,6 +44,8 @@ export function CounterCard({
   now: Date;
   /** Heure où les numéros repartent de 1 ; inconnue, pas de jour affiché. */
   resetHour: number | null;
+  /** Table du QR, quand le gérant l'affiche à côté du numéro. */
+  table?: number;
   /** Vue cuisine : la file du comptoir, sans ses gestes. */
   readOnly?: boolean;
   /** Démonstration : le geste reste dans l'onglet au lieu d'écrire en base. */
@@ -134,6 +136,16 @@ export function CounterCard({
               {order.orderNumber}
             </span>
           </span>
+          {/* Le numéro reste ce qu'on appelle : la table se lit en second. */}
+          {table !== undefined && (
+            <span
+              className={`mt-1 text-sm font-semibold tabular-nums ${
+                ready ? "text-background/75" : "text-muted"
+              }`}
+            >
+              Table {table}
+            </span>
+          )}
         </h3>
         {/* Attente en haut, heure calée sur le bas du numéro. */}
         <p className="flex flex-col items-end justify-between gap-1.5 self-stretch text-right tabular-nums">
@@ -156,45 +168,7 @@ export function CounterCard({
         </p>
       </div>
 
-      <ul className="flex flex-1 flex-col gap-2 border-t border-hairline px-5 pt-3">
-        {order.items.map((line) => (
-          // Quantités en pastilles de même largeur, sur le bord de la carte :
-          // noms et options partent tous du même bord.
-          <li key={line.id} className="grid grid-cols-[2.25rem_1fr] gap-x-2">
-            <span
-              className={`self-start rounded-md text-center text-base leading-snug tabular-nums ${
-                line.quantity > 1
-                  ? "bg-ember-1/15 font-semibold text-ember-1"
-                  : "bg-surface-raised text-muted"
-              }`}
-            >
-              {line.quantity}×
-            </span>
-            <div className="flex flex-col">
-              <p className="text-base leading-snug">
-                {line.name}
-                {line.loyaltyPoints && (
-                  <span className="ml-1.5 whitespace-nowrap rounded-full border border-ember-2/40 px-1.5 py-px text-[10px] font-semibold text-ember-1">
-                    Offert · {line.loyaltyPoints * line.quantity} pts
-                  </span>
-                )}
-              </p>
-              {line.options?.map((option, index) => (
-                <p key={index} className="text-sm text-muted">
-                  {option.groupName}
-                  {"\u00a0: "}
-                  {/* Le choix et son supplément d'un bloc : passé à la ligne entier, pas
-                      coupé au milieu (« Frites / épicées »), le supplément jamais seul. */}
-                  <span className="inline-block max-w-full">
-                    <span className="text-foreground">{option.choiceName}</span>
-                    {option.supplement > 0 && `\u00a0(+${formatPrice(option.supplement)})`}
-                  </span>
-                </p>
-              ))}
-            </div>
-          </li>
-        ))}
-      </ul>
+      <CounterLines items={order.items} className="flex-1 pt-3" />
 
       {actionable && (
         <div className="mt-3 flex items-center gap-5 px-5">

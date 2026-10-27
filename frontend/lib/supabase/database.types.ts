@@ -169,6 +169,924 @@ export type Database = {
           },
         ]
       }
+      agents_discovery_queries: {
+        Row: {
+          created_at: string
+          id: string
+          last_run_at: string | null
+          query: string
+          retired: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          query: string
+          retired?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_run_at?: string | null
+          query?: string
+          retired?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agents_emails: {
+        Row: {
+          approved_at: string | null
+          body_text: string | null
+          classification:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at: string
+          direction: Database["public"]["Enums"]["outreach_email_direction"]
+          error: string | null
+          from_email: string | null
+          gmail_message_id: string | null
+          gmail_thread_id: string | null
+          id: string
+          in_reply_to: string | null
+          kind: string
+          metadata: Json
+          prospect_id: string
+          received_at: string | null
+          sent_at: string | null
+          status: Database["public"]["Enums"]["outreach_email_status"]
+          subject: string | null
+          to_email: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          body_text?: string | null
+          classification?:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at?: string
+          direction: Database["public"]["Enums"]["outreach_email_direction"]
+          error?: string | null
+          from_email?: string | null
+          gmail_message_id?: string | null
+          gmail_thread_id?: string | null
+          id?: string
+          in_reply_to?: string | null
+          kind?: string
+          metadata?: Json
+          prospect_id: string
+          received_at?: string | null
+          sent_at?: string | null
+          status: Database["public"]["Enums"]["outreach_email_status"]
+          subject?: string | null
+          to_email?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          body_text?: string | null
+          classification?:
+            | Database["public"]["Enums"]["outreach_classification"]
+            | null
+          created_at?: string
+          direction?: Database["public"]["Enums"]["outreach_email_direction"]
+          error?: string | null
+          from_email?: string | null
+          gmail_message_id?: string | null
+          gmail_thread_id?: string | null
+          id?: string
+          in_reply_to?: string | null
+          kind?: string
+          metadata?: Json
+          prospect_id?: string
+          received_at?: string | null
+          sent_at?: string | null
+          status?: Database["public"]["Enums"]["outreach_email_status"]
+          subject?: string | null
+          to_email?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_emails_in_reply_to_fkey"
+            columns: ["in_reply_to"]
+            isOneToOne: false
+            referencedRelation: "agents_emails"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agents_emails_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "agents_prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      agents_mailbox_tokens: {
+        Row: {
+          refresh_token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          refresh_token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          refresh_token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_mailbox_tokens_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "agents_mailboxes"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      agents_mailboxes: {
+        Row: {
+          connected_at: string
+          email: string
+          error: string | null
+          history_id: string | null
+          user_id: string
+        }
+        Insert: {
+          connected_at?: string
+          email: string
+          error?: string | null
+          history_id?: string | null
+          user_id: string
+        }
+        Update: {
+          connected_at?: string
+          email?: string
+          error?: string | null
+          history_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      agents_places_usage: {
+        Row: {
+          calls: number
+          month: string
+        }
+        Insert: {
+          calls?: number
+          month: string
+        }
+        Update: {
+          calls?: number
+          month?: string
+        }
+        Relationships: []
+      }
+      agents_profiles: {
+        Row: {
+          activated_at: string | null
+          call_to_action: string
+          cities: string[]
+          company_name: string
+          created_at: string
+          daily_limit: number
+          enabled: boolean
+          last_error: string | null
+          last_run_at: string | null
+          last_run_stats: Json | null
+          mode: string
+          offer: string
+          phone: string
+          reply_notes: string
+          send_days: number[]
+          send_end_hour: number
+          send_start_hour: number
+          sender_name: string
+          sender_role: string
+          strengths: string
+          targets: string[]
+          updated_at: string
+          user_id: string
+          website: string
+        }
+        Insert: {
+          activated_at?: string | null
+          call_to_action?: string
+          cities?: string[]
+          company_name?: string
+          created_at?: string
+          daily_limit?: number
+          enabled?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_run_stats?: Json | null
+          mode?: string
+          offer?: string
+          phone?: string
+          reply_notes?: string
+          send_days?: number[]
+          send_end_hour?: number
+          send_start_hour?: number
+          sender_name?: string
+          sender_role?: string
+          strengths?: string
+          targets?: string[]
+          updated_at?: string
+          user_id: string
+          website?: string
+        }
+        Update: {
+          activated_at?: string | null
+          call_to_action?: string
+          cities?: string[]
+          company_name?: string
+          created_at?: string
+          daily_limit?: number
+          enabled?: boolean
+          last_error?: string | null
+          last_run_at?: string | null
+          last_run_stats?: Json | null
+          mode?: string
+          offer?: string
+          phone?: string
+          reply_notes?: string
+          send_days?: number[]
+          send_end_hour?: number
+          send_start_hour?: number
+          sender_name?: string
+          sender_role?: string
+          strengths?: string
+          targets?: string[]
+          updated_at?: string
+          user_id?: string
+          website?: string
+        }
+        Relationships: []
+      }
+      agents_prospects: {
+        Row: {
+          address: string | null
+          ai_notes: string | null
+          category: string
+          city: string | null
+          created_at: string
+          disqualify_reason: string | null
+          email: string | null
+          enriched_at: string | null
+          google_maps_url: string | null
+          id: string
+          name: string
+          phone: string | null
+          place_id: string
+          status: string
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          address?: string | null
+          ai_notes?: string | null
+          category: string
+          city?: string | null
+          created_at?: string
+          disqualify_reason?: string | null
+          email?: string | null
+          enriched_at?: string | null
+          google_maps_url?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          place_id: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          address?: string | null
+          ai_notes?: string | null
+          category?: string
+          city?: string | null
+          created_at?: string
+          disqualify_reason?: string | null
+          email?: string | null
+          enriched_at?: string | null
+          google_maps_url?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          place_id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
+      agents_suppressions: {
+        Row: {
+          created_at: string
+          email: string
+          prospect_id: string | null
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          prospect_id?: string | null
+          reason: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          prospect_id?: string | null
+          reason?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agents_suppressions_prospect_id_fkey"
+            columns: ["prospect_id"]
+            isOneToOne: false
+            referencedRelation: "agents_prospects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulle_creneaux: {
+        Row: {
+          etablissement_id: string
+          id: string
+          start_minutes: number
+          weekday: number
+        }
+        Insert: {
+          etablissement_id: string
+          id?: string
+          start_minutes: number
+          weekday: number
+        }
+        Update: {
+          etablissement_id?: string
+          id?: string
+          start_minutes?: number
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_creneaux_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulle_parts: {
+        Row: {
+          amount_cents: number
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          hold_expires_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["bulle_part_method"]
+          name: string
+          organiser: boolean
+          paid_at: string | null
+          phone: string | null
+          places: number
+          refunded_at: string | null
+          reservation_id: string
+          square_idempotency_key: string | null
+          square_order_id: string | null
+          square_payment_id: string | null
+          square_refund_id: string | null
+          status: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        Insert: {
+          amount_cents: number
+          created_at?: string
+          email?: string | null
+          etablissement_id: string
+          hold_expires_at?: string | null
+          id?: string
+          method: Database["public"]["Enums"]["bulle_part_method"]
+          name: string
+          organiser?: boolean
+          paid_at?: string | null
+          phone?: string | null
+          places: number
+          refunded_at?: string | null
+          reservation_id: string
+          square_idempotency_key?: string | null
+          square_order_id?: string | null
+          square_payment_id?: string | null
+          square_refund_id?: string | null
+          status?: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        Update: {
+          amount_cents?: number
+          created_at?: string
+          email?: string | null
+          etablissement_id?: string
+          hold_expires_at?: string | null
+          id?: string
+          method?: Database["public"]["Enums"]["bulle_part_method"]
+          name?: string
+          organiser?: boolean
+          paid_at?: string | null
+          phone?: string | null
+          places?: number
+          refunded_at?: string | null
+          reservation_id?: string
+          square_idempotency_key?: string | null
+          square_order_id?: string | null
+          square_payment_id?: string | null
+          square_refund_id?: string | null
+          status?: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_parts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bulle_parts_reservation_id_fkey"
+            columns: ["reservation_id"]
+            isOneToOne: false
+            referencedRelation: "bulle_reservations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulle_reglages: {
+        Row: {
+          booking_days: number
+          duration_minutes: number
+          etablissement_id: string
+          max_party: number
+          min_party: number
+          place_cents: number
+          vat_rate: number
+        }
+        Insert: {
+          booking_days: number
+          duration_minutes: number
+          etablissement_id: string
+          max_party: number
+          min_party: number
+          place_cents: number
+          vat_rate?: number
+        }
+        Update: {
+          booking_days?: number
+          duration_minutes?: number
+          etablissement_id?: string
+          max_party?: number
+          min_party?: number
+          place_cents?: number
+          vat_rate?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_reglages_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulle_reservations: {
+        Row: {
+          arrived_at: string | null
+          bulle_id: string
+          closed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          email: string | null
+          ends_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          note: string | null
+          party_size: number
+          phone: string | null
+          place_cents: number
+          places_paid: number
+          share_token: string
+          source: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at: string
+          status: Database["public"]["Enums"]["bulle_reservation_status"]
+          token: string
+        }
+        Insert: {
+          arrived_at?: string | null
+          bulle_id: string
+          closed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string | null
+          ends_at: string
+          etablissement_id: string
+          id?: string
+          name: string
+          note?: string | null
+          party_size: number
+          phone?: string | null
+          place_cents: number
+          places_paid?: number
+          share_token?: string
+          source: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at: string
+          status?: Database["public"]["Enums"]["bulle_reservation_status"]
+          token?: string
+        }
+        Update: {
+          arrived_at?: string | null
+          bulle_id?: string
+          closed_at?: string | null
+          confirmed_at?: string | null
+          created_at?: string
+          email?: string | null
+          ends_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          note?: string | null
+          party_size?: number
+          phone?: string | null
+          place_cents?: number
+          places_paid?: number
+          share_token?: string
+          source?: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at?: string
+          status?: Database["public"]["Enums"]["bulle_reservation_status"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulle_reservations_bulle_id_fkey"
+            columns: ["bulle_id"]
+            isOneToOne: false
+            referencedRelation: "bulles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bulle_reservations_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bulles: {
+        Row: {
+          active: boolean
+          color: string
+          created_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          sort: number
+          table_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          color: string
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          name: string
+          sort?: number
+          table_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          color?: string
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          sort?: number
+          table_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bulles_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bulles_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: true
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      call_throttle: {
+        Row: {
+          called_at: string
+          table_id: string
+        }
+        Insert: {
+          called_at?: string
+          table_id: string
+        }
+        Update: {
+          called_at?: string
+          table_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_throttle_table_id_fkey"
+            columns: ["table_id"]
+            isOneToOne: true
+            referencedRelation: "tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          position: number
+          tagline: string | null
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          name: string
+          position: number
+          tagline?: string | null
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          position?: number
+          tagline?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_caisse: {
+        Row: {
+          name: string
+          projet_client_id: string
+        }
+        Insert: {
+          name: string
+          projet_client_id: string
+        }
+        Update: {
+          name?: string
+          projet_client_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_caisse_projet_client_id_fkey"
+            columns: ["projet_client_id"]
+            isOneToOne: true
+            referencedRelation: "projet_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      client_materiel: {
+        Row: {
+          item: string
+          projet_client_id: string
+          quantity: number
+        }
+        Insert: {
+          item: string
+          projet_client_id: string
+          quantity: number
+        }
+        Update: {
+          item?: string
+          projet_client_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "client_materiel_projet_client_id_fkey"
+            columns: ["projet_client_id"]
+            isOneToOne: false
+            referencedRelation: "projet_clients"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clip_posts: {
+        Row: {
+          attempt: number
+          captions: Json
+          created_at: string
+          id: string
+          platforms: string[]
+          provider_request_id: string | null
+          published_at: string | null
+          results: Json | null
+          status: Database["public"]["Enums"]["clip_post_status"]
+          storage_path: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          attempt?: number
+          captions: Json
+          created_at?: string
+          id?: string
+          platforms: string[]
+          provider_request_id?: string | null
+          published_at?: string | null
+          results?: Json | null
+          status?: Database["public"]["Enums"]["clip_post_status"]
+          storage_path?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          attempt?: number
+          captions?: Json
+          created_at?: string
+          id?: string
+          platforms?: string[]
+          provider_request_id?: string | null
+          published_at?: string | null
+          results?: Json | null
+          status?: Database["public"]["Enums"]["clip_post_status"]
+          storage_path?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      clip_profiles: {
+        Row: {
+          created_at: string
+          provider_username: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          provider_username: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          provider_username?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      closure_targets: {
+        Row: {
+          category_id: string | null
+          closure_id: string
+          item_id: string | null
+        }
+        Insert: {
+          category_id?: string | null
+          closure_id: string
+          item_id?: string | null
+        }
+        Update: {
+          category_id?: string | null
+          closure_id?: string
+          item_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closure_targets_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "closure_targets_closure_id_fkey"
+            columns: ["closure_id"]
+            isOneToOne: false
+            referencedRelation: "closures"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "closure_targets_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      closure_windows: {
+        Row: {
+          closure_id: string
+          days: number[]
+          ends_at: string | null
+          id: string
+          starts_at: string
+        }
+        Insert: {
+          closure_id: string
+          days: number[]
+          ends_at?: string | null
+          id?: string
+          starts_at: string
+        }
+        Update: {
+          closure_id?: string
+          days?: number[]
+          ends_at?: string | null
+          id?: string
+          starts_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closure_windows_closure_id_fkey"
+            columns: ["closure_id"]
+            isOneToOne: false
+            referencedRelation: "closures"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      closures: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          open_windows: boolean
+          override_closed: boolean | null
+          override_until: string | null
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          id?: string
+          name: string
+          open_windows?: boolean
+          override_closed?: boolean | null
+          override_until?: string | null
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          id?: string
+          name?: string
+          open_windows?: boolean
+          override_closed?: boolean | null
+          override_until?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "closures_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_bookings: {
         Row: {
           arrived_at: string | null
@@ -618,643 +1536,632 @@ export type Database = {
           },
         ]
       }
-      payment_pins: {
+      commercial_clients: {
         Row: {
-          etablissement_id: string
-          pin_hash: string
-          updated_at: string
+          alert: string | null
+          commission_from: string | null
+          created_at: string
+          declaration_id: string
+          ended_at: string | null
+          etablissement_id: string | null
+          id: string
+          shop_id: string | null
+          validated_at: string | null
         }
         Insert: {
-          etablissement_id: string
-          pin_hash: string
-          updated_at?: string
+          alert?: string | null
+          commission_from?: string | null
+          created_at?: string
+          declaration_id: string
+          ended_at?: string | null
+          etablissement_id?: string | null
+          id?: string
+          shop_id?: string | null
+          validated_at?: string | null
         }
         Update: {
-          etablissement_id?: string
-          pin_hash?: string
-          updated_at?: string
+          alert?: string | null
+          commission_from?: string | null
+          created_at?: string
+          declaration_id?: string
+          ended_at?: string | null
+          etablissement_id?: string | null
+          id?: string
+          shop_id?: string | null
+          validated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "payment_pins_etablissement_id_fkey"
+            foreignKeyName: "commercial_clients_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_clients_etablissement_id_fkey"
             columns: ["etablissement_id"]
-            isOneToOne: true
+            isOneToOne: false
             referencedRelation: "etablissements"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "commercial_clients_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      agents_discovery_queries: {
+      commercial_declarations: {
+        Row: {
+          admin_notified_at: string | null
+          channel: string
+          client_alert: string | null
+          commercial_id: string
+          confirm_deadline: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          contact_id: string | null
+          contract_version_id: string | null
+          created_at: string
+          decision_document: string | null
+          decision_note: string | null
+          declared_at: string
+          end_reason:
+            | Database["public"]["Enums"]["commercial_end_reason"]
+            | null
+          ended_at: string | null
+          id: string
+          reassigned_from: string | null
+          refusal_reason:
+            | Database["public"]["Enums"]["commercial_refusal_reason"]
+            | null
+          reserved_until: string | null
+          restaurant_id: string
+          retained: Json
+          retained_updated_at: string | null
+          signup_product: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at: string | null
+          signup_token_hash: string | null
+          signup_user_id: string | null
+          status: Database["public"]["Enums"]["commercial_declaration_status"]
+          step_done_at: Json
+        }
+        Insert: {
+          admin_notified_at?: string | null
+          channel?: string
+          client_alert?: string | null
+          commercial_id: string
+          confirm_deadline?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          contact_id?: string | null
+          contract_version_id?: string | null
+          created_at?: string
+          decision_document?: string | null
+          decision_note?: string | null
+          declared_at?: string
+          end_reason?:
+            | Database["public"]["Enums"]["commercial_end_reason"]
+            | null
+          ended_at?: string | null
+          id?: string
+          reassigned_from?: string | null
+          refusal_reason?:
+            | Database["public"]["Enums"]["commercial_refusal_reason"]
+            | null
+          reserved_until?: string | null
+          restaurant_id: string
+          retained?: Json
+          retained_updated_at?: string | null
+          signup_product?: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at?: string | null
+          signup_token_hash?: string | null
+          signup_user_id?: string | null
+          status: Database["public"]["Enums"]["commercial_declaration_status"]
+          step_done_at?: Json
+        }
+        Update: {
+          admin_notified_at?: string | null
+          channel?: string
+          client_alert?: string | null
+          commercial_id?: string
+          confirm_deadline?: string | null
+          confirmed_at?: string | null
+          confirmed_by?: string | null
+          contact_id?: string | null
+          contract_version_id?: string | null
+          created_at?: string
+          decision_document?: string | null
+          decision_note?: string | null
+          declared_at?: string
+          end_reason?:
+            | Database["public"]["Enums"]["commercial_end_reason"]
+            | null
+          ended_at?: string | null
+          id?: string
+          reassigned_from?: string | null
+          refusal_reason?:
+            | Database["public"]["Enums"]["commercial_refusal_reason"]
+            | null
+          reserved_until?: string | null
+          restaurant_id?: string
+          retained?: Json
+          retained_updated_at?: string | null
+          signup_product?: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at?: string | null
+          signup_token_hash?: string | null
+          signup_user_id?: string | null
+          status?: Database["public"]["Enums"]["commercial_declaration_status"]
+          step_done_at?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_declarations_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_declarations_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "crm_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_declarations_contract_version_id_fkey"
+            columns: ["contract_version_id"]
+            isOneToOne: false
+            referencedRelation: "legal_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_declarations_reassigned_from_fkey"
+            columns: ["reassigned_from"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_declarations_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_demo_requests: {
         Row: {
           created_at: string
+          declaration_id: string
+          demo_url: string | null
+          done_at: string | null
           id: string
-          last_run_at: string | null
-          query: string
-          retired: boolean
-          user_id: string
+          note: string | null
+          photos: string[]
+          status: string
         }
         Insert: {
           created_at?: string
+          declaration_id: string
+          demo_url?: string | null
+          done_at?: string | null
           id?: string
-          last_run_at?: string | null
-          query: string
-          retired?: boolean
-          user_id: string
+          note?: string | null
+          photos?: string[]
+          status?: string
         }
         Update: {
           created_at?: string
+          declaration_id?: string
+          demo_url?: string | null
+          done_at?: string | null
           id?: string
-          last_run_at?: string | null
-          query?: string
-          retired?: boolean
-          user_id?: string
+          note?: string | null
+          photos?: string[]
+          status?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "commercial_demo_requests_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
-      agents_emails: {
+      commercial_documents: {
         Row: {
-          approved_at: string | null
-          body_text: string | null
-          classification:
-            | Database["public"]["Enums"]["outreach_classification"]
-            | null
-          created_at: string
-          direction: Database["public"]["Enums"]["outreach_email_direction"]
-          error: string | null
-          from_email: string | null
-          gmail_message_id: string | null
-          gmail_thread_id: string | null
+          commercial_id: string
           id: string
-          in_reply_to: string | null
           kind: string
-          metadata: Json
-          prospect_id: string
-          received_at: string | null
-          sent_at: string | null
-          status: Database["public"]["Enums"]["outreach_email_status"]
-          subject: string | null
-          to_email: string | null
-          updated_at: string
-          user_id: string
+          path: string
+          uploaded_at: string
         }
         Insert: {
-          approved_at?: string | null
-          body_text?: string | null
-          classification?:
-            | Database["public"]["Enums"]["outreach_classification"]
-            | null
-          created_at?: string
-          direction: Database["public"]["Enums"]["outreach_email_direction"]
-          error?: string | null
-          from_email?: string | null
-          gmail_message_id?: string | null
-          gmail_thread_id?: string | null
+          commercial_id: string
           id?: string
-          in_reply_to?: string | null
-          kind?: string
-          metadata?: Json
-          prospect_id: string
-          received_at?: string | null
-          sent_at?: string | null
-          status: Database["public"]["Enums"]["outreach_email_status"]
-          subject?: string | null
-          to_email?: string | null
-          updated_at?: string
-          user_id: string
+          kind: string
+          path: string
+          uploaded_at?: string
         }
         Update: {
-          approved_at?: string | null
-          body_text?: string | null
-          classification?:
-            | Database["public"]["Enums"]["outreach_classification"]
-            | null
-          created_at?: string
-          direction?: Database["public"]["Enums"]["outreach_email_direction"]
-          error?: string | null
-          from_email?: string | null
-          gmail_message_id?: string | null
-          gmail_thread_id?: string | null
+          commercial_id?: string
           id?: string
-          in_reply_to?: string | null
           kind?: string
-          metadata?: Json
-          prospect_id?: string
-          received_at?: string | null
-          sent_at?: string | null
-          status?: Database["public"]["Enums"]["outreach_email_status"]
-          subject?: string | null
-          to_email?: string | null
-          updated_at?: string
-          user_id?: string
+          path?: string
+          uploaded_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "agents_emails_in_reply_to_fkey"
-            columns: ["in_reply_to"]
+            foreignKeyName: "commercial_documents_commercial_id_fkey"
+            columns: ["commercial_id"]
             isOneToOne: false
-            referencedRelation: "agents_emails"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "agents_emails_prospect_id_fkey"
-            columns: ["prospect_id"]
-            isOneToOne: false
-            referencedRelation: "agents_prospects"
+            referencedRelation: "commerciaux"
             referencedColumns: ["id"]
           },
         ]
       }
-      agents_mailbox_tokens: {
+      commercial_emails: {
         Row: {
-          refresh_token: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          refresh_token: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          refresh_token?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "agents_mailbox_tokens_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "agents_mailboxes"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      agents_mailboxes: {
-        Row: {
-          connected_at: string
-          email: string
-          error: string | null
-          history_id: string | null
-          user_id: string
-        }
-        Insert: {
-          connected_at?: string
-          email: string
-          error?: string | null
-          history_id?: string | null
-          user_id: string
-        }
-        Update: {
-          connected_at?: string
-          email?: string
-          error?: string | null
-          history_id?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      agents_places_usage: {
-        Row: {
-          calls: number
-          month: string
-        }
-        Insert: {
-          calls?: number
-          month: string
-        }
-        Update: {
-          calls?: number
-          month?: string
-        }
-        Relationships: []
-      }
-      agents_profiles: {
-        Row: {
-          activated_at: string | null
-          call_to_action: string
-          cities: string[]
-          company_name: string
+          commercial_id: string
           created_at: string
-          daily_limit: number
-          enabled: boolean
+          declaration_id: string | null
+          detail: string | null
+          gmail_message_id: string | null
+          id: string
+          kind: string
           last_error: string | null
-          last_run_at: string | null
-          last_run_stats: Json | null
-          mode: string
-          offer: string
-          phone: string
-          reply_notes: string
-          send_days: number[]
-          send_end_hour: number
-          send_start_hour: number
-          sender_name: string
-          sender_role: string
-          strengths: string
-          targets: string[]
-          updated_at: string
-          user_id: string
-          website: string
+          sent_at: string | null
+          statement_id: string | null
         }
         Insert: {
-          activated_at?: string | null
-          call_to_action?: string
-          cities?: string[]
-          company_name?: string
+          commercial_id: string
           created_at?: string
-          daily_limit?: number
-          enabled?: boolean
+          declaration_id?: string | null
+          detail?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          kind: string
           last_error?: string | null
-          last_run_at?: string | null
-          last_run_stats?: Json | null
-          mode?: string
-          offer?: string
-          phone?: string
-          reply_notes?: string
-          send_days?: number[]
-          send_end_hour?: number
-          send_start_hour?: number
-          sender_name?: string
-          sender_role?: string
-          strengths?: string
-          targets?: string[]
-          updated_at?: string
-          user_id: string
-          website?: string
+          sent_at?: string | null
+          statement_id?: string | null
         }
         Update: {
-          activated_at?: string | null
-          call_to_action?: string
-          cities?: string[]
-          company_name?: string
+          commercial_id?: string
           created_at?: string
-          daily_limit?: number
-          enabled?: boolean
+          declaration_id?: string | null
+          detail?: string | null
+          gmail_message_id?: string | null
+          id?: string
+          kind?: string
           last_error?: string | null
-          last_run_at?: string | null
-          last_run_stats?: Json | null
-          mode?: string
-          offer?: string
-          phone?: string
-          reply_notes?: string
-          send_days?: number[]
-          send_end_hour?: number
-          send_start_hour?: number
-          sender_name?: string
-          sender_role?: string
-          strengths?: string
-          targets?: string[]
+          sent_at?: string | null
+          statement_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_emails_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_emails_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_emails_statement_id_fkey"
+            columns: ["statement_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_statements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_push_subscriptions: {
+        Row: {
+          auth: string
+          commercial_id: string
+          created_at: string
+          endpoint: string
+          id: string
+          p256dh: string
+        }
+        Insert: {
+          auth: string
+          commercial_id: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          p256dh: string
+        }
+        Update: {
+          auth?: string
+          commercial_id?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          p256dh?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_push_subscriptions_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_quota_usage: {
+        Row: {
+          commercial_id: string
+          day: string
+          places: number
+          searches: number
+        }
+        Insert: {
+          commercial_id: string
+          day: string
+          places?: number
+          searches?: number
+        }
+        Update: {
+          commercial_id?: string
+          day?: string
+          places?: number
+          searches?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_quota_usage_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_settings: {
+        Row: {
+          club_fees_included: boolean | null
+          commission_percent: number
+          confirm_days: number
+          contest_months: number
+          cooldown_days: number | null
+          declaration_cap: number | null
+          detail_interval_months: number
+          detail_response_days: number
+          eligible_stripe_prices: string[]
+          expiry_warning_days: number | null
+          final_statement_days: number
+          followup_days: number[] | null
+          id: boolean
+          in_talks_days: number | null
+          kit_demo_slugs: string[]
+          name_similarity: number | null
+          nearby_radius_m: number | null
+          notice_months: number
+          option_reminder_days: number | null
+          option_years: number
+          payment_days: number
+          places_daily_quota: number | null
+          retained_note_max_chars: number | null
+          search_daily_quota: number | null
+          search_max_results: number | null
+          sign_window_months: number
+          signup_link_days: number | null
+          statement_before_day: number
+          term_months: number
+          updated_at: string
+          urssaf_interval_months: number
+          urssaf_threshold_cents: number
+        }
+        Insert: {
+          club_fees_included?: boolean | null
+          commission_percent: number
+          confirm_days: number
+          contest_months: number
+          cooldown_days?: number | null
+          declaration_cap?: number | null
+          detail_interval_months: number
+          detail_response_days: number
+          eligible_stripe_prices?: string[]
+          expiry_warning_days?: number | null
+          final_statement_days: number
+          followup_days?: number[] | null
+          id?: boolean
+          in_talks_days?: number | null
+          kit_demo_slugs?: string[]
+          name_similarity?: number | null
+          nearby_radius_m?: number | null
+          notice_months: number
+          option_reminder_days?: number | null
+          option_years: number
+          payment_days: number
+          places_daily_quota?: number | null
+          retained_note_max_chars?: number | null
+          search_daily_quota?: number | null
+          search_max_results?: number | null
+          sign_window_months: number
+          signup_link_days?: number | null
+          statement_before_day: number
+          term_months: number
           updated_at?: string
-          user_id?: string
-          website?: string
+          urssaf_interval_months: number
+          urssaf_threshold_cents: number
+        }
+        Update: {
+          club_fees_included?: boolean | null
+          commission_percent?: number
+          confirm_days?: number
+          contest_months?: number
+          cooldown_days?: number | null
+          declaration_cap?: number | null
+          detail_interval_months?: number
+          detail_response_days?: number
+          eligible_stripe_prices?: string[]
+          expiry_warning_days?: number | null
+          final_statement_days?: number
+          followup_days?: number[] | null
+          id?: boolean
+          in_talks_days?: number | null
+          kit_demo_slugs?: string[]
+          name_similarity?: number | null
+          nearby_radius_m?: number | null
+          notice_months?: number
+          option_reminder_days?: number | null
+          option_years?: number
+          payment_days?: number
+          places_daily_quota?: number | null
+          retained_note_max_chars?: number | null
+          search_daily_quota?: number | null
+          search_max_results?: number | null
+          sign_window_months?: number
+          signup_link_days?: number | null
+          statement_before_day?: number
+          term_months?: number
+          updated_at?: string
+          urssaf_interval_months?: number
+          urssaf_threshold_cents?: number
         }
         Relationships: []
       }
-      agents_prospects: {
+      commercial_statements: {
+        Row: {
+          adjustments: Json
+          commercial_id: string
+          contest_note: string | null
+          contest_resolution: string | null
+          contest_resolved_at: string | null
+          contested_at: string | null
+          created_at: string
+          detail_requested_at: string | null
+          detail_sent_at: string | null
+          id: string
+          invoice_path: string | null
+          invoice_received_at: string | null
+          lines: Json
+          month: string
+          paid_at: string | null
+          sent_at: string | null
+          status: string
+          total_cents: number
+        }
+        Insert: {
+          adjustments?: Json
+          commercial_id: string
+          contest_note?: string | null
+          contest_resolution?: string | null
+          contest_resolved_at?: string | null
+          contested_at?: string | null
+          created_at?: string
+          detail_requested_at?: string | null
+          detail_sent_at?: string | null
+          id?: string
+          invoice_path?: string | null
+          invoice_received_at?: string | null
+          lines?: Json
+          month: string
+          paid_at?: string | null
+          sent_at?: string | null
+          status?: string
+          total_cents?: number
+        }
+        Update: {
+          adjustments?: Json
+          commercial_id?: string
+          contest_note?: string | null
+          contest_resolution?: string | null
+          contest_resolved_at?: string | null
+          contested_at?: string | null
+          created_at?: string
+          detail_requested_at?: string | null
+          detail_sent_at?: string | null
+          id?: string
+          invoice_path?: string | null
+          invoice_received_at?: string | null
+          lines?: Json
+          month?: string
+          paid_at?: string | null
+          sent_at?: string | null
+          status?: string
+          total_cents?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_statements_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commerciaux: {
         Row: {
           address: string | null
-          ai_notes: string | null
-          category: string
-          city: string | null
-          created_at: string
-          disqualify_reason: string | null
-          email: string | null
-          enriched_at: string | null
-          google_maps_url: string | null
+          email: string
+          end_reason: string | null
+          ended_at: string | null
+          first_name: string | null
           id: string
-          name: string
+          invited_at: string
+          last_name: string | null
+          notice_given_at: string | null
+          option_exercised_at: string | null
+          option_reminded_at: string | null
           phone: string | null
-          place_id: string
-          status: string
-          updated_at: string
-          user_id: string
-          website: string | null
+          push_prefs: Json
+          siret: string | null
+          user_id: string | null
         }
         Insert: {
           address?: string | null
-          ai_notes?: string | null
-          category: string
-          city?: string | null
-          created_at?: string
-          disqualify_reason?: string | null
-          email?: string | null
-          enriched_at?: string | null
-          google_maps_url?: string | null
+          email: string
+          end_reason?: string | null
+          ended_at?: string | null
+          first_name?: string | null
           id?: string
-          name: string
+          invited_at?: string
+          last_name?: string | null
+          notice_given_at?: string | null
+          option_exercised_at?: string | null
+          option_reminded_at?: string | null
           phone?: string | null
-          place_id: string
-          status?: string
-          updated_at?: string
-          user_id: string
-          website?: string | null
+          push_prefs?: Json
+          siret?: string | null
+          user_id?: string | null
         }
         Update: {
           address?: string | null
-          ai_notes?: string | null
-          category?: string
-          city?: string | null
-          created_at?: string
-          disqualify_reason?: string | null
-          email?: string | null
-          enriched_at?: string | null
-          google_maps_url?: string | null
-          id?: string
-          name?: string
-          phone?: string | null
-          place_id?: string
-          status?: string
-          updated_at?: string
-          user_id?: string
-          website?: string | null
-        }
-        Relationships: []
-      }
-      agents_suppressions: {
-        Row: {
-          created_at: string
-          email: string
-          prospect_id: string | null
-          reason: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          prospect_id?: string | null
-          reason: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
           email?: string
-          prospect_id?: string | null
-          reason?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "agents_suppressions_prospect_id_fkey"
-            columns: ["prospect_id"]
-            isOneToOne: false
-            referencedRelation: "agents_prospects"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      call_throttle: {
-        Row: {
-          called_at: string
-          table_id: string
-        }
-        Insert: {
-          called_at?: string
-          table_id: string
-        }
-        Update: {
-          called_at?: string
-          table_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "call_throttle_table_id_fkey"
-            columns: ["table_id"]
-            isOneToOne: true
-            referencedRelation: "tables"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      categories: {
-        Row: {
-          created_at: string
-          etablissement_id: string
-          id: string
-          name: string
-          position: number
-          tagline: string | null
-        }
-        Insert: {
-          created_at?: string
-          etablissement_id: string
+          end_reason?: string | null
+          ended_at?: string | null
+          first_name?: string | null
           id?: string
-          name: string
-          position: number
-          tagline?: string | null
-        }
-        Update: {
-          created_at?: string
-          etablissement_id?: string
-          id?: string
-          name?: string
-          position?: number
-          tagline?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "categories_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clip_posts: {
-        Row: {
-          attempt: number
-          captions: Json
-          created_at: string
-          id: string
-          platforms: string[]
-          provider_request_id: string | null
-          published_at: string | null
-          results: Json | null
-          status: Database["public"]["Enums"]["clip_post_status"]
-          storage_path: string | null
-          title: string
-          user_id: string
-        }
-        Insert: {
-          attempt?: number
-          captions: Json
-          created_at?: string
-          id?: string
-          platforms: string[]
-          provider_request_id?: string | null
-          published_at?: string | null
-          results?: Json | null
-          status?: Database["public"]["Enums"]["clip_post_status"]
-          storage_path?: string | null
-          title: string
-          user_id: string
-        }
-        Update: {
-          attempt?: number
-          captions?: Json
-          created_at?: string
-          id?: string
-          platforms?: string[]
-          provider_request_id?: string | null
-          published_at?: string | null
-          results?: Json | null
-          status?: Database["public"]["Enums"]["clip_post_status"]
-          storage_path?: string | null
-          title?: string
-          user_id?: string
+          invited_at?: string
+          last_name?: string | null
+          notice_given_at?: string | null
+          option_exercised_at?: string | null
+          option_reminded_at?: string | null
+          phone?: string | null
+          push_prefs?: Json
+          siret?: string | null
+          user_id?: string | null
         }
         Relationships: []
-      }
-      clip_profiles: {
-        Row: {
-          created_at: string
-          provider_username: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          provider_username: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          provider_username?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      client_caisse: {
-        Row: {
-          projet_client_id: string
-          name: string
-        }
-        Insert: {
-          projet_client_id: string
-          name: string
-        }
-        Update: {
-          projet_client_id?: string
-          name?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "client_caisse_projet_client_id_fkey"
-            columns: ["projet_client_id"]
-            isOneToOne: true
-            referencedRelation: "projet_clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      client_materiel: {
-        Row: {
-          projet_client_id: string
-          item: string
-          quantity: number
-        }
-        Insert: {
-          projet_client_id: string
-          item: string
-          quantity: number
-        }
-        Update: {
-          projet_client_id?: string
-          item?: string
-          quantity?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "client_materiel_projet_client_id_fkey"
-            columns: ["projet_client_id"]
-            isOneToOne: false
-            referencedRelation: "projet_clients"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      closure_targets: {
-        Row: {
-          category_id: string | null
-          closure_id: string
-          item_id: string | null
-        }
-        Insert: {
-          category_id?: string | null
-          closure_id: string
-          item_id?: string | null
-        }
-        Update: {
-          category_id?: string | null
-          closure_id?: string
-          item_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "closure_targets_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "categories"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "closure_targets_closure_id_fkey"
-            columns: ["closure_id"]
-            isOneToOne: false
-            referencedRelation: "closures"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "closure_targets_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "items"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      closures: {
-        Row: {
-          created_at: string
-          days: number[] | null
-          ends_at: string | null
-          etablissement_id: string
-          id: string
-          name: string
-          override_closed: boolean | null
-          override_day: string | null
-          starts_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          days?: number[] | null
-          ends_at?: string | null
-          etablissement_id: string
-          id?: string
-          name: string
-          override_closed?: boolean | null
-          override_day?: string | null
-          starts_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          days?: number[] | null
-          ends_at?: string | null
-          etablissement_id?: string
-          id?: string
-          name?: string
-          override_closed?: boolean | null
-          override_day?: string | null
-          starts_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "closures_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       contact_requests: {
         Row: {
@@ -1293,6 +2200,7 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
+          declaration_id: string | null
           description: string | null
           id: string
           lead_id: string | null
@@ -1304,6 +2212,7 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
+          declaration_id?: string | null
           description?: string | null
           id?: string
           lead_id?: string | null
@@ -1315,6 +2224,7 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
+          declaration_id?: string | null
           description?: string | null
           id?: string
           lead_id?: string | null
@@ -1324,6 +2234,13 @@ export type Database = {
           type?: Database["public"]["Enums"]["crm_activity_type"]
         }
         Relationships: [
+          {
+            foreignKeyName: "crm_activities_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "crm_activities_lead_id_fkey"
             columns: ["lead_id"]
@@ -1345,6 +2262,7 @@ export type Database = {
           contact_id: string | null
           created_at: string
           created_by: string | null
+          declaration_id: string | null
           end_at: string | null
           google_event_id: string | null
           id: string
@@ -1361,6 +2279,7 @@ export type Database = {
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
+          declaration_id?: string | null
           end_at?: string | null
           google_event_id?: string | null
           id?: string
@@ -1377,6 +2296,7 @@ export type Database = {
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
+          declaration_id?: string | null
           end_at?: string | null
           google_event_id?: string | null
           id?: string
@@ -1398,6 +2318,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "crm_appointments_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "crm_appointments_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
@@ -1409,8 +2336,9 @@ export type Database = {
       crm_contacts: {
         Row: {
           created_at: string
+          created_by: string | null
           email: string | null
-          first_name: string
+          first_name: string | null
           id: string
           is_decision_maker: boolean
           last_name: string | null
@@ -1422,8 +2350,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           email?: string | null
-          first_name: string
+          first_name?: string | null
           id?: string
           is_decision_maker?: boolean
           last_name?: string | null
@@ -1435,8 +2364,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           email?: string | null
-          first_name?: string
+          first_name?: string | null
           id?: string
           is_decision_maker?: boolean
           last_name?: string | null
@@ -1544,19 +2474,23 @@ export type Database = {
           address: string | null
           category: Database["public"]["Enums"]["crm_restaurant_category"]
           city: string | null
+          client_ended_at: string | null
           created_at: string
           cuisine: string | null
           deleted_at: string | null
           description: string | null
           email: string | null
+          etablissement_id: string | null
           external_id: string | null
           google_maps_url: string | null
           id: string
           important_notes: string | null
+          in_talks_override: boolean | null
           instagram_url: string | null
           latitude: number | null
           longitude: number | null
           menu_url: string | null
+          merged_into: string | null
           name: string
           outreach_opted_out_at: string | null
           owner_email: string | null
@@ -1565,6 +2499,7 @@ export type Database = {
           phone: string | null
           phone_normalized: string | null
           postal_code: string | null
+          shop_id: string | null
           slug: string
           source: string
           updated_at: string
@@ -1574,19 +2509,23 @@ export type Database = {
           address?: string | null
           category?: Database["public"]["Enums"]["crm_restaurant_category"]
           city?: string | null
+          client_ended_at?: string | null
           created_at?: string
           cuisine?: string | null
           deleted_at?: string | null
           description?: string | null
           email?: string | null
+          etablissement_id?: string | null
           external_id?: string | null
           google_maps_url?: string | null
           id?: string
           important_notes?: string | null
+          in_talks_override?: boolean | null
           instagram_url?: string | null
           latitude?: number | null
           longitude?: number | null
           menu_url?: string | null
+          merged_into?: string | null
           name: string
           outreach_opted_out_at?: string | null
           owner_email?: string | null
@@ -1595,6 +2534,7 @@ export type Database = {
           phone?: string | null
           phone_normalized?: string | null
           postal_code?: string | null
+          shop_id?: string | null
           slug: string
           source?: string
           updated_at?: string
@@ -1604,19 +2544,23 @@ export type Database = {
           address?: string | null
           category?: Database["public"]["Enums"]["crm_restaurant_category"]
           city?: string | null
+          client_ended_at?: string | null
           created_at?: string
           cuisine?: string | null
           deleted_at?: string | null
           description?: string | null
           email?: string | null
+          etablissement_id?: string | null
           external_id?: string | null
           google_maps_url?: string | null
           id?: string
           important_notes?: string | null
+          in_talks_override?: boolean | null
           instagram_url?: string | null
           latitude?: number | null
           longitude?: number | null
           menu_url?: string | null
+          merged_into?: string | null
           name?: string
           outreach_opted_out_at?: string | null
           owner_email?: string | null
@@ -1625,12 +2569,35 @@ export type Database = {
           phone?: string | null
           phone_normalized?: string | null
           postal_code?: string | null
+          shop_id?: string | null
           slug?: string
           source?: string
           updated_at?: string
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "crm_restaurants_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_restaurants_merged_into_fkey"
+            columns: ["merged_into"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_restaurants_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       crm_tags: {
         Row: {
@@ -1655,8 +2622,11 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by: string | null
+          declaration_id: string | null
           description: string | null
           due_at: string | null
+          followup_day: number | null
+          followup_of: string | null
           id: string
           lead_id: string | null
           priority: Database["public"]["Enums"]["crm_priority"]
@@ -1669,8 +2639,11 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          declaration_id?: string | null
           description?: string | null
           due_at?: string | null
+          followup_day?: number | null
+          followup_of?: string | null
           id?: string
           lead_id?: string | null
           priority?: Database["public"]["Enums"]["crm_priority"]
@@ -1683,8 +2656,11 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
+          declaration_id?: string | null
           description?: string | null
           due_at?: string | null
+          followup_day?: number | null
+          followup_of?: string | null
           id?: string
           lead_id?: string | null
           priority?: Database["public"]["Enums"]["crm_priority"]
@@ -1694,6 +2670,20 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "crm_tasks_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crm_tasks_followup_of_fkey"
+            columns: ["followup_of"]
+            isOneToOne: false
+            referencedRelation: "crm_appointments"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "crm_tasks_lead_id_fkey"
             columns: ["lead_id"]
@@ -1743,6 +2733,8 @@ export type Database = {
           features: Json
           order_number_reset_hour: number
           order_tabs: Database["public"]["Enums"]["order_tab"][]
+          saison: Database["public"]["Enums"]["saison"] | null
+          saison_fin: string | null
           updated_at: string
         }
         Insert: {
@@ -1751,6 +2743,8 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          saison?: Database["public"]["Enums"]["saison"] | null
+          saison_fin?: string | null
           updated_at?: string
         }
         Update: {
@@ -1759,6 +2753,8 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          saison?: Database["public"]["Enums"]["saison"] | null
+          saison_fin?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -1773,9 +2769,10 @@ export type Database = {
       }
       etablissements: {
         Row: {
-          demo: boolean
           address: string
           admin_pin_set: boolean
+          bar_pickup: boolean
+          category_layout: string
           club_dress_code: string | null
           club_min_age: number
           club_refused: string | null
@@ -1784,8 +2781,10 @@ export type Database = {
           collect_slot_minutes: number
           cover_image: string | null
           created_at: string
+          demo: boolean
           google_review_url: string | null
           hours: string
+          hubrise_connected: boolean
           id: string
           loyalty_enabled: boolean
           loyalty_points_per_euro: number
@@ -1794,13 +2793,14 @@ export type Database = {
           online_min_order: number | null
           online_payment: boolean
           opening_hours: Json | null
+          payment_pin_set: boolean
           payment_provider:
             | Database["public"]["Enums"]["payment_provider"]
             | null
-          payment_pin_set: boolean
           phone: string
           platform_fee_percent: number
           service_mode: Database["public"]["Enums"]["service_mode"]
+          show_table_number: boolean
           siret: string | null
           slug: string
           square_location_id: string | null
@@ -1809,9 +2809,10 @@ export type Database = {
           tagline: string
         }
         Insert: {
-          demo?: boolean
           address?: string
           admin_pin_set?: boolean
+          bar_pickup?: boolean
+          category_layout?: string
           club_dress_code?: string | null
           club_min_age?: number
           club_refused?: string | null
@@ -1820,8 +2821,10 @@ export type Database = {
           collect_slot_minutes?: number
           cover_image?: string | null
           created_at?: string
+          demo?: boolean
           google_review_url?: string | null
           hours?: string
+          hubrise_connected?: boolean
           id?: string
           loyalty_enabled?: boolean
           loyalty_points_per_euro?: number
@@ -1830,13 +2833,14 @@ export type Database = {
           online_min_order?: number | null
           online_payment?: boolean
           opening_hours?: Json | null
+          payment_pin_set?: boolean
           payment_provider?:
             | Database["public"]["Enums"]["payment_provider"]
             | null
-          payment_pin_set?: boolean
           phone?: string
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
+          show_table_number?: boolean
           siret?: string | null
           slug: string
           square_location_id?: string | null
@@ -1845,9 +2849,10 @@ export type Database = {
           tagline?: string
         }
         Update: {
-          demo?: boolean
           address?: string
           admin_pin_set?: boolean
+          bar_pickup?: boolean
+          category_layout?: string
           club_dress_code?: string | null
           club_min_age?: number
           club_refused?: string | null
@@ -1856,8 +2861,10 @@ export type Database = {
           collect_slot_minutes?: number
           cover_image?: string | null
           created_at?: string
+          demo?: boolean
           google_review_url?: string | null
           hours?: string
+          hubrise_connected?: boolean
           id?: string
           loyalty_enabled?: boolean
           loyalty_points_per_euro?: number
@@ -1866,13 +2873,14 @@ export type Database = {
           online_min_order?: number | null
           online_payment?: boolean
           opening_hours?: Json | null
+          payment_pin_set?: boolean
           payment_provider?:
             | Database["public"]["Enums"]["payment_provider"]
             | null
-          payment_pin_set?: boolean
           phone?: string
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
+          show_table_number?: boolean
           siret?: string | null
           slug?: string
           square_location_id?: string | null
@@ -1890,11 +2898,13 @@ export type Database = {
           days: number[] | null
           description: string | null
           disponible: boolean
+          ends_at: string | null
           etablissement_id: string
           etapes: Json
           id: string
           name: string
           price: number
+          starts_at: string | null
         }
         Insert: {
           affiche_id?: string | null
@@ -1903,11 +2913,13 @@ export type Database = {
           days?: number[] | null
           description?: string | null
           disponible?: boolean
+          ends_at?: string | null
           etablissement_id: string
           etapes?: Json
           id?: string
           name: string
           price: number
+          starts_at?: string | null
         }
         Update: {
           affiche_id?: string | null
@@ -1916,11 +2928,13 @@ export type Database = {
           days?: number[] | null
           description?: string | null
           disponible?: boolean
+          ends_at?: string | null
           etablissement_id?: string
           etapes?: Json
           id?: string
           name?: string
           price?: number
+          starts_at?: string | null
         }
         Relationships: [
           {
@@ -1965,68 +2979,6 @@ export type Database = {
           },
         ]
       }
-      invitations: {
-        Row: {
-          created_at: string
-          email: string
-          etablissement_id: string
-          id: string
-          role: Database["public"]["Enums"]["member_role"]
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          etablissement_id: string
-          id?: string
-          role: Database["public"]["Enums"]["member_role"]
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          etablissement_id?: string
-          id?: string
-          role?: Database["public"]["Enums"]["member_role"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "invitations_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      item_printers: {
-        Row: {
-          item_id: string
-          printer_id: string
-        }
-        Insert: {
-          item_id: string
-          printer_id: string
-        }
-        Update: {
-          item_id?: string
-          printer_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "item_printers_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "item_printers_printer_id_fkey"
-            columns: ["printer_id"]
-            isOneToOne: false
-            referencedRelation: "printers"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       hubrise_connections: {
         Row: {
           access_token: string
@@ -2050,6 +3002,8 @@ export type Database = {
           location_name: string | null
           payment_name: string | null
           payment_ref: string | null
+          payment_ref_card: string | null
+          payment_ref_cash: string | null
           service_type_ref_collection: string | null
           service_type_ref_eat_in: string | null
           tip_charge_ref: string | null
@@ -2076,6 +3030,8 @@ export type Database = {
           location_name?: string | null
           payment_name?: string | null
           payment_ref?: string | null
+          payment_ref_card?: string | null
+          payment_ref_cash?: string | null
           service_type_ref_collection?: string | null
           service_type_ref_eat_in?: string | null
           tip_charge_ref?: string | null
@@ -2102,6 +3058,8 @@ export type Database = {
           location_name?: string | null
           payment_name?: string | null
           payment_ref?: string | null
+          payment_ref_card?: string | null
+          payment_ref_cash?: string | null
           service_type_ref_collection?: string | null
           service_type_ref_eat_in?: string | null
           tip_charge_ref?: string | null
@@ -2240,8 +3198,74 @@ export type Database = {
           },
         ]
       }
+      invitations: {
+        Row: {
+          created_at: string
+          email: string
+          etablissement_id: string
+          id: string
+          role: Database["public"]["Enums"]["member_role"]
+          token: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          etablissement_id: string
+          id?: string
+          role: Database["public"]["Enums"]["member_role"]
+          token?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          etablissement_id?: string
+          id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "invitations_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      item_printers: {
+        Row: {
+          item_id: string
+          printer_id: string
+        }
+        Insert: {
+          item_id: string
+          printer_id: string
+        }
+        Update: {
+          item_id?: string
+          printer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "item_printers_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "item_printers_printer_id_fkey"
+            columns: ["printer_id"]
+            isOneToOne: false
+            referencedRelation: "printers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       items: {
         Row: {
+          allergens: Database["public"]["Enums"]["allergen"][] | null
           badges: Database["public"]["Enums"]["badge"][]
           category_id: string
           created_at: string
@@ -2262,6 +3286,7 @@ export type Database = {
           vat_rate: number
         }
         Insert: {
+          allergens?: Database["public"]["Enums"]["allergen"][] | null
           badges?: Database["public"]["Enums"]["badge"][]
           category_id: string
           created_at?: string
@@ -2282,6 +3307,7 @@ export type Database = {
           vat_rate?: number
         }
         Update: {
+          allergens?: Database["public"]["Enums"]["allergen"][] | null
           badges?: Database["public"]["Enums"]["badge"][]
           category_id?: string
           created_at?: string
@@ -2321,6 +3347,7 @@ export type Database = {
       legal_acceptances: {
         Row: {
           accepted_at: string
+          commercial_id: string | null
           etablissement_id: string | null
           id: string
           ip: unknown
@@ -2336,6 +3363,7 @@ export type Database = {
         }
         Insert: {
           accepted_at?: string
+          commercial_id?: string | null
           etablissement_id?: string | null
           id?: string
           ip?: unknown
@@ -2351,6 +3379,7 @@ export type Database = {
         }
         Update: {
           accepted_at?: string
+          commercial_id?: string | null
           etablissement_id?: string | null
           id?: string
           ip?: unknown
@@ -2365,6 +3394,13 @@ export type Database = {
           version_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "legal_acceptances_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "legal_acceptances_etablissement_id_fkey"
             columns: ["etablissement_id"]
@@ -2482,6 +3518,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["loyalty_entry_kind"]
           order_id: string | null
           points: number
+          wheel_day: string | null
         }
         Insert: {
           created_at?: string
@@ -2490,6 +3527,7 @@ export type Database = {
           kind: Database["public"]["Enums"]["loyalty_entry_kind"]
           order_id?: string | null
           points: number
+          wheel_day?: string | null
         }
         Update: {
           created_at?: string
@@ -2498,6 +3536,7 @@ export type Database = {
           kind?: Database["public"]["Enums"]["loyalty_entry_kind"]
           order_id?: string | null
           points?: number
+          wheel_day?: string | null
         }
         Relationships: [
           {
@@ -2805,6 +3844,83 @@ export type Database = {
           },
         ]
       }
+      ola_activities: {
+        Row: {
+          code: string
+          label: string
+        }
+        Insert: {
+          code: string
+          label: string
+        }
+        Update: {
+          code?: string
+          label?: string
+        }
+        Relationships: []
+      }
+      ola_businesses: {
+        Row: {
+          activity: string
+          address: string
+          created_at: string
+          id: string
+          legal_name: string
+          location: unknown
+          name: string
+          overture_id: string | null
+          phones: string[]
+          siret: string
+          socials: string[]
+          sole_trader: boolean
+          sources: Json
+          updated_at: string
+          websites: string[]
+        }
+        Insert: {
+          activity: string
+          address: string
+          created_at?: string
+          id?: string
+          legal_name: string
+          location: unknown
+          name: string
+          overture_id?: string | null
+          phones?: string[]
+          siret: string
+          socials?: string[]
+          sole_trader: boolean
+          sources?: Json
+          updated_at?: string
+          websites?: string[]
+        }
+        Update: {
+          activity?: string
+          address?: string
+          created_at?: string
+          id?: string
+          legal_name?: string
+          location?: unknown
+          name?: string
+          overture_id?: string | null
+          phones?: string[]
+          siret?: string
+          socials?: string[]
+          sole_trader?: boolean
+          sources?: Json
+          updated_at?: string
+          websites?: string[]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ola_businesses_activity_fkey"
+            columns: ["activity"]
+            isOneToOne: false
+            referencedRelation: "ola_activities"
+            referencedColumns: ["code"]
+          },
+        ]
+      }
       omilink_device_tokens: {
         Row: {
           device_id: string
@@ -2911,6 +4027,75 @@ export type Database = {
         }
         Relationships: []
       }
+      ominin_admin_pin: {
+        Row: {
+          pin_hash: string
+          singleton: boolean
+          updated_at: string
+        }
+        Insert: {
+          pin_hash: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Update: {
+          pin_hash?: string
+          singleton?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ominin_invoice_payments: {
+        Row: {
+          created_at: string
+          credited_cents: number
+          eligible_ht_cents: number
+          etablissement_id: string | null
+          id: string
+          note: string | null
+          paid_at: string
+          shop_id: string | null
+          stripe_invoice_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          credited_cents?: number
+          eligible_ht_cents: number
+          etablissement_id?: string | null
+          id?: string
+          note?: string | null
+          paid_at: string
+          shop_id?: string | null
+          stripe_invoice_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          credited_cents?: number
+          eligible_ht_cents?: number
+          etablissement_id?: string | null
+          id?: string
+          note?: string | null
+          paid_at?: string
+          shop_id?: string | null
+          stripe_invoice_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ominin_invoice_payments_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ominin_invoice_payments_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           accord: Database["public"]["Enums"]["accord_source"] | null
@@ -3012,6 +4197,7 @@ export type Database = {
           mode: Database["public"]["Enums"]["payment_mode"]
           order_id: string
           paid_at: string
+          till_payment: boolean
         }
         Insert: {
           amount: number
@@ -3021,6 +4207,7 @@ export type Database = {
           mode: Database["public"]["Enums"]["payment_mode"]
           order_id: string
           paid_at?: string
+          till_payment?: boolean
         }
         Update: {
           amount?: number
@@ -3030,6 +4217,7 @@ export type Database = {
           mode?: Database["public"]["Enums"]["payment_mode"]
           order_id?: string
           paid_at?: string
+          till_payment?: boolean
         }
         Relationships: [
           {
@@ -3051,6 +4239,7 @@ export type Database = {
           customer_phone: string | null
           estimated_ready_at: string | null
           etablissement_id: string
+          handed_over_at: string | null
           hubrise_order_id: string | null
           hubrise_status: string | null
           id: string
@@ -3082,6 +4271,7 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id: string
+          handed_over_at?: string | null
           hubrise_order_id?: string | null
           hubrise_status?: string | null
           id?: string
@@ -3113,6 +4303,7 @@ export type Database = {
           customer_phone?: string | null
           estimated_ready_at?: string | null
           etablissement_id?: string
+          handed_over_at?: string | null
           hubrise_order_id?: string | null
           hubrise_status?: string | null
           id?: string
@@ -3475,19 +4666,66 @@ export type Database = {
           },
         ]
       }
+      payment_pins: {
+        Row: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at: string
+        }
+        Insert: {
+          etablissement_id: string
+          pin_hash: string
+          updated_at?: string
+        }
+        Update: {
+          etablissement_id?: string
+          pin_hash?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_pins_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pin_failures: {
+        Row: {
+          failed_at: string
+          scope: string
+          user_id: string
+        }
+        Insert: {
+          failed_at?: string
+          scope: string
+          user_id: string
+        }
+        Update: {
+          failed_at?: string
+          scope?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       price_rule_targets: {
         Row: {
           category_id: string | null
+          choice_id: string | null
           item_id: string | null
           rule_id: string
         }
         Insert: {
           category_id?: string | null
+          choice_id?: string | null
           item_id?: string | null
           rule_id: string
         }
         Update: {
           category_id?: string | null
+          choice_id?: string | null
           item_id?: string | null
           rule_id?: string
         }
@@ -3695,6 +4933,71 @@ export type Database = {
         }
         Relationships: []
       }
+      projet_clients: {
+        Row: {
+          created_at: string
+          declaration_id: string | null
+          etablissement_id: string | null
+          id: string
+          name: string
+          notes: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          restaurant_id: string | null
+          shop_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          declaration_id?: string | null
+          etablissement_id?: string | null
+          id?: string
+          name: string
+          notes?: string
+          product: Database["public"]["Enums"]["ominin_product"]
+          restaurant_id?: string | null
+          shop_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          declaration_id?: string | null
+          etablissement_id?: string | null
+          id?: string
+          name?: string
+          notes?: string
+          product?: Database["public"]["Enums"]["ominin_product"]
+          restaurant_id?: string | null
+          shop_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "projet_clients_declaration_id_fkey"
+            columns: ["declaration_id"]
+            isOneToOne: false
+            referencedRelation: "commercial_declarations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_clients_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_clients_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projet_clients_shop_id_fkey"
+            columns: ["shop_id"]
+            isOneToOne: false
+            referencedRelation: "shops"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       projet_journal: {
         Row: {
           branch: string
@@ -3725,53 +5028,10 @@ export type Database = {
         }
         Relationships: []
       }
-      projet_clients: {
-        Row: {
-          created_at: string
-          etablissement_id: string | null
-          id: string
-          name: string
-          notes: string
-          product: Database["public"]["Enums"]["ominin_product"]
-          shop_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          etablissement_id?: string | null
-          id?: string
-          name: string
-          notes?: string
-          product: Database["public"]["Enums"]["ominin_product"]
-          shop_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          etablissement_id?: string | null
-          id?: string
-          name?: string
-          notes?: string
-          product?: Database["public"]["Enums"]["ominin_product"]
-          shop_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "projet_clients_etablissement_id_fkey"
-            columns: ["etablissement_id"]
-            isOneToOne: false
-            referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "projet_clients_shop_id_fkey"
-            columns: ["shop_id"]
-            isOneToOne: false
-            referencedRelation: "shops"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       projet_step_templates: {
         Row: {
+          commercial_detail: string | null
+          commercial_title: string | null
           detail: string
           phase: string
           position: number
@@ -3779,6 +5039,8 @@ export type Database = {
           title: string
         }
         Insert: {
+          commercial_detail?: string | null
+          commercial_title?: string | null
           detail: string
           phase: string
           position: number
@@ -3786,6 +5048,8 @@ export type Database = {
           title: string
         }
         Update: {
+          commercial_detail?: string | null
+          commercial_title?: string | null
           detail?: string
           phase?: string
           position?: number
@@ -3914,6 +5178,21 @@ export type Database = {
             referencedColumns: ["user_id", "etablissement_id"]
           },
         ]
+      }
+      rate_limit_hits: {
+        Row: {
+          hit_at: string
+          key: string
+        }
+        Insert: {
+          hit_at?: string
+          key: string
+        }
+        Update: {
+          hit_at?: string
+          key?: string
+        }
+        Relationships: []
       }
       shifts: {
         Row: {
@@ -4872,7 +6151,6 @@ export type Database = {
       }
       shops: {
         Row: {
-          demo: boolean
           about_text: string | null
           announcement: string | null
           catalog_label: string
@@ -4881,6 +6159,7 @@ export type Database = {
           contact_email: string | null
           contact_phone: string | null
           created_at: string
+          demo: boolean
           free_shipping_threshold_cents: number | null
           hero_image_url: string | null
           hero_subtitle: string | null
@@ -4907,7 +6186,6 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          demo?: boolean
           about_text?: string | null
           announcement?: string | null
           catalog_label?: string
@@ -4916,6 +6194,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          demo?: boolean
           free_shipping_threshold_cents?: number | null
           hero_image_url?: string | null
           hero_subtitle?: string | null
@@ -4942,7 +6221,6 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          demo?: boolean
           about_text?: string | null
           announcement?: string | null
           catalog_label?: string
@@ -4951,6 +6229,7 @@ export type Database = {
           contact_email?: string | null
           contact_phone?: string | null
           created_at?: string
+          demo?: boolean
           free_shipping_threshold_cents?: number | null
           hero_image_url?: string | null
           hero_subtitle?: string | null
@@ -5061,6 +6340,7 @@ export type Database = {
           render_progress: number | null
           render_stage: string | null
           render_status: string | null
+          review: Json | null
           scheduled_at: string
           slides: Json
           status: string
@@ -5084,6 +6364,7 @@ export type Database = {
           render_progress?: number | null
           render_stage?: string | null
           render_status?: string | null
+          review?: Json | null
           scheduled_at: string
           slides: Json
           status?: string
@@ -5107,6 +6388,7 @@ export type Database = {
           render_progress?: number | null
           render_stage?: string | null
           render_status?: string | null
+          review?: Json | null
           scheduled_at?: string
           slides?: Json
           status?: string
@@ -5577,18 +6859,18 @@ export type Database = {
       }
     }
     Functions: {
-      hubrise_set_choice_disponible: {
-        Args: {
-          p_choice: string
-          p_disponible: boolean
-          p_group: string
-          p_item: string
-        }
-        Returns: undefined
-      }
       abandon_online_payment: {
         Args: { p_order_id: string }
         Returns: undefined
+      }
+      accept_invitation: { Args: { p_token: string }; Returns: string }
+      admin_add_client: {
+        Args: {
+          p_declaration: string
+          p_etablissement?: string
+          p_shop?: string
+        }
+        Returns: string
       }
       admin_agents_overview: {
         Args: { p_from: string; p_to: string }
@@ -5619,6 +6901,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      admin_cancel_client_departure: {
+        Args: { p_restaurant: string }
+        Returns: undefined
+      }
+      admin_client_places: {
+        Args: never
+        Returns: {
+          client_ended_at: string
+          id: string
+          kind: string
+          name: string
+          restaurant_id: string
+          restaurant_name: string
+        }[]
+      }
       admin_clip_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -5632,6 +6929,59 @@ export type Database = {
           published: number
           user_id: string
         }[]
+      }
+      admin_decide_declaration: {
+        Args: { p_decision: string; p_declaration: string; p_reason: string }
+        Returns: undefined
+      }
+      admin_declarations: {
+        Args: never
+        Returns: {
+          channel: string
+          client_alert: string
+          commercial_email: string
+          commercial_id: string
+          commercial_name: string
+          confirm_deadline: string
+          confirmed_at: string
+          decision_note: string
+          declared_at: string
+          effective_status: Database["public"]["Enums"]["commercial_declaration_status"]
+          emails: Json
+          end_reason: Database["public"]["Enums"]["commercial_end_reason"]
+          ended_at: string
+          id: string
+          in_talks: boolean
+          in_talks_override: boolean
+          refusal_reason: Database["public"]["Enums"]["commercial_refusal_reason"]
+          reserved_until: string
+          restaurant_city: string
+          restaurant_id: string
+          restaurant_name: string
+          status: Database["public"]["Enums"]["commercial_declaration_status"]
+          step: number
+          tacit: boolean
+        }[]
+      }
+      admin_deliver_demo: {
+        Args: { p_request: string; p_url: string }
+        Returns: undefined
+      }
+      admin_link_client: {
+        Args: {
+          p_etablissement?: string
+          p_restaurant: string
+          p_shop?: string
+        }
+        Returns: string
+      }
+      admin_mark_signed: {
+        Args: {
+          p_declaration: string
+          p_etablissement?: string
+          p_shop?: string
+        }
+        Returns: undefined
       }
       admin_menu_feed: {
         Args: { p_etab?: string | null; p_limit: number }
@@ -5708,6 +7058,56 @@ export type Database = {
           sessions: number
         }[]
       }
+      admin_merge_restaurants: {
+        Args: { p_drop: string; p_keep: string; p_note: string }
+        Returns: undefined
+      }
+      admin_month_lines: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: Json[]
+      }
+      admin_reassign_declaration: {
+        Args: {
+          p_commercial: string
+          p_declaration: string
+          p_document: string
+          p_reason: string
+        }
+        Returns: string
+      }
+      admin_record_email_declaration: {
+        Args: {
+          p_commercial: string
+          p_contact: Json
+          p_declared_at: string
+          p_products: Database["public"]["Enums"]["ominin_product"][]
+          p_restaurant: string
+        }
+        Returns: Json
+      }
+      admin_record_payment: {
+        Args: {
+          p_cents: number
+          p_etablissement: string
+          p_note: string
+          p_paid_at: string
+          p_shop: string
+        }
+        Returns: string
+      }
+      admin_require: { Args: never; Returns: undefined }
+      admin_restaurant_declarations: {
+        Args: { p_restaurant: string }
+        Returns: {
+          commercial_name: string
+          confirm_deadline: string
+          declared_at: string
+          effective_status: Database["public"]["Enums"]["commercial_declaration_status"]
+          id: string
+          reserved_until: string
+          step: number
+        }[]
+      }
       admin_service_figures: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -5719,6 +7119,18 @@ export type Database = {
           revenue: number
           sessions: number
         }[]
+      }
+      admin_set_category_layout: {
+        Args: { p_etablissement: string; p_layout: string }
+        Returns: undefined
+      }
+      admin_set_client_ended: {
+        Args: { p_ended_at: string; p_restaurant: string }
+        Returns: undefined
+      }
+      admin_set_in_talks: {
+        Args: { p_restaurant: string; p_value: boolean }
+        Returns: undefined
       }
       admin_shop_overview: {
         Args: { p_from: string; p_to: string }
@@ -5739,18 +7151,222 @@ export type Database = {
           to_prepare: number
         }[]
       }
+      admin_signup_matches: {
+        Args: never
+        Returns: {
+          commercial_name: string
+          created_at: string
+          declaration_id: string
+          id: string
+          kind: string
+          name: string
+          reason: string
+          restaurant_id: string
+          restaurant_name: string
+        }[]
+      }
+      admin_statement_adjust: {
+        Args: { p_cents: number; p_label: string; p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_detail_sent: {
+        Args: { p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_draft: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: string
+      }
+      admin_statement_paid: {
+        Args: { p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_resolve: {
+        Args: { p_resolution: string; p_statement: string }
+        Returns: undefined
+      }
+      admin_statement_send: {
+        Args: { p_statement: string }
+        Returns: undefined
+      }
+      admin_validate_client: { Args: { p_client: string }; Returns: undefined }
+      articles_fermes: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: string[]
+      }
+      auth_account_state: {
+        Args: { p_email: string }
+        Returns: {
+          commercial: boolean
+          confirmed: boolean
+          id: string
+          invited: boolean
+        }[]
+      }
+      basculer_fermeture: {
+        Args: { p_closure: string; p_fermee: boolean }
+        Returns: {
+          created_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          open_windows: boolean
+          override_closed: boolean | null
+          override_until: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      begin_square_payment: {
+        Args: { p_idempotency_key: string; p_order_id: string }
+        Returns: boolean
+      }
+      bulle_annuler_reservation: {
+        Args: { p_reservation: string }
+        Returns: undefined
+      }
+      bulle_commande_ouverte: {
+        Args: {
+          p_reservation: Database["public"]["Tables"]["bulle_reservations"]["Row"]
+        }
+        Returns: boolean
+      }
+      bulle_confirmer: { Args: { p_reservation: string }; Returns: string[] }
+      bulle_debut: {
+        Args: { p_date: string; p_start_minutes: number }
+        Returns: string
+      }
+      bulle_deloger: { Args: { p_reservation: string }; Returns: string[] }
+      bulle_fermer: { Args: { p_reservation: string }; Returns: string[] }
+      bulle_libre: {
+        Args: { p_bulle: string; p_ends_at: string; p_starts_at: string }
+        Returns: boolean
+      }
+      bulle_marquer_arrivee: {
+        Args: { p_arrived: boolean; p_paid?: boolean; p_reservation: string }
+        Returns: undefined
+      }
+      bulle_prendre: { Args: { p_reservation: string }; Returns: boolean }
+      bulle_rembourser_part: {
+        Args: { p_part: string }
+        Returns: {
+          amount_cents: number
+          created_at: string
+          email: string | null
+          etablissement_id: string
+          hold_expires_at: string | null
+          id: string
+          method: Database["public"]["Enums"]["bulle_part_method"]
+          name: string
+          organiser: boolean
+          paid_at: string | null
+          phone: string | null
+          places: number
+          refunded_at: string | null
+          reservation_id: string
+          square_idempotency_key: string | null
+          square_order_id: string | null
+          square_payment_id: string | null
+          status: Database["public"]["Enums"]["bulle_part_status"]
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bulle_parts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      bulle_replacer: { Args: { p_reservation: string }; Returns: boolean }
+      bulle_reservation_courante: {
+        Args: { p_bulle: string }
+        Returns: {
+          arrived_at: string | null
+          bulle_id: string
+          closed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          email: string | null
+          ends_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          note: string | null
+          party_size: number
+          phone: string | null
+          place_cents: number
+          places_paid: number
+          share_token: string
+          source: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at: string
+          status: Database["public"]["Enums"]["bulle_reservation_status"]
+          token: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bulle_reservations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      bulle_soir: {
+        Args: { p_etab: string; p_starts_at: string }
+        Returns: string
+      }
+      bulle_table_etat: {
+        Args: { p_slug: string; p_table: number }
+        Returns: {
+          bulle_color: string
+          bulle_name: string
+          ends_at: string
+          ordering: boolean
+          party_size: number
+          places_paid: number
+          reservation_status: Database["public"]["Enums"]["bulle_reservation_status"]
+          share_token: string
+          starts_at: string
+        }[]
+      }
+      bulle_verrou: {
+        Args: { p_etab: string; p_starts_at: string }
+        Returns: undefined
+      }
+      bulles_expirer: { Args: never; Returns: number }
+      bulles_planning: {
+        Args: { p_date: string; p_etab: string }
+        Returns: {
+          bulle_id: string
+          ends_at: string
+          libre: boolean
+          starts_at: string
+        }[]
+      }
+      cancel_order_item: {
+        Args: { p_item_id: string; p_quantity?: number }
+        Returns: undefined
+      }
       claim_gerant_link: { Args: { p_token: string }; Returns: string }
       clock_in: {
         Args: { p_code: string | null; p_signature: string; p_staff_id: string }
-        Returns: string
+        Returns: string | null
       }
       clock_out: {
         Args: { p_code: string | null; p_entry_id: string; p_signature: string }
-        Returns: undefined
+        Returns: boolean
       }
       club_annuler_reservation: {
         Args: { p_booking: string }
         Returns: undefined
+      }
+      club_booking_holds: {
+        Args: {
+          p_hold_expires_at: string
+          p_status: Database["public"]["Enums"]["club_booking_status"]
+        }
+        Returns: boolean
       }
       club_clore_reservation: {
         Args: { p_booking: string }
@@ -5760,7 +7376,16 @@ export type Database = {
         Args: { p_booking: string; p_table: string }
         Returns: undefined
       }
+      club_encaisser_reste: { Args: { p_booking: string }; Returns: undefined }
+      club_frais: {
+        Args: { p_amount: number; p_etablissement: string }
+        Returns: number
+      }
       club_guest_list_restant: { Args: { p_event: string }; Returns: number }
+      club_liberer_attentes: {
+        Args: { p_event: string; p_table: string }
+        Returns: undefined
+      }
       club_marquer_arrivee: {
         Args: { p_arrived: boolean; p_booking: string; p_paid?: boolean }
         Returns: undefined
@@ -5785,6 +7410,10 @@ export type Database = {
           remaining_cents: number
           seats_left: number
         }[]
+      }
+      club_prix_table: {
+        Args: { p_event: string; p_table: string }
+        Returns: number
       }
       club_rembourser_paiement: {
         Args: { p_payment: string }
@@ -5825,6 +7454,494 @@ export type Database = {
       collect_open_at: {
         Args: { p_at: string; p_hours: Json }
         Returns: boolean
+      }
+      commencer_part_square: {
+        Args: { p_key: string; p_part: string; p_square_order: string }
+        Returns: boolean
+      }
+      commercial_abandon: {
+        Args: {
+          p_declaration: string
+          p_reason: Database["public"]["Enums"]["commercial_end_reason"]
+        }
+        Returns: undefined
+      }
+      commercial_account: { Args: never; Returns: Json }
+      commercial_add_client: {
+        Args: {
+          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
+          p_etablissement: string
+          p_shop: string
+          p_validated: boolean
+        }
+        Returns: string
+      }
+      commercial_add_document: {
+        Args: { p_kind: string; p_path: string }
+        Returns: undefined
+      }
+      commercial_appointment: { Args: { p_appointment: string }; Returns: Json }
+      commercial_appointment_followups: { Args: never; Returns: number }
+      commercial_appointment_upsert: {
+        Args: { p_appointment: Json; p_declaration: string }
+        Returns: string
+      }
+      commercial_base: {
+        Args: {
+          c: Database["public"]["Tables"]["commercial_clients"]["Row"]
+          p_from: string
+          p_to: string
+        }
+        Returns: {
+          club_cents: number
+          invoice_cents: number
+          menu_cents: number
+          shop_cents: number
+        }[]
+      }
+      commercial_by_token: {
+        Args: { p_token: string }
+        Returns: {
+          admin_notified_at: string | null
+          channel: string
+          client_alert: string | null
+          commercial_id: string
+          confirm_deadline: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          contact_id: string | null
+          contract_version_id: string | null
+          created_at: string
+          decision_document: string | null
+          decision_note: string | null
+          declared_at: string
+          end_reason:
+            | Database["public"]["Enums"]["commercial_end_reason"]
+            | null
+          ended_at: string | null
+          id: string
+          reassigned_from: string | null
+          refusal_reason:
+            | Database["public"]["Enums"]["commercial_refusal_reason"]
+            | null
+          reserved_until: string | null
+          restaurant_id: string
+          retained: Json
+          retained_updated_at: string | null
+          signup_product: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at: string | null
+          signup_token_hash: string | null
+          signup_user_id: string | null
+          status: Database["public"]["Enums"]["commercial_declaration_status"]
+          step_done_at: Json
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commercial_declarations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      commercial_cfg: {
+        Args: never
+        Returns: {
+          club_fees_included: boolean | null
+          commission_percent: number
+          confirm_days: number
+          contest_months: number
+          cooldown_days: number | null
+          declaration_cap: number | null
+          detail_interval_months: number
+          detail_response_days: number
+          eligible_stripe_prices: string[]
+          expiry_warning_days: number | null
+          final_statement_days: number
+          followup_days: number[] | null
+          id: boolean
+          in_talks_days: number | null
+          kit_demo_slugs: string[]
+          name_similarity: number | null
+          nearby_radius_m: number | null
+          notice_months: number
+          option_reminder_days: number | null
+          option_years: number
+          payment_days: number
+          places_daily_quota: number | null
+          retained_note_max_chars: number | null
+          search_daily_quota: number | null
+          search_max_results: number | null
+          sign_window_months: number
+          signup_link_days: number | null
+          statement_before_day: number
+          term_months: number
+          updated_at: string
+          urssaf_interval_months: number
+          urssaf_threshold_cents: number
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commercial_settings"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      commercial_clean_contact: { Args: { p: Json }; Returns: Json }
+      commercial_clean_retained: { Args: { p: Json }; Returns: Json }
+      commercial_close_for_client: {
+        Args: { p_note: string; p_restaurant: string }
+        Returns: undefined
+      }
+      commercial_close_for_opposition: {
+        Args: { p_restaurant: string }
+        Returns: undefined
+      }
+      commercial_confirm_due: { Args: never; Returns: number }
+      commercial_confirm_due_for: {
+        Args: { p_restaurant: string }
+        Returns: number
+      }
+      commercial_contact_upsert: {
+        Args: { p_contact: Json; p_declaration: string }
+        Returns: string
+      }
+      commercial_contest: {
+        Args: { p_note: string; p_statement: string }
+        Returns: undefined
+      }
+      commercial_contract_end: {
+        Args: { c: Database["public"]["Tables"]["commerciaux"]["Row"] }
+        Returns: string
+      }
+      commercial_count_places: { Args: never; Returns: undefined }
+      commercial_count_search: {
+        Args: { p_commercial: string }
+        Returns: undefined
+      }
+      commercial_create_restaurant: { Args: { p: Json }; Returns: string }
+      commercial_declare: {
+        Args: {
+          p_contact: Json
+          p_products: Database["public"]["Enums"]["ominin_product"][]
+          p_restaurant: string
+        }
+        Returns: Json
+      }
+      commercial_demo_requests_of: {
+        Args: { p_declaration: string }
+        Returns: Json
+      }
+      commercial_departed_before: {
+        Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
+        Returns: string
+      }
+      commercial_draft_statement: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: string
+      }
+      commercial_draft_statements: { Args: never; Returns: number }
+      commercial_expire_due: { Args: never; Returns: number }
+      commercial_expire_due_for: {
+        Args: { p_restaurant: string }
+        Returns: number
+      }
+      commercial_final_statements: {
+        Args: never
+        Returns: {
+          commercial_id: string
+          due_at: string
+          statement_id: string
+        }[]
+      }
+      commercial_find_duplicates: {
+        Args: {
+          p_city?: string
+          p_email?: string
+          p_external_id?: string
+          p_lat?: number
+          p_lng?: number
+          p_name: string
+          p_phone?: string
+          p_source?: string
+        }
+        Returns: {
+          address: string
+          city: string
+          id: string
+          name: string
+          reason: string
+          state: Json
+        }[]
+      }
+      commercial_first_acceptance: {
+        Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
+        Returns: string
+      }
+      commercial_in_service: {
+        Args: {
+          p_declared_at: string
+          p_etablissement: string
+          p_ignore?: string
+          p_shop: string
+        }
+        Returns: boolean
+      }
+      commercial_in_talks: {
+        Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
+        Returns: boolean
+      }
+      commercial_is_client: {
+        Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
+        Returns: boolean
+      }
+      commercial_log: {
+        Args: {
+          p_declaration: string
+          p_text: string
+          p_type: Database["public"]["Enums"]["crm_activity_type"]
+        }
+        Returns: string
+      }
+      commercial_me: {
+        Args: { p_need: string }
+        Returns: {
+          address: string | null
+          email: string
+          end_reason: string | null
+          ended_at: string | null
+          first_name: string | null
+          id: string
+          invited_at: string
+          last_name: string | null
+          notice_given_at: string | null
+          option_exercised_at: string | null
+          option_reminded_at: string | null
+          phone: string | null
+          push_prefs: Json
+          siret: string | null
+          user_id: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commerciaux"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      commercial_money: { Args: never; Returns: Json }
+      commercial_month_estimate: { Args: never; Returns: Json }
+      commercial_month_lines: {
+        Args: { p_commercial: string; p_month: string }
+        Returns: {
+          base_cents: number
+          client_id: string
+          club_cents: number
+          commission_cents: number
+          invoice_cents: number
+          menu_cents: number
+          name: string
+          restaurant_id: string
+          shop_cents: number
+        }[]
+      }
+      commercial_morning: {
+        Args: never
+        Returns: {
+          commercial_id: string
+          expiring: number
+          tasks: number
+        }[]
+      }
+      commercial_my_active: {
+        Args: { p_declaration: string }
+        Returns: {
+          admin_notified_at: string | null
+          channel: string
+          client_alert: string | null
+          commercial_id: string
+          confirm_deadline: string | null
+          confirmed_at: string | null
+          confirmed_by: string | null
+          contact_id: string | null
+          contract_version_id: string | null
+          created_at: string
+          decision_document: string | null
+          decision_note: string | null
+          declared_at: string
+          end_reason:
+            | Database["public"]["Enums"]["commercial_end_reason"]
+            | null
+          ended_at: string | null
+          id: string
+          reassigned_from: string | null
+          refusal_reason:
+            | Database["public"]["Enums"]["commercial_refusal_reason"]
+            | null
+          reserved_until: string | null
+          restaurant_id: string
+          retained: Json
+          retained_updated_at: string | null
+          signup_product: Database["public"]["Enums"]["ominin_product"] | null
+          signup_token_expires_at: string | null
+          signup_token_hash: string | null
+          signup_user_id: string | null
+          status: Database["public"]["Enums"]["commercial_declaration_status"]
+          step_done_at: Json
+        }
+        SetofOptions: {
+          from: "*"
+          to: "commercial_declarations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      commercial_my_clients: { Args: never; Returns: Json }
+      commercial_my_restaurants: { Args: never; Returns: Json }
+      commercial_nearby: {
+        Args: { p_lat: number; p_lng: number }
+        Returns: {
+          address: string
+          category: Database["public"]["Enums"]["crm_restaurant_category"]
+          id: string
+          latitude: number
+          longitude: number
+          name: string
+          state: Json
+        }[]
+      }
+      commercial_opt_out: { Args: { p_restaurant: string }; Returns: undefined }
+      commercial_option_reminders: {
+        Args: never
+        Returns: {
+          contract_end: string
+          id: string
+          name: string
+        }[]
+      }
+      commercial_passage: {
+        Args: {
+          p_reason: Database["public"]["Enums"]["commercial_end_reason"]
+          p_restaurant: string
+          p_retained: Json
+        }
+        Returns: string
+      }
+      commercial_public: {
+        Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
+        Returns: Json
+      }
+      commercial_reflect: {
+        Args: { p_declaration: string }
+        Returns: undefined
+      }
+      commercial_refusal: {
+        Args: {
+          p_commercial: string
+          p_ignore?: string
+          r: Database["public"]["Tables"]["crm_restaurants"]["Row"]
+        }
+        Returns: Database["public"]["Enums"]["commercial_refusal_reason"]
+      }
+      commercial_release_ended: { Args: never; Returns: number }
+      commercial_request_demo: {
+        Args: { p_declaration: string; p_note: string; p_photos: string[] }
+        Returns: string
+      }
+      commercial_request_detail: {
+        Args: { p_statement: string }
+        Returns: string
+      }
+      commercial_reserved_until: {
+        Args: {
+          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
+        }
+        Returns: string
+      }
+      commercial_resign: { Args: never; Returns: string }
+      commercial_restaurant: { Args: { p_restaurant: string }; Returns: Json }
+      commercial_save_retained: {
+        Args: { p_declaration: string; p_retained: Json }
+        Returns: undefined
+      }
+      commercial_search: {
+        Args: { p_query: string }
+        Returns: {
+          address: string
+          category: Database["public"]["Enums"]["crm_restaurant_category"]
+          city: string
+          id: string
+          name: string
+          state: Json
+        }[]
+      }
+      commercial_search_limit: { Args: never; Returns: number }
+      commercial_set_push_prefs: { Args: { p_prefs: Json }; Returns: undefined }
+      commercial_set_step: {
+        Args: { p_declaration: string; p_done: boolean; p_position: number }
+        Returns: Json
+      }
+      commercial_settle: { Args: { p_restaurant: string }; Returns: undefined }
+      commercial_signup_alert: {
+        Args: {
+          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
+          p_etablissement: string
+          p_shop: string
+        }
+        Returns: string
+      }
+      commercial_signup_link: {
+        Args: { p_declaration: string }
+        Returns: string
+      }
+      commercial_state: {
+        Args: {
+          p_commercial: string
+          r: Database["public"]["Tables"]["crm_restaurants"]["Row"]
+        }
+        Returns: Json
+      }
+      commercial_statement_invoice: {
+        Args: { p_path: string; p_statement: string }
+        Returns: undefined
+      }
+      commercial_statement_total: {
+        Args: { p_adjustments: Json; p_lines: Json }
+        Returns: number
+      }
+      commercial_status_at: {
+        Args: {
+          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
+          p_at?: string
+        }
+        Returns: Database["public"]["Enums"]["commercial_declaration_status"]
+      }
+      commercial_task_upsert: {
+        Args: { p_declaration: string; p_task: Json }
+        Returns: string
+      }
+      commercial_today: { Args: { p_since: string }; Returns: Json }
+      commercial_today_base: { Args: { p_since: string }; Returns: Json }
+      commercial_top_step: { Args: { p_steps: Json }; Returns: number }
+      commercial_urssaf_due: {
+        Args: { p_commercial: string }
+        Returns: boolean
+      }
+      commercial_urssaf_reminders: { Args: never; Returns: number }
+      commercial_version_in_force: { Args: never; Returns: string }
+      contribuer_bulle: {
+        Args: {
+          p_email: string
+          p_hold_seconds: number
+          p_name: string
+          p_phone: string
+          p_places: number
+          p_share_token: string
+        }
+        Returns: {
+          amount_cents: number
+          hold_expires_at: string
+          part_id: string
+          reservation_id: string
+        }[]
       }
       contribuer_table: {
         Args: {
@@ -5882,6 +7999,45 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      creer_reservation_bulle: {
+        Args: {
+          p_bulle: string
+          p_name: string
+          p_note: string
+          p_party: number
+          p_phone: string
+          p_source: Database["public"]["Enums"]["bulle_reservation_source"]
+          p_starts_at: string
+        }
+        Returns: {
+          arrived_at: string | null
+          bulle_id: string
+          closed_at: string | null
+          confirmed_at: string | null
+          created_at: string
+          email: string | null
+          ends_at: string
+          etablissement_id: string
+          id: string
+          name: string
+          note: string | null
+          party_size: number
+          phone: string | null
+          place_cents: number
+          places_paid: number
+          share_token: string
+          source: Database["public"]["Enums"]["bulle_reservation_source"]
+          starts_at: string
+          status: Database["public"]["Enums"]["bulle_reservation_status"]
+          token: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "bulle_reservations"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       creer_reservation_club: {
         Args: {
           p_event: string
@@ -5926,6 +8082,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      crm_assert_client_free: {
+        Args: { p_etablissement: string; p_restaurant: string; p_shop: string }
+        Returns: undefined
+      }
       crm_find_duplicates: {
         Args: {
           p_city?: string
@@ -5942,7 +8102,12 @@ export type Database = {
           restaurant_id: string
         }[]
       }
+      crm_is_reserved: { Args: { p_restaurant: string }; Returns: boolean }
       crm_recompute_follow_up: { Args: { p_lead: string }; Returns: undefined }
+      crm_restaurant_slug: {
+        Args: { p_id: string; p_name: string }
+        Returns: string
+      }
       current_member_role: {
         Args: { etab: string }
         Returns: Database["public"]["Enums"]["member_role"]
@@ -5950,6 +8115,10 @@ export type Database = {
       current_shop_role: {
         Args: { p_shop: string }
         Returns: Database["public"]["Enums"]["shop_member_role"]
+      }
+      dans_les_heures: {
+        Args: { p_at?: string; p_ends: string; p_starts: string }
+        Returns: boolean
       }
       discard_online_payment: {
         Args: { p_session_id: string }
@@ -5962,23 +8131,20 @@ export type Database = {
       enregistrer_fermeture: {
         Args: {
           p_closure: string | null
-          p_days: number[] | null
-          p_ends_at: string | null
           p_etablissement: string
           p_name: string
-          p_starts_at: string | null
+          p_open_windows: boolean
           p_targets: Json
+          p_windows: Json
         }
         Returns: {
           created_at: string
-          days: number[] | null
-          ends_at: string | null
           etablissement_id: string
           id: string
           name: string
+          open_windows: boolean
           override_closed: boolean | null
-          override_day: string | null
-          starts_at: string | null
+          override_until: string | null
         }
         SetofOptions: {
           from: "*"
@@ -5987,8 +8153,70 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      fermeture_active: {
+        Args: {
+          p_closure: Database["public"]["Tables"]["closures"]["Row"]
+          p_day_end_hour: number
+          p_service: string
+        }
+        Returns: boolean
+      }
+      fermeture_changement_suivant: {
+        Args: {
+          p_closure: Database["public"]["Tables"]["closures"]["Row"]
+          p_day_end_hour: number
+          p_service: string
+        }
+        Returns: string
+      }
+      fermeture_planifiee: {
+        Args: {
+          p_closure: Database["public"]["Tables"]["closures"]["Row"]
+          p_day_end_hour: number
+          p_service: string
+        }
+        Returns: boolean
+      }
+      formule_du_jour: {
+        Args: { p_at?: string; p_days: number[]; p_etablissement: string }
+        Returns: boolean
+      }
+      formule_line: {
+        Args: { p_etab: string; p_line: Json }
+        Returns: {
+          components: Json
+          name: string
+          options: Json
+          unit_price: number
+          vat_rate: number
+        }[]
+      }
       gerant_link_etablissement: { Args: { p_token: string }; Returns: string }
       group_tables: { Args: { p_table_ids: string[] }; Returns: string }
+      horloge_service: {
+        Args: { p_at: string; p_etablissement: string }
+        Returns: {
+          day_end_hour: number
+          service_ts: string
+        }[]
+      }
+      hubrise_enqueue_sync: {
+        Args: { p_etab: string; p_kind: string; p_order: string }
+        Returns: undefined
+      }
+      hubrise_record_till_payment: {
+        Args: { p_order: string; p_payments: Json }
+        Returns: boolean
+      }
+      hubrise_set_choice_disponible: {
+        Args: {
+          p_choice: string
+          p_disponible: boolean
+          p_group: string
+          p_item: string
+        }
+        Returns: undefined
+      }
       inscrire_guest_list: {
         Args: {
           p_email: string
@@ -6000,6 +8228,7 @@ export type Database = {
         Returns: string
       }
       is_admin: { Args: never; Returns: boolean }
+      is_ominin_admin_pin: { Args: { p_code: string }; Returns: boolean }
       loyalty_active: { Args: { p_etablissement_id: string }; Returns: boolean }
       loyalty_adjust: {
         Args: {
@@ -6074,6 +8303,35 @@ export type Database = {
           week: string
         }[]
       }
+      loyalty_wheel_customer: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: string
+      }
+      loyalty_wheel_spin: {
+        Args: {
+          p_golden_every?: number | null
+          p_golden_multiplier?: number | null
+          p_slices: Json
+          p_slug: string
+          p_token_hash: string
+        }
+        Returns: {
+          points: number
+          slice: number
+          streak: number
+        }[]
+      }
+      loyalty_wheel_state: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: {
+          played_today: boolean
+          streak: number
+        }[]
+      }
+      loyalty_wheel_streak: {
+        Args: { p_customer: string; p_from: string }
+        Returns: number
+      }
       mark_demo_order_paid: {
         Args: { p_order_id: string; p_tip?: number | null }
         Returns: boolean
@@ -6101,6 +8359,28 @@ export type Database = {
       offre_trial_revenue: {
         Args: { p_etablissement_id: string; p_from: string; p_to: string }
         Returns: number
+      }
+      ola_find_businesses: {
+        Args: {
+          p_activities?: string[]
+          p_lat: number
+          p_limit: number
+          p_lng: number
+          p_name?: string
+          p_radius_m: number
+        }
+        Returns: {
+          activity: string
+          activity_label: string
+          address: string
+          distance_m: number
+          id: string
+          legal_name: string
+          name: string
+          phones: string[]
+          socials: string[]
+          websites: string[]
+        }[]
       }
       omilink_claim_device: {
         Args: { p_etablissement_id: string; p_name: string; p_serial: string }
@@ -6163,8 +8443,25 @@ export type Database = {
           p_payment_code: string
           p_tip?: number | null
         }
+        Returns: boolean
+      }
+      pay_order_items_internal: {
+        Args: {
+          p_cash_amount?: number
+          p_cash_change?: number
+          p_cash_given?: number
+          p_items: Json
+          p_mode: Database["public"]["Enums"]["payment_mode"]
+          p_tip?: number
+        }
         Returns: undefined
       }
+      phone_digits: { Args: { p_phone: string }; Returns: string }
+      pin_attempt: {
+        Args: { p_ok: boolean; p_scope: string }
+        Returns: boolean
+      }
+      pin_guard: { Args: { p_scope: string }; Returns: undefined }
       place_order: {
         Args: {
           p_collect?: Json
@@ -6195,9 +8492,17 @@ export type Database = {
         }
         Returns: string
       }
+      rate_limit_hit: {
+        Args: { p_key: string; p_max: number; p_window_seconds: number }
+        Returns: boolean
+      }
       regler_paiement: {
         Args: { p_intent: string | null; p_payment: string; p_total: number }
         Returns: string
+      }
+      regler_part_bulle: {
+        Args: { p_amount: number; p_part: string; p_square_payment: string | null }
+        Returns: Json
       }
       reorder_categories: { Args: { p_ids: string[] }; Returns: undefined }
       reorder_items: { Args: { p_ids: string[] }; Returns: undefined }
@@ -6205,37 +8510,24 @@ export type Database = {
         Args: { p_order_ids: string[] }
         Returns: number
       }
-      articles_fermes: {
-        Args: { p_at?: string; p_etablissement: string }
-        Returns: string[]
-      }
-      basculer_fermeture: {
-        Args: { p_closure: string; p_fermee: boolean }
+      reserver_bulle: {
+        Args: {
+          p_bulle: string
+          p_email: string
+          p_hold_seconds: number
+          p_name: string
+          p_party: number
+          p_phone: string
+          p_places: number
+          p_starts_at: string
+        }
         Returns: {
-          created_at: string
-          days: number[] | null
-          ends_at: string | null
-          etablissement_id: string
-          id: string
-          name: string
-          override_closed: boolean | null
-          override_day: string | null
-          starts_at: string | null
-        }
-        SetofOptions: {
-          from: "*"
-          to: "closures"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      begin_square_payment: {
-        Args: { p_idempotency_key: string; p_order_id: string }
-        Returns: boolean
-      }
-      cancel_order_item: {
-        Args: { p_item_id: string; p_quantity?: number }
-        Returns: undefined
+          amount_cents: number
+          hold_expires_at: string
+          part_id: string
+          reservation_id: string
+          token: string
+        }[]
       }
       reserver_table: {
         Args: {
@@ -6256,15 +8548,16 @@ export type Database = {
           total_cents: number
         }[]
       }
-      serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
       save_starter_setup: {
         Args: { p_etablissement_id: string; p_setup: Json }
         Returns: undefined
       }
+      serve_order_items: { Args: { p_item_ids: string[] }; Returns: undefined }
       set_admin_pin: {
         Args: { p_code: string; p_etablissement_id: string }
         Returns: undefined
       }
+      set_ominin_admin_pin: { Args: { p_code: string }; Returns: undefined }
       set_option_choice_disponible: {
         Args: {
           p_choice: string
@@ -6276,7 +8569,7 @@ export type Database = {
       }
       set_payment_pin: {
         Args: { p_code: string; p_etablissement_id: string }
-        Returns: undefined
+        Returns: boolean
       }
       set_staff_code: {
         Args: { p_code: string; p_staff_id: string }
@@ -6298,6 +8591,14 @@ export type Database = {
           revenue_cents: number
         }[]
       }
+      signup_link_claim: {
+        Args: {
+          p_product: Database["public"]["Enums"]["ominin_product"]
+          p_token: string
+        }
+        Returns: boolean
+      }
+      signup_link_info: { Args: { p_token: string }; Returns: Json }
       staff_code_ok: {
         Args: { p_code: string; p_staff_id: string }
         Returns: boolean
@@ -6309,9 +8610,12 @@ export type Database = {
       tarifs_actifs: {
         Args: { p_at?: string; p_etablissement: string }
         Returns: {
+          choice_id: string | null
+          ends_at: string | null
           item_id: string
           price: number
           rule_name: string
+          starts_at: string | null
         }[]
       }
       ungroup_tables: { Args: { p_group_id: string }; Returns: undefined }
@@ -6336,7 +8640,31 @@ export type Database = {
     }
     Enums: {
       accord_source: "panier" | "fiche" | "formule"
+      allergen:
+        | "gluten"
+        | "crustaces"
+        | "oeuf"
+        | "poisson"
+        | "arachides"
+        | "soja"
+        | "lait"
+        | "fruits-a-coque"
+        | "celeri"
+        | "moutarde"
+        | "sesame"
+        | "sulfites"
+        | "lupin"
+        | "mollusques"
       badge: "maison" | "top" | "nouveau"
+      bulle_part_method: "en_ligne" | "sur_place"
+      bulle_part_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      bulle_reservation_source: "en_ligne" | "telephone" | "sur_place"
+      bulle_reservation_status:
+        | "en_attente"
+        | "confirmee"
+        | "arrivee"
+        | "remboursee"
+        | "annulee"
       clip_post_status: "en_cours" | "publie" | "partiel" | "echec"
       club_booking_source: "en_ligne" | "telephone" | "sur_place"
       club_booking_status:
@@ -6347,6 +8675,35 @@ export type Database = {
         | "remboursee"
       club_payment_method: "en_ligne" | "sur_place"
       club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      commercial_declaration_status:
+        | "pending"
+        | "confirmed"
+        | "refused"
+        | "abandoned"
+        | "expired"
+        | "signed"
+        | "passage"
+      commercial_end_reason:
+        | "not_interested"
+        | "equipped"
+        | "contract_elsewhere"
+        | "closed"
+        | "unreachable"
+        | "head_office"
+        | "opposition"
+        | "other"
+        | "contract_ended"
+        | "merged"
+        | "reassigned"
+        | "client"
+      commercial_refusal_reason:
+        | "client"
+        | "declared"
+        | "in_talks"
+        | "opted_out"
+        | "cap"
+        | "cooldown"
+        | "admin"
       crm_activity_type:
         | "note"
         | "call"
@@ -6388,9 +8745,9 @@ export type Database = {
         | "hotel_restaurant"
         | "other"
       crm_task_status: "open" | "done" | "cancelled"
-      legal_doc: "cgv" | "dpa" | "confidentialite"
-      legal_scope: "etablissement" | "shop"
-      loyalty_entry_kind: "gain" | "depense" | "ajustement"
+      legal_doc: "cgv" | "dpa" | "confidentialite" | "commercial"
+      legal_scope: "etablissement" | "shop" | "commercial"
+      loyalty_entry_kind: "gain" | "depense" | "ajustement" | "roue"
       member_role: "gerant" | "cuisinier" | "serveur"
       menu_stage:
         | "vue"
@@ -6443,6 +8800,7 @@ export type Database = {
       print_job_status: "pending" | "printed" | "cancelled"
       product: "offre" | "collect"
       projet_step_status: "todo" | "doing" | "done" | "blocked"
+      saison: "automne" | "halloween"
       service_mode: "restaurant" | "fast_food"
       shop_discount_type: "percent" | "fixed"
       shop_member_role: "proprietaire" | "equipe"
@@ -6594,7 +8952,33 @@ export const Constants = {
   public: {
     Enums: {
       accord_source: ["panier", "fiche", "formule"],
+      allergen: [
+        "gluten",
+        "crustaces",
+        "oeuf",
+        "poisson",
+        "arachides",
+        "soja",
+        "lait",
+        "fruits-a-coque",
+        "celeri",
+        "moutarde",
+        "sesame",
+        "sulfites",
+        "lupin",
+        "mollusques",
+      ],
       badge: ["maison", "top", "nouveau"],
+      bulle_part_method: ["en_ligne", "sur_place"],
+      bulle_part_status: ["en_attente", "payee", "remboursee", "annulee"],
+      bulle_reservation_source: ["en_ligne", "telephone", "sur_place"],
+      bulle_reservation_status: [
+        "en_attente",
+        "confirmee",
+        "arrivee",
+        "remboursee",
+        "annulee",
+      ],
       clip_post_status: ["en_cours", "publie", "partiel", "echec"],
       club_booking_source: ["en_ligne", "telephone", "sur_place"],
       club_booking_status: [
@@ -6606,6 +8990,38 @@ export const Constants = {
       ],
       club_payment_method: ["en_ligne", "sur_place"],
       club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],
+      commercial_declaration_status: [
+        "pending",
+        "confirmed",
+        "refused",
+        "abandoned",
+        "expired",
+        "signed",
+        "passage",
+      ],
+      commercial_end_reason: [
+        "not_interested",
+        "equipped",
+        "contract_elsewhere",
+        "closed",
+        "unreachable",
+        "head_office",
+        "opposition",
+        "other",
+        "contract_ended",
+        "merged",
+        "reassigned",
+        "client",
+      ],
+      commercial_refusal_reason: [
+        "client",
+        "declared",
+        "in_talks",
+        "opted_out",
+        "cap",
+        "cooldown",
+        "admin",
+      ],
       crm_activity_type: [
         "note",
         "call",
@@ -6651,9 +9067,9 @@ export const Constants = {
         "other",
       ],
       crm_task_status: ["open", "done", "cancelled"],
-      legal_doc: ["cgv", "dpa", "confidentialite"],
-      legal_scope: ["etablissement", "shop"],
-      loyalty_entry_kind: ["gain", "depense", "ajustement"],
+      legal_doc: ["cgv", "dpa", "confidentialite", "commercial"],
+      legal_scope: ["etablissement", "shop", "commercial"],
+      loyalty_entry_kind: ["gain", "depense", "ajustement", "roue"],
       member_role: ["gerant", "cuisinier", "serveur"],
       menu_stage: [
         "vue",
@@ -6711,6 +9127,7 @@ export const Constants = {
       print_job_status: ["pending", "printed", "cancelled"],
       product: ["offre", "collect"],
       projet_step_status: ["todo", "doing", "done", "blocked"],
+      saison: ["automne", "halloween"],
       service_mode: ["restaurant", "fast_food"],
       shop_discount_type: ["percent", "fixed"],
       shop_member_role: ["proprietaire", "equipe"],

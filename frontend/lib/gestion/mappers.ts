@@ -1,5 +1,6 @@
 import type { OpeningHours } from "@/lib/collect/hours";
-import type { MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import { byWindowOrder } from "./fermetures";
+import type { CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
   Affiche,
@@ -38,9 +39,13 @@ export function rowToEtablissement(
     openingHours: row.opening_hours as OpeningHours | null,
     offre: row.offre,
     serviceMode: row.service_mode,
+    showTableNumber: row.show_table_number,
+    barPickup: row.bar_pickup,
+    categoryLayout: row.category_layout as CategoryLayout,
     siret: row.siret ?? undefined,
     onlinePayment: row.online_payment,
     paymentProvider: row.payment_provider,
+    hubriseConnected: row.hubrise_connected,
     collectSlotCapacity: row.collect_slot_capacity,
     collectSlotMinutes: row.collect_slot_minutes,
     onlineMinOrder:
@@ -60,6 +65,7 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     price: Number(row.price),
     image: row.image ?? undefined,
     badges: row.badges.length ? row.badges : undefined,
+    allergens: row.allergens ?? undefined,
     pairing: row.pairing ?? undefined,
     detail: row.detail ?? undefined,
     printName: row.print_name ?? undefined,
@@ -98,6 +104,8 @@ export function rowToFormule(row: Tables<"formules">): Formule {
     price: Number(row.price),
     disponible: row.disponible,
     days: row.days ?? undefined,
+    hours:
+      row.starts_at && row.ends_at ? { startsAt: row.starts_at, endsAt: row.ends_at } : undefined,
     etapes: row.etapes as unknown as Etape[],
     affiche:
       row.affiche_id && row.affiche_rang
@@ -161,6 +169,7 @@ export function rowToOrder(row: OrderRow): Order {
     customerNote: row.customer_note ?? undefined,
     pickupAt: row.pickup_at ?? undefined,
     estimatedReadyAt: row.estimated_ready_at ?? undefined,
+    handedOverAt: row.handed_over_at ?? undefined,
     cashGiven: row.cash_given != null ? Number(row.cash_given) : undefined,
     cashChange: row.cash_change != null ? Number(row.cash_change) : undefined,
     tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
@@ -193,9 +202,10 @@ export function rowToOrder(row: OrderRow): Order {
 const rowToTarget = (target: {
   category_id: string | null;
   item_id: string | null;
+  choice_id?: string | null;
 }): MenuTarget =>
   target.item_id
-    ? { kind: "item", id: target.item_id }
+    ? { kind: "item", id: target.item_id, ...(target.choice_id && { choiceId: target.choice_id }) }
     : { kind: "category", id: target.category_id as string };
 
 /**
@@ -219,18 +229,26 @@ export function rowToPriceRule(
   };
 }
 
-/** Une fermeture et ses cibles, embarquées comme celles d'un tarif. */
+/** Une fermeture, ses plages et ses cibles, embarquées comme celles d'un tarif. */
 export function rowToClosure(
-  row: Tables<"closures"> & { closure_targets: Tables<"closure_targets">[] }
+  row: Tables<"closures"> & {
+    closure_windows: Tables<"closure_windows">[];
+    closure_targets: Tables<"closure_targets">[];
+  }
 ): Closure {
   return {
     id: row.id,
     name: row.name,
-    days: row.days,
-    startsAt: row.starts_at,
-    endsAt: row.ends_at,
+    windows: row.closure_windows
+      .map((window) => ({
+        days: window.days,
+        startsAt: window.starts_at.slice(0, 5),
+        endsAt: window.ends_at?.slice(0, 5) ?? null,
+      }))
+      .sort(byWindowOrder),
+    openWindows: row.open_windows,
     overrideClosed: row.override_closed,
-    overrideDay: row.override_day,
+    overrideUntil: row.override_until,
     targets: row.closure_targets.map(rowToTarget),
   };
 }

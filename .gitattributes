@@ -1,0 +1,2 @@
+# Scripts shell lancés par bash, y compris depuis Git Bash sous Windows.
+*.sh text eol=lf

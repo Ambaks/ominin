@@ -1,4 +1,5 @@
-import type { Badge, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import type { Allergen, Badge, CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import { syncTill } from "@/lib/hubrise/kick";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
@@ -80,6 +81,8 @@ export interface ItemInput {
   stock: number | null;
   image?: string;
   badges: Badge[];
+  /** null ⇒ pas renseignés ; [] ⇒ aucun des quatorze. */
+  allergens: Allergen[] | null;
   pairing?: string;
   options: OptionGroup[];
   categoryId: string;
@@ -98,6 +101,7 @@ function itemColumns(
     price: input.price,
     image: input.image || null,
     badges: input.badges,
+    allergens: input.allergens,
     pairing: input.pairing || null,
     detail: input.detail || null,
     print_name: input.printName || null,
@@ -338,6 +342,8 @@ function formuleColumns(
     price: input.price,
     disponible: input.disponible,
     days: input.days ?? null,
+    starts_at: input.hours?.startsAt ?? null,
+    ends_at: input.hours?.endsAt ?? null,
     etapes: toJson(input.etapes),
     affiche_id: input.affiche?.id ?? null,
     affiche_rang: input.affiche?.rang ?? null,
@@ -501,9 +507,9 @@ export interface StaffOrderLine {
  * Commande prise en salle par un membre de l'équipe (client qui commande
  * directement au serveur). Même RPC que le menu QR : place_order valide
  * articles, stock et options, et ouvre la table si son numéro est nouveau —
- * en fast food, sans table, elle prend son numéro du jour. La commande
- * attend son encaissement ; elle part en cuisine une fois payée. Rend le
- * numéro du jour, s'il y en a un.
+ * en fast food, l'équipe la passe sans table : elle prend son numéro du
+ * jour. La commande attend son encaissement ; elle part en cuisine une fois
+ * payée. Rend le numéro du jour, s'il y en a un.
  */
 export async function createStaffOrder(
   tableNumber: number | null,
@@ -512,7 +518,7 @@ export async function createStaffOrder(
   const supabase = createClient();
   const { data: orderId, error } = await supabase.rpc("place_order", {
     p_slug: getState().etablissement.slug,
-    // Nul en fast food (la base y refuse une table) : les types générés
+    // Nul quand l'équipe prend la commande sans table : les types générés
     // ne connaissent pas d'argument nul.
     p_table_number: tableNumber as number,
     p_items: lines.map((line) => ({
@@ -600,6 +606,7 @@ export async function updateOrderStatus(
   // Push vers la salle (prête) ou la cuisine (annulée) ; la route écarte
   // l'auteur du geste via sa session. Fire-and-forget : la mutation a réussi.
   notifyOrderEvent(orderId, status);
+  syncTill(getState().etablissement.hubriseConnected);
   return apply((draft) => {
     const order = findOrder(draft, orderId);
     order.status = status;
@@ -629,20 +636,23 @@ export async function payOrderItems(
   const supabase = createClient();
   const orderIds = ordersOfLines(items.map((item) => item.itemId));
   const cash = mode === "carte" ? undefined : cashDetails;
-  check(
-    await supabase.rpc("pay_order_items", {
-      p_items: items.map((item) => ({
-        item_id: item.itemId,
-        quantity: item.quantity,
-      })),
-      p_mode: mode,
-      p_payment_code: paymentCode,
-      p_cash_given: cash?.cashGiven ?? null,
-      p_cash_change: cash?.cashChange ?? null,
-      p_tip: tip ?? null,
-      p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
-    })
-  );
+  const { data: paid, error } = await supabase.rpc("pay_order_items", {
+    p_items: items.map((item) => ({
+      item_id: item.itemId,
+      quantity: item.quantity,
+    })),
+    p_mode: mode,
+    p_payment_code: paymentCode,
+    p_cash_given: cash?.cashGiven ?? null,
+    p_cash_change: cash?.cashChange ?? null,
+    p_tip: tip ?? null,
+    p_cash_amount: mode === "mixte" ? cash?.cashAmount ?? null : null,
+  });
+  if (error) throw new Error(error.message);
+  // Mauvais code : la base répond false et compte l'échec (une exception
+  // l'effacerait avec la transaction).
+  if (paid === false) throw new Error("Code d'encaissement incorrect.");
+  syncTill(getState().etablissement.hubriseConnected);
   await refreshOrdersNow(orderIds);
 }
 
@@ -716,6 +726,7 @@ export async function updateOrderPayment(
       p_cash_change: cash?.cashChange ?? null,
     })
   );
+  syncTill(getState().etablissement.hubriseConnected);
   const row = must(
     await supabase
       .from("orders")
@@ -749,6 +760,7 @@ export async function voidPayment(orderId: string): Promise<Order> {
       .select("*, order_items(*), order_payments(*)")
       .single()
   );
+  syncTill(getState().etablissement.hubriseConnected);
   return replaceOrder(rowToOrder(row));
 }
 
@@ -943,12 +955,13 @@ export async function verifyAdminPin(code: string): Promise<boolean> {
 /** Pose ou remplace le code de quatre chiffres exigé à chaque encaissement. */
 export async function setPaymentPin(code: string): Promise<void> {
   const supabase = createClient();
-  check(
-    await supabase.rpc("set_payment_pin", {
-      p_etablissement_id: etablissementId(),
-      p_code: code,
-    })
-  );
+  const { data: set, error } = await supabase.rpc("set_payment_pin", {
+    p_etablissement_id: etablissementId(),
+    p_code: code,
+  });
+  if (error) throw new Error(error.message);
+  // Code réservé : la base répond false et compte l'essai.
+  if (set === false) throw new Error("Ce code est réservé. Choisissez-en un autre.");
   apply((draft) => {
     draft.etablissement.paymentPinSet = true;
   });
@@ -974,11 +987,15 @@ export type EtablissementInput = Omit<
   | "offre"
   | "onlinePayment"
   | "paymentProvider"
+  | "hubriseConnected"
   | "collectSlotCapacity"
   | "collectSlotMinutes"
   | "adminPinSet"
   | "paymentPinSet"
   | "serviceMode"
+  | "showTableNumber"
+  | "barPickup"
+  | "categoryLayout"
   | "onlineMinOrder"
 >;
 
@@ -1059,6 +1076,48 @@ export async function setServiceMode(mode: ServiceMode): Promise<void> {
   });
 }
 
+/** Fast food : la table du QR à côté du numéro, au comptoir et sur le
+ * ticket cuisine (gérant). */
+export async function setShowTableNumber(enabled: boolean): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({ show_table_number: enabled })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.showTableNumber = enabled;
+  });
+}
+
+/** Fast food : retrait au bar, le code du client scanné par l'équipe
+ * (gérant). Le menu suit à sa prochaine revalidation. */
+export async function setBarPickup(enabled: boolean): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({ bar_pickup: enabled })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.barPickup = enabled;
+  });
+}
+
+/** Catégories du menu QR en barre en haut, en rail d'icônes à gauche ou en
+ * roue sur la carte (gérant). Le menu suit à sa prochaine revalidation. */
+export async function setCategoryLayout(layout: CategoryLayout): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({ category_layout: layout })
+      .eq("id", etablissementId())
+  );
+  apply((draft) => {
+    draft.etablissement.categoryLayout = layout;
+  });
+}
+
 /** Sous ce total, le paiement en ligne n'est pas proposé ; null ⇒ aucun minimum. */
 export async function setOnlineMinOrder(amount: number | null): Promise<void> {
   const supabase = createClient();
@@ -1126,6 +1185,7 @@ async function replaceTargets(
         rule_id: ruleId,
         category_id: target.kind === "category" ? target.id : null,
         item_id: target.kind === "item" ? target.id : null,
+        choice_id: target.kind === "item" ? (target.choiceId ?? null) : null,
       }))
     )
   );
@@ -1204,17 +1264,10 @@ export async function deletePriceRule(ruleId: string): Promise<void> {
 // ---------------------------------------------------------------------------
 // Fermetures
 
-export interface ClosureInput {
-  name: string;
-  /** null ⇒ fermeture à la main seulement. */
-  days: number[] | null;
-  startsAt: string | null;
-  endsAt: string | null;
-  targets: MenuTarget[];
-}
+export type ClosureInput = Pick<Closure, "name" | "windows" | "openWindows" | "targets">;
 
 /**
- * Fermeture et cibles en une transaction (enregistrer_fermeture) : les autres
+ * Fermeture, plages et cibles en une transaction (enregistrer_fermeture) : les autres
  * appareils, prévenus par l'événement de la fermeture, la relisent entière.
  * closureId null ⇒ nouvelle fermeture.
  */
@@ -1228,9 +1281,12 @@ async function saveClosure(
       p_etablissement: etablissementId(),
       p_closure: closureId,
       p_name: input.name,
-      p_days: input.days,
-      p_starts_at: input.startsAt,
-      p_ends_at: input.endsAt,
+      p_open_windows: input.openWindows,
+      p_windows: input.windows.map((window) => ({
+        days: window.days,
+        starts_at: window.startsAt,
+        ends_at: window.endsAt,
+      })),
       p_targets: input.targets.map((target) =>
         target.kind === "category"
           ? { category_id: target.id }
@@ -1239,7 +1295,8 @@ async function saveClosure(
     })
   );
   const closure = {
-    ...rowToClosure({ ...row, closure_targets: [] }),
+    ...rowToClosure({ ...row, closure_windows: [], closure_targets: [] }),
+    windows: input.windows,
     targets: input.targets,
   };
   apply((draft) => {
@@ -1264,7 +1321,7 @@ export async function deleteClosure(closureId: string): Promise<void> {
 }
 
 /**
- * Fermer ou rouvrir pour le reste de la journée de service (gérant ou
+ * Fermer ou rouvrir jusqu'au prochain changement de l'horaire (gérant ou
  * cuisinier). La base décide du forçage : si l'horaire donne déjà l'état
  * demandé, elle l'efface.
  */
@@ -1283,7 +1340,7 @@ export async function toggleClosure(
     const closure = draft.closures.find((c) => c.id === closureId);
     if (!closure) throw new Error("Fermeture introuvable.");
     closure.overrideClosed = row.override_closed;
-    closure.overrideDay = row.override_day;
+    closure.overrideUntil = row.override_until;
     return closure;
   });
 }

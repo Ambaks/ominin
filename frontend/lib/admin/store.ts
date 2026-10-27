@@ -17,7 +17,9 @@ import type { AdminState } from "./types";
  * Store du CRM (pattern lib/gestion/store.ts) : snapshot global des lignes
  * légères — tous les restaurants+leads, les tâches ouvertes et les RDV à
  * venir. Carte, listes et pipeline filtrent en mémoire ; le détail d'une
- * fiche vit dans lead-cache. Pas de realtime : 1-2 utilisateurs internes,
+ * fiche vit dans lead-cache. Les relances et rendez-vous des commerciaux
+ * (declaration_id) restent les leurs : l'admin n'en voit ni l'agenda ni les
+ * rappels (article 2.3 du contrat). Pas de realtime : 1-2 utilisateurs internes,
  * les mutations d'api.ts répercutent leurs écritures sur le snapshot.
  */
 
@@ -74,6 +76,7 @@ function fetchOpenTasks() {
       .from("crm_tasks")
       .select("*")
       .eq("status", "open")
+      .is("declaration_id", null)
       .order("due_at", { ascending: true, nullsFirst: false })
       .order("id")
       .range(from, to)
@@ -88,6 +91,7 @@ function fetchUpcomingAppointments() {
       .from("crm_appointments")
       .select("*")
       .eq("status", "scheduled")
+      .is("declaration_id", null)
       .gte("start_at", today.toISOString())
       .lte("start_at", addDays(today, APPOINTMENTS_WINDOW_DAYS).toISOString())
       .order("start_at", { ascending: true })

@@ -157,7 +157,7 @@ function AccordDuChef({ stats, period }: { stats: AccordStats; period: Period })
   return (
     <section className="flex flex-col gap-3">
       <div>
-        <h2 className="font-display text-lg font-medium">L&apos;accord du chef</h2>
+        <h2 className="font-display text-lg font-medium">Le combo parfait</h2>
         <p className="mt-1 text-sm text-muted">
           Ce que les suggestions du menu ont fait commander, annulations exclues.
         </p>

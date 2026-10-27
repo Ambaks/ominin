@@ -16,9 +16,10 @@ import { collectSiteUrl, menuSiteUrl } from "../../frontend/lib/site.ts";
  * garde que ce qui suit.
  */
 
+/* Filmé à la taille de l'écran : Playwright n'agrandit pas l'image, une
+ * vidéo plus grande que l'écran se remplit de gris. Même proportion que les
+ * captures du catalogue (780 × 1688), que le gabarit pose dans le téléphone. */
 const VIEWPORT = { width: 390, height: 844 };
-/* Les captures du catalogue ont la même définition (780 × 1688). */
-const VIDEO = { width: 780, height: 1688 };
 const IPHONE =
   "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1";
 
@@ -158,7 +159,7 @@ export async function recordClips(
         hasTouch: true,
         locale: "fr-FR",
         userAgent: IPHONE,
-        recordVideo: { dir, size: VIDEO },
+        recordVideo: { dir, size: VIEWPORT },
       });
       const opened = Date.now();
       let start = 0;

@@ -394,7 +394,14 @@ def _apply(sb, inbound: dict, outbound: dict, verdict: InboxVerdict, stats: dict
             ).eq("status", "contacted").execute()
         _archive_bounce(inbound["gmail_message_id"])
 
-    if verdict.draft_body and classification in ("interested", "meeting_request", "question"):
+    # A restaurant reserved by a commercial is his to answer: the admin handles
+    # a late reply by hand, the commercial only learns its gist
+    # (commercial_on_lea_reply).
+    if (
+        verdict.draft_body
+        and classification in ("interested", "meeting_request", "question")
+        and not emailing.is_reserved(inbound["restaurant_id"])
+    ):
         sb.table("outreach_emails").insert(
             {
                 "restaurant_id": inbound["restaurant_id"],

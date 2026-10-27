@@ -21,30 +21,26 @@ class Settings(BaseSettings):
     # Outreach agent — shared secret required on every /agent/* trigger.
     agent_trigger_secret: str = ""
 
-    # Google Places API (New). Text Search caps at ~60 results per query, so
-    # coverage comes from query variety — terms × quartiers × villes — rotated
-    # a few combinations per nightly run, least recently served first. A query
-    # yielding zero new restaurants discovery_query_max_empty times in a row
-    # is retired (state in outreach_discovery_queries).
-    google_places_api_key: str = ""
+    # Léa's discovery: every place of these Overture basic categories in
+    # each city's commune (postcodes + bbox from geo.api.gouv.fr), read from
+    # the latest Overture Maps release — open data (CDLA-Permissive-2.0,
+    # storage allowed), no key, no bill. Places Overture leaves without an
+    # operating status are checked against SIRENE (Recherche d'entreprises).
     outreach_cities: str = "Montpellier,Toulouse"
-    discovery_query_terms: str = (
-        "restaurant,pizzeria,brasserie,bistrot,crêperie,restaurant italien,"
-        "restaurant japonais,restaurant asiatique,restaurant indien,burger"
+    discovery_categories: str = (
+        "restaurant,fast_food_restaurant,casual_eatery,bar,cafe,coffee_shop"
     )
-    # "Ville:Quartier|Quartier;Ville:…" — joués en plus des requêtes ville
-    # entière.
-    discovery_neighborhoods: str = (
-        "Montpellier:Écusson|Beaux-Arts|Boutonnet|Port Marianne|Antigone|"
-        "Figuerolles|Les Arceaux;"
-        "Toulouse:Capitole|Carmes|Saint-Cyprien|Saint-Michel|Saint-Aubin|"
-        "Les Chalets|Jeanne d'Arc"
-    )
-    # Sized with the 3 daily discovery runs so the funnel (~15 % of
-    # discovered prospects qualify) can feed outreach_daily_limit. Every
-    # page fetched is a billed Enterprise-SKU Text Search call.
-    discovery_queries_per_run: int = 100
-    discovery_query_max_empty: int = 2
+    overture_stac_url: str = "https://stac.overturemaps.org/catalog.json"
+    communes_api_url: str = "https://geo.api.gouv.fr/communes"
+    sirene_search_url: str = "https://recherche-entreprises.api.gouv.fr/search"
+    discovery_timeout_seconds: int = 30
+    # Ids per "already in the CRM?" query — they ride in the URL.
+    discovery_id_chunk: int = 200
+
+    # Google Places API (New), used by Ominin Agents' discovery only. Text
+    # Search caps at ~60 results per query; every page fetched is a billed
+    # Enterprise-SKU call.
+    google_places_api_key: str = ""
     discovery_max_pages_per_query: int = 5
 
     # Gmail (OAuth refresh token from scripts/gmail_auth.py)
@@ -53,11 +49,18 @@ class Settings(BaseSettings):
     gmail_refresh_token: str = ""
     gmail_sender_email: str = "omininsupport@gmail.com"
     gmail_sender_name: str = "Léa Moreau"
+    # Phone line of Léa's signature; empty = no line. Kept out of the repo.
+    gmail_sender_phone: str = ""
 
     # Claude model used for qualification, cold emails, reply drafts,
     # and autoresearch analysis — with adaptive thinking on, at this effort.
     outreach_model: str = "claude-opus-5"
     outreach_effort: str = "high"
+
+    # The demo Léa's cold email links to, and the cities where the team
+    # comes to the restaurant — elsewhere she offers a call or a video call.
+    outreach_demo_url: str = "https://menu.ominin.com/demo/caffe-panis"
+    outreach_onsite_cities: str = "Montpellier,Toulouse"
 
     # Batching / limits. Each outreach run composes and sends up to the full
     # daily cap in one pass; remaining cron runs that day exit immediately.
@@ -175,6 +178,11 @@ class Settings(BaseSettings):
     github_dispatch_token: str = ""
     # Recent posts shown to the writer so it does not repeat itself.
     social_history_size: int = 30
+    # Every draft is scored by a separate reviewer call and rewritten from its
+    # critique until it reaches the target score (out of 10) or runs out of
+    # rewrites; the best version goes to the admin. Decided by Marwan.
+    social_review_target: float = 8.0
+    social_review_max_rounds: int = 3
     # Metrics are refreshed at each analysis until a post is this old, then
     # frozen; only frozen posts feed it (a day-old reach is undecided).
     social_settle_days: int = 3

@@ -10,6 +10,7 @@ import {
   ProgressBar,
   StepRow,
 } from "@/components/admin/projet/step-row";
+import { RestaurantPicker } from "@/components/admin/restaurant-picker";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useRunMutation } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
@@ -22,8 +23,10 @@ import {
   progress,
   selectProjetFor,
   updateClientNotes,
+  updateClientRestaurant,
   useProjet,
 } from "@/lib/admin/projet";
+import { useAdmin } from "@/lib/admin/store";
 
 /*
  * Un client : ce qu'il rapporte une fois en service, et sa pipeline complète,
@@ -40,6 +43,7 @@ export default function ProjetClientPage() {
   const run = useRunMutation();
   const { basePath, product } = useAdminBasePath();
   const { data } = useProjet();
+  const crm = useAdmin();
 
   if (!data) {
     return <div aria-busy className="shimmer h-96 rounded-2xl" />;
@@ -145,6 +149,24 @@ export default function ProjetClientPage() {
             relié à son établissement ou à sa boutique.
           </p>
         )}
+
+        <section className="flex flex-col gap-2">
+          <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+            Fiche du CRM
+          </h2>
+          <RestaurantPicker
+            value={crm?.leads.find((lead) => lead.restaurantId === client.restaurant_id) ?? null}
+            onSelect={(lead) =>
+              void run(
+                () => updateClientRestaurant(client.id, lead?.restaurantId ?? null),
+                lead ? `Relié à ${lead.name}` : "Fiche détachée",
+              )
+            }
+          />
+          <p className="text-xs text-faint">
+            Relié à sa fiche, le client est « en discussion avec Ominin » : aucun commercial ne peut le déclarer.
+          </p>
+        </section>
 
         <section className="flex flex-col gap-3">
           <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">

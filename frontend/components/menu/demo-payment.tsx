@@ -21,6 +21,7 @@ export function DemoPayment({
   total,
   tipAmount,
   merchant,
+  bar,
   onDone,
   onPhase,
 }: {
@@ -29,6 +30,8 @@ export function DemoPayment({
   tipAmount: number;
   /** L'établissement encaisseur, nommé au-dessus du montant. */
   merchant?: string;
+  /** Retrait au bar : on y règle, au lieu du comptoir. */
+  bar: boolean;
   /** Fin du règlement — payé, ou abandon. */
   onDone: (paid: boolean) => void;
   onPhase?: (phase: CardPhase) => void;
@@ -56,13 +59,14 @@ export function DemoPayment({
 
   if (state === "paid") {
     return (
-      <CardPaymentPaid due={formatPrice(total + tipAmount)} onContinue={() => onDone(true)} />
+      <CardPaymentPaid bar={bar} due={formatPrice(total + tipAmount)} onContinue={() => onDone(true)} />
     );
   }
 
   if (state === "declined") {
     return (
       <CardPaymentFailed
+        bar={bar}
         declined
         onRetry={() => setState("ready")}
         onCounter={() => onDone(false)}
@@ -72,6 +76,7 @@ export function DemoPayment({
 
   return (
     <CardPaymentForm
+      bar={bar}
       state={state}
       total={total}
       tipAmount={tipAmount}

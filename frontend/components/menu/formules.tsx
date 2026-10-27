@@ -560,11 +560,14 @@ export function FormuleTile({
   onOpen,
   closed = false,
   note,
+  wasPrice,
   className = "",
 }: {
   formule: Formule;
   index: number;
   onOpen: (tile: HTMLButtonElement) => void;
+  /** Ce que coûteraient ses plats à la carte, barré à côté du prix (happy hour). */
+  wasPrice?: number;
   /** Une étape obligatoire n'a plus rien de servi : l'offre reste, estompée. */
   closed?: boolean;
   /** Click & collect : ce qui la rend imprenable à l'heure jugée, sans la fermer. */
@@ -644,8 +647,13 @@ export function FormuleTile({
       </span>
       {note && <span className="text-xs font-medium text-muted">{note}</span>}
       <span className="formule-foot flex items-center justify-between gap-3">
-        <span className="ember-gradient rounded-full px-3 py-1 font-display text-lg font-semibold text-background">
-          {formatPrice(formule.price)}
+        <span className="flex items-center gap-2">
+          {wasPrice !== undefined && (
+            <s className="text-sm text-muted">{formatPrice(wasPrice)}</s>
+          )}
+          <span className="ember-gradient rounded-full px-3 py-1 font-display text-lg font-semibold text-background">
+            {formatPrice(formule.price)}
+          </span>
         </span>
         <span className="formule-action inline-flex items-center gap-1 text-xs font-semibold text-muted">
           {closed ? "Plus servie" : <>Composer <span aria-hidden>→</span></>}
@@ -674,12 +682,6 @@ export function FormulesSection({
   formules: Formule[];
   affiches?: AfficheMenu[];
 }) {
-  const servable = useServable();
-  const { closed, closedAt, collect } = useCart();
-  const [open, setOpen] = useState<Formule | null>(null);
-  const opener = useRef<HTMLButtonElement | null>(null);
-  const added = useRef(false);
-
   /* Pas de révélation au défilement, comme les sections de la carte (voir
      MenuSection) : masquées jusqu'au JavaScript, les offres restaient
      blanches au premier écran. */
@@ -696,6 +698,82 @@ export function FormulesSection({
           <AffichesMarquee affiches={affiches} />
         </div>
       )}
+      <FormuleTiles formules={formules} />
+    </section>
+  );
+}
+
+/**
+ * Des formules en lignes, dans la feuille d'une pastille d'offres
+ * (components/menu/offer-pill.tsx). `wasPrice` : le prix à la carte, barré
+ * à côté du sien (la happy hour).
+ */
+export function FormuleOffers({
+  formules,
+}: {
+  formules: { formule: Formule; wasPrice?: number }[];
+}) {
+  const { closed } = useCart();
+  const [composing, setComposing] = useState<Formule | null>(null);
+
+  return (
+    <>
+      <ul>
+        {formules.map(({ formule, wasPrice }) => {
+          const served = openFormule(formule, closed);
+          return (
+            <li key={formule.id}>
+              <span className="offer-thumb" aria-hidden>
+                {[...shortName(formule.name)][0]}
+              </span>
+              <span className="flex min-w-0 flex-col">
+                <span className="font-display leading-tight">{formule.name}</span>
+                <small>
+                  {formule.description || formule.etapes.map((etape) => etape.name).join(" · ")}
+                </small>
+              </span>
+              <span className="offer-price">
+                {wasPrice !== undefined && <s>{formatPrice(wasPrice)}</s>}
+                <b className="font-display">{formatPrice(formule.price)}</b>
+              </span>
+              <div className="dish-action">
+                <button
+                  type="button"
+                  disabled={!served}
+                  aria-haspopup="dialog"
+                  aria-label={`Composer : ${formule.name}`}
+                  onClick={() => setComposing(served)}
+                  className="ember-gradient rounded-full text-background disabled:opacity-60"
+                />
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+      {composing && <FormuleModal formule={composing} onClose={() => setComposing(null)} />}
+    </>
+  );
+}
+
+/**
+ * Des formules en tuiles, que l'on compose d'un toucher. `wasPrices` : par
+ * formule, le prix à la carte barré à côté du sien (la happy hour).
+ */
+export function FormuleTiles({
+  formules,
+  wasPrices = {},
+}: {
+  formules: Formule[];
+  wasPrices?: Record<string, number>;
+}) {
+  const servable = useServable();
+  const { closed, closedAt, collect } = useCart();
+  const [open, setOpen] = useState<Formule | null>(null);
+  const opener = useRef<HTMLButtonElement | null>(null);
+  const added = useRef(false);
+
+  return (
+    <>
       <div className="flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5">
         {formules.map((formule, index) => {
           const served = servable(formule);
@@ -705,6 +783,7 @@ export function FormulesSection({
               formule={served ?? formule}
               index={index}
               closed={served === null}
+              wasPrice={wasPrices[formule.id]}
               // Click & collect : le plat se juge à l'heure de retrait ; la
               // formule reste composable, mais le client le sait d'avance.
               note={
@@ -742,6 +821,6 @@ export function FormulesSection({
           }}
         />
       )}
-    </section>
+    </>
   );
 }

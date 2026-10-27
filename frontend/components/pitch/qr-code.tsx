@@ -1,9 +1,8 @@
 import QRCode from "qrcode";
 
 /**
- * QR code vectoriel, calculé au rendu serveur : un seul chemin SVG, net à
- * toute taille et léger dans le PDF. La marge (zone calme) est à la charge
- * du fond qui l'entoure.
+ * QR code vectoriel : un seul chemin SVG, net à toute taille et léger dans
+ * le PDF. La marge (zone calme) est à la charge du fond qui l'entoure.
  */
 export function QrCode({ value, label, className }: { value: string; label: string; className?: string }) {
   const { modules } = QRCode.create(value, { errorCorrectionLevel: "M" });

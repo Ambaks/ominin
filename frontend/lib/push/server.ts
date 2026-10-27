@@ -56,6 +56,7 @@ interface OrderContext {
   paid_online: boolean;
   order_number: number | null;
   tables: { number: number } | null;
+  etablissements: { show_table_number: boolean };
   order_items: { quantity: number }[];
   order_payments: { mode: string; paid_at: string }[];
 }
@@ -64,10 +65,12 @@ function composeBody(order: OrderContext): string {
   const count = order.order_items.reduce((sum, item) => sum + item.quantity, 0);
   const articles = `${count} article${count > 1 ? "s" : ""}`;
   if (order.type === "sur_place") {
-    const place = order.tables
-      ? `Table ${order.tables.number}`
-      : order.order_number
-        ? `N° ${order.order_number}`
+    const place = order.order_number
+      ? `N° ${order.order_number}${
+          order.tables && order.etablissements.show_table_number ? ` · Table ${order.tables.number}` : ""
+        }`
+      : order.tables
+        ? `Table ${order.tables.number}`
         : "Sur place";
     return `${place} · ${articles}`;
   }
@@ -105,7 +108,7 @@ export async function dispatchOrderEvent(
   const { data: order, error: orderError } = await db
     .from("orders")
     .select(
-      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, paid_online, order_number, tables (number), order_items (quantity), order_payments (mode, paid_at)"
+      "id, etablissement_id, type, status, created_at, customer_name, pickup_at, paid_online, order_number, tables (number), etablissements (show_table_number), order_items (quantity), order_payments (mode, paid_at)"
     )
     .eq("id", orderId)
     .maybeSingle<OrderContext>();
@@ -335,7 +338,7 @@ interface Deliverable {
 export async function sendToSubscriptions(
   subscriptions: Deliverable[],
   payload: PushPayload,
-  table: "push_subscriptions" | "admin_push_subscriptions" = "push_subscriptions"
+  table: "push_subscriptions" | "admin_push_subscriptions" | "commercial_push_subscriptions" = "push_subscriptions"
 ): Promise<void> {
   const publicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const privateKey = process.env.VAPID_PRIVATE_KEY;

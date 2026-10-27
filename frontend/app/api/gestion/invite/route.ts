@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { sendInviteEmail, sendTeamNotification } from "@/lib/gestion/invite-notify";
+import { sendInviteEmail } from "@/lib/gestion/invite-notify";
+import { rateLimit } from "@/lib/rate-limit/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import type { Database } from "@/lib/supabase/database.types";
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
       { status: 403 },
     );
   }
+  const limited = await rateLimit("teamInvite", user.id);
+  if (limited) return limited;
 
   const { data: etablissement } = await supabase
     .from("etablissements")
@@ -60,9 +63,11 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
 
-  const { error: insertError } = await admin
+  const { data: invitation, error: insertError } = await admin
     .from("invitations")
-    .insert({ etablissement_id, email, role });
+    .insert({ etablissement_id, email, role })
+    .select("token")
+    .single();
   if (insertError) {
     const isDuplicate =
       insertError.code === "23505" ||
@@ -82,48 +87,48 @@ export async function POST(request: Request) {
     request.headers.get("x-forwarded-host") ?? requestUrl.host;
   const origin = `${requestUrl.protocol}//${host}`;
 
-  const { data: pending } = await admin
-    .from("invitations")
-    .select("id")
-    .eq("etablissement_id", etablissement_id)
-    .eq("email", email)
-    .maybeSingle();
-
+  /*
+   * Le compte de l'invité est ouvert ici, déjà confirmé : un compte en
+   * attente de confirmation se laisse prendre par une simple inscription
+   * publique, le projet confirmant les e-mails d'office. Le lien envoyé est
+   * un lien magique — il prouve l'accès à la boîte — et porte le jeton de
+   * l'invitation, sans lequel /menu/invitation n'accepte rien
+   * (accept_invitation).
+   */
   try {
-    if (pending) {
-      const { data: linkData, error: linkError } =
-        await admin.auth.admin.generateLink({
-          type: "invite",
-          email,
-          options: { redirectTo: `${origin}/auth/callback` },
-        });
-      if (linkError) throw linkError;
-
-      const verifyUrl = `${origin}/auth/callback?token_hash=${linkData.properties.hashed_token}&type=invite&next=/menu/invitation`;
-      await sendInviteEmail(email, etablissement.name, role, verifyUrl);
-    } else {
-      await sendTeamNotification(
-        email,
-        etablissement.name,
-        role,
-        `${origin}/menu/connexion`,
-      );
+    const created = await admin.auth.admin.createUser({
+      email,
+      email_confirm: true,
+    });
+    if (created.error && created.error.code !== "email_exists") {
+      throw created.error;
     }
+
+    const { data: linkData, error: linkError } =
+      await admin.auth.admin.generateLink({
+        type: "magiclink",
+        email,
+        options: { redirectTo: `${origin}/auth/callback` },
+      });
+    if (linkError) throw linkError;
+
+    const verifyUrl = new URL(`${origin}/auth/callback`);
+    verifyUrl.search = new URLSearchParams({
+      token_hash: linkData.properties.hashed_token,
+      type: "email",
+      next: `/menu/invitation?token=${invitation.token}`,
+    }).toString();
+    await sendInviteEmail(email, etablissement.name, role, verifyUrl.toString());
   } catch (emailError) {
     console.error("Invitation email error:", emailError);
     const reason =
       emailError instanceof Error ? emailError.message : "Erreur inconnue";
     return NextResponse.json({
       invited: true,
-      existing_user: !pending,
       email_sent: false,
       email_error: reason,
     });
   }
 
-  return NextResponse.json({
-    invited: true,
-    existing_user: !pending,
-    email_sent: true,
-  });
+  return NextResponse.json({ invited: true, email_sent: true });
 }

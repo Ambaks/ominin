@@ -2,6 +2,7 @@ import { allergenLine, BADGE_LABELS, formatPrice, hasFormats } from "@/lib/menu/
 import { type Badge, type MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
 import { DishIndicators } from "./dish-indicators";
+import { DishOpener } from "./dish-sheet";
 import { keepHyphenated } from "./keep-hyphenated";
 import { RewardHint } from "./reward-hint";
 
@@ -64,7 +65,7 @@ function Description({ text, tarifs, detail }: { text?: string; tarifs?: string;
 }
 
 /** Les allergènes que l'établissement déclare pour ce plat. */
-function Allergens({ item }: { item: MenuItem }) {
+export function Allergens({ item }: { item: MenuItem }) {
   if (!item.allergens?.length) return null;
   return (
     <p className="dish-allergens text-xs leading-relaxed text-faint">
@@ -91,14 +92,25 @@ function Pairing({ pairing }: { pairing?: string }) {
 }
 
 /** Large photo card for featured items. */
-function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
+function FeaturedCard({
+  item,
+  drink,
+  priority,
+  span,
+}: {
+  item: MenuItem;
+  /** Une boisson : ni allergènes sur la fiche, ni dans sa feuille. */
+  drink?: boolean;
+  priority?: boolean;
+  span?: boolean;
+}) {
   return (
     <article
       // data-item : un thème peut marquer un plat précis (globals.css).
       data-item={item.id}
       // Une fiche que la mise en page d'un thème peut étendre à la rangée (globals.css).
       data-span={span || undefined}
-      className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-colors duration-300 hover:border-ember-2/45 lg:rounded-3xl"
+      className="group relative overflow-hidden rounded-2xl border border-hairline bg-surface transition-[color,background-color,border-color,scale] duration-300 hover:border-ember-2/45 motion-safe:has-[.dish-open:active]:scale-[0.985] has-[.dish-open:focus-visible]:outline-2 has-[.dish-open:focus-visible]:outline-offset-2 has-[.dish-open:focus-visible]:outline-ember-2 lg:rounded-3xl"
     >
       {item.image && (
         <div className="dish-photo relative aspect-video overflow-hidden">
@@ -161,17 +173,18 @@ function FeaturedCard({ item, priority, span }: { item: MenuItem; priority?: boo
         <DishIndicators item={item} />
         <Description text={item.description} tarifs={item.tarifs} detail={item.detail} />
         <Notice hours={item.noticeHours} />
-        <Allergens item={item} />
+        {!drink && <Allergens item={item} />}
         <Pairing pairing={item.pairing} />
-        <RewardHint itemId={item.id} />
-        <div className="dish-action mt-1 flex justify-end">
+        <RewardHint itemId={item.id} compact />
+        <div className="dish-action pointer-events-none z-1 mt-1 flex justify-end *:pointer-events-auto">
           <AddToOrder item={item} />
         </div>
       </div>
+      <DishOpener item={item} drink={drink} />
     </article>
   );
 }
 
-export function DishCard({ item, priority, span }: { item: MenuItem; priority?: boolean; span?: boolean }) {
-  return <FeaturedCard item={item} priority={priority} span={span} />;
+export function DishCard(props: { item: MenuItem; drink?: boolean; priority?: boolean; span?: boolean }) {
+  return <FeaturedCard {...props} />;
 }

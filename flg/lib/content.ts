@@ -28,6 +28,14 @@ export const contact = {
   email: "flgaerogommage@gmail.com",
 } as const;
 
+export const legal = {
+  company: "SAS FLG Aérogommage",
+  registration: "RCS Toulouse 989 590 245",
+  vat: "TVA intracommunautaire : FR 96989590245",
+  address: { street: "8 rue Henri Matisse", postalCode: "31320", city: "Castanet-Tolosan" },
+  representative: "M. Frédéric Le Grégam",
+} as const;
+
 export const surfaces = [
   "Charpentes",
   "Plafonds",
@@ -41,10 +49,10 @@ export const surfaces = [
   "Métal",
 ] as const;
 
-export const proofs = [
-  { value: "1,5 – 6", unit: "bar", label: "Basse pression", body: "Le support n'est ni creusé ni marqué : on retire la couche, pas la matière." },
-  { value: "0", unit: "eau · solvant", label: "À sec, sans chimie", body: "Un abrasif fin et de l'air comprimé. Ni rinçage, ni séchage, ni décapant à neutraliser." },
-] as const;
+export const procede = {
+  lede: "C’est un procédé de traitement de surface dérivé de la technique du sablage.",
+  body: "Cela consiste en la projection d’un abrasif à l’aide d’air comprimé à basse pression (entre 1,5 et 6 bars) en vue du décapage ou du nettoyage de surface. Cette technique est mieux adaptée que le sablage aux travaux de précision et à l’emploi dans des endroits difficilement accessibles. Grâce à l’emploi de basse pression et à un choix d’une large gamme d’abrasifs, elle est efficace sur tout support. L’utilisation d’abrasifs de très faible granulométrie permet le respect total de nombreux supports. Par exemple il est possible de décaper un vernis ou une peinture le long d’une vitrerie sans qu’il y ait le moindre impact sur le verre lorsque l’abrasif est adapté. C’est une technique efficace pour nettoyer tous les types de surface (bois, pierre, métal). Il s’agit d’une technique de nettoyage sec sans apport d’eau, qui permet une remise en état d’un support qui a subi le temps ou qui a été recouvert par une matière (peinture, vernis, enduit…). C’est aussi un bon moyen de préparer une surface métallique avant peinture car ça donne une bonne accroche indispensable à la peinture.",
+} as const;
 
 export type Case = {
   title: string;
@@ -85,17 +93,17 @@ export const steps = [
 ] as const;
 
 export const applications = [
-  { title: "Bois", items: ["Charpentes et fermes", "Plafonds à la française", "Poutres, solives, auvents", "Bardages, volets, pergolas"] },
-  { title: "Pierre et tomette", items: ["Façades", "Murs intérieurs", "Sols en tomette", "Encadrements", "Cheminées"] },
+  { title: "Bois", items: ["Charpentes et façades", "Plafonds à la française", "Poutres, solives, auvents", "Bardages, volets, pergolas"] },
+  { title: "Pierre et tomette", items: ["Façades", "Murs intérieurs", "Sols en tomettes", "Encadrements", "Cheminées"] },
   { title: "Métal", items: ["Portails et garde-corps", "Structures et ossatures", "Préparation avant peinture"] },
 ] as const;
 
 
 export const audiences = [
-  { title: "Architectes et maîtres d'œuvre", body: "Restituer un bâti ancien sans le dénaturer, préparer un support avant finition." },
-  { title: "Entreprises de rénovation", body: "Un sous-traitant pour le décapage, qui protège et rend un chantier propre." },
-  { title: "Collectivités et copropriétés", body: "Auvents, préaux, charpentes, façades : de grandes surfaces, traitées sur place." },
-  { title: "Particuliers", body: "Plafonds, charpentes, escaliers, façades, sols." },
+  "Architectes et maîtres d'œuvre",
+  "Entreprises de rénovation",
+  "Entreprises de construction",
+  "Particuliers",
 ] as const;
 
 export const comparison = {

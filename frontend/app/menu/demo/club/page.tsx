@@ -63,7 +63,7 @@ export default async function EtoileDemoPage({ searchParams }: PageProps<"/menu/
         data-slug={SLUG}
         className={`${etoileFontVariables} ${restaurantThemeClass(SLUG) ?? ""} flex flex-1 flex-col`}
       >
-        <EtoileMenu tableNumber={tableNumber} restaurant={restaurant} />
+        <EtoileMenu restaurant={restaurant} />
         <TicketTracker />
         <CartBar />
       </div>

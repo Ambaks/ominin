@@ -80,6 +80,9 @@ export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "reti
  */
 export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "prete", "servie", "retiree"];
 
+/** Retrait au bar : une commande numérotée se remet réglée, prête ou pas encore. */
+export const HANDOVER_STATUSES: OrderStatus[] = ["payee", "prete"];
+
 /**
  * Statuts encore ouverts, quel que soit leur âge : à encaisser (en_attente),
  * à servir (payee) ou en cours côté collect.
@@ -401,6 +404,12 @@ export const VIEWS: ViewSpec[] = [
     id: "soirees",
     label: "Soirées",
     hint: "Ominin Club : les soirées du club, les tables à vendre et leurs prix, le plan du soir en direct à la porte et la liste d'invités. Hors offre : Ominin l'ouvre pour un club.",
+    features: [],
+  },
+  {
+    id: "bulles",
+    label: "Bulles",
+    hint: "Les bulles du jardin réservées en ligne : créneaux, prix par personne, réservations du soir et arrivées. Hors offre : Ominin l'ouvre pour un établissement qui en a.",
     features: [],
   },
   {

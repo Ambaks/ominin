@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import {
   collectProblem,
   PickupFields,
   pickupNotice,
   type CollectDetails,
 } from "@/components/collect/pickup-fields";
+import { useBulleOrderBlock } from "@/components/bulles/table-gate";
 import { CartPairings } from "@/components/menu/cart-pairings";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { ClaimPoints } from "@/components/menu/claim-points";
@@ -20,9 +21,9 @@ import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref, normalizePhone, previewOrderKey, type PreviewCollectOrder } from "@/lib/collect/shared";
 import { useCart, type CartLine } from "@/lib/menu/cart";
-import { formatPrice } from "@/lib/menu/format";
+import { counterWords, formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
-import { CARD_NOTICES, useTickets, type TicketLine } from "@/lib/menu/tickets";
+import { cardNotices, useTickets, type TicketLine } from "@/lib/menu/tickets";
 import { pointsEarned } from "@/lib/menu/loyalty";
 import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import { CART_LINES_SHOWN } from "@/lib/gestion/constants";
@@ -103,9 +104,18 @@ function BinIcon() {
 export function CartBar() {
   const cart = useCart();
   const tickets = useTickets();
+  // La table d'une bulle dont les places ne sont pas toutes payées.
+  const bulleBlock = useBulleOrderBlock();
   const [open, setOpen] = useState(false);
   const [state, setState] = useState<SubmitState>("idle");
   const [paymentChoice, setPayment] = useState<PaymentChoice>("carte");
+  // Le règlement touché depuis l'arrivée à l'étape : un thème n'anime que le
+  // choix fait par le client, pas celui proposé d'office.
+  const [paymentTouched, setPaymentTouched] = useState(false);
+  const choosePayment = (choice: PaymentChoice) => {
+    setPayment(choice);
+    setPaymentTouched(true);
+  };
   // Mode retenu à l'envoi : l'écran de confirmation le lit une fois le
   // panier vidé, quand le total ne dit plus rien.
   const [sentPayment, setSentPayment] = useState<PaymentChoice>("comptoir");
@@ -214,7 +224,8 @@ export function CartBar() {
     setAnnouncement(
       cart.count === 0
         ? state === "sent"
-          ? cart.tableNumber === null ||
+          ? cart.fastFood ||
+            cart.tableNumber === null ||
             stripePayment ||
             squarePayment ||
             sumupPayment ||
@@ -391,15 +402,18 @@ export function CartBar() {
   const barLabel =
     closedLines.length > 0
       ? "Commande à revoir"
-      : collectShort
-        ? `Encore ${formatPrice(missingCents / 100)} pour commander`
-        : "Voir la commande";
+      : bulleBlock
+        ? "Commande pas encore ouverte"
+        : collectShort
+          ? `Encore ${formatPrice(missingCents / 100)} pour commander`
+          : "Voir la commande";
 
   // Pourboire du règlement par carte, en centimes : pourcentage du total
   // arrondi au centime, ou montant libre — au plus le total, la borne du
   // serveur. Au comptoir d'un fast food, pas de service à table : pas de
   // pourboire.
-  const tipOffered = payment === "carte" && !cart.fastFood && !cart.collect;
+  const tipPossible = !cart.fastFood && !cart.collect;
+  const tipOffered = tipPossible && payment === "carte";
   const typedTip = tipOffered && tipChoice === "autre" ? customTip.trim() : "";
   const typedCents = typedTip ? parseCents(typedTip) : null;
   const tipError = !typedTip
@@ -409,21 +423,28 @@ export function CartBar() {
       : typedCents > totalCents
         ? `Au plus ${formatPrice(cart.total)}\u00a0: le montant de la commande.`
         : null;
+  const percentTip = (percent: number) => Math.round((totalCents * percent) / 100);
   const tipCents =
     !tipOffered || tipChoice === null || tipError
       ? 0
       : tipChoice === "autre"
         ? (typedCents ?? 0)
-        : Math.round((totalCents * tipChoice) / 100);
+        : percentTip(tipChoice);
   const tipAmount = tipCents / 100;
   // Aperçu à table : paiement simulé et suivi (demoSuivi).
   const previewSuivi = cart.preview && cart.demoSuivi !== undefined;
+  // Retrait au bar : on y règle et on y retire la commande.
+  const barPickup = Boolean(cart.barPickup);
+  const { place: counter, preparation } = counterWords(barPickup);
+  const filledChoice = previewSuivi || barPickup;
+  const paymentNotices = cardNotices(barPickup);
   // Le règlement a son étape quand il y a un choix à faire (en ligne ou au
   // comptoir, puis le pourboire).
   const paymentStep = cart.onlinePayment && cart.total > 0 && !belowMinimum && !cart.collect;
   const onPayment = paymentStep && step === "reglement";
   const goTo = (next: "commande" | "reglement") => {
     setStep(next);
+    setPaymentTouched(false);
     setStepMoves((moves) => moves + 1);
   };
 
@@ -514,6 +535,7 @@ export function CartBar() {
       }
       if (!cart.fastFood) {
         setSentPayment(payment);
+        recordPreviewLoyalty();
         cart.clear();
         resetChoices();
         setState("sent");
@@ -555,8 +577,8 @@ export function CartBar() {
       "place_order",
       {
         p_slug: cart.slug,
-        // Nul en fast food (la base y refuse une table) : les types générés
-        // ne connaissent pas d'argument nul.
+        // Nul sans QR de table : les types générés ne connaissent pas
+        // d'argument nul.
         p_table_number: cart.tableNumber as number,
         p_items: payload,
         // Réglée en ligne, la commande attend son paiement hors de la caisse ;
@@ -685,10 +707,28 @@ export function CartBar() {
     // feuille — il viendra à sa fin.
     const inPage = payment === "carte" && !failed;
     if (cart.fastFood && !inPage) {
-      handOff(orderId, [...(failed ? [CARD_NOTICES.failed] : []), ...loyaltyNotices()]);
+      handOff(orderId, [...(failed ? [paymentNotices.failed] : []), ...loyaltyNotices()]);
     } else {
       setState("sent");
     }
+  };
+
+  // Aperçu doté d'une fidélité (loyalty-demo) : la commande passe sur la
+  // carte de son contact, avant que le panier ne se vide.
+  const recordPreviewLoyalty = () => {
+    if (!loyaltyContact || !loyaltyMember.recordPreviewOrder) return;
+    loyaltyMember.recordPreviewOrder({
+      contact: loyaltyContact,
+      firstName: firstName.trim() || undefined,
+      remember: member !== null || rememberPhone,
+      earned: loyaltyPoints,
+      spent: cart.pointsSpent,
+      rewards: cart.lines.filter((line) => line.reward).map((line) => line.name).join(", ") || null,
+      table: cart.tableNumber,
+    });
+    // Comme après une vraie commande : le champ ne se vide qu'une fois le téléphone retenu.
+    if (member !== null || rememberPhone) setContact("");
+    setBalance(null);
   };
 
   // Aperçu à table : la commande part — payée en ligne (« accepté »), total
@@ -702,6 +742,7 @@ export function CartBar() {
     tip: number
   ) => {
     if (!tickets || !cart.demoSuivi) return;
+    recordPreviewLoyalty();
     const drinks = new Set(cart.demoSuivi.drinks);
     const hot = new Set(cart.demoSuivi.hotDrinks);
     tickets.add(orderId, {
@@ -715,6 +756,14 @@ export function CartBar() {
     cart.clear();
     resetChoices();
   };
+
+  // Ce que dit le ticket au terme du paiement par carte. Au bar, le client
+  // qui n'a pas payé vient de choisir d'y régler : son ticket le dit
+  // (« Réglez-la au bar »), un avis de paiement manqué l'alarmerait.
+  const settledNotices = (paid: boolean) =>
+    paid
+      ? loyaltyNotices(true)
+      : [...(barPickup ? [] : [paymentNotices.declined]), ...loyaltyNotices()];
 
   // Fin d'un règlement dans la feuille (Square, Stripe). Click & collect :
   // payé, la page de suivi ; sinon la commande n'est pas passée, le panier
@@ -736,12 +785,7 @@ export function CartBar() {
       return;
     }
     if (!paid) giveUpCard(orderId);
-    if (cart.fastFood) {
-      handOff(
-        orderId,
-        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
-      );
-    }
+    if (cart.fastFood) handOff(orderId, settledNotices(paid));
   };
 
   const close = () => {
@@ -756,7 +800,7 @@ export function CartBar() {
       const abandoned = cardPhase.current === "form";
       if (abandoned) giveUpCard(pending);
       handOff(pending, [
-        ...(abandoned ? [CARD_NOTICES.declined] : []),
+        ...(abandoned ? [paymentNotices.declined] : []),
         ...loyaltyNotices(cardPhase.current === "paid"),
       ]);
       return;
@@ -838,6 +882,10 @@ export function CartBar() {
         <Sheet
           key={sheetKey}
           onClosed={close}
+          // Un pourboire choisi ajoute sa ligne au total : la hauteur glisse
+          // aussi. Le choix, pas le montant : passer au comptoir replie le
+          // pourboire, que la feuille suit déjà en glissant.
+          morphKey={state === "sent" ? "sent" : `${step}:${tipChoice !== null}`}
           backdropCloses
           labelledBy={state === "sent" ? undefined : titleId}
           label={
@@ -881,12 +929,7 @@ export function CartBar() {
                   onDone={(paid) => {
                     setSumupPayment(null);
                     if (!paid) giveUpCard(sumupPayment.orderId);
-                    if (cart.fastFood) {
-                      handOff(
-                        sumupPayment.orderId,
-                        paid ? loyaltyNotices(true) : [CARD_NOTICES.declined, ...loyaltyNotices()]
-                      );
-                    }
+                    if (cart.fastFood) handOff(sumupPayment.orderId, settledNotices(paid));
                   }}
                 />
               ) : state === "sent" && squarePayment ? (
@@ -896,6 +939,7 @@ export function CartBar() {
                   total={squarePayment.total}
                   tipAmount={squarePayment.tipAmount}
                   merchant={cart.restaurantName}
+                  bar={barPickup}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(squarePayment.orderId, paid)}
                 />
@@ -905,6 +949,7 @@ export function CartBar() {
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
                   merchant={cart.restaurantName}
+                  bar={barPickup}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
@@ -914,12 +959,13 @@ export function CartBar() {
                   total={stripePayment.total}
                   tipAmount={stripePayment.tipAmount}
                   merchant={cart.restaurantName}
+                  bar={barPickup}
                   onPhase={onCardPhase}
                   onDone={(paid) => finishInPage(stripePayment.orderId, paid)}
                 />
               ) : state === "sent" ? (
                 <div className="flex flex-col items-center gap-4 p-10 text-center">
-                  <span className="ember-text font-display text-5xl">✓</span>
+                  <span className="cart-sent-mark ember-text font-display text-5xl">✓</span>
                   <h3 className="cart-sent-title font-display text-2xl font-medium">
                     Commande envoyée&nbsp;!
                   </h3>
@@ -976,7 +1022,7 @@ export function CartBar() {
                     type="button"
                     onClick={dismiss}
                     autoFocus
-                    className="ember-gradient mt-2 min-h-11 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
+                    className="sheet-cta ember-gradient mt-2 min-h-11 rounded-full px-6 py-2.5 text-sm font-semibold text-background"
                   >
                     Continuer
                   </button>
@@ -993,21 +1039,25 @@ export function CartBar() {
                       tabIndex={-1}
                       className="cart-title min-w-0 flex-1 font-display text-lg font-medium outline-none"
                     >
-                      {onPayment ? "Règlement" : "Votre commande"}
+                      {/* Une étape, un titre neuf : un thème le fait entrer. */}
+                      <span key={onPayment ? "reglement" : "commande"} className="cart-title-text block">
+                        {onPayment ? "Règlement" : "Votre commande"}
+                      </span>
                       <span className="mt-0.5 flex flex-wrap items-center gap-x-2 font-sans text-xs font-normal normal-case tracking-normal text-muted">
                         {cart.collect
                           ? "À emporter"
-                          : cart.fastFood
-                            ? "À récupérer au comptoir"
-                            : cart.preview && cart.demoSuivi?.barPickup
-                              ? "À récupérer au bar"
+                          : barPickup && cart.tableDelivery && cart.tableNumber !== null
+                            ? `Servie à la table ${cart.tableNumber}`
+                            : cart.fastFood || barPickup
+                              ? `À récupérer au ${counter}`
                               : `Table ${cart.tableNumber}`}
                         {paymentStep && (
                           <>
                             <span aria-hidden className="flex w-10 gap-1">
-                              <span className="ember-gradient h-1 flex-1 rounded-full" />
+                              <span data-done className="cart-step ember-gradient h-1 flex-1 rounded-full" />
                               <span
-                                className={`h-1 flex-1 rounded-full ${onPayment ? "ember-gradient" : "bg-hairline"}`}
+                                data-done={onPayment || undefined}
+                                className={`cart-step h-1 flex-1 rounded-full ${onPayment ? "ember-gradient" : "bg-hairline"}`}
                               />
                             </span>
                             <span>Étape {onPayment ? 2 : 1} sur 2</span>
@@ -1033,6 +1083,16 @@ export function CartBar() {
                         onClick={() => goTo("commande")}
                         className="mb-4 self-start text-left text-sm text-muted underline-offset-4 hover:underline"
                       >
+                        {/* Les photos de la commande, en pile, là où un thème les montre. */}
+                        <span aria-hidden className="cart-summary-photos hidden">
+                          {cart.lines.map(
+                            (line) =>
+                              line.image && (
+                                // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'établissement, hors remotePatterns de next/image
+                                <img key={line.key} src={line.image} alt="" loading="lazy" decoding="async" />
+                              )
+                          )}
+                        </span>
                         {cart.count} article{cart.count > 1 ? "s" : ""} · {formatPrice(cart.total)}
                         {loyaltyPoints > 0 && (
                           <span className="text-ember-1">
@@ -1052,7 +1112,7 @@ export function CartBar() {
                         {(
                           [
                             ["carte", "Payer en\u00a0ligne"],
-                            ["comptoir", "Payer au\u00a0comptoir"],
+                            ["comptoir", `Payer au\u00a0${counter}`],
                           ] as const
                         ).map(([value, label]) => (
                           <button
@@ -1062,26 +1122,28 @@ export function CartBar() {
                             aria-checked={payment === value}
                             data-choice={value}
                             data-payment-choice={value === "carte" ? "en-ligne" : "comptoir"}
+                            data-fresh={(paymentTouched && payment === value) || undefined}
                             // Un groupe de radios : un seul arrêt de tabulation,
                             // les flèches passent d'un choix à l'autre.
                             tabIndex={payment === value ? 0 : -1}
-                            onClick={() => setPayment(value)}
+                            onClick={() => choosePayment(value)}
                             onKeyDown={(event) => {
                               if (!event.key.startsWith("Arrow")) return;
                               if (event.altKey || event.metaKey || event.ctrlKey) return;
                               event.preventDefault();
                               const other = value === "carte" ? "comptoir" : "carte";
-                              setPayment(other);
+                              choosePayment(other);
                               event.currentTarget.parentElement
                                 ?.querySelector<HTMLElement>(`[data-choice="${other}"]`)
                                 ?.focus();
                             }}
-                            // Aperçu à table (demoSuivi) : le choix fait se remplit
-                            // de la couleur de la maison, comme le bouton d'envoi.
-                            className={`flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
+                            // Aperçu à table (demoSuivi) et retrait au bar : le choix
+                            // fait se remplit de la couleur de la maison, comme le
+                            // bouton d'envoi.
+                            className={`pay-choice flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl border px-2 py-2.5 text-xs font-semibold transition-colors ${
                               payment !== value
                                 ? "border-hairline text-muted"
-                                : previewSuivi
+                                : filledChoice
                                   ? "ember-gradient border-transparent bg-origin-border text-background"
                                   : "border-ember-2/60 bg-surface-raised text-foreground"
                             }`}
@@ -1092,11 +1154,28 @@ export function CartBar() {
                               className={`size-2.5 shrink-0 rounded-full ${
                                 payment !== value
                                   ? "border border-current opacity-50"
-                                  : previewSuivi
+                                  : filledChoice
                                     ? "bg-current"
                                     : "ember-gradient"
                               }`}
                             />
+                            {/* La carte ou le comptoir, dessinés là où un thème les montre. */}
+                            <svg
+                              aria-hidden
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="1.6"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="pay-choice-icon hidden size-5 shrink-0"
+                            >
+                              {value === "carte" ? (
+                                <path d="M3.5 7.5A1.5 1.5 0 0 1 5 6h14a1.5 1.5 0 0 1 1.5 1.5v9A1.5 1.5 0 0 1 19 18H5a1.5 1.5 0 0 1-1.5-1.5zM3.5 10h17M7 14.5h3" />
+                              ) : (
+                                <path d="M4 16.5h16M5.5 16.5a6.5 6.5 0 0 1 13 0M12 10V8.5M10.5 8.5h3M3 19.5h18" />
+                              )}
+                            </svg>
                             <span className="text-balance">{label}</span>
                           </button>
                         ))}
@@ -1108,8 +1187,8 @@ export function CartBar() {
                         <p className="mb-4 grid text-pretty text-xs leading-relaxed text-muted">
                           {(
                             [
-                              ["carte", "Payée maintenant, elle part tout\u00a0de\u00a0suite en\u00a0cuisine."],
-                              ["comptoir", "Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."],
+                              ["carte", `Payée maintenant, elle part tout\u00a0de\u00a0suite ${preparation}.`],
+                              ["comptoir", `Elle part ${preparation} une fois réglée au\u00a0${counter}.`],
                             ] as const
                           ).map(([choice, text]) => (
                             <span
@@ -1123,76 +1202,106 @@ export function CartBar() {
                           ))}
                         </p>
                       )}
-                      {tipOffered && (
-                        <div className="mb-4 flex flex-col gap-2.5">
-                          <p id={`${hintId}-tip`} className="text-xs font-medium text-muted">
-                            Un pourboire pour l&rsquo;équipe&nbsp;?
-                          </p>
-                          <div
-                            role="group"
-                            aria-labelledby={`${hintId}-tip`}
-                            className="flex gap-2"
-                          >
-                            {[...TIP_PERCENTS, "autre" as const].map((choice) => (
-                              <button
-                                key={choice}
-                                type="button"
-                                aria-pressed={tipChoice === choice}
-                                onClick={() => {
-                                  focusCustomTip.current = choice === "autre" && tipChoice !== "autre";
-                                  setTipChoice(tipChoice === choice ? null : choice);
-                                }}
-                                className={`min-h-11 flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
-                                  tipChoice === choice
-                                    ? "border-ember-2/60 bg-surface-raised text-foreground"
-                                    : "border-hairline text-muted"
-                                }`}
-                              >
-                                {choice === "autre" ? "Autre" : `${choice}\u00a0%`}
-                              </button>
-                            ))}
-                          </div>
-                          {tipChoice === "autre" && (
-                            <input
-                              ref={(node) => {
-                                if (node && focusCustomTip.current) {
-                                  focusCustomTip.current = false;
-                                  // Au milieu de la feuille : sous le pied collé, il restait à moitié caché à 320 px.
-                                  node.focus({ preventScroll: true });
-                                  node.scrollIntoView({ block: "center" });
-                                }
-                              }}
-                              type="text"
-                              inputMode="decimal"
-                              value={customTip}
-                              onChange={(event) => setCustomTip(event.target.value)}
-                              placeholder="Montant en €"
-                              aria-label="Montant du pourboire en euros"
-                              aria-invalid={tipError !== null}
-                              aria-describedby={tipError ? `${hintId}-tip-error` : undefined}
-                              // 16 px : en dessous, Safari sur iPhone zoome la page au focus.
-                              className={`rounded-xl border bg-background px-3 py-2.5 text-base outline-none transition-colors ${
-                                tipError
-                                  ? "border-ember-3/70"
-                                  : "border-hairline focus:border-ember-2/50"
-                              }`}
-                            />
-                          )}
-                          {tipError && (
-                            <p id={`${hintId}-tip-error`} role="alert" className="text-xs text-ember-3">
-                              {tipError}
+                      {/* Toujours là quand un pourboire peut s'offrir, replié au
+                          comptoir : un thème le fait glisser au lieu de faire
+                          sauter la feuille. */}
+                      {tipPossible && (
+                        <div
+                          className="cart-tip-fold"
+                          data-open={tipOffered || undefined}
+                          inert={!tipOffered}
+                        >
+                          <div className="mb-4 flex flex-col gap-2.5">
+                            <p id={`${hintId}-tip`} className="text-xs font-medium text-muted">
+                              Un pourboire pour l&rsquo;équipe&nbsp;?
                             </p>
-                          )}
+                            <div
+                              role="group"
+                              aria-labelledby={`${hintId}-tip`}
+                              className="cart-tips flex gap-2"
+                            >
+                              {[...TIP_PERCENTS, "autre" as const].map((choice) => (
+                                <button
+                                  key={choice}
+                                  type="button"
+                                  aria-pressed={tipChoice === choice}
+                                  onClick={() => {
+                                    focusCustomTip.current = choice === "autre" && tipChoice !== "autre";
+                                    setTipChoice(tipChoice === choice ? null : choice);
+                                  }}
+                                  className={`cart-tip min-h-11 flex-1 rounded-xl border px-2 py-2 text-xs font-semibold transition-colors ${
+                                    tipChoice === choice
+                                      ? "border-ember-2/60 bg-surface-raised text-foreground"
+                                      : "border-hairline text-muted"
+                                  }`}
+                                >
+                                  {choice === "autre" ? "Autre" : `${choice}\u00a0%`}
+                                  {/* Ce que le pourcentage fait en euros, là où un thème le montre. */}
+                                  {choice !== "autre" && (
+                                    <span className="cart-tip-amount hidden">
+                                      {formatPrice(percentTip(choice) / 100)}
+                                    </span>
+                                  )}
+                                </button>
+                              ))}
+                            </div>
+                            {tipChoice === "autre" && (
+                              <input
+                                ref={(node) => {
+                                  if (node && focusCustomTip.current) {
+                                    focusCustomTip.current = false;
+                                    // Au milieu de la feuille : sous le pied collé, il restait à moitié caché à 320 px.
+                                    node.focus({ preventScroll: true });
+                                    node.scrollIntoView({ block: "center" });
+                                  }
+                                }}
+                                type="text"
+                                inputMode="decimal"
+                                value={customTip}
+                                onChange={(event) => setCustomTip(event.target.value)}
+                                placeholder="Montant en €"
+                                aria-label="Montant du pourboire en euros"
+                                aria-invalid={tipError !== null}
+                                aria-describedby={tipError ? `${hintId}-tip-error` : undefined}
+                                // 16 px : en dessous, Safari sur iPhone zoome la page au focus.
+                                className={`rounded-xl border bg-background px-3 py-2.5 text-base outline-none transition-colors ${
+                                  tipError
+                                    ? "border-ember-3/70"
+                                    : "border-hairline focus:border-ember-2/50"
+                                }`}
+                              />
+                            )}
+                            {tipError && (
+                              <p id={`${hintId}-tip-error`} role="alert" className="text-xs text-ember-3">
+                                {tipError}
+                              </p>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
                   ) : (
                     <div className="cart-content shrink-0 p-5">
                       <ul className="flex flex-col gap-4">
-                        {shownLines.map((line) => {
+                        {shownLines.map((line, index) => {
                           const dish = lineClosed(line);
                           return (
-                            <li key={line.key} className="flex items-center gap-3">
+                            <li
+                              key={line.key}
+                              // Son rang : un thème fait entrer les lignes l'une après l'autre.
+                              style={{ "--i": index } as CSSProperties}
+                              className="cart-line flex items-center gap-3"
+                            >
+                              {line.image && (
+                                // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'établissement, hors remotePatterns de next/image
+                                <img
+                                  src={line.image}
+                                  alt=""
+                                  loading="lazy"
+                                  decoding="async"
+                                  className={`cart-line-photo hidden size-14 shrink-0 rounded-xl object-cover ${dish ? "opacity-60" : ""}`}
+                                />
+                              )}
                               <div className="min-w-0 flex-1">
                                 {/* Estompée, la ligne coupée ; pas l'avis qui le dit. */}
                                 <div className={dish ? "opacity-60" : undefined}>
@@ -1291,7 +1400,8 @@ export function CartBar() {
                                   >
                                     {line.quantity === 1 ? <BinIcon /> : "−"}
                                   </button>
-                                  <span className="min-w-5 text-center text-sm font-semibold">
+                                  {/* Neuve à chaque quantité : un thème fait monter le chiffre. */}
+                                  <span key={line.quantity} className="cart-qty min-w-5 text-center text-sm font-semibold">
                                     <span className="sr-only">Quantité&nbsp;: </span>
                                     {line.quantity}
                                   </span>
@@ -1380,12 +1490,15 @@ export function CartBar() {
                         au règlement, avec le pourboire : ce que la carte débitera
                         (les routes de paiement l'ajoutent aux lignes). */}
                     {(!paymentStep || onPayment) && (
-                      <div className="mb-3">
+                      <div className="cart-sum mb-3">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted">
                             {tipCents > 0 ? "Total à régler" : "Total"}
                           </span>
-                          <span className="cart-total font-display text-xl font-semibold">
+                          <span
+                            key={totalCents + tipCents}
+                            className="cart-total font-display text-xl font-semibold"
+                          >
                             {formatPrice((totalCents + tipCents) / 100)}
                           </span>
                         </div>
@@ -1400,9 +1513,9 @@ export function CartBar() {
                       <p className="mb-3 text-pretty text-xs leading-relaxed text-muted">
                         Paiement en ligne dès {formatPrice(minimumCents / 100)}&nbsp;:
                         ajoutez {formatPrice(missingCents / 100)} pour
-                        payer par carte, ou réglez au comptoir.
+                        payer par carte, ou réglez au {counter}.
                         {cart.fastFood &&
-                          " Elle part en\u00a0cuisine une fois réglée au\u00a0comptoir."}
+                          ` Elle part ${preparation} une fois réglée au\u00a0${counter}.`}
                       </p>
                     )}
                     {/* Refusée pour un plat fermé : l'avis des lignes coupées le dit mieux. */}
@@ -1424,6 +1537,15 @@ export function CartBar() {
                         className="mb-3 text-pretty text-xs leading-relaxed text-ember-3"
                       >
                         {closedNotice()}
+                      </p>
+                    )}
+                    {bulleBlock && (
+                      <p
+                        id={`${hintId}-bulle`}
+                        role="status"
+                        className="mb-3 text-pretty text-xs leading-relaxed text-ember-3"
+                      >
+                        {bulleBlock}
                       </p>
                     )}
                     {collectShort && (
@@ -1457,9 +1579,15 @@ export function CartBar() {
                           type="button"
                           data-cart-continue
                           onClick={() => goTo("reglement")}
-                          disabled={rewardsOnly || closedLines.length > 0}
-                          aria-describedby={closedLines.length > 0 ? `${hintId}-closed` : undefined}
-                          className="ember-gradient min-h-12 min-w-0 flex-1 rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
+                          disabled={rewardsOnly || closedLines.length > 0 || bulleBlock !== null}
+                          aria-describedby={
+                            closedLines.length > 0
+                              ? `${hintId}-closed`
+                              : bulleBlock
+                                ? `${hintId}-bulle`
+                                : undefined
+                          }
+                          className="sheet-cta ember-gradient min-h-12 min-w-0 flex-1 rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
                         >
                           Continuer · {formatPrice(cart.total)}
                         </button>
@@ -1473,18 +1601,21 @@ export function CartBar() {
                           aria-describedby={
                             closedLines.length > 0
                               ? `${hintId}-closed`
-                              : collectShort
-                                ? `${hintId}-minimum`
-                                : undefined
+                              : bulleBlock
+                                ? `${hintId}-bulle`
+                                : collectShort
+                                  ? `${hintId}-minimum`
+                                  : undefined
                           }
                           disabled={
                             state === "sending" ||
                             rewardsOnly ||
                             closedLines.length > 0 ||
+                            bulleBlock !== null ||
                             collectShort ||
                             tipError !== null
                           }
-                          className="ember-gradient min-h-12 min-w-0 flex-1 rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
+                          className="sheet-cta ember-gradient min-h-12 min-w-0 flex-1 rounded-full px-5 py-3 text-sm font-semibold text-background disabled:opacity-60"
                         >
                           {cart.preview
                             ? previewSuivi
@@ -1506,7 +1637,7 @@ export function CartBar() {
                                   : "Envoyer la commande"
                                 : payment === "carte"
                                   ? `Commander et payer · ${formatPrice(cart.total)}`
-                                  : "Commander · payer au comptoir"}
+                                  : `Commander · payer au ${counter}`}
                         </button>
                       )}
                     </div>

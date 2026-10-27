@@ -9,10 +9,11 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
-import type { RealtimeChannel } from "@supabase/supabase-js";
 import { frenchTime } from "@/lib/gestion/format";
 import type { OrderStatus } from "@/lib/gestion/types";
+import { counterWords } from "@/lib/menu/format";
 import { createClient } from "@/lib/supabase/client";
+import { useOrderSignal } from "@/lib/supabase/use-order-signal";
 
 /*
  * Les commandes fast food du client, et leur suivi en direct. Chaque commande
@@ -33,8 +34,10 @@ import { createClient } from "@/lib/supabase/client";
  * bas de l'écran jusqu'à la fermeture de la page, saluée d'un « Bon appétit ! ».
  * Elles n'ont pas de numéro du jour : le client numérote les siennes. En
  * aperçu, sans base ni stockage, une salle simulée les fait avancer seule.
- * Retrait au bar (barPickup, aperçu) : prête, la commande attend le client
- * au bar, où il montre le code de son ticket ; le scan du bar la dit remise.
+ * Retrait au bar (barPickup) : prête, la commande attend le client au bar,
+ * où il montre le code de son ticket ; le scan de l'équipe la dit retirée, et
+ * la page la salue comme à table. En fast food (etablissements.bar_pickup),
+ * sur son numéro du jour ; à table, dans l'aperçu seulement.
  */
 
 export interface TicketLine {
@@ -65,7 +68,7 @@ export interface Ticket {
   lines: TicketLine[];
   /** En cuisine : quand elle sera prête. Rien ne la calcule encore hors aperçu. */
   estimate: ReadyEstimate | null;
-  /** Aperçu à table : rien que des boissons, la salutation du service change. */
+  /** Rien que des boissons (aperçu à table, ou carte qui n'en a pas d'autres) : la salutation du service change. */
   drinksOnly?: boolean;
   /** Aperçu à table : rien que des boissons chaudes (une tasse au salut). */
   hotDrinksOnly?: boolean;
@@ -92,9 +95,14 @@ export const isActiveTicket = (ticket: Ticket) =>
 export const servedGreeting = (ticket: Ticket) =>
   ticket.drinksOnly ? "Bonne dégustation\u00a0!" : "Bon appétit\u00a0!";
 
-/** Le client attend : l'écran doit rester allumé pour recevoir « prête ». */
-const isWaiting = (ticket: Ticket) =>
-  ticket.status === "en_attente" || ticket.status === "payee";
+/**
+ * Le client attend : l'écran doit rester allumé pour recevoir « prête » — au
+ * bar, jusqu'au scan du code qu'il y montre.
+ */
+const isWaiting = (ticket: Ticket, bar: boolean) =>
+  ticket.status === "en_attente" ||
+  ticket.status === "payee" ||
+  (bar && ticket.status === "prete");
 
 interface TicketsValue {
   /** Commandes de la visite, de la plus ancienne à la plus récente. */
@@ -122,10 +130,15 @@ interface TicketsValue {
   advance: ((orderId: string) => void) | null;
   /** À table : le numéro de la table ; null en fast food. */
   table: number | null;
-  /** Aperçu à table : la commande se retire au bar, sur présentation de son code. */
+  /** La commande se retire au bar, sur présentation de son code. */
   barPickup: boolean;
   /**
-   * À table : la commande servie que la page salue, une à la fois.
+   * Retrait au bar servi à table (CartConfig.tableDelivery) : la table du QR
+   * où un serveur apporte la commande et scanne son code ; null sinon.
+   */
+  deliverTo: number | null;
+  /**
+   * À table et au bar : la commande servie que la page salue, une à la fois.
    * Le salut attend qu'aucune feuille ne soit ouverte (TicketTracker).
    */
   served: Ticket | null;
@@ -201,11 +214,14 @@ const previewEstimate = (): ReadyEstimate => {
   };
 };
 
-/** Ce que disent les tickets quand le paiement par carte n'aboutit pas. */
-export const CARD_NOTICES = {
-  failed: "Le paiement par carte n’a pas pu démarrer\u00a0: réglez votre commande au\u00a0comptoir.",
-  // Refusé, ou le client a choisi le comptoir : le même mot pour les deux.
-  declined: "Le paiement par carte n’a pas été fait\u00a0: réglez votre commande au\u00a0comptoir.",
+/** Ce que disent les tickets quand le paiement par carte n'aboutit pas ; au bar, le bar. */
+export const cardNotices = (bar: boolean) => {
+  const { place } = counterWords(bar);
+  return {
+    failed: `Le paiement par carte n’a pas pu démarrer\u00a0: réglez votre commande au\u00a0${place}.`,
+    // Refusé, ou le client a choisi le comptoir : le même mot pour les deux.
+    declined: `Le paiement par carte n’a pas été fait\u00a0: réglez votre commande au\u00a0${place}.`,
+  };
 };
 
 /** Ce que dit la zone annoncée quand une commande change d'état. */
@@ -230,10 +246,26 @@ const SPOKEN_TABLE: Partial<Record<OrderStatus, string>> = {
 };
 
 /** Aperçu à table, retrait au bar. */
-const SPOKEN_BAR: Partial<Record<OrderStatus, string>> = {
+const SPOKEN_TABLE_BAR: Partial<Record<OrderStatus, string>> = {
   ...SPOKEN_TABLE,
+  en_attente: "reçue, à régler au bar.",
   prete: "prête\u00a0! Venez la chercher au bar et montrez votre code.",
-  servie: "remise. Bon appétit\u00a0!",
+  servie: "retirée.",
+  annulee: "annulée. Adressez-vous au bar.",
+};
+
+/** Fast food, retrait au bar : payée, la commande est en préparation jusqu'à « prête ». */
+const SPOKEN_FAST_FOOD_BAR: Partial<Record<OrderStatus, string>> = {
+  ...SPOKEN_TABLE_BAR,
+  en_attente: "à régler au bar.",
+  payee: "en préparation.",
+};
+
+/** Retrait au bar servi à table : prête, un serveur l'apporte et scanne le code. */
+const SPOKEN_DELIVERY: Partial<Record<OrderStatus, string>> = {
+  ...SPOKEN_FAST_FOOD_BAR,
+  prete: "prête\u00a0! Un serveur vous l’apporte\u00a0: montrez-lui votre code.",
+  servie: "servie à votre table.",
 };
 
 const unknownTicket = (id: string): Ticket => ({
@@ -288,13 +320,7 @@ function useWakeLock(active: boolean) {
   }, [active]);
 }
 
-/**
- * Suit une commande : une lecture tout de suite, puis à chaque signal du
- * canal, à chaque (re)connexion et à chaque retour au premier plan — un
- * téléphone en veille perd sa connexion, et ce qui a changé pendant ce temps
- * n'a pas été signalé. Seule la dernière lecture lancée compte : une réponse
- * partie avant un changement ne l'efface pas en arrivant après.
- */
+/** Suit une commande : order_ticket relu à chaque signal (useOrderSignal). */
 function TicketWatcher({
   id,
   atTable,
@@ -304,18 +330,12 @@ function TicketWatcher({
   atTable: boolean;
   onUpdate: (id: string, update: TicketUpdate | null) => void;
 }) {
-  useEffect(() => {
-    const supabase = createClient();
-    const topic = `commande:${id}`;
-    let live = true;
-    let latest = 0;
-    let channel: RealtimeChannel | null = null;
-    const load = async () => {
-      const request = ++latest;
-      const { data, error } = await supabase.rpc("order_ticket", { p_order: id });
+  const load = useCallback(
+    async (current: () => boolean) => {
+      const { data, error } = await createClient().rpc("order_ticket", { p_order: id });
       // Une lecture en échec (réseau) ne dit rien de la commande : on garde
       // ce qu'on sait, la suivante corrigera.
-      if (!live || error || request !== latest) return;
+      if (error || !current()) return;
       const row = data[0];
       onUpdate(
         id,
@@ -334,35 +354,10 @@ function TicketWatcher({
             }
           : null
       );
-    };
-    const subscribe = async () => {
-      // channel() rend le canal existant du même sujet, même en train de
-      // fermer (démontage puis remontage) : l'abonnement ne partirait jamais.
-      // On attend qu'il soit parti.
-      const closing = supabase
-        .getChannels()
-        .find((candidate) => candidate.topic === `realtime:${topic}`);
-      if (closing) await supabase.removeChannel(closing);
-      if (!live) return;
-      channel = supabase
-        .channel(topic)
-        .on("broadcast", { event: "statut" }, () => void load())
-        .subscribe((state) => {
-          if (state === "SUBSCRIBED") void load();
-        });
-    };
-    const onVisible = () => {
-      if (document.visibilityState === "visible") void load();
-    };
-    document.addEventListener("visibilitychange", onVisible);
-    void load();
-    void subscribe();
-    return () => {
-      live = false;
-      document.removeEventListener("visibilitychange", onVisible);
-      if (channel) void supabase.removeChannel(channel);
-    };
-  }, [id, atTable, onUpdate]);
+    },
+    [id, atTable, onUpdate]
+  );
+  useOrderSignal(id, load);
   return null;
 }
 
@@ -394,6 +389,8 @@ export function TicketsProvider({
   preview = false,
   table = null,
   barPickup = false,
+  deliverTo = null,
+  drinksOnly = false,
   children,
 }: {
   slug: string;
@@ -401,8 +398,12 @@ export function TicketsProvider({
   preview?: boolean;
   /** À table (Restaurant.suivi) : la table suivie ; absent, fast food. */
   table?: number | null;
-  /** Aperçu à table : retrait au bar. */
+  /** Retrait au bar : en fast food, ou à table dans l'aperçu. */
   barPickup?: boolean;
+  /** Retrait au bar servi à table : la table du QR. */
+  deliverTo?: number | null;
+  /** Rien que des boissons à la carte : chaque commande se salue comme telle. */
+  drinksOnly?: boolean;
   children: React.ReactNode;
 }) {
   // À table, à part : un QR sans table ne reprend pas les commandes d'une table.
@@ -411,7 +412,7 @@ export function TicketsProvider({
   const [shownId, setShownId] = useState<string | null>(null);
   const [notices, setNotices] = useState<string[]>([]);
   const [handedOff, setHandedOff] = useState(false);
-  // Aperçu à table : les commandes servies à saluer, dans l'ordre.
+  // À table et au bar : les commandes servies à saluer, dans l'ordre.
   const [toGreet, setToGreet] = useState<string[]>([]);
 
   // Relu une fois après l'hydratation (le serveur n'en sait rien), comme le panier.
@@ -426,6 +427,7 @@ export function TicketsProvider({
           saved.map((id, index) => ({
             ...unknownTicket(id),
             number: table === null ? null : index + 1,
+            drinksOnly: drinksOnly || undefined,
           }))
         );
       }
@@ -455,11 +457,15 @@ export function TicketsProvider({
       changed
         .map((ticket) => {
           if (table !== null) {
-            const spoken = (barPickup ? SPOKEN_BAR : SPOKEN_TABLE)[ticket.status!];
+            const spoken = (barPickup ? SPOKEN_TABLE_BAR : SPOKEN_TABLE)[ticket.status!];
             const where = barPickup ? "retrait au bar" : `table ${table}`;
             return spoken ? `Commande ${ticket.number}, ${where}\u00a0: ${spoken}` : "";
           }
-          const spoken = ticket.paying ? "paiement en cours." : SPOKEN[ticket.status!];
+          const spoken = ticket.paying
+            ? "paiement en cours."
+            : (barPickup ? (deliverTo !== null ? SPOKEN_DELIVERY : SPOKEN_FAST_FOOD_BAR) : SPOKEN)[
+                ticket.status!
+              ];
           const time = readyTime(ticket);
           return spoken
             ? `Commande n° ${ticket.number}\u00a0: ${spoken}${time ? ` Prête vers ${time}.` : ""}`
@@ -478,9 +484,14 @@ export function TicketsProvider({
       setHandedOff(false);
       setShownId(urgent.id);
     }
-    // À table, la commande servie se salue : la feuille du service prend la
-    // place du ticket ouvert, qui disait la même chose en plus petit.
-    const served = table === null ? [] : changed.filter((ticket) => ticket.status === "servie");
+    // À table et au bar, la commande servie se salue : la feuille du service
+    // prend la place du ticket ouvert, qui disait la même chose en plus petit.
+    // Servie sous les yeux du client seulement : retrouvée servie en rouvrant
+    // la page, des heures après, elle ne se salue plus.
+    const served =
+      table === null && !barPickup
+        ? []
+        : changed.filter((ticket) => ticket.status === "servie" && seen[ticket.id] !== undefined);
     if (served.length > 0) {
       setShownId(null);
       setToGreet([...toGreet, ...served.map((ticket) => ticket.id)]);
@@ -508,7 +519,7 @@ export function TicketsProvider({
     }
   }, [activeKey, knownKey, storageKey, restored, preview]);
 
-  useWakeLock(tickets.some(isWaiting));
+  useWakeLock(tickets.some((ticket) => isWaiting(ticket, barPickup)));
 
   const onUpdate = useCallback((id: string, update: TicketUpdate | null) => {
     if (update === null) setDropped((current) => [...current, id]);
@@ -566,11 +577,15 @@ export function TicketsProvider({
                     tip: order.tip,
                     atCounter: table !== null && order.status === "en_attente",
                   }
-                : { ...unknownTicket(orderId), number: table === null ? null : current.length + 1 },
+                : {
+                    ...unknownTicket(orderId),
+                    number: table === null ? null : current.length + 1,
+                    drinksOnly: drinksOnly || undefined,
+                  },
             ]
       );
     },
-    [preview, storageKey, table]
+    [preview, storageKey, table, drinksOnly]
   );
 
   // from : l'état que la minuterie a vu ; passé à la main entre-temps, la
@@ -630,12 +645,17 @@ export function TicketsProvider({
       simulated: preview,
       table,
       barPickup,
+      deliverTo,
       served: tickets.find((ticket) => ticket.id === toGreet[0]) ?? null,
       dismissServed: () => {
         setToGreet((current) => current.slice(1));
         // Un ticket qui attendait derrière le salut n'en prend pas le relais :
         // il monte, comme ouvert à la main.
         setHandedOff(false);
+        // Au bar, une autre commande prête attend d'être scannée : le dernier
+        // salut refermé, son code revient à l'écran.
+        const ready = tickets.find((ticket) => ticket.status === "prete");
+        if (barPickup && toGreet.length === 1 && ready) setShownId(ready.id);
       },
     }),
     [
@@ -650,6 +670,7 @@ export function TicketsProvider({
       step,
       table,
       barPickup,
+      deliverTo,
       toGreet,
     ]
   );

@@ -29,6 +29,64 @@ export const PRICE_NOTICE_DAYS = 30;
  */
 export const WITHDRAWAL_DAYS = 14;
 
+/**
+ * Contrat de commercial (documents/commercial.ts) : part du chiffre
+ * d'affaires net encaissé sur chaque Client Apporté. Les relevés mensuels la
+ * calculent avec cette valeur — celle que le commercial a signée.
+ */
+export const COMMERCIAL_COMMISSION_PERCENT = 15;
+
+/** Durée ferme du contrat de commercial, sans reconduction tacite. */
+export const COMMERCIAL_TERM_MONTHS = 24;
+
+/** Prolongation qu'Ominin seule peut lever au terme de la durée ferme. */
+export const COMMERCIAL_OPTION_YEARS = 3;
+
+/** Durée totale si l'option est levée, telle que le contrat l'écrit. */
+export const COMMERCIAL_TOTAL_YEARS =
+  COMMERCIAL_TERM_MONTHS / 12 + COMMERCIAL_OPTION_YEARS;
+
+/*
+ * Délais et seuils du contrat de commercial que la base applique : ils sont
+ * recopiés dans commercial_settings (migration 20261028000002), avec le taux,
+ * la durée et l'option ci-dessus ; supabase/tests/commercial/01_reglages.sql
+ * vérifie l'égalité. Changer une valeur ici demande une nouvelle version du
+ * contrat et une migration qui met la ligne à jour.
+ */
+
+/** Ominin confirme ou refuse une déclaration dans ce délai ; passé, elle est confirmée (art. 4.3). */
+export const COMMERCIAL_CONFIRM_DAYS = 7;
+
+/** Le restaurant doit signer dans ce délai après la confirmation (art. 4.3). */
+export const COMMERCIAL_SIGN_WINDOW_MONTHS = 6;
+
+/** Préavis de résiliation par le commercial (art. 7.2). */
+export const COMMERCIAL_NOTICE_MONTHS = 3;
+
+/** Le relevé du mois précédent part avant ce jour du mois (art. 5.1). */
+export const COMMERCIAL_STATEMENT_BEFORE_DAY = 10;
+
+/** Paiement de la facture du commercial après sa réception (art. 5.3). */
+export const COMMERCIAL_PAYMENT_DAYS = 30;
+
+/** Détail des encaissements : une demande par période de ce nombre de mois (art. 5.4). */
+export const COMMERCIAL_DETAIL_INTERVAL_MONTHS = 3;
+
+/** Délai de réponse à une demande de détail (art. 5.4). */
+export const COMMERCIAL_DETAIL_RESPONSE_DAYS = 15;
+
+/** Délai de contestation d'un relevé après sa réception (art. 5.4). */
+export const COMMERCIAL_CONTEST_MONTHS = 3;
+
+/** Relevé final après la fin du contrat (art. 8.1). */
+export const COMMERCIAL_FINAL_STATEMENT_DAYS = 30;
+
+/** Commissions cumulées à partir desquelles l'attestation URSSAF est due (art. 2.5). */
+export const COMMERCIAL_URSSAF_THRESHOLD_EUROS = 5000;
+
+/** Puis une attestation à cet intervalle (art. 2.5). */
+export const COMMERCIAL_URSSAF_INTERVAL_MONTHS = 6;
+
 /** Chemins publics des documents, identiques sur tous les hôtes produits. */
 export const LEGAL_PATHS = {
   cgv: "/cgv",

@@ -1,5 +1,5 @@
 import type { OpeningHours } from "@/lib/collect/hours";
-import type { MenuCategory, OptionGroup } from "@/lib/menu-data";
+import type { CategoryLayout, MenuCategory, OptionGroup, RuleHours } from "@/lib/menu-data";
 import type { VisiteId } from "./visites";
 
 export type Offre = "digital" | "smart" | "connect";
@@ -32,7 +32,8 @@ export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 export type PaymentProvider = "stripe" | "sumup" | "square" | "demo";
 /**
  * Restaurant : le client commande depuis sa table, la salle la lui apporte.
- * Fast food : il commande sans table et reçoit un numéro du jour.
+ * Fast food : il retire au comptoir et reçoit un numéro du jour ; la table
+ * du QR, s'il en scanne une, reste notée.
  */
 export type ServiceMode = "restaurant" | "fast_food";
 
@@ -63,7 +64,8 @@ export type Feature =
   | "produits"
   | "lien_heures"
   | "fidelite"
-  | "soirees";
+  | "soirees"
+  | "bulles";
 
 /**
  * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,
@@ -103,11 +105,19 @@ export interface Etablissement {
   /** Null quand l'établissement n'a que le click & collect. */
   offre: Offre | null;
   serviceMode: ServiceMode;
+  /** Fast food : la table du QR s'affiche à l'équipe à côté du numéro. */
+  showTableNumber: boolean;
+  /** Fast food : prête, le client montre un code que l'équipe scanne pour la lui remettre. */
+  barPickup: boolean;
+  /** Catégories du menu QR : barre en haut ou rail d'icônes à gauche. */
+  categoryLayout: CategoryLayout;
   siret?: string;
   /** Le menu QR propose le règlement par carte (compte de paiement relié). */
   onlinePayment: boolean;
   /** Null tant que le gérant n'a pas choisi ⇒ comportement Stripe historique. */
   paymentProvider: PaymentProvider | null;
+  /** Relié à une caisse par HubRise : l'espace lui envoie ses encaissements et ses remises. */
+  hubriseConnected: boolean;
   /** Commandes collect max par créneau de retrait (défaut 5). */
   collectSlotCapacity: number;
   /** Durée d'un créneau de retrait, en minutes (posée par Ominin). */
@@ -183,7 +193,7 @@ export interface Order {
   id: string;
   type: OrderType;
   tableId: string | null;
-  /** Numéro du jour d'une commande fast food (sans table). */
+  /** Numéro du jour d'une commande fast food ; la table du QR peut s'y ajouter (tableId). */
   orderNumber?: number;
   status: OrderStatus;
   createdAt: string;
@@ -199,6 +209,8 @@ export interface Order {
   pickupAt?: string;
   /** Prête vers (ISO) — posée à l'acceptation d'une commande collect « dès que possible ». */
   estimatedReadyAt?: string;
+  /** ISO — remise au client (commande numérotée), par le scan de son code ou au comptoir. */
+  handedOverAt?: string;
   cashGiven?: number;
   cashChange?: number;
   tipAmount?: number;
@@ -267,6 +279,8 @@ export interface Formule {
   disponible: boolean;
   /** Jours de service où elle est proposée (1 = lundi … 7) ; absent = tous. */
   days?: number[];
+  /** Ses heures (« 09:00:00 » → « 10:30:00 ») ; absent = toute la journée. */
+  hours?: RuleHours;
   etapes: Etape[];
   /** Son emplacement sur une affiche des offres (rang 1 = à gauche) ; absent ⇒ tuile. */
   affiche?: { id: string; rang: number };
@@ -337,7 +351,8 @@ export type PriceRuleUnit = "montant" | "pourcentage";
  */
 export type MenuTarget =
   | { kind: "category"; id: string }
-  | { kind: "item"; id: string };
+  /** `choiceId` : un seul format de l'article (tarifs seulement), le verre et pas la bouteille. */
+  | { kind: "item"; id: string; choiceId?: string };
 
 /**
  * Un tarif planifié : un écart de prix qui revient chaque semaine, les jours
@@ -360,26 +375,34 @@ export interface PriceRule {
   targets: MenuTarget[];
 }
 
+/** Une plage d'horaire de fermeture, les jours où elle revient. */
+export interface ClosureWindow {
+  /** Jours ISO : 1 = lundi … 7 = dimanche. */
+  days: number[];
+  /** "22:00". */
+  startsAt: string;
+  /** null ⇒ jusqu'à la fin de la journée de service. */
+  endsAt: string | null;
+}
+
 /**
  * Une fermeture : une partie de la carte que le client ne commande plus, à
  * heure fixe ou d'un geste pendant le service. Tout se lit en heure de
  * service (lib/gestion/fermetures.ts) : la journée repart ouverte à la
- * bascule, et le forçage à la main ne vaut que pour la journée où il a été
- * posé.
+ * bascule, et le forçage à la main cède au prochain changement de
+ * l'horaire.
  */
 export interface Closure {
   id: string;
   /** « Cuisine », « Bar » : ce que l'équipe lit sur son bouton. */
   name: string;
-  /** Jours ISO de l'horaire ; null ⇒ fermeture à la main seulement. */
-  days: number[] | null;
-  /** "22:00" — présent avec days. */
-  startsAt: string | null;
-  /** null ⇒ jusqu'à la fin de la journée de service. */
-  endsAt: string | null;
-  /** Fermée (true) ou rouverte (false) à la main pour overrideDay. */
+  /** Vide ⇒ fermeture à la main seulement. */
+  windows: ClosureWindow[];
+  /** Les plages disent quand c'est servi (coupé en dehors), sinon quand c'est coupé. */
+  openWindows: boolean;
+  /** Fermée (true) ou rouverte (false) à la main jusqu'à overrideUntil. */
   overrideClosed: boolean | null;
-  /** Journée de service du forçage, "2026-10-13". */
-  overrideDay: string | null;
+  /** Heure de service où le forçage cède à l'horaire, "2026-10-13T19:00:00". */
+  overrideUntil: string | null;
   targets: MenuTarget[];
 }

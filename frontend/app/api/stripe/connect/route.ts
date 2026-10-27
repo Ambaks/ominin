@@ -66,9 +66,19 @@ export async function POST(request: Request) {
   try {
     let accountId = existing?.stripe_account_id;
     if (!accountId) {
+      // Le nom du restaurant, prérempli : le libellé du relevé bancaire en
+      // découle. Un compte de particulier laissé sans nom d'entreprise
+      // n'avait aucun libellé (Caffè Panis) : le client ne reconnaît pas le
+      // débit, et le conteste.
+      const { data: etab } = await admin
+        .from("etablissements")
+        .select("name")
+        .eq("id", auth.etablissementId)
+        .single();
       const account = await stripe.accounts.create({
         type: "express",
         email: auth.email,
+        ...(etab && { business_profile: { name: etab.name } }),
         metadata: { etablissement_id: auth.etablissementId },
       });
       accountId = account.id;

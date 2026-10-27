@@ -2,6 +2,8 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { NameWords } from "@/components/menu/name-words";
+import { httpHref } from "@/lib/admin/format";
+import { isDrinkCategory } from "@/lib/menu/category-icons";
 import {
   brandName,
   displayAddress,
@@ -43,8 +45,9 @@ export function MenuFooter({
   const hours = restaurant.hours.trim();
   // Une carte qui imprime des allergènes renvoie aussi vers l'équipe : la liste
   // ne remplace pas la question d'un client allergique.
-  const printsAllergens = restaurant.categories.some((category) =>
-    category.items.some((item) => item.allergens?.length)
+  const printsAllergens = restaurant.categories.some(
+    (category) =>
+      !isDrinkCategory(category) && category.items.some((item) => item.allergens !== undefined)
   );
   const hasPhotos =
     Boolean(restaurant.coverImage || restaurant.affiches?.length) ||
@@ -124,7 +127,7 @@ export function MenuFooter({
               Vous avez aimé&nbsp;? Dites-le sur&nbsp;Google.
             </p>
             <a
-              href={restaurant.googleReviewUrl}
+              href={httpHref(restaurant.googleReviewUrl)}
               target="_blank"
               rel="noopener noreferrer"
               className="footer-review flex items-center gap-2 rounded-full border border-ember-2/40 bg-surface/70 px-5 py-3 text-sm font-semibold backdrop-blur transition-colors hover:border-ember-2"
@@ -148,6 +151,7 @@ export function MenuFooter({
               </a>
             </p>
           )}
+          {restaurant.allergensNote && <p>{restaurant.allergensNote}</p>}
           <p>Prix nets en euros, service compris.</p>
           {hasPhotos && <p>Photos non contractuelles.</p>}
           <p className="mt-1 flex items-center justify-center gap-2">

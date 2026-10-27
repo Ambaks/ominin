@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   CardPaymentFailed,
   CardPaymentForm,
@@ -9,95 +9,23 @@ import {
   themeColors,
   type CardPaymentState,
 } from "@/components/menu/card-payment";
+import {
+  SQUARE_CARD_CONTAINER_ID,
+  SQUARE_GOOGLE_PAY_CONTAINER_ID,
+  useSquarePayments,
+  type SquareMethodName,
+} from "@/components/payment/use-square-payments";
 import { formatPrice } from "@/lib/menu/format";
 import type { CardPhase } from "@/lib/menu/online-payment";
-import { SQUARE_COUNTRY, SQUARE_CURRENCY } from "@/lib/square/config";
 
 /*
- * Règlement d'une commande dans la page via le SDK Web Payments de Square.
- * La carte ne touche jamais nos serveurs : le SDK la tokenise dans le
- * navigateur et nous n'en transmettons qu'un jeton à usage unique — Ominin
- * reste hors du périmètre PCI.
- *
- * L'ordre est inverse de SumUp : là-bas le checkout était créé au serveur
- * puis le widget montait dessus ; ici le formulaire carte se monte d'abord
- * (identifiant d'application et point de vente sont publics), et le serveur
- * n'est appelé qu'une fois le jeton obtenu. La commande est déjà enregistrée
- * et part en cuisine dès l'encaissement.
+ * Règlement d'une commande dans la page via le SDK Web Payments de Square
+ * (useSquarePayments). L'ordre est inverse de SumUp : là-bas le checkout
+ * était créé au serveur puis le widget montait dessus ; ici le formulaire
+ * carte se monte d'abord, et le serveur n'est appelé qu'une fois le jeton
+ * obtenu. La commande est déjà enregistrée et part en cuisine dès
+ * l'encaissement.
  */
-
-/*
- * Bac à sable et production ont chacun leur SDK. L'environnement se lit sur
- * l'identifiant d'application (Square préfixe ceux du bac à sable par
- * « sandbox- ») plutôt que dans une variable séparée : les deux ne peuvent
- * pas se contredire.
- */
-const APP_ID = process.env.NEXT_PUBLIC_SQUARE_APPLICATION_ID;
-const SDK_URL = APP_ID?.startsWith("sandbox-")
-  ? "https://sandbox.web.squarecdn.com/v1/square.js"
-  : "https://web.squarecdn.com/v1/square.js";
-const CARD_CONTAINER_ID = "square-card";
-const GOOGLE_PAY_CONTAINER_ID = "square-google-pay";
-
-interface SquareMethod {
-  tokenize: () => Promise<{
-    status: string;
-    token?: string;
-    errors?: { message: string }[];
-  }>;
-  destroy?: () => Promise<void>;
-}
-
-/** Ce que 3-D Secure transmet à la banque ; le SDK exige chaque champ. */
-interface CardVerification {
-  amount: string;
-  currencyCode: string;
-  intent: "CHARGE";
-  customerInitiated: boolean;
-  sellerKeyedIn: boolean;
-  billingContact: object;
-}
-
-interface SquareCard extends SquareMethod {
-  attach: (selector: string) => Promise<void>;
-  /** Sans vérification, pas de 3-D Secure : dans l'EEE, la banque qui l'exige refuse le débit. */
-  tokenize: (
-    verification?: CardVerification
-  ) => ReturnType<SquareMethod["tokenize"]>;
-}
-
-interface SquareGooglePay extends SquareMethod {
-  attach: (
-    selector: string,
-    options: {
-      buttonColor: "black" | "white";
-      buttonSizeMode: "fill";
-      buttonType: "short";
-    }
-  ) => Promise<void>;
-}
-
-type SquarePaymentRequest = object;
-
-interface SquarePayments {
-  card: (options: {
-    style: Record<string, Record<string, string>>;
-  }) => Promise<SquareCard>;
-  paymentRequest: (options: {
-    countryCode: string;
-    currencyCode: string;
-    total: { amount: string; label: string };
-  }) => SquarePaymentRequest;
-  /** Rejette hors de Safari/Apple Pay ou sur un domaine non enregistré. */
-  applePay: (request: SquarePaymentRequest) => Promise<SquareMethod>;
-  googlePay: (request: SquarePaymentRequest) => Promise<SquareGooglePay>;
-}
-
-interface Methods {
-  card: SquareCard;
-  applePay: SquareMethod | null;
-  googlePay: SquareGooglePay | null;
-}
 
 /*
  * Le formulaire carte vit dans une iframe Square : seules les propriétés que
@@ -128,41 +56,13 @@ function cardStyle(element: Element): Record<string, Record<string, string>> {
   };
 }
 
-declare global {
-  interface Window {
-    Square?: {
-      payments: (appId: string, locationId: string) => SquarePayments;
-    };
-  }
-}
-
-let sdkPromise: Promise<NonNullable<Window["Square"]>> | null = null;
-
-/** Charge le SDK une seule fois — jamais pour les restaurants sur Stripe. */
-function loadSdk(): Promise<NonNullable<Window["Square"]>> {
-  if (window.Square) return Promise.resolve(window.Square);
-  sdkPromise ??= new Promise((resolve, reject) => {
-    const script = document.createElement("script");
-    script.src = SDK_URL;
-    script.onload = () => {
-      if (window.Square) resolve(window.Square);
-      else reject(new Error("SDK Square indisponible."));
-    };
-    script.onerror = () => {
-      sdkPromise = null;
-      reject(new Error("SDK Square indisponible."));
-    };
-    document.head.appendChild(script);
-  });
-  return sdkPromise;
-}
-
 export function SquarePayment({
   orderId,
   locationId,
   total,
   tipAmount,
   merchant,
+  bar,
   onDone,
   onPhase,
 }: {
@@ -173,113 +73,29 @@ export function SquarePayment({
   tipAmount: number;
   /** L'établissement encaisseur, nommé au-dessus du montant. */
   merchant?: string;
+  /** Retrait au bar : on y règle, au lieu du comptoir. */
+  bar: boolean;
   /** Fin du règlement — payé, ou abandon (le client réglera au comptoir). */
   onDone: (paid: boolean) => void;
   onPhase?: (phase: CardPhase) => void;
 }) {
-  // APP_ID est figé au build : son absence est un état de départ, pas un
-  // événement à poser depuis l'effet.
-  const [state, setState] = useState<CardPaymentState>(APP_ID ? "loading" : "error");
+  const amount = (total + tipAmount).toFixed(2);
+  const square = useSquarePayments({ locationId, amount, cardStyle, isDark: isDarkTheme });
+  // Ce que le client a fait du formulaire prêt ; null : l'état du SDK.
+  const [outcome, setOutcome] = useState<"paying" | "paid" | "declined" | null>(null);
+  const state: CardPaymentState = outcome ?? square.status;
   const phase: CardPhase = state === "paying" ? "charging" : state === "paid" ? "paid" : "form";
   useEffect(() => {
     onPhase?.(phase);
   }, [phase, onPhase]);
-  // Une tentative refusée démonte le formulaire : « Réessayer » en remonte un
-  // neuf, avec un jeton carte neuf (ceux de Square sont à usage unique).
-  const [attempt, setAttempt] = useState(0);
-  const [wallets, setWallets] = useState({ applePay: false, googlePay: false });
-  const [dark, setDark] = useState(true);
-  const methodsRef = useRef<Methods | null>(null);
-  const amount = (total + tipAmount).toFixed(2);
 
-  useEffect(() => {
-    if (!APP_ID) return;
-    let cancelled = false;
-    const destroy = (methods: Methods) =>
-      Promise.all(
-        [methods.card, methods.applePay, methods.googlePay].map((method) =>
-          method?.destroy?.()
-        )
-      );
-
-    loadSdk()
-      .then(async (square) => {
-        const container = document.getElementById(CARD_CONTAINER_ID)!;
-        const darkTheme = isDarkTheme(container);
-        const payments = square.payments(APP_ID, locationId);
-        const card = await payments.card({ style: cardStyle(container) });
-        if (cancelled) {
-          await card.destroy?.();
-          return;
-        }
-        await card.attach(`#${CARD_CONTAINER_ID}`);
-        const methods: Methods = { card, applePay: null, googlePay: null };
-        methodsRef.current = methods;
-        setDark(darkTheme);
-        setState("ready");
-
-        // Les portefeuilles arrivent chacun à leur rythme, sans jamais
-        // retenir la carte : un portefeuille indisponible (navigateur,
-        // appareil, domaine) ou muet n'est pas une erreur.
-        const request = payments.paymentRequest({
-          countryCode: SQUARE_COUNTRY,
-          currencyCode: SQUARE_CURRENCY,
-          total: { amount, label: "Total" },
-        });
-        payments
-          .applePay(request)
-          .then(async (applePay) => {
-            if (cancelled) return applePay.destroy?.();
-            methods.applePay = applePay;
-            setWallets((current) => ({ ...current, applePay: true }));
-          })
-          .catch(() => {});
-        payments
-          .googlePay(request)
-          .then(async (googlePay) => {
-            if (cancelled) return googlePay.destroy?.();
-            await googlePay.attach(`#${GOOGLE_PAY_CONTAINER_ID}`, {
-              buttonColor: darkTheme ? "white" : "black",
-              buttonSizeMode: "fill",
-              buttonType: "short",
-            });
-            if (cancelled) return googlePay.destroy?.();
-            methods.googlePay = googlePay;
-            setWallets((current) => ({ ...current, googlePay: true }));
-          })
-          .catch(() => {});
-      })
-      .catch(() => {
-        if (!cancelled) setState("error");
-      });
-    return () => {
-      cancelled = true;
-      if (methodsRef.current) void destroy(methodsRef.current);
-      methodsRef.current = null;
-    };
-  }, [locationId, attempt, amount]);
-
-  const pay = useCallback(async (method: keyof Methods) => {
-    const methods = methodsRef.current;
-    const source = methods?.[method];
-    if (!methods || !source) return;
-    setState("paying");
+  const { tokenize } = square;
+  const pay = useCallback(async (method: SquareMethodName) => {
+    setOutcome("paying");
     try {
-      // La carte passe par 3-D Secure : le SDK n'ouvre le défi de la banque
-      // que si elle le demande. Apple Pay et Google Pay authentifient déjà le
-      // porteur, et le SDK vérifie ces jetons de lui-même.
-      const result = await (method === "card"
-        ? methods.card.tokenize({
-            amount,
-            currencyCode: SQUARE_CURRENCY,
-            intent: "CHARGE",
-            customerInitiated: true,
-            sellerKeyedIn: false,
-            billingContact: {},
-          })
-        : source.tokenize());
-      if (result.status !== "OK" || !result.token) {
-        setState("declined");
+      const token = await tokenize(method);
+      if (!token) {
+        setOutcome("declined");
         return;
       }
       // Le montant n'est pas transmis : le serveur relit les lignes en base.
@@ -288,38 +104,41 @@ export function SquarePayment({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           orderId,
-          sourceId: result.token,
+          sourceId: token,
           ...(tipAmount > 0 ? { tipAmount } : {}),
         }),
       });
       const body = (await response.json()) as { paid?: boolean };
-      setState(response.ok && body.paid ? "paid" : "declined");
+      setOutcome(response.ok && body.paid ? "paid" : "declined");
     } catch {
-      setState("declined");
+      setOutcome("declined");
     }
-  }, [orderId, tipAmount, amount]);
+  }, [orderId, tipAmount, tokenize]);
 
   if (state === "paid") {
     return (
-      <CardPaymentPaid due={formatPrice(total + tipAmount)} onContinue={() => onDone(true)} />
+      <CardPaymentPaid bar={bar} due={formatPrice(total + tipAmount)} onContinue={() => onDone(true)} />
     );
   }
 
   if (state === "declined" || state === "error") {
     return (
       <CardPaymentFailed
+        bar={bar}
         declined={state === "declined"}
         onRetry={() => {
-          setAttempt((count) => count + 1);
-          setState("loading");
+          setOutcome(null);
+          square.retry();
         }}
         onCounter={() => onDone(false)}
       />
     );
   }
 
+  const { wallets, dark } = square;
   return (
     <CardPaymentForm
+      bar={bar}
       state={state}
       total={total}
       tipAmount={tipAmount}
@@ -347,7 +166,7 @@ export function SquarePayment({
               Jamais masqué : le bouton se dimensionne sur son conteneur au
               montage. */}
           <div
-            id={GOOGLE_PAY_CONTAINER_ID}
+            id={SQUARE_GOOGLE_PAY_CONTAINER_ID}
             onClick={() => void pay("googlePay")}
             className={`w-full overflow-hidden rounded-full ${
               wallets.googlePay ? "h-12" : "h-0"
@@ -362,7 +181,7 @@ export function SquarePayment({
            !important —, et l'iframe elle-même, que le navigateur rend
            opaque tant que son color-scheme diffère de celui du parent. */
         <div
-          id={CARD_CONTAINER_ID}
+          id={SQUARE_CARD_CONTAINER_ID}
           className="[color-scheme:normal] [&_.sq-card-iframe-container]:bg-surface-raised!"
         />
       }

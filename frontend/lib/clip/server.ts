@@ -28,6 +28,15 @@ export async function requireClipUser(): Promise<
   return { user, supabase };
 }
 
+/**
+ * Le fichier est-il dans le dossier du clipper ? storage_path est modifiable
+ * par son propriétaire via PostgREST : chaque route qui le signe ou le
+ * supprime avec la clé service revérifie, « .. » compris.
+ */
+export function ownsClipPath(userId: string, path: string): boolean {
+  return path.startsWith(`${userId}/`) && !path.split("/").includes("..");
+}
+
 /** Réponse uniforme quand le prestataire de publication ne répond pas. */
 export function providerUnavailable(cause: unknown): NextResponse {
   console.error("Prestataire de publication indisponible :", cause);

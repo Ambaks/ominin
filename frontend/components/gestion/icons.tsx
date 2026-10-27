@@ -40,6 +40,16 @@ export function ApercuIcon(props: IconProps) {
   );
 }
 
+/** Un viseur sur un code : scanner le code de retrait d'un client. */
+export function ScanIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M4 8V5.5A1.5 1.5 0 0 1 5.5 4H8M16 4h2.5A1.5 1.5 0 0 1 20 5.5V8M20 16v2.5a1.5 1.5 0 0 1-1.5 1.5H16M8 20H5.5A1.5 1.5 0 0 1 4 18.5V16" />
+      <path d="M8.5 8.5h2.5v2.5H8.5zM13 8.5h2.5v2.5H13zM8.5 13h2.5v2.5H8.5zM13.5 13.5h2" />
+    </Svg>
+  );
+}
+
 export function CommandesIcon(props: IconProps) {
   return (
     <Svg {...props}>
@@ -248,6 +258,17 @@ export function HelpIcon(props: IconProps) {
       <circle cx="12" cy="12" r="9" />
       <path d="M9.6 9.2a2.5 2.5 0 0 1 4.8 1c0 1.7-2.4 2.2-2.4 3.8" />
       <path d="M12 17.2v.1" />
+    </Svg>
+  );
+}
+
+/** Une bulle et son reflet, posée dans le jardin : les bulles réservables. */
+export function BullesIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="11" r="7.5" />
+      <path d="M8.5 9a4 4 0 0 1 3-3" />
+      <path d="M4 20.5h16" />
     </Svg>
   );
 }

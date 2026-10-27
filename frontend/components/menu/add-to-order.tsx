@@ -7,6 +7,7 @@ import {
   useId,
   useRef,
   useState,
+  type CSSProperties,
   type Dispatch,
   type ReactNode,
   type SetStateAction,
@@ -56,9 +57,11 @@ export function ChoiceRow({
   onChange,
   supplement = 0,
   price,
+  wasPrice,
   describedBy,
   invalid,
   soldOut,
+  fresh,
   children,
 }: {
   type: "radio" | "checkbox";
@@ -68,15 +71,20 @@ export function ChoiceRow({
   supplement?: number;
   /** Prix entier du format choisi, affiché à la place du supplément. */
   price?: number;
+  /** Prix du format hors tarif planifié, barré à côté de `price`. */
+  wasPrice?: number;
   describedBy?: string;
   /** Le groupe obligatoire est resté vide après l'appui sur un bouton incomplet. */
   invalid?: boolean;
   /** Épuisé : visible mais pas sélectionnable, le prix laisse place au mot. */
   soldOut?: boolean;
+  /** Le choix que le client vient de toucher : un thème n'anime que lui. */
+  fresh?: boolean;
   children: ReactNode;
 }) {
   return (
     <label
+      data-fresh={fresh || undefined}
       className={`${choiceRowClass(checked)} ${
         soldOut ? "cursor-not-allowed opacity-50" : ""
       }`}
@@ -97,7 +105,12 @@ export function ChoiceRow({
       {soldOut ? (
         <span className="text-muted">Épuisé</span>
       ) : price !== undefined ? (
-        <span className="text-muted">{formatPrice(price)}</span>
+        <span className="text-muted">
+          {wasPrice !== undefined && wasPrice > price && (
+            <span className="mr-1.5 text-faint line-through">{formatPrice(wasPrice)}</span>
+          )}
+          {formatPrice(price)}
+        </span>
       ) : (
         supplement > 0 && <span className="text-muted">+{formatPrice(supplement)}</span>
       )}
@@ -119,6 +132,7 @@ export function GroupChoices({
   onClear,
   invalid,
   basePrice,
+  freshChoice,
 }: {
   group: OptionGroup;
   name: string;
@@ -128,12 +142,20 @@ export function GroupChoices({
   invalid?: boolean;
   /** Prix de l'article hors ce groupe : un groupe de formats l'ajoute à chaque choix. */
   basePrice?: number;
+  /** Le choix du groupe que le client vient de toucher ; null : « Aucun ». */
+  freshChoice?: string | null;
 }) {
   const formatPrices = group.formats && basePrice !== undefined;
   return (
     <>
       {!group.obligatoire && !group.multiple && (
-        <ChoiceRow type="radio" name={name} checked={chosen.length === 0} onChange={onClear}>
+        <ChoiceRow
+          type="radio"
+          name={name}
+          checked={chosen.length === 0}
+          onChange={onClear}
+          fresh={freshChoice === null}
+        >
           {group.aucun ?? "Aucun"}
         </ChoiceRow>
       )}
@@ -146,8 +168,10 @@ export function GroupChoices({
           onChange={() => onToggle(choice.id)}
           supplement={choice.supplement}
           price={formatPrices ? basePrice + choice.supplement : undefined}
+          wasPrice={formatPrices ? choice.tarif?.basePrice : undefined}
           invalid={invalid}
           soldOut={!isChoiceAvailable(choice)}
+          fresh={freshChoice === choice.id}
         >
           {choice.name}
         </ChoiceRow>
@@ -189,7 +213,9 @@ export function ChoiceTag({
     <span className="text-xs font-medium text-ember-2">
       {done ? (
         <>
-          <span aria-hidden>✓</span>
+          <span aria-hidden className="choice-done inline-block">
+            ✓
+          </span>
           <span className="sr-only">(choix fait)</span>
         </>
       ) : (
@@ -251,7 +277,7 @@ export const sheetCancelClass =
   "min-h-11 rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold max-[399px]:px-3.5 max-[399px]:text-[13px]";
 
 export const sheetConfirmClass = (ready: boolean) =>
-  `min-h-11 min-w-0 flex-1 rounded-full px-5 py-2.5 text-sm font-semibold max-[399px]:min-h-14 max-[399px]:px-3 max-[399px]:text-[13px] ${
+  `sheet-confirm ${ready ? "sheet-cta is-ready " : ""}min-h-11 min-w-0 flex-1 rounded-full px-5 py-2.5 text-sm font-semibold max-[399px]:min-h-14 max-[399px]:px-3 max-[399px]:text-[13px] ${
     ready ? "ember-gradient text-background" : "border border-hairline bg-surface-raised text-foreground"
   }`;
 
@@ -294,7 +320,8 @@ export function revealMissing(
 export function revealAboveCartBar(button: HTMLElement | null) {
   requestAnimationFrame(() => {
     const bar = document.querySelector<HTMLElement>(".cart-bar");
-    if (!button?.isConnected || !bar?.parentElement) return;
+    // Depuis la fiche d'un plat, la page est figée derrière elle : rien à dégager.
+    if (!button?.isConnected || button.closest("[role=dialog]") || !bar?.parentElement) return;
     const gap = parseFloat(getComputedStyle(bar.parentElement).paddingTop);
     // La place de la barre dans sa mise en page (offsetTop), pas celle de son
     // entrée animée : un thème la fait monter du bas de l'écran.
@@ -313,8 +340,11 @@ function shared(names: string[]): string {
     : names.join(", ");
 }
 
-/** Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a. */
-export function AddToOrder({ item }: { item: MenuItem }) {
+/**
+ * Bouton « + Ajouter ». Ouvre la modale d'options si l'article en a ;
+ * `format` y coche d'avance ce format (l'offre de happy hour : le 50 cl).
+ */
+export function AddToOrder({ item, format }: { item: MenuItem; format?: string }) {
   const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, collect } =
     useCart();
   const [modalOpen, setModalOpen] = useState(false);
@@ -435,6 +465,7 @@ export function AddToOrder({ item }: { item: MenuItem }) {
       {modalOpen && (
         <OptionsModal
           item={item}
+          format={format}
           onClose={() => {
             setModalOpen(false);
             revealAboveCartBar(buttonRef.current);
@@ -453,17 +484,23 @@ export function AddToOrder({ item }: { item: MenuItem }) {
 export function OptionsModal({
   item,
   reward,
+  format,
   onClose,
   onAdded,
 }: {
   item: MenuItem;
   reward?: { id: string; points: number };
+  /** Un choix du groupe des formats, coché d'avance. */
+  format?: string;
   onClose: () => void;
   onAdded: () => void;
 }) {
   const { addLine, track } = useCart();
   const groups = item.options ?? [];
-  const [selected, setSelected] = useState<Record<string, string[]>>({});
+  const [selected, setSelected] = useState<Record<string, string[]>>(() => {
+    const formats = groups.find((group) => group.formats);
+    return formats && format ? { [formats.id]: [format] } : {};
+  });
   // Un plat offert se compose seul : ses accords se paieraient en euros.
   const sheetPairings = useSheetPairings(item.id);
   const pairings = reward ? [] : sheetPairings;
@@ -471,6 +508,8 @@ export function OptionsModal({
   const pickedPairings = pairings.filter(({ item: other }) => picked.has(other.id));
   // Groupe manquant signalé au toucher du bouton qui le nomme.
   const [flash, setFlash] = useState<Flash>(null);
+  // Le dernier choix touché (choice null : « Aucun ») : lui seul s'anime.
+  const [fresh, setFresh] = useState<{ group: string; choice: string | null } | null>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
   // Dernier geste au doigt ou à la souris (et non au clavier) : seul lui fait
   // défiler la feuille vers le groupe suivant — au clavier, le focus resterait
@@ -564,6 +603,7 @@ export function OptionsModal({
       }
     }
     setSelected(nextSelected);
+    setFresh({ group: group.id, choice: choiceId });
   };
 
   const groupSupplement = (group: OptionGroup) =>
@@ -641,6 +681,7 @@ export function OptionsModal({
       itemId: item.id,
       name: lineName(item),
       detail: item.detail,
+      image: item.image,
       unitPrice,
       optionSummary,
       choices,
@@ -648,7 +689,7 @@ export function OptionsModal({
       noticeHours: item.noticeHours,
       reward,
     });
-    for (const { item: other } of pickedPairings) addLine(plainLine(other, "fiche"));
+    for (const { item: other, choices } of pickedPairings) addLine(plainLine(other, "fiche", choices));
     track("panier");
     onAdded();
     close();
@@ -660,7 +701,17 @@ export function OptionsModal({
         <>
           {/* Titre et prix épinglés : les choix défilent dessous, on garde
               sous les yeux ce qu'on compose et ce qu'il coûte. */}
-          <div className="border-b border-hairline px-6 pb-4 pt-6">
+          <div className="options-head border-b border-hairline px-6 pb-4 pt-6">
+            {item.image && (
+              // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'établissement, hors remotePatterns de next/image
+              <img
+                src={item.image}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="options-photo hidden size-14 shrink-0 rounded-xl object-cover"
+              />
+            )}
             <div className="flex items-baseline justify-between gap-4">
               <h3
                 id={titleId}
@@ -676,7 +727,8 @@ export function OptionsModal({
                   </span>
                 )}
               </h3>
-              <span className="dish-price shrink-0 font-display text-lg text-ember-1">
+              {/* Neuf à chaque prix : un thème le fait monter à sa place. */}
+              <span key={priceLabel} className="dish-price shrink-0 font-display text-lg text-ember-1">
                 {priceLabel}
               </span>
             </div>
@@ -721,11 +773,13 @@ export function OptionsModal({
               </p>
             )}
             <div className="flex flex-col gap-6">
-              {shown.map((group) => (
+              {shown.map((group, index) => (
                 <div
                   key={group.id}
                   data-group={group.id}
-                  className={pickFrameClass(flash, group.id)}
+                  // Son rang : un thème fait entrer les groupes l'un après l'autre.
+                  style={{ "--i": index } as CSSProperties}
+                  className={`sheet-group ${pickFrameClass(flash, group.id)}`}
                 >
                   <fieldset
                     data-required={group.obligatoire || undefined}
@@ -749,11 +803,13 @@ export function OptionsModal({
                         basePrice={reward ? undefined : unitPrice - groupSupplement(group)}
                         onToggle={(choiceId) => toggle(group, choiceId)}
                         invalid={flash?.key === group.id && chosen(group.id).length === 0}
-                        onClear={() =>
+                        freshChoice={fresh?.group === group.id ? fresh.choice : undefined}
+                        onClear={() => {
                           setSelected((current) =>
                             keepVisible(groups, { ...current, [group.id]: [] })
-                          )
-                        }
+                          );
+                          setFresh({ group: group.id, choice: null });
+                        }}
                       />
                     </div>
                   </fieldset>
@@ -764,7 +820,7 @@ export function OptionsModal({
 
           {/* Épinglée : les options d'un tacos 3 viandes défilent sur plus de
               1 600 px, le bouton ne doit pas partir avec elles. */}
-          <div className="flex flex-col gap-4 border-t border-hairline bg-surface px-6 py-4">
+          <div className="options-foot flex flex-col gap-4 border-t border-hairline bg-surface px-6 py-4">
             {pairings.length > 0 && (
               <SheetPairings
                 pairings={pairings}

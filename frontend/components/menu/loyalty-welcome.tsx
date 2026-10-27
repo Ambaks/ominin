@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import {
   useEffect,
   useLayoutEffect,
@@ -10,6 +11,7 @@ import {
 import { useCart } from "@/lib/menu/cart";
 import {
   LOYALTY_GREETING_MS,
+  LOYALTY_WHEEL_DELAY_MS,
   nextReward,
   type GarlandMotif,
   type LoyaltyProgram,
@@ -17,6 +19,26 @@ import {
 import { greetedKey, useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import { reducedMotion, useCountUp } from "./loyalty-card";
 import { LoyaltyCardSheet } from "./loyalty-card-sheet";
+import type { LiquidOrigin } from "./liquid-sheet";
+import { useNoSheet } from "./sheet";
+import { WheelGlyph } from "./wheel-glyph";
+
+// La roue ne pèse que sur les cartes qui en ont une : chargée à l'ouverture.
+const loadWheel = () => import("./loyalty-wheel");
+const LoyaltyWheel = dynamic(
+  () =>
+    loadWheel().then(
+      (module) => module.LoyaltyWheel,
+      // Paquet introuvable (mise en ligne pendant la visite) : pas de roue,
+      // la feuille se dit fermée pour que l'accueil suive et que la pastille rouvre.
+      () =>
+        function WheelUnavailable({ onClose }: { onClose: () => void }) {
+          useEffect(onClose, [onClose]);
+          return null;
+        }
+    ),
+  { ssr: false }
+);
 
 /*
  * Accueil d'un téléphone reconnu. Au premier affichage de la carte dans
@@ -24,10 +46,37 @@ import { LoyaltyCardSheet } from "./loyalty-card-sheet";
  * restaurant qui se dessine, points qui défilent, palier suivant — puis se
  * replie en pastille de points dans le coin. La pastille reste : elle ouvre
  * « Ma carte » (loyalty-card-sheet). Un rechargement pendant le repas ne
- * rejoue pas l'accueil (sessionStorage), la pastille suffit.
+ * rejoue pas l'accueil (sessionStorage), la pastille suffit. Quand la maison
+ * a une roue et que le tour du jour reste à jouer, la roue (loyalty-wheel)
+ * monte d'elle-même une seconde après l'ouverture de la page, une fois par
+ * onglet ; l'accueil vient après elle, solde à jour. Tant que le tour reste
+ * à jouer, l'accueil et la pastille l'annoncent et l'ouvrent ; « Ma carte »
+ * une fois le tour joué.
  */
 
 type Phase = "greeting" | "folding" | "pill";
+
+/**
+ * La montée de la roue, une seconde après l'ouverture de la page — depuis le
+ * chargement, ou depuis l'arrivée sur la carte par un lien interne. Le client
+ * a ouvert le panier avant : la roue ne surgit pas à sa fermeture (onSkip),
+ * l'accueil et la pastille l'annoncent. Rendue seulement quand la roue attend :
+ * le menu sans roue ne suit pas les feuilles.
+ */
+function WheelAutoOpen({ onOpen, onSkip }: { onOpen: () => void; onSkip: () => void }) {
+  const noSheet = useNoSheet();
+  const [mountedAt] = useState(() => performance.now());
+  useEffect(() => {
+    if (!noSheet) {
+      onSkip();
+      return;
+    }
+    const origin = mountedAt < LOYALTY_WHEEL_DELAY_MS ? 0 : mountedAt;
+    const timer = setTimeout(onOpen, Math.max(0, LOYALTY_WHEEL_DELAY_MS - (performance.now() - origin)));
+    return () => clearTimeout(timer);
+  }, [noSheet, mountedAt, onOpen, onSkip]);
+  return null;
+}
 
 /*
  * L'accueil a déjà eu lieu dans l'onglet (sessionStorage) ? Lu comme une
@@ -118,22 +167,38 @@ export function LoyaltyWelcome({
   motif?: GarlandMotif;
 }) {
   const { slug, loyalty } = useCart();
-  const { member } = useLoyaltyMember();
+  const { member, wheel } = useLoyaltyMember();
   const points = member?.points ?? null;
   const known = loyalty != null && points !== null;
+  const spinReady = wheel?.ready === true;
 
   const [progress, setProgress] = useState<"folding" | "pill" | null>(null);
   const [open, setOpen] = useState(false);
+  const [wheelOpen, setWheelOpen] = useState(false);
+  // « Ma carte » demandée depuis la roue : elle s'ouvre une fois la roue descendue.
+  const [cardAfterWheel, setCardAfterWheel] = useState(false);
+  const openNext = () => (spinReady ? setWheelOpen(true) : setOpen(true));
+  // Touchée, la pastille : la feuille en naît (Sheet, origin). Ouverte d'ailleurs, elle monte.
+  const [origin, setOrigin] = useState<LiquidOrigin | null>(null);
+  // Le liquide (shader compris) n'est chargé que pour une carte qui a une pastille.
+  const [liquid, setLiquid] = useState<typeof import("./liquid-sheet") | null>(null);
   const greetingRef = useRef<HTMLButtonElement>(null);
   const pillRef = useRef<HTMLButtonElement>(null);
   const sessionKey = greetedKey(slug);
   const greeted = useGreeted(sessionKey);
-  const phase: Phase | null = !known
-    ? null
-    : greeted || progress === "pill"
-      ? "pill"
-      : (progress ?? "greeting");
-  const counted = useCountUp(points ?? 0, phase === "greeting");
+  // Décidé au premier affichage de la carte : la roue à jouer passe avant
+  // l'accueil, qui attend qu'elle se referme.
+  const [wheelFirst, setWheelFirst] = useState<boolean | null>(null);
+  const [wheelShown, setWheelShown] = useState(false);
+  const [wheelDone, setWheelDone] = useState(false);
+  const phase: Phase | null =
+    !known || (wheel !== null && wheelFirst === null) || (wheelFirst && !wheelDone)
+      ? null
+      : greeted || progress === "pill"
+        ? "pill"
+        : (progress ?? "greeting");
+  // Après la roue, le solde vient d'y défiler : l'accueil le montre tel quel.
+  const counted = useCountUp(points ?? 0, phase === "greeting" && !wheelDone);
   const fold = () => setProgress(reducedMotion() ? "pill" : "folding");
   // La barre des catégories collée en haut : la pastille s'y range, le rail
   // lui laisse la place (globals.css).
@@ -159,9 +224,32 @@ export function LoyaltyWelcome({
   }, [known]);
 
   useEffect(() => {
+    if (!known || !wheel || wheelFirst !== null) return;
+    const first = spinReady && !greeted;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- le membre arrive après l'hydratation
+    setWheelFirst(first);
+    if (first) loadWheel().catch(() => setWheelDone(true));
+  }, [known, wheel, wheelFirst, spinReady, greeted]);
+
+  useEffect(() => {
     if (phase !== "greeting") return;
     const timer = setTimeout(fold, LOYALTY_GREETING_MS);
     return () => clearTimeout(timer);
+  }, [phase]);
+
+  useEffect(() => {
+    if (phase !== "pill" || reducedMotion()) return;
+    let live = true;
+    import("./liquid-sheet").then(
+      (module) => {
+        module.prepareLiquid();
+        if (live) setLiquid(module);
+      },
+      () => {}
+    );
+    return () => {
+      live = false;
+    };
   }, [phase]);
 
   useEffect(() => {
@@ -182,7 +270,7 @@ export function LoyaltyWelcome({
     greeting.style.setProperty("--fold-y", `${to.top + to.height / 2 - (from.top + from.height / 2)}px`);
   }, [phase]);
 
-  if (!loyalty || !member || points === null || phase === null) return null;
+  if (!loyalty || !member || points === null) return null;
   const name = member.firstName;
 
   return (
@@ -194,7 +282,7 @@ export function LoyaltyWelcome({
           data-phase={phase}
           onClick={() => {
             fold();
-            setOpen(true);
+            openNext();
           }}
           onAnimationEnd={(event) => {
             if (event.animationName === "loyalty-fold") setProgress("pill");
@@ -213,6 +301,12 @@ export function LoyaltyWelcome({
             <span className="text-xs leading-snug">
               <Progress program={loyalty} points={points} />
             </span>
+            {spinReady && (
+              <span className="mt-1 inline-flex items-center gap-1.5 self-start rounded-full bg-ember-1 px-2.5 py-1 text-xs font-semibold text-background">
+                <WheelGlyph className="wheel-glyph size-3.5" />
+                Votre tour du jour vous attend
+              </span>
+            )}
           </span>
           <svg viewBox="0 0 10 16" aria-hidden="true" className="h-4 w-2.5 shrink-0 text-faint">
             <path d="M2 2l6 6-6 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -225,14 +319,60 @@ export function LoyaltyWelcome({
           ref={pillRef}
           type="button"
           aria-haspopup="dialog"
-          aria-label={`Ma carte de fidélité : ${points} ${points === 1 ? "point" : "points"}`}
-          onClick={() => setOpen(true)}
+          aria-label={
+            spinReady
+              ? `Tourner la roue · ${points} ${points === 1 ? "point" : "points"}`
+              : `Ma carte de fidélité : ${points} ${points === 1 ? "point" : "points"}`
+          }
+          onPointerDown={(event) => {
+            // La roue chargée dès le doigt posé : la feuille naît sans attendre son paquet.
+            if (spinReady) loadWheel().catch(() => {});
+            if (liquid?.liquidReady()) liquid.squeezePill(event.currentTarget);
+          }}
+          onClick={(event) => {
+            openNext();
+            if (liquid?.liquidReady()) setOrigin({ source: event.currentTarget, grow: liquid.growSheet });
+          }}
           data-docked={docked || undefined}
           className="loyalty-pill loyalty-pill-enter fixed right-3 top-[calc(env(safe-area-inset-top,0px)+0.75rem)] z-40 flex items-center gap-1.5 rounded-full border border-ember-1/45 bg-surface/85 py-1 pl-1 pr-3 text-sm font-semibold tabular-nums text-foreground shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-lg data-docked:bg-background data-docked:shadow-none"
         >
           <Seal logo={logo} icon={icon} size="sm" />
           {points}
+          {spinReady && <WheelGlyph className="wheel-glyph -mr-1 size-4 text-ember-1" />}
         </button>
+      )}
+
+      {wheelFirst && !wheelShown && !wheelDone && (
+        <WheelAutoOpen
+          onOpen={() => {
+            setWheelShown(true);
+            setWheelOpen(true);
+          }}
+          onSkip={() => setWheelDone(true)}
+        />
+      )}
+
+      {wheelOpen && (
+        <LoyaltyWheel
+          icon={icon}
+          logo={logo}
+          motif={motif}
+          origin={origin}
+          onClose={() => {
+            setWheelOpen(false);
+            setWheelDone(true);
+            // « Ma carte » demandée : la carte s'ouvre, l'accueil n'a plus lieu d'être.
+            // Née de la pastille comme la roue, si la roue en venait.
+            if (cardAfterWheel) {
+              setCardAfterWheel(false);
+              setProgress("pill");
+              setOpen(true);
+            } else {
+              setOrigin(null);
+            }
+          }}
+          onShowCard={() => setCardAfterWheel(true)}
+        />
       )}
 
       {open && (
@@ -241,7 +381,11 @@ export function LoyaltyWelcome({
           logo={logo}
           wordmark={wordmark}
           motif={motif}
-          onClose={() => setOpen(false)}
+          origin={origin}
+          onClose={() => {
+            setOrigin(null);
+            setOpen(false);
+          }}
         />
       )}
     </>

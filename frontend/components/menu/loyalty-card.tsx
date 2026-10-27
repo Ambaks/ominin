@@ -14,21 +14,21 @@ import type { GarlandMotif, LoyaltyProgram } from "@/lib/menu/loyalty";
 export const reducedMotion = () =>
   window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/** Le solde qui défile jusqu'à sa valeur, après `delay` ms. */
-export function useCountUp(target: number, run: boolean, delay = 500): number {
+/** Le solde qui défile jusqu'à sa valeur, après `delay` ms, en `duration` ms. */
+export function useCountUp(target: number, run: boolean, delay = 500, duration = 1100): number {
   const [shown, setShown] = useState(0);
   useEffect(() => {
     if (!run) return;
     let frame = 0;
     const start = performance.now() + delay;
     const tick = (now: number) => {
-      const k = reducedMotion() ? 1 : Math.min(1, Math.max(0, (now - start) / 1100));
+      const k = reducedMotion() ? 1 : Math.min(1, Math.max(0, (now - start) / duration));
       setShown(Math.round(target * (1 - Math.pow(1 - k, 3))));
       if (k < 1) frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [target, run, delay]);
+  }, [target, run, delay, duration]);
   return run ? shown : target;
 }
 
@@ -148,7 +148,7 @@ export function LoyaltyCard({
                 // eslint-disable-next-line @next/next/no-img-element -- logo du dossier public
                 <img src={logo} alt="" className="size-6.5 object-contain" />
               )}
-              <span className="font-display text-[22px] uppercase leading-none tracking-[0.14em]">
+              <span className="loyalty-card-brand font-display text-[22px] uppercase leading-none tracking-[0.14em]">
                 {brand}
               </span>
             </>

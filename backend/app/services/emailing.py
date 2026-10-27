@@ -47,6 +47,15 @@ def is_suppressed(email: str) -> bool:
     return bool(result.data)
 
 
+def is_reserved(restaurant_id: str) -> bool:
+    """A commercial holds this restaurant (declaration pending or confirmed):
+    Léa neither selects it, nor sends to it, nor drafts a reply. Its status is
+    already frozen in the database (crm_leads_reflect_guard)."""
+    return bool(
+        get_supabase().rpc("crm_is_reserved", {"p_restaurant": restaurant_id}).execute().data
+    )
+
+
 def add_suppression(email: str, reason: str, restaurant_id: str | None) -> None:
     get_supabase().table("outreach_suppressions").upsert(
         {"email": email.lower(), "reason": reason, "restaurant_id": restaurant_id},
@@ -135,16 +144,25 @@ def send_approved_batch(kinds: list[str], cold_cap: int | None = None) -> dict:
 
 
 def _send_one(sb, row: dict, stats: dict) -> None:
-    if is_suppressed(row["to_email"] or ""):
+    blocked = (
+        "suppressed"
+        if is_suppressed(row["to_email"] or "")
+        else "reserved_by_commercial"
+        if is_reserved(row["restaurant_id"])
+        else None
+    )
+    if blocked:
         sb.table("outreach_emails").update(
-            {"status": "cancelled", "error": "suppressed"}
+            {"status": "cancelled", "error": blocked}
         ).eq("id", row["id"]).execute()
         stats["cancelled"] += 1
         if row["kind"] == "reply":
             # A human approved this reply believing it would go out — a
             # silent cancellation here is a warm conversation dying unseen.
             notify.send(
-                "Réponse approuvée NON envoyée : adresse désinscrite",
+                "Réponse approuvée NON envoyée : adresse désinscrite"
+                if blocked == "suppressed"
+                else "Réponse approuvée NON envoyée : restaurant réservé par un commercial",
                 f"Destinataire : {row['to_email']}\n"
                 f"Objet : {row.get('subject') or ''}",
                 path="/prospection",

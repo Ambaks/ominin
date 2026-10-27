@@ -4,6 +4,7 @@ import { onlineMinimumError } from "@/lib/menu/online-minimum";
 import {
   connectedAccount,
   getStripe,
+  publishableKey as readPublishableKey,
   settlePaymentIntent,
 } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
     await Promise.all([
       admin
         .from("etablissements")
-        .select("name, online_payment, online_min_order, platform_fee_percent, collect_fee_percent")
+        .select("name, online_payment, online_min_order, platform_fee_percent, collect_fee_percent, show_table_number")
         .eq("id", order.etablissement_id)
         .single(),
       admin
@@ -86,10 +87,10 @@ export async function POST(request: Request) {
   }
   // Publique, mais lue ici plutôt que figée au build : elle est toujours du
   // même mode (test ou live) que la clé secrète qui crée l'intent.
-  const publishableKey = process.env.STRIPE_PUBLISHABLE_KEY;
+  const publishableKey = readPublishableKey();
   if (!publishableKey) {
     return NextResponse.json(
-      { error: "STRIPE_PUBLISHABLE_KEY manquante." },
+      { error: "STRIPE_PUBLISHABLE_KEY manquante ou d'un autre mode que la clé secrète." },
       { status: 500 }
     );
   }
@@ -126,13 +127,16 @@ export async function POST(request: Request) {
   const stripeAccount = { stripeAccount: account.id };
 
   // Sur le relevé Stripe du restaurant : la table ou la commande, pour la
-  // ressaisie en caisse.
+  // ressaisie en caisse. Une commande numérotée (fast food) mène par son
+  // numéro, sa table ne suit que si le gérant l'affiche.
   const description = collect
     ? `À emporter — ${etab.name}`
-    : table
-      ? `Table ${table.number} — ${etab.name}`
-      : order.order_number
-        ? `Commande n° ${order.order_number} — ${etab.name}`
+    : order.order_number
+      ? `Commande n° ${order.order_number}${
+          table && etab.show_table_number ? ` · table ${table.number}` : ""
+        } — ${etab.name}`
+      : table
+        ? `Table ${table.number} — ${etab.name}`
         : `Commande — ${etab.name}`;
   const amount =
     lines.reduce(

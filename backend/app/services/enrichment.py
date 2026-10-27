@@ -64,7 +64,7 @@ def run_enrichment(*, flush=None) -> dict:
     # recorded here; the rest queue for Claude.
     undecided: list[dict] = []
     with ThreadPoolExecutor(max_workers=settings.enrichment_workers) as pool:
-        for future in as_completed(pool.submit(_scrape, sb, r) for r in restaurants):
+        for future in as_completed(pool.submit(_scrape, r) for r in restaurants):
             keepalive.ping_if_due()
             try:
                 prepared = future.result()
@@ -103,14 +103,17 @@ def run_enrichment(*, flush=None) -> dict:
     return stats
 
 
-def _scrape(sb, restaurant: dict) -> dict:
+def _scrape(restaurant: dict) -> dict:
     """Everything that needs no Claude call.
 
     Claude is consulted only when the verdict is still open: a proven
     digital menu, no reachable address, or a suppressed one disqualifies
     whatever it would say — and notes are useless for a restaurant Léa
     can't write to. 'no_email' therefore means the address is the only
-    thing missing, which is what a contact-form pipeline should target."""
+    thing missing, which is what a contact-form pipeline should target.
+
+    Runs in a worker thread: it takes that thread's own client."""
+    sb = get_supabase()
     site = fetch_site(restaurant["website"]) if restaurant.get("website") else None
 
     email = restaurant.get("email")

@@ -92,7 +92,7 @@ interface SquareTokens {
   expires_at: string;
 }
 
-class SquareError extends Error {
+export class SquareError extends Error {
   constructor(
     message: string,
     readonly status: number
@@ -200,6 +200,8 @@ export interface SquareMoney {
 export interface SquareTender {
   id: string;
   payment_id?: string;
+  /** Ce que le tender a encaissé, pourboire non compris. */
+  amount_money?: SquareMoney;
   tip_money?: SquareMoney;
   card_details?: { status?: "AUTHORIZED" | "CAPTURED" | "VOIDED" | "FAILED" };
 }
@@ -243,6 +245,22 @@ export function createPayment(
   body: Record<string, unknown>
 ): Promise<{ payment: SquarePayment }> {
   return squareApi(accessToken, "/v2/payments", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+/** Rembourse un paiement (PAYMENTS_WRITE). Clé d'idempotence déterministe chez l'appelant. */
+export function refundPayment(
+  accessToken: string,
+  body: {
+    idempotency_key: string;
+    payment_id: string;
+    amount_money: SquareMoney;
+    reason: string;
+  }
+): Promise<{ refund: { id: string; status: string } }> {
+  return squareApi(accessToken, "/v2/refunds", {
     method: "POST",
     body: JSON.stringify(body),
   });
@@ -385,23 +403,31 @@ export async function settlePayment(
 }
 
 /**
- * Clôt la commande si la commande Square porte un règlement abouti. Un refus
- * y laisse un tender FAILED : seul un tender capturé ou autorisé compte.
+ * Le règlement abouti d'une commande Square, s'il y en a un. Un refus y
+ * laisse un tender FAILED : seul un tender capturé ou autorisé compte.
  * L'état se lit dans la commande (ORDERS_READ) et non dans le paiement, qui
  * exigerait PAYMENTS_READ — une permission de plus à faire accepter au
  * restaurateur, pour la même information.
  */
-export async function settleFromOrder(
-  admin: Admin,
-  orderId: string,
+export function capturedTender(
   squareOrder: SquareOrder
-): Promise<boolean> {
+): (SquareTender & { payment_id: string }) | null {
   const tender = squareOrder.tenders?.find(
     (candidate) =>
       candidate.payment_id &&
       (candidate.card_details?.status === "CAPTURED" ||
         candidate.card_details?.status === "AUTHORIZED")
   );
+  return tender?.payment_id ? { ...tender, payment_id: tender.payment_id } : null;
+}
+
+/** Clôt la commande si la commande Square porte un règlement abouti. */
+export async function settleFromOrder(
+  admin: Admin,
+  orderId: string,
+  squareOrder: SquareOrder
+): Promise<boolean> {
+  const tender = capturedTender(squareOrder);
   if (!tender) return false;
   const { error } = await admin
     .from("orders")

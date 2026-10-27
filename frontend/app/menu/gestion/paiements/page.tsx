@@ -105,7 +105,7 @@ function PaymentRow({
   const isCollect = order.type === "collect";
   const heading = isCollect
     ? order.customerName ?? "Client"
-    : placeLabel(order, state.tables);
+    : placeLabel(order, state.tables, state.etablissement.showTableNumber);
   const mode = displayMode(order);
   const articleCount = order.items.reduce((sum, line) => sum + line.quantity, 0);
   // Tout encaissement au comptoir se corrige et s'annule ; un règlement en
@@ -302,7 +302,11 @@ export default function PaiementsPage() {
             Tous les encaissements — espèces, carte et en ligne.
           </p>
         </div>
-        <StripeDashboardButton />
+        {/* Un restaurant passé sur Square garde parfois un ancien compte
+            Stripe relié : son espace n'a plus rien à lui montrer. */}
+        {(state.etablissement.paymentProvider ?? "stripe") === "stripe" && (
+          <StripeDashboardButton />
+        )}
       </div>
 
       <div className="flex flex-col gap-2">

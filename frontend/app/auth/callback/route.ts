@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { commercialPrefix } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 /** Échange le code OAuth/PKCE (Google, liens email) contre une session. */
@@ -37,5 +38,11 @@ export async function GET(request: Request) {
     if (!error) return NextResponse.redirect(`${base}${next}`);
   }
 
-  return NextResponse.redirect(`${base}/connexion?error=auth`);
+  // Sur ominin.com, l'espace commercial a sa propre page de connexion : un
+  // lien expiré doit y ramener, pas sur celle des restaurants.
+  const login =
+    commercialPrefix && next.startsWith(`${commercialPrefix}/`)
+      ? `${commercialPrefix}/connexion`
+      : "/connexion";
+  return NextResponse.redirect(`${base}${login}?error=auth`);
 }

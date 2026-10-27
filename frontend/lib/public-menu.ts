@@ -1,9 +1,11 @@
-import type { OpeningHours } from "@/lib/collect/hours";
+import { parisParts, type OpeningHours } from "@/lib/collect/hours";
 import { assembleCategories, rowToAffiche, rowToFormule } from "@/lib/gestion/mappers";
 import type { Formule, ServiceMode } from "@/lib/gestion/types";
 import { fetchClosedItems } from "@/lib/menu/fermetures";
+import { itemFormatsLine } from "@/lib/menu/format";
+import { windowAt } from "@/lib/menu/happy-hour";
 import { applyTarifs, fetchActiveTarifs } from "@/lib/menu/tarifs";
-import { getRestaurant, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
+import { getRestaurant, type CategoryLayout, type MenuCategory, type MenuItem, type Restaurant } from "@/lib/menu-data";
 import type { LoyaltyProgram } from "@/lib/menu/loyalty";
 import {
   resolveFormuleOffers,
@@ -11,6 +13,7 @@ import {
   type FormuleOffer,
   type Pairing,
 } from "@/lib/menu/pairings";
+import { activeSaison, type Saison } from "@/lib/menu/saison";
 import { createPublicClient } from "@/lib/supabase/public";
 
 const ISO_DAYS: Record<string, number> = {
@@ -37,9 +40,11 @@ function serviceIsoDay(dayEndHour: number): number {
 }
 
 /**
- * Piment, mentions, allergènes et nom dans la langue de la cuisine : la base
- * ne les porte pas encore, le registre statique si. Rattachés par nom, la
- * carte en ligne imprime ce que montre /menu/demo ; sans registre, rien.
+ * Piment, mentions et nom dans la langue de la cuisine : la base ne les porte
+ * pas encore, le registre statique si. Rattachés par nom, la carte en ligne
+ * imprime ce que montre /menu/demo ; sans registre, rien. Pas les allergènes :
+ * ceux des démos sont supposés (lib/menu/allergenes-demo.json), la carte en
+ * ligne ne montre que ceux que le gérant a saisis.
  */
 function withPrintedDetails(categories: MenuCategory[], registry: Restaurant | undefined): MenuCategory[] {
   if (!registry) return categories;
@@ -50,7 +55,7 @@ function withPrintedDetails(categories: MenuCategory[], registry: Restaurant | u
     kicker: kickers.get(category.name),
     items: category.items.map((item) => {
       const source = printed.get(item.name);
-      return source ? { ...item, spice: source.spice, tags: source.tags, allergens: source.allergens } : item;
+      return source ? { ...item, spice: source.spice, tags: source.tags } : item;
     }),
   }));
 }
@@ -73,8 +78,10 @@ export async function fetchRestaurant(slug: string): Promise<{
   squareLocationId: string | null;
   /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */
   qrMenu: boolean;
-  /** Restaurant (commande depuis la table) ou fast food (sans table, numérotée). */
+  /** Restaurant (commande depuis la table) ou fast food (au comptoir, numérotée). */
   serviceMode: ServiceMode;
+  /** Fast food : retrait au bar, sur présentation d'un code que l'équipe scanne. */
+  barPickup: boolean;
   /** Le menu propose d'appeler un serveur ; retiré, le bouton n'existe pas. */
   callServer: boolean;
   /** Programme de fidélité ouvert par Ominin et allumé par le gérant. */
@@ -93,6 +100,8 @@ export async function fetchRestaurant(slug: string): Promise<{
   pairings: Record<string, Pairing[]> | undefined;
   /** Les formules que l'accord du chef propose de compléter ; absent avec lui. */
   formuleOffers: FormuleOffer[] | undefined;
+  /** L'habillage de saison posé par l'admin, s'il n'a pas passé sa date de fin. */
+  saison: Saison | null;
   /** Horaires structurés : les créneaux de retrait du click & collect. */
   openingHours: OpeningHours | null;
   collectSlotMinutes: number;
@@ -104,7 +113,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   // sur la page la plus consultée (chaque scan de QR code).
   const { data: etablissement, error } = await supabase
     .from("etablissements")
-    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*), affiches(*)")
+    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour, saison, saison_fin), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*), affiches(*)")
     .eq("slug", slug)
     .order("position", { referencedTable: "categories", ascending: true })
     .order("position", { referencedTable: "items", ascending: true })
@@ -138,7 +147,10 @@ export async function fetchRestaurant(slug: string): Promise<{
         (category) => category.items.length > 0
       ),
       tarifs
-    ),
+    ).map((category) => ({
+      ...category,
+      items: category.items.map((item) => ({ ...item, tarifs: itemFormatsLine(item) })),
+    })),
     staticData
   );
 
@@ -173,15 +185,19 @@ export async function fetchRestaurant(slug: string): Promise<{
   // (la base le refuserait) ; une étape obligatoire vidée emporte sa formule,
   // une facultative disparaît (formule_line n'exige que les obligatoires), et
   // une formule sans plus aucune étape ne se vend pas à vide.
-  // Hors de ses jours, la formule n'apparaît pas (formule_du_jour en base).
-  const today = serviceIsoDay(
-    etablissement.etablissement_settings?.day_end_hour ?? 0
-  );
+  // Hors de ses jours ou de ses heures, la formule n'apparaît pas
+  // (formule_du_jour et dans_les_heures en base).
+  const settings = etablissement.etablissement_settings;
+  const dayEndHour = settings?.day_end_hour ?? 0;
+  const today = serviceIsoDay(dayEndHour);
+  const minutes = parisParts(new Date()).minutes;
   const formules = etablissement.formules
     .map(rowToFormule)
     .filter(
       (formule) =>
-        formule.disponible && (!formule.days || formule.days.includes(today))
+        formule.disponible &&
+        (!formule.days || formule.days.includes(today)) &&
+        (!formule.hours || windowAt(formule.hours, minutes) !== null)
     )
     .map((formule) => ({
       ...formule,
@@ -234,6 +250,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     squareLocationId: etablissement.square_location_id ?? null,
     qrMenu: features?.qr !== false,
     serviceMode: etablissement.service_mode,
+    barPickup: etablissement.bar_pickup,
     // Au comptoir, personne ne vient à table : pas de serveur à appeler.
     callServer:
       features?.appel_serveur !== false && etablissement.service_mode === "restaurant",
@@ -241,6 +258,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     formules,
     pairings: resolvePairings(categories, staticData?.pairings),
     formuleOffers: staticData?.pairings ? resolveFormuleOffers(formules, categories) : undefined,
+    saison: activeSaison(settings?.saison ?? null, settings?.saison_fin ?? null, dayEndHour),
     openingHours: etablissement.opening_hours as OpeningHours | null,
     collectSlotMinutes: etablissement.collect_slot_minutes,
     restaurant: {
@@ -260,11 +278,16 @@ export async function fetchRestaurant(slug: string): Promise<{
       placeId: staticData?.placeId,
       allergensUrl: staticData?.allergensUrl,
       loyaltyMotif: staticData?.loyaltyMotif,
+      loyaltyWheel: staticData?.loyaltyWheel,
       suivi: staticData?.suivi,
       poster: staticData?.poster,
+      posterWide: staticData?.posterWide,
+      saisonSpots: staticData?.saisonSpots,
       affiches,
+      formulesPill: staticData?.formulesPill,
       highlights: staticData?.highlights,
       ticker: staticData?.ticker,
+      categoryLayout: etablissement.category_layout as CategoryLayout,
       glossary: staticData?.glossary,
       address: etablissement.address,
       phone: etablissement.phone,

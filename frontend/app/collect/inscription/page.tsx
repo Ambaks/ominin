@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth/auth-form";
 import { Wordmark } from "@/components/brand/wordmark";
+import { SignupLinkBanner } from "@/lib/commercial/signup-link";
 import { collectOffer } from "@/lib/landing-data";
 
 export const metadata: Metadata = {
@@ -21,6 +22,7 @@ export default async function CollectInscriptionPage({
       otherHref="/connexion"
       subtitle={`Votre page de commande à emporter, à votre nom — ${collectOffer.commission.percent} % par commande, sans abonnement.`}
       authError={error === "auth"}
+      beforeCard={<SignupLinkBanner product="collect" />}
     />
   );
 }

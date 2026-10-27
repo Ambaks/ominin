@@ -40,7 +40,7 @@ export async function POST(request: Request) {
   const [{ data: etab }, { data: lines }, { data: table }] = await Promise.all([
     admin
       .from("etablissements")
-      .select("name, online_payment, online_min_order, payment_provider")
+      .select("name, online_payment, online_min_order, payment_provider, show_table_number")
       .eq("id", order.etablissement_id)
       .single(),
     admin
@@ -99,10 +99,12 @@ export async function POST(request: Request) {
     amount,
     currency: "EUR",
     merchant_code: merchant.merchantCode,
-    description: table
-      ? `Table ${table.number} — ${etab.name}`
-      : order.order_number
-        ? `Commande n° ${order.order_number} — ${etab.name}`
+    description: order.order_number
+      ? `Commande n° ${order.order_number}${
+          table && etab.show_table_number ? ` · table ${table.number}` : ""
+        } — ${etab.name}`
+      : table
+        ? `Table ${table.number} — ${etab.name}`
         : `Commande — ${etab.name}`,
     return_url: `${requestUrl.protocol}//${host}/api/sumup/webhook`,
   };

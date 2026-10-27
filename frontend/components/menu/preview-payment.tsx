@@ -72,7 +72,7 @@ export function PreviewPayment({
         {/* « Paiement à Le Victoria » ne se dit pas : le nom seul, sous le mot. */}
         <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-muted">Paiement</p>
         <p className="max-w-full truncate text-sm font-medium">{merchant}</p>
-        <p className="font-display text-3xl font-semibold lining-nums tabular-nums text-ember-1">
+        <p className="payment-due font-display text-3xl font-semibold lining-nums tabular-nums text-ember-1">
           {formatPrice(total)}
         </p>
       </div>
@@ -110,7 +110,7 @@ export function PreviewPayment({
             type="button"
             data-preview-pay
             onClick={() => setPhase("processing")}
-            className="ember-gradient min-h-11 w-full rounded-full px-6 py-3 text-sm font-semibold text-background"
+            className="sheet-cta ember-gradient min-h-11 w-full rounded-full px-6 py-3 text-sm font-semibold text-background"
           >
             Payer {formatPrice(total)}
           </button>
@@ -139,16 +139,19 @@ export function PreviewPayment({
           </>
         )}
       </div>
-      {/* Le fond ne se touche pas au lecteur d'écran : la sortie est un bouton. */}
-      {phase === "confirm" && (
-        <button
-          type="button"
-          onClick={onCancel}
-          className="-mt-3 min-h-11 rounded-full text-sm font-semibold text-muted transition-colors hover:text-foreground"
-        >
-          Annuler
-        </button>
-      )}
+      {/* Le fond ne se touche pas au lecteur d'écran : la sortie est un bouton.
+          Le paiement lancé, il garde sa place, invisible : la feuille ne
+          raccourcit pas sous le doigt. */}
+      <button
+        type="button"
+        onClick={onCancel}
+        disabled={phase !== "confirm"}
+        className={`-mt-3 min-h-11 rounded-full text-sm font-semibold text-muted transition-colors hover:text-foreground ${
+          phase === "confirm" ? "" : "invisible"
+        }`}
+      >
+        Annuler
+      </button>
       <p className="-mt-2 flex items-center justify-center gap-1.5 text-xs text-muted">
         <svg
           aria-hidden

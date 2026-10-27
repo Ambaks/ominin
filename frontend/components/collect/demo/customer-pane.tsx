@@ -27,6 +27,7 @@ import {
   lineName,
   visibleGroups,
 } from "@/lib/menu/format";
+import { isDrinkCategory } from "@/lib/menu/category-icons";
 import { scrollBehavior } from "@/lib/menu/scroll";
 import { type MenuItem, type OptionGroup } from "@/lib/menu-data";
 
@@ -111,12 +112,15 @@ function EmptyThumb() {
 
 function DishRow({
   item,
+  drink,
   quantity,
   pulseAdd,
   thumbSlot,
   onChoose,
 }: {
   item: MenuItem;
+  /** Une boisson : pas d'allergènes sous son nom. */
+  drink: boolean;
   quantity: number;
   pulseAdd: boolean;
   /** Sa section a des photos : sans la sienne, il garde la place de la vignette. */
@@ -238,7 +242,7 @@ function DishRow({
         )}
         {real && <DishIndicators item={item} compact />}
         {/* Les allergènes de la carte : à emporter, on les doit avant le paiement. */}
-        {real && item.allergens?.length ? (
+        {real && !drink && item.allergens?.length ? (
           <p className="mt-1 text-[11px] leading-snug text-faint">
             {allergenLine(item.allergens)}
           </p>
@@ -923,6 +927,7 @@ function MenuView({ framed }: { framed: boolean }) {
                   <DishRow
                     key={item.id}
                     item={item}
+                    drink={isDrinkCategory(section)}
                     quantity={demo.cart
                       .filter((line) => line.item.id === item.id)
                       .reduce((sum, line) => sum + line.quantity, 0)}

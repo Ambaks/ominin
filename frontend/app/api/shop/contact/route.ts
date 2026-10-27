@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { clientIp, rateLimit } from "@/lib/rate-limit/server";
 import { sendShopMail } from "@/lib/shop/mail";
 import { contactAcknowledgementMail, newMessageNotificationMail } from "@/lib/shop/mail-templates";
 import { getCurrentUser, getShopBySlug, shopPublicUrl } from "@/lib/shop/server";
@@ -14,6 +15,8 @@ export async function POST(request: Request) {
   const parsed = parseContact(await request.json().catch(() => null));
   if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const input = parsed.value;
+  const limited = await rateLimit("shopContact", clientIp(request));
+  if (limited) return limited;
 
   const shop = await getShopBySlug(input.slug);
   if (!shop) return NextResponse.json({ error: "Boutique introuvable." }, { status: 404 });

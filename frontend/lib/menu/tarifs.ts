@@ -1,5 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { MenuCategory } from "@/lib/menu-data";
+import type { MenuCategory, MenuItem, RuleHours } from "@/lib/menu-data";
 import type { Database } from "@/lib/supabase/database.types";
 
 /*
@@ -15,10 +15,19 @@ import type { Database } from "@/lib/supabase/database.types";
 export interface Tarif {
   price: number;
   ruleName: string;
+  /** null : la règle vaut toute la journée. */
+  hours: RuleHours | null;
 }
 
-/** Par identifiant d'article. Vide ⇒ tout se vend au prix de la carte. */
+/**
+ * Par article, ou par format d'un article (`tarifKey`) — les clés de
+ * place_order. Le prix d'un format est son prix entier. Vide ⇒ tout se vend
+ * au prix de la carte.
+ */
 export type TarifMap = Map<string, Tarif>;
+
+export const tarifKey = (itemId: string, choiceId?: string | null) =>
+  choiceId ? `${itemId}:${choiceId}` : itemId;
 
 export async function fetchActiveTarifs(
   supabase: SupabaseClient<Database>,
@@ -30,10 +39,81 @@ export async function fetchActiveTarifs(
   if (error) throw new Error(error.message);
   return new Map(
     (data ?? []).map((row) => [
-      row.item_id,
-      { price: Number(row.price), ruleName: row.rule_name },
+      tarifKey(row.item_id, row.choice_id),
+      {
+        price: Number(row.price),
+        ruleName: row.rule_name,
+        hours:
+          row.starts_at && row.ends_at
+            ? { startsAt: row.starts_at, endsAt: row.ends_at }
+            : null,
+      },
     ])
   );
+}
+
+/**
+ * Le tarif du moment d'un article, tel que l'espace le rappelle : le sien,
+ * sinon celui du premier de ses formats qu'une règle vise (prix entier).
+ */
+export function effectiveTarif(
+  tarifs: TarifMap,
+  item: MenuItem
+): (Tarif & { format?: string }) | null {
+  const own = tarifs.get(item.id);
+  if (own) return own;
+  for (const choice of item.options?.find((group) => group.formats)?.choices ?? []) {
+    const tarif = tarifs.get(tarifKey(item.id, choice.id));
+    if (tarif) return { ...tarif, format: choice.name };
+  }
+  return null;
+}
+
+export const cents = (amount: number) => Math.round(amount * 100) / 100;
+
+/**
+ * Un article au prix du moment. Quand un format a son propre tarif (le verre
+ * en happy hour, pas la bouteille), les prix entiers des formats se
+ * recalculent et le moins cher redevient la base : la fiche dit « dès » le
+ * bon prix, et base + supplément donne ce que place_order facturera.
+ */
+function withTarif(item: MenuItem, tarifs: TarifMap): MenuItem {
+  const own = tarifs.get(item.id);
+  const price = own?.price ?? item.price;
+  const formats = item.options?.find((group) => group.formats);
+  const formatTarifs = (formats?.choices ?? []).flatMap((choice) => {
+    const tarif = tarifs.get(tarifKey(item.id, choice.id));
+    return tarif ? [tarif] : [];
+  });
+  const ruleName = (own ?? formatTarifs[0])?.ruleName;
+  if (!ruleName) return item;
+  const tarif = { name: ruleName, basePrice: item.price, ...(own?.hours && { hours: own.hours }) };
+  if (!formats || formatTarifs.length === 0) return { ...item, price, tarif };
+
+  const full = formats.choices.map(
+    (choice) => tarifs.get(tarifKey(item.id, choice.id))?.price ?? price + choice.supplement
+  );
+  const base = Math.min(...full);
+  const choices = formats.choices.map((choice, index) => {
+    const choiceTarif = tarifs.get(tarifKey(item.id, choice.id));
+    return {
+      ...choice,
+      supplement: cents(full[index] - base),
+      ...(choiceTarif && {
+        tarif: {
+          name: choiceTarif.ruleName,
+          basePrice: cents(item.price + choice.supplement),
+          ...(choiceTarif.hours && { hours: choiceTarif.hours }),
+        },
+      }),
+    };
+  });
+  return {
+    ...item,
+    price: base,
+    tarif,
+    options: item.options?.map((group) => (group === formats ? { ...group, choices } : group)),
+  };
 }
 
 /**
@@ -50,14 +130,6 @@ export function applyTarifs(
   if (tarifs.size === 0) return categories;
   return categories.map((category) => ({
     ...category,
-    items: category.items.map((item) => {
-      const tarif = tarifs.get(item.id);
-      if (!tarif) return item;
-      return {
-        ...item,
-        price: tarif.price,
-        tarif: { name: tarif.ruleName, basePrice: item.price },
-      };
-    }),
+    items: category.items.map((item) => withTarif(item, tarifs)),
   }));
 }

@@ -120,13 +120,6 @@ def _close_query(sb, row: dict, inserted: int) -> None:
     ).eq("id", row["id"]).execute()
 
 
-def _address_component(place: dict, kind: str) -> str | None:
-    for component in place.get("addressComponents", []):
-        if kind in component.get("types", []):
-            return component.get("longText")
-    return None
-
-
 def _ingest(sb, agent: Agent, category: str, found: list[dict]) -> int:
     """Insert the places this agent doesn't know yet; returns how many.
 
@@ -145,7 +138,7 @@ def _ingest(sb, agent: Agent, category: str, found: list[dict]) -> int:
                 "name": name,
                 "category": category,
                 "address": place.get("formattedAddress"),
-                "city": _address_component(place, "locality"),
+                "city": places.address_component(place, "locality"),
                 "phone": place.get("nationalPhoneNumber"),
                 "website": website,
                 "google_maps_url": place.get("googleMapsUri"),

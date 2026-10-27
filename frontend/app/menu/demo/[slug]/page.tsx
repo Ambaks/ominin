@@ -1,19 +1,39 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import { CartBar } from "@/components/menu/cart-bar";
-import { CategoryNav } from "@/components/menu/category-nav";
+import { MenuBody } from "@/components/menu/menu-body";
 import { FormulesSection } from "@/components/menu/formules";
+import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
+import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
+import { SaisonAmbient } from "@/components/menu/saison/saison";
+import { SAISONS } from "@/lib/menu/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
+import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
+import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import { CartProvider } from "@/lib/menu/cart";
+import { withCompactPreview } from "@/lib/menu/compact-preview";
 import { FORMULES_LINK } from "@/lib/menu/format";
-import { brandName, getRestaurant, restaurantThemeClass } from "@/lib/menu-data";
+import { demoTarifs, happyHourOf, withHappyHourSection } from "@/lib/menu/happy-hour";
+import type { LoyaltyProgram } from "@/lib/menu/loyalty";
+import { DemoLoyaltyProvider } from "@/lib/menu/loyalty-demo";
+import { resolveFormuleOffers, resolvePairings } from "@/lib/menu/pairings";
+import {
+  brandName,
+  getRestaurant,
+  hasVelours,
+  restaurantThemeClass,
+  type DemoLoyalty,
+  type MenuItem,
+  type Restaurant,
+} from "@/lib/menu-data";
 import { tableParam } from "@/lib/menu/table-param";
+import { applyTarifs } from "@/lib/menu/tarifs";
 
 /*
  * Aperçu de la carte d'un prospect, servi depuis le registre statique
@@ -30,6 +50,13 @@ import { tableParam } from "@/lib/menu/table-param";
  * palette et les polices d'Ominin. De quoi poser la question au gérant —
  * « vos couleurs ou les nôtres ? » — sans reconstruire une seconde page.
  *
+ * Un établissement doté d'une fidélité d'aperçu (demoLoyalty) montre la
+ * sienne : un habitué reconnu, sa roue, « Ma carte », les points d'une
+ * commande — tout gardé dans le navigateur (lib/menu/loyalty-demo).
+ *
+ * ?saison=automne|halloween montre l'habillage de saison que l'admin pose
+ * en production (etablissement_settings.saison), sans y toucher.
+ *
  * ?service=fast-food montre le parcours fast food : commande sans table, puis
  * le ticket numéroté, dont l'aperçu fait avancer les étapes à la main.
  *
@@ -37,18 +64,57 @@ import { tableParam } from "@/lib/menu/table-param";
  * ligne simulé, puis chaque commande suivie au bas de l'écran jusqu'au
  * service — rien n'est appelé, ni paiement ni base. ?retrait=bar : un QR
  * dont les commandes se retirent au bar — prête, le client y montre le code
- * de son ticket, que le bar scanne pour la marquer remise.
+ * de son ticket, que le bar scanne pour la marquer retirée. Avec
+ * ?service=fast-food, le même retrait sur un ticket numéroté, comme en
+ * production (etablissements.bar_pickup).
+ *
+ * ?categories=top|rail|wheel essaie une autre présentation des catégories
+ * que celle de l'établissement.
+ *
+ * Un établissement doté d'une happy hour d'aperçu (demoHappyHour) la montre
+ * à toute heure : pastille, offres et section, comme en production.
  */
 
 /** Table fictive : sans numéro scanné, les boutons resteraient désactivés. */
 const DEMO_TABLE = 1;
 
+/** Durée (heures) de la happy hour d'aperçu, ouverte à l'heure pile qui précède la visite. */
+const DEMO_HAPPY_HOUR_LENGTH = 3;
+
+/** Les paliers d'aperçu, rapprochés des articles de la carte comme fetchRestaurant. */
+function demoProgram(restaurant: Restaurant): LoyaltyProgram | null {
+  const demo = restaurant.demoLoyalty;
+  if (!demo) return null;
+  const items = new Map<string, MenuItem>(
+    restaurant.categories.flatMap((category) => category.items.map((item) => [item.id, item]))
+  );
+  return {
+    pointsPerEuro: demo.pointsPerEuro,
+    rewards: demo.rewards.map(({ id, label, points, items: ids }) => ({
+      id,
+      label,
+      points,
+      items: ids.flatMap((itemId) => items.get(itemId) ?? []),
+    })),
+  };
+}
+
 export async function generateMetadata({
   params,
 }: PageProps<"/menu/demo/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const restaurant = getRestaurant(slug);
-  if (!restaurant) notFound();
+  const registered = getRestaurant(slug);
+  if (!registered) notFound();
+  const now = new Date();
+  const restaurant = registered.demoHappyHour
+    ? {
+        ...registered,
+        categories: applyTarifs(
+          registered.categories,
+          demoTarifs(registered.demoHappyHour, now, DEMO_HAPPY_HOUR_LENGTH)
+        ),
+      }
+    : registered;
   // Titre, description et aperçu de lien propres à l'établissement : sans
   // eux, un lien de démo envoyé au gérant (WhatsApp, SMS) montrait la
   // promesse commerciale et le logo d'Ominin.
@@ -94,24 +160,40 @@ export default async function MenuPreviewPage({
   searchParams,
 }: PageProps<"/menu/demo/[slug]">) {
   const { slug } = await params;
-  const { theme, service, table, retrait } = await searchParams;
+  const { theme, service, table, retrait, categories, saison: saisonParam } = await searchParams;
+  const saison = SAISONS.find((s) => s === saisonParam);
   const fastFood = service === "fast-food";
   // ?table=7 : le numéro d'une vraie table de l'établissement, pour une
   // capture ; illisible, la table fictive.
   const tableNumber = tableParam(table) ?? DEMO_TABLE;
-  const restaurant = getRestaurant(slug);
-  if (!restaurant) notFound();
+  const registered = getRestaurant(slug);
+  if (!registered) notFound();
+  const now = new Date();
+  const restaurant = registered.demoHappyHour
+    ? {
+        ...registered,
+        categories: applyTarifs(
+          registered.categories,
+          demoTarifs(registered.demoHappyHour, now, DEMO_HAPPY_HOUR_LENGTH)
+        ),
+      }
+    : registered;
 
   const themeClass = theme === "ominin" ? undefined : restaurantThemeClass(slug);
   const suivi = !fastFood && Boolean(restaurant.suivi);
+  // La fidélité se montre à table : le ticket fast food n'en porte pas.
+  const loyalty = fastFood ? null : demoProgram(restaurant);
 
   // Comme la page en production (fetchRestaurant) : une formule désactivée
   // ne se montre pas. Ses jours de service, eux, ne filtrent pas l'aperçu,
   // montré n'importe quel jour.
   const formules = (restaurant.formules ?? []).filter((formule) => formule.disponible);
+  const shown = withCompactPreview(slug, restaurant.categories);
+  const happyHour = happyHourOf(shown, [], now);
+  const sections = withHappyHourSection(shown, happyHour);
   const categoryLinks = [
     ...(formules.length > 0 ? [FORMULES_LINK] : []),
-    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+    ...sections.map(({ id, name }) => ({ id, name })),
   ];
 
   return (
@@ -129,6 +211,12 @@ export default async function MenuPreviewPage({
         paymentProvider: "stripe",
         squareLocationId: null,
         preview: true,
+        // L'accord du chef, comme fetchRestaurant le résout en production.
+        pairings: resolvePairings(restaurant.categories, restaurant.pairings),
+        formuleOffers: restaurant.pairings
+          ? resolveFormuleOffers(formules, restaurant.categories)
+          : undefined,
+        loyalty,
         ...(suivi && {
           demoSuivi: {
             drinks: restaurant.categories
@@ -140,43 +228,77 @@ export default async function MenuPreviewPage({
                 category.items.filter((item) => category.boissons === "chaudes" || item.chaud)
               )
               .map((item) => item.id),
-            barPickup: retrait === "bar",
           },
         }),
+        // ?retrait=bar : là où l'aperçu suit la commande, à table ou en fast food.
+        barPickup: retrait === "bar" && (fastFood || suivi),
       }}
     >
-      <div
-        data-menu-root
-        data-slug={slug}
-        data-service={fastFood ? "fast-food" : undefined}
-        className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
-      >
-        <MenuTicker items={restaurant.ticker} />
-        <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} />
-        <MenuHighlights highlights={restaurant.highlights} />
-        {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
-            tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
-            bout de la carte. */}
-        <TicketTracker />
-        <CartBar />
-        <CategoryNav
-          categories={categoryLinks}
-          themeLocked={Boolean(themeClass)}
-        />
-        <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-10 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
-          {formules.length > 0 && <FormulesSection formules={formules} />}
-          {restaurant.categories.map((category) => (
-            <MenuSection
-              key={category.id}
-              category={category}
-              // La première photo ne se charge d'emblée qu'en tête de carte :
-              // sous des formules, elle est déjà loin sous le premier écran.
-              first={category.id === categoryLinks[0]?.id}
+      <MaybeDemoLoyalty restaurant={restaurant} demo={loyalty ? restaurant.demoLoyalty : undefined}>
+        <div
+          data-menu-root
+          data-slug={slug}
+          data-service={fastFood ? "fast-food" : undefined}
+          data-saison={saison}
+          className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
+        >
+          {themeClass && hasVelours(slug) && <PanisBackdrop slug={slug} />}
+          <MenuTicker items={restaurant.ticker} />
+          <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} saison={saison} />
+          {saison && <SaisonAmbient saison={saison} />}
+          <MenuHighlights highlights={restaurant.highlights} />
+          {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+              tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+              bout de la carte. */}
+          <TicketTracker />
+          <CartBar />
+          <MenuBody
+            layout={CATEGORY_LAYOUTS.find(({ id }) => id === categories)?.id ?? restaurant.categoryLayout}
+            categories={categoryLinks}
+            themeLocked={Boolean(themeClass)}
+            bottomPadding="pb-10"
+          >
+            {formules.length > 0 && <FormulesSection formules={formules} />}
+            {sections.map((category) => (
+              <MenuSection
+                key={category.id}
+                category={category}
+                // La première photo ne se charge d'emblée qu'en tête de carte :
+                // sous des formules, elle est déjà loin sous le premier écran.
+                first={category.id === categoryLinks[0]?.id}
+              />
+            ))}
+          </MenuBody>
+          <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
+          {happyHour && <HappyHourPill happyHour={happyHour} />}
+          {loyalty && (
+            <LoyaltyWelcome
+              brand={brandName(restaurant)}
+              logo={restaurant.logo}
+              icon={restaurant.icons?.homeScreen}
+              wordmark={restaurant.logoIsName}
+              motif={restaurant.loyaltyMotif}
             />
-          ))}
-        </main>
-        <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
-      </div>
+          )}
+        </div>
+      </MaybeDemoLoyalty>
     </CartProvider>
+  );
+}
+
+function MaybeDemoLoyalty({
+  restaurant,
+  demo,
+  children,
+}: {
+  restaurant: Restaurant;
+  demo?: DemoLoyalty;
+  children: React.ReactNode;
+}) {
+  if (!demo) return children;
+  return (
+    <DemoLoyaltyProvider slug={restaurant.slug} demo={demo} wheel={restaurant.loyaltyWheel}>
+      {children}
+    </DemoLoyaltyProvider>
   );
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { formatPrice } from "@/lib/menu/format";
+import { counterWords, formatPrice } from "@/lib/menu/format";
 
 /*
  * L'habillage commun des règlements dans la page (Square, Stripe) : le
@@ -60,11 +60,17 @@ function Spinner() {
 
 export function CardPaymentPaid({
   due,
+  bar,
   onContinue,
 }: {
   due: string;
+  /** Retrait au bar : la commande part en préparation, se règle au bar. */
+  bar: boolean;
   onContinue: () => void;
 }) {
+  // Le formulaire, parti avec son bouton, a laissé le focus sur la page.
+  const titleRef = useRef<HTMLParagraphElement>(null);
+  useEffect(() => titleRef.current?.focus(), []);
   return (
     <div className="relative flex flex-col items-center gap-6 overflow-hidden px-6 pt-12 pb-[max(2rem,env(safe-area-inset-bottom))] text-center">
       <div aria-hidden className="ember-glow pointer-events-none absolute inset-x-0 top-0 h-56" />
@@ -77,12 +83,16 @@ export function CardPaymentPaid({
         </span>
       </div>
       <div className="rise relative flex flex-col gap-2">
-        <p className="ember-text text-[11px] font-semibold uppercase tracking-[0.28em]">
+        <p
+          ref={titleRef}
+          tabIndex={-1}
+          className="ember-text text-[11px] font-semibold uppercase tracking-[0.28em] outline-none"
+        >
           Paiement confirmé
         </p>
         <p className="font-display text-4xl font-medium tabular-nums">{due}</p>
         <p className="text-sm leading-relaxed text-muted">
-          Merci&nbsp;! Votre commande part en cuisine.
+          Merci&nbsp;! Votre commande part {counterWords(bar).preparation}.
         </p>
       </div>
       <button
@@ -98,14 +108,17 @@ export function CardPaymentPaid({
 
 export function CardPaymentFailed({
   declined,
+  bar,
   onRetry,
   onCounter,
 }: {
   /** Refusé par la banque ; sinon, le formulaire n'a pas pu démarrer. */
   declined: boolean;
+  bar: boolean;
   onRetry: () => void;
   onCounter: () => void;
 }) {
+  const { place: counter, preparation } = counterWords(bar);
   return (
     <div className="rise flex flex-col items-center gap-6 px-6 pt-10 pb-[max(2rem,env(safe-area-inset-bottom))] text-center">
       <span className="flex size-14 items-center justify-center rounded-full border border-ember-3/40 bg-ember-3/10 text-ember-3">
@@ -120,9 +133,9 @@ export function CardPaymentFailed({
         </h3>
         <p className="text-sm leading-relaxed text-muted">
           {declined
-            ? "Essayez une autre carte, ou réglez au comptoir."
-            : "Réessayez dans un instant, ou réglez au comptoir."}{" "}
-          Votre commande est enregistrée et partira en cuisine dès
+            ? `Essayez une autre carte, ou réglez au ${counter}.`
+            : `Réessayez dans un instant, ou réglez au ${counter}.`}{" "}
+          Votre commande est enregistrée et partira {preparation} dès
           l&rsquo;encaissement.
         </p>
       </div>
@@ -139,7 +152,7 @@ export function CardPaymentFailed({
           onClick={onCounter}
           className="h-12 w-full rounded-full border border-hairline text-sm font-semibold transition hover:bg-surface-raised"
         >
-          Payer au comptoir
+          Payer au {counter}
         </button>
       </div>
     </div>
@@ -164,6 +177,7 @@ export function CardPaymentForm({
   onPay,
   onCounter,
   operator,
+  bar,
 }: {
   state: "loading" | "ready" | "paying";
   total: number;
@@ -177,13 +191,15 @@ export function CardPaymentForm({
   onCounter: () => void;
   /** Le prestataire nommé au pied du formulaire. */
   operator: string;
+  bar: boolean;
 }) {
   const due = formatPrice(total + tipAmount);
+  const counter = counterWords(bar).place;
   // Le formulaire remplace le panier : le focus le suit, sinon il retombait sur la page.
   const titleRef = useRef<HTMLParagraphElement>(null);
   useEffect(() => titleRef.current?.focus(), []);
   return (
-    <div className="flex flex-col gap-5 p-5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+    <div data-card-state={state} className="flex flex-col gap-5 p-5 pt-6 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
       {/* Des paragraphes : un titre y prendrait le filet de titre des thèmes. */}
       <header className="rise flex flex-col items-center gap-1 text-center">
         <p
@@ -194,7 +210,7 @@ export function CardPaymentForm({
           Paiement
         </p>
         {merchant && <p className="max-w-full truncate text-sm font-medium">{merchant}</p>}
-        <p className="font-display text-3xl font-semibold lining-nums tabular-nums text-ember-1">
+        <p className="payment-due font-display text-3xl font-semibold lining-nums tabular-nums text-ember-1">
           {due}
         </p>
         {tipAmount > 0 && (
@@ -219,7 +235,7 @@ export function CardPaymentForm({
       </section>
 
       <section className="rise flex flex-col gap-5" style={{ animationDelay: "140ms" }}>
-        <div className={`relative ${state === "loading" ? "min-h-28" : ""}`}>
+        <div className={`card-fields relative ${state === "loading" ? "min-h-28" : ""}`}>
           {card}
           {state === "loading" && (
             <div aria-hidden className="absolute inset-0 flex flex-col gap-px overflow-hidden rounded-2xl border border-hairline">
@@ -235,7 +251,7 @@ export function CardPaymentForm({
           type="button"
           onClick={onPay}
           disabled={state !== "ready"}
-          className="ember-gradient flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-background transition active:scale-[0.99] disabled:opacity-60"
+          className="sheet-cta ember-gradient flex h-12 w-full items-center justify-center gap-2 rounded-full px-6 text-sm font-semibold text-background transition active:scale-[0.99] disabled:opacity-60"
         >
           {state === "paying" ? (
             <>
@@ -257,7 +273,7 @@ export function CardPaymentForm({
           disabled={state === "paying"}
           className="min-h-11 rounded-full px-4 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-40"
         >
-          Payer au comptoir plutôt
+          Payer au {counter} plutôt
         </button>
         <p className="flex items-center justify-center gap-1.5 text-xs text-muted">
           <LockIcon className="size-3.5" />

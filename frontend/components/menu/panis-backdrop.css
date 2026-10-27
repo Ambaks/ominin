@@ -1,0 +1,171 @@
+/*
+  Le velours (panis-backdrop.tsx). Le calque est fixe, à la
+  plus grande hauteur d'écran (la barre d'adresse et le clavier ne le
+  redimensionnent pas) ; posé hors du thème, il ne retombe jamais dans le
+  flux. La racine isole ses couches : il se peint au-dessus de son fond crème
+  et sous tout le reste. Sans WebGL utilisable, la teinte profonde du satin
+  à plat (posée par le composant) : les titres clairs restent lisibles. Le
+  haut et le pied de page laissent voir le satin : pas de couture entre
+  l'enseigne et le menu.
+*/
+.panis-backdrop {
+  position: fixed;
+  inset: 0 0 auto;
+  height: 100vh;
+  height: 100lvh;
+  z-index: -1;
+  pointer-events: none;
+
+  & > canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+[data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
+  isolation: isolate;
+
+  & > header.logo-hero,
+  & > header.logo-hero > .bg-background {
+    background: transparent;
+  }
+
+  & > footer {
+    background:
+      var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x,
+      linear-gradient(rgb(4 24 12 / 0.3), rgb(4 24 12 / 0.1));
+    --muted: rgb(238 234 199 / 0.92);
+    --faint: rgb(238 234 199 / 0.85);
+    font-weight: 500;
+    text-shadow: 0 1px 10px rgb(4 24 12 / 0.7);
+  }
+
+  & > footer .footer-phone {
+    text-shadow: none;
+  }
+
+  /* Les titres de rubrique à l'ivoire, détachés du satin par une ombre
+     douce ; le filet plus franc. */
+  & .category-heading {
+    color: var(--cp-ivory);
+    text-shadow:
+      0 1px 18px rgb(4 24 12 / 0.95),
+      0 0 2px rgb(4 24 12 / 0.6);
+  }
+
+  & .category-rule {
+    background: var(--cp-ivory);
+    opacity: 0.8;
+    box-shadow: 0 0 8px rgb(4 24 12 / 0.5);
+  }
+
+  /* Les fiches, les vignettes et le store : la toile crème de la devanture, pleine, posée
+     sur le satin par une ombre longue teintée de vert. */
+  & :is(.dish-grid > article, .dish-mini, .menu-highlights) {
+    background: var(--cp-grain), linear-gradient(var(--surface), #f6f2e4);
+    box-shadow: 0 24px 40px -20px rgb(2 20 10 / 0.7);
+  }
+
+  & :is(.dish-grid > article, .dish-mini) {
+    --muted: #3f4a42;
+    border-color: rgb(255 255 255 / 0.12);
+  }
+
+  & .dish-photo {
+    border-color: transparent;
+  }
+
+  & .reward-hint-bar {
+    background: rgb(15 75 37 / 0.22);
+  }
+
+  /* L'accueil fidélité et la pastille dans le crème plein des fiches : à
+     85 % sur le satin, ils viraient au gris froid, et sans flou le
+     mot-symbole transparaissait. */
+  & :is(.loyalty-greeting, .loyalty-pill:not([data-docked])) {
+    background: var(--surface);
+    backdrop-filter: none;
+    box-shadow:
+      0 18px 40px -12px rgb(0 0 0 / 0.6),
+      inset 0 1px 0 rgb(255 255 255 / 0.6);
+  }
+
+  /* L'invitation à descendre, seule indication du défilement : plus franche
+     sur le satin. */
+  & .hero-cue {
+    color: rgb(238 234 199 / 0.9);
+    font-weight: 500;
+    text-shadow: 0 1px 12px rgb(4 24 12 / 0.8);
+  }
+
+  /* La barre du panier, verte sur le satin vert : un liseré ivoire et une
+     ombre plus noire la décollent. */
+  & .cart-bar {
+    box-shadow:
+      0 0 0 1px rgb(238 234 199 / 0.4),
+      0 20px 40px -12px rgb(0 0 0 / 0.7);
+  }
+
+  /* La roue des catégories en verre vert sombre, icônes et libellés ivoire :
+     les disques crème se perdaient sur le bord des fiches. */
+  & [data-category-wheel] {
+    --background: #124d28;
+    --foreground: var(--cp-ivory);
+    --ember-2: var(--cp-ivory);
+  }
+
+  /* Les disques pleins : un flou d'arrière-plan s'y recalculerait à chaque
+     image du satin. */
+  & [data-category-wheel] [data-wheel-item] > div:first-child {
+    border-color: rgb(238 234 199 / 0.85);
+    background: linear-gradient(rgb(238 234 199 / 0.14), rgb(238 234 199 / 0.14)), #124d28;
+    backdrop-filter: none;
+    box-shadow: 0 6px 18px rgb(0 0 0 / 0.45);
+  }
+}
+
+/* Au bureau, l'indice de fidélité tient sur une ligne : coupé, il laissait
+   « offert » seul en dessous. */
+@media (min-width: 48rem) {
+  [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) .dish-grid > article p:has(> .reward-hint-bar) {
+    white-space: nowrap;
+  }
+}
+
+/* BOHO : la carte nuit prune posée sur le satin prune. L'affiche se fond
+   dans le satin au lieu d'un aplat ; les fiches gardent leur prune plein,
+   décollées par une ombre longue et un liseré rosé. */
+[data-menu-root].theme-boho:has(> .panis-backdrop) {
+  isolation: isolate;
+  background: transparent;
+
+  & > header {
+    background: transparent;
+  }
+
+  & > header > div:first-child {
+    mask-image: linear-gradient(black 85%, transparent);
+
+    & > div:last-child {
+      display: none;
+    }
+  }
+
+  & > footer {
+    background: linear-gradient(rgb(20 8 14 / 0.35), rgb(20 8 14 / 0.6));
+    border-top-color: rgb(229 176 114 / 0.25);
+  }
+
+  & .category-heading {
+    text-shadow:
+      0 1px 18px rgb(14 5 10 / 0.95),
+      0 0 2px rgb(14 5 10 / 0.6);
+  }
+
+  & :is(.dish-grid > article, .dish-mini, .menu-highlights) {
+    background: var(--surface);
+    border-color: rgb(229 176 114 / 0.16);
+    box-shadow: 0 24px 40px -20px rgb(8 2 6 / 0.85);
+  }
+}

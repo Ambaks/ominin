@@ -1,14 +1,11 @@
 import type { Metadata, Viewport } from "next";
 import { archivo } from "@/lib/fonts";
-import { indexable } from "@/lib/site";
+import { description, indexable, siteUrl } from "@/lib/site";
 import "./globals.css";
 
-const description =
-  "Aérogommage de charpentes, plafonds, façades, escaliers, poutres et sols à Toulouse, Montauban, Albi, Carcassonne et Auch. Décapage à sec, basse pression, sans produit chimique. Devis gratuit.";
-
 export const metadata: Metadata = {
-  metadataBase: process.env.SITE_URL ? new URL(process.env.SITE_URL) : undefined,
-  title: "FLG Aérogommage — Décapage de charpentes, plafonds et façades en Occitanie",
+  metadataBase: siteUrl ? new URL(siteUrl) : undefined,
+  title: "Aérogommage à Toulouse et en Occitanie — FLG Aérogommage",
   description,
   alternates: { canonical: "/" },
   robots: indexable ? { index: true, follow: true } : { index: false, follow: false },

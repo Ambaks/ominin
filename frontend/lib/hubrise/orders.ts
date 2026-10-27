@@ -4,6 +4,7 @@ import { HubriseError } from "./client";
 import { HUBRISE } from "./config";
 import { callHubrise, type Connection } from "./connection";
 import { money, parisIso, splitName, toE164 } from "./format";
+import { counterLegs, counterPayment } from "./payments";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -38,6 +39,7 @@ interface OrderRow {
   square_payment_id: string | null;
   sumup_checkout_id: string | null;
   tables: { number: number } | null;
+  etablissements: { show_table_number: boolean };
   order_items: {
     item_id: string | null;
     name: string;
@@ -47,10 +49,11 @@ interface OrderRow {
     options: { groupName: string; choiceName: string; supplement: number }[];
     components: { name: string; item_id?: string | null }[] | null;
   }[];
+  order_payments: { id: string; mode: string; amount: number; till_payment: boolean }[];
 }
 
 const ORDER_SELECT =
-  "id, etablissement_id, order_number, type, status, paid_online, tip_amount, customer_name, customer_phone, customer_note, pickup_at, loyalty_customer_id, stripe_payment_intent_id, square_payment_id, sumup_checkout_id, tables (number), order_items (item_id, name, quantity, unit_price, vat_rate, options, components)";
+  "id, etablissement_id, order_number, type, status, paid_online, tip_amount, customer_name, customer_phone, customer_note, pickup_at, loyalty_customer_id, stripe_payment_intent_id, square_payment_id, sumup_checkout_id, tables (number), etablissements (show_table_number), order_items (item_id, name, quantity, unit_price, vat_rate, options, components), order_payments (id, mode, amount, till_payment)";
 
 export interface BuiltOrder {
   /** null : la commande ne se transmet plus (annulée avant l'envoi). */
@@ -253,6 +256,10 @@ export async function buildOrder(
       ? connection.service_type_ref_collection
       : connection.service_type_ref_eat_in;
   const transaction = paymentTransaction(order);
+  // Déjà encaissée au comptoir dans Ominin quand elle part (envoi en retard) :
+  // ses jambes partent avec elle, marquées — la synchronisation des
+  // règlements les trouvera en place.
+  const legs = counterLegs(order.order_payments, total - tip);
 
   return {
     payload: {
@@ -277,8 +284,8 @@ export async function buildOrder(
             ],
           }
         : {}),
-      // Réglée en ligne : un paiement égal au total. Sinon aucun — HubRise
-      // lit une commande sans paiement comme à encaisser.
+      // Réglée en ligne : un paiement égal au total. Au comptoir : ses jambes.
+      // Sinon aucun — HubRise lit une commande sans paiement comme à encaisser.
       ...(order.paid_online
         ? {
             payments: [
@@ -290,8 +297,14 @@ export async function buildOrder(
               },
             ],
           }
-        : {}),
-      ...(order.type === "sur_place" && order.tables
+        : legs.length
+          ? { payments: legs.map((leg) => counterPayment(leg, connection)) }
+          : {}),
+      // Une commande numérotée (fast food) ne donne sa table que si le
+      // gérant l'affiche à l'équipe.
+      ...(order.type === "sur_place" &&
+      order.tables &&
+      (order.order_number == null || order.etablissements.show_table_number)
         ? { custom_fields: { restaurant: { table_name: String(order.tables.number) } } }
         : {}),
       ...(await customerFields(admin, connection, order)),

@@ -1,13 +1,19 @@
+import type { ReactNode } from "react";
+import { isDrinkCategory } from "@/lib/menu/category-icons";
 import type { MenuCategory } from "@/lib/menu-data";
+import { CompactCard } from "./compact-card";
 import { DishCard } from "./dish-card";
 
 export function MenuSection({
   category,
   first,
+  children,
 }: {
   category: MenuCategory;
   /** Première section de la carte : sa première photo se charge d'emblée. */
   first?: boolean;
+  /** Avant les articles : les formules de la happy hour. */
+  children?: ReactNode;
 }) {
   /* Rien à lire sous les noms (des suppléments, des boissons) et une photo
      pour chacun : la section peut se montrer en vignettes plutôt qu'en
@@ -30,6 +36,8 @@ export function MenuSection({
     const next = category.items[i + 1];
     if (!item.image && (!next || next.image) && run % 2 === 1) lone.add(i);
   });
+
+  const drink = (id: string) => category.drinkItemIds?.includes(id) ?? isDrinkCategory(category);
 
   // La première photo de la section, pas son premier article : sans photo,
   // il laissait la vraie première image en différé.
@@ -67,13 +75,26 @@ export function MenuSection({
           </p>
         )}
       </div>
-      <div
-        className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
-      >
-        {category.items.map((item, i) => (
-          <DishCard key={item.id} item={item} priority={i === firstPhoto} span={lone.has(i)} />
-        ))}
-      </div>
+      {children && (
+        <div className={category.items.length > 0 ? "mb-4 sm:mb-6 lg:mb-8" : undefined}>
+          {children}
+        </div>
+      )}
+      {category.items.length === 0 ? null : category.compact ? (
+        <div className="dish-minis">
+          {category.items.map((item) => (
+            <CompactCard key={item.id} item={item} drink={drink(item.id)} />
+          ))}
+        </div>
+      ) : (
+        <div
+          className={`dish-grid ${tiles ? "dish-grid-tiles" : ""} flex flex-col gap-3 md:grid md:grid-cols-2 md:gap-4 lg:gap-5`}
+        >
+          {category.items.map((item, i) => (
+            <DishCard key={item.id} item={item} drink={drink(item.id)} priority={i === firstPhoto} span={lone.has(i)} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

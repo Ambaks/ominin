@@ -1,0 +1,14 @@
+{
+  "Ti-Punch": [{ "with": "Accras de Morue", "why": "Le citron vert du ti-punch relève la morue." }],
+  "Cosmopolitan": [{ "with": "Planche de Fromages", "why": "L'acidité de la cranberry tranche les fromages." }],
+  "Daïquiri": [{ "with": "Jambon Serrano", "why": "Le fruit du daïquiri adoucit le sel du serrano." }],
+  "Gin Tonic": [{ "with": "Sticks Mozzarella", "why": "L'amertume du tonic tranche la mozzarella." }],
+  "Planteur": [{ "with": "Mini Saucissons", "why": "L'ananas et la grenadine tempèrent le sel du saucisson." }],
+  "Piña Colada": [{ "with": "Beignets de Crevettes", "why": "La crème de coco et l'ananas répondent à la crevette." }],
+  "Sex on the Beach": [{ "with": "Planche de Charcuterie", "why": "Le melon et la pêche adoucissent le sel de la charcuterie." }],
+  "Pornstar": [{ "with": "Mozzarella di Bufala", "why": "Les bulles du champagne coupent la bufala." }],
+  "Spritz": [{ "with": "Planche Mixte", "why": "L'Aperol amer tranche le fromage et la charcuterie." }],
+  "Cherry Chouffe 8°": [{ "with": "Camembert Rôti", "why": "La cerise de la bière répond aux figues du camembert." }],
+  "Fada IPA 5°": [{ "with": "Fish & Chips", "why": "L'amertume de l'IPA contrebalance la sauce tartare." }],
+  "Planche de Charcuterie": [{ "with": "Pan con Tomate", "why": "L'acidité de la tomate relève la charcuterie." }]
+}

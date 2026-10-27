@@ -1,14 +1,20 @@
 import { sendEmail } from "@/lib/gmail";
 import type { Role } from "./types";
 
-const escapeHtml = (value: string) =>
+export const escapeHtml = (value: string) =>
   value
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
-function card(heading: string, body: string, cta: { label: string; url: string }, footer: string) {
+export function card(
+  heading: string,
+  body: string,
+  cta: { label: string; url: string },
+  footer: string,
+  eyebrow = "&Eacute;quipe",
+) {
   return `<!doctype html>
 <html lang="fr">
 <head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><meta name="color-scheme" content="light"/></head>
@@ -24,7 +30,7 @@ function card(heading: string, body: string, cta: { label: string; url: string }
 <tr><td height="4" style="background-color:#b5502a;font-size:0;line-height:0;">&nbsp;</td></tr>
 <tr><td style="padding:40px 40px 36px 40px;">
   <p style="margin:0 0 16px 0;font-family:Arial,Helvetica,sans-serif;font-size:11px;font-weight:bold;letter-spacing:0.24em;text-transform:uppercase;color:#b07a10;">
-    &Eacute;quipe
+    ${eyebrow}
   </p>
   <h1 style="margin:0 0 16px 0;font-family:Georgia,'Times New Roman',serif;font-size:28px;line-height:1.2;font-weight:normal;color:#261e13;">
     ${heading}
@@ -58,9 +64,8 @@ function card(heading: string, body: string, cta: { label: string; url: string }
 }
 
 /*
- * Dans les deux envois, seul le gérant est nommé : serveur et cuisinier
- * deviennent Comptoir et Préparation en boutique à emporter, ce que l'envoi
- * ignore.
+ * Seul le gérant est nommé : serveur et cuisinier deviennent Comptoir et
+ * Préparation en boutique à emporter, ce que l'envoi ignore.
  */
 export async function sendInviteEmail(
   email: string,
@@ -74,28 +79,9 @@ export async function sendInviteEmail(
     `${restaurantName} vous invite à rejoindre son équipe`,
     card(
       "Rejoignez l&rsquo;&eacute;quipe.",
-      `<strong>${name}</strong> vous invite ${role === "gerant" ? "en tant que <strong>g&eacute;rant</strong>" : "&agrave; rejoindre son &eacute;quipe"}. Cr&eacute;ez votre acc&egrave;s pour commencer.`,
-      { label: "Créer mon accès", url: actionLink },
+      `<strong>${name}</strong> vous invite ${role === "gerant" ? "en tant que <strong>g&eacute;rant</strong>" : "&agrave; rejoindre son &eacute;quipe"}. Acceptez l&rsquo;invitation pour acc&eacute;der &agrave; l&rsquo;espace de gestion.`,
+      { label: "Accepter l’invitation", url: actionLink },
       "Vous n&rsquo;&ecirc;tes pas concern&eacute;&nbsp;? Ignorez simplement cet email.",
-    ),
-  );
-}
-
-export async function sendTeamNotification(
-  email: string,
-  restaurantName: string,
-  role: Role,
-  dashboardUrl: string,
-) {
-  const name = escapeHtml(restaurantName);
-  await sendEmail(
-    email,
-    `${restaurantName} vous a ajouté à son équipe`,
-    card(
-      "Bienvenue dans l&rsquo;&eacute;quipe.",
-      `<strong>${name}</strong> vous a ajout&eacute; ${role === "gerant" ? "en tant que <strong>g&eacute;rant</strong>" : "&agrave; son &eacute;quipe"}. Connectez-vous pour acc&eacute;der &agrave; l&rsquo;espace de gestion.`,
-      { label: "Accéder à l’espace", url: dashboardUrl },
-      "Vous recevez cet email car un g&eacute;rant vous a ajout&eacute; &agrave; son &eacute;quipe sur Ominin.",
     ),
   );
 }

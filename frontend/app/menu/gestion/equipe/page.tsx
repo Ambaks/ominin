@@ -90,14 +90,10 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
       await load();
       if (result.email_sent === false) {
         toast.error(
-          `Membre ajouté, mais l'email n'a pas pu être envoyé : ${result.email_error ?? "erreur inconnue"}. Partagez le lien de connexion manuellement.`,
+          `Invitation enregistrée, mais l'email n'a pas pu être envoyé : ${result.email_error ?? "erreur inconnue"}. Annulez-la puis invitez de nouveau.`,
         );
       } else {
-        toast.success(
-          result.existing_user
-            ? `${email} a rejoint l'équipe immédiatement.`
-            : `Invitation envoyée à ${email}.`,
-        );
+        toast.success(`Invitation envoyée à ${email}.`);
       }
     } catch (error) {
       toast.error(
@@ -182,7 +178,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
         <Field
           label="Email"
           required
-          hint="S'il a déjà un compte Ominin, il rejoint l'équipe immédiatement ; sinon il recevra un email pour créer son accès."
+          hint="Il reçoit un email pour accepter l'invitation, et rejoint l'équipe une fois qu'il l'a acceptée."
         >
           <input
             type="email"

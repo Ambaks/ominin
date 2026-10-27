@@ -49,6 +49,8 @@ export interface CartLine {
   name: string;
   /** Format du plat (« x4 », « pour 2 »), en fin de name : le panier l'écrit en petit. */
   detail?: string;
+  /** La photo du plat, là où un thème la montre dans le panier. */
+  image?: string;
   /** Prix de base + suppléments, pour l'affichage ; la base refige le montant. */
   unitPrice: number;
   quantity: number;
@@ -96,7 +98,8 @@ function isCartLine(value: unknown): value is CartLine {
     line.quantity >= 1 &&
     Array.isArray(line.optionSummary) &&
     Array.isArray(line.choices) &&
-    (line.detail === undefined || typeof line.detail === "string")
+    (line.detail === undefined || typeof line.detail === "string") &&
+    (line.image === undefined || typeof line.image === "string")
   );
 }
 
@@ -130,7 +133,8 @@ export interface CartConfig {
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
   /**
-   * Fast food : le client commande sans table et reçoit un numéro du jour.
+   * Fast food : le client retire au comptoir et reçoit un numéro du jour ;
+   * la table du QR, s'il en scanne une, part avec la commande.
    * Absent ⇒ restaurant, la commande part d'une table scannée.
    */
   serviceMode?: ServiceMode;
@@ -173,10 +177,23 @@ export interface CartConfig {
    * drinks : les articles des catégories de boissons ; une commande faite de
    * ces seuls articles, sans formule, se salue « Bonne dégustation ! ».
    * hotDrinks : celles qui sont chaudes ; rien que d'elles, la salutation
-   * porte une tasse. barPickup : la commande se retire au bar — prête, le
-   * client y montre un code que le bar scanne. Ignoré hors aperçu.
+   * porte une tasse. Ignoré hors aperçu.
    */
-  demoSuivi?: { drinks: string[]; hotDrinks: string[]; barPickup?: boolean };
+  demoSuivi?: { drinks: string[]; hotDrinks: string[] };
+  /**
+   * Retrait au bar (fast food, ou aperçu à table) : la commande se règle et
+   * se retire au bar ; prête, le client y montre un code que l'équipe scanne.
+   */
+  barPickup?: boolean;
+  /**
+   * Retrait au bar servi à table (L'Étoile) : la commande d'un QR de table
+   * est apportée à la table, son code scanné là ; sans table, au bar.
+   */
+  tableDelivery?: boolean;
+  /** Rien que des boissons à la carte (un club) : chaque commande se salue comme telle. */
+  drinksOnly?: boolean;
+  /** L'adresse de l'espace de l'équipe, où mène le code de retrait ; absent, celle du menu. */
+  staffSite?: string;
   /**
    * Suivi à table (Restaurant.suivi) : chaque commande passée se suit au bas
    * de l'écran jusqu'au service. Ignoré en aperçu (demoSuivi) et en fast food.
@@ -250,14 +267,19 @@ export function cartLineKey(
 }
 
 /** La ligne de panier d'un plat sans options. */
-export const plainLine = (item: MenuItem, accord?: AccordSource): Omit<CartLine, "quantity"> => ({
-  key: cartLineKey(item.id, []),
+export const plainLine = (
+  item: MenuItem,
+  accord?: AccordSource,
+  choices: CartChoice[] = []
+): Omit<CartLine, "quantity"> => ({
+  key: cartLineKey(item.id, choices),
   itemId: item.id,
   name: lineName(item),
   detail: item.detail,
+  image: item.image,
   unitPrice: item.price,
   optionSummary: [],
-  choices: [],
+  choices,
   stock: item.stock,
   noticeHours: item.noticeHours,
   accord,
@@ -470,7 +492,13 @@ export function CartProvider({
   return (
     <CartContext.Provider value={value}>
       {config.serviceMode === "fast_food" ? (
-        <TicketsProvider slug={config.slug} preview={config.preview}>
+        <TicketsProvider
+          slug={config.slug}
+          preview={config.preview}
+          barPickup={config.barPickup}
+          deliverTo={config.barPickup && config.tableDelivery ? tableNumber : null}
+          drinksOnly={config.drinksOnly}
+        >
           {children}
         </TicketsProvider>
       ) : config.preview && config.demoSuivi ? (
@@ -478,7 +506,7 @@ export function CartProvider({
           slug={config.slug}
           preview
           table={tableNumber}
-          barPickup={config.demoSuivi.barPickup}
+          barPickup={config.barPickup}
         >
           {children}
         </TicketsProvider>

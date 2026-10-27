@@ -1,24 +1,33 @@
 import type { Metadata, Viewport } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { cache } from "react";
 import { CallServerButton } from "@/components/menu/call-server-button";
 import { CartBar } from "@/components/menu/cart-bar";
-import { CategoryNav } from "@/components/menu/category-nav";
-import { AffichesBanner, FormulesSection } from "@/components/menu/formules";
+import { MenuBody } from "@/components/menu/menu-body";
+import { AffichesBanner, FormulesSection, FormuleTiles } from "@/components/menu/formules";
+import { FormulesPill } from "@/components/menu/formules-pill";
+import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
+import { SaisonAmbient } from "@/components/menu/saison/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
+import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CartProvider } from "@/lib/menu/cart";
 import { LoyaltyMemberProvider } from "@/lib/menu/loyalty-member";
+import { withCompactPreview } from "@/lib/menu/compact-preview";
+import { HAPPY_HOUR_SECTION_ID, happyHourOf, withHappyHourSection } from "@/lib/menu/happy-hour";
 import { FORMULES_LINK } from "@/lib/menu/format";
-import { brandName, restaurantThemeClass } from "@/lib/menu-data";
+import { menuCartConfig } from "@/lib/menu/cart-config";
+import { brandName, etoileScene, hasVelours, restaurantThemeClass } from "@/lib/menu-data";
 import { fetchRestaurant } from "@/lib/public-menu";
-import { menuSiteUrl } from "@/lib/site";
+import { BulleTableGate } from "@/components/bulles/table-gate";
+import { fetchBulleOffer } from "@/lib/bulles/public";
+import { clubSiteUrl, menuSiteUrl } from "@/lib/site";
 
 /*
  * Menu public : lecture anonyme de la base (policies RLS « public read »).
@@ -88,41 +97,56 @@ export default async function MenuPage({
   params,
 }: PageProps<"/menu/m/[slug]">) {
   const { slug } = await params;
-  const data = await getRestaurant(slug);
+  // La carte de la démo d'Ominin Club vit sur le sous-domaine du club.
+  if (etoileScene(slug)) permanentRedirect(`${clubSiteUrl}/${slug}/carte`);
+  // Un établissement à bulles : la table d'une bulle ne commande qu'une fois
+  // ses places payées (BulleTableGate). Une erreur de lecture des bulles ne
+  // coûte jamais la carte : la base garde le verrou.
+  const [data, bulleOffer] = await Promise.all([
+    getRestaurant(slug),
+    fetchBulleOffer(slug).catch((error: unknown) => {
+      console.error("[menu] bulles illisibles", { slug, error });
+      return null;
+    }),
+  ]);
   // Menu QR fermé : le restaurant n'a pas de carte publique chez Ominin.
   if (!data || !data.qrMenu) notFound();
-  const {
-    id,
-    restaurant,
-    offre,
-    onlinePayment,
-    onlineMinOrder,
-    closedItems,
-    paymentProvider,
-    squareLocationId,
-    serviceMode,
-    callServer,
-    loyalty,
-    formules,
-    pairings,
-    formuleOffers,
-  } = data;
+  const { restaurant, serviceMode, callServer, loyalty, formules, saison } = data;
 
   // Les affiches des offres se montrent sous l'affiche du restaurant ; sans
   // elle, en tête de la section des formules, avant les tuiles de celles
-  // qu'aucune affiche ne porte.
+  // qu'aucune affiche ne porte. Avec la pastille des formules, tout y passe.
   const affiches = restaurant.affiches ?? [];
-  const affichesInHero = restaurant.poster != null && affiches.length > 0;
-  const tiles = formules.filter((formule) => !formule.affiche);
-  const showFormules = tiles.length > 0 || (!affichesInHero && affiches.length > 0);
+  const inPill = Boolean(restaurant.formulesPill);
+  const affichesInHero = !inPill && restaurant.poster != null && affiches.length > 0;
+  // Une formule à heures (le petit déjeuner) se range dans la happy hour.
+  const tiles = formules.filter((formule) => !formule.affiche && !formule.hours);
+  const showFormules = !inPill && (tiles.length > 0 || (!affichesInHero && affiches.length > 0));
 
-  const orderingEnabled = offre === "smart" || offre === "connect";
-  // Fast food : un seul QR, au comptoir ; on commande sans table.
+  const cartConfig = menuCartConfig(slug, data);
+  const { orderingEnabled } = cartConfig;
   const fastFood = orderingEnabled && serviceMode === "fast_food";
+
+  // La happy hour se lit sur la carte telle qu'elle s'affiche (vignettes et
+  // leurs photos comprises) ; sa section s'ajoute aux catégories, dans la
+  // roue aussi.
+  const categories = withCompactPreview(slug, restaurant.categories);
+  const happyHour = happyHourOf(categories, formules, new Date());
+  const sections = withHappyHourSection(categories, happyHour);
+  const happyHourTiles = happyHour && happyHour.formules.length > 0 && (
+    <FormuleTiles
+      formules={happyHour.formules.map(({ formule }) => formule)}
+      wasPrices={Object.fromEntries(
+        happyHour.formules.flatMap(({ formule, wasPrice }) =>
+          wasPrice === undefined ? [] : [[formule.id, wasPrice]]
+        )
+      )}
+    />
+  );
 
   const categoryLinks = [
     ...(showFormules ? [FORMULES_LINK] : []),
-    ...restaurant.categories.map(({ id, name }) => ({ id, name })),
+    ...sections.map(({ id, name }) => ({ id, name })),
   ];
 
   /*
@@ -161,95 +185,94 @@ export default async function MenuPage({
   };
 
   return (
-    <CartProvider
-      config={{
-        slug,
-        // Un ancien QR de table ne compte plus en fast food : ni panier par
-        // table, ni table dans l'analytique.
-        tableNumber: null,
-        tableFromUrl: !fastFood,
-        orderingEnabled,
-        serviceMode,
-        restaurantName: restaurant.name,
-        onlinePayment: orderingEnabled && onlinePayment,
-        onlineMinOrder,
-        paymentProvider,
-        squareLocationId,
-        tableTracking: orderingEnabled && !fastFood && restaurant.suivi === true,
-        loyalty,
-        // Sans commande, rien à fermer : pas de relecture.
-        etablissementId: orderingEnabled ? id : undefined,
-        closedItems: orderingEnabled ? closedItems : undefined,
-        pairings,
-        formuleOffers,
-      }}
-    >
+    <CartProvider config={cartConfig}>
       {/* Le thème de l'établissement (s'il existe) habille menu ET panier :
           la barre est fixed mais reste dans le sous-arbre des variables. */}
-      <LoyaltyMemberProvider slug={slug} enabled={orderingEnabled && loyalty != null}>
+      <LoyaltyMemberProvider
+        slug={slug}
+        enabled={orderingEnabled && loyalty != null}
+        wheel={restaurant.loyaltyWheel}
+      >
         <div
           data-menu-root
           data-slug={slug}
           data-service={fastFood ? "fast-food" : undefined}
+          data-saison={saison ?? undefined}
           className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
-          <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-          />
-          <MenuTicker items={restaurant.ticker} />
-          <Hero
-            restaurant={restaurant}
-            firstSectionId={categoryLinks[0]?.id}
-            banner={
-              affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
-            }
-          />
-          <MenuHighlights highlights={restaurant.highlights} />
-          {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
-              tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
-              bout de la carte. */}
-          <TicketTracker />
-          <CartBar />
-          <CategoryNav
-            categories={categoryLinks}
-            themeLocked={Boolean(restaurantThemeClass(slug))}
-          />
-          <main className="mx-auto flex w-full max-w-2xl flex-col gap-16 px-5 pb-28 pt-5 sm:pt-10 lg:max-w-5xl lg:gap-24 lg:px-10 lg:py-14">
-            {showFormules && (
-              <FormulesSection
-                formules={tiles}
-                affiches={affichesInHero ? undefined : affiches}
-              />
-            )}
-            {restaurant.categories.length === 0 ? (
-              <p className="py-16 text-center text-sm text-muted">
-                La carte est en préparation — revenez bientôt.
-              </p>
-            ) : (
-              restaurant.categories.map((category) => (
-                <MenuSection
-                  key={category.id}
-                  category={category}
-                  // La première photo ne se charge d'emblée qu'en tête de carte :
-                  // sous des formules, elle est déjà loin sous le premier écran.
-                  first={category.id === categoryLinks[0]?.id}
+          <BulleTableGate slug={slug} enabled={bulleOffer !== null}>
+            {/* « < » échappé : un nom ou une description contenant
+                « </script> » fermerait la balise et injecterait du script. */}
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+              }}
+            />
+            {restaurantThemeClass(slug) && hasVelours(slug) && <PanisBackdrop slug={slug} />}
+            <MenuTicker items={restaurant.ticker} />
+            <Hero
+              restaurant={restaurant}
+              firstSectionId={categoryLinks[0]?.id}
+              banner={
+                affichesInHero ? <AffichesBanner affiches={affiches} /> : undefined
+              }
+              saison={saison ?? undefined}
+            />
+            {saison && <SaisonAmbient saison={saison} />}
+            <MenuHighlights highlights={restaurant.highlights} />
+            {/* Fixés en bas, les tickets et le panier viennent tôt dans l'ordre de
+                tabulation, dans l'ordre de l'écran : ils ne se cherchent pas au
+                bout de la carte. */}
+            <TicketTracker />
+            <CartBar />
+            <MenuBody
+              layout={restaurant.categoryLayout}
+              categories={categoryLinks}
+              themeLocked={Boolean(restaurantThemeClass(slug))}
+              bottomPadding="pb-28"
+            >
+              {showFormules && (
+                <FormulesSection
+                  formules={tiles}
+                  affiches={affichesInHero ? undefined : affiches}
                 />
-              ))
+              )}
+              {restaurant.categories.length === 0 ? (
+                <p className="py-16 text-center text-sm text-muted">
+                  La carte est en préparation — revenez bientôt.
+                </p>
+              ) : (
+                sections.map((category) => (
+                  <MenuSection
+                    key={category.id}
+                    category={category}
+                    // La première photo ne se charge d'emblée qu'en tête de carte :
+                    // sous des formules, elle est déjà loin sous le premier écran.
+                    first={category.id === categoryLinks[0]?.id}
+                  >
+                    {category.id === HAPPY_HOUR_SECTION_ID && happyHourTiles}
+                  </MenuSection>
+                ))
+              )}
+            </MenuBody>
+            <MenuFooter
+              restaurant={restaurant}
+              themeToggle={!restaurantThemeClass(slug)}
+            />
+            {callServer && <CallServerButton />}
+            {happyHour && <HappyHourPill happyHour={happyHour} />}
+            {inPill && (affiches.length > 0 || tiles.length > 0) && (
+              <FormulesPill affiches={affiches} formules={tiles} />
             )}
-          </main>
-          <MenuFooter
-            restaurant={restaurant}
-            themeToggle={!restaurantThemeClass(slug)}
-          />
-          {callServer && <CallServerButton />}
-          <LoyaltyWelcome
-            brand={brandName(restaurant)}
-            logo={restaurant.logo}
-            icon={restaurant.icons?.homeScreen}
-            wordmark={restaurant.logoIsName}
-            motif={restaurant.loyaltyMotif}
-          />
+            <LoyaltyWelcome
+              brand={brandName(restaurant)}
+              logo={restaurant.logo}
+              icon={restaurant.icons?.homeScreen}
+              wordmark={restaurant.logoIsName}
+              motif={restaurant.loyaltyMotif}
+            />
+          </BulleTableGate>
         </div>
       </LoyaltyMemberProvider>
     </CartProvider>

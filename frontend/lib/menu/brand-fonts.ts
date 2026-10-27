@@ -8,13 +8,19 @@ import {
   Barlow_Semi_Condensed,
   Bebas_Neue,
   Bodoni_Moda,
+  Bowlby_One,
+  Caveat,
   Chakra_Petch,
   Cinzel,
+  Corinthia,
   Cormorant_Garamond,
+  Courier_Prime,
   DM_Sans,
   Didact_Gothic,
   Fraunces,
+  Gloock,
   Josefin_Sans,
+  Jost,
   Noto_Serif_Display,
   Playball,
   Playfair_Display,
@@ -253,6 +259,35 @@ export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
   .join(" ");
 
 /**
+ * BOHO — la DA « automne bohème » de son site et de ses bulles : le serif à
+ * fort contraste de son logo (Gloock), l'écriture des formules d'automne
+ * (Corinthia, un mot à la fois), et les capitales espacées de « RESTAURANT »
+ * pour le texte (Jost).
+ */
+const gloock = Gloock({
+  variable: "--font-gloock",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+const corinthia = Corinthia({
+  variable: "--font-corinthia",
+  subsets: ["latin"],
+  weight: "700",
+  preload: false,
+});
+const jost = Jost({
+  variable: "--font-jost",
+  subsets: ["latin"],
+  weight: "variable",
+  preload: false,
+});
+
+export const bohoFontVariables = [gloock, corinthia, jost]
+  .map((font) => font.variable)
+  .join(" ");
+
+/**
  * Café Poulard — « POULARD » sur ses visuels : des capitales à empattements
  * étroites et contrastées. Noto Serif Display à sa chasse la plus étroite
  * (axe wdth) est la plus proche mesurée parmi les Google Fonts ; le texte
@@ -309,6 +344,35 @@ const chakraPetch = Chakra_Petch({
   preload: false,
 });
 
+/**
+ * Rosemarie — l'identité de juin 2026 : « ROSEMARIE » en capitales très grasses
+ * et rondes, tracées à la main (Bowlby One en a la masse et les panses) ;
+ * les titres de son chevalet écrits au feutre (Caveat) ; les plats tapés
+ * à la machine, comme sur la carte papier (Courier Prime).
+ */
+const bowlbyOne = Bowlby_One({
+  variable: "--font-bowlby-one",
+  subsets: ["latin"],
+  weight: "400",
+  preload: false,
+});
+
+const caveat = Caveat({
+  variable: "--font-caveat",
+  subsets: ["latin"],
+  weight: ["600", "700"],
+  preload: false,
+});
+
+const courierPrime = Courier_Prime({
+  variable: "--font-courier-prime",
+  subsets: ["latin"],
+  weight: ["400", "700"],
+  // L'italique dessiné : le nom de l'habitué sur la carte de fidélité.
+  style: ["normal", "italic"],
+  preload: false,
+});
+
 export const brandFontVariables = [
   archivo,
   archivoBlack,
@@ -333,6 +397,9 @@ export const brandFontVariables = [
   unbounded,
   chakraPetch,
   adventPro,
+  bowlbyOne,
+  caveat,
+  courierPrime,
 ]
   .map((font) => font.variable)
   .join(" ");

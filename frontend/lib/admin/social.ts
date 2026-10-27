@@ -134,12 +134,24 @@ export interface SocialPost {
   renderProgress: number | null;
   renderEtaSeconds: number | null;
   videoPath: string | null;
+  /** Avis de l'arbitre sur la version retenue par l'agent ; null une fois
+   * le post modifié à la main. */
+  review: PostReview | null;
   captions: Record<SocialPlatform, string>;
   playbookVersion: number;
   publications: SocialPublication[];
 }
 
 export type PostFormat = "carousel" | "image" | "reel";
+
+/** Note sur 10 donnée par l'arbitre, son verdict, les corrections qu'il
+ * demandait encore, et le nombre de réécritures faites pour y arriver. */
+export interface PostReview {
+  score: number;
+  verdict: string;
+  fixes: string[];
+  rounds: number;
+}
 
 export interface PlaybookFindings {
   whatWorks: string[];
@@ -253,7 +265,7 @@ export async function fetchSocialPosts(): Promise<SocialPost[]> {
     await createClient()
       .from("social_posts")
       .select(
-        "id, brand, post_date, scheduled_at, status, feedback, updated_at, format, topic, angle, slides, reel, render_status, render_error, render_stage, render_progress, render_eta_seconds, video_path, captions, social_playbooks(version), social_publications(id, status, permalink, error, published_at, metrics, metrics_settled_at, social_accounts(platform, handle))"
+        "id, brand, post_date, scheduled_at, status, feedback, updated_at, format, topic, angle, slides, reel, render_status, render_error, render_stage, render_progress, render_eta_seconds, video_path, review, captions, social_playbooks(version), social_publications(id, status, permalink, error, published_at, metrics, metrics_settled_at, social_accounts(platform, handle))"
       )
       .order("scheduled_at", { ascending: false })
       .limit(SOCIAL_POSTS_FETCH_LIMIT)
@@ -277,6 +289,7 @@ export async function fetchSocialPosts(): Promise<SocialPost[]> {
     renderProgress: row.render_progress,
     renderEtaSeconds: row.render_eta_seconds,
     videoPath: row.video_path,
+    review: row.review as unknown as PostReview | null,
     captions: row.captions as unknown as Record<SocialPlatform, string>,
     playbookVersion: row.social_playbooks.version,
     publications: row.social_publications.map((publication) => ({
@@ -311,6 +324,7 @@ export async function savePostContent(
       .update({
         slides: content.slides as unknown as Json,
         captions: content.captions,
+        review: null,
         ...(content.reel && {
           reel: content.reel as unknown as Json,
           render_status: "pending",

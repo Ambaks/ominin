@@ -1,10 +1,6 @@
 import { NextResponse } from "next/server";
 import { raiseAlert } from "@/lib/admin/alerts";
-import {
-  CHURN_DROP_RATIO,
-  CHURN_MIN_PREVIOUS_SESSIONS,
-  CLIENT_PERIOD_DAYS,
-} from "@/lib/admin/constants";
+import { CHURN_PERIOD_DAYS, churnWindows, isDropping, serviceFigures, sessionsOf } from "@/lib/admin/churn";
 import { formatEuros } from "@/lib/admin/format";
 import { ASSIGNEES, isAssignedTo, OWNERS } from "@/lib/admin/owners";
 import { notifyOwners } from "@/lib/admin/push";
@@ -19,8 +15,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *   service du soir est fini à cette heure-là), face aux 24 h équivalentes
  *   de la semaine d'avant (même jour, mêmes clients) ;
  * - à tous, un client qui décroche : visites du menu en baisse d'au moins
- *   CHURN_DROP_RATIO sur 30 jours face aux 30 d'avant (la règle de la
- *   Synthèse), une fois par semaine au plus par client.
+ *   CHURN_DROP_RATIO sur CHURN_PERIOD_DAYS jours face aux précédents (la
+ *   règle de la Synthèse, lib/admin/churn.ts), une fois par semaine au plus
+ *   par client.
  */
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -73,18 +70,11 @@ export async function POST(request: Request) {
   if (!linked.length) return NextResponse.json({ ok: true });
 
   const now = Date.now();
-  const iso = (ms: number) => new Date(ms).toISOString();
-  const period = CLIENT_PERIOD_DAYS[1] * DAY_MS;
-  const [yesterday, sameDayLastWeek, current, previous] = await Promise.all(
-    [
-      [now - DAY_MS, now],
-      [now - 8 * DAY_MS, now - 7 * DAY_MS],
-      [now - period, now],
-      [now - 2 * period, now - period],
-    ].map(([from, to]) =>
-      db.rpc("admin_service_figures", { p_from: iso(from), p_to: iso(to) }).then((r) => r.data ?? []),
-    ),
-  );
+  const [yesterday, sameDayLastWeek, { current, previous }] = await Promise.all([
+    serviceFigures(db, now - DAY_MS, now),
+    serviceFigures(db, now - 8 * DAY_MS, now - 7 * DAY_MS),
+    churnWindows(db, now),
+  ]);
   const figure = (rows: typeof yesterday, client: (typeof linked)[number]) =>
     rows.find((row) => row.id === (client.etablissement_id ?? client.shop_id));
 
@@ -119,12 +109,12 @@ export async function POST(request: Request) {
   // Clients qui décrochent (établissements : la règle porte sur les visites du menu).
   for (const client of linked) {
     if (!client.etablissement_id) continue;
-    const before = figure(previous, client)?.sessions ?? 0;
-    const now30 = figure(current, client)?.sessions ?? 0;
-    if (before >= CHURN_MIN_PREVIOUS_SESSIONS && now30 <= before * (1 - CHURN_DROP_RATIO)) {
+    const before = sessionsOf(previous, client.etablissement_id);
+    const after = sessionsOf(current, client.etablissement_id);
+    if (isDropping(before, after)) {
       await raiseAlert("decroche", client.id, {
-        title: `${client.name} : visites −${Math.round((1 - now30 / before) * 100)} % en ${CLIENT_PERIOD_DAYS[1]} j`,
-        body: `Visites du menu ${before} → ${now30}. À appeler.`,
+        title: `${client.name} : visites −${Math.round((1 - after / before) * 100)} % en ${CHURN_PERIOD_DAYS} j`,
+        body: `Visites du menu ${before} → ${after}. À appeler.`,
         url: `/projet/${client.id}`,
       });
     }

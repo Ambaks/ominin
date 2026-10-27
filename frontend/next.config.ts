@@ -23,7 +23,8 @@ const supabaseOrigins = (() => {
 
 /*
  * CSP additive et prudente, calquée sur les origines réellement utilisées :
- *  - Supabase (REST/Storage/Realtime) : connect-src https + wss, img-src storage.
+ *  - Supabase (REST/Storage/Realtime) : connect-src https + wss, img-src storage,
+ *    media-src storage (Reels rendus de l'admin, bucket social-videos).
  *  - Stripe : Stripe.js embarqué sur le menu QR (Apple Pay, Google Pay et
  *    carte dans la page) — script sur js.stripe.com et ses sous-domaines,
  *    appels sur api.stripe.com, iframes des formulaires et de 3-D Secure
@@ -59,6 +60,7 @@ const csp = [
   "frame-ancestors 'self'",
   "form-action 'self' https:",
   `img-src 'self' data: blob: https://images.unsplash.com https://images.pexels.com https://*.supabase.co https://tiles.openfreemap.org https://static.sumup.com https://www.gstatic.com${supabaseOrigins}`,
+  `media-src 'self' https://*.supabase.co${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline' https://web.squarecdn.com https://sandbox.web.squarecdn.com",
   `script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com${isDev ? " 'unsafe-eval'" : ""}`,
@@ -81,10 +83,11 @@ const securityHeaders = [
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     // geolocation=(self) : la carte du CRM admin propose « ma position » en
-    // prospection terrain — n'autorise que le site lui-même à demander la
-    // permission, le navigateur garde le dernier mot.
+    // prospection terrain ; camera=(self) : l'équipe scanne le code de
+    // retrait au bar depuis l'espace de gestion. N'autorise que le site
+    // lui-même à demander la permission, le navigateur garde le dernier mot.
     key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(self), browsing-topics=()",
+    value: "camera=(self), microphone=(), geolocation=(self), browsing-topics=()",
   },
   // HSTS : ignoré par les navigateurs hors HTTPS (dev/local), actif en prod.
   {

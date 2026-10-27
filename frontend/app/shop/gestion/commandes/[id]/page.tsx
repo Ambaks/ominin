@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { OrderActions } from "@/components/shop/gestion/order-actions";
 import { OrderStatusBadge } from "@/components/shop/gestion/orders-table";
 import { Card, PageHeader } from "@/components/shop/gestion/page-header";
+import { httpHref } from "@/lib/admin/format";
 import { PAYMENT_STATUS_LABELS, SHIPPING_KIND_LABELS } from "@/lib/shop/constants";
 import { countryName, formatDateTime, formatPrice, fullName } from "@/lib/shop/format";
 import { getOrder, requireShopSession } from "@/lib/shop/server";
@@ -177,7 +178,7 @@ export default async function ShopOrderPage({ params }: PageProps<"/shop/gestion
                 <p>
                   <span className="font-medium text-foreground">Suivi :</span>{" "}
                   {order.tracking_url ? (
-                    <a href={order.tracking_url} target="_blank" rel="noreferrer" className="text-ember-1 hover:underline">
+                    <a href={httpHref(order.tracking_url)} target="_blank" rel="noreferrer" className="text-ember-1 hover:underline">
                       {order.tracking_number}
                     </a>
                   ) : (

@@ -7,13 +7,13 @@ import { REWARD_ITEMS_SHOWN } from "@/lib/gestion/constants";
 import { cartLineKey, useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
 import {
-  fetchLoyaltyBalance,
   maskContact,
   pointsEarned,
   type LoyaltyMember,
   type LoyaltyProgram,
   type LoyaltyReward,
 } from "@/lib/menu/loyalty";
+import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import type { MenuItem } from "@/lib/menu-data";
 
 /*
@@ -56,6 +56,7 @@ export function LoyaltySection({
   };
 }) {
   const cart = useCart();
+  const { balance: lookupBalance } = useLoyaltyMember();
   // Repliée tant que rien n'est saisi : le gain et un bouton, sur une rangée,
   // pour que l'accord du chef et le pied restent à l'écran.
   const [opened, setOpened] = useState(false);
@@ -91,7 +92,7 @@ export function LoyaltySection({
     setLookup("loading");
     setError(null);
     try {
-      const points = await fetchLoyaltyBalance(cart.slug, contact.trim());
+      const points = await lookupBalance(cart.slug, contact.trim());
       if (points === null) {
         setLookup("error");
         setError("Le programme de fidélité n'est plus proposé.");
@@ -146,7 +147,7 @@ export function LoyaltySection({
 
   if (!opened && !member && !contact.trim() && balance === null) {
     return (
-      <section className="mt-5 flex items-center justify-between gap-3 rounded-2xl border border-hairline p-4">
+      <section className="loyalty-box mt-5 flex items-center justify-between gap-3 rounded-2xl border border-hairline p-4">
         {title}
         <button
           type="button"
@@ -160,7 +161,7 @@ export function LoyaltySection({
   }
 
   return (
-    <section className="mt-5 flex flex-col gap-3 rounded-2xl border border-hairline p-4">
+    <section className="loyalty-box mt-5 flex flex-col gap-3 rounded-2xl border border-hairline p-4">
       <div>
         {title}
         {member && (

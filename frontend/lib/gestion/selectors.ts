@@ -44,6 +44,14 @@ export function isPickupShop(state: GestionState | null): boolean {
 }
 
 /**
+ * Club sur Ominin Club, qu'il prenne ou non les commandes au menu QR : tout
+ * son espace parle la langue de ses soirées.
+ */
+export function isClub(state: GestionState | null): boolean {
+  return state?.features.soirees ?? false;
+}
+
+/**
  * Club sur Ominin Club seul, sans offre ni click & collect : ni carte ni
  * service à table, son espace tient dans ses soirées.
  */
@@ -236,24 +244,33 @@ export function earlierNumberingDay(order: Order, resetHour: number | null): str
   });
 }
 
-/** Une commande sur place à l'écran : sa table, ou son numéro du jour en fast food. */
-export function placeLabel(order: Order, tables: Table[]): string {
-  if (order.orderNumber !== undefined) return `N° ${order.orderNumber}`;
+/**
+ * Une commande sur place à l'écran : sa table, ou son numéro du jour en fast
+ * food — suivi de la table du QR quand le gérant l'affiche (`showTable`).
+ */
+export function placeLabel(order: Order, tables: Table[], showTable: boolean): string {
   const table = tables.find((candidate) => candidate.id === order.tableId);
-  return `Table ${table?.number ?? "—"}`;
+  if (order.orderNumber === undefined) return `Table ${table?.number ?? "—"}`;
+  return showTable && table
+    ? `N° ${order.orderNumber} · Table ${table.number}`
+    : `N° ${order.orderNumber}`;
 }
 
 /**
  * Nombre de cartes que ces commandes occupent à l'écran Commandes : les
  * commandes sur place d'une même table s'y regroupent en une seule addition,
- * les autres (collect, sans table) restent chacune leur carte.
+ * les autres (collect, numérotées même avec une table) restent chacune leur
+ * carte.
  */
 export function cardCount(orders: Order[]): number {
   const tables = new Set<string>();
   let singles = 0;
   for (const order of orders) {
-    if (order.type === "sur_place" && order.tableId) tables.add(order.tableId);
-    else singles += 1;
+    if (order.type === "sur_place" && order.tableId && order.orderNumber === undefined) {
+      tables.add(order.tableId);
+    } else {
+      singles += 1;
+    }
   }
   return tables.size + singles;
 }
@@ -324,12 +341,17 @@ export interface TableService {
 /**
  * Tables en service (au moins une commande ouverte), par numéro croissant.
  * Des tables réunies ne font qu'une entrée : leur addition est commune, et
- * c'est la plus petite qui la porte.
+ * c'est la plus petite qui la porte. Une commande numérotée se suit au
+ * comptoir, même passée depuis le QR d'une table.
  */
 export function activeTables(state: GestionState): TableService[] {
   const byTable = new Map<string, Order[]>();
   for (const order of state.orders) {
-    if (!order.tableId || !(awaitsPayment(order) || awaitsService(order))) {
+    if (
+      !order.tableId ||
+      order.orderNumber !== undefined ||
+      !(awaitsPayment(order) || awaitsService(order))
+    ) {
       continue;
     }
     const list = byTable.get(order.tableId) ?? [];

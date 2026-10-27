@@ -3,7 +3,9 @@ import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { heroDelay } from "@/components/menu/hero-delay";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
 import { NameWords } from "@/components/menu/name-words";
+import { SaisonFrame, SaisonPoster, SaisonSky } from "@/components/menu/saison/saison";
 import { SectionLink } from "@/components/menu/section-link";
+import type { Saison } from "@/lib/menu/saison";
 import {
   brandName,
   displayAddress,
@@ -259,19 +261,31 @@ function LogoHero({
   );
 }
 
+/* La variante poster-wide de globals.css. */
+const POSTER_WIDE_MEDIA = "(min-width: 64rem), (min-width: 40rem) and (orientation: landscape)";
+
 /**
- * L'affiche remplit l'écran, moins la bande de contact : rognée sur les côtés
- * en portrait, entière en paysage, où sa copie floutée comble les marges.
+ * L'affiche remplit l'écran (moins les formules, s'il y en a) : rognée sur les côtés
+ * en portrait, entière en paysage, où sa copie floutée comble les marges —
+ * sauf si l'établissement a son panorama (posterWide), qui couvre alors tout
+ * le cadre.
  */
 function PosterHero({
   restaurant,
   poster,
   banner,
+  saison,
 }: {
   restaurant: Restaurant;
   poster: string;
   banner?: React.ReactNode;
+  saison?: Saison;
 }) {
+  const wide = restaurant.posterWide;
+  const spots = restaurant.saisonSpots;
+  // Les repères sont mesurés sur l'affiche portrait : le panorama n'a que le
+  // décor du cadre.
+  const portraitOnly = wide ? "contents poster-wide:hidden" : "contents";
   return (
     <header className="flex h-svh w-full flex-col bg-background">
       <div className="relative flex min-h-0 flex-1 justify-center overflow-hidden">
@@ -279,33 +293,47 @@ function PosterHero({
         <img
           src={poster}
           alt=""
-          className="absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl"
+          className={`absolute inset-0 size-full scale-110 object-cover opacity-60 blur-2xl ${wide ? "poster-wide:hidden" : ""}`}
         />
-        {/* eslint-disable-next-line @next/next/no-img-element -- actif local de marque, dimensions libres */}
-        <img
-          src={poster}
-          alt=""
-          fetchPriority="high"
-          className="hero-entrance relative h-full w-auto max-w-none shrink-0 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
-        />
+        {/* La nuit et les lumières de la saison suivent les repères de l'affiche :
+            sans eux, seul le décor du cadre. */}
+        {saison && spots && (
+          <div className={portraitOnly}>
+            <SaisonSky saison={saison} />
+          </div>
+        )}
+        {/* L'habillage de saison se pose en % de l'affiche : il la suit à sa taille. */}
+        <div className={`relative h-full shrink-0 ${wide ? "poster-wide:w-full" : ""}`}>
+          <picture className="contents">
+            {wide && <source media={POSTER_WIDE_MEDIA} srcSet={wide} sizes="100vw" />}
+            <img
+              src={poster}
+              alt=""
+              fetchPriority="high"
+              className={`hero-entrance relative h-full w-auto max-w-none [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)] ${
+                wide ? "poster-wide:w-full poster-wide:object-cover poster-wide:[mask-image:none]" : ""
+              }`}
+            />
+          </picture>
+          {saison && spots && (
+            <div className={portraitOnly}>
+              <SaisonPoster saison={saison} spots={spots} />
+            </div>
+          )}
+        </div>
         <h1 className="sr-only">{brandName(restaurant)}</h1>
+        {saison && <SaisonFrame saison={saison} />}
         <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-background to-transparent" />
       </div>
 
-      {banner ?? (
-        <ContactPills
-          restaurant={restaurant}
-          className="hero-entrance flex flex-wrap justify-center gap-2 px-5 py-4 text-xs text-muted lg:gap-3 lg:text-sm"
-          style={heroDelay("350ms")}
-        />
-      )}
+      {banner}
     </header>
   );
 }
 
 /**
- * `banner` (les formules en visuel) prend, sous l'affiche, la place de
- * l'adresse et du téléphone : le pied de page les porte déjà.
+ * `banner` : les formules en visuel, sous l'affiche. L'adresse et le
+ * téléphone n'y figurent pas : le pied de page les porte déjà.
  * `firstSectionId` : la première section de la page, que vise « Découvrir la
  * carte » — les formules quand elles ouvrent la carte, sinon la première
  * catégorie.
@@ -314,14 +342,16 @@ export function Hero({
   restaurant,
   banner,
   firstSectionId,
+  saison,
 }: {
   restaurant: Restaurant;
   banner?: React.ReactNode;
   firstSectionId: string | undefined;
+  saison?: Saison;
 }) {
   if (restaurant.poster) {
     return (
-      <PosterHero restaurant={restaurant} poster={restaurant.poster} banner={banner} />
+      <PosterHero restaurant={restaurant} poster={restaurant.poster} banner={banner} saison={saison} />
     );
   }
 
