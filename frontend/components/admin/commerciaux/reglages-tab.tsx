@@ -33,12 +33,14 @@ const FIELDS: { key: Key; label: string; unit: string; hint: string; required: b
 function SettingsForm() {
   const toast = useToast();
   const [draft, setDraft] = useState<Record<Key, string> | null>(null);
+  const [guide, setGuide] = useState("");
 
   const load = useCallback(
     () =>
-      fetchSettings().then((settings: CommercialSettings) =>
-        setDraft(Object.fromEntries(FIELDS.map(({ key }) => [key, settings[key]?.toString() ?? ""])) as Record<Key, string>)
-      ),
+      fetchSettings().then((settings: CommercialSettings) => {
+        setDraft(Object.fromEntries(FIELDS.map(({ key }) => [key, settings[key]?.toString() ?? ""])) as Record<Key, string>);
+        setGuide(settings.guide_url ?? "");
+      }),
     []
   );
   useEffect(() => void load(), [load]);
@@ -49,7 +51,10 @@ function SettingsForm() {
 
   const save = async () => {
     try {
-      await updateSettings(Object.fromEntries(FIELDS.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])));
+      await updateSettings({
+        ...Object.fromEntries(FIELDS.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])),
+        guide_url: guide.trim() || null,
+      });
       toast.success("Réglages enregistrés.");
       await load();
     } catch (cause) {
@@ -59,7 +64,7 @@ function SettingsForm() {
 
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Commission et demandes de visite</h2>
+      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Espace des commerciaux</h2>
       <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
         {FIELDS.map(({ key, label, unit, hint, required }) => (
           <li key={key} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
@@ -82,6 +87,16 @@ function SettingsForm() {
             </span>
           </li>
         ))}
+        <li className="flex flex-col gap-2 px-4 py-3">
+          <label htmlFor="setting-guide" className="text-sm">
+            Guide de vente
+            <span className="block text-xs text-faint">
+              Lien du message Discord qui le contient (clic droit sur le message, « Copier le lien du message »). Ouvert depuis la page
+              Ressources des commerciaux.
+            </span>
+          </label>
+          <input id="setting-guide" type="url" value={guide} onChange={(event) => setGuide(event.target.value)} placeholder="https://discord.com/channels/…" className={inputClass} />
+        </li>
       </ul>
       <button
         type="button"

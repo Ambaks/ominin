@@ -28,4 +28,13 @@ select pg_temp.act(:'d_user');
 select pg_temp.ok(pg_temp.fails('select * from public.commercial_map()'), 'carte : refusée après la fin du contrat');
 select pg_temp.reset();
 
+-- Ressources : le lien du guide de vente, saisi par l'admin.
+select pg_temp.ok(pg_temp.fails('update public.commercial_settings set guide_url = ''http://x'''), 'ressources : le guide est un lien https');
+update public.commercial_settings set guide_url = 'https://discord.com/channels/1/2/3';
+select pg_temp.act(:'a_user');
+select pg_temp.ok(public.commercial_guide_url() = 'https://discord.com/channels/1/2/3', 'ressources : le commercial lit le lien du guide');
+select pg_temp.act(:'c_user');
+select pg_temp.ok(pg_temp.fails('select public.commercial_guide_url()'), 'ressources : refusé à un compte qui n''a pas signé');
+select pg_temp.reset();
+
 rollback;

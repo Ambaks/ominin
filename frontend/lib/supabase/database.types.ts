@@ -1980,6 +1980,7 @@ export type Database = {
           expiry_warning_days: number | null
           final_statement_days: number
           followup_days: number[] | null
+          guide_url: string | null
           id: boolean
           in_talks_days: number | null
           kit_demo_slugs: string[]
@@ -2015,6 +2016,7 @@ export type Database = {
           expiry_warning_days?: number | null
           final_statement_days: number
           followup_days?: number[] | null
+          guide_url?: string | null
           id?: boolean
           in_talks_days?: number | null
           kit_demo_slugs?: string[]
@@ -2050,6 +2052,7 @@ export type Database = {
           expiry_warning_days?: number | null
           final_statement_days?: number
           followup_days?: number[] | null
+          guide_url?: string | null
           id?: boolean
           in_talks_days?: number | null
           kit_demo_slugs?: string[]
@@ -7765,6 +7768,7 @@ export type Database = {
         Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
         Returns: string
       }
+      commercial_guide_url: { Args: never; Returns: string }
       commercial_in_service: {
         Args: {
           p_declared_at: string

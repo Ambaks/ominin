@@ -6,7 +6,7 @@
  */
 
 const DECK_CACHE = "commercial:deck";
-const isDeck = (url) => url.pathname.endsWith("/espace/kit/deck");
+const isDeck = (url) => url.pathname.endsWith("/espace/ressources/deck");
 
 self.addEventListener("install", () => {
   self.skipWaiting();
