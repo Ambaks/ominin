@@ -1967,6 +1967,7 @@ export type Database = {
           updated_at: string
           urssaf_interval_months: number
           urssaf_threshold_cents: number
+          visit_request_days: number | null
         }
         Insert: {
           club_fees_included?: boolean | null
@@ -2001,6 +2002,7 @@ export type Database = {
           updated_at?: string
           urssaf_interval_months: number
           urssaf_threshold_cents: number
+          visit_request_days?: number | null
         }
         Update: {
           club_fees_included?: boolean | null
@@ -2035,6 +2037,7 @@ export type Database = {
           updated_at?: string
           urssaf_interval_months?: number
           urssaf_threshold_cents?: number
+          visit_request_days?: number | null
         }
         Relationships: []
       }
@@ -2112,6 +2115,7 @@ export type Database = {
       commerciaux: {
         Row: {
           address: string | null
+          discord_user_id: string | null
           email: string
           end_reason: string | null
           ended_at: string | null
@@ -2129,6 +2133,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          discord_user_id?: string | null
           email: string
           end_reason?: string | null
           ended_at?: string | null
@@ -2146,6 +2151,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          discord_user_id?: string | null
           email?: string
           end_reason?: string | null
           ended_at?: string | null

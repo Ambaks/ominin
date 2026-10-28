@@ -99,9 +99,9 @@ function EndContractModal({
 }
 
 /*
- * Commerciaux invités : contrat, résultats (déclarations actives,
- * inscriptions), fin de contrat et option. L'invitation envoie le lien
- * d'accès à l'espace, où le commercial lit et signe son contrat.
+ * Commerciaux invités : contrat, restaurants inscrits, fin de contrat et
+ * option. L'invitation envoie le lien d'accès à l'espace, où le commercial
+ * lit et signe son contrat.
  */
 export function CommerciauxTab() {
   const toast = useToast();
@@ -205,7 +205,7 @@ export function CommerciauxTab() {
                 </p>
                 {row.signed && (
                   <p className="mt-1 text-xs text-muted">
-                    {row.active} déclaration{row.active > 1 ? "s" : ""} en cours · {row.signedRestaurants} inscrit
+                    {row.signedRestaurants} restaurant{row.signedRestaurants > 1 ? "s" : ""} inscrit
                     {row.signedRestaurants > 1 ? "s" : ""}
                     {row.signedRestaurants > 0 && <MonthCommission commercialId={row.id} />}
                   </p>
