@@ -52,6 +52,16 @@ export const NEXT_STATUS: Record<StepStatus, StepStatus> = {
   blocked: "doing",
 };
 
+/** Aujourd'hui sur l'appareil, au format d'un <input type="date"> et de due_on. */
+export function todayValue(): string {
+  return new Date().toLocaleDateString("sv-SE");
+}
+
+/** Échéance passée : le jour est fini et l'étape n'est pas faite. */
+export function isOverdue(step: Step, today = todayValue()): boolean {
+  return step.status !== "done" && step.due_on !== null && step.due_on < today;
+}
+
 /** Ce qu'un client en service rapporte : depuis toujours, et sur 30 jours. */
 export interface ClientFigures {
   revenue: number;
@@ -275,7 +285,7 @@ function scheduleAssigned(stepId: string, assigned: boolean) {
 
 export async function updateStep(
   id: string,
-  patch: Partial<Pick<Step, "status" | "owner" | "title" | "detail">>,
+  patch: Partial<Pick<Step, "status" | "owner" | "title" | "detail" | "due_on">>,
   /** Pourquoi l'étape est bloquée, dit à l'autre dans la notification. */
   reason?: string,
 ): Promise<void> {
@@ -295,6 +305,7 @@ export async function updateStep(
 export async function addStep(
   owner: { client_id: string; phase: string } | { chantier_id: string },
   title: string,
+  dueOn: string,
 ): Promise<void> {
   if (!state.data) return;
   const siblings = state.data.steps.filter((step) =>
@@ -305,7 +316,7 @@ export async function addStep(
   const position = Math.max(0, ...siblings.map((step) => step.position)) + 1;
   const step = await createClient()
     .from("projet_steps")
-    .insert({ ...owner, title, position })
+    .insert({ ...owner, title, position, due_on: dueOn })
     .select("*")
     .single()
     .then(must);
