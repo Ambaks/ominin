@@ -483,10 +483,13 @@ const AFFICHES_DELAY = "350ms";
 function AffichesTrack({
   affiches,
   className,
+  imageClassName,
   delay,
 }: {
   affiches: AfficheMenu[];
   className: string;
+  /** La hauteur des affiches. */
+  imageClassName: string;
   /** Quand la piste porte seule son entrée : son délai, que le défilement attend aussi. */
   delay?: string;
 }) {
@@ -575,7 +578,7 @@ function AffichesTrack({
                 src={affiche.image}
                 data-affiche={affiche.id}
                 alt={copy === 0 && index === 0 ? alt : ""}
-                className="mr-3 h-44 w-auto max-w-none rounded-xl lg:h-60"
+                className={`mr-3 w-auto max-w-none rounded-xl ${imageClassName}`}
               />
             ))}
           </div>
@@ -593,7 +596,7 @@ function AffichesMarquee({ affiches }: { affiches: AfficheMenu[] }) {
 
   return (
     <>
-      <AffichesTrack affiches={affiches} className="rounded-2xl" />
+      <AffichesTrack affiches={affiches} className="rounded-2xl" imageClassName="h-44 lg:h-60" />
       <div className="mt-2 flex flex-wrap gap-2">
         {formules.map((formule) => {
           const served = servable(formule);
@@ -650,6 +653,7 @@ export function AffichesStrip({ affiches }: { affiches: AfficheMenu[] }) {
     <AffichesTrack
       affiches={affiches}
       className="affiches-strip mb-16 motion-reduce:px-4"
+      imageClassName="h-60 lg:h-80"
       delay={AFFICHES_DELAY}
     />
   );
