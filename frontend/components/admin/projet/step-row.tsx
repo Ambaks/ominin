@@ -7,9 +7,11 @@ import {
   ASSIGNEES,
   deleteStep,
   isAssignee,
+  isOverdue,
   NEXT_STATUS,
   ownersOf,
   STATUS_LABELS,
+  todayValue,
   updateStep,
   type Step,
   type StepStatus,
@@ -49,6 +51,15 @@ export function StatusDot({ status }: { status: StepStatus }) {
   );
 }
 
+/** « auj. », sinon « 28 oct. » : le jour d'une échéance. */
+function dueLabel(dueOn: string): string {
+  if (dueOn === todayValue()) return "auj.";
+  return new Date(`${dueOn}T12:00`).toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "short",
+  });
+}
+
 const ACTION =
   "rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground";
 const FIELD =
@@ -69,6 +80,7 @@ export function StepRow({ step }: { step: Step }) {
   // Sans responsable → Marwan → Ambaka → les deux → sans responsable.
   const nextOwner = ASSIGNEES[owner ? ASSIGNEES.indexOf(owner) + 1 : 0] ?? null;
   const ownerLabel = owner ? ASSIGNEE_LABELS[owner] : "Sans responsable";
+  const overdue = isOverdue(step);
 
   return (
     <li className="py-2">
@@ -93,6 +105,14 @@ export function StepRow({ step }: { step: Step }) {
           {step.title}
           <span className="ml-1.5 text-xs text-faint no-underline">{open ? "▴" : "▾"}</span>
         </button>
+        {step.due_on && status !== "done" && (
+          <span
+            title={overdue ? "Échéance dépassée" : "Échéance"}
+            className={`mt-0.5 shrink-0 text-xs ${overdue ? "font-semibold text-ember-3" : "text-faint"}`}
+          >
+            {dueLabel(step.due_on)}
+          </span>
+        )}
         <button
           type="button"
           onClick={() => void run(() => updateStep(step.id, { owner: nextOwner }))}
@@ -152,9 +172,20 @@ export function StepRow({ step }: { step: Step }) {
             </p>
           )}
           <div className="flex flex-wrap items-center gap-2">
-            <span className="mr-auto text-xs text-faint">
+            <span className="text-xs text-faint">
               {STATUS_LABELS[status]} · {ownerLabel}
             </span>
+            <label className="mr-auto flex items-center gap-1.5 text-xs text-faint">
+              Échéance
+              <input
+                type="date"
+                value={step.due_on ?? ""}
+                onChange={(event) =>
+                  void run(() => updateStep(step.id, { due_on: event.target.value || null }))
+                }
+                className="rounded-lg border border-hairline bg-surface px-2 py-1 text-xs text-foreground focus:border-ember-2/50 focus:outline-none"
+              />
+            </label>
             <button type="button" onClick={() => setEditing(true)} className={ACTION}>
               Modifier
             </button>
@@ -191,18 +222,21 @@ export function StepRow({ step }: { step: Step }) {
   );
 }
 
-/** Champ d'ajout d'une étape, validé par Entrée. */
-export function AddStep({ onAdd }: { onAdd: (title: string) => Promise<void> }) {
+/** Champ d'ajout d'une étape, validé par Entrée : pas d'étape sans échéance. */
+export function AddStep({ onAdd }: { onAdd: (title: string, dueOn: string) => Promise<void> }) {
   const run = useRunMutation();
   return (
     <form
+      className="flex gap-2"
       onSubmit={(event) => {
         event.preventDefault();
-        const input = event.currentTarget.elements.namedItem("title") as HTMLInputElement;
+        const fields = event.currentTarget.elements;
+        const input = fields.namedItem("title") as HTMLInputElement;
+        const due = fields.namedItem("due") as HTMLInputElement;
         const title = input.value.trim();
-        if (!title) return;
+        if (!title || !due.value) return;
         void run(async () => {
-          await onAdd(title);
+          await onAdd(title, due.value);
           input.value = "";
         });
       }}
@@ -210,7 +244,16 @@ export function AddStep({ onAdd }: { onAdd: (title: string) => Promise<void> }) 
       <input
         name="title"
         placeholder="+ Ajouter une étape"
-        className="w-full rounded-xl border border-dashed border-hairline bg-transparent px-3 py-2 text-base placeholder:text-faint focus:border-ember-2/50 focus:outline-none sm:text-sm"
+        className="min-w-0 flex-1 rounded-xl border border-dashed border-hairline bg-transparent px-3 py-2 text-base placeholder:text-faint focus:border-ember-2/50 focus:outline-none sm:text-sm"
+      />
+      <input
+        name="due"
+        type="date"
+        required
+        min={todayValue()}
+        aria-label="Échéance"
+        title="Échéance"
+        className="shrink-0 rounded-xl border border-dashed border-hairline bg-transparent px-2 py-2 text-base text-muted focus:border-ember-2/50 focus:outline-none sm:text-sm"
       />
     </form>
   );

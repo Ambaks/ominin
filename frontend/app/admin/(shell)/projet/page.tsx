@@ -124,7 +124,7 @@ function ChantierCard({ chantier, data, who }: { chantier: Chantier; data: Proje
           <StepRow key={step.id} step={step} />
         ))}
       </ul>
-      {open && <AddStep onAdd={(title) => addStep({ chantier_id: chantier.id }, title)} />}
+      {open && <AddStep onAdd={(title, dueOn) => addStep({ chantier_id: chantier.id }, title, dueOn)} />}
       <div className="flex items-center justify-between gap-3">
         <button
           type="button"

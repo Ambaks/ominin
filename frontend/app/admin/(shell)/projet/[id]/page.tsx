@@ -203,7 +203,7 @@ export default function ProjetClientPage() {
                       ))}
                     </ul>
                     <AddStep
-                      onAdd={(title) => addStep({ client_id: client.id, phase }, title)}
+                      onAdd={(title, dueOn) => addStep({ client_id: client.id, phase }, title, dueOn)}
                     />
                   </div>
                 </li>

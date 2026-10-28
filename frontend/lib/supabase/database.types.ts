@@ -5110,6 +5110,7 @@ export type Database = {
           chantier_id: string | null
           client_id: string | null
           detail: string
+          due_on: string | null
           id: string
           owner: string | null
           phase: string
@@ -5122,6 +5123,7 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           detail?: string
+          due_on?: string | null
           id?: string
           owner?: string | null
           phase?: string
@@ -5134,6 +5136,7 @@ export type Database = {
           chantier_id?: string | null
           client_id?: string | null
           detail?: string
+          due_on?: string | null
           id?: string
           owner?: string | null
           phase?: string
