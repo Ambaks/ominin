@@ -1869,6 +1869,39 @@ export type Database = {
           },
         ]
       }
+      commercial_holds: {
+        Row: {
+          commercial_id: string
+          restaurant_id: string
+          since: string
+        }
+        Insert: {
+          commercial_id: string
+          restaurant_id: string
+          since?: string
+        }
+        Update: {
+          commercial_id?: string
+          restaurant_id?: string
+          since?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_holds_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_holds_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: true
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commercial_push_subscriptions: {
         Row: {
           auth: string
@@ -7757,10 +7790,28 @@ export type Database = {
         }
         Returns: string
       }
+      commercial_map: {
+        Args: never
+        Returns: {
+          address: string
+          city: string
+          contacted_by_lea: boolean
+          google_maps_url: string
+          holder: string
+          id: string
+          latitude: number
+          longitude: number
+          mine: boolean
+          name: string
+          phone: string
+          state: string
+        }[]
+      }
       commercial_me: {
         Args: { p_need: string }
         Returns: {
           address: string | null
+          discord_user_id: string | null
           email: string
           end_reason: string | null
           ended_at: string | null

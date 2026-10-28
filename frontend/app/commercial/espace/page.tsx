@@ -1,7 +1,6 @@
-import { TodayScreen } from "@/components/commercial/space/today";
-import { requireRunningContract } from "@/lib/commercial/session";
+import { redirect } from "next/navigation";
+import { commercialPrefix } from "@/lib/site";
 
-export default async function AujourdhuiPage() {
-  await requireRunningContract();
-  return <TodayScreen />;
+export default function EspacePage() {
+  redirect(`${commercialPrefix}/espace/carte`);
 }
