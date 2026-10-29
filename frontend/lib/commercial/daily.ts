@@ -5,6 +5,7 @@ import type { createAdminClient } from "@/lib/supabase/admin";
 import { commercialPrefix } from "@/lib/site";
 import { flushOutbox, notifyNewDeclarations } from "./outbox";
 import { notifyCommercial } from "./push";
+import { releaseRequests } from "./requests";
 import { displayName } from "./record";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -39,6 +40,8 @@ export async function runDaily(admin: Admin) {
   const urssafReminders = await call("commercial_urssaf_reminders");
   // Relances J+n après un rendez-vous, avant le push du matin qui les compte.
   const followups = await call("commercial_appointment_followups");
+  // Demandes de visite échues : libérées pour tous, ou gardées par qui a avancé.
+  const visitRequests = await releaseRequests(admin);
   const optionReminders = await remindOptions(admin);
   const finalStatements = await remindFinalStatements(admin);
   const pushed = await pushMorning(admin);
@@ -51,6 +54,7 @@ export async function runDaily(admin: Admin) {
     statementDrafts,
     urssafReminders,
     followups,
+    visitRequests,
     optionReminders,
     finalStatements,
     pushed,

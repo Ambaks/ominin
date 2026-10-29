@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { MapCanvas } from "@/components/admin/carte/map-canvas";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
+import { useToast } from "@/components/ui/toast";
 import { STATUS_MAP_COLORS } from "@/lib/admin/status";
 import type { GeoPoint, LeadLite, LeadStatus } from "@/lib/admin/types";
 import { MAPS_DIRECTIONS_BASE } from "@/lib/collect/shared";
@@ -60,7 +61,32 @@ function stateLabel(place: api.MapRestaurant): string {
   return "Libre";
 }
 
-function RestaurantCard({ place }: { place: api.MapRestaurant }) {
+/* Un restaurant suivi par un autre commercial : la demande part dans #demandes, il accepte ou refuse. */
+function RequestVisit({ place, onSent }: { place: api.MapRestaurant; onSent: () => void }) {
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  if (place.requested) return <p className="text-sm text-muted">Demande envoyée à {place.holder}.</p>;
+  const send = async () => {
+    setBusy(true);
+    const response = await fetch("/api/commercial/demande", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ restaurantId: place.id }),
+    });
+    const result = (await response.json().catch(() => ({}))) as { error?: string };
+    setBusy(false);
+    if (!response.ok) return toast.error(result.error ?? "Demande impossible.");
+    toast.success(`Demande envoyée à ${place.holder}.`);
+    onSent();
+  };
+  return (
+    <button type="button" disabled={busy} onClick={() => void send()} className={primaryButton}>
+      Demander une visite
+    </button>
+  );
+}
+
+function RestaurantCard({ place, onChange }: { place: api.MapRestaurant; onChange: () => void }) {
   const directions = `${MAPS_DIRECTIONS_BASE}&destination=${place.latitude},${place.longitude}`;
   return (
     <div className={`${cardClass} flex w-full flex-col gap-3 shadow-lg lg:w-72`}>
@@ -81,6 +107,7 @@ function RestaurantCard({ place }: { place: api.MapRestaurant }) {
           Je suis là
         </Link>
       )}
+      {place.state === "visited" && !place.mine && <RequestVisit place={place} onSent={onChange} />}
       <div className="flex gap-2">
         <a href={directions} target="_blank" rel="noopener" className={`${ghostButton} flex-1`}>
           Itinéraire
@@ -181,7 +208,7 @@ export function MapScreen() {
           selected={current}
           onSelect={setSelected}
           myPosition={position}
-          renderCard={() => place && <RestaurantCard place={place} />}
+          renderCard={() => place && <RestaurantCard place={place} onChange={() => void load()} />}
         />
       </div>
       <button

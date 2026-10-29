@@ -375,6 +375,8 @@ export interface MapRestaurant {
   holder: string | null;
   mine: boolean;
   contacted_by_lea: boolean;
+  /** Le commercial a une demande de visite ouverte sur ce restaurant. */
+  requested: boolean;
 }
 
 export const mapRestaurants = () => call<MapRestaurant[]>(db().rpc("commercial_map"));

@@ -29,20 +29,66 @@ const CHANNELS = {
 
 export type DiscordChannel = keyof typeof CHANNELS;
 
+/** Un bouton de message ; son custom_id revient dans l'interaction au clic. */
+export interface DiscordButton {
+  label: string;
+  customId: string;
+  style: "success" | "secondary";
+}
+
+/* Le format des boutons que lit Discord : une rangée, styles 3 (vert) et 2 (gris). */
+const components = (buttons: DiscordButton[]) =>
+  buttons.length
+    ? [{ type: 1, components: buttons.map((button) => ({ type: 2, label: button.label, custom_id: button.customId, style: button.style === "success" ? 3 : 2 })) }]
+    : [];
+
+function channelId(channel: DiscordChannel): string {
+  const id = process.env[CHANNELS[channel]];
+  if (!id) throw new Error(`${CHANNELS[channel]} manquant.`);
+  return id;
+}
+
 /**
- * Poste un message dans un salon. Seuls les membres listés dans `mentions`
- * sont notifiés, même si le texte en cite d'autres.
+ * Poste un message dans un salon et rend son identifiant. Seuls les membres
+ * listés dans `mentions` sont notifiés, même si le texte en cite d'autres.
  */
-export async function postDiscord(channel: DiscordChannel, content: string, mentions: string[] = []): Promise<void> {
+export async function postDiscord(
+  channel: DiscordChannel,
+  content: string,
+  { mentions = [], buttons = [] }: { mentions?: string[]; buttons?: DiscordButton[] } = {}
+): Promise<string> {
   const { token } = discordConfig();
-  const channelId = process.env[CHANNELS[channel]];
-  if (!channelId) throw new Error(`${CHANNELS[channel]} manquant.`);
-  const response = await fetch(`${DISCORD_API}/channels/${channelId}/messages`, {
+  const response = await fetch(`${DISCORD_API}/channels/${channelId(channel)}/messages`, {
     method: "POST",
     headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ content, allowed_mentions: { users: mentions } }),
+    body: JSON.stringify({ content, allowed_mentions: { users: mentions }, components: components(buttons) }),
   });
   if (!response.ok) throw new Error(`Discord a répondu ${response.status}.`);
+  return ((await response.json()) as { id: string }).id;
+}
+
+/** Réécrit un message du bot : son texte, sans boutons. */
+export async function editDiscord(channel: DiscordChannel, messageId: string, content: string): Promise<void> {
+  const { token } = discordConfig();
+  const response = await fetch(`${DISCORD_API}/channels/${channelId(channel)}/messages/${messageId}`, {
+    method: "PATCH",
+    headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ content, allowed_mentions: { users: [] }, components: [] }),
+  });
+  if (!response.ok) throw new Error(`Discord a répondu ${response.status}.`);
+}
+
+/**
+ * Vérifie qu'une interaction (un clic sur un bouton) vient bien de Discord :
+ * signature Ed25519 de l'horodatage et du corps, avec la clé publique de
+ * l'application.
+ */
+export async function verifyInteraction(signature: string | null, timestamp: string | null, body: string): Promise<boolean> {
+  const publicKey = process.env.DISCORD_PUBLIC_KEY;
+  if (!publicKey || !signature || !timestamp) return false;
+  const hex = (value: string) => Uint8Array.from(value.match(/../g) ?? [], (byte) => parseInt(byte, 16));
+  const key = await crypto.subtle.importKey("raw", hex(publicKey), { name: "Ed25519" }, false, ["verify"]);
+  return crypto.subtle.verify("Ed25519", key, hex(signature), new TextEncoder().encode(timestamp + body));
 }
 
 /** Les membres humains du serveur, pour relier chaque commercial à son compte. */

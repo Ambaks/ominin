@@ -211,7 +211,7 @@ export async function finishSignup(admin: Admin, signup: Signup, progress: Signu
     ...(answers ? [...describeAnswers(answers).map(([label, value]) => `• ${label} : ${value}`), ...compose(answers).notes.map((note) => `• ${note.text}`)] : []),
   ].join("\n");
 
-  const posts: Promise<void>[] = [postDiscord("inscriptions", details)];
+  const posts: Promise<unknown>[] = [postDiscord("inscriptions", details)];
   posts.push(
     complete
       ? postDiscord("victoires", `🎉 **${restaurant}** a signé avec ${commercial}. Bravo !`)

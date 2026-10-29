@@ -2218,6 +2218,61 @@ export type Database = {
           },
         ]
       }
+      commercial_visit_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          discord_message_id: string | null
+          holder_id: string
+          id: string
+          requester_id: string
+          restaurant_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          discord_message_id?: string | null
+          holder_id: string
+          id?: string
+          requester_id: string
+          restaurant_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          discord_message_id?: string | null
+          holder_id?: string
+          id?: string
+          requester_id?: string
+          restaurant_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_visit_requests_holder_id_fkey"
+            columns: ["holder_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_visit_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_visit_requests_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commercial_visits: {
         Row: {
           commercial_id: string
@@ -7696,6 +7751,10 @@ export type Database = {
         Args: { p_kind: string; p_path: string }
         Returns: undefined
       }
+      commercial_answer_request: {
+        Args: { p_accept: boolean; p_discord_user: string; p_request: string }
+        Returns: undefined
+      }
       commercial_appointment: { Args: { p_appointment: string }; Returns: Json }
       commercial_appointment_followups: { Args: never; Returns: number }
       commercial_appointment_upsert: {
@@ -7932,6 +7991,7 @@ export type Database = {
           mine: boolean
           name: string
           phone: string
+          requested: boolean
           state: string
         }[]
       }
@@ -8077,6 +8137,11 @@ export type Database = {
         Returns: Database["public"]["Enums"]["commercial_refusal_reason"]
       }
       commercial_release_ended: { Args: never; Returns: number }
+      commercial_release_requests: {
+        Args: never
+        Returns: { discord_message_id: string; id: string; status: string }[]
+      }
+      commercial_request_visit: { Args: { p_restaurant: string }; Returns: string }
       commercial_request_demo: {
         Args: { p_declaration: string; p_note: string; p_photos: string[] }
         Returns: string
