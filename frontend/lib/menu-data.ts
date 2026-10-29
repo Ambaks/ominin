@@ -10560,7 +10560,7 @@ const restaurants: Record<string, Restaurant> = withDemoAllergens({
 });
 
 /** La démo d'Ominin Club (scripts/club-demo.ts), servie en direct par la scène de L'Étoile. */
-const ETOILE_LIVE_SLUG = "l-etoile-demo";
+export const ETOILE_LIVE_SLUG = "l-etoile-demo";
 
 /** Classe de thème CSS par établissement (voir globals.css) : habille le
  * menu public et les démos aux couleurs du restaurant. Absente ⇒ thème

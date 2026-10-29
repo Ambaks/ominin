@@ -68,7 +68,7 @@ export function VisitScreen({ place }: { place: MapRestaurant }) {
           <FieldGroup label="Le deck, selon l’établissement" hint="À montrer au gérant, même sans réseau une fois ouvert.">
             <div className="grid grid-cols-3 gap-2">
               {SIGNUP_KINDS.map((kind) => (
-                <a key={kind.id} href={spaceHref(`/ressources/decks/${kind.id}`)} className={ghostButton}>
+                <a key={kind.id} href={spaceHref(`/ressources/decks/${kind.id}?restaurant=${place.id}`)} className={ghostButton}>
                   {kind.label}
                 </a>
               ))}
