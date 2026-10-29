@@ -1869,6 +1869,39 @@ export type Database = {
           },
         ]
       }
+      commercial_holds: {
+        Row: {
+          commercial_id: string
+          restaurant_id: string
+          since: string
+        }
+        Insert: {
+          commercial_id: string
+          restaurant_id: string
+          since?: string
+        }
+        Update: {
+          commercial_id?: string
+          restaurant_id?: string
+          since?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_holds_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_holds_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: true
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commercial_push_subscriptions: {
         Row: {
           auth: string
@@ -1947,6 +1980,7 @@ export type Database = {
           expiry_warning_days: number | null
           final_statement_days: number
           followup_days: number[] | null
+          guide_url: string | null
           id: boolean
           in_talks_days: number | null
           kit_demo_slugs: string[]
@@ -1967,6 +2001,7 @@ export type Database = {
           updated_at: string
           urssaf_interval_months: number
           urssaf_threshold_cents: number
+          visit_request_days: number | null
         }
         Insert: {
           club_fees_included?: boolean | null
@@ -1981,6 +2016,7 @@ export type Database = {
           expiry_warning_days?: number | null
           final_statement_days: number
           followup_days?: number[] | null
+          guide_url?: string | null
           id?: boolean
           in_talks_days?: number | null
           kit_demo_slugs?: string[]
@@ -2001,6 +2037,7 @@ export type Database = {
           updated_at?: string
           urssaf_interval_months: number
           urssaf_threshold_cents: number
+          visit_request_days?: number | null
         }
         Update: {
           club_fees_included?: boolean | null
@@ -2015,6 +2052,7 @@ export type Database = {
           expiry_warning_days?: number | null
           final_statement_days?: number
           followup_days?: number[] | null
+          guide_url?: string | null
           id?: boolean
           in_talks_days?: number | null
           kit_demo_slugs?: string[]
@@ -2035,8 +2073,79 @@ export type Database = {
           updated_at?: string
           urssaf_interval_months?: number
           urssaf_threshold_cents?: number
+          visit_request_days?: number | null
         }
         Relationships: []
+      }
+      commercial_signups: {
+        Row: {
+          commercial_id: string
+          created_at: string
+          etablissement_id: string | null
+          finished_at: string | null
+          hubrise_later: boolean
+          id: string
+          kind: string | null
+          manager_email: string | null
+          manager_name: string | null
+          manager_phone: string | null
+          photos: string[]
+          restaurant_id: string
+          stripe_later: boolean
+        }
+        Insert: {
+          commercial_id: string
+          created_at?: string
+          etablissement_id?: string | null
+          finished_at?: string | null
+          hubrise_later?: boolean
+          id?: string
+          kind?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          photos?: string[]
+          restaurant_id: string
+          stripe_later?: boolean
+        }
+        Update: {
+          commercial_id?: string
+          created_at?: string
+          etablissement_id?: string | null
+          finished_at?: string | null
+          hubrise_later?: boolean
+          id?: string
+          kind?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          photos?: string[]
+          restaurant_id?: string
+          stripe_later?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_signups_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_signups_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_signups_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       commercial_statements: {
         Row: {
@@ -2109,9 +2218,119 @@ export type Database = {
           },
         ]
       }
+      commercial_visit_requests: {
+        Row: {
+          created_at: string
+          decided_at: string | null
+          discord_message_id: string | null
+          holder_id: string
+          id: string
+          requester_id: string
+          restaurant_id: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          decided_at?: string | null
+          discord_message_id?: string | null
+          holder_id: string
+          id?: string
+          requester_id: string
+          restaurant_id: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          decided_at?: string | null
+          discord_message_id?: string | null
+          holder_id?: string
+          id?: string
+          requester_id?: string
+          restaurant_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_visit_requests_holder_id_fkey"
+            columns: ["holder_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_visit_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_visit_requests_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      commercial_visits: {
+        Row: {
+          commercial_id: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          note: string | null
+          outcome: string
+          reason: string | null
+          restaurant_id: string
+        }
+        Insert: {
+          commercial_id: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          outcome: string
+          reason?: string | null
+          restaurant_id: string
+        }
+        Update: {
+          commercial_id?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          outcome?: string
+          reason?: string | null
+          restaurant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_visits_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_visits_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commerciaux: {
         Row: {
           address: string | null
+          discord_user_id: string | null
           email: string
           end_reason: string | null
           ended_at: string | null
@@ -2129,6 +2348,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          discord_user_id?: string | null
           email: string
           end_reason?: string | null
           ended_at?: string | null
@@ -2146,6 +2366,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          discord_user_id?: string | null
           email?: string
           end_reason?: string | null
           ended_at?: string | null
@@ -7530,6 +7751,10 @@ export type Database = {
         Args: { p_kind: string; p_path: string }
         Returns: undefined
       }
+      commercial_answer_request: {
+        Args: { p_accept: boolean; p_discord_user: string; p_request: string }
+        Returns: undefined
+      }
       commercial_appointment: { Args: { p_appointment: string }; Returns: Json }
       commercial_appointment_followups: { Args: never; Returns: number }
       commercial_appointment_upsert: {
@@ -7726,6 +7951,7 @@ export type Database = {
         Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
         Returns: string
       }
+      commercial_guide_url: { Args: never; Returns: string }
       commercial_in_service: {
         Args: {
           p_declared_at: string
@@ -7751,10 +7977,29 @@ export type Database = {
         }
         Returns: string
       }
+      commercial_map: {
+        Args: { p_restaurant?: string }
+        Returns: {
+          address: string
+          city: string
+          contacted_by_lea: boolean
+          google_maps_url: string
+          holder: string
+          id: string
+          latitude: number
+          longitude: number
+          mine: boolean
+          name: string
+          phone: string
+          requested: boolean
+          state: string
+        }[]
+      }
       commercial_me: {
         Args: { p_need: string }
         Returns: {
           address: string | null
+          discord_user_id: string | null
           email: string
           end_reason: string | null
           ended_at: string | null
@@ -7892,6 +8137,11 @@ export type Database = {
         Returns: Database["public"]["Enums"]["commercial_refusal_reason"]
       }
       commercial_release_ended: { Args: never; Returns: number }
+      commercial_release_requests: {
+        Args: never
+        Returns: { discord_message_id: string; id: string; status: string }[]
+      }
+      commercial_request_visit: { Args: { p_restaurant: string }; Returns: string }
       commercial_request_demo: {
         Args: { p_declaration: string; p_note: string; p_photos: string[] }
         Returns: string
@@ -7942,6 +8192,7 @@ export type Database = {
         Args: { p_declaration: string }
         Returns: string
       }
+      commercial_start_signup: { Args: { p_restaurant: string }; Returns: string }
       commercial_state: {
         Args: {
           p_commercial: string
@@ -7977,6 +8228,7 @@ export type Database = {
       }
       commercial_urssaf_reminders: { Args: never; Returns: number }
       commercial_version_in_force: { Args: never; Returns: string }
+      commercial_visit: { Args: { p: Json; p_restaurant: string }; Returns: string }
       contribuer_bulle: {
         Args: {
           p_email: string

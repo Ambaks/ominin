@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
-import { CalendarIcon, PresentationIcon, StoreIcon } from "@/components/admin/icons";
-import { PaymentsIcon, TeamIcon } from "@/components/gestion/icons";
+import { MapPinIcon, PresentationIcon } from "@/components/admin/icons";
+import { PaymentsIcon } from "@/components/gestion/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import type { CommercialAccount } from "@/lib/commercial/api";
@@ -34,10 +34,8 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
-  { path: "", label: "Aujourd’hui", icon: CalendarIcon },
-  { path: "/restaurants", label: "Restaurants", icon: StoreIcon },
-  { path: "/kit", label: "Kit", icon: PresentationIcon },
-  { path: "/clients", label: "Clients", icon: TeamIcon },
+  { path: "/carte", label: "Carte", icon: MapPinIcon },
+  { path: "/ressources", label: "Ressources", icon: PresentationIcon },
   { path: "/argent", label: "Argent", icon: PaymentsIcon, afterEnd: true },
 ];
 
@@ -82,7 +80,7 @@ export function SpaceShell({
 
   const isActive = (tab: Tab) => {
     const href = spaceHref(tab.path);
-    return tab.path === "" ? pathname === href : pathname === href || pathname.startsWith(`${href}/`);
+    return pathname === href || pathname.startsWith(`${href}/`);
   };
 
   return (

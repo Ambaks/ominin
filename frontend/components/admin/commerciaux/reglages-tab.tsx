@@ -1,102 +1,63 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { RestaurantPicker } from "@/components/admin/restaurant-picker";
 import { EmptyState } from "@/components/ui/empty-state";
 import { inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
-import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
-  deckUploaded,
-  fetchClientPlaces,
+  fetchCommerciaux,
+  fetchDiscordMembers,
   fetchSettings,
-  linkClient,
+  setDiscordMember,
   updateSettings,
-  uploadDeck,
-  type ClientPlace,
+  type CommercialRow,
   type CommercialSettings,
 } from "@/lib/admin/commerciaux";
-import { formatDate } from "@/lib/admin/format";
-import { useProjet } from "@/lib/admin/projet";
-import type { LeadLite } from "@/lib/admin/types";
-import { GHOST_BUTTON } from "./commerciaux-tab";
+import type { DiscordMember } from "@/lib/discord";
 
-type NumericKey = {
-  [K in keyof CommercialSettings]: CommercialSettings[K] extends number | null ? K : never;
-}[keyof CommercialSettings];
+type Key = "commission_percent" | "term_months" | "visit_request_days";
 
-/*
- * Réglages saisis par l'admin (13.2 n° 15) : aucune valeur n'est écrite dans
- * le code. Vide, une règle est désactivée ; celles qui ne peuvent pas l'être
- * sont signalées « à remplir avant la première invitation ».
- */
-const EDITABLE: { key: NumericKey; label: string; unit: string; empty: string; required?: boolean }[] = [
-  { key: "declaration_cap", label: "Plafond de déclarations actives", unit: "par commercial", empty: "pas de plafond" },
-  { key: "cooldown_days", label: "Carence après un abandon ou une expiration", unit: "jours", empty: "pas de carence" },
-  { key: "in_talks_days", label: "« En discussion » après une réponse ou une action d’un fondateur", unit: "jours", empty: "règle désactivée" },
-  { key: "search_max_results", label: "Résultats par recherche", unit: "restaurants", empty: "recherche fermée", required: true },
-  { key: "search_daily_quota", label: "Recherches par jour", unit: "par commercial", empty: "sans quota" },
-  { key: "places_daily_quota", label: "Recherches Google par jour", unit: "par commercial", empty: "Google désactivé" },
-  { key: "retained_note_max_chars", label: "Précision de la fiche retenue", unit: "caractères", empty: "sans limite" },
-  { key: "expiry_warning_days", label: "Prévenir avant l’expiration d’une réservation", unit: "jours", empty: "pas d’alerte" },
-  { key: "option_reminder_days", label: "Rappel de l’option avant l’échéance du contrat", unit: "jours", empty: "pas de rappel" },
-  { key: "signup_link_days", label: "Validité d’un lien d’inscription", unit: "jours", empty: "liens fermés", required: true },
-  { key: "nearby_radius_m", label: "Rayon de « Autour de moi »", unit: "mètres", empty: "carte fermée", required: true },
-  { key: "name_similarity", label: "Similarité de nom (alerte « déjà client ? », inscription à vérifier)", unit: "entre 0 et 1", empty: "liens d’inscription fermés", required: true },
+/* Les seuls réglages de l'espace commercial, saisis par l'admin : aucune valeur n'est écrite dans le code. */
+const FIELDS: { key: Key; label: string; unit: string; hint: string; required: boolean }[] = [
+  { key: "commission_percent", label: "Commission", unit: "%", hint: "Part de ce qu’Ominin gagne sur chaque restaurant signé.", required: true },
+  { key: "term_months", label: "Durée de la commission", unit: "mois", hint: "À partir de l’inscription de chaque restaurant.", required: true },
+  {
+    key: "visit_request_days",
+    label: "Délai d’une demande de visite",
+    unit: "jours",
+    hint: "Sans réponse, ou refusée sans que le restaurant avance, il est libéré pour tous. Vide : jamais libéré.",
+    required: false,
+  },
 ];
-
-const CONTRACT: { key: keyof CommercialSettings; label: string; unit: string }[] = [
-  { key: "confirm_days", label: "Délai de confirmation", unit: "jours" },
-  { key: "sign_window_months", label: "Fenêtre de signature", unit: "mois" },
-  { key: "commission_percent", label: "Commission", unit: "%" },
-  { key: "term_months", label: "Durée du contrat et de la commission par restaurant", unit: "mois" },
-  { key: "option_years", label: "Option de prolongation", unit: "ans" },
-  { key: "notice_months", label: "Préavis de résiliation", unit: "mois" },
-  { key: "statement_before_day", label: "Relevé avant le", unit: "du mois" },
-  { key: "payment_days", label: "Paiement après la facture", unit: "jours" },
-  { key: "contest_months", label: "Contestation d’un relevé", unit: "mois" },
-];
-
-const list = (value: string) =>
-  value
-    .split(/[\s,]+/)
-    .map((entry) => entry.trim())
-    .filter(Boolean);
 
 function SettingsForm() {
   const toast = useToast();
-  const [settings, setSettings] = useState<CommercialSettings | null>(null);
-  const [draft, setDraft] = useState<Record<string, string>>({});
-  const [demos, setDemos] = useState("");
-  const [followups, setFollowups] = useState("");
-  const [prices, setPrices] = useState("");
-  const [club, setClub] = useState<"" | "oui" | "non">("");
+  const [draft, setDraft] = useState<Record<Key, string> | null>(null);
+  const [guide, setGuide] = useState("");
 
   const load = useCallback(
     () =>
-      fetchSettings().then((loaded) => {
-        setSettings(loaded);
-        setDraft(Object.fromEntries(EDITABLE.map(({ key }) => [key, loaded[key]?.toString() ?? ""])));
-        setDemos(loaded.kit_demo_slugs.join(", "));
-        setFollowups((loaded.followup_days ?? []).join(", "));
-        setPrices(loaded.eligible_stripe_prices.join(", "));
-        setClub(loaded.club_fees_included === null ? "" : loaded.club_fees_included ? "oui" : "non");
+      fetchSettings().then((settings: CommercialSettings) => {
+        setDraft(Object.fromEntries(FIELDS.map(({ key }) => [key, settings[key]?.toString() ?? ""])) as Record<Key, string>);
+        setGuide(settings.guide_url ?? "");
       }),
     []
   );
   useEffect(() => void load(), [load]);
 
-  if (!settings) return <div aria-busy className="shimmer h-60 rounded-2xl" />;
+  if (!draft) return <div aria-busy className="shimmer h-48 rounded-2xl" />;
+
+  const incomplete = FIELDS.some(({ key, required }) => required && draft[key] === "");
 
   const save = async () => {
+    if (guide.trim() && !guide.trim().startsWith("https://")) {
+      toast.error("Le lien du guide doit commencer par https://");
+      return;
+    }
     try {
       await updateSettings({
-        ...Object.fromEntries(EDITABLE.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])),
-        kit_demo_slugs: list(demos),
-        followup_days: list(followups).length ? [...new Set(list(followups).map(Number))].sort((a, b) => a - b) : null,
-        eligible_stripe_prices: list(prices),
-        club_fees_included: club === "" ? null : club === "oui",
+        ...Object.fromEntries(FIELDS.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])),
+        guide_url: guide.trim() || null,
       });
       toast.success("Réglages enregistrés.");
       await load();
@@ -105,216 +66,119 @@ function SettingsForm() {
     }
   };
 
-  const missing = EDITABLE.filter(({ key, required }) => required && settings[key] === null);
-
   return (
     <section className="flex flex-col gap-4">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Réglages de l’espace</h2>
-      {missing.length > 0 && (
-        <p className="rounded-xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm text-ember-3">
-          À remplir avant la première invitation : {missing.map(({ label }) => label.toLowerCase()).join(", ")}.
-        </p>
-      )}
+      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Espace des commerciaux</h2>
       <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
-        {EDITABLE.map(({ key, label, unit, empty, required }) => (
-          <li key={key} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+        {FIELDS.map(({ key, label, unit, hint, required }) => (
+          <li key={key} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <label htmlFor={`setting-${key}`} className="min-w-0 flex-1 text-sm">
               {label}
               {required && <span className="text-ember-2"> *</span>}
-              <span className="block text-xs text-faint">
-                {unit} · vide : {empty}
-              </span>
+              <span className="block text-xs text-faint">{hint}</span>
             </label>
-            <input
-              id={`setting-${key}`}
-              type="number"
-              step={key === "name_similarity" ? "any" : 1}
-              min={0}
-              value={draft[key] ?? ""}
-              onChange={(event) => setDraft({ ...draft, [key]: event.target.value })}
-              className={`${inputClass} w-32`}
-            />
+            <span className="flex items-center gap-2 text-sm text-muted">
+              <input
+                id={`setting-${key}`}
+                type="number"
+                step={key === "commission_percent" ? "any" : 1}
+                min={0}
+                value={draft[key]}
+                onChange={(event) => setDraft({ ...draft, [key]: event.target.value })}
+                className={`${inputClass} w-28`}
+              />
+              {unit}
+            </span>
           </li>
         ))}
         <li className="flex flex-col gap-2 px-4 py-3">
-          <label htmlFor="setting-followups" className="text-sm">
-            Relances après un rendez-vous
+          <label htmlFor="setting-guide" className="text-sm">
+            Guide de vente
             <span className="block text-xs text-faint">
-              Jours après le rendez-vous, séparés par des virgules (décision du 27/10 : 1, 7, 14). Vide : pas de relance.
+              Lien du message Discord qui le contient (clic droit sur le message, « Copier le lien du message »). Ouvert depuis la page
+              Ressources des commerciaux.
             </span>
           </label>
-          <input id="setting-followups" value={followups} onChange={(event) => setFollowups(event.target.value)} inputMode="numeric" className={inputClass} />
-        </li>
-        <li className="flex flex-col gap-2 px-4 py-3">
-          <label htmlFor="setting-demos" className="text-sm">
-            Démos du Kit
-            <span className="block text-xs text-faint">
-              Slugs de /menu/demo, séparés par des virgules ; la démo Ominin est toujours proposée.
-            </span>
-          </label>
-          <input id="setting-demos" value={demos} onChange={(event) => setDemos(event.target.value)} className={inputClass} />
-        </li>
-        <li className="flex flex-col gap-2 px-4 py-3">
-          <label htmlFor="setting-prices" className="text-sm">
-            Prix Stripe dans l’assiette des commerciaux
-            <span className="block text-xs text-faint">
-              Identifiants price_… des abonnements et commissions facturées (décision n° 5), séparés par des virgules.
-              Vide : aucune facture ne compte. Le matériel de la commande de démarrage n’y entre jamais.
-            </span>
-          </label>
-          <input id="setting-prices" value={prices} onChange={(event) => setPrices(event.target.value)} className={inputClass} />
-        </li>
-        <li className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-          <label htmlFor="setting-club" className="min-w-0 flex-1 text-sm">
-            Frais des réservations Club dans l’assiette
-            <span className="block text-xs text-faint">Décision n° 2 : payés par les clients du club. Vide : exclus, à décider.</span>
-          </label>
-          <select
-            id="setting-club"
-            value={club}
-            onChange={(event) => setClub(event.target.value as "" | "oui" | "non")}
-            className={`${inputClass} w-40`}
-          >
-            <option value="">À décider</option>
-            <option value="oui">Inclus</option>
-            <option value="non">Exclus</option>
-          </select>
+          <input id="setting-guide" type="url" value={guide} onChange={(event) => setGuide(event.target.value)} placeholder="https://discord.com/channels/…" className={inputClass} />
         </li>
       </ul>
-      <button type="button" onClick={() => void save()} className="ember-gradient self-start rounded-full px-5 py-2.5 text-sm font-semibold text-background">
-        Enregistrer les réglages
+      <button
+        type="button"
+        disabled={incomplete}
+        onClick={() => void save()}
+        className="ember-gradient self-start rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+      >
+        Enregistrer
       </button>
-      <details className="rounded-2xl border border-hairline bg-surface px-4 py-3 text-sm">
-        <summary className="cursor-pointer font-medium">Valeurs du contrat (lib/legal/constants.ts)</summary>
-        <ul className="mt-3 flex flex-col gap-1 text-muted">
-          {CONTRACT.map(({ key, label, unit }) => (
-            <li key={key}>
-              {label} : <span className="text-foreground">{String(settings[key])}</span> {unit}
-            </li>
-          ))}
-        </ul>
-        <p className="mt-2 text-xs text-faint">Elles changent avec une nouvelle version du contrat, par migration.</p>
-      </details>
-    </section>
-  );
-}
-
-function Deck() {
-  const toast = useToast();
-  const [present, setPresent] = useState<boolean | null>(null);
-  useEffect(() => {
-    void deckUploaded().then(setPresent);
-  }, []);
-  return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Deck du Kit</h2>
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-hairline bg-surface p-4 text-sm">
-        <span className="flex-1">
-          {present === null ? "…" : present ? "Deck déposé : les commerciaux le voient dans leur Kit." : "Aucun deck déposé."}
-        </span>
-        <label className={`${GHOST_BUTTON} cursor-pointer`}>
-          {present ? "Remplacer (PDF)" : "Déposer (PDF)"}
-          <input
-            type="file"
-            accept="application/pdf"
-            className="sr-only"
-            onChange={(event) => {
-              const file = event.target.files?.[0];
-              if (!file) return;
-              void uploadDeck(file).then(
-                () => {
-                  setPresent(true);
-                  toast.success("Deck déposé.");
-                },
-                (cause: unknown) => toast.error(cause instanceof Error ? cause.message : "Dépôt impossible.")
-              );
-            }}
-          />
-        </label>
-      </div>
     </section>
   );
 }
 
 /*
- * Rattachement (4.1, 13.2 n° 5) : avant toute invitation, chaque client en
- * service a sa fiche, et chaque client du Projet est relié à la sienne —
- * sinon un commercial pourrait déclarer un restaurant déjà client.
+ * Le compte Discord que le site mentionne pour chaque commercial. Un membre
+ * déjà relié à un autre commercial n'est pas proposé.
  */
-function Rattachement() {
+function DiscordAccounts() {
   const toast = useToast();
-  const { basePath } = useAdminBasePath();
-  const { data: projet } = useProjet();
-  const [places, setPlaces] = useState<ClientPlace[] | null>(null);
-  const [picking, setPicking] = useState<string | null>(null);
+  const [rows, setRows] = useState<CommercialRow[] | null>(null);
+  const [members, setMembers] = useState<DiscordMember[] | string | null>(null);
 
-  const load = useCallback(() => fetchClientPlaces().then(setPlaces), []);
-  useEffect(() => void load(), [load]);
+  const load = useCallback(() => fetchCommerciaux().then(setRows), []);
+  useEffect(() => {
+    void load();
+    void fetchDiscordMembers().then(setMembers, (reason: unknown) =>
+      setMembers(reason instanceof Error ? reason.message : "Membres Discord illisibles.")
+    );
+  }, [load]);
 
-  const link = async (place: ClientPlace, lead: LeadLite | null) => {
+  const link = async (row: CommercialRow, discordUserId: string | null) => {
     try {
-      await linkClient(lead?.restaurantId ?? null, place);
-      toast.success(lead ? `Relié à ${lead.name}.` : "Fiche créée et reliée.");
-      setPicking(null);
-      await load();
+      await setDiscordMember(row.id, discordUserId);
+      toast.success(discordUserId ? "Compte Discord relié." : "Compte Discord retiré.");
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : "Une erreur est survenue.");
     }
+    await load();
   };
 
-  if (!places) return <div aria-busy className="shimmer h-40 rounded-2xl" />;
-  const unlinked = places.filter((place) => !place.restaurant_id);
-  const projetUnlinked = (projet?.clients ?? []).filter((client) => !client.restaurant_id);
-
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-        Rattachement des clients ({places.length - unlinked.length}/{places.length} reliés)
-      </h2>
-      {unlinked.length === 0 && projetUnlinked.length === 0 ? (
-        <EmptyState title="Tout est relié" body="Chaque client en service et chaque client du Projet a sa fiche." />
+    <section className="flex flex-col gap-4">
+      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Comptes Discord</h2>
+      {typeof members === "string" && <p className="text-sm text-ember-3">{members}</p>}
+      {!rows ? (
+        <div aria-busy className="shimmer h-32 rounded-2xl" />
+      ) : rows.length === 0 ? (
+        <EmptyState title="Aucun commercial" body="Les commerciaux invités apparaissent ici, pour relier leur compte Discord." />
       ) : (
-        <ul className="flex flex-col gap-2">
-          {unlinked.map((place) => (
-            <li key={`${place.kind}:${place.id}`} className="flex flex-col gap-2 rounded-2xl border border-hairline bg-surface p-4 text-sm">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <span>
-                  <span className="font-medium">{place.name}</span>
-                  <span className="text-muted"> · {place.kind === "shop" ? "boutique" : "établissement"} sans fiche</span>
-                </span>
-                <span className="flex gap-2">
-                  <button type="button" onClick={() => setPicking(place.id)} className={GHOST_BUTTON}>
-                    Relier à une fiche
-                  </button>
-                  <button type="button" onClick={() => void link(place, null)} className={GHOST_BUTTON}>
-                    Créer sa fiche
-                  </button>
-                </span>
-              </div>
-              {picking === place.id && <RestaurantPicker value={null} onSelect={(lead) => lead && void link(place, lead)} />}
-            </li>
-          ))}
-          {projetUnlinked.map((client) => (
-            <li key={client.id} className="flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-hairline bg-surface p-4 text-sm">
-              <span>
-                <span className="font-medium">{client.name}</span>
-                <span className="text-muted"> · client du Projet sans fiche</span>
-              </span>
-              <Link href={`${basePath}/projet/${client.id}`} className={GHOST_BUTTON}>
-                Relier dans le Projet
-              </Link>
-            </li>
-          ))}
+        <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+          {rows.map((row) => {
+            const taken = new Set(rows.filter((other) => other.id !== row.id).map((other) => other.discordUserId));
+            return (
+              <li key={row.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <label htmlFor={`discord-${row.id}`} className="min-w-0 flex-1 truncate text-sm">
+                  {row.name ?? row.email}
+                </label>
+                <select
+                  id={`discord-${row.id}`}
+                  value={row.discordUserId ?? ""}
+                  disabled={!Array.isArray(members)}
+                  onChange={(event) => void link(row, event.target.value || null)}
+                  className={`${inputClass} w-64`}
+                >
+                  <option value="">Pas relié</option>
+                  {Array.isArray(members) &&
+                    members
+                      .filter((member) => !taken.has(member.id))
+                      .map((member) => (
+                        <option key={member.id} value={member.id}>
+                          {member.name === member.username ? member.name : `${member.name} (${member.username})`}
+                        </option>
+                      ))}
+                </select>
+              </li>
+            );
+          })}
         </ul>
-      )}
-      {places.some((place) => place.client_ended_at) && (
-        <p className="text-xs text-muted">
-          Partis :{" "}
-          {places
-            .filter((place) => place.client_ended_at)
-            .map((place) => `${place.name} (${formatDate(place.client_ended_at!)})`)
-            .join(", ")}
-        </p>
       )}
     </section>
   );
@@ -323,9 +187,8 @@ function Rattachement() {
 export function ReglagesTab() {
   return (
     <div className="flex flex-col gap-8">
-      <Rattachement />
       <SettingsForm />
-      <Deck />
+      <DiscordAccounts />
     </div>
   );
 }

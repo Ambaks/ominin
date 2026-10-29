@@ -186,9 +186,9 @@ export function RestaurantsScreen() {
         </button>
       </form>
 
-      <Link href={spaceHref("/restaurants/autour")} className={ghostButton}>
+      <Link href={spaceHref("/carte")} className={ghostButton}>
         <CrosshairIcon className="size-4" />
-        Autour de moi
+        Carte
       </Link>
 
       {searchError && <ErrorNote message={searchError} />}

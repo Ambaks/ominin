@@ -4,7 +4,7 @@ import { commercialAccount } from "@/lib/commercial/session";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
- * Le deck commercial déposé par l'admin (13.2 n° 4). Servi par cette route,
+ * Le deck montré au restaurateur, déposé dans le stockage. Servi par cette route,
  * sous l'espace, et non par une URL signée : le worker de l'espace le met en
  * cache tel quel pour le montrer hors ligne (public/commercial-sw.js). Ouvert
  * du contrat signé à sa fin, comme la policy « kit read » du stockage.

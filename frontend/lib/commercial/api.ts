@@ -61,7 +61,6 @@ export interface PublicRestaurant {
   phone: string | null;
   website: string | null;
   menu_url: string | null;
-  google_maps_url: string | null;
   instagram_url: string | null;
   email?: string | null;
   owner_name?: string | null;
@@ -362,18 +361,25 @@ export interface DemoRequest {
 export const demoRequests = (declarationId: string) =>
   call<DemoRequest[]>(db().rpc("commercial_demo_requests_of", { p_declaration: declarationId }));
 
-export interface NearbyRestaurant {
+/** commercial_map() : un restaurant de la carte et son état (migration 20261029000002). */
+export interface MapRestaurant {
   id: string;
   name: string;
   address: string | null;
+  city: string | null;
+  phone: string | null;
   latitude: number;
   longitude: number;
-  category: string;
-  state: RestaurantState;
+  state: "free" | "visited" | "client";
+  /** Prénom du commercial qui l'a visité. */
+  holder: string | null;
+  mine: boolean;
+  contacted_by_lea: boolean;
+  /** Le commercial a une demande de visite ouverte sur ce restaurant. */
+  requested: boolean;
 }
 
-export const nearby = (lat: number, lng: number) =>
-  call<NearbyRestaurant[]>(db().rpc("commercial_nearby", { p_lat: lat, p_lng: lng }));
+export const mapRestaurants = () => call<MapRestaurant[]>(db().rpc("commercial_map"));
 
 export type PushEventKey = "relance" | "demo" | "inscription" | "expiration" | "releve" | "opposition";
 
@@ -479,7 +485,6 @@ export interface GooglePlace {
   longitude: number | null;
   phone: string | null;
   website: string | null;
-  google_maps_url: string | null;
 }
 
 /** Recherche Google (route serveur, quota du jour du commercial). */

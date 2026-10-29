@@ -1,9 +1,6 @@
 import { NextResponse } from "next/server";
-import {
-  getStripe,
-  registerWalletDomains,
-  requireGerant,
-} from "@/lib/stripe/server";
+import { connectOnboardingLink, connectStatus } from "@/lib/stripe/connect";
+import { getStripe, requireGerant } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -11,7 +8,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * compte Express (l'argent des additions lui revient directement).
  * GET  → état du compte (rafraîchi depuis Stripe).
  * POST → crée le compte si besoin puis renvoie un lien d'onboarding.
- * La table payment_accounts n'est écrite que par la clé service.
  */
 
 export async function GET() {
@@ -19,25 +15,7 @@ export async function GET() {
   if ("error" in auth) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
-  const admin = createAdminClient();
-  const { data } = await admin
-    .from("payment_accounts")
-    .select("stripe_account_id, charges_enabled")
-    .eq("etablissement_id", auth.etablissementId)
-    .maybeSingle();
-  if (!data) return NextResponse.json({ connected: false, chargesEnabled: false });
-
-  // Rafraîchit charges_enabled depuis Stripe (l'onboarding vient d'avoir lieu).
-  const stripe = getStripe();
-  const account = await stripe.accounts.retrieve(data.stripe_account_id);
-  const chargesEnabled = Boolean(account.charges_enabled);
-  if (chargesEnabled !== data.charges_enabled) {
-    await admin
-      .from("payment_accounts")
-      .update({ charges_enabled: chargesEnabled, updated_at: new Date().toISOString() })
-      .eq("etablissement_id", auth.etablissementId);
-  }
-  return NextResponse.json({ connected: true, chargesEnabled });
+  return NextResponse.json(await connectStatus(createAdminClient(), getStripe(), auth.etablissementId));
 }
 
 export async function POST(request: Request) {
@@ -45,15 +23,6 @@ export async function POST(request: Request) {
   if ("error" in auth) {
     return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
-  const admin = createAdminClient();
-  const stripe = getStripe();
-
-  const { data: existing } = await admin
-    .from("payment_accounts")
-    .select("stripe_account_id")
-    .eq("etablissement_id", auth.etablissementId)
-    .maybeSingle();
-
   // Retour sur l'hôte qui a lancé l'onboarding : la session y est attachée
   // (l'espace de gestion est aussi servi par collect). request.url peut
   // porter le host interne (routage Vercel), d'où l'en-tête transmis.
@@ -64,49 +33,13 @@ export async function POST(request: Request) {
   // Un refus de Stripe doit remonter en clair dans le toast du gérant : un
   // 500 nu (corps non JSON) n'est pas lisible par le navigateur.
   try {
-    let accountId = existing?.stripe_account_id;
-    if (!accountId) {
-      // Le nom du restaurant, prérempli : le libellé du relevé bancaire en
-      // découle. Un compte de particulier laissé sans nom d'entreprise
-      // n'avait aucun libellé (Caffè Panis) : le client ne reconnaît pas le
-      // débit, et le conteste.
-      const { data: etab } = await admin
-        .from("etablissements")
-        .select("name")
-        .eq("id", auth.etablissementId)
-        .single();
-      const account = await stripe.accounts.create({
-        type: "express",
-        email: auth.email,
-        ...(etab && { business_profile: { name: etab.name } }),
-        metadata: { etablissement_id: auth.etablissementId },
-      });
-      accountId = account.id;
-      const { error } = await admin.from("payment_accounts").insert({
-        etablissement_id: auth.etablissementId,
-        stripe_account_id: accountId,
-      });
-      if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
-      }
-    }
-
-    // À chaque lien d'onboarding : un compte relié avant que le menu ne
-    // propose les portefeuilles se met à jour au passage. Un refus (domaine
-    // de dev, panne) n'empêche pas l'onboarding : la carte reste possible.
-    await registerWalletDomains(stripe, accountId).catch((error) =>
-      console.error("[stripe] domaines Apple Pay / Google Pay non enregistrés", {
-        accountId,
-        message: error instanceof Error ? error.message : String(error),
-      })
-    );
-    const link = await stripe.accountLinks.create({
-      account: accountId,
-      type: "account_onboarding",
-      refresh_url: `${origin}/gestion/etablissement?stripe=recommencer`,
-      return_url: `${origin}/gestion/etablissement?stripe=retour`,
+    const url = await connectOnboardingLink(createAdminClient(), getStripe(), {
+      etablissementId: auth.etablissementId,
+      email: auth.email,
+      refreshUrl: `${origin}/gestion/etablissement?stripe=recommencer`,
+      returnUrl: `${origin}/gestion/etablissement?stripe=retour`,
     });
-    return NextResponse.json({ url: link.url });
+    return NextResponse.json({ url });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[stripe] onboarding Express impossible", {

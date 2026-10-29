@@ -61,6 +61,16 @@ export function SubscriptionGate({
       .then(({ data }) => setSetup(data ? parseAnswers(data.answers) : null));
   }, [etablissementId]);
 
+  // Inscrit avec un commercial : rien à régler, l'équipe prépare le menu.
+  const [inCreation, setInCreation] = useState(false);
+  useEffect(() => {
+    createClient()
+      .from("commercial_signups")
+      .select("id")
+      .eq("etablissement_id", etablissementId)
+      .maybeSingle()
+      .then(({ data }) => setInCreation(data !== null));
+  }, [etablissementId]);
   useEffect(() => {
     if (!confirming) return;
     const timer = setInterval(
@@ -70,6 +80,19 @@ export function SubscriptionGate({
     return () => clearInterval(timer);
   }, [confirming]);
 
+  if (inCreation) {
+    return (
+      <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-4 py-16 text-center">
+        <span className="pop ember-gradient flex size-14 items-center justify-center rounded-full text-2xl text-background" aria-hidden>
+          ✦
+        </span>
+        <h1 className="font-display text-3xl font-medium tracking-tight">Votre menu est en création</h1>
+        <p className="max-w-md text-sm leading-relaxed text-muted">
+          Notre équipe prépare votre menu à partir de vos réponses. Votre espace s’ouvre dès qu’il est prêt.
+        </p>
+      </div>
+    );
+  }
   if (!confirming && !feeDue && offre && quotePlan(offre)) {
     return (
       <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
