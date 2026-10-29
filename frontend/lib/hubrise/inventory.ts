@@ -39,8 +39,10 @@ export async function pullInventory(admin: Admin, connection: Connection): Promi
     if (entry.option_ref) optionStock.set(entry.option_ref, stock);
   }
 
-  const itemRefs = (refs ?? []).filter((row) => row.target === "sku");
-  const optionRefs = (refs ?? []).filter((row) => row.target === "option");
+  // Le plat entier suit son SKU ; un choix (option, ou format relié à un SKU)
+  // ne se retire qu'à lui seul.
+  const itemRefs = (refs ?? []).filter((row) => row.target === "sku" && !row.choice_id);
+  const choiceRefs = (refs ?? []).filter((row) => row.choice_id);
 
   if (itemRefs.length) {
     const { data: items } = await admin
@@ -60,21 +62,22 @@ export async function pullInventory(admin: Admin, connection: Connection): Promi
     }
   }
 
-  if (optionRefs.length) {
+  if (choiceRefs.length) {
     const { data: items } = await admin
       .from("items")
       .select("id, options")
-      .in("id", [...new Set(optionRefs.map((row) => row.item_id))]);
+      .in("id", [...new Set(choiceRefs.map((row) => row.item_id))]);
     const groups = new Map(
       (items ?? []).map((item) => [item.id, item.options as unknown as OptionGroup[]])
     );
-    for (const row of optionRefs) {
+    for (const row of choiceRefs) {
       const choice = groups
         .get(row.item_id)
         ?.find((group) => group.id === row.group_id)
         ?.choices.find((candidate) => candidate.id === row.choice_id);
       if (!choice) continue;
-      const disponible = (optionStock.get(row.ref) ?? 1) > 0;
+      const stock = row.target === "sku" ? skuStock : optionStock;
+      const disponible = (stock.get(row.ref) ?? 1) > 0;
       if ((choice.disponible !== false) === disponible) continue;
       const { error } = await admin.rpc("hubrise_set_choice_disponible", {
         p_item: row.item_id,
