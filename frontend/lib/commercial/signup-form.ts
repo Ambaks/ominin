@@ -33,6 +33,9 @@ export interface SignupAccountInput {
 /** Le commercial suit l'inscription faite sur le téléphone du gérant : relecture de l'avancement. */
 export const SIGNUP_FOLLOW_POLL_MS = 5_000;
 
+/** Longueur minimale d'un mot de passe, celle de Supabase Auth. */
+export const PASSWORD_MIN_LENGTH = 6;
+
 export type LinkState = "done" | "later" | "todo";
 
 export interface SignupProgress {

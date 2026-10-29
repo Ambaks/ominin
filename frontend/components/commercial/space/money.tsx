@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
@@ -7,7 +8,7 @@ import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/commercial/api";
 import { euros, monthLabel } from "@/lib/commercial/labels";
 import { frenchDate } from "@/lib/legal/format";
-import { useAccount } from "./shell";
+import { spaceHref, useAccount } from "./shell";
 import { ErrorNote, PageTitle, SectionTitle, Skeleton, cardClass, errorMessage, ghostButton, primaryButton } from "./ui";
 
 const STATUS: Record<api.Statement["status"], string> = {
@@ -157,7 +158,13 @@ export function MoneyScreen() {
   const [data, setData] = useState<api.Money | null>(null);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(() => api.money().then(setData, (cause: unknown) => setError(errorMessage(cause))), []);
-  useEffect(() => void load(), [load]);
+  // Ce que rapportent les restaurants change en continu : relu à chaque retour sur l'écran.
+  useEffect(() => {
+    void load();
+    const refresh = () => document.visibilityState === "visible" && void load();
+    document.addEventListener("visibilitychange", refresh);
+    return () => document.removeEventListener("visibilitychange", refresh);
+  }, [load]);
 
   if (error) return <ErrorNote message={error} onRetry={() => void load()} />;
   if (!data) return <Skeleton />;
@@ -172,10 +179,10 @@ export function MoneyScreen() {
         <SectionTitle>Ce mois-ci, estimé</SectionTitle>
         <p className="font-display text-3xl">{euros(estimate)}</p>
         {data.estimate.lines.map((line) => (
-          <p key={line.client_id} className="flex justify-between gap-3 text-sm">
-            <span className="text-muted">{line.name}</span>
+          <Link key={line.client_id} href={spaceHref(`/restaurant/${line.restaurant_id}`)} className="flex justify-between gap-3 text-sm">
+            <span className="text-muted underline">{line.name}</span>
             <span>{euros(line.commission_cents)}</span>
-          </p>
+          </Link>
         ))}
         <p className="text-xs text-faint">
           {data.estimate.percent} % de ce qu’Ominin encaisse sur vos clients. Le relevé du mois fait foi.

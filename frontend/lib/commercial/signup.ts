@@ -11,7 +11,7 @@ import { menuSiteUrl } from "@/lib/site";
 import { connectStatus } from "@/lib/stripe/connect";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import type { Database, Json, Tables } from "@/lib/supabase/database.types";
-import { SIGNUP_KINDS, type LinkState, type SignupAccountInput, type SignupProgress } from "./signup-form";
+import { PASSWORD_MIN_LENGTH, SIGNUP_KINDS, type LinkState, type SignupAccountInput, type SignupProgress } from "./signup-form";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -96,7 +96,9 @@ export async function createSignupAccount(admin: Admin, signup: Signup, input: S
   if (signup.etablissement_id) throw new SignupError("Le compte de ce restaurant est déjà créé.", 409);
   const email = input.email.trim().toLowerCase();
   const name = input.name.trim();
-  if (!email || input.password.length < 6 || !name) throw new SignupError("E-mail, mot de passe (6 caractères au moins) et nom du restaurant sont obligatoires.", 400);
+  if (!email || input.password.length < PASSWORD_MIN_LENGTH || !name) {
+    throw new SignupError(`E-mail, mot de passe (${PASSWORD_MIN_LENGTH} caractères au moins) et nom du restaurant sont obligatoires.`, 400);
+  }
   if (!SIGNUP_KINDS.some((kind) => kind.id === input.kind)) throw new SignupError("Type d’établissement inconnu.", 400);
   if (!input.managerName.trim() || (!input.managerPhone.trim() && !input.managerEmail.trim())) {
     throw new SignupError("Le nom du responsable et son téléphone (ou son e-mail) sont obligatoires.", 400);

@@ -2,21 +2,24 @@ import { ShareLink } from "@/components/commercial/space/share-link";
 import { PageTitle, SectionTitle, cardClass, ghostButton } from "@/components/commercial/space/ui";
 import { DECKS } from "@/lib/commercial/decks";
 import { requireRunningContract } from "@/lib/commercial/session";
-import { LEGAL_PATHS } from "@/lib/legal/constants";
-import { collectOffer, pricingSection } from "@/lib/landing-data";
-import { DEMO_SLUG, formatPrice } from "@/lib/menu/format";
-import { shopOffer } from "@/lib/shop-landing-data";
+import { DEMO_SLUG } from "@/lib/menu/format";
 import { getRestaurant } from "@/lib/menu-data";
-import { collectSiteUrl, commercialPrefix, menuSiteUrl, shopSiteUrl, siteUrl } from "@/lib/site";
+import { commercialPrefix, menuSiteUrl } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+/** Les tutos du fondateur, dans public/commercial/tutos ; gardés hors ligne par public/commercial-sw.js. */
+const TUTOS = [
+  { name: "Tuto Stripe", file: "tuto-stripe.pdf", draft: false },
+  { name: "Tuto HubRise", file: "tuto-hubrise.pdf", draft: true },
+  { name: "Fiches caisses HubRise", file: "fiches-caisses-hubrise.pdf", draft: true },
+];
+
 /*
  * Ressources : ce que le commercial montre au gérant (les decks par type
- * d'établissement, le deck PDF, les démos, les offres telles que les
- * publient les pages publiques — il n'en promet pas d'autres, article 2.2)
- * et son guide de vente, réglé par l'admin.
+ * d'établissement, le deck PDF, les démos), son guide de vente, réglé par
+ * l'admin, et les tutos pour brancher Stripe et la caisse.
  */
 export default async function RessourcesPage() {
   const account = await requireRunningContract();
@@ -28,30 +31,6 @@ export default async function RessourcesPage() {
       const restaurant = getRestaurant(slug);
       return restaurant ? [{ name: restaurant.name, url: `${menuSiteUrl}/demo/${slug}` }] : [];
     }),
-  ];
-  const [connect] = pricingSection.plans;
-  const offers = [
-    {
-      name: `Menu · ${connect.name}`,
-      // Sans abonnement : la commission seule, pas « 0,00 €/mois ».
-      price: `${connect.price ? `${formatPrice(connect.price)}${pricingSection.perMonth} + ` : ""}${connect.commission!.percent} % ${connect.commission!.basis}`,
-      url: `${menuSiteUrl}#tarifs`,
-    },
-    {
-      name: `Collect · ${collectOffer.name}`,
-      price: `${collectOffer.price ? `${formatPrice(collectOffer.price)}${pricingSection.perMonth} + ` : ""}${collectOffer.commission.percent} % ${collectOffer.commission.basis}`,
-      url: collectSiteUrl,
-    },
-    {
-      name: collectOffer.bundle.name,
-      price: `${collectOffer.commission.percent} % à emporter, ${collectOffer.bundle.menuCommission.percent} % ${collectOffer.bundle.menuCommission.basis}`,
-      url: collectSiteUrl,
-    },
-    {
-      name: `Shop · ${shopOffer.name}`,
-      price: `${shopOffer.monthlyPrice ? `${formatPrice(shopOffer.monthlyPrice)}${pricingSection.perMonth} + ` : ""}${shopOffer.commissionPercent} % de chaque commande payée`,
-      url: shopSiteUrl,
-    },
   ];
 
   return (
@@ -105,34 +84,21 @@ export default async function RessourcesPage() {
       </section>
 
       <section className="flex flex-col gap-2.5">
-        <SectionTitle>Offres et prix en vigueur</SectionTitle>
+        <SectionTitle>Tutos</SectionTitle>
         <ul className="flex flex-col gap-2">
-          {offers.map((offer) => (
-            <li key={offer.name}>
-              <a href={offer.url} target="_blank" rel="noopener" className={`${cardClass} block`}>
-                <span className="block font-medium">{offer.name}</span>
-                <span className="block text-sm text-muted">{offer.price}</span>
+          {TUTOS.map((tuto) => (
+            <li key={tuto.file}>
+              <a href={`/commercial/tutos/${tuto.file}`} target="_blank" className={`${cardClass} flex items-center justify-between gap-3`}>
+                <span>
+                  <span className="block font-medium">{tuto.name}</span>
+                  <span className="text-sm text-muted">{tuto.draft ? "Version provisoire, à finaliser" : "PDF"}</span>
+                </span>
+                <span className={ghostButton}>Ouvrir</span>
               </a>
             </li>
           ))}
         </ul>
-        <p className="text-xs text-faint">
-          Les prix des pages publiques, ni plus ni moins : tu ne négocies rien (article 2.2).{" "}
-          <a href={`${siteUrl}${LEGAL_PATHS.cgv}`} target="_blank" rel="noopener" className="underline">
-            Conditions générales et tarifs
-          </a>
-        </p>
-      </section>
-
-      <section className="flex flex-col gap-2.5">
-        <SectionTitle>Simulateur</SectionTitle>
-        <a href={`${menuSiteUrl}/devis`} target="_blank" rel="noopener" className={`${cardClass} flex items-center justify-between gap-3`}>
-          <span>
-            <span className="block font-medium">Le devis du restaurant</span>
-            <span className="text-sm text-muted">Offre, tables, branchements : le prix en direct, avec lui.</span>
-          </span>
-          <span className={ghostButton}>Ouvrir</span>
-        </a>
+        <p className="text-xs text-faint">Ouvre chacun une fois avec du réseau : il reste lisible hors ligne.</p>
       </section>
     </div>
   );

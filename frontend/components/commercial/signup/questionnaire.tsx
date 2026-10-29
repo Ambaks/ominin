@@ -1,11 +1,12 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { ChevronLeftIcon } from "@/components/admin/icons";
 import { FieldGroup, Choice, cardClass, errorMessage, ghostButton, primaryButton } from "@/components/commercial/space/ui";
 import { ConnectComposer } from "@/components/composer/connect-composer";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { Field, inputClass } from "@/components/ui/field";
-import { SIGNUP_KINDS, type SignupAccountInput, type SignupKind, type SignupProgress } from "@/lib/commercial/signup-form";
+import { PASSWORD_MIN_LENGTH, SIGNUP_KINDS, type SignupAccountInput, type SignupKind, type SignupProgress } from "@/lib/commercial/signup-form";
 import type { Answers } from "@/lib/composer";
 import { compressPhoto } from "@/lib/gestion/photo";
 import { connectCommission, quotePage } from "@/lib/landing-data";
@@ -15,10 +16,17 @@ type Draft = Omit<SignupAccountInput, "setup" | "versions" | "kind"> & { kind?: 
 /* Les écrans d'avant le compte : tout reste dans le navigateur jusqu'à l'accord aux CGV. */
 type BeforeAccount = "compte" | "restaurant" | "responsable" | "service" | "offre";
 
-function Shell({ step, children }: { step: string; children: React.ReactNode }) {
+function Shell({ step, onBack, children }: { step: string; onBack?: () => void; children: React.ReactNode }) {
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-6 px-4 py-8">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">{step}</p>
+      <div className="flex min-h-11 items-center gap-2">
+        {onBack && (
+          <button type="button" onClick={onBack} aria-label="Étape précédente" className="-ml-2 grid size-11 place-items-center text-muted">
+            <ChevronLeftIcon className="size-5" />
+          </button>
+        )}
+        <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">{step}</p>
+      </div>
       {children}
     </div>
   );
@@ -79,21 +87,19 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
     }
   };
   const redirectTo = (action: string) => run(async () => void (window.location.href = (await post(id, action)).url!));
-  const later = (what: "stripe" | "hubrise") => run(async () => {
-    await post(id, "plus-tard", { step: what });
+  const later = (what: "stripe" | "hubrise", value = true) => run(async () => {
+    await post(id, "plus-tard", { step: what, later: value });
     await load();
   });
+  // Après le compte, revenir en arrière reprend la dernière étape remise à plus tard.
+  const undoLater = (what: "stripe" | "hubrise") => () => void later(what, false);
 
   if (loadError) return <Shell step="Inscription">{title(loadError)}</Shell>;
   if (!progress) return <Shell step="Inscription"><div aria-busy className="shimmer h-40 rounded-2xl" /></Shell>;
 
   const set = (key: keyof Draft) => (event: React.ChangeEvent<HTMLInputElement>) => setDraft({ ...draft, [key]: event.target.value });
   const errorNote = error && <p className="text-sm text-ember-3">{error}</p>;
-  const back = (to: BeforeAccount) => (
-    <button type="button" onClick={() => setStep(to)} className="text-sm text-muted underline">
-      Retour
-    </button>
-  );
+  const back = (to: BeforeAccount) => () => setStep(to);
 
   if (progress.finished) {
     return (
@@ -106,6 +112,13 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
 
   if (!progress.accountCreated) {
     if (step === "compte") {
+      const missing = PASSWORD_MIN_LENGTH - draft.password.length;
+      const emailOk = draft.email.includes("@");
+      const reason = !emailOk
+        ? "Entrez une adresse e-mail valide."
+        : missing > 0
+          ? `Mot de passe trop court : ${PASSWORD_MIN_LENGTH} caractères minimum, il en manque ${missing}.`
+          : null;
       return (
         <Shell step="1 · Votre compte">
           {title("Créons votre compte Ominin.")}
@@ -113,10 +126,11 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
           <Field label="E-mail" required>
             <input type="email" autoComplete="email" value={draft.email} onChange={set("email")} className={inputClass} />
           </Field>
-          <Field label="Mot de passe (6 caractères au moins)" required>
+          <Field label={`Mot de passe (${PASSWORD_MIN_LENGTH} caractères au moins)`} required>
             <input type="password" autoComplete="new-password" value={draft.password} onChange={set("password")} className={inputClass} />
           </Field>
-          <button type="button" disabled={!draft.email.includes("@") || draft.password.length < 6} onClick={() => setStep("restaurant")} className={primaryButton}>
+          {reason && (draft.email || draft.password) && <p className="text-sm text-ember-3">{reason}</p>}
+          <button type="button" disabled={reason !== null} onClick={() => setStep("restaurant")} className={primaryButton}>
             Continuer
           </button>
         </Shell>
@@ -124,7 +138,7 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
     }
     if (step === "restaurant") {
       return (
-        <Shell step="2 · Le restaurant">
+        <Shell step="2 · Le restaurant" onBack={back("compte")}>
           {title("Votre restaurant")}
           <Field label="Nom du restaurant" required>
             <input value={draft.name} onChange={set("name")} className={inputClass} />
@@ -135,13 +149,12 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
           <button type="button" disabled={!draft.name.trim() || !draft.kind} onClick={() => setStep("responsable")} className={primaryButton}>
             Continuer
           </button>
-          {back("compte")}
         </Shell>
       );
     }
     if (step === "responsable") {
       return (
-        <Shell step="3 · Le responsable">
+        <Shell step="3 · Le responsable" onBack={back("restaurant")}>
           {title("Qui suivra la mise en place avec nous ?")}
           <Field label="Nom du gérant ou du responsable" required>
             <input value={draft.managerName} onChange={set("managerName")} className={inputClass} />
@@ -163,13 +176,12 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
           >
             Continuer
           </button>
-          {back("restaurant")}
         </Shell>
       );
     }
     if (step === "service") {
       return (
-        <Shell step="4 · Votre service">
+        <Shell step="4 · Votre service" onBack={back("responsable")}>
           <ConnectComposer
             defaultTables={quotePage.defaultTables}
             onDone={(answers) => {
@@ -181,7 +193,7 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
       );
     }
     return (
-      <Shell step="5 · L’offre">
+      <Shell step="5 · L’offre" onBack={back("service")}>
         {title(`${connectCommission.percent} % ${connectCommission.basis}. Rien d’autre.`)}
         <div className={`${cardClass} flex flex-col gap-3 text-sm`}>
           <p>
@@ -208,7 +220,6 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
         >
           Créer mon compte
         </button>
-        {back("service")}
       </Shell>
     );
   }
@@ -231,7 +242,7 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
 
   if (progress.hubrise === "todo") {
     return (
-      <Shell step="7 · HubRise">
+      <Shell step="7 · HubRise" onBack={progress.stripe === "later" ? undoLater("stripe") : undefined}>
         {title("Relier votre caisse")}
         <p className="text-muted">HubRise fait passer les commandes de votre menu à votre caisse.</p>
         {hasHubrise === false ? (
@@ -265,7 +276,10 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
 
   if (!photosDone) {
     return (
-      <Shell step="8 · Votre carte">
+      <Shell
+        step="8 · Votre carte"
+        onBack={progress.hubrise === "later" ? undoLater("hubrise") : progress.stripe === "later" ? undoLater("stripe") : undefined}
+      >
         {title("Prenez votre menu en photo")}
         <p className="text-muted">Facultatif : nos équipes s’en servent pour préparer votre menu en ligne.</p>
         <label className={`${primaryButton} cursor-pointer`}>
@@ -302,7 +316,7 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
   }
 
   return (
-    <Shell step="9 · Récap">
+    <Shell step="9 · Récap" onBack={() => setPhotosDone(false)}>
       {title("Tout est prêt.")}
       <dl className={`${cardClass} flex flex-col gap-2 text-sm`}>
         {[

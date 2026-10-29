@@ -8049,7 +8049,8 @@ export type Database = {
           mine: boolean
           name: string
           phone: string
-          requested: boolean
+          request: string
+          request_ends: string
           state: string
         }[]
       }
@@ -8205,6 +8206,7 @@ export type Database = {
         Returns: { discord_message_id: string; id: string; status: string }[]
       }
       commercial_request_visit: { Args: { p_restaurant: string }; Returns: string }
+      commercial_restaurant_recap: { Args: { p_restaurant: string }; Returns: Json }
       commercial_signup_client: { Args: { p_signup: string }; Returns: boolean }
       commercial_request_demo: {
         Args: { p_declaration: string; p_note: string; p_photos: string[] }

@@ -14,10 +14,10 @@ const LINK_LABELS: Record<LinkState, string> = { done: "Branché", later: "Plus 
  * Lancer l'inscription : le commercial la fait sur son téléphone, ou montre
  * le QR au gérant et suit chaque étape en direct.
  */
-export function SignupLaunch({ restaurantId, restaurantName }: { restaurantId: string; restaurantName: string }) {
+export function SignupLaunch({ restaurantId, restaurantName, following }: { restaurantId: string; restaurantName: string; following: boolean }) {
   const [id, setId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [showQr, setShowQr] = useState(false);
+  const [showQr, setShowQr] = useState(following);
   const [progress, setProgress] = useState<SignupProgress | null>(null);
 
   useEffect(() => {
@@ -58,7 +58,13 @@ export function SignupLaunch({ restaurantId, restaurantName }: { restaurantId: s
             Sur mon téléphone
             <span className="text-xs font-normal">Tu remplis avec le gérant, ou tu lui tends le téléphone</span>
           </Link>
-          <button type="button" onClick={() => setShowQr(true)} className={`${ghostButton} min-h-16 flex-col gap-0.5`}>
+          <button
+            type="button"
+            onClick={() => {
+              setShowQr(true);
+              window.history.replaceState(null, "", "?qr=1");
+            }}
+            className={`${ghostButton} min-h-16 flex-col gap-0.5`}>
             Montrer le QR au gérant
             <span className="text-xs font-normal">Il remplit sur son téléphone, tu suis ici</span>
           </button>
@@ -85,8 +91,8 @@ export function SignupLaunch({ restaurantId, restaurantName }: { restaurantId: s
             </dl>
           )}
           {progress?.finished && (
-            <Link href={spaceHref("/carte")} className={primaryButton}>
-              Retour à la carte
+            <Link href={spaceHref("/tableau")} className={primaryButton}>
+              Retour au tableau
             </Link>
           )}
         </div>

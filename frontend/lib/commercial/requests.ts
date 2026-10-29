@@ -1,4 +1,5 @@
 import { editDiscord, postDiscord } from "@/lib/discord";
+import { frenchDate } from "@/lib/legal/format";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -42,9 +43,12 @@ async function loadRequest(admin: Admin, id: string): Promise<RequestRow> {
   return data as unknown as RequestRow;
 }
 
+/* La règle donne la date de libération : elle reste juste quand le message est réécrit. */
 function requestText(row: RequestRow, days: number | null): string {
+  const ends = new Date(row.created_at);
+  ends.setDate(ends.getDate() + (days ?? 0));
   const rule = days
-    ? `\nSans réponse ou refusée, la demande libère le restaurant pour tous dans ${days} jours, sauf s'il avance d'ici là.`
+    ? `\nSans réponse ou refusée, la demande libère le restaurant pour tous le ${frenchDate(ends.toISOString())}, sauf s'il avance d'ici là.`
     : "";
   return `🙋 ${mention(row.holder)}, ${mention(row.requester)} demande à visiter **${row.restaurant.name}**.${rule}`;
 }
@@ -81,7 +85,8 @@ export async function outcomeText(admin: Admin, id: string, outcome: RequestOutc
     released: `🔓 **Libéré** : ${restaurant} est ouvert à tous.`,
     kept: `📌 ${nameOf(row.holder)} a avancé : ${restaurant} lui reste.`,
   }[outcome];
-  return `${requestText(row, settings?.visit_request_days ?? null)}\n${line}`;
+  // Accepté, libéré ou gardé : la règle ne sert plus.
+  return `${requestText(row, outcome === "refused" ? (settings?.visit_request_days ?? null) : null)}\n${line}`;
 }
 
 /** Tâche quotidienne : traite les demandes échues et réécrit leur message. */
