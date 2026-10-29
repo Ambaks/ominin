@@ -5,6 +5,8 @@
 const DISCORD_API = "https://discord.com/api/v10";
 // La plus grande page que rend Discord : le serveur de l'équipe y tient.
 const MEMBERS_PAGE = 1000;
+/** La plus longue réponse qu'accepte Discord pour un message, en caractères. */
+export const DISCORD_MESSAGE_MAX = 2000;
 
 export interface DiscordMember {
   id: string;
@@ -25,6 +27,7 @@ const CHANNELS = {
   victoires: "DISCORD_VICTOIRES_CHANNEL_ID",
   demandes: "DISCORD_DEMANDES_CHANNEL_ID",
   inscriptions: "DISCORD_INSCRIPTIONS_CHANNEL_ID",
+  journal: "DISCORD_JOURNAL_CHANNEL_ID",
 } as const;
 
 export type DiscordChannel = keyof typeof CHANNELS;

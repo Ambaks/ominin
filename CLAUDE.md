@@ -78,8 +78,8 @@ Backend (run from `backend/`):
 - A work session starts with `/pull` and ends with `/push` (skills in
   `.claude/skills/`). `/pull` pulls and refreshes the local graphify graph;
   `/push` updates the "Project status" section of `README.md`, commits,
-  pushes, and posts a summary to the team journal (admin → Projet →
-  Journal, `npm run journal`). The README is the source of truth for
+  pushes, and posts a summary to the team journal (Discord #journal,
+  `npm run journal`). The README is the source of truth for
   collaborators (and their agents) about where the project stands.
 - `graphify-out/` is local and not versioned: each person keeps their own
   graph, refreshed by `/pull` (`graphify update .`, incremental, AST-only,

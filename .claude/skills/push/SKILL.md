@@ -1,6 +1,6 @@
 ---
 name: push
-description: End of a work session — update the README "Project status", commit, push the current branch, then post a short summary of what was done to the team journal (admin → Projet → Journal) so the other person sees it. Trigger: /push, or "pousse", "on pousse", "fin de session".
+description: End of a work session — update the README "Project status", commit, push the current branch, then post a short summary of what was done to the team journal (Discord #journal) so the other person sees it. Trigger: /push, or "pousse", "on pousse", "fin de session".
 ---
 
 # /push

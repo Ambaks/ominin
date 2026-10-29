@@ -1,20 +1,18 @@
 /*
- * Ajoute une entrée au journal de l'équipe (admin → Projet → Journal) : ce
- * qui vient d'être poussé, par qui, sur quelle branche et à quel commit.
+ * Poste une entrée du journal de l'équipe dans le salon #journal de Discord :
+ * ce qui vient d'être poussé, par qui, sur quelle branche et à quel commit.
  * Appelé par le skill /push, après le push.
  *
  * Usage, depuis frontend/ :  npm run journal -- "<titre>" <fichier du résumé>
- * Écrit dans le projet auquel la CLI Supabase est liée (la production), avec
- * la session de `npm run db:login` : aucune clé à poser. Lit OMININ_OWNER
- * (marwan ou ambaka : qui travaille sur ce poste) dans ../backend/.env.
+ * Lit OMININ_OWNER (marwan ou ambaka : qui travaille sur ce poste) dans
+ * ../backend/.env, le bot et le salon (DISCORD_BOT_TOKEN, DISCORD_GUILD_ID,
+ * DISCORD_JOURNAL_CHANNEL_ID) dans .env.local.
  */
 
 import { execFileSync } from "node:child_process";
-import { randomUUID } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
-import { isOwner } from "../lib/admin/owners";
+import { readFileSync } from "node:fs";
+import { OWNER_LABELS, isOwner } from "../lib/admin/owners";
+import { DISCORD_MESSAGE_MAX, postDiscord } from "../lib/discord";
 
 const git = (...args: string[]) => execFileSync("git", args, { encoding: "utf8" }).trim();
 
@@ -27,42 +25,17 @@ if (!isOwner(owner)) {
   throw new Error("OMININ_OWNER manque ou ne vaut ni marwan ni ambaka — renseigne backend/.env.");
 }
 
-const entry = JSON.stringify({
-  owner,
-  title: title.trim(),
-  summary: readFileSync(summaryPath, "utf8").trim(),
-  branch: git("rev-parse", "--abbrev-ref", "HEAD"),
-  commit_sha: git("rev-parse", "--short", "HEAD"),
-});
-// Les valeurs passent en un seul littéral JSON, entre dollar-quotes à
-// étiquette aléatoire : aucun texte du résumé ne peut refermer la chaîne.
-const tag = `j${randomUUID().replaceAll("-", "")}`;
-const sql = `insert into public.projet_journal (owner, title, summary, branch, commit_sha)
-select owner, title, summary, branch, commit_sha
-from jsonb_populate_record(null::public.projet_journal, $${tag}$${entry}$${tag}$::jsonb);`;
+const head = `📓 **${title.trim()}**\n${OWNER_LABELS[owner]} · \`${git("rev-parse", "--abbrev-ref", "HEAD")}\` · \`${git("rev-parse", "--short", "HEAD")}\``;
+const lines = [head, ...readFileSync(summaryPath, "utf8").trim().split("\n")];
 
-const dir = mkdtempSync(join(tmpdir(), "journal-"));
-try {
-  const file = join(dir, "entry.sql");
-  writeFileSync(file, sql);
-  // La CLI est un script Node : lancée par Node, sans shell, sur tout système.
-  execFileSync(
-    process.execPath,
-    [
-      resolve("node_modules/supabase/dist/supabase.js"),
-      "--workdir",
-      "..",
-      "db",
-      "query",
-      "--linked",
-      "--file",
-      file,
-      "--output-format",
-      "json",
-    ],
-    { stdio: ["ignore", "ignore", "inherit"] },
-  );
-  console.log(`Journal : « ${title.trim()} » ajouté.`);
-} finally {
-  rmSync(dir, { recursive: true, force: true });
+// Un message Discord a une taille maximale : le résumé part en plusieurs, coupé entre deux lignes.
+const messages: string[] = [];
+for (const line of lines) {
+  const last = messages.at(-1);
+  if (last !== undefined && last.length + line.length + 1 <= DISCORD_MESSAGE_MAX) messages[messages.length - 1] = `${last}\n${line}`;
+  else messages.push(line.slice(0, DISCORD_MESSAGE_MAX));
 }
+void (async () => {
+  for (const message of messages) await postDiscord("journal", message);
+  console.log(`Journal : « ${title.trim()} » posté dans #journal.`);
+})();

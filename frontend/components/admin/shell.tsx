@@ -30,7 +30,6 @@ import {
   ChartIcon,
   FlagIcon,
   MapPinIcon,
-  NoteIcon,
   PulseIcon,
   ShareIcon,
   SlidersIcon,
@@ -59,9 +58,8 @@ interface Section {
 
 /*
  * Trois questions, trois onglets. Marketing va chercher des restaurants ;
- * Clients regarde ceux qui ont signé ; Projet suit les clients à interfacer
- * et ce qui reste pour finir les offres, et tient le journal de ce que chacun
- * a poussé. L'écran des fiches de prospection (crm_restaurants) prend le
+ * Clients regarde ceux qui ont signé ; Projet suit ce qui reste pour finir
+ * les offres (Tâches) et les clients à interfacer (Intégration). L'écran des fiches de prospection (crm_restaurants) prend le
  * nom de qui l'on prospecte pour le produit (Restaurants, Boutiques,
  * Clippeurs, Entreprises) ; côté Clients, ce sont des établissements.
  *
@@ -130,8 +128,8 @@ const SECTIONS: Section[] = [
     id: "projet",
     label: "Projet",
     items: [
-      { href: "/projet", label: "Suivi", icon: FlagIcon },
-      { href: "/journal", label: "Journal", icon: NoteIcon },
+      { href: "/taches", label: "Tâches", icon: FlagIcon },
+      { href: "/projet", label: "Intégration", icon: StoreIcon },
     ],
   },
 ];
