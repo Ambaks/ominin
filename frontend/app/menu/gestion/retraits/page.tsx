@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { PaymentDialog } from "@/components/gestion/commandes/payment-dialog";
 import { PaymentPinDialog } from "@/components/gestion/commandes/payment-pin-dialog";
@@ -50,7 +49,7 @@ export default function RetraitsPage() {
   const [creating, setCreating] = useState(false);
   const [showClosed, setShowClosed] = useState(false);
   const [authorizing, setAuthorizing] = useState<Order | null>(null);
-  const [paying, setPaying] = useState<{ order: Order; code: string } | null>(null);
+  const [paying, setPaying] = useState<{ order: Order; code: string | null } | null>(null);
   // Le jour choisi se montre en entier dans la bande, qu'il vienne d'un doigt,
   // du calendrier ou d'une commande enregistrée pour plus tard.
   const stripRef = useRef<HTMLDivElement>(null);
@@ -86,15 +85,8 @@ export default function RetraitsPage() {
   if (!strip.includes(day)) strip.push(day);
 
   const requestHandOver = (order: Order) => {
-    if (!state.etablissement.paymentPinSet) {
-      toast.error(
-        role === "gerant"
-          ? "Définissez d'abord le code d'encaissement, dans Établissement."
-          : "Le code d'encaissement n'est pas encore défini : demandez au gérant."
-      );
-      return;
-    }
-    setAuthorizing(order);
+    if (state.etablissement.paymentPinSet) setAuthorizing(order);
+    else setPaying({ order, code: null });
   };
 
   const settle = async (mode: EncaissementMode, cashDetails?: CashDetails) => {
@@ -143,23 +135,6 @@ export default function RetraitsPage() {
           </button>
         )}
       </div>
-
-      {takesOrders && !state.etablissement.paymentPinSet && (
-        <p className="rounded-2xl border border-ember-2/40 bg-ember-2/10 px-4 py-3 text-sm leading-relaxed print:hidden">
-          {role === "gerant" ? (
-            <>
-              Les commandes prises au comptoir se règlent au retrait : définissez le
-              code d&apos;encaissement dans{" "}
-              <Link href="/gestion/etablissement" className="font-semibold text-ember-1 underline-offset-2 hover:underline">
-                Établissement
-              </Link>{" "}
-              pour que l&apos;équipe puisse les encaisser.
-            </>
-          ) : (
-            "Le code d'encaissement n'est pas encore défini : demandez au gérant, sans lui les commandes réglées au retrait ne s'encaissent pas."
-          )}
-        </p>
-      )}
 
       {takesOrders && freshTotal > 0 && (
         <button

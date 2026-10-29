@@ -10,17 +10,17 @@ export function PaymentPinSettings({ pinSet }: { pinSet: boolean }) {
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
-  const save = async (event: React.FormEvent) => {
-    event.preventDefault();
-    if (code.length !== 4) return;
+  const submit = async (next: string) => {
     setBusy(true);
     try {
-      await setPaymentPin(code);
+      await setPaymentPin(next);
       setCode("");
       toast.success(
-        pinSet
-          ? "Code d'encaissement remplacé."
-          : "Code d'encaissement enregistré."
+        !next
+          ? "Code d'encaissement retiré."
+          : pinSet
+            ? "Code d'encaissement remplacé."
+            : "Code d'encaissement enregistré."
       );
     } catch (error) {
       toast.error(
@@ -29,6 +29,11 @@ export function PaymentPinSettings({ pinSet }: { pinSet: boolean }) {
     } finally {
       setBusy(false);
     }
+  };
+
+  const save = (event: React.FormEvent) => {
+    event.preventDefault();
+    if (code.length === 4) void submit(code);
   };
 
   return (
@@ -42,15 +47,11 @@ export function PaymentPinSettings({ pinSet }: { pinSet: boolean }) {
         </h2>
         <p className="mt-1 text-sm leading-relaxed text-muted">
           {pinSet
-            ? "Ce code est demandé à chaque appui sur Encaisser. Saisissez-en un nouveau pour le remplacer."
-            : "Définissez un code différent du code Admin. Tant qu'il manque, aucun encaissement au comptoir n'est possible."}
+            ? "Ce code est demandé à chaque appui sur Encaisser. Saisissez-en un nouveau pour le remplacer, ou retirez-le pour encaisser sans code."
+            : "Aucun code : l'équipe encaisse sans rien saisir. Posez un code pour qu'il soit demandé à chaque appui sur Encaisser."}
         </p>
       </div>
-      <Field
-        label="Code à 4 chiffres"
-        required
-        hint="Il doit être différent du code Admin."
-      >
+      <Field label="Code à 4 chiffres" hint="Il doit être différent du code Admin.">
         <input
           type="password"
           inputMode="numeric"
@@ -59,11 +60,21 @@ export function PaymentPinSettings({ pinSet }: { pinSet: boolean }) {
           onChange={(event) =>
             setCode(event.target.value.replace(/\D/g, "").slice(0, 4))
           }
-          placeholder={pinSet ? "••••" : "4 chiffres"}
+          placeholder={pinSet ? "••••" : "Aucun code"}
           className={inputClass}
         />
       </Field>
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3">
+        {pinSet && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void submit("")}
+            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-40"
+          >
+            Retirer le code
+          </button>
+        )}
         <button
           type="submit"
           disabled={busy || code.length !== 4}

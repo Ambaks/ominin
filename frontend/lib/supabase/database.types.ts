@@ -8033,7 +8033,7 @@ export type Database = {
           p_cash_given?: number | null
           p_items: Json
           p_mode: Database["public"]["Enums"]["payment_mode"]
-          p_payment_code: string
+          p_payment_code: string | null
           p_tip?: number | null
         }
         Returns: boolean
