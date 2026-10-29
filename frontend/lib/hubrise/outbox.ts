@@ -166,6 +166,9 @@ async function pushCancel(admin: Admin, row: Row, token: Connection | null) {
     method: "PATCH",
     body: JSON.stringify({ status: "cancelled" }),
   });
+  // Notre écriture ne nous revient pas en callback : sans elle, la commande
+  // resterait « new » et l'alerte « non reprise par la caisse » partirait.
+  await admin.from("orders").update({ hubrise_status: "cancelled" }).eq("id", row.order_id);
   await settle(admin, row, { status: "sent", last_error: null });
 }
 

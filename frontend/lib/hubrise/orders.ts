@@ -21,9 +21,15 @@ type Admin = ReturnType<typeof createAdminClient>;
  *    relié à un SKU (une taille) donne son SKU à la ligne et quitte les
  *    options ; son supplément reste dans le prix de la ligne.
  *  - une formule n'a pas d'article derrière elle (item_id nul, son seul nom) :
- *    chaque unité part en deal HubRise, un plat par ligne avec son code, le
- *    prix de la formule sur la première ligne.
+ *    chaque unité part en deal HubRise, un plat par ligne avec son code et
+ *    ses propres options (components[].options : sa taille devient son SKU),
+ *    le prix de base de la formule sur la première ligne, le supplément d'un
+ *    choix sur la ligne du plat choisi. order_items.options y répète tout
+ *    (choix des étapes, options préfixées « Plat · Groupe ») : rien n'en part
+ *    tel quel, la caisse lirait les plats comme options du premier.
  */
+
+type ChosenOption = { groupName: string; choiceName: string; supplement: number };
 
 interface OrderRow {
   id: string;
@@ -49,8 +55,8 @@ interface OrderRow {
     quantity: number;
     unit_price: number;
     vat_rate: number | null;
-    options: { groupName: string; choiceName: string; supplement: number }[];
-    components: { name: string; item_id?: string | null }[] | null;
+    options: ChosenOption[];
+    components: { name: string; item_id?: string | null; options?: ChosenOption[] }[] | null;
   }[];
   order_payments: { id: string; mode: string; amount: number; till_payment: boolean }[];
 }
@@ -131,6 +137,46 @@ async function loadRefs(
     }
   }
   return index;
+}
+
+const sumSupplements = (options: ChosenOption[]) =>
+  options.reduce((sum, option) => sum + (option.supplement ?? 0), 0);
+
+/**
+ * Les options d'un article, telles que la caisse les lit : un choix relié à
+ * un SKU (une taille) donne son SKU à la ligne, son supplément restant dans
+ * le prix de la ligne ; les autres partent en options. `detached` : les
+ * suppléments partis avec elles, à retirer du prix de la ligne.
+ */
+function encodeOptions(
+  itemId: string | null | undefined,
+  chosen: ChosenOption[],
+  refs: RefIndex
+) {
+  let skuRef = itemId ? refs.sku.get(itemId) : undefined;
+  const options: Record<string, unknown>[] = [];
+  let detached = 0;
+  for (const option of chosen) {
+    const ids = itemId
+      ? refs.names.get(`${itemId}|${option.groupName}|${option.choiceName}`)
+      : undefined;
+    const key = ids ? `${itemId}|${ids.groupId}|${ids.choiceId}` : "";
+    const size = refs.choiceSku.get(key);
+    if (size) {
+      skuRef = size;
+      continue;
+    }
+    const mapped = refs.option.get(key);
+    detached += option.supplement ?? 0;
+    options.push({
+      option_list_name: mapped?.listName ?? option.groupName,
+      name: option.choiceName,
+      ...(mapped ? { ref: mapped.ref } : {}),
+      price: money(option.supplement ?? 0),
+      quantity: 1,
+    });
+  }
+  return { skuRef, options, detached };
 }
 
 function paymentTransaction(order: OrderRow) {
@@ -234,58 +280,55 @@ export async function buildOrder(
 
   const deals: Record<string, { name: string; ref?: string }> = {};
   const items = order.order_items.flatMap((line) => {
-    let skuRef = line.item_id ? refs.sku.get(line.item_id) : undefined;
-    const options: Record<string, unknown>[] = [];
-    let supplements = 0;
-    for (const option of line.options) {
-      const ids = line.item_id
-        ? refs.names.get(`${line.item_id}|${option.groupName}|${option.choiceName}`)
-        : undefined;
-      const key = ids ? `${line.item_id}|${ids.groupId}|${ids.choiceId}` : "";
-      const size = refs.choiceSku.get(key);
-      if (size) {
-        skuRef = size;
-        continue;
-      }
-      const mapped = refs.option.get(key);
-      supplements += option.supplement ?? 0;
-      options.push({
-        option_list_name: mapped?.listName ?? option.groupName,
-        name: option.choiceName,
-        ...(mapped ? { ref: mapped.ref } : {}),
-        price: money(option.supplement ?? 0),
-        quantity: 1,
-      });
-    }
     const tax = line.vat_rate != null ? { tax_rate: String(line.vat_rate) } : {};
-    const base = line.unit_price - supplements;
 
     if (line.item_id || !line.components?.length) {
+      const encoded = encodeOptions(line.item_id, line.options, refs);
       return [
         {
           product_name: line.name,
-          ...(skuRef ? { sku_ref: skuRef } : {}),
-          price: money(base),
+          ...(encoded.skuRef ? { sku_ref: encoded.skuRef } : {}),
+          price: money(line.unit_price - encoded.detached),
           quantity: String(line.quantity),
           ...tax,
-          options,
+          options: encoded.options,
         },
       ];
     }
 
+    const components = line.components;
+    const prefixes = components.map((component) => `${component.name} · `);
+    // Le choix fait à chaque étape, dans l'ordre des plats (un par étape).
+    const steps = line.options.filter(
+      (option) => !prefixes.some((prefix) => option.groupName.startsWith(prefix))
+    );
+    const base = line.unit_price - sumSupplements(line.options);
     const dealRef = refs.deal.get(line.name);
     return Array.from({ length: line.quantity }, () => {
       const dealKey = String(Object.keys(deals).length);
       deals[dealKey] = { name: line.name, ...(dealRef ? { ref: dealRef } : {}) };
-      return line.components!.map((component, index) => {
-        const ref = component.item_id ? refs.sku.get(component.item_id) : undefined;
+      return components.map((component, index) => {
+        const own =
+          component.options ??
+          line.options
+            .filter((option) => option.groupName.startsWith(prefixes[index]))
+            .map((option) => ({
+              ...option,
+              groupName: option.groupName.slice(prefixes[index].length),
+            }));
+        const encoded = encodeOptions(component.item_id, own, refs);
+        const price =
+          (index === 0 ? base : 0) +
+          (steps[index]?.supplement ?? 0) +
+          sumSupplements(own) -
+          encoded.detached;
         return {
           product_name: component.name,
-          ...(ref ? { sku_ref: ref } : {}),
-          price: money(index === 0 ? base : 0),
+          ...(encoded.skuRef ? { sku_ref: encoded.skuRef } : {}),
+          price: money(price),
           quantity: "1",
           ...tax,
-          options: index === 0 ? options : [],
+          options: encoded.options,
           deal_line: { deal_key: dealKey },
         };
       });

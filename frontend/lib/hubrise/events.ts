@@ -23,6 +23,7 @@ export interface HubriseEvent {
   resource_type?: string;
   event_type?: string;
   location_id?: string;
+  catalog_id?: string;
   order_id?: string;
   new_state?: {
     status?: string;
@@ -149,6 +150,18 @@ export async function handleEvent(admin: Admin, event: HubriseEvent): Promise<vo
     return;
   }
 
+  // Relu plus tard, d'un seul coup, quand les modifications se sont tues. Un
+  // événement ne porte que les ids de sa ressource et de ses parents : un
+  // catalogue de compte arrive sans location_id, et peut servir plusieurs lieux.
+  if (resource === "catalog") {
+    if (!event.catalog_id) return;
+    await admin
+      .from("hubrise_connections")
+      .update({ catalog_dirty_at: new Date().toISOString() })
+      .eq("catalog_id", event.catalog_id);
+    return;
+  }
+
   // Les autres événements sont sans état : on relit chez HubRise, hors de la
   // réponse (HubRise attend 20 s au plus).
   const connection = event.location_id
@@ -156,13 +169,7 @@ export async function handleEvent(admin: Admin, event: HubriseEvent): Promise<vo
     : null;
   if (!connection) return;
 
-  if (resource === "catalog") {
-    // Relu plus tard, d'un seul coup, quand les modifications se sont tues.
-    await admin
-      .from("hubrise_connections")
-      .update({ catalog_dirty_at: new Date().toISOString() })
-      .eq("etablissement_id", connection.etablissement_id);
-  } else if (resource === "inventory") {
+  if (resource === "inventory") {
     after(() => relire(admin, connection, pullInventory));
   } else if (resource === "location") {
     after(() => relire(admin, connection, pullHours));
