@@ -7451,6 +7451,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      commercial_map_points: { Args: never; Returns: Json }
       commercial_money: { Args: never; Returns: Json }
       commercial_month_estimate: { Args: never; Returns: Json }
       commercial_month_lines: {

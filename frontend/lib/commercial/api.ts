@@ -60,7 +60,15 @@ export interface MapRestaurant {
   request_ends: string | null;
 }
 
-export const mapRestaurants = () => call<MapRestaurant[]>(db().rpc("commercial_map"));
+/** commercial_map_points() : la carte en points [id, latitude, longitude, état] (migration 20261029000018). */
+export type MapPointState = "c" | "m" | "v" | "l" | "f";
+export type MapPoint = [id: string, lat: number, lng: number, state: MapPointState];
+
+export const mapPoints = () => call<MapPoint[]>(db().rpc("commercial_map_points"));
+
+/** La fiche d'un point, chargée quand le commercial le touche. */
+export const mapRestaurant = (id: string) =>
+  call<MapRestaurant>(db().rpc("commercial_map", { p_restaurant: id }).single());
 
 /** commercial_dashboard() : un restaurant visité ou inscrit par le commercial (migration 20261029000008). */
 export interface DashboardRestaurant {
