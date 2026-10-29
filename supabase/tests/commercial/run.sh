@@ -42,9 +42,4 @@ for file in "$here"/${1:-[0-9]}*.sql; do
   echo "ok  $(basename "$file")"
 done
 
-if [ -z "${1:-}" ]; then
-  PG_CONTAINER="$name" bash "$here/concurrence.sh"
-  echo "ok  concurrence.sh"
-fi
-
 if [ "${KEEP:-1}" = "0" ]; then docker rm -f "$name" >/dev/null; fi

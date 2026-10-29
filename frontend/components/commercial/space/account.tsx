@@ -61,17 +61,6 @@ export function AccountPanel() {
               {account.option_exercised_at && !account.ended ? ", option de prolongation levée par Ominin." : "."}
             </p>
           )}
-          {!account.ended && (
-            <p className="text-muted">
-              Déclarations en cours au plus :{" "}
-              <span className="text-foreground">{account.declaration_cap ?? "pas de plafond"}</span>. Carence après un
-              abandon ou une expiration :{" "}
-              <span className="text-foreground">
-                {account.cooldown_days ? `${account.cooldown_days} jours` : "aucune"}
-              </span>
-              .
-            </p>
-          )}
           {!account.ended && !account.notice_given_at && (
             <button type="button" onClick={() => setConfirming(true)} className={ghostButton}>
               Résilier mon contrat
@@ -87,7 +76,7 @@ export function AccountPanel() {
       {confirming && (
         <ConfirmDialog
           title="Résilier le contrat"
-          message={`Votre contrat prendra fin dans ${COMMERCIAL_NOTICE_MONTHS} mois (article 7.2). D’ici là, vos réservations restent valables et vous pouvez encore déclarer ; après, vos déclarations en cours sont closes.`}
+          message={`Votre contrat prendra fin dans ${COMMERCIAL_NOTICE_MONTHS} mois (article 7.2). D’ici là, vous continuez à visiter et inscrire des restaurants ; après, ceux que vous suivez redeviennent libres.`}
           confirmLabel="Résilier"
           destructive
           onClose={() => setConfirming(false)}

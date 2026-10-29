@@ -5,8 +5,7 @@
 --   commercial C …0c1  invité, jamais signé
 --   commercial D …0d1  signé, contrat terminé (ended_at passé)
 -- Restaurants : libres …f01 à …f09 ; client par lien …e01, par téléphone
--- …e02 ; réponse à Léa …e03 ; activité d'un fondateur …e04 ; client Projet
--- …e05 ; opposition …e06.
+-- …e02 ; opposition …e06.
 
 \set admin '00000000-0000-0000-0000-0000000000a0'
 \set a_user '00000000-0000-0000-0000-0000000000a1'
@@ -29,12 +28,8 @@
 \set r9 '00000000-0000-0000-0000-000000000f09'
 \set rc_link '00000000-0000-0000-0000-000000000e01'
 \set rc_phone '00000000-0000-0000-0000-000000000e02'
-\set r_lea '00000000-0000-0000-0000-000000000e03'
-\set r_founder '00000000-0000-0000-0000-000000000e04'
-\set r_projet '00000000-0000-0000-0000-000000000e05'
 \set r_optout '00000000-0000-0000-0000-000000000e06'
 \set etab '00000000-0000-0000-0000-0000000e7ab1'
-\set contact '{"role": "Gérant"}'
 
 -- Agir comme un compte connecté (ce que fait PostgREST), puis revenir.
 create function pg_temp.act(p_user uuid) returns void language sql as $$
@@ -83,11 +78,6 @@ select :'v1', 'commercial', id, user_id, email, email, '{}', now() - interval '2
 from public.commerciaux where id in (:'a', :'b', :'d');
 update public.commerciaux set ended_at = now() - interval '1 day', end_reason = 'mutual' where id = :'d';
 
-update public.commercial_settings set
-  search_max_results = 20, search_daily_quota = 50, declaration_cap = 5, cooldown_days = 30,
-  in_talks_days = 30, retained_note_max_chars = 200, expiry_warning_days = 15,
-  name_similarity = 0.6;
-
 insert into public.etablissements (id, slug, name, tagline, address, phone, hours)
 values (:'etab', 'chez-test', 'Chez Test', '', '1 rue du Test', '04 67 00 00 02', '');
 
@@ -103,15 +93,7 @@ insert into public.crm_restaurants (id, name, slug, address, city, phone, email,
   (:'r9', 'Neuf Lunes', 'r9', '9 rue Libre', 'Montpellier', null, null, null, null, null),
   (:'rc_link', 'Client Relié', 'rc-link', '10 rue Client', 'Montpellier', null, null, null, null, null),
   (:'rc_phone', 'Autre Nom', 'rc-phone', '11 rue Client', 'Montpellier', '0467000002', null, null, null, null),
-  (:'r_lea', 'Répondu Léa', 'r-lea', '12 rue', 'Montpellier', null, 'lea@resto.test', null, null, null),
-  (:'r_founder', 'Travaillé Fondateur', 'r-founder', '13 rue', 'Montpellier', null, null, null, null, null),
-  (:'r_projet', 'Client Projet', 'r-projet', '14 rue', 'Montpellier', null, null, null, null, null),
   (:'r_optout', 'Opposé', 'r-optout', '15 rue', 'Montpellier', null, null, null, null, null);
 
 update public.crm_restaurants set etablissement_id = :'etab' where id = :'rc_link';
 update public.crm_restaurants set outreach_opted_out_at = now() - interval '5 days' where id = :'r_optout';
-insert into public.outreach_emails (restaurant_id, direction, status, classification, received_at)
-values (:'r_lea', 'inbound', 'received', 'interested', now() - interval '3 days');
-insert into public.crm_activities (restaurant_id, type, description, created_by, created_at)
-values (:'r_founder', 'call', 'Appel de Marwan', :'admin', now() - interval '2 days');
-insert into public.projet_clients (name, product, restaurant_id) values ('Client Projet', 'menu', :'r_projet');

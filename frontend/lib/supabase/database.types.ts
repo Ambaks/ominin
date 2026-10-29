@@ -1542,7 +1542,6 @@ export type Database = {
           commercial_id: string
           commission_from: string | null
           created_at: string
-          declaration_id: string | null
           ended_at: string | null
           etablissement_id: string | null
           id: string
@@ -1556,7 +1555,6 @@ export type Database = {
           commercial_id?: string
           commission_from?: string | null
           created_at?: string
-          declaration_id?: string | null
           ended_at?: string | null
           etablissement_id?: string | null
           id?: string
@@ -1570,7 +1568,6 @@ export type Database = {
           commercial_id?: string
           commission_from?: string | null
           created_at?: string
-          declaration_id?: string | null
           ended_at?: string | null
           etablissement_id?: string | null
           id?: string
@@ -1580,13 +1577,6 @@ export type Database = {
           validated_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "commercial_clients_declaration_id_fkey"
-            columns: ["declaration_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "commercial_clients_etablissement_id_fkey"
             columns: ["etablissement_id"]
@@ -1599,188 +1589,6 @@ export type Database = {
             columns: ["shop_id"]
             isOneToOne: false
             referencedRelation: "shops"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      commercial_declarations: {
-        Row: {
-          admin_notified_at: string | null
-          channel: string
-          client_alert: string | null
-          commercial_id: string
-          confirm_deadline: string | null
-          confirmed_at: string | null
-          confirmed_by: string | null
-          contact_id: string | null
-          contract_version_id: string | null
-          created_at: string
-          decision_document: string | null
-          decision_note: string | null
-          declared_at: string
-          end_reason:
-            | Database["public"]["Enums"]["commercial_end_reason"]
-            | null
-          ended_at: string | null
-          id: string
-          reassigned_from: string | null
-          refusal_reason:
-            | Database["public"]["Enums"]["commercial_refusal_reason"]
-            | null
-          reserved_until: string | null
-          restaurant_id: string
-          retained: Json
-          retained_updated_at: string | null
-          signup_product: Database["public"]["Enums"]["ominin_product"] | null
-          signup_token_expires_at: string | null
-          signup_token_hash: string | null
-          signup_user_id: string | null
-          status: Database["public"]["Enums"]["commercial_declaration_status"]
-          step_done_at: Json
-        }
-        Insert: {
-          admin_notified_at?: string | null
-          channel?: string
-          client_alert?: string | null
-          commercial_id: string
-          confirm_deadline?: string | null
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          contact_id?: string | null
-          contract_version_id?: string | null
-          created_at?: string
-          decision_document?: string | null
-          decision_note?: string | null
-          declared_at?: string
-          end_reason?:
-            | Database["public"]["Enums"]["commercial_end_reason"]
-            | null
-          ended_at?: string | null
-          id?: string
-          reassigned_from?: string | null
-          refusal_reason?:
-            | Database["public"]["Enums"]["commercial_refusal_reason"]
-            | null
-          reserved_until?: string | null
-          restaurant_id: string
-          retained?: Json
-          retained_updated_at?: string | null
-          signup_product?: Database["public"]["Enums"]["ominin_product"] | null
-          signup_token_expires_at?: string | null
-          signup_token_hash?: string | null
-          signup_user_id?: string | null
-          status: Database["public"]["Enums"]["commercial_declaration_status"]
-          step_done_at?: Json
-        }
-        Update: {
-          admin_notified_at?: string | null
-          channel?: string
-          client_alert?: string | null
-          commercial_id?: string
-          confirm_deadline?: string | null
-          confirmed_at?: string | null
-          confirmed_by?: string | null
-          contact_id?: string | null
-          contract_version_id?: string | null
-          created_at?: string
-          decision_document?: string | null
-          decision_note?: string | null
-          declared_at?: string
-          end_reason?:
-            | Database["public"]["Enums"]["commercial_end_reason"]
-            | null
-          ended_at?: string | null
-          id?: string
-          reassigned_from?: string | null
-          refusal_reason?:
-            | Database["public"]["Enums"]["commercial_refusal_reason"]
-            | null
-          reserved_until?: string | null
-          restaurant_id?: string
-          retained?: Json
-          retained_updated_at?: string | null
-          signup_product?: Database["public"]["Enums"]["ominin_product"] | null
-          signup_token_expires_at?: string | null
-          signup_token_hash?: string | null
-          signup_user_id?: string | null
-          status?: Database["public"]["Enums"]["commercial_declaration_status"]
-          step_done_at?: Json
-        }
-        Relationships: [
-          {
-            foreignKeyName: "commercial_declarations_commercial_id_fkey"
-            columns: ["commercial_id"]
-            isOneToOne: false
-            referencedRelation: "commerciaux"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commercial_declarations_contact_id_fkey"
-            columns: ["contact_id"]
-            isOneToOne: false
-            referencedRelation: "crm_contacts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commercial_declarations_contract_version_id_fkey"
-            columns: ["contract_version_id"]
-            isOneToOne: false
-            referencedRelation: "legal_versions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commercial_declarations_reassigned_from_fkey"
-            columns: ["reassigned_from"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commercial_declarations_restaurant_id_fkey"
-            columns: ["restaurant_id"]
-            isOneToOne: false
-            referencedRelation: "crm_restaurants"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      commercial_demo_requests: {
-        Row: {
-          created_at: string
-          declaration_id: string
-          demo_url: string | null
-          done_at: string | null
-          id: string
-          note: string | null
-          photos: string[]
-          status: string
-        }
-        Insert: {
-          created_at?: string
-          declaration_id: string
-          demo_url?: string | null
-          done_at?: string | null
-          id?: string
-          note?: string | null
-          photos?: string[]
-          status?: string
-        }
-        Update: {
-          created_at?: string
-          declaration_id?: string
-          demo_url?: string | null
-          done_at?: string | null
-          id?: string
-          note?: string | null
-          photos?: string[]
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "commercial_demo_requests_declaration_id_fkey"
-            columns: ["declaration_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
             referencedColumns: ["id"]
           },
         ]
@@ -1821,8 +1629,6 @@ export type Database = {
         Row: {
           commercial_id: string
           created_at: string
-          declaration_id: string | null
-          detail: string | null
           gmail_message_id: string | null
           id: string
           kind: string
@@ -1833,8 +1639,6 @@ export type Database = {
         Insert: {
           commercial_id: string
           created_at?: string
-          declaration_id?: string | null
-          detail?: string | null
           gmail_message_id?: string | null
           id?: string
           kind: string
@@ -1845,8 +1649,6 @@ export type Database = {
         Update: {
           commercial_id?: string
           created_at?: string
-          declaration_id?: string | null
-          detail?: string | null
           gmail_message_id?: string | null
           id?: string
           kind?: string
@@ -1860,13 +1662,6 @@ export type Database = {
             columns: ["commercial_id"]
             isOneToOne: false
             referencedRelation: "commerciaux"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "commercial_emails_declaration_id_fkey"
-            columns: ["declaration_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
             referencedColumns: ["id"]
           },
           {
@@ -1946,65 +1741,22 @@ export type Database = {
           },
         ]
       }
-      commercial_quota_usage: {
-        Row: {
-          commercial_id: string
-          day: string
-          places: number
-          searches: number
-        }
-        Insert: {
-          commercial_id: string
-          day: string
-          places?: number
-          searches?: number
-        }
-        Update: {
-          commercial_id?: string
-          day?: string
-          places?: number
-          searches?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "commercial_quota_usage_commercial_id_fkey"
-            columns: ["commercial_id"]
-            isOneToOne: false
-            referencedRelation: "commerciaux"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       commercial_settings: {
         Row: {
           club_fees_included: boolean | null
           commission_percent: number
-          confirm_days: number
           contest_months: number
-          cooldown_days: number | null
-          declaration_cap: number | null
           detail_interval_months: number
           detail_response_days: number
           eligible_stripe_prices: string[]
-          expiry_warning_days: number | null
           final_statement_days: number
-          followup_days: number[] | null
           guide_url: string | null
           id: boolean
-          in_talks_days: number | null
           kit_demo_slugs: string[]
-          name_similarity: number | null
-          nearby_radius_m: number | null
           notice_months: number
           option_reminder_days: number | null
           option_years: number
           payment_days: number
-          places_daily_quota: number | null
-          retained_note_max_chars: number | null
-          search_daily_quota: number | null
-          search_max_results: number | null
-          sign_window_months: number
-          signup_link_days: number | null
           statement_before_day: number
           term_months: number
           updated_at: string
@@ -2015,32 +1767,18 @@ export type Database = {
         Insert: {
           club_fees_included?: boolean | null
           commission_percent: number
-          confirm_days: number
           contest_months: number
-          cooldown_days?: number | null
-          declaration_cap?: number | null
           detail_interval_months: number
           detail_response_days: number
           eligible_stripe_prices?: string[]
-          expiry_warning_days?: number | null
           final_statement_days: number
-          followup_days?: number[] | null
           guide_url?: string | null
           id?: boolean
-          in_talks_days?: number | null
           kit_demo_slugs?: string[]
-          name_similarity?: number | null
-          nearby_radius_m?: number | null
           notice_months: number
           option_reminder_days?: number | null
           option_years: number
           payment_days: number
-          places_daily_quota?: number | null
-          retained_note_max_chars?: number | null
-          search_daily_quota?: number | null
-          search_max_results?: number | null
-          sign_window_months: number
-          signup_link_days?: number | null
           statement_before_day: number
           term_months: number
           updated_at?: string
@@ -2051,32 +1789,18 @@ export type Database = {
         Update: {
           club_fees_included?: boolean | null
           commission_percent?: number
-          confirm_days?: number
           contest_months?: number
-          cooldown_days?: number | null
-          declaration_cap?: number | null
           detail_interval_months?: number
           detail_response_days?: number
           eligible_stripe_prices?: string[]
-          expiry_warning_days?: number | null
           final_statement_days?: number
-          followup_days?: number[] | null
           guide_url?: string | null
           id?: boolean
-          in_talks_days?: number | null
           kit_demo_slugs?: string[]
-          name_similarity?: number | null
-          nearby_radius_m?: number | null
           notice_months?: number
           option_reminder_days?: number | null
           option_years?: number
           payment_days?: number
-          places_daily_quota?: number | null
-          retained_note_max_chars?: number | null
-          search_daily_quota?: number | null
-          search_max_results?: number | null
-          sign_window_months?: number
-          signup_link_days?: number | null
           statement_before_day?: number
           term_months?: number
           updated_at?: string
@@ -2430,7 +2154,6 @@ export type Database = {
         Row: {
           created_at: string
           created_by: string | null
-          declaration_id: string | null
           description: string | null
           id: string
           lead_id: string | null
@@ -2442,7 +2165,6 @@ export type Database = {
         Insert: {
           created_at?: string
           created_by?: string | null
-          declaration_id?: string | null
           description?: string | null
           id?: string
           lead_id?: string | null
@@ -2454,7 +2176,6 @@ export type Database = {
         Update: {
           created_at?: string
           created_by?: string | null
-          declaration_id?: string | null
           description?: string | null
           id?: string
           lead_id?: string | null
@@ -2464,13 +2185,6 @@ export type Database = {
           type?: Database["public"]["Enums"]["crm_activity_type"]
         }
         Relationships: [
-          {
-            foreignKeyName: "crm_activities_declaration_id_fkey"
-            columns: ["declaration_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "crm_activities_lead_id_fkey"
             columns: ["lead_id"]
@@ -2492,7 +2206,6 @@ export type Database = {
           contact_id: string | null
           created_at: string
           created_by: string | null
-          declaration_id: string | null
           end_at: string | null
           google_event_id: string | null
           id: string
@@ -2509,7 +2222,6 @@ export type Database = {
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
-          declaration_id?: string | null
           end_at?: string | null
           google_event_id?: string | null
           id?: string
@@ -2526,7 +2238,6 @@ export type Database = {
           contact_id?: string | null
           created_at?: string
           created_by?: string | null
-          declaration_id?: string | null
           end_at?: string | null
           google_event_id?: string | null
           id?: string
@@ -2548,13 +2259,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "crm_appointments_declaration_id_fkey"
-            columns: ["declaration_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "crm_appointments_restaurant_id_fkey"
             columns: ["restaurant_id"]
             isOneToOne: false
@@ -2566,7 +2270,6 @@ export type Database = {
       crm_contacts: {
         Row: {
           created_at: string
-          created_by: string | null
           email: string | null
           first_name: string | null
           id: string
@@ -2580,7 +2283,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
@@ -2594,7 +2296,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
           email?: string | null
           first_name?: string | null
           id?: string
@@ -2715,12 +2416,10 @@ export type Database = {
           google_maps_url: string | null
           id: string
           important_notes: string | null
-          in_talks_override: boolean | null
           instagram_url: string | null
           latitude: number | null
           longitude: number | null
           menu_url: string | null
-          merged_into: string | null
           name: string
           outreach_opted_out_at: string | null
           owner_email: string | null
@@ -2750,12 +2449,10 @@ export type Database = {
           google_maps_url?: string | null
           id?: string
           important_notes?: string | null
-          in_talks_override?: boolean | null
           instagram_url?: string | null
           latitude?: number | null
           longitude?: number | null
           menu_url?: string | null
-          merged_into?: string | null
           name: string
           outreach_opted_out_at?: string | null
           owner_email?: string | null
@@ -2785,12 +2482,10 @@ export type Database = {
           google_maps_url?: string | null
           id?: string
           important_notes?: string | null
-          in_talks_override?: boolean | null
           instagram_url?: string | null
           latitude?: number | null
           longitude?: number | null
           menu_url?: string | null
-          merged_into?: string | null
           name?: string
           outreach_opted_out_at?: string | null
           owner_email?: string | null
@@ -2811,13 +2506,6 @@ export type Database = {
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "crm_restaurants_merged_into_fkey"
-            columns: ["merged_into"]
-            isOneToOne: false
-            referencedRelation: "crm_restaurants"
             referencedColumns: ["id"]
           },
           {
@@ -2852,11 +2540,8 @@ export type Database = {
           completed_at: string | null
           created_at: string
           created_by: string | null
-          declaration_id: string | null
           description: string | null
           due_at: string | null
-          followup_day: number | null
-          followup_of: string | null
           id: string
           lead_id: string | null
           priority: Database["public"]["Enums"]["crm_priority"]
@@ -2869,11 +2554,8 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
-          declaration_id?: string | null
           description?: string | null
           due_at?: string | null
-          followup_day?: number | null
-          followup_of?: string | null
           id?: string
           lead_id?: string | null
           priority?: Database["public"]["Enums"]["crm_priority"]
@@ -2886,11 +2568,8 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           created_by?: string | null
-          declaration_id?: string | null
           description?: string | null
           due_at?: string | null
-          followup_day?: number | null
-          followup_of?: string | null
           id?: string
           lead_id?: string | null
           priority?: Database["public"]["Enums"]["crm_priority"]
@@ -2900,20 +2579,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "crm_tasks_declaration_id_fkey"
-            columns: ["declaration_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "crm_tasks_followup_of_fkey"
-            columns: ["followup_of"]
-            isOneToOne: false
-            referencedRelation: "crm_appointments"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "crm_tasks_lead_id_fkey"
             columns: ["lead_id"]
@@ -5261,7 +4926,6 @@ export type Database = {
       projet_clients: {
         Row: {
           created_at: string
-          declaration_id: string | null
           etablissement_id: string | null
           id: string
           name: string
@@ -5272,7 +4936,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          declaration_id?: string | null
           etablissement_id?: string | null
           id?: string
           name: string
@@ -5283,7 +4946,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          declaration_id?: string | null
           etablissement_id?: string | null
           id?: string
           name?: string
@@ -5293,13 +4955,6 @@ export type Database = {
           shop_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "projet_clients_declaration_id_fkey"
-            columns: ["declaration_id"]
-            isOneToOne: false
-            referencedRelation: "commercial_declarations"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "projet_clients_etablissement_id_fkey"
             columns: ["etablissement_id"]
@@ -5355,8 +5010,6 @@ export type Database = {
       }
       projet_step_templates: {
         Row: {
-          commercial_detail: string | null
-          commercial_title: string | null
           detail: string
           phase: string
           position: number
@@ -5364,8 +5017,6 @@ export type Database = {
           title: string
         }
         Insert: {
-          commercial_detail?: string | null
-          commercial_title?: string | null
           detail: string
           phase: string
           position: number
@@ -5373,8 +5024,6 @@ export type Database = {
           title: string
         }
         Update: {
-          commercial_detail?: string | null
-          commercial_title?: string | null
           detail?: string
           phase?: string
           position?: number
@@ -7192,14 +6841,6 @@ export type Database = {
         Returns: undefined
       }
       accept_invitation: { Args: { p_token: string }; Returns: string }
-      admin_add_client: {
-        Args: {
-          p_declaration: string
-          p_etablissement?: string
-          p_shop?: string
-        }
-        Returns: string
-      }
       admin_agents_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -7258,43 +6899,6 @@ export type Database = {
           user_id: string
         }[]
       }
-      admin_decide_declaration: {
-        Args: { p_decision: string; p_declaration: string; p_reason: string }
-        Returns: undefined
-      }
-      admin_declarations: {
-        Args: never
-        Returns: {
-          channel: string
-          client_alert: string
-          commercial_email: string
-          commercial_id: string
-          commercial_name: string
-          confirm_deadline: string
-          confirmed_at: string
-          decision_note: string
-          declared_at: string
-          effective_status: Database["public"]["Enums"]["commercial_declaration_status"]
-          emails: Json
-          end_reason: Database["public"]["Enums"]["commercial_end_reason"]
-          ended_at: string
-          id: string
-          in_talks: boolean
-          in_talks_override: boolean
-          refusal_reason: Database["public"]["Enums"]["commercial_refusal_reason"]
-          reserved_until: string
-          restaurant_city: string
-          restaurant_id: string
-          restaurant_name: string
-          status: Database["public"]["Enums"]["commercial_declaration_status"]
-          step: number
-          tacit: boolean
-        }[]
-      }
-      admin_deliver_demo: {
-        Args: { p_request: string; p_url: string }
-        Returns: undefined
-      }
       admin_link_client: {
         Args: {
           p_etablissement?: string
@@ -7302,14 +6906,6 @@ export type Database = {
           p_shop?: string
         }
         Returns: string
-      }
-      admin_mark_signed: {
-        Args: {
-          p_declaration: string
-          p_etablissement?: string
-          p_shop?: string
-        }
-        Returns: undefined
       }
       admin_menu_feed: {
         Args: { p_etab?: string | null; p_limit: number }
@@ -7386,32 +6982,9 @@ export type Database = {
           sessions: number
         }[]
       }
-      admin_merge_restaurants: {
-        Args: { p_drop: string; p_keep: string; p_note: string }
-        Returns: undefined
-      }
       admin_month_lines: {
         Args: { p_commercial: string; p_month: string }
         Returns: Json[]
-      }
-      admin_reassign_declaration: {
-        Args: {
-          p_commercial: string
-          p_declaration: string
-          p_document: string
-          p_reason: string
-        }
-        Returns: string
-      }
-      admin_record_email_declaration: {
-        Args: {
-          p_commercial: string
-          p_contact: Json
-          p_declared_at: string
-          p_products: Database["public"]["Enums"]["ominin_product"][]
-          p_restaurant: string
-        }
-        Returns: Json
       }
       admin_record_payment: {
         Args: {
@@ -7424,18 +6997,6 @@ export type Database = {
         Returns: string
       }
       admin_require: { Args: never; Returns: undefined }
-      admin_restaurant_declarations: {
-        Args: { p_restaurant: string }
-        Returns: {
-          commercial_name: string
-          confirm_deadline: string
-          declared_at: string
-          effective_status: Database["public"]["Enums"]["commercial_declaration_status"]
-          id: string
-          reserved_until: string
-          step: number
-        }[]
-      }
       admin_service_figures: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -7456,10 +7017,6 @@ export type Database = {
         Args: { p_ended_at: string; p_restaurant: string }
         Returns: undefined
       }
-      admin_set_in_talks: {
-        Args: { p_restaurant: string; p_value: boolean }
-        Returns: undefined
-      }
       admin_shop_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -7477,20 +7034,6 @@ export type Database = {
           slug: string
           subscription_status: string
           to_prepare: number
-        }[]
-      }
-      admin_signup_matches: {
-        Args: never
-        Returns: {
-          commercial_name: string
-          created_at: string
-          declaration_id: string
-          id: string
-          kind: string
-          name: string
-          reason: string
-          restaurant_id: string
-          restaurant_name: string
         }[]
       }
       admin_statement_adjust: {
@@ -7517,7 +7060,6 @@ export type Database = {
         Args: { p_statement: string }
         Returns: undefined
       }
-      admin_validate_client: { Args: { p_client: string }; Returns: undefined }
       articles_fermes: {
         Args: { p_at?: string; p_etablissement: string }
         Returns: string[]
@@ -7787,23 +7329,7 @@ export type Database = {
         Args: { p_key: string; p_part: string; p_square_order: string }
         Returns: boolean
       }
-      commercial_abandon: {
-        Args: {
-          p_declaration: string
-          p_reason: Database["public"]["Enums"]["commercial_end_reason"]
-        }
-        Returns: undefined
-      }
       commercial_account: { Args: never; Returns: Json }
-      commercial_add_client: {
-        Args: {
-          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
-          p_etablissement: string
-          p_shop: string
-          p_validated: boolean
-        }
-        Returns: string
-      }
       commercial_add_document: {
         Args: { p_kind: string; p_path: string }
         Returns: undefined
@@ -7811,12 +7337,6 @@ export type Database = {
       commercial_answer_request: {
         Args: { p_accept: boolean; p_discord_user: string; p_request: string }
         Returns: undefined
-      }
-      commercial_appointment: { Args: { p_appointment: string }; Returns: Json }
-      commercial_appointment_followups: { Args: never; Returns: number }
-      commercial_appointment_upsert: {
-        Args: { p_appointment: Json; p_declaration: string }
-        Returns: string
       }
       commercial_base: {
         Args: {
@@ -7831,79 +7351,22 @@ export type Database = {
           shop_cents: number
         }[]
       }
-      commercial_by_token: {
-        Args: { p_token: string }
-        Returns: {
-          admin_notified_at: string | null
-          channel: string
-          client_alert: string | null
-          commercial_id: string
-          confirm_deadline: string | null
-          confirmed_at: string | null
-          confirmed_by: string | null
-          contact_id: string | null
-          contract_version_id: string | null
-          created_at: string
-          decision_document: string | null
-          decision_note: string | null
-          declared_at: string
-          end_reason:
-            | Database["public"]["Enums"]["commercial_end_reason"]
-            | null
-          ended_at: string | null
-          id: string
-          reassigned_from: string | null
-          refusal_reason:
-            | Database["public"]["Enums"]["commercial_refusal_reason"]
-            | null
-          reserved_until: string | null
-          restaurant_id: string
-          retained: Json
-          retained_updated_at: string | null
-          signup_product: Database["public"]["Enums"]["ominin_product"] | null
-          signup_token_expires_at: string | null
-          signup_token_hash: string | null
-          signup_user_id: string | null
-          status: Database["public"]["Enums"]["commercial_declaration_status"]
-          step_done_at: Json
-        }
-        SetofOptions: {
-          from: "*"
-          to: "commercial_declarations"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
       commercial_cfg: {
         Args: never
         Returns: {
           club_fees_included: boolean | null
           commission_percent: number
-          confirm_days: number
           contest_months: number
-          cooldown_days: number | null
-          declaration_cap: number | null
           detail_interval_months: number
           detail_response_days: number
           eligible_stripe_prices: string[]
-          expiry_warning_days: number | null
           final_statement_days: number
-          followup_days: number[] | null
           id: boolean
-          in_talks_days: number | null
           kit_demo_slugs: string[]
-          name_similarity: number | null
-          nearby_radius_m: number | null
           notice_months: number
           option_reminder_days: number | null
           option_years: number
           payment_days: number
-          places_daily_quota: number | null
-          retained_note_max_chars: number | null
-          search_daily_quota: number | null
-          search_max_results: number | null
-          sign_window_months: number
-          signup_link_days: number | null
           statement_before_day: number
           term_months: number
           updated_at: string
@@ -7917,25 +7380,6 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      commercial_clean_contact: { Args: { p: Json }; Returns: Json }
-      commercial_clean_retained: { Args: { p: Json }; Returns: Json }
-      commercial_close_for_client: {
-        Args: { p_note: string; p_restaurant: string }
-        Returns: undefined
-      }
-      commercial_close_for_opposition: {
-        Args: { p_restaurant: string }
-        Returns: undefined
-      }
-      commercial_confirm_due: { Args: never; Returns: number }
-      commercial_confirm_due_for: {
-        Args: { p_restaurant: string }
-        Returns: number
-      }
-      commercial_contact_upsert: {
-        Args: { p_contact: Json; p_declaration: string }
-        Returns: string
-      }
       commercial_contest: {
         Args: { p_note: string; p_statement: string }
         Returns: undefined
@@ -7944,38 +7388,12 @@ export type Database = {
         Args: { c: Database["public"]["Tables"]["commerciaux"]["Row"] }
         Returns: string
       }
-      commercial_count_places: { Args: never; Returns: undefined }
-      commercial_count_search: {
-        Args: { p_commercial: string }
-        Returns: undefined
-      }
       commercial_create_restaurant: { Args: { p: Json }; Returns: string }
-      commercial_declare: {
-        Args: {
-          p_contact: Json
-          p_products: Database["public"]["Enums"]["ominin_product"][]
-          p_restaurant: string
-        }
-        Returns: Json
-      }
-      commercial_demo_requests_of: {
-        Args: { p_declaration: string }
-        Returns: Json
-      }
-      commercial_departed_before: {
-        Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
-        Returns: string
-      }
       commercial_draft_statement: {
         Args: { p_commercial: string; p_month: string }
         Returns: string
       }
       commercial_draft_statements: { Args: never; Returns: number }
-      commercial_expire_due: { Args: never; Returns: number }
-      commercial_expire_due_for: {
-        Args: { p_restaurant: string }
-        Returns: number
-      }
       commercial_final_statements: {
         Args: never
         Returns: {
@@ -7984,56 +7402,11 @@ export type Database = {
           statement_id: string
         }[]
       }
-      commercial_find_duplicates: {
-        Args: {
-          p_city?: string
-          p_email?: string
-          p_external_id?: string
-          p_lat?: number
-          p_lng?: number
-          p_name: string
-          p_phone?: string
-          p_source?: string
-        }
-        Returns: {
-          address: string
-          city: string
-          id: string
-          name: string
-          reason: string
-          state: Json
-        }[]
-      }
-      commercial_first_acceptance: {
-        Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
-        Returns: string
-      }
       commercial_dashboard: { Args: never; Returns: Json }
       commercial_guide_url: { Args: never; Returns: string }
-      commercial_in_service: {
-        Args: {
-          p_declared_at: string
-          p_etablissement: string
-          p_ignore?: string
-          p_shop: string
-        }
-        Returns: boolean
-      }
-      commercial_in_talks: {
-        Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
-        Returns: boolean
-      }
       commercial_is_client: {
         Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
         Returns: boolean
-      }
-      commercial_log: {
-        Args: {
-          p_declaration: string
-          p_text: string
-          p_type: Database["public"]["Enums"]["crm_activity_type"]
-        }
-        Returns: string
       }
       commercial_map: {
         Args: { p_restaurant?: string }
@@ -8097,72 +7470,6 @@ export type Database = {
           shop_cents: number
         }[]
       }
-      commercial_morning: {
-        Args: never
-        Returns: {
-          commercial_id: string
-          expiring: number
-          tasks: number
-        }[]
-      }
-      commercial_my_active: {
-        Args: { p_declaration: string }
-        Returns: {
-          admin_notified_at: string | null
-          channel: string
-          client_alert: string | null
-          commercial_id: string
-          confirm_deadline: string | null
-          confirmed_at: string | null
-          confirmed_by: string | null
-          contact_id: string | null
-          contract_version_id: string | null
-          created_at: string
-          decision_document: string | null
-          decision_note: string | null
-          declared_at: string
-          end_reason:
-            | Database["public"]["Enums"]["commercial_end_reason"]
-            | null
-          ended_at: string | null
-          id: string
-          reassigned_from: string | null
-          refusal_reason:
-            | Database["public"]["Enums"]["commercial_refusal_reason"]
-            | null
-          reserved_until: string | null
-          restaurant_id: string
-          retained: Json
-          retained_updated_at: string | null
-          signup_product: Database["public"]["Enums"]["ominin_product"] | null
-          signup_token_expires_at: string | null
-          signup_token_hash: string | null
-          signup_user_id: string | null
-          status: Database["public"]["Enums"]["commercial_declaration_status"]
-          step_done_at: Json
-        }
-        SetofOptions: {
-          from: "*"
-          to: "commercial_declarations"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
-      commercial_my_clients: { Args: never; Returns: Json }
-      commercial_my_restaurants: { Args: never; Returns: Json }
-      commercial_nearby: {
-        Args: { p_lat: number; p_lng: number }
-        Returns: {
-          address: string
-          category: Database["public"]["Enums"]["crm_restaurant_category"]
-          id: string
-          latitude: number
-          longitude: number
-          name: string
-          state: Json
-        }[]
-      }
-      commercial_opt_out: { Args: { p_restaurant: string }; Returns: undefined }
       commercial_option_reminders: {
         Args: never
         Returns: {
@@ -8170,30 +7477,6 @@ export type Database = {
           id: string
           name: string
         }[]
-      }
-      commercial_passage: {
-        Args: {
-          p_reason: Database["public"]["Enums"]["commercial_end_reason"]
-          p_restaurant: string
-          p_retained: Json
-        }
-        Returns: string
-      }
-      commercial_public: {
-        Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
-        Returns: Json
-      }
-      commercial_reflect: {
-        Args: { p_declaration: string }
-        Returns: undefined
-      }
-      commercial_refusal: {
-        Args: {
-          p_commercial: string
-          p_ignore?: string
-          r: Database["public"]["Tables"]["crm_restaurants"]["Row"]
-        }
-        Returns: Database["public"]["Enums"]["commercial_refusal_reason"]
       }
       commercial_release_ended: { Args: never; Returns: number }
       commercial_pending_signups: {
@@ -8208,64 +7491,13 @@ export type Database = {
       commercial_request_visit: { Args: { p_restaurant: string }; Returns: string }
       commercial_restaurant_recap: { Args: { p_restaurant: string }; Returns: Json }
       commercial_signup_client: { Args: { p_signup: string }; Returns: boolean }
-      commercial_request_demo: {
-        Args: { p_declaration: string; p_note: string; p_photos: string[] }
-        Returns: string
-      }
       commercial_request_detail: {
         Args: { p_statement: string }
         Returns: string
       }
-      commercial_reserved_until: {
-        Args: {
-          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
-        }
-        Returns: string
-      }
       commercial_resign: { Args: never; Returns: string }
-      commercial_restaurant: { Args: { p_restaurant: string }; Returns: Json }
-      commercial_save_retained: {
-        Args: { p_declaration: string; p_retained: Json }
-        Returns: undefined
-      }
-      commercial_search: {
-        Args: { p_query: string }
-        Returns: {
-          address: string
-          category: Database["public"]["Enums"]["crm_restaurant_category"]
-          city: string
-          id: string
-          name: string
-          state: Json
-        }[]
-      }
-      commercial_search_limit: { Args: never; Returns: number }
       commercial_set_push_prefs: { Args: { p_prefs: Json }; Returns: undefined }
-      commercial_set_step: {
-        Args: { p_declaration: string; p_done: boolean; p_position: number }
-        Returns: Json
-      }
-      commercial_settle: { Args: { p_restaurant: string }; Returns: undefined }
-      commercial_signup_alert: {
-        Args: {
-          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
-          p_etablissement: string
-          p_shop: string
-        }
-        Returns: string
-      }
-      commercial_signup_link: {
-        Args: { p_declaration: string }
-        Returns: string
-      }
       commercial_start_signup: { Args: { p_restaurant: string }; Returns: string }
-      commercial_state: {
-        Args: {
-          p_commercial: string
-          r: Database["public"]["Tables"]["crm_restaurants"]["Row"]
-        }
-        Returns: Json
-      }
       commercial_statement_invoice: {
         Args: { p_path: string; p_statement: string }
         Returns: undefined
@@ -8274,20 +7506,6 @@ export type Database = {
         Args: { p_adjustments: Json; p_lines: Json }
         Returns: number
       }
-      commercial_status_at: {
-        Args: {
-          d: Database["public"]["Tables"]["commercial_declarations"]["Row"]
-          p_at?: string
-        }
-        Returns: Database["public"]["Enums"]["commercial_declaration_status"]
-      }
-      commercial_task_upsert: {
-        Args: { p_declaration: string; p_task: Json }
-        Returns: string
-      }
-      commercial_today: { Args: { p_since: string }; Returns: Json }
-      commercial_today_base: { Args: { p_since: string }; Returns: Json }
-      commercial_top_step: { Args: { p_steps: Json }; Returns: number }
       commercial_urssaf_due: {
         Args: { p_commercial: string }
         Returns: boolean
@@ -8470,7 +7688,6 @@ export type Database = {
           restaurant_id: string
         }[]
       }
-      crm_is_reserved: { Args: { p_restaurant: string }; Returns: boolean }
       crm_recompute_follow_up: { Args: { p_lead: string }; Returns: undefined }
       crm_restaurant_slug: {
         Args: { p_id: string; p_name: string }
@@ -8970,14 +8187,6 @@ export type Database = {
           revenue_cents: number
         }[]
       }
-      signup_link_claim: {
-        Args: {
-          p_product: Database["public"]["Enums"]["ominin_product"]
-          p_token: string
-        }
-        Returns: boolean
-      }
-      signup_link_info: { Args: { p_token: string }; Returns: Json }
       staff_code_ok: {
         Args: { p_code: string; p_staff_id: string }
         Returns: boolean
@@ -9055,35 +8264,6 @@ export type Database = {
         | "remboursee"
       club_payment_method: "en_ligne" | "sur_place"
       club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
-      commercial_declaration_status:
-        | "pending"
-        | "confirmed"
-        | "refused"
-        | "abandoned"
-        | "expired"
-        | "signed"
-        | "passage"
-      commercial_end_reason:
-        | "not_interested"
-        | "equipped"
-        | "contract_elsewhere"
-        | "closed"
-        | "unreachable"
-        | "head_office"
-        | "opposition"
-        | "other"
-        | "contract_ended"
-        | "merged"
-        | "reassigned"
-        | "client"
-      commercial_refusal_reason:
-        | "client"
-        | "declared"
-        | "in_talks"
-        | "opted_out"
-        | "cap"
-        | "cooldown"
-        | "admin"
       crm_activity_type:
         | "note"
         | "call"
@@ -9370,38 +8550,6 @@ export const Constants = {
       ],
       club_payment_method: ["en_ligne", "sur_place"],
       club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],
-      commercial_declaration_status: [
-        "pending",
-        "confirmed",
-        "refused",
-        "abandoned",
-        "expired",
-        "signed",
-        "passage",
-      ],
-      commercial_end_reason: [
-        "not_interested",
-        "equipped",
-        "contract_elsewhere",
-        "closed",
-        "unreachable",
-        "head_office",
-        "opposition",
-        "other",
-        "contract_ended",
-        "merged",
-        "reassigned",
-        "client",
-      ],
-      commercial_refusal_reason: [
-        "client",
-        "declared",
-        "in_talks",
-        "opted_out",
-        "cap",
-        "cooldown",
-        "admin",
-      ],
       crm_activity_type: [
         "note",
         "call",

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { signupLinkToken } from "@/lib/commercial/signup-link";
 import { createClient } from "@/lib/supabase/client";
 
 function GoogleIcon() {
@@ -105,15 +104,12 @@ export function AuthForm({
         if (error) throw error;
         window.location.assign(destination);
       } else {
-        // Le lien d'un commercial suit le compte, même confirmé ailleurs.
-        const signupLink = signupLinkToken();
-        const metadata = signupLink ? { ...signUpData, signup_link: signupLink } : signUpData;
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(destination)}`,
-            ...(metadata && { data: metadata }),
+            ...(signUpData && { data: signUpData }),
           },
         });
         if (error) throw error;

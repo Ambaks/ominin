@@ -35,23 +35,18 @@ select pg_temp.ok(pg_temp.fails(format('select public.admin_link_client(%L, null
 select pg_temp.ok(pg_temp.fails(format('select public.admin_link_client(%L, %L, %L)', :'r8', :'etab', '00000000-0000-0000-0000-00000005a0b1')),
   '4.1. un seul client à la fois');
 select pg_temp.act(:'b_user');
-select pg_temp.ok((public.commercial_declare(:'r9', '{shop}', :'contact') ->> 'refusal_reason') = 'client', '4.2 n° 1. fiche reliée : déjà client');
+select pg_temp.ok(pg_temp.fails(format('select public.commercial_visit(%L, ''{"outcome": "absent", "contact_phone": "0600000000"}'')', :'r9')),
+  '4.2 n° 1. fiche reliée : déjà client, pas de visite');
 
--- Départ du client : la fiche redevient déclarable.
+-- Départ du client : la fiche redevient libre.
 select pg_temp.act(:'admin');
 select public.admin_set_client_ended(:'r9', now());
 select pg_temp.act(:'b_user');
-select pg_temp.ok((public.commercial_declare(:'r9', '{shop}', :'contact') ->> 'status') = 'pending', '4.1. client parti : déclarable');
+select pg_temp.ok(public.commercial_visit(:'r9', '{"outcome": "absent", "contact_phone": "0600000000"}') is not null,
+  '4.1. client parti : de nouveau libre');
 select pg_temp.act(:'admin');
 select pg_temp.ok(pg_temp.fails(format('select public.admin_set_client_ended(%L, now())', :'r8')),
   '4.1. une fiche sans client n''a pas de départ');
-select pg_temp.reset();
-
--- Projet : le client relié à sa fiche est « en discussion ».
-update public.projet_clients set restaurant_id = :'r8' where name = 'Client Projet';
-select pg_temp.act(:'a_user');
-select pg_temp.ok((public.commercial_declare(:'r8', '{menu}', :'contact') ->> 'refusal_reason') = 'in_talks',
-  '4.3. client Projet relié par l''admin');
 select pg_temp.reset();
 
 rollback;
