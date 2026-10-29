@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import { clientFeatures, fetchClients, type Client } from "@/lib/admin/clients";
 import type { Product } from "@/lib/admin/products";
-import { OFFRE_LABELS, VIEWS } from "@/lib/gestion/constants";
+import { VIEWS } from "@/lib/gestion/constants";
 
 /*
  * Les clients d'Ominin, et ce que chacun voit. Un seul écran : la liste à
@@ -107,7 +107,7 @@ export default function CapacitesPage() {
                   <p className="truncate text-sm font-medium">{client.name}</p>
                   <p className="truncate text-xs text-faint">
                     {client.products.offre
-                      ? OFFRE_LABELS[client.products.offre]
+                      ? "Ominin"
                       : client.products.collect
                         ? "Collect"
                         : "Sans abonnement"}
