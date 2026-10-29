@@ -11,11 +11,12 @@ import { check, must } from "@/lib/supabase/result";
  * créer le lien d'accès).
  */
 
-export type EndReason = "term" | "resignation" | "breach" | "immediate" | "mutual";
+export type EndReason = "term" | "resignation" | "termination" | "breach" | "immediate" | "mutual";
 
 export const CONTRACT_END_LABELS: Record<EndReason, string> = {
   term: "Échéance",
   resignation: "Résiliation par le commercial (art. 7.2)",
+  termination: "Résiliation par Ominin avec préavis (art. 7.5)",
   breach: "Manquement (art. 7.3)",
   immediate: "Résiliation immédiate (art. 7.4)",
   mutual: "Accord commun (art. 7.1)",
@@ -34,13 +35,15 @@ export interface CommercialRow {
   endReason: EndReason | null;
   discordUserId: string | null;
   signedRestaurants: number;
+  /** Taux propre (art. 4.6), null : le taux de base. */
+  commissionPercent: number | null;
 }
 
 export async function fetchCommerciaux(): Promise<CommercialRow[]> {
   const rows = await createClient()
     .from("commerciaux")
     .select(
-      "id, email, first_name, last_name, invited_at, option_exercised_at, notice_given_at, ended_at, end_reason, discord_user_id, legal_acceptances(accepted_at, legal_versions!inner(version)), commercial_clients(id)"
+      "id, email, first_name, last_name, invited_at, option_exercised_at, notice_given_at, ended_at, end_reason, discord_user_id, commission_percent, legal_acceptances(accepted_at, legal_versions!inner(version)), commercial_clients(id)"
     )
     .order("invited_at", { ascending: false })
     .then(must);
@@ -65,6 +68,7 @@ export async function fetchCommerciaux(): Promise<CommercialRow[]> {
       endReason: row.end_reason as EndReason | null,
       discordUserId: row.discord_user_id,
       signedRestaurants: row.commercial_clients.length,
+      commissionPercent: row.commission_percent,
     };
   });
 }
@@ -117,6 +121,11 @@ export async function endContract(id: string, endedAt: string, reason: EndReason
   check(
     await createClient().from("commerciaux").update({ ended_at: endedAt, end_reason: reason }).eq("id", id)
   );
+}
+
+/** Taux propre du commercial (art. 4.6) : la base refuse une baisse. */
+export async function setCommissionPercent(id: string, percent: number): Promise<void> {
+  check(await createClient().rpc("admin_set_commission_percent", { p_commercial: id, p_percent: percent }));
 }
 
 /** Option de prolongation levée (art. 3.3). */

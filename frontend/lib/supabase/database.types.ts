@@ -1881,6 +1881,7 @@ export type Database = {
         Row: {
           adjustments: Json
           commercial_id: string
+          commission_percent: number
           contest_note: string | null
           contest_resolution: string | null
           contest_resolved_at: string | null
@@ -1901,6 +1902,7 @@ export type Database = {
         Insert: {
           adjustments?: Json
           commercial_id: string
+          commission_percent: number
           contest_note?: string | null
           contest_resolution?: string | null
           contest_resolved_at?: string | null
@@ -1921,6 +1923,7 @@ export type Database = {
         Update: {
           adjustments?: Json
           commercial_id?: string
+          commission_percent?: number
           contest_note?: string | null
           contest_resolution?: string | null
           contest_resolved_at?: string | null
@@ -2060,6 +2063,7 @@ export type Database = {
       commerciaux: {
         Row: {
           address: string | null
+          commission_percent: number | null
           discord_user_id: string | null
           email: string
           end_reason: string | null
@@ -2078,6 +2082,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          commission_percent?: number | null
           discord_user_id?: string | null
           email: string
           end_reason?: string | null
@@ -2096,6 +2101,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          commission_percent?: number | null
           discord_user_id?: string | null
           email?: string
           end_reason?: string | null
@@ -7014,6 +7020,10 @@ export type Database = {
         Args: { p_ended_at: string; p_restaurant: string }
         Returns: undefined
       }
+      admin_set_commission_percent: {
+        Args: { p_commercial: string; p_percent: number }
+        Returns: undefined
+      }
       admin_shop_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -7476,6 +7486,7 @@ export type Database = {
           name: string
         }[]
       }
+      commercial_rate: { Args: { p_commercial: string }; Returns: number }
       commercial_release_ended: { Args: never; Returns: number }
       commercial_pending_signups: {
         Args: never

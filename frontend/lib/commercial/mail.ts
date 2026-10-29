@@ -5,7 +5,6 @@ import type { CommercialSignature } from "@/lib/legal/commercial";
 import {
   COMMERCIAL_COMMISSION_PERCENT,
   COMMERCIAL_TERM_MONTHS,
-  COMMERCIAL_TOTAL_YEARS,
   editorLegalName,
 } from "@/lib/legal/constants";
 import type { LegalBlock } from "@/lib/legal/types";
@@ -30,7 +29,7 @@ export async function sendAccessEmail(
     card(
       invitation ? "Bienvenue chez Ominin." : "Votre lien de connexion.",
       invitation
-        ? `Ominin vous invite &agrave; pr&eacute;senter ses solutions aux restaurants comme apporteur d&rsquo;affaires ind&eacute;pendant&nbsp;: ${COMMERCIAL_COMMISSION_PERCENT}&nbsp;% du chiffre d&rsquo;affaires net encaiss&eacute; sur chaque client apport&eacute;, pendant ${COMMERCIAL_TERM_MONTHS}&nbsp;mois, prolongeables par Ominin jusqu&rsquo;&agrave; ${COMMERCIAL_TOTAL_YEARS}&nbsp;ans. Ouvrez votre espace pour lire le contrat et le signer en ligne.`
+        ? `Ominin vous invite &agrave; pr&eacute;senter ses solutions aux restaurants comme apporteur d&rsquo;affaires ind&eacute;pendant&nbsp;: ${COMMERCIAL_COMMISSION_PERCENT}&nbsp;% de ce qu&rsquo;Ominin encaisse sur chaque restaurant que vous apportez, pendant ${COMMERCIAL_TERM_MONTHS}&nbsp;mois &agrave; partir du jour o&ugrave; il devient client. Ouvrez votre espace pour lire le contrat et le signer en ligne.`
         : "Ouvrez votre espace commercial avec le bouton ci-dessous.",
       { label: "Ouvrir mon espace", url: actionLink },
       `Ce lien ne sert qu&rsquo;une fois. S&rsquo;il a expir&eacute;, demandez-en un autre depuis la page de connexion.<br/><br/>Le bouton ne fonctionne pas&nbsp;? Copiez ce lien&nbsp;: <span style="word-break:break-all;">${escapeHtml(actionLink)}</span>`,

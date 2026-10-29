@@ -3,11 +3,11 @@ import { card, escapeHtml } from "@/lib/gestion/invite-notify";
 import { contactEmail } from "@/lib/landing-data";
 import { commercialPrefix, commercialSiteUrl } from "@/lib/site";
 import type { createAdminClient } from "@/lib/supabase/admin";
-import type { MonthLine, PushEventKey, Statement } from "./api";
+import type { PushEventKey } from "./api";
 import { monthLabel } from "./labels";
 import { notifyCommercial } from "./push";
 import { displayName } from "./record";
-import { statementCsv, statementFilename, statementPdf } from "./statement";
+import { statementCsv, statementFilename, statementPdf, type StatementLike } from "./statement";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -22,7 +22,7 @@ interface OutboxRow {
   id: string;
   kind: string;
   commerciaux: { id: string; email: string; first_name: string | null; last_name: string | null };
-  commercial_statements: (Pick<Statement, "month" | "adjustments" | "total_cents" | "sent_at"> & { lines: MonthLine[] }) | null;
+  commercial_statements: StatementLike | null;
 }
 
 const EYEBROW = "Espace commercial";
@@ -84,7 +84,7 @@ export async function flushOutbox(admin: Admin): Promise<{ sent: number; failed:
   const { data, error } = await admin
     .from("commercial_emails")
     .select(
-      "id, kind, commerciaux(id, email, first_name, last_name), commercial_statements(month, lines, adjustments, total_cents, sent_at)"
+      "id, kind, commerciaux(id, email, first_name, last_name), commercial_statements(month, commission_percent, lines, adjustments, total_cents, sent_at)"
     )
     .is("sent_at", null)
     .order("created_at");

@@ -8,18 +8,26 @@ import {
   fetchCommerciaux,
   fetchDiscordMembers,
   fetchSettings,
+  setCommissionPercent,
   setDiscordMember,
   updateSettings,
   type CommercialRow,
   type CommercialSettings,
 } from "@/lib/admin/commerciaux";
 import type { DiscordMember } from "@/lib/discord";
+import { GHOST_BUTTON } from "./commerciaux-tab";
 
 type Key = "commission_percent" | "term_months" | "visit_request_days";
 
 /* Les seuls réglages de l'espace commercial, saisis par l'admin : aucune valeur n'est écrite dans le code. */
 const FIELDS: { key: Key; label: string; unit: string; hint: string; required: boolean }[] = [
-  { key: "commission_percent", label: "Commission", unit: "%", hint: "Part de ce qu’Ominin gagne sur chaque restaurant signé.", required: true },
+  {
+    key: "commission_percent",
+    label: "Commission (taux de base)",
+    unit: "%",
+    hint: "Part de ce qu’Ominin gagne sur chaque restaurant signé. Un commercial peut en avoir un plus haut : voir Taux des commerciaux.",
+    required: true,
+  },
   { key: "term_months", label: "Durée de la commission", unit: "mois", hint: "À partir de l’inscription de chaque restaurant.", required: true },
   {
     key: "visit_request_days",
@@ -184,10 +192,97 @@ function DiscordAccounts() {
   );
 }
 
+/*
+ * Taux propre de chaque commercial (contrat, art. 4.6) : vide, le taux de
+ * base. Il ne fait que monter : la base refuse une baisse, l'écran demande
+ * confirmation avant une hausse.
+ */
+function CommissionRates() {
+  const toast = useToast();
+  const [rows, setRows] = useState<CommercialRow[] | null>(null);
+  const [base, setBase] = useState<number | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, string>>({});
+
+  const load = useCallback(() => fetchCommerciaux().then(setRows), []);
+  useEffect(() => {
+    void load();
+    void fetchSettings().then((settings) => setBase(settings.commission_percent));
+  }, [load]);
+
+  const raise = async (row: CommercialRow) => {
+    const percent = Number(drafts[row.id]);
+    const who = row.name ?? row.email;
+    if (!window.confirm(`Porter le taux de ${who} à ${percent.toLocaleString("fr-FR")} % ? Il ne pourra plus baisser. Prévenez-le par e-mail.`)) return;
+    try {
+      await setCommissionPercent(row.id, percent);
+      toast.success(`Taux de ${who} enregistré.`);
+      setDrafts((all) => {
+        const next = { ...all };
+        delete next[row.id];
+        return next;
+      });
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : "Une erreur est survenue.");
+    }
+    await load();
+  };
+
+  return (
+    <section className="flex flex-col gap-4">
+      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Taux des commerciaux</h2>
+      {!rows || base === null ? (
+        <div aria-busy className="shimmer h-32 rounded-2xl" />
+      ) : rows.length === 0 ? (
+        <EmptyState title="Aucun commercial" body="Les commerciaux invités apparaissent ici, pour relever leur taux." />
+      ) : (
+        <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+          {rows.map((row) => {
+            const current = row.commissionPercent ?? base;
+            const draft = drafts[row.id] ?? "";
+            return (
+              <li key={row.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+                <label htmlFor={`rate-${row.id}`} className="min-w-0 flex-1 truncate text-sm">
+                  {row.name ?? row.email}
+                  <span className="block text-xs text-faint">
+                    {row.commissionPercent === null ? "Taux de base" : "Taux propre"} : {current.toLocaleString("fr-FR")} %
+                  </span>
+                </label>
+                <span className="flex items-center gap-2 text-sm text-muted">
+                  <input
+                    id={`rate-${row.id}`}
+                    type="number"
+                    step="any"
+                    min={current}
+                    max={100}
+                    placeholder={current.toString()}
+                    value={draft}
+                    onChange={(event) => setDrafts({ ...drafts, [row.id]: event.target.value })}
+                    className={`${inputClass} w-28`}
+                  />
+                  %
+                  <button
+                    type="button"
+                    disabled={draft === "" || Number(draft) <= current}
+                    onClick={() => void raise(row)}
+                    className={GHOST_BUTTON}
+                  >
+                    Relever
+                  </button>
+                </span>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </section>
+  );
+}
+
 export function ReglagesTab() {
   return (
     <div className="flex flex-col gap-8">
       <SettingsForm />
+      <CommissionRates />
       <DiscordAccounts />
     </div>
   );
