@@ -211,7 +211,7 @@ function StarterSetup({ etablissementId, offered }: { etablissementId: string; o
             <div key={line.id} className="flex items-baseline justify-between gap-4">
               <dt className="text-muted">
                 {line.label}
-                {line.detail && <span className="block text-xs text-faint">{line.detail}</span>}
+                {!offered && line.detail && <span className="block text-xs text-faint">{line.detail}</span>}
               </dt>
               {offered ? (
                 <dd className="font-medium">× {line.quantity}</dd>

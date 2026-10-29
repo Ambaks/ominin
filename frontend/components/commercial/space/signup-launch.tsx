@@ -65,7 +65,7 @@ export function SignupLaunch({ restaurantId, restaurantName }: { restaurantId: s
         </div>
       ) : (
         <div className="flex flex-col items-center gap-5">
-          <div className="rounded-2xl bg-white p-4">
+          <div className="rounded-2xl bg-white p-4 text-black">
             <QrCode value={`${commercialSiteUrl}${path}`} label={`Inscription de ${restaurantName}`} className="size-60" />
           </div>
           {progress && (

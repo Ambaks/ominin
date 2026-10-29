@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { flushOutbox, notifyNewDeclarations } from "@/lib/commercial/outbox";
+import { flushOutbox } from "@/lib/commercial/outbox";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 
@@ -24,7 +24,5 @@ export async function POST() {
   if (!isAdmin && !commercial) {
     return NextResponse.json({ error: "Accès refusé." }, { status: 403 });
   }
-  const admin = createAdminClient();
-  await notifyNewDeclarations(admin);
-  return NextResponse.json(await flushOutbox(admin));
+  return NextResponse.json(await flushOutbox(createAdminClient()));
 }

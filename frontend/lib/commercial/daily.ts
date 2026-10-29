@@ -1,32 +1,28 @@
 import { OWNERS } from "@/lib/admin/owners";
 import { notifyOwners } from "@/lib/admin/push";
 import { frenchDate } from "@/lib/legal/format";
-import type { createAdminClient } from "@/lib/supabase/admin";
-import { commercialPrefix } from "@/lib/site";
-import { flushOutbox, notifyNewDeclarations } from "./outbox";
-import { notifyCommercial } from "./push";
 import { getStripe } from "@/lib/stripe/server";
+import type { createAdminClient } from "@/lib/supabase/admin";
+import { flushOutbox } from "./outbox";
+import { displayName } from "./record";
 import { releaseRequests } from "./requests";
 import { settleSignups } from "./signup";
-import { displayName } from "./record";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
 type Job =
-  | "commercial_confirm_due"
-  | "commercial_expire_due"
   | "commercial_release_ended"
+  | "commercial_release_holds"
   | "commercial_draft_statements"
-  | "commercial_urssaf_reminders"
-  | "commercial_appointment_followups";
+  | "commercial_urssaf_reminders";
 
 /**
  * Tâche quotidienne (workflow commercial-daily) : idempotente, elle écrit
- * les échéances de la base (confirmations de droit, expirations, fins de
- * contrat, brouillons des relevés, rappels URSSAF, relances après un
- * rendez-vous), envoie ce qui attend
- * dans la file des e-mails et prévient l'admin et les commerciaux de ce qui
- * les attend. Toutes les dates se calculent en base.
+ * les échéances de la base (fins de contrat et restaurants rendus libres,
+ * brouillons des relevés, rappels URSSAF, demandes de visite échues,
+ * inscriptions devenues clientes), envoie ce qui attend dans la file des
+ * e-mails et prévient l'admin de ce qui l'attend. Toutes les dates se
+ * calculent en base.
  */
 export async function runDaily(admin: Admin) {
   const call = async (fn: Job) => {
@@ -34,36 +30,27 @@ export async function runDaily(admin: Admin) {
     if (error) throw new Error(`${fn} : ${error.message}`);
     return data;
   };
-  const confirmed = await call("commercial_confirm_due");
-  const expired = await call("commercial_expire_due");
   const released = await call("commercial_release_ended");
+  const holds = await call("commercial_release_holds");
   // Brouillons des relevés du mois écoulé, tenus à jour jusqu'à leur envoi.
   const statementDrafts = await call("commercial_draft_statements");
   const urssafReminders = await call("commercial_urssaf_reminders");
-  // Relances J+n après un rendez-vous, avant le push du matin qui les compte.
-  const followups = await call("commercial_appointment_followups");
   // Demandes de visite échues : libérées pour tous, ou gardées par qui a avancé.
   const visitRequests = await releaseRequests(admin);
   // Inscriptions finies après coup (Stripe, HubRise depuis la gestion) : clients.
   const signups = await settleSignups(admin, getStripe);
   const optionReminders = await remindOptions(admin);
   const finalStatements = await remindFinalStatements(admin);
-  const pushed = await pushMorning(admin);
-  const declarations = await notifyNewDeclarations(admin);
   const emails = await flushOutbox(admin);
   return {
-    confirmed,
-    expired,
     released,
+    holds,
     statementDrafts,
     urssafReminders,
-    followups,
     visitRequests,
     signups,
     optionReminders,
     finalStatements,
-    pushed,
-    declarations,
     emails,
   };
 }
@@ -112,32 +99,3 @@ async function remindFinalStatements(admin: Admin): Promise<number> {
   return data.length;
 }
 
-/*
- * Le matin, à chaque commercial abonné : ses relances dues d'ici la fin de
- * la journée (heure de Paris) et ses réservations qui expirent bientôt
- * (préférences « relance », « expiration »), comptées en base.
- */
-async function pushMorning(admin: Admin): Promise<number> {
-  const { data, error } = await admin.rpc("commercial_morning");
-  if (error) throw new Error(`commercial_morning : ${error.message}`);
-  const home = `${commercialPrefix}/espace`;
-  for (const { commercial_id, tasks, expiring } of data) {
-    if (tasks > 0) {
-      await notifyCommercial(admin, commercial_id, "relance", {
-        title: tasks > 1 ? `${tasks} relances aujourd’hui` : "Une relance aujourd’hui",
-        body: "Appeler, écrire ou reporter : tout est sur Aujourd’hui.",
-        tag: "commercial-relances",
-        url: home,
-      });
-    }
-    if (expiring > 0) {
-      await notifyCommercial(admin, commercial_id, "expiration", {
-        title: expiring > 1 ? `${expiring} réservations expirent bientôt` : "Une réservation expire bientôt",
-        body: "Sans inscription d’ici là, le restaurant redevient libre.",
-        tag: "commercial-expirations",
-        url: home,
-      });
-    }
-  }
-  return data.length;
-}

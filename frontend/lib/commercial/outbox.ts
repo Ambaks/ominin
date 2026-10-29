@@ -238,35 +238,3 @@ export async function flushOutbox(admin: Admin): Promise<{ sent: number; failed:
   return { sent, failed };
 }
 
-/*
- * Chaque nouvelle déclaration prévient les admins, pour qu'elle soit tranchée
- * avant sa confirmation de droit ; celles qui lèvent l'alerte « déjà client ? »
- * en urgence.
- */
-export async function notifyNewDeclarations(admin: Admin): Promise<number> {
-  const { data, error } = await admin
-    .from("commercial_declarations")
-    .select("id, client_alert, confirm_deadline, crm_restaurants(name)")
-    .eq("status", "pending")
-    .is("admin_notified_at", null);
-  if (error) throw new Error(error.message);
-  for (const row of data) {
-    const { data: claimed } = await admin
-      .from("commercial_declarations")
-      .update({ admin_notified_at: new Date().toISOString() })
-      .eq("id", row.id)
-      .is("admin_notified_at", null)
-      .select("id");
-    if (!claimed?.length) continue;
-    await notifyOwners(OWNERS, {
-      title: row.client_alert
-        ? `Déjà client ? ${row.crm_restaurants?.name ?? ""}`
-        : `Déclaration à confirmer · ${row.crm_restaurants?.name ?? ""}`,
-      body: `${row.client_alert ? `${row.client_alert}. ` : ""}Confirmée de droit le ${frenchDate(row.confirm_deadline!)} sans réponse.`,
-      tag: `declaration-${row.id}`,
-      url: "/commerciaux?onglet=declarations",
-      urgent: Boolean(row.client_alert),
-    });
-  }
-  return data.length;
-}
