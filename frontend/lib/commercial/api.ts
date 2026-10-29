@@ -94,7 +94,7 @@ export interface Dashboard {
 
 export const dashboard = () => call<Dashboard>(db().rpc("commercial_dashboard"));
 
-/** commercial_restaurant_recap() : ce que le commercial a récupéré sur un restaurant (migration 20261029000010). */
+/** commercial_restaurant_recap() : ce que le commercial a récupéré sur un restaurant (migration 20261029000015). */
 export interface RestaurantRecap {
   id: string;
   name: string;
