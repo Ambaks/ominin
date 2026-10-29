@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import type { MapRestaurant } from "@/lib/commercial/api";
+import { SIGNUP_KINDS } from "@/lib/commercial/signup-form";
 import { REFUSAL_REASONS, visitMessage, type VisitInput, type VisitReason } from "@/lib/commercial/visit";
 import { useAccount, spaceHref } from "./shell";
 import { FieldGroup, PageTitle, cardClass, Choice, errorMessage, ghostButton, primaryButton } from "./ui";
@@ -64,10 +65,15 @@ export function VisitScreen({ place }: { place: MapRestaurant }) {
 
       {step === "home" && (
         <div className="flex flex-col gap-3">
-          <a href={spaceHref("/ressources/deck")} target="_blank" className={`${ghostButton} ${bigButton}`}>
-            Ouvrir le deck
-            <span className="text-xs font-normal">À montrer au gérant, même sans réseau</span>
-          </a>
+          <FieldGroup label="Le deck, selon l’établissement" hint="À montrer au gérant, même sans réseau une fois ouvert.">
+            <div className="grid grid-cols-3 gap-2">
+              {SIGNUP_KINDS.map((kind) => (
+                <a key={kind.id} href={spaceHref(`/ressources/decks/${kind.id}`)} className={ghostButton}>
+                  {kind.label}
+                </a>
+              ))}
+            </div>
+          </FieldGroup>
           <Link href={spaceHref(`/inscription/${place.id}`)} className={`${primaryButton} ${bigButton}`}>
             Lancer l’inscription
             <span className="text-xs font-normal">Avec le gérant, sur place</span>

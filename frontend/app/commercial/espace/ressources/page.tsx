@@ -1,5 +1,6 @@
 import { ShareLink } from "@/components/commercial/space/share-link";
 import { PageTitle, SectionTitle, cardClass, ghostButton } from "@/components/commercial/space/ui";
+import { DECKS } from "@/lib/commercial/decks";
 import { requireRunningContract } from "@/lib/commercial/session";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
 import { collectOffer, pricingSection } from "@/lib/landing-data";
@@ -12,9 +13,10 @@ import { createClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 /*
- * Ressources : ce que le commercial montre au gérant (le deck, les démos, les
- * offres telles que les publient les pages publiques — il n'en promet pas
- * d'autres, article 2.2) et son guide de vente, réglé par l'admin.
+ * Ressources : ce que le commercial montre au gérant (les decks par type
+ * d'établissement, le deck PDF, les démos, les offres telles que les
+ * publient les pages publiques — il n'en promet pas d'autres, article 2.2)
+ * et son guide de vente, réglé par l'admin.
  */
 export default async function RessourcesPage() {
   const account = await requireRunningContract();
@@ -58,9 +60,20 @@ export default async function RessourcesPage() {
 
       <section className="flex flex-col gap-2.5">
         <SectionTitle>Présentation</SectionTitle>
+        <ul className="grid grid-cols-2 gap-2">
+          {DECKS.map((deck) => (
+            <li key={deck.kind}>
+              <a href={`${commercialPrefix}/espace/ressources/decks/${deck.kind}`} className={`${cardClass} block`}>
+                <span className="block font-medium">{deck.label}</span>
+                <span className="text-sm text-muted">Le deck, plein écran</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs text-faint">{"Un deck par type d’établissement. Ouvre chacun une fois avec du réseau : il reste lisible hors ligne."}</p>
         <a href={`${commercialPrefix}/espace/ressources/deck`} target="_blank" className={`${cardClass} flex items-center justify-between gap-3`}>
           <span>
-            <span className="block font-medium">Deck Ominin</span>
+            <span className="block font-medium">Deck Ominin (PDF)</span>
             <span className="text-sm text-muted">PDF, à montrer au gérant sur ton téléphone</span>
           </span>
           <span className={ghostButton}>Ouvrir</span>
