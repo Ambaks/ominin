@@ -3,7 +3,10 @@
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
+import { openDocument } from "@/lib/admin/commerciaux";
 import { formatDate } from "@/lib/admin/format";
+import { displayName } from "@/lib/commercial/record";
+import { SIGNUP_KINDS } from "@/lib/commercial/signup-form";
 import { compose, describeAnswers, parseAnswers, type Answers } from "@/lib/composer";
 import { starterKit } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu/format";
@@ -19,7 +22,74 @@ interface Setup {
   notifiedAt: string | null;
 }
 
+interface CommercialSignup {
+  kind: string | null;
+  manager_name: string | null;
+  manager_phone: string | null;
+  manager_email: string | null;
+  photos: string[];
+  finished_at: string | null;
+  commerciaux: { email: string; first_name: string | null; last_name: string | null };
+}
+
+/* Inscrit pendant la visite d'un commercial : qui, le responsable à recontacter, les photos du menu. */
+function CommercialSignupCard({ etablissementId }: { etablissementId: string }) {
+  const toast = useToast();
+  const [signup, setSignup] = useState<CommercialSignup | null>(null);
+  useEffect(() => {
+    createClient()
+      .from("commercial_signups")
+      .select("kind, manager_name, manager_phone, manager_email, photos, finished_at, commerciaux(email, first_name, last_name)")
+      .eq("etablissement_id", etablissementId)
+      .maybeSingle()
+      .then(({ data }) => setSignup(data));
+  }, [etablissementId]);
+  if (!signup) return null;
+  const rows: [string, string][] = [
+    ["Commercial", displayName(signup.commerciaux)],
+    ["Type", SIGNUP_KINDS.find((kind) => kind.id === signup.kind)?.label ?? "—"],
+    ["Responsable", signup.manager_name ?? "—"],
+    ["Contact", [signup.manager_phone, signup.manager_email].filter(Boolean).join(" · ") || "—"],
+  ];
+  return (
+    <section className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-5 lg:col-span-2">
+      <h2 className="font-display text-lg font-medium">Inscrit avec un commercial</h2>
+      <dl className="flex flex-col gap-2.5 text-sm">
+        {rows.map(([label, value]) => (
+          <div key={label} className="flex justify-between gap-4">
+            <dt className="text-muted">{label}</dt>
+            <dd className="text-right font-medium">{value}</dd>
+          </div>
+        ))}
+      </dl>
+      {signup.photos.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {signup.photos.map((path, index) => (
+            <button
+              key={path}
+              type="button"
+              onClick={() => void openDocument(path).catch((cause: unknown) => toast.error(cause instanceof Error ? cause.message : "Photo illisible."))}
+              className="rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted hover:text-foreground"
+            >
+              Photo du menu {index + 1}
+            </button>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
 export function ClientDemarrage({ etablissementId }: { etablissementId: string }) {
+  return (
+    <div className="flex flex-col gap-6">
+      <CommercialSignupCard etablissementId={etablissementId} />
+      <StarterSetup etablissementId={etablissementId} />
+    </div>
+  );
+}
+
+function StarterSetup({ etablissementId }: { etablissementId: string }) {
   const toast = useToast();
   const [setup, setSetup] = useState<Setup | null | undefined>(undefined);
 

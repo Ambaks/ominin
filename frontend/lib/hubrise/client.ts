@@ -23,6 +23,8 @@ function environment() {
 
 /** Cookie httpOnly portant le state anti-CSRF du flux OAuth. */
 export const HUBRISE_STATE_COOKIE = "hubrise_oauth_state";
+/** Posé à côté du state quand l'autorisation part d'une inscription avec un commercial : son id. */
+export const HUBRISE_SIGNUP_COOKIE = "hubrise_signup";
 
 export class HubriseError extends Error {
   constructor(

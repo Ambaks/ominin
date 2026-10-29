@@ -2077,6 +2077,76 @@ export type Database = {
         }
         Relationships: []
       }
+      commercial_signups: {
+        Row: {
+          commercial_id: string
+          created_at: string
+          etablissement_id: string | null
+          finished_at: string | null
+          hubrise_later: boolean
+          id: string
+          kind: string | null
+          manager_email: string | null
+          manager_name: string | null
+          manager_phone: string | null
+          photos: string[]
+          restaurant_id: string
+          stripe_later: boolean
+        }
+        Insert: {
+          commercial_id: string
+          created_at?: string
+          etablissement_id?: string | null
+          finished_at?: string | null
+          hubrise_later?: boolean
+          id?: string
+          kind?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          photos?: string[]
+          restaurant_id: string
+          stripe_later?: boolean
+        }
+        Update: {
+          commercial_id?: string
+          created_at?: string
+          etablissement_id?: string | null
+          finished_at?: string | null
+          hubrise_later?: boolean
+          id?: string
+          kind?: string | null
+          manager_email?: string | null
+          manager_name?: string | null
+          manager_phone?: string | null
+          photos?: string[]
+          restaurant_id?: string
+          stripe_later?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_signups_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_signups_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_signups_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commercial_statements: {
         Row: {
           adjustments: Json
@@ -8057,6 +8127,7 @@ export type Database = {
         Args: { p_declaration: string }
         Returns: string
       }
+      commercial_start_signup: { Args: { p_restaurant: string }; Returns: string }
       commercial_state: {
         Args: {
           p_commercial: string

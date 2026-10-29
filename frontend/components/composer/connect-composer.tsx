@@ -107,7 +107,17 @@ function Stepper({
   );
 }
 
-export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
+/**
+ * Avec `onDone` (inscription par un commercial), le composeur ne montre aucun
+ * prix et rend les réponses à la dernière question, au lieu du récapitulatif.
+ */
+export function ConnectComposer({
+  defaultTables,
+  onDone,
+}: {
+  defaultTables: number;
+  onDone?: (answers: Answers) => void;
+}) {
   const [answers, setAnswers] = useState(() => initialAnswers(defaultTables));
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
@@ -131,7 +141,9 @@ export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
   // Le parcours survit à un aller-retour (fiche de l'imprimante, retour
   // arrière du navigateur) : réponses et question en cours restent dans
   // l'onglet.
+  // Pas avec un commercial : son téléphone enchaîne les restaurants.
   useEffect(() => {
+    if (onDone) return;
     try {
       const saved = sessionStorage.getItem(STORAGE_KEY);
       if (!saved) return;
@@ -142,15 +154,16 @@ export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
     } catch {
       // Stockage indisponible (navigation privée) : on repart de zéro.
     }
-  }, [defaultTables]);
+  }, [defaultTables, onDone]);
 
   useEffect(() => {
+    if (onDone) return;
     try {
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, index }));
     } catch {
       // Idem : sans stockage, le parcours reste dans la page.
     }
-  }, [answers, index]);
+  }, [answers, index, onDone]);
 
   // Sur téléphone, la réponse est souvent sous la ligne de flottaison : la
   // question suivante remonte en vue.
@@ -163,7 +176,8 @@ export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
   // cran tombe toujours sur la bonne.
   const choose = (patch: Partial<Answers>) => {
     update(patch);
-    go(1);
+    if (onDone && index === steps.length - 1) onDone({ ...answers, ...patch });
+    else go(1);
   };
   const restart = () => {
     setShowOther(false);
@@ -502,7 +516,7 @@ export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
   const isLast = index === steps.length - 1;
 
   return (
-    <div className="grid gap-6 pb-28 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:pb-0">
+    <div className={onDone ? "flex flex-col" : "grid gap-6 pb-28 lg:grid-cols-[minmax(0,1fr)_22rem] lg:items-start lg:pb-0"}>
       <section ref={card} className="relative flex min-h-[30rem] scroll-mt-4 flex-col gap-6 overflow-hidden rounded-3xl border border-hairline bg-surface p-6 sm:p-8">
         <div className="flex gap-1.5" aria-hidden>
           {steps.map((s, i) => (
@@ -532,7 +546,7 @@ export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
               </button>
               <button
                 type="button"
-                onClick={() => go(1)}
+                onClick={() => (isLast && onDone ? onDone(answers) : go(1))}
                 disabled={!current.canContinue}
                 className="ember-gradient rounded-full px-6 py-2.5 text-sm font-semibold text-background transition-opacity disabled:opacity-30"
               >
@@ -563,6 +577,8 @@ export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
         )}
       </section>
 
+      {!onDone && (
+      <>
       <aside className="relative overflow-hidden rounded-3xl border border-ember-2/30 bg-surface p-6 shadow-lg shadow-ember-2/5 sm:p-8 lg:sticky lg:top-24">
         <div className="ember-glow pointer-events-none absolute inset-0" aria-hidden />
         <div className="relative flex flex-col gap-5">
@@ -653,6 +669,8 @@ export function ConnectComposer({ defaultTables }: { defaultTables: number }) {
           )}
         </div>
       </div>
+      </>
+      )}
     </div>
   );
 }

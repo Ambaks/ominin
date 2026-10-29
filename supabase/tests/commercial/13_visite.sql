@@ -24,4 +24,16 @@ select pg_temp.ok((select holder = 'Alice' from public.commercial_map(:'r1')), '
 select pg_temp.reset();
 select pg_temp.ok((select count(*) from public.commercial_visits where restaurant_id = :'r1') = 2, 'visite : chaque visite est gardée');
 
+
+-- Inscription : lancée sur un restaurant libre ou suivi par soi, reprise tant qu'aucun compte n'est créé.
+select pg_temp.act(:'a_user');
+select public.commercial_start_signup(:'r1') as s1 \gset
+select pg_temp.ok(public.commercial_start_signup(:'r1') = :'s1', 'inscription : reprise de celle en cours');
+select public.commercial_start_signup(:'r2') as s2 \gset
+select pg_temp.ok((select state = 'visited' and mine from public.commercial_map(:'r2')), 'inscription : le restaurant devient celui du commercial');
+select pg_temp.act(:'b_user');
+select pg_temp.ok(pg_temp.fails(format('select public.commercial_start_signup(%L)', :'r2')), 'inscription : refusée sur le restaurant d''un autre');
+select pg_temp.ok(pg_temp.fails(format('select public.commercial_take(%L, %L)', :'r3', :'b')), 'inscription : la prise n''est pas appelable directement');
+select pg_temp.reset();
+
 rollback;
