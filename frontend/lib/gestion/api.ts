@@ -629,7 +629,8 @@ export async function payOrderItems(
   /** Quantité réglée par ligne : deux nems d'une même ligne se règlent séparément. */
   items: { itemId: string; quantity: number }[],
   mode: EncaissementMode,
-  paymentCode: string,
+  /** null quand l'établissement n'a pas de code d'encaissement. */
+  paymentCode: string | null,
   cashDetails?: CashDetails,
   tip?: number
 ): Promise<void> {
@@ -954,7 +955,7 @@ export async function verifyAdminPin(code: string): Promise<boolean> {
   );
 }
 
-/** Pose ou remplace le code de quatre chiffres exigé à chaque encaissement. */
+/** Pose ou remplace le code de quatre chiffres exigé à chaque encaissement ; vide, il le retire. */
 export async function setPaymentPin(code: string): Promise<void> {
   const supabase = createClient();
   const { data: set, error } = await supabase.rpc("set_payment_pin", {
@@ -965,7 +966,7 @@ export async function setPaymentPin(code: string): Promise<void> {
   // Code réservé : la base répond false et compte l'essai.
   if (set === false) throw new Error("Ce code est réservé. Choisissez-en un autre.");
   apply((draft) => {
-    draft.etablissement.paymentPinSet = true;
+    draft.etablissement.paymentPinSet = code.length > 0;
   });
 }
 

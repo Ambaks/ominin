@@ -80,7 +80,7 @@ export function EncaisserPanel({
   const [paying, setPaying] = useState<{
     units: Unit[];
     total: number;
-    paymentCode: string;
+    paymentCode: string | null;
   } | null>(null);
   const [cancelling, setCancelling] = useState<Unit | null>(null);
 
@@ -110,15 +110,8 @@ export function EncaisserPanel({
     });
 
   const requestPayment = (units: Unit[], total: number) => {
-    if (!state?.etablissement.paymentPinSet) {
-      toast.error(
-        state?.role === "gerant"
-          ? "Définissez d'abord le code d'encaissement, dans Établissement."
-          : "Le code d'encaissement n'est pas encore défini : demandez au gérant."
-      );
-      return;
-    }
-    setAuthorizing({ units, total });
+    if (state?.etablissement.paymentPinSet) setAuthorizing({ units, total });
+    else setPaying({ units, total, paymentCode: null });
   };
   const payAll = () => requestPayment(unpaid, remaining);
   const paySelection = () =>
