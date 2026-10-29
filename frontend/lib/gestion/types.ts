@@ -223,6 +223,8 @@ export interface Order {
   staffId?: string | null;
   /** Vente saisie sur la caisse Popina : en lecture seule, la caisse fait foi. */
   fromTill?: boolean;
+  /** Son id chez HubRise, une fois transmise à la caisse. */
+  hubriseOrderId?: string;
 }
 
 export interface Table {

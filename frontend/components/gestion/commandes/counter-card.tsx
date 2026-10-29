@@ -14,6 +14,7 @@ import { earlierNumberingDay } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatWait, minutesSince } from "@/lib/gestion/use-now";
+import { HubriseRef } from "./hubrise-ref";
 
 /*
  * Une commande fast food dans l'onglet À servir : son numéro, en grand — c'est
@@ -167,6 +168,7 @@ export function CounterCard({
           </span>
         </p>
       </div>
+      <HubriseRef orders={[order]} className="px-5" />
 
       <CounterLines items={order.items} className="flex-1 pt-3" />
 

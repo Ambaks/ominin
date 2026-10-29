@@ -5,6 +5,7 @@ import { useCallback, useState } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
 import { StripeDashboardButton } from "@/components/gestion/paiements/stripe-dashboard-button";
+import { HubriseRef } from "@/components/gestion/commandes/hubrise-ref";
 import { TillChip } from "@/components/gestion/commandes/till-chip";
 import { EditIcon, TrashIcon } from "@/components/gestion/icons";
 import { StatCard } from "@/components/gestion/apercu/stat-card";
@@ -184,6 +185,7 @@ function PaymentRow({
             </>
           )}
         </p>
+        <HubriseRef orders={[order]} />
       </div>
       {mode && (
         <span className="shrink-0 rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">

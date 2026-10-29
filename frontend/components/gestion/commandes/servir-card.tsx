@@ -7,6 +7,7 @@ import { SERVICE_LATE_MINUTES } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import type { Order, OrderItem } from "@/lib/gestion/types";
 import { formatWait } from "@/lib/gestion/use-now";
+import { HubriseRef } from "./hubrise-ref";
 import { CheckMark, LineLabel, LineOptions, PaymentChip } from "./order-line";
 
 /*
@@ -227,6 +228,7 @@ export function ServirCard({
             </span>
           )}
         </p>
+        <HubriseRef orders={orders} />
       </div>
       <div className="mt-2">
         <ServirPanel orders={orders} readOnly={readOnly} onServe={onServe} title={title} />

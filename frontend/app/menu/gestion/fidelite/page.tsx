@@ -322,6 +322,7 @@ function LoyaltyManager({
               <p className="truncate text-sm font-medium">{customer.contact}</p>
               <p className="text-xs text-faint">
                 Dernière activité {formatDateTime(customer.lastActivity)}
+                {customer.hubriseCustomerId && ` · HubRise · ${customer.hubriseCustomerId}`}
               </p>
             </div>
             <div className="flex shrink-0 items-center gap-3">

@@ -16,6 +16,7 @@ import type {
   PaymentLeg,
 } from "@/lib/gestion/types";
 import { counterWords, formatPrice } from "@/lib/menu/format";
+import { HubriseRef } from "./hubrise-ref";
 import { CheckMark, LineLabel, LineOptions } from "./order-line";
 import { PaymentDialog } from "./payment-dialog";
 import { PaymentPinDialog } from "./payment-pin-dialog";
@@ -381,6 +382,7 @@ export function EncaisserCard({
           <p className="text-xs text-muted">
             Part {counterWords(barPickup).preparation} une fois encaissée.
           </p>
+          <HubriseRef orders={orders} />
         </div>
         <span className="font-display text-lg text-ember-1">
           {formatPrice(remaining)}

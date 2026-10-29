@@ -7841,6 +7841,7 @@ export type Database = {
         Args: { p_etablissement_id: string }
         Returns: {
           contact: string
+          hubrise_customer_id: string | null
           id: string
           last_activity: string
           points: number
