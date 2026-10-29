@@ -65,8 +65,9 @@ export interface MapRestaurant {
   holder: string | null;
   mine: boolean;
   contacted_by_lea: boolean;
-  /** Le commercial a une demande de visite ouverte sur ce restaurant. */
-  requested: boolean;
+  /** Sa demande de visite sur ce restaurant : en attente, ou refusée jusqu'à request_ends. */
+  request: "pending" | "refused" | null;
+  request_ends: string | null;
 }
 
 export const mapRestaurants = () => call<MapRestaurant[]>(db().rpc("commercial_map"));
@@ -79,7 +80,6 @@ export interface DashboardRestaurant {
   status: "signed" | "waiting" | "not_interested" | "absent";
   /** En attente : ce qui manque pour qu'il soit client. */
   missing: ("account" | "stripe" | "hubrise")[] | null;
-  signup_id: string | null;
   commission_from: string | null;
   commission_until: string | null;
   earned_cents: number | null;
@@ -94,6 +94,39 @@ export interface Dashboard {
 
 export const dashboard = () => call<Dashboard>(db().rpc("commercial_dashboard"));
 
+/** commercial_restaurant_recap() : ce que le commercial a récupéré sur un restaurant (migration 20261029000010). */
+export interface RestaurantRecap {
+  id: string;
+  name: string;
+  address: string | null;
+  phone: string | null;
+  visits: {
+    at: string;
+    outcome: "not_interested" | "absent";
+    reason: "price" | "tool" | "time" | "other" | null;
+    note: string | null;
+    contact_name: string | null;
+    contact_phone: string | null;
+    contact_email: string | null;
+  }[];
+  signup: {
+    id: string;
+    at: string;
+    kind: string | null;
+    account: boolean;
+    manager_name: string | null;
+    manager_phone: string | null;
+    manager_email: string | null;
+    photos: number;
+    finished_at: string | null;
+    stripe: boolean;
+    hubrise: boolean;
+    stripe_later: boolean;
+    hubrise_later: boolean;
+  } | null;
+  client: { commission_from: string; commission_until: string } | null;
+}
+
 export type PushEventKey = "relance" | "demo" | "inscription" | "expiration" | "releve" | "opposition";
 
 export const setPushPrefs = (prefs: Partial<Record<PushEventKey, boolean>>) =>
@@ -101,6 +134,7 @@ export const setPushPrefs = (prefs: Partial<Record<PushEventKey, boolean>>) =>
 
 export interface MonthLine {
   client_id: string;
+  restaurant_id: string;
   name: string;
   menu_cents: number;
   shop_cents: number;

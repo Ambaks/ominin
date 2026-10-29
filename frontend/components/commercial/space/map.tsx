@@ -9,6 +9,7 @@ import { useToast } from "@/components/ui/toast";
 import { STATUS_MAP_COLORS } from "@/lib/admin/status";
 import type { GeoPoint, LeadLite, LeadStatus } from "@/lib/admin/types";
 import { MAPS_DIRECTIONS_BASE } from "@/lib/collect/shared";
+import { frenchDate } from "@/lib/legal/format";
 import * as api from "@/lib/commercial/api";
 import { spaceHref } from "./shell";
 import { ErrorNote, Skeleton, cardClass, errorMessage, ghostButton, primaryButton, telHref } from "./ui";
@@ -65,7 +66,14 @@ function stateLabel(place: api.MapRestaurant): string {
 function RequestVisit({ place, onSent }: { place: api.MapRestaurant; onSent: () => void }) {
   const toast = useToast();
   const [busy, setBusy] = useState(false);
-  if (place.requested) return <p className="text-sm text-muted">Demande envoyée à {place.holder}.</p>;
+  if (place.request === "pending") return <p className="text-sm text-muted">Demande envoyée à {place.holder}.</p>;
+  if (place.request === "refused") {
+    return (
+      <p className="text-sm text-muted">
+        {place.holder} a refusé ta demande. S’il n’avance pas, le restaurant se libère le {frenchDate(place.request_ends!)}.
+      </p>
+    );
+  }
   const send = async () => {
     setBusy(true);
     const response = await fetch("/api/commercial/demande", {

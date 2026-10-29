@@ -36,26 +36,19 @@ function detail(place: api.DashboardRestaurant): string {
   }
 }
 
-/* Où mène une ligne : le suivi de l'inscription, ou la visite à reprendre. */
-function href(place: api.DashboardRestaurant): string | null {
-  if (place.status === "waiting" && place.signup_id) return spaceHref(`/inscription/${place.signup_id}`);
-  if (place.status === "absent" || place.status === "not_interested") return spaceHref(`/visite/${place.id}`);
-  return null;
-}
-
+/* Chaque ligne ouvre le récap du restaurant : ce que le commercial a récupéré. */
 function Row({ place }: { place: api.DashboardRestaurant }) {
-  const body = (
-    <>
-      <span className="min-w-0">
-        <span className="block truncate font-medium">{place.name}</span>
-        <span className="block text-sm text-muted">{detail(place)}</span>
-      </span>
-      {place.status === "signed" && <span className="shrink-0 font-display">{euros(place.earned_cents ?? 0)}</span>}
-    </>
+  return (
+    <li>
+      <Link href={spaceHref(`/restaurant/${place.id}`)} className={`${cardClass} flex items-center justify-between gap-3`}>
+        <span className="min-w-0">
+          <span className="block truncate font-medium">{place.name}</span>
+          <span className="block text-sm text-muted">{detail(place)}</span>
+        </span>
+        {place.status === "signed" && <span className="shrink-0 font-display">{euros(place.earned_cents ?? 0)}</span>}
+      </Link>
+    </li>
   );
-  const link = href(place);
-  const className = `${cardClass} flex items-center justify-between gap-3`;
-  return <li>{link ? <Link href={link} className={className}>{body}</Link> : <div className={className}>{body}</div>}</li>;
 }
 
 /*

@@ -86,7 +86,7 @@ export function SpaceShell({
 
   return (
     <AccountContext.Provider value={account}>
-      <ToastProvider>
+      <ToastProvider placement="top">
         <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col px-4 pb-28">
           <header className="sticky top-0 z-30 -mx-4 flex items-center justify-between gap-3 border-b border-hairline bg-background/90 px-4 py-3 backdrop-blur-md">
             <Wordmark suffix="Commercial" />

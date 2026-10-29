@@ -10,7 +10,7 @@ insert into public.commercial_holds (restaurant_id, commercial_id) values (:'r1'
 select pg_temp.act(:'a_user');
 select pg_temp.ok(pg_temp.fails(format('select public.commercial_request_visit(%L)', :'r4')), 'demande : refusée sur un restaurant libre');
 select public.commercial_request_visit(:'r1') as q1 \gset
-select pg_temp.ok((select requested from public.commercial_map(:'r1')), 'demande : la carte la montre au demandeur');
+select pg_temp.ok((select request from public.commercial_map(:'r1')) = 'pending', 'demande : la carte la montre au demandeur');
 select pg_temp.ok(pg_temp.fails(format('select public.commercial_request_visit(%L)', :'r1')), 'demande : une seule ouverte par restaurant');
 select public.commercial_request_visit(:'r2') as q2 \gset
 select public.commercial_request_visit(:'r3') as q3 \gset

@@ -15,7 +15,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *   compte    → compte du gérant, établissement, réponses, CGV
  *   stripe    → lien d'onboarding Stripe Connect, retour au questionnaire
  *   hubrise   → URL d'autorisation HubRise (le retour passe par /api/hubrise/callback)
- *   plus-tard → Stripe ou HubRise remis à plus tard
+ *   plus-tard → Stripe ou HubRise remis à plus tard (later: false le reprend, retour en arrière)
  *   photos    → une photo du menu
  *   fin       → Projet, Discord
  */
@@ -58,9 +58,11 @@ async function act(action: string, request: Request, admin: Admin, signup: Signu
       return response;
     }
     case "plus-tard": {
-      const { step } = (await request.json().catch(() => ({}))) as { step?: string };
+      const body = (await request.json().catch(() => ({}))) as { step?: string; later?: boolean };
+      const { step } = body;
+      const later = body.later !== false;
       if (step !== "stripe" && step !== "hubrise") throw new SignupError("Étape inconnue.", 400);
-      const { error } = await admin.from("commercial_signups").update(step === "stripe" ? { stripe_later: true } : { hubrise_later: true }).eq("id", signup.id);
+      const { error } = await admin.from("commercial_signups").update(step === "stripe" ? { stripe_later: later } : { hubrise_later: later }).eq("id", signup.id);
       if (error) throw new Error(error.message);
       return NextResponse.json({ ok: true });
     }
