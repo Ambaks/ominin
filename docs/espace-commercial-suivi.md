@@ -42,7 +42,7 @@ du cahier, expliqué).
 | Routes | `frontend/app/api/commercial/{envois,cron,places,push,rdv/[id],releves/[id]}`, `frontend/app/commercial/espace/kit/deck/route.ts`, `frontend/app/api/inscription/lien/route.ts`, `frontend/app/api/stripe/webhook/route.ts` |
 | Serveur de l'espace | `frontend/lib/commercial/session.ts` (compte lu une fois, écrans de travail fermés après la fin), `frontend/lib/admin/churn.ts` (règle du décrochage, partagée) |
 | Léa et backend | `backend/app/services/{outreach,emailing,inbox}.py` ; `backend/app/routers/places.py` (recherche Google de l'espace) et `backend/app/clients/places.py` (`address_component`, déplacé des deux `discovery.py` sans changement de comportement) |
-| Juridique | `frontend/lib/legal/constants.ts`, `frontend/lib/legal/documents/confidentialite.ts` (nouvelle version), `frontend/lib/legal/documents/commercial-v2.ts` (projet non publié) |
+| Juridique | `frontend/lib/legal/constants.ts`, `frontend/lib/legal/documents/confidentialite.ts` (nouvelle version), `frontend/lib/legal/documents/commercial-v3.ts` (inscrite, date d'effet 16/11, à relire puis publier) |
 | Tâche | `.github/workflows/commercial-daily.yml` |
 
 ## Section 4 — Règles métier
@@ -227,7 +227,7 @@ du cahier, expliqué).
 | 13.2 n° 11 | Signature pendant l'attente : confirmée d'abord ; « déjà déclaré » ; `notes` jamais écrit | fait (SQL 04, 06, 02) |
 | 13.2 n° 12 | Constantes du contrat (lot 3) dans `constants.ts`, recopiées avec 15 % et 24 mois | fait (SQL 01) |
 | 13.2 n° 13 | `commercial_quota_usage` par jour, illisible par l'admin | fait (SQL 01) |
-| 13.3 | Version 2 du contrat préparée sans publication | fait : `lib/legal/documents/commercial-v2.ts`, fonction `commercialV2("AAAA-MM-JJ")` non inscrite dans `documents/index.ts` ; points [À DÉCIDER] dans le texte |
+| 13.3 | Version 2 du contrat préparée sans publication | remplacé le 29/10 : la v2 (déclarations) est supprimée sans avoir été publiée ; la version 3, `lib/legal/documents/commercial-v3.ts`, décrit l'espace refondu et le taux propre à chaque commercial |
 
 ## Corrections après la vérification indépendante
 
@@ -326,7 +326,7 @@ Essais du vérificateur rejoués (`nouveaux3.sql`) : 24 conformes sur 31 ; les 7
 - **Réglages** (onglet Commerciaux → Réglages) : à remplir avant la première invitation — nombre de résultats de recherche, validité des liens d'inscription, rayon d'« Autour de moi » ; à décider — plafond, carence, `IN_TALKS_DAYS`, quotas (recherche, Google), délais de rappel (expiration, option, rendez-vous), seuil de « nom proche », démos du Kit, **prix Stripe éligibles (décision n° 5)**, **frais Club (décision n° 2)**.
 - **Deck** à déposer (onglet Réglages → Deck du Kit).
 - **Rattachement** des clients en service et des clients du Projet (onglet Réglages → Rattachement) avant la première invitation.
-- **Version 2 du contrat** : relecture par l'avocat de `commercial-v2.ts`, puis inscription dans `documents/index.ts` avec sa date et `npm run legal:publish`.
+- **Version 3 du contrat** : relecture par l'avocat de `commercial-v3.ts` (déjà inscrite dans `documents/index.ts`, date d'effet du 16/11 à repousser si besoin), puis `npm run legal:publish` avant cette date, sinon les nouvelles signatures sont refusées.
 - **`/confidentialite`** : relecture, inscription de `confidentialite20261026` dans `documents/index.ts`, puis `npm run legal:publish` (non servie avant). Le QR de la fiche mène à la version en vigueur, qui ne parle pas encore de prospection.
 - **Migrations** `20261028000001` à `20261028000005` à appliquer (`npm run db:push`).
 - **Variables d'environnement** : aucune nouvelle. La recherche Google utilise `GOOGLE_PLACES_API_KEY` du backend (déjà là pour Léa) et, côté Vercel, `BACKEND_URL` et `AGENT_TRIGGER_SECRET` (déjà là pour l'agent social) ; déjà existantes et utilisées : `CRON_SECRET`, Gmail, VAPID, Stripe.

@@ -1,15 +1,19 @@
-import { COMMERCIAL_COMMISSION_PERCENT, COMMERCIAL_PAYMENT_DAYS } from "@/lib/legal/constants";
+import { COMMERCIAL_PAYMENT_DAYS } from "@/lib/legal/constants";
 import type { MonthLine, Statement } from "./api";
 import { euros, monthLabel } from "./labels";
 import { LAYOUT, pdfWriter } from "./pdf";
 
 /*
- * Relevé mensuel (art. 5.1) : par Client Apporté, l'assiette et la commission,
- * puis les régularisations et le total. Le même relevé en PDF (envoi par
- * e-mail, téléchargement) et en CSV (détail des encaissements, export).
+ * Relevé mensuel (art. 5.1) : par Client Apporté, l'assiette et la commission
+ * au taux du relevé, puis les régularisations et le total. Le même relevé en
+ * PDF (envoi par e-mail, téléchargement) et en CSV (détail des encaissements,
+ * export).
  */
 
-type StatementLike = Pick<Statement, "month" | "lines" | "adjustments" | "total_cents" | "sent_at">;
+export type StatementLike = Pick<Statement, "month" | "adjustments" | "total_cents" | "sent_at"> & {
+  lines: MonthLine[];
+  commission_percent: number;
+};
 
 export const statementFilename = (month: string) => `releve-ominin-${month.slice(0, 7)}.pdf`;
 
@@ -21,7 +25,7 @@ export async function statementPdf(statement: StatementLike, commercial: string)
     date: new Date(statement.sent_at ?? `${statement.month}T00:00:00Z`),
   });
   doc.paragraph(`Relevé de commission — ${label}`, { font: doc.bold, size: LAYOUT.title });
-  doc.paragraph(`${commercial} · commission de ${COMMERCIAL_COMMISSION_PERCENT} % du chiffre d'affaires net encaissé par Ominin (article 4).`, {
+  doc.paragraph(`${commercial} · commission de ${statement.commission_percent.toLocaleString("fr-FR")} % du chiffre d'affaires net encaissé par Ominin (article 4).`, {
     color: LAYOUT.muted,
   });
 

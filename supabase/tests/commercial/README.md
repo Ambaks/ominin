@@ -36,3 +36,4 @@ passées à `psql` (`-v TERM_MONTHS=24` …) : `01_reglages.sql` vérifie que
 - `05_liens.sql` : liens fiche ↔ client, outil de rattachement (4.1, 13.2 n° 5).
 - `07_commissions.sql` : assiette recalculée à la main sur les cinq sources, avoirs, relevés, régularisations, contestation et sa clôture, relevé final, rappel URSSAF.
 - `12_carte.sql` à `17_retours.sql` : la carte, la visite, les demandes de visite, le tableau de bord et la commission des restaurants inscrits, la fin de contrat, le récap.
+- `19_taux.sql` : taux propre à chaque commercial (jamais baissé, relevés envoyés figés à leur taux, régularisation à ce taux), motif de résiliation par Ominin.

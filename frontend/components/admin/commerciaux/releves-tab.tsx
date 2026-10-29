@@ -233,7 +233,7 @@ function AdjustModal({ row, onClose, onDone }: { row: StatementRow; onClose: () 
       }
     >
       <div className="flex flex-col gap-4">
-        <Field label="Motif" required hint="Remboursement d’une commande Menu, impayé, contestation de paiement… (art. 4.6)">
+        <Field label="Motif" required hint="Remboursement d’une commande Menu, impayé, contestation de paiement… (art. 4.9)">
           <input value={label} onChange={(event) => setLabel(event.target.value)} className={inputClass} />
         </Field>
         <Field label="Commission en euros" required hint="Négative pour une déduction.">

@@ -30,13 +30,18 @@ export const PRICE_NOTICE_DAYS = 30;
 export const WITHDRAWAL_DAYS = 14;
 
 /**
- * Contrat de commercial (documents/commercial.ts) : part du chiffre
- * d'affaires net encaissé sur chaque Client Apporté. Les relevés mensuels la
- * calculent avec cette valeur — celle que le commercial a signée.
+ * Contrat de commercial (documents/commercial-v3.ts) : taux de base, part du
+ * chiffre d'affaires net encaissé sur chaque Client Apporté (art. 4.5).
+ * Ominin peut le relever pour un commercial (commerciaux.commission_percent,
+ * art. 4.6) ; chaque relevé porte le taux qu'il applique.
  */
 export const COMMERCIAL_COMMISSION_PERCENT = 15;
 
-/** Durée ferme du contrat de commercial, sans reconduction tacite. */
+/**
+ * Durée ferme du contrat, sans reconduction tacite (art. 3.1), et période de
+ * commission de chaque Client Apporté à partir du jour où il devient client
+ * (art. 4.7) : la base lit l'une et l'autre dans commercial_settings.term_months.
+ */
 export const COMMERCIAL_TERM_MONTHS = 24;
 
 /** Prolongation qu'Ominin seule peut lever au terme de la durée ferme. */
@@ -48,19 +53,13 @@ export const COMMERCIAL_TOTAL_YEARS =
 
 /*
  * Délais et seuils du contrat de commercial que la base applique : ils sont
- * recopiés dans commercial_settings (migration 20261028000002), avec le taux,
- * la durée et l'option ci-dessus ; supabase/tests/commercial/01_reglages.sql
- * vérifie l'égalité. Changer une valeur ici demande une nouvelle version du
- * contrat et une migration qui met la ligne à jour.
+ * recopiés dans commercial_settings, avec le taux, la durée et l'option
+ * ci-dessus ; supabase/tests/commercial/01_reglages.sql vérifie l'égalité.
+ * Changer une valeur ici demande une nouvelle version du contrat et une
+ * migration qui met la ligne à jour.
  */
 
-/** Ominin confirme ou refuse une déclaration dans ce délai ; passé, elle est confirmée (art. 4.3). */
-export const COMMERCIAL_CONFIRM_DAYS = 7;
-
-/** Le restaurant doit signer dans ce délai après la confirmation (art. 4.3). */
-export const COMMERCIAL_SIGN_WINDOW_MONTHS = 6;
-
-/** Préavis de résiliation par le commercial (art. 7.2). */
+/** Préavis de résiliation, par le commercial comme par Ominin (art. 7.2 et 7.5). */
 export const COMMERCIAL_NOTICE_MONTHS = 3;
 
 /** Le relevé du mois précédent part avant ce jour du mois (art. 5.1). */
@@ -78,7 +77,7 @@ export const COMMERCIAL_DETAIL_RESPONSE_DAYS = 15;
 /** Délai de contestation d'un relevé après sa réception (art. 5.4). */
 export const COMMERCIAL_CONTEST_MONTHS = 3;
 
-/** Relevé final après la fin du contrat (art. 8.1). */
+/** Relevé du mois de la fin du contrat, au plus tard ce délai après celle-ci (art. 8.1). */
 export const COMMERCIAL_FINAL_STATEMENT_DAYS = 30;
 
 /** Commissions cumulées à partir desquelles l'attestation URSSAF est due (art. 2.5). */

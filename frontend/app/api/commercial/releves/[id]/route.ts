@@ -1,7 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
-import type { MonthLine, Statement } from "@/lib/commercial/api";
 import { displayName } from "@/lib/commercial/record";
-import { statementCsv, statementFilename, statementPdf } from "@/lib/commercial/statement";
+import { statementCsv, statementFilename, statementPdf, type StatementLike } from "@/lib/commercial/statement";
 import { createClient } from "@/lib/supabase/server";
 
 /*
@@ -13,15 +12,13 @@ export async function GET(request: NextRequest, { params }: RouteContext<"/api/c
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("commercial_statements")
-    .select("month, lines, adjustments, total_cents, sent_at, commerciaux(email, first_name, last_name)")
+    .select("month, commission_percent, lines, adjustments, total_cents, sent_at, commerciaux(email, first_name, last_name)")
     .eq("id", id)
     .maybeSingle();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: "Relevé introuvable." }, { status: 404 });
 
-  const statement = data as unknown as Pick<Statement, "month" | "adjustments" | "total_cents" | "sent_at"> & {
-    lines: MonthLine[];
-  };
+  const statement = data as unknown as StatementLike;
   if (request.nextUrl.searchParams.get("format") === "csv") {
     return new Response(statementCsv(statement.lines), {
       headers: {
