@@ -226,6 +226,7 @@ export const PAYMENT_MODE_LABELS: Record<PaymentMode, string> = {
   carte: "Carte",
   en_ligne: "En ligne",
   mixte: "Espèces + carte",
+  caisse: "Caisse",
 };
 
 /** Origines d'une vente de l'accord du chef, dans l'ordre de la page Analytique. */

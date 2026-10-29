@@ -158,7 +158,8 @@ export async function fetchPaidOrders(
       .from("orders")
       .select("*, order_items(*), order_payments(*)")
       .eq("etablissement_id", etablissementId)
-      .in("status", PAID_ORDER_STATUSES)
+      // Payée en ligne puis refusée par la caisse : remboursée, ou à rembourser.
+      .or(`status.in.(${PAID_ORDER_STATUSES.join(",")}),and(status.eq.annulee,paid_online.is.true)`)
       .lt("created_at", before ?? loadedSince)
       .order("created_at", { ascending: false })
       .limit(PAYMENTS_PAGE_SIZE)

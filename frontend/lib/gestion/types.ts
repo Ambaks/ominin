@@ -18,7 +18,8 @@ export type OrderStatus =
   | "annulee"
   | "retiree";
 export type OrderType = "sur_place" | "collect";
-export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte";
+/** « caisse » : réglée à la caisse HubRise, qui n'a pas dit comment. */
+export type PaymentMode = "especes" | "carte" | "en_ligne" | "mixte" | "caisse";
 /** D'où vient une ligne suggérée par l'accord du chef (order_items.accord). */
 export type AccordSource = "panier" | "fiche" | "formule";
 /** Modes qu'un serveur choisit au comptoir ; l'en ligne, lui, est subi. */
@@ -200,6 +201,8 @@ export interface Order {
   items: OrderItem[];
   paymentMode?: PaymentMode;
   paidOnline?: boolean;
+  /** ISO — payée en ligne puis refusée par la caisse, l'argent a été rendu. */
+  refundedAt?: string;
   /** ISO — le client a choisi de régler en ligne ; absent au comptoir ou après abandon. */
   onlinePaymentStartedAt?: string;
   customerName?: string;

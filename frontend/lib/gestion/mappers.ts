@@ -163,6 +163,7 @@ export function rowToOrder(row: OrderRow): Order {
     createdAt: row.created_at,
     paymentMode: row.payment_mode ?? undefined,
     paidOnline: (row as { paid_online?: boolean }).paid_online ?? false,
+    refundedAt: row.refunded_at ?? undefined,
     onlinePaymentStartedAt: row.online_payment_started_at ?? undefined,
     customerName: row.customer_name ?? undefined,
     customerPhone: row.customer_phone ?? undefined,

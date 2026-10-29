@@ -4523,6 +4523,8 @@ export type Database = {
           pickup_at: string | null
           platform_fee_cents: number | null
           popina_order_id: string | null
+          refund_id: string | null
+          refunded_at: string | null
           source: string | null
           square_idempotency_key: string | null
           square_order_id: string | null
@@ -4557,6 +4559,8 @@ export type Database = {
           pickup_at?: string | null
           platform_fee_cents?: number | null
           popina_order_id?: string | null
+          refund_id?: string | null
+          refunded_at?: string | null
           source?: string | null
           square_idempotency_key?: string | null
           square_order_id?: string | null
@@ -4591,6 +4595,8 @@ export type Database = {
           pickup_at?: string | null
           platform_fee_cents?: number | null
           popina_order_id?: string | null
+          refund_id?: string | null
+          refunded_at?: string | null
           source?: string | null
           square_idempotency_key?: string | null
           square_order_id?: string | null
@@ -8564,6 +8570,7 @@ export type Database = {
           service_ts: string
         }[]
       }
+      hubrise_close_at_till: { Args: { p_order: string }; Returns: boolean }
       hubrise_enqueue_sync: {
         Args: { p_etab: string; p_kind: string; p_order: string }
         Returns: undefined
@@ -9165,7 +9172,7 @@ export type Database = {
         | "received"
         | "failed"
         | "cancelled"
-      payment_mode: "especes" | "carte" | "en_ligne" | "mixte"
+      payment_mode: "especes" | "carte" | "en_ligne" | "mixte" | "caisse"
       payment_provider: "stripe" | "sumup" | "square" | "demo"
       price_rule_direction: "majoration" | "remise"
       price_rule_unit: "montant" | "pourcentage"
@@ -9492,7 +9499,7 @@ export const Constants = {
         "failed",
         "cancelled",
       ],
-      payment_mode: ["especes", "carte", "en_ligne", "mixte"],
+      payment_mode: ["especes", "carte", "en_ligne", "mixte", "caisse"],
       payment_provider: ["stripe", "sumup", "square", "demo"],
       price_rule_direction: ["majoration", "remise"],
       price_rule_unit: ["montant", "pourcentage"],

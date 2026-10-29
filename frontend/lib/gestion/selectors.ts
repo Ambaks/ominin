@@ -123,6 +123,15 @@ export function isPaid(order: Order): boolean {
 }
 
 /**
+ * Payée en ligne puis annulée — par la caisse HubRise, seule à pouvoir le
+ * faire : remboursée (refundedAt), ou à rembourser. Hors du chiffre
+ * d'affaires, elle reste visible dans Paiements.
+ */
+export function isCancelledPaid(order: Order): boolean {
+  return order.status === "annulee" && Boolean(order.paidOnline);
+}
+
+/**
  * Quand l'argent est entré : le dernier règlement enregistré, ou la commande
  * elle-même faute de règlement. Une précommande payée au retrait compte le
  * jour où elle est réglée, pas celui où elle a été prise.
@@ -309,7 +318,7 @@ export function openOrders(state: GestionState): Order[] {
  * ligne restent donc séparés. Chaque règlement a posé une jambe par mode —
  * deux quand le client a partagé son addition entre espèces et carte. */
 export function totalsByMode(order: Order): Record<PaymentLeg, number> {
-  const totals = { especes: 0, carte: 0, en_ligne: 0 };
+  const totals = { especes: 0, carte: 0, en_ligne: 0, caisse: 0 };
   for (const leg of order.payments) totals[leg.mode] += leg.amount;
   return totals;
 }

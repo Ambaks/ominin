@@ -741,7 +741,8 @@ export async function updateOrderPayment(
  * Annule un encaissement au comptoir — espèces, carte ou les deux : la
  * commande passe annulée et le règlement est effacé (le trigger emporte ses
  * jambes). Un règlement en ligne ne s'annule pas d'ici : c'est une
- * transaction réelle chez le prestataire.
+ * transaction réelle chez le prestataire. Réglée à la caisse, elle se
+ * corrige sur la caisse.
  */
 export async function voidPayment(orderId: string): Promise<Order> {
   const supabase = createClient();
@@ -757,6 +758,7 @@ export async function voidPayment(orderId: string): Promise<Order> {
       .eq("id", orderId)
       .eq("paid_online", false)
       .not("payment_mode", "is", null)
+      .neq("payment_mode", "caisse")
       .select("*, order_items(*), order_payments(*)")
       .single()
   );
