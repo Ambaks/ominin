@@ -193,9 +193,7 @@ export async function finishSignup(admin: Admin, signup: Signup, progress: Signu
     p_restaurant: signup.restaurant_id,
   });
   if (projetError) console.error("[inscription] client Projet non créé", projetError.message);
-  if (complete) {
-    await admin.from("crm_restaurants").update({ etablissement_id: signup.etablissement_id }).eq("id", signup.restaurant_id);
-  }
+  if (complete) await becomeClient(admin, signup.id);
 
   const commercial = signup.commercial.first_name ?? signup.commercial.email;
   const restaurant = signup.restaurant.name;
@@ -220,4 +218,36 @@ export async function finishSignup(admin: Admin, signup: Signup, progress: Signu
   for (const result of await Promise.allSettled(posts)) {
     if (result.status === "rejected") console.error("[discord] inscription non annoncée", result.reason);
   }
+}
+
+/** Client Apporté de son commercial (commercial_signup_client) : vrai la première fois. */
+async function becomeClient(admin: Admin, signupId: string): Promise<boolean> {
+  const { data, error } = await admin.rpc("commercial_signup_client", { p_signup: signupId });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/*
+ * Tâche quotidienne : une inscription finie sans Stripe ou HubRise, branchés
+ * depuis la gestion depuis, devient client et s'annonce dans #victoires.
+ */
+export async function settleSignups(admin: Admin, stripe: () => Stripe): Promise<number> {
+  const { data: pending, error } = await admin.rpc("commercial_pending_signups");
+  if (error) throw new Error(`commercial_pending_signups : ${error.message}`);
+  let settled = 0;
+  for (const { id } of pending) {
+    const signup = await getSignup(admin, id).catch(() => null);
+    if (!signup) continue;
+    const progress = await signupProgress(admin, stripe, signup).catch((cause) => {
+      console.error("[inscription] état Stripe illisible", id, cause);
+      return null;
+    });
+    if (!progress ||progress.stripe !== "done" || progress.hubrise !== "done" || !(await becomeClient(admin, id))) continue;
+    settled++;
+    const commercial = signup.commercial.first_name ?? signup.commercial.email;
+    await postDiscord("victoires", `🎉 **${signup.restaurant.name}** a signé avec ${commercial}. Bravo !`).catch((cause) =>
+      console.error("[discord] client non annoncé", cause)
+    );
+  }
+  return settled;
 }

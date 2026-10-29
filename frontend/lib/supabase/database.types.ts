@@ -1539,35 +1539,44 @@ export type Database = {
       commercial_clients: {
         Row: {
           alert: string | null
+          commercial_id: string
           commission_from: string | null
           created_at: string
-          declaration_id: string
+          declaration_id: string | null
           ended_at: string | null
           etablissement_id: string | null
           id: string
+          restaurant_id: string
           shop_id: string | null
+          signup_id: string | null
           validated_at: string | null
         }
         Insert: {
           alert?: string | null
+          commercial_id?: string
           commission_from?: string | null
           created_at?: string
-          declaration_id: string
+          declaration_id?: string | null
           ended_at?: string | null
           etablissement_id?: string | null
           id?: string
+          restaurant_id?: string
           shop_id?: string | null
+          signup_id?: string | null
           validated_at?: string | null
         }
         Update: {
           alert?: string | null
+          commercial_id?: string
           commission_from?: string | null
           created_at?: string
-          declaration_id?: string
+          declaration_id?: string | null
           ended_at?: string | null
           etablissement_id?: string | null
           id?: string
+          restaurant_id?: string
           shop_id?: string | null
+          signup_id?: string | null
           validated_at?: string | null
         }
         Relationships: [
@@ -7951,6 +7960,7 @@ export type Database = {
         Args: { p_declared_at: string; p_etablissement: string; p_shop: string }
         Returns: string
       }
+      commercial_dashboard: { Args: never; Returns: Json }
       commercial_guide_url: { Args: never; Returns: string }
       commercial_in_service: {
         Args: {
@@ -8137,11 +8147,16 @@ export type Database = {
         Returns: Database["public"]["Enums"]["commercial_refusal_reason"]
       }
       commercial_release_ended: { Args: never; Returns: number }
+      commercial_pending_signups: {
+        Args: never
+        Returns: { etablissement_id: string; id: string }[]
+      }
       commercial_release_requests: {
         Args: never
         Returns: { discord_message_id: string; id: string; status: string }[]
       }
       commercial_request_visit: { Args: { p_restaurant: string }; Returns: string }
+      commercial_signup_client: { Args: { p_signup: string }; Returns: boolean }
       commercial_request_demo: {
         Args: { p_declaration: string; p_note: string; p_photos: string[] }
         Returns: string
