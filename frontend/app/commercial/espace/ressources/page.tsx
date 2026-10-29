@@ -39,7 +39,7 @@ export default async function RessourcesPage() {
     },
     {
       name: `Collect · ${collectOffer.name}`,
-      price: `${formatPrice(collectOffer.price)}${pricingSection.perMonth} + ${collectOffer.commission.percent} % ${collectOffer.commission.basis}`,
+      price: `${collectOffer.price ? `${formatPrice(collectOffer.price)}${pricingSection.perMonth} + ` : ""}${collectOffer.commission.percent} % ${collectOffer.commission.basis}`,
       url: collectSiteUrl,
     },
     {
@@ -49,7 +49,7 @@ export default async function RessourcesPage() {
     },
     {
       name: `Shop · ${shopOffer.name}`,
-      price: `${formatPrice(shopOffer.monthlyPrice)}${pricingSection.perMonth} + ${shopOffer.commissionPercent} % de chaque commande payée`,
+      price: `${shopOffer.monthlyPrice ? `${formatPrice(shopOffer.monthlyPrice)}${pricingSection.perMonth} + ` : ""}${shopOffer.commissionPercent} % de chaque commande payée`,
       url: shopSiteUrl,
     },
   ];
