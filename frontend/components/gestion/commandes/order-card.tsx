@@ -18,6 +18,7 @@ import { formatPrice } from "@/lib/menu/format";
 import { EtaChooser } from "./eta-chooser";
 import { LineOptions, PaymentChip } from "./order-line";
 import { StatusBadge } from "./status-badge";
+import { HubriseRef } from "./hubrise-ref";
 import { TillChip } from "./till-chip";
 
 /**
@@ -90,6 +91,7 @@ export function OrderCard({
         </div>
         <StatusBadge status={order.status} label={statusLabel} />
       </div>
+      <HubriseRef orders={[order]} />
 
       {isCollect && (
         <p className="mt-1 text-xs text-muted">

@@ -13,6 +13,7 @@ import { formatDateTime, formatTime } from "@/lib/gestion/format";
 import { amountDue, isPickupOpen, pickupDay } from "@/lib/gestion/retraits";
 import { isPaid, lineTotal, orderTotal, paidThroughSite } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
+import { HubriseRef } from "@/components/gestion/commandes/hubrise-ref";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 
@@ -111,6 +112,7 @@ export function RetraitCard({
                 {order.customerPhone}
               </a>
             )}
+            <HubriseRef orders={[order]} />
           </div>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-1.5">

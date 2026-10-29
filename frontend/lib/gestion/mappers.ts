@@ -176,6 +176,7 @@ export function rowToOrder(row: OrderRow): Order {
     tipAmount: row.tip_amount != null ? Number(row.tip_amount) : undefined,
     staffId: row.staff_id,
     fromTill: row.source === "popina" || undefined,
+    hubriseOrderId: row.hubrise_order_id ?? undefined,
     payments: (row.order_payments ?? []).map((leg) => ({
       mode: leg.mode as OrderPayment["mode"],
       amount: Number(leg.amount),

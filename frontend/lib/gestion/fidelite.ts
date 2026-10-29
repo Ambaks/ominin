@@ -30,6 +30,8 @@ export interface LoyaltyCustomer {
   contact: string;
   points: number;
   lastActivity: string;
+  /** Son id chez HubRise, quand l'établissement y est relié. */
+  hubriseCustomerId?: string;
 }
 
 export interface LoyaltyData {
@@ -72,6 +74,7 @@ export async function loadLoyalty(etablissementId: string): Promise<LoyaltyData>
       contact: customer.contact,
       points: customer.points,
       lastActivity: customer.last_activity,
+      hubriseCustomerId: customer.hubrise_customer_id ?? undefined,
     })),
   };
 }
