@@ -179,6 +179,27 @@ export async function autoMatch(
     for (const group of (item.options as unknown as OptionGroup[]) ?? []) {
       for (const choice of group.choices) {
         if (taken.has(`${item.id}|${group.id}|${choice.id}`)) continue;
+        // Un format (une taille) est un SKU du produit : « Pastis Panis » +
+        // « Bouteille » chez la caisse = le choix « Bouteille » du plat.
+        const format = only(
+          skus.filter(
+            (entry) => !entry.single && entry.names[1] === normalize(`${item.name} ${choice.name}`)
+          )
+        );
+        if (format) {
+          rows.push({
+            etablissement_id: etablissementId,
+            item_id: item.id,
+            group_id: group.id,
+            choice_id: choice.id,
+            target: "sku",
+            ref: format.sku.ref,
+            option_list_name: null,
+            hubrise_name: [format.sku.product, format.sku.name].filter(Boolean).join(" — "),
+            matched_by: "auto",
+          });
+          continue;
+        }
         const choiceName = normalize(choice.name);
         const sameName = snapshot.options.filter(
           (option) => normalize(option.name) === choiceName
