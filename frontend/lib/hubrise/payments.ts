@@ -130,26 +130,27 @@ export async function syncCounterPayments(
  * règlement compte pour la carte. Une relecture refusée (commande supprimée
  * chez HubRise, jeton révoqué) n'y changera rien au prochain essai : on
  * laisse la commande à régler plutôt que de faire rejouer le callback.
+ * Renvoie true si la commande vient d'être réglée.
  */
 export async function recordTillPayments(
   admin: Admin,
   connection: Connection,
   orderId: string,
   hubriseOrderId: string
-): Promise<void> {
+): Promise<boolean> {
   let remote: HubrisePayment[];
   try {
     remote = await remotePayments(admin, connection, hubriseOrderId);
   } catch (error) {
     if (error instanceof HubriseError && error.status >= 400 && error.status < 500 && error.status !== 429) {
       console.error("[hubrise] règlements illisibles", { orderId, status: error.status });
-      return;
+      return false;
     }
     throw error;
   }
   const till = remote.filter((payment) => !isOurs(payment));
-  if (!till.length) return;
-  const { error } = await admin.rpc("hubrise_record_till_payment", {
+  if (!till.length) return false;
+  const { data: settled, error } = await admin.rpc("hubrise_record_till_payment", {
     p_order: orderId,
     p_payments: till.map((payment) => ({
       amount: parseMoney(payment.amount) ?? 0,
@@ -157,4 +158,5 @@ export async function recordTillPayments(
     })),
   });
   if (error) throw new Error(error.message);
+  return Boolean(settled);
 }

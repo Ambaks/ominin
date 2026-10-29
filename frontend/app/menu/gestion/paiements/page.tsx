@@ -17,6 +17,7 @@ import * as api from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS, PAYMENTS_PAGE_SIZE } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import {
+  isCancelledPaid,
   isPaid,
   isPickupShop,
   isServiceToday,
@@ -62,6 +63,8 @@ interface DayGroup {
   key: string;
   label: string;
   orders: Order[];
+  /** Paiements et montant encaissé : une commande remboursée n'y compte pas. */
+  count: number;
   total: number;
 }
 
@@ -81,13 +84,17 @@ function groupByDay(orders: Order[], dayEndHour: number): DayGroup[] {
           month: "long",
         }),
         orders: [],
+        count: 0,
         total: 0,
       };
       index.set(key, day);
       days.push(day);
     }
     day.orders.push(order);
-    day.total += orderTotal(order);
+    if (isPaid(order)) {
+      day.count += 1;
+      day.total += orderTotal(order);
+    }
   }
   return days;
 }
@@ -116,8 +123,10 @@ function PaymentRow({
   const editable =
     order.paymentMode != null &&
     order.paymentMode !== "en_ligne" &&
+    order.paymentMode !== "caisse" &&
     !order.paidOnline &&
     !order.fromTill;
+  const cancelled = isCancelledPaid(order);
   // Une addition partagée n'a pas de montant unique à afficher : ses deux
   // jambes le disent, et c'est la jambe espèces qui porte la monnaie rendue.
   const split = mode === "mixte" ? totalsByMode(order) : null;
@@ -143,6 +152,22 @@ function PaymentRow({
             </span>
           )}
           {order.fromTill && <TillChip />}
+          {cancelled &&
+            (order.refundedAt ? (
+              <span
+                title="Refusée par la caisse : le client a été remboursé."
+                className="shrink-0 rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-muted"
+              >
+                Remboursée
+              </span>
+            ) : (
+              <span
+                title="Refusée par la caisse : le remboursement n'est pas passé, à faire chez le prestataire."
+                className="shrink-0 rounded-full border border-ember-3/40 bg-ember-3/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-3"
+              >
+                À rembourser
+              </span>
+            ))}
         </div>
         <p className="text-xs text-faint">
           {articleCount} article{articleCount > 1 ? "s" : ""}
@@ -165,7 +190,9 @@ function PaymentRow({
           {PAYMENT_MODE_LABELS[mode]}
         </span>
       )}
-      <span className="shrink-0 font-display text-base text-ember-1">
+      <span
+        className={`shrink-0 font-display text-base ${cancelled ? "text-faint line-through" : "text-ember-1"}`}
+      >
         {formatPrice(orderTotal(order))}
       </span>
       {editable && (
@@ -250,20 +277,21 @@ export default function PaiementsPage() {
   }
   if (!ready) return <FeatureLocked feature="paiements" />;
 
-  const paid = dedupeById([
+  const listed = dedupeById([
     // Le snapshot en dernier : sa version (realtime) prime sur la page chargée.
     ...history,
     ...state.orders,
   ])
     // Filtré après fusion : une commande à emporter prête n'est réglée que
     // payée en ligne (isPaid) — réglée au retrait, elle ne l'est pas encore.
-    .filter(isPaid)
+    // Payée en ligne puis refusée par la caisse, elle reste visible, barrée.
+    .filter((order) => isPaid(order) || isCancelledPaid(order))
     .sort((a, b) => paidAt(b).localeCompare(paidAt(a)));
 
   const visible =
     filter === "tous"
-      ? paid
-      : paid.filter((order) => matchesMode(order, filter));
+      ? listed
+      : listed.filter((order) => matchesMode(order, filter));
   // Seules les lignes s'arrêtent à `shown` : le compte et le total d'un jour
   // portent sur tout ce qui est chargé.
   const wholeDays = new Map(
@@ -278,8 +306,8 @@ export default function PaiementsPage() {
     setShown(next);
   };
 
-  const todayPaid = paid.filter((order) =>
-    isServiceToday(paidAt(order), state.dayEndHour)
+  const todayPaid = listed.filter(
+    (order) => isPaid(order) && isServiceToday(paidAt(order), state.dayEndHour)
   );
   const todayTotal = todayPaid.reduce((sum, o) => sum + orderTotal(o), 0);
   const todayByMode = todayPaid.reduce(
@@ -289,9 +317,10 @@ export default function PaiementsPage() {
         especes: sums.especes + modes.especes,
         carte: sums.carte + modes.carte,
         en_ligne: sums.en_ligne + modes.en_ligne,
+        caisse: sums.caisse + modes.caisse,
       };
     },
-    { especes: 0, carte: 0, en_ligne: 0 }
+    { especes: 0, carte: 0, en_ligne: 0, caisse: 0 }
   );
   const todayTips = todayPaid.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
   const tipShares = tipsByStaff(todayPaid, state.staff);
@@ -320,7 +349,10 @@ export default function PaiementsPage() {
             <StatCard
               label="Encaissé aujourd'hui"
               value={formatPrice(todayTotal)}
-              hint={`${todayPaid.length} paiement${todayPaid.length > 1 ? "s" : ""}`}
+              hint={`${todayPaid.length} paiement${todayPaid.length > 1 ? "s" : ""}${
+                // Réglé à la caisse sans mode connu : ni espèces ni carte.
+                todayByMode.caisse > 0 ? ` · dont ${formatPrice(todayByMode.caisse)} à la caisse` : ""
+              }`}
             />
           </div>
           <StatCard
@@ -399,8 +431,8 @@ export default function PaiementsPage() {
                   {day.label}
                 </h2>
                 <span className="shrink-0 text-sm tabular-nums text-muted">
-                  {day.whole.orders.length} paiement
-                  {day.whole.orders.length > 1 ? "s" : ""} ·{" "}
+                  {day.whole.count} paiement
+                  {day.whole.count > 1 ? "s" : ""} ·{" "}
                   {formatPrice(day.whole.total)}
                 </span>
               </div>

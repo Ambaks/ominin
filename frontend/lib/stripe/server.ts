@@ -70,6 +70,30 @@ export async function registerWalletDomains(
   }
 }
 
+/**
+ * Rend en entier un paiement encaissé sur le compte d'un restaurant. La
+ * commission Ominin suit : le restaurant ne la paie pas sur un paiement qu'il
+ * rend. La clé suit l'encaissement : quelle que soit la voie qui rembourse,
+ * jamais deux fois. Renvoie l'id du remboursement, null s'il était déjà rendu
+ * (passage précédent, tableau de bord).
+ */
+export async function refundIntent(
+  stripe: Stripe,
+  paymentIntentId: string,
+  accountId: string
+): Promise<string | null> {
+  try {
+    const refund = await stripe.refunds.create(
+      { payment_intent: paymentIntentId, refund_application_fee: true },
+      { stripeAccount: accountId, idempotencyKey: `refund-${paymentIntentId}` }
+    );
+    return refund.id;
+  } catch (error) {
+    if ((error as { code?: string }).code !== "charge_already_refunded") throw error;
+    return null;
+  }
+}
+
 export type SettleOutcome = "paid" | "already_paid" | "refunded" | "unpaid";
 
 /**
@@ -126,17 +150,7 @@ async function settlePayment(
   }
 
   const refund = async (reason: string): Promise<SettleOutcome> => {
-    try {
-      // La commission Ominin suit : le restaurant ne la paie pas sur un
-      // paiement qu'il rend.
-      await stripe.refunds.create(
-        { payment_intent: paymentIntentId, refund_application_fee: true },
-        { stripeAccount: accountId, idempotencyKey: `refund-${paymentIntentId}` }
-      );
-    } catch (error) {
-      // Déjà rendu (passage précédent, tableau de bord) : c'est fait.
-      if ((error as { code?: string }).code !== "charge_already_refunded") throw error;
-    }
+    await refundIntent(stripe, paymentIntentId, accountId);
     console.error(`[stripe] paiement remboursé : ${reason}`, { orderId, paymentIntentId });
     return "refunded";
   };

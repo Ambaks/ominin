@@ -1,11 +1,11 @@
 import { after } from "next/server";
-import { raiseAlert } from "@/lib/admin/alerts";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import type { Tables } from "@/lib/supabase/database.types";
 import { getConnection, getConnectionByLocation, type Connection } from "./connection";
 import { pullHours } from "./hours";
 import { pullInventory } from "./inventory";
 import { recordTillPayments } from "./payments";
+import { refundTillCancelled } from "./refund";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -33,10 +33,14 @@ export interface HubriseEvent {
 
 type OrderStatus = Tables<"orders">["status"];
 
+/** Les refus de la caisse : la commande ne sera pas servie. */
+const TILL_CANCELLED = new Set(["rejected", "cancelled", "delivery_failed"]);
+
 /**
  * Statut HubRise → statut Ominin, ou null s'il n'y a rien à changer.
  * received et new : la caisse a la commande, rien n'a bougé pour le client.
- * Une commande déjà terminée (servie, retirée, annulée) ne revient jamais en arrière.
+ * Une commande déjà terminée (servie, retirée, annulée) ne revient jamais en
+ * arrière — sauf servie à peine réglée en ligne, que la caisse peut refuser.
  * Sur place (à table, fast food), l'équipe mène le service dans Ominin — elle
  * y dit la commande prête et la remet : seule l'annulation de la caisse
  * compte. « Acceptée » y était d'ailleurs refusée par la base (une commande
@@ -44,10 +48,16 @@ type OrderStatus = Tables<"orders">["status"];
  */
 export function mapStatus(
   hubrise: string,
-  order: Pick<Tables<"orders">, "type" | "status">
+  order: Pick<Tables<"orders">, "type" | "status" | "paid_online">
 ): OrderStatus | null {
   if (order.type === "sur_place") {
-    const live = order.status === "en_attente" || order.status === "payee" || order.status === "prete";
+    // Réglée en ligne quand l'imprimante est en ligne, elle est servie dès le
+    // paiement : la caisse peut encore la refuser.
+    const live =
+      order.status === "en_attente" ||
+      order.status === "payee" ||
+      order.status === "prete" ||
+      (order.status === "servie" && order.paid_online);
     return live && (hubrise === "rejected" || hubrise === "cancelled") ? "annulee" : null;
   }
   const open = order.status === "en_attente" || order.status === "en_preparation" || order.status === "prete";
@@ -74,7 +84,9 @@ async function applyOrderUpdate(admin: Admin, event: HubriseEvent) {
   if (!event.order_id) return;
   const { data: order } = await admin
     .from("orders")
-    .select("id, etablissement_id, type, status, paid_online, payment_mode, online_payment_started_at, estimated_ready_at, hubrise_status")
+    .select(
+      "id, etablissement_id, type, status, paid_online, payment_mode, online_payment_started_at, estimated_ready_at, hubrise_status, refunded_at, stripe_payment_intent_id, square_payment_id, square_order_id, sumup_checkout_id"
+    )
     .eq("hubrise_order_id", event.order_id)
     .maybeSingle();
   if (!order) return;
@@ -96,6 +108,8 @@ async function applyOrderUpdate(admin: Admin, event: HubriseEvent) {
   }
 
   // Sur place, à régler : encaissée à la caisse, elle est réglée dans Ominin.
+  // Terminée sans règlement transmis (OrderLine, certaines caisses), elle
+  // est réglée à la caisse, mode inconnu.
   if (
     next !== "annulee" &&
     order.type === "sur_place" &&
@@ -105,23 +119,24 @@ async function applyOrderUpdate(admin: Admin, event: HubriseEvent) {
     !order.online_payment_started_at
   ) {
     const connection = await getConnection(admin, order.etablissement_id);
-    if (connection) await recordTillPayments(admin, connection, order.id, event.order_id);
+    const settled = connection
+      ? await recordTillPayments(admin, connection, order.id, event.order_id)
+      : false;
+    if (!settled && hubriseStatus === "completed") {
+      const { error } = await admin.rpc("hubrise_close_at_till", { p_order: order.id });
+      if (error) throw new Error(error.message);
+    }
   }
 
-  // Annulée par la caisse après un paiement en ligne : l'argent a été pris,
-  // rien ne le rend tout seul. Un humain décide du remboursement.
-  if (next === "annulee" && order.paid_online) {
-    const { data: etab } = await admin
-      .from("etablissements")
-      .select("name")
-      .eq("id", order.etablissement_id)
-      .maybeSingle();
-    await raiseAlert("backend", `hubrise-annulee:${order.id}`, {
-      title: `${etab?.name ?? "Un client"} : commande payée annulée par la caisse`,
-      body: `La caisse a ${hubriseStatus === "rejected" ? "refusé" : "annulé"} une commande réglée en ligne : à rembourser.`,
-      url: "/clients",
-      urgent: true,
-    }).catch(() => false);
+  // Refusée ou annulée par la caisse après un paiement en ligne : l'argent
+  // est rendu. Hors transition : un callback renvoyé après un échec retente.
+  if (
+    (next ?? order.status) === "annulee" &&
+    order.paid_online &&
+    !order.refunded_at &&
+    TILL_CANCELLED.has(hubriseStatus ?? order.hubrise_status ?? "")
+  ) {
+    await refundTillCancelled(admin, order);
   }
 }
 
