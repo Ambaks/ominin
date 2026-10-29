@@ -28,7 +28,7 @@ import { LeadStatusBadge, PriorityBadge } from "../status-badge";
 import { AppointmentFormModal } from "../rdv/appointment-form-modal";
 import { TaskFormModal } from "../tasks/task-form-modal";
 import { ActivityTimeline } from "./activity-timeline";
-import { CommercialSection, activeDeclaration } from "./commercial-section";
+import { ClientSection } from "./client-section";
 import { NoteComposer } from "./note-composer";
 import { StatusMenu } from "./status-menu";
 import { VisitedFlow } from "./visited-flow";
@@ -142,21 +142,16 @@ export function LeadPanel({
             </p>
           )}
         </div>
-        {detail &&
-          (activeDeclaration(detail) ? (
-            <span title="Statut tenu par le commercial qui a déclaré ce restaurant" className="shrink-0">
-              <LeadStatusBadge status={detail.lead.status} />
-            </span>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setStatusOpen(true)}
-              title="Changer le statut"
-              className="shrink-0 transition-opacity hover:opacity-80"
-            >
-              <LeadStatusBadge status={detail.lead.status} />
-            </button>
-          ))}
+        {detail && (
+          <button
+            type="button"
+            onClick={() => setStatusOpen(true)}
+            title="Changer le statut"
+            className="shrink-0 transition-opacity hover:opacity-80"
+          >
+            <LeadStatusBadge status={detail.lead.status} />
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -498,7 +493,7 @@ export function LeadPanel({
               </section>
             )}
 
-            <CommercialSection detail={detail} />
+            <ClientSection detail={detail} />
 
             <section className="flex flex-col gap-2.5">
               <SectionTitle>Activité</SectionTitle>

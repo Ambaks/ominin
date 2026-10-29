@@ -111,16 +111,15 @@ export function SpaceShell({
               <>
                 {!account.signed_in_force && (
                   <Banner href={`${spaceHref("/compte")}#signer`}>
-                    Une nouvelle version du contrat est à signer : sans elle,
-                    vous travaillez vos restaurants mais n’en déclarez pas de
-                    nouveaux. <span className="font-semibold underline">Lire et signer</span>
+                    Une nouvelle version du contrat est à signer.{" "}
+                    <span className="font-semibold underline">Lire et signer</span>
                   </Banner>
                 )}
                 {account.notice_given_at && account.contract_end && (
                   <Banner>
                     Résiliation enregistrée : votre contrat prend fin le{" "}
-                    {frenchDate(account.contract_end)}. Vos réservations restent
-                    valables jusque-là ; un restaurant qui s’inscrit après cette date ne vous ouvre plus de commission.
+                    {frenchDate(account.contract_end)}. Vous travaillez vos
+                    restaurants jusque-là ; un restaurant qui devient client après cette date ne vous ouvre plus de commission.
                   </Banner>
                 )}
               </>

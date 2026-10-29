@@ -7,37 +7,31 @@ begin;
 \set e '00000000-0000-0000-0000-0000000e7b01'
 \set f '00000000-0000-0000-0000-0000000e7b02'
 \set s '00000000-0000-0000-0000-00000005b001'
-\set cgv '00000000-0000-0000-0000-0000000000c9'
-insert into public.legal_versions (id, doc, version, effective_from, body_sha256, summary)
-values (:'cgv', 'cgv', 'test-cgv', '2026-01-01', 'z', 'cgv');
 insert into public.etablissements (id, slug, name, tagline, address, phone, hours) values
   (:'e', 'bistrot-e', 'Bistrot E', '', '', '', ''),
   (:'f', 'demo-f', 'Paiements simulés F', '', '', '', '');
 insert into public.shops (id, slug, name, order_prefix) values (:'s', 'boutique-s', 'Boutique S', 'BS');
 
--- Trois Clients Apportés de A : E (Menu), S (Shop), F (paiements simulés).
-create function pg_temp.bring(p_restaurant uuid, p_etab uuid, p_shop uuid, p_accepted timestamptz) returns uuid language plpgsql as $$
+-- Trois Clients Apportés de A, nés de son inscription pendant la visite :
+-- E (Menu), S (Shop), F (paiements simulés).
+create function pg_temp.bring(p_restaurant uuid, p_etab uuid, p_shop uuid, p_from timestamptz) returns void language plpgsql as $$
 declare
   v uuid;
 begin
-  perform pg_temp.act('00000000-0000-0000-0000-0000000000a1');
-  v := (public.commercial_declare(p_restaurant, '{menu}', '{"role": "Gérant"}') ->> 'id')::uuid;
-  perform pg_temp.reset();
-  update public.commercial_declarations set declared_at = '2026-08-01' where id = v;
-  insert into public.legal_acceptances (version_id, scope, etablissement_id, shop_id, signatory_email, scope_label, terms, accepted_at)
-  values ('00000000-0000-0000-0000-0000000000c9', case when p_shop is null then 'etablissement' else 'shop' end::public.legal_scope,
-          p_etab, p_shop, 'g@resto.test', 'x', '{}', p_accepted);
-  perform pg_temp.act('00000000-0000-0000-0000-0000000000a0');
-  perform public.admin_mark_signed(v, p_etab, p_shop);
-  perform pg_temp.reset();
-  return v;
+  insert into public.commercial_signups (restaurant_id, commercial_id, etablissement_id, finished_at)
+  values (p_restaurant, '00000000-0000-0000-0000-00000000aaaa', p_etab, p_from)
+  returning id into v;
+  insert into public.commercial_clients (commercial_id, restaurant_id, signup_id, etablissement_id, shop_id, commission_from, validated_at)
+  values ('00000000-0000-0000-0000-00000000aaaa', p_restaurant, v, p_etab, p_shop, p_from, p_from);
+  update public.crm_restaurants set etablissement_id = p_etab, shop_id = p_shop where id = p_restaurant;
 end;
 $$;
-select pg_temp.bring(:'r1', :'e', null, '2026-09-10 08:00+00') as de \gset
-select pg_temp.bring(:'r2', null, :'s', '2026-09-15 08:00+00') as ds \gset
-select pg_temp.bring(:'r3', :'f', null, '2026-09-10 08:00+00') as df \gset
-select pg_temp.ok((select commission_from from public.commercial_clients where etablissement_id = :'e') = '2026-09-10 08:00+00',
-  '4.4. début : première acceptation des CGV postérieure à la déclaration');
+select pg_temp.bring(:'r1', :'e', null, '2026-09-10 08:00+00');
+select pg_temp.bring(:'r2', null, :'s', '2026-09-15 08:00+00');
+select pg_temp.bring(:'r3', :'f', null, '2026-09-10 08:00+00');
+select pg_temp.ok(pg_temp.fails(format(
+  'insert into public.commercial_clients (commercial_id, restaurant_id, etablissement_id) values (%L, %L, %L)', :'a', :'r4', :'etab')),
+  '4.4. un Client Apporté naît d''une inscription');
 
 -- Encaissements de septembre 2026 (heure de Paris).
 set local session_replication_role = replica;
@@ -188,9 +182,6 @@ from public.commercial_statements where id = :'st11';
 select pg_temp.act(:'a_user');
 select pg_temp.ok((select (l ->> 'commission_cents')::int from jsonb_array_elements(public.commercial_month_estimate() -> 'lines') l
   where l ->> 'name' = 'Bistrot E') = 150, '5.7. estimation du mois en cours');
--- Écran Clients : ce que le client a rapporté ce mois-ci, intégration.
-select pg_temp.ok((select (c ->> 'base_cents')::int from jsonb_array_elements(public.commercial_my_clients()) c
-  where c ->> 'name' = 'Bistrot E') = 999, '5.6. Clients : l''assiette du mois, jamais le chiffre d''affaires');
 select pg_temp.reset();
 
 -- URSSAF (art. 2.5) : due au seuil, levée par le dépôt.
@@ -221,7 +212,7 @@ select pg_temp.ok(s.status = 'draft' and s.month = date_trunc('month', m.ended_a
   and :'due_at'::timestamptz = m.ended_at + interval '30 days', '8.1. relevé final du mois de la fin, échéance à 30 jours')
 from public.commercial_statements s join public.commerciaux m on m.id = s.commercial_id where s.id = :'fin';
 select pg_temp.act(:'d_user');
-select pg_temp.ok(pg_temp.fails('select public.commercial_my_clients()'), '4.6. contrat terminé : plus d''écran Clients');
+select pg_temp.ok(pg_temp.fails('select public.commercial_dashboard()'), '4.6. contrat terminé : plus de tableau de bord');
 select pg_temp.reset();
 
 -- Encaissement hors Stripe saisi par l'admin.

@@ -1,4 +1,3 @@
-import { flushEmails } from "@/lib/commercial/api";
 import { commercialName, displayName } from "@/lib/commercial/record";
 import type { DiscordMember } from "@/lib/discord";
 import { createClient } from "@/lib/supabase/client";
@@ -41,7 +40,7 @@ export async function fetchCommerciaux(): Promise<CommercialRow[]> {
   const rows = await createClient()
     .from("commerciaux")
     .select(
-      "id, email, first_name, last_name, invited_at, option_exercised_at, notice_given_at, ended_at, end_reason, discord_user_id, legal_acceptances(accepted_at, legal_versions!inner(version)), commercial_declarations(status)"
+      "id, email, first_name, last_name, invited_at, option_exercised_at, notice_given_at, ended_at, end_reason, discord_user_id, legal_acceptances(accepted_at, legal_versions!inner(version)), commercial_clients(id)"
     )
     .order("invited_at", { ascending: false })
     .then(must);
@@ -65,7 +64,7 @@ export async function fetchCommerciaux(): Promise<CommercialRow[]> {
       endedAt: row.ended_at,
       endReason: row.end_reason as EndReason | null,
       discordUserId: row.discord_user_id,
-      signedRestaurants: row.commercial_declarations.filter((d) => d.status === "signed").length,
+      signedRestaurants: row.commercial_clients.length,
     };
   });
 }
@@ -113,7 +112,7 @@ export async function removeCommercial(id: string): Promise<void> {
   if (!removed.length) throw new Error("Invitation introuvable ou déjà retirée.");
 }
 
-/** Fin du contrat posée par l'admin (art. 7) ; la tâche du jour libère ses réservations. */
+/** Fin du contrat posée par l'admin (art. 7) ; la tâche du jour libère ses restaurants. */
 export async function endContract(id: string, endedAt: string, reason: EndReason): Promise<void> {
   check(
     await createClient().from("commerciaux").update({ ended_at: endedAt, end_reason: reason }).eq("id", id)
@@ -132,15 +131,6 @@ export async function exerciseOption(id: string): Promise<void> {
 
 // ---------------------------------------------------------------------------
 // Clients et fiches
-
-export async function setInTalks(restaurantId: string, value: boolean | null) {
-  check(
-    await createClient().rpc("admin_set_in_talks", {
-      p_restaurant: restaurantId,
-      p_value: value as boolean,
-    })
-  );
-}
 
 export type ClientPlace = Database["public"]["Functions"]["admin_client_places"]["Returns"][number];
 
@@ -229,6 +219,13 @@ export async function fetchStatements(): Promise<StatementRow[]> {
     commercial: displayName(who),
   }));
 }
+
+/** Envoie les e-mails du contrat que le geste vient de mettre en file. */
+const flushEmails = (): Promise<void> =>
+  fetch("/api/commercial/envois", { method: "POST" }).then(
+    () => undefined,
+    () => undefined
+  );
 
 export async function draftStatement(commercialId: string, month: string) {
   must(await createClient().rpc("admin_statement_draft", { p_commercial: commercialId, p_month: month }));

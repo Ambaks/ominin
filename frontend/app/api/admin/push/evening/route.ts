@@ -6,7 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 /*
  * Le rappel du soir (workflow admin-evening) : les rendez-vous prévus le
  * lendemain dans le CRM, avec leur heure et leur lieu, pour préparer la démo
- * la veille. Ceux des commerciaux (declaration_id) ne sont pas ceux de l'admin.
+ * la veille.
  */
 
 const timeZone = "Europe/Paris";
@@ -30,7 +30,6 @@ export async function POST(request: Request) {
     .from("crm_appointments")
     .select("title, start_at, location, crm_restaurants (name)")
     .eq("status", "scheduled")
-    .is("declaration_id", null)
     .gte("start_at", new Date(Date.now()).toISOString())
     .lte("start_at", new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString())
     .order("start_at");
