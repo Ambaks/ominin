@@ -29,9 +29,16 @@ export interface CatalogOption {
   price: string | null;
 }
 
+export interface CatalogDeal {
+  ref: string;
+  name: string;
+}
+
 export interface CatalogSnapshot {
   skus: CatalogSku[];
   options: CatalogOption[];
+  /** Absent des instantanés lus avant les formules. */
+  deals?: CatalogDeal[];
 }
 
 interface HubriseCatalog {
@@ -48,6 +55,7 @@ interface HubriseCatalog {
       name: string;
       options?: { ref: string | null; name: string; price: string | null }[];
     }[];
+    deals?: { ref: string | null; name: string }[];
   };
 }
 
@@ -80,7 +88,10 @@ export function toSnapshot(catalog: HubriseCatalog): CatalogSnapshot {
       });
     }
   }
-  return { skus, options };
+  const deals = (catalog.data?.deals ?? []).flatMap((deal) =>
+    deal.ref ? [{ ref: deal.ref, name: deal.name }] : []
+  );
+  return { skus, options, deals };
 }
 
 /** Sans accents, casse ni ponctuation : « Crème brûlée ! » ≈ « creme brulee ». */
@@ -104,13 +115,19 @@ export async function autoMatch(
   etablissementId: string,
   snapshot: CatalogSnapshot
 ): Promise<number> {
-  const [{ data: items }, { data: existing }] = await Promise.all([
-    admin.from("items").select("id, name, options").eq("etablissement_id", etablissementId),
-    admin
-      .from("hubrise_ref_map")
-      .select("item_id, group_id, choice_id")
-      .eq("etablissement_id", etablissementId),
-  ]);
+  const [{ data: items }, { data: existing }, { data: formules }, { data: existingFormules }] =
+    await Promise.all([
+      admin.from("items").select("id, name, options").eq("etablissement_id", etablissementId),
+      admin
+        .from("hubrise_ref_map")
+        .select("item_id, group_id, choice_id")
+        .eq("etablissement_id", etablissementId),
+      admin.from("formules").select("id, name").eq("etablissement_id", etablissementId),
+      admin
+        .from("hubrise_formule_map")
+        .select("formule_id")
+        .eq("etablissement_id", etablissementId),
+    ]);
   const taken = new Set(
     (existing ?? []).map((row) => `${row.item_id}|${row.group_id ?? ""}|${row.choice_id ?? ""}`)
   );
@@ -184,10 +201,32 @@ export async function autoMatch(
       }
     }
   }
-  if (!rows.length) return 0;
-  const { error } = await admin.from("hubrise_ref_map").insert(rows);
+  const formuleTaken = new Set((existingFormules ?? []).map((row) => row.formule_id));
+  const formuleRows = (formules ?? []).flatMap((formule) => {
+    if (formuleTaken.has(formule.id)) return [];
+    const match = only(
+      (snapshot.deals ?? []).filter((deal) => normalize(deal.name) === normalize(formule.name))
+    );
+    return match
+      ? [
+          {
+            formule_id: formule.id,
+            etablissement_id: etablissementId,
+            ref: match.ref,
+            hubrise_name: match.name,
+            matched_by: "auto" as const,
+          },
+        ]
+      : [];
+  });
+
+  const inserts = await Promise.all([
+    rows.length ? admin.from("hubrise_ref_map").insert(rows) : null,
+    formuleRows.length ? admin.from("hubrise_formule_map").insert(formuleRows) : null,
+  ]);
+  const error = inserts.find((insert) => insert?.error)?.error;
   if (error) throw new Error(error.message);
-  return rows.length;
+  return rows.length + formuleRows.length;
 }
 
 /** Relit le catalogue de la caisse, en garde l'instantané et relie ce qui peut l'être. */

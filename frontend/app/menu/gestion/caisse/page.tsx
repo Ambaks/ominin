@@ -4,21 +4,30 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useToast } from "@/components/ui/toast";
-import type { CatalogOption, CatalogSku, CatalogSnapshot } from "@/lib/hubrise/catalog";
+import type { CatalogDeal, CatalogOption, CatalogSku, CatalogSnapshot } from "@/lib/hubrise/catalog";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 
 /*
  * Carte ↔ catalogue de la caisse. Une caisse retrouve un produit par son
  * code : chaque article se relie à un produit du catalogue de la caisse,
- * chaque choix d'option à une de ses options. Les correspondances évidentes
- * sont déjà posées (« auto ») ; le gérant fait le reste. Ominin garde ses
- * prix, photos et textes — seuls les codes viennent de la caisse.
+ * chaque choix d'option à une de ses options — ou, pour une taille, à un
+ * autre produit —, chaque formule à un de ses deals. Les correspondances
+ * évidentes sont déjà posées (« auto ») ; le gérant fait le reste. Ominin
+ * garde ses prix, photos et textes — seuls les codes viennent de la caisse.
  */
 
 interface Ref {
   itemId: string;
   groupId: string | null;
   choiceId: string | null;
+  target: "sku" | "option";
+  ref: string;
+  name: string | null;
+  matchedBy: "auto" | "manual";
+}
+
+interface FormuleRef {
+  formuleId: string;
   ref: string;
   name: string | null;
   matchedBy: "auto" | "manual";
@@ -28,6 +37,13 @@ interface CatalogData {
   snapshot: CatalogSnapshot;
   syncedAt: string | null;
   refs: Ref[];
+  formuleRefs: FormuleRef[];
+}
+
+interface Choice {
+  value: string;
+  label: string;
+  group?: string;
 }
 
 const skuLabel = (sku: CatalogSku) =>
@@ -35,6 +51,8 @@ const skuLabel = (sku: CatalogSku) =>
 
 const optionLabel = (option: CatalogOption) =>
   `${option.listName} — ${option.name}` + (option.price ? ` (${option.price})` : "");
+
+const dealLabel = (deal: CatalogDeal) => deal.name;
 
 const selectClass =
   "w-full min-w-0 rounded-xl border border-hairline bg-background px-3 py-2 text-sm outline-none focus:border-ember-2/50";
@@ -47,12 +65,19 @@ function RefSelect({
   label,
 }: {
   value: string;
-  entry: Ref | undefined;
-  options: { ref: string; label: string }[];
-  onChange: (ref: string) => void;
+  entry: { matchedBy: "auto" | "manual" } | undefined;
+  options: Choice[];
+  onChange: (value: string) => void;
   label: string;
 }) {
-  const known = options.some((option) => option.ref === value);
+  const known = options.some((option) => option.value === value);
+  const groups = [...new Set(options.map((option) => option.group))];
+  const render = (list: Choice[]) =>
+    list.map((option) => (
+      <option key={option.value} value={option.value}>
+        {option.label}
+      </option>
+    ));
   return (
     <div className="flex items-center gap-2">
       <select
@@ -63,12 +88,18 @@ function RefSelect({
       >
         <option value="">— non associé —</option>
         {/* Le code garde sa place même si la caisse l'a retiré de son catalogue. */}
-        {value && !known && <option value={value}>{value} (absent du catalogue)</option>}
-        {options.map((option) => (
-          <option key={option.ref} value={option.ref}>
-            {option.label}
-          </option>
-        ))}
+        {value && !known && (
+          <option value={value}>{value.replace(/^(sku|option):/, "")} (absent du catalogue)</option>
+        )}
+        {groups.map((group) =>
+          group ? (
+            <optgroup key={group} label={group}>
+              {render(options.filter((option) => option.group === group))}
+            </optgroup>
+          ) : (
+            render(options.filter((option) => !option.group))
+          )
+        )}
       </select>
       {entry && (
         <span className="shrink-0 rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
@@ -111,17 +142,27 @@ export default function CaissePage() {
     return map;
   }, [data]);
 
-  const skus = useMemo(
-    () => (data?.snapshot.skus ?? []).map((sku) => ({ ref: sku.ref, label: skuLabel(sku) })),
+  const formuleRefs = useMemo(
+    () => new Map((data?.formuleRefs ?? []).map((ref) => [ref.formuleId, ref])),
     [data]
   );
 
-  const save = async (itemId: string, groupId: string | null, choiceId: string | null, ref: string) => {
+  const skus = useMemo(
+    () => (data?.snapshot.skus ?? []).map((sku) => ({ value: sku.ref, label: skuLabel(sku) })),
+    [data]
+  );
+
+  const deals = useMemo(
+    () => (data?.snapshot.deals ?? []).map((deal) => ({ value: deal.ref, label: dealLabel(deal) })),
+    [data]
+  );
+
+  const put = async (body: Record<string, unknown>) => {
     try {
       const response = await fetch("/api/hubrise/catalog", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ itemId, groupId, choiceId, ref: ref || null }),
+        body: JSON.stringify(body),
       });
       if (!response.ok) throw new Error(((await response.json()) as { error?: string }).error);
       await load();
@@ -146,6 +187,8 @@ export default function CaissePage() {
   if (!state) return null;
   const allItems = state.categories.flatMap((category) => category.items);
   const mapped = allItems.filter((item) => refs.has(`${item.id}||`)).length;
+  const formulesMapped = state.formules.filter((formule) => formuleRefs.has(formule.id)).length;
+  const missing = allItems.length - mapped + state.formules.length - formulesMapped;
 
   return (
     <div className="flex flex-col gap-6">
@@ -174,11 +217,19 @@ export default function CaissePage() {
             <div>
               <p className="text-sm font-medium">
                 {mapped} sur {allItems.length} articles associés
+                {state.formules.length > 0 &&
+                  `, ${formulesMapped} sur ${state.formules.length} formules`}
               </p>
               <p className="mt-0.5 text-xs text-muted">
                 {data.snapshot.skus.length} produits dans la caisse
                 {data.syncedAt ? "" : " — catalogue pas encore lu"}.
               </p>
+              {missing > 0 && (
+                <p className="mt-2 text-xs text-ember-2">
+                  {missing} sans code : la caisse les reçoit sans les reconnaître (TVA par défaut,
+                  hors stock et hors ventes), et certaines caisses les refusent.
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-4">
               <label className="flex items-center gap-2 text-xs text-muted">
@@ -202,6 +253,34 @@ export default function CaissePage() {
           </div>
 
           <div className="flex max-w-3xl flex-col gap-6">
+            {state.formules.some((formule) => !onlyMissing || !formuleRefs.has(formule.id)) && (
+              <section className="flex flex-col gap-2">
+                <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+                  Formules
+                </h2>
+                <ul className="flex flex-col gap-2">
+                  {state.formules
+                    .filter((formule) => !onlyMissing || !formuleRefs.has(formule.id))
+                    .map((formule) => {
+                      const entry = formuleRefs.get(formule.id);
+                      return (
+                        <li key={formule.id} className="rounded-xl border border-hairline bg-surface p-3">
+                          <div className="grid items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
+                            <p className="truncate text-sm font-medium">{formule.name}</p>
+                            <RefSelect
+                              label={`Formule de la caisse pour ${formule.name}`}
+                              value={entry?.ref ?? ""}
+                              entry={entry}
+                              options={deals}
+                              onChange={(ref) => void put({ formuleId: formule.id, ref: ref || null })}
+                            />
+                          </div>
+                        </li>
+                      );
+                    })}
+                </ul>
+              </section>
+            )}
             {state.categories.map((category) => {
               const items = category.items.filter(
                 (item) => !onlyMissing || !refs.has(`${item.id}||`)
@@ -227,7 +306,9 @@ export default function CaissePage() {
                               value={entry?.ref ?? ""}
                               entry={entry}
                               options={skus}
-                              onChange={(ref) => void save(item.id, null, null, ref)}
+                              onChange={(ref) =>
+                                void put({ itemId: item.id, groupId: null, choiceId: null, ref: ref || null })
+                              }
                             />
                           </div>
                           {choices.length > 0 && (
@@ -238,11 +319,24 @@ export default function CaissePage() {
                               <ul className="mt-2 flex flex-col gap-2 border-l border-hairline pl-3">
                                 {choices.map(({ group, choice }) => {
                                   const choiceEntry = refs.get(`${item.id}|${group.id}|${choice.id}`);
-                                  // Les options de la liste du même nom d'abord.
+                                  // Les options de la liste du même nom d'abord ; une taille se
+                                  // relie à un produit de la caisse.
                                   const sorted = [...(data.snapshot.options ?? [])].sort(
                                     (a, b) =>
                                       Number(b.listName === group.name) - Number(a.listName === group.name)
                                   );
+                                  const targets: Choice[] = [
+                                    ...sorted.map((option) => ({
+                                      value: `option:${option.ref}`,
+                                      label: optionLabel(option),
+                                      group: "Options",
+                                    })),
+                                    ...skus.map((sku) => ({
+                                      value: `sku:${sku.value}`,
+                                      label: sku.label,
+                                      group: "Produits (une taille)",
+                                    })),
+                                  ];
                                   return (
                                     <li
                                       key={`${group.id}-${choice.id}`}
@@ -253,13 +347,19 @@ export default function CaissePage() {
                                       </p>
                                       <RefSelect
                                         label={`Option de la caisse pour ${choice.name}`}
-                                        value={choiceEntry?.ref ?? ""}
+                                        value={choiceEntry ? `${choiceEntry.target}:${choiceEntry.ref}` : ""}
                                         entry={choiceEntry}
-                                        options={sorted.map((option) => ({
-                                          ref: option.ref,
-                                          label: optionLabel(option),
-                                        }))}
-                                        onChange={(ref) => void save(item.id, group.id, choice.id, ref)}
+                                        options={targets}
+                                        onChange={(value) => {
+                                          const [target, ...ref] = value.split(":");
+                                          void put({
+                                            itemId: item.id,
+                                            groupId: group.id,
+                                            choiceId: choice.id,
+                                            target,
+                                            ref: ref.join(":") || null,
+                                          });
+                                        }}
                                       />
                                     </li>
                                   );

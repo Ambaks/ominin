@@ -3304,6 +3304,48 @@ export type Database = {
           },
         ]
       }
+      hubrise_formule_map: {
+        Row: {
+          created_at: string
+          etablissement_id: string
+          formule_id: string
+          hubrise_name: string | null
+          matched_by: string
+          ref: string
+        }
+        Insert: {
+          created_at?: string
+          etablissement_id: string
+          formule_id: string
+          hubrise_name?: string | null
+          matched_by: string
+          ref: string
+        }
+        Update: {
+          created_at?: string
+          etablissement_id?: string
+          formule_id?: string
+          hubrise_name?: string | null
+          matched_by?: string
+          ref?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hubrise_formule_map_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hubrise_formule_map_formule_id_fkey"
+            columns: ["formule_id"]
+            isOneToOne: true
+            referencedRelation: "formules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hubrise_outbox: {
         Row: {
           attempts: number
@@ -8471,6 +8513,8 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      erase_inactive_loyalty_customers: { Args: never; Returns: number }
+      erase_loyalty_customer: { Args: { p_customer_id: string }; Returns: undefined }
       fermeture_active: {
         Args: {
           p_closure: Database["public"]["Tables"]["closures"]["Row"]
@@ -8604,6 +8648,10 @@ export type Database = {
           p_slug: string
           p_token_hash: string
         }
+        Returns: undefined
+      }
+      loyalty_erase_customer: {
+        Args: { p_customer_id: string; p_etablissement_id: string }
         Returns: undefined
       }
       loyalty_stats_members: {

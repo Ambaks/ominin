@@ -17,9 +17,12 @@ type Admin = ReturnType<typeof createAdminClient>;
  *    sur la ligne et le supplément sur l'option : sans la soustraction, le
  *    total serait compté deux fois.
  *  - order_items.options ne garde que des noms (groupe, choix) : les codes
- *    de la caisse se retrouvent par ces noms dans la carte actuelle.
- *  - une formule n'a pas d'article derrière elle (item_id nul) : elle part en
- *    une ligne, ses composants en options à zéro, sans code propre.
+ *    de la caisse se retrouvent par ces noms dans la carte actuelle. Un choix
+ *    relié à un SKU (une taille) donne son SKU à la ligne et quitte les
+ *    options ; son supplément reste dans le prix de la ligne.
+ *  - une formule n'a pas d'article derrière elle (item_id nul, son seul nom) :
+ *    chaque unité part en deal HubRise, un plat par ligne avec son code, le
+ *    prix de la formule sur la première ligne.
  */
 
 interface OrderRow {
@@ -60,38 +63,62 @@ export interface BuiltOrder {
   payload: Record<string, unknown> | null;
 }
 
-/** Code HubRise d'un article ou d'un choix, d'après la carte reliée. */
+/** Code HubRise d'un article, d'un choix ou d'une formule, d'après la carte reliée. */
 interface RefIndex {
   sku: Map<string, string>;
+  /** (article, groupe, choix) → option de la caisse */
   option: Map<string, { ref: string; listName: string | null }>;
+  /** (article, groupe, choix) → SKU de la caisse : une taille */
+  choiceSku: Map<string, string>;
   /** (article, nom du groupe, nom du choix) → (id du groupe, id du choix) */
   names: Map<string, { groupId: string; choiceId: string }>;
+  /** nom de la formule → code du deal */
+  deal: Map<string, string>;
 }
 
 async function loadRefs(
   admin: Admin,
   etablissementId: string,
-  itemIds: string[]
+  itemIds: string[],
+  formuleNames: string[]
 ): Promise<RefIndex> {
-  const index: RefIndex = { sku: new Map(), option: new Map(), names: new Map() };
-  if (!itemIds.length) return index;
+  const index: RefIndex = {
+    sku: new Map(),
+    option: new Map(),
+    choiceSku: new Map(),
+    names: new Map(),
+    deal: new Map(),
+  };
 
-  const [{ data: refs }, { data: items }] = await Promise.all([
-    admin
-      .from("hubrise_ref_map")
-      .select("item_id, group_id, choice_id, target, ref, option_list_name")
-      .eq("etablissement_id", etablissementId)
-      .in("item_id", itemIds),
-    admin.from("items").select("id, options").in("id", itemIds),
+  const [{ data: refs }, { data: items }, { data: formules }] = await Promise.all([
+    itemIds.length
+      ? admin
+          .from("hubrise_ref_map")
+          .select("item_id, group_id, choice_id, target, ref, option_list_name")
+          .eq("etablissement_id", etablissementId)
+          .in("item_id", itemIds)
+      : { data: [] },
+    itemIds.length
+      ? admin.from("items").select("id, options").in("id", itemIds)
+      : { data: [] },
+    formuleNames.length
+      ? admin
+          .from("formules")
+          .select("name, hubrise_formule_map (ref)")
+          .eq("etablissement_id", etablissementId)
+          .in("name", formuleNames)
+      : { data: [] },
   ]);
 
   for (const row of refs ?? []) {
-    if (row.target === "sku") index.sku.set(row.item_id, row.ref);
-    else
-      index.option.set(`${row.item_id}|${row.group_id}|${row.choice_id}`, {
-        ref: row.ref,
-        listName: row.option_list_name,
-      });
+    const key = `${row.item_id}|${row.group_id}|${row.choice_id}`;
+    if (!row.choice_id) index.sku.set(row.item_id, row.ref);
+    else if (row.target === "sku") index.choiceSku.set(key, row.ref);
+    else index.option.set(key, { ref: row.ref, listName: row.option_list_name });
+  }
+  for (const formule of formules ?? []) {
+    const ref = formule.hubrise_formule_map?.ref;
+    if (ref) index.deal.set(formule.name, ref);
   }
   for (const item of items ?? []) {
     for (const group of (item.options as unknown as OptionGroup[]) ?? []) {
@@ -196,48 +223,73 @@ export async function buildOrder(
   const refs = await loadRefs(
     admin,
     order.etablissement_id,
-    order.order_items.flatMap((line) => (line.item_id ? [line.item_id] : []))
+    order.order_items.flatMap((line) => [
+      ...(line.item_id ? [line.item_id] : []),
+      ...(line.components ?? []).flatMap((component) =>
+        component.item_id ? [component.item_id] : []
+      ),
+    ]),
+    order.order_items.flatMap((line) => (line.item_id ? [] : [line.name]))
   );
 
-  const items = order.order_items.map((line) => {
-    const supplements = line.options.reduce(
-      (sum, option) => sum + (option.supplement ?? 0),
-      0
-    );
-    const options = line.options.map((option) => {
+  const deals: Record<string, { name: string; ref?: string }> = {};
+  const items = order.order_items.flatMap((line) => {
+    let skuRef = line.item_id ? refs.sku.get(line.item_id) : undefined;
+    const options: Record<string, unknown>[] = [];
+    let supplements = 0;
+    for (const option of line.options) {
       const ids = line.item_id
         ? refs.names.get(`${line.item_id}|${option.groupName}|${option.choiceName}`)
         : undefined;
-      const mapped = ids
-        ? refs.option.get(`${line.item_id}|${ids.groupId}|${ids.choiceId}`)
-        : undefined;
-      return {
+      const key = ids ? `${line.item_id}|${ids.groupId}|${ids.choiceId}` : "";
+      const size = refs.choiceSku.get(key);
+      if (size) {
+        skuRef = size;
+        continue;
+      }
+      const mapped = refs.option.get(key);
+      supplements += option.supplement ?? 0;
+      options.push({
         option_list_name: mapped?.listName ?? option.groupName,
         name: option.choiceName,
         ...(mapped ? { ref: mapped.ref } : {}),
         price: money(option.supplement ?? 0),
         quantity: 1,
-      };
-    });
-    const components = (line.components ?? []).map((component) => {
-      const ref = component.item_id ? refs.sku.get(component.item_id) : undefined;
-      return {
-        option_list_name: HUBRISE.labels.formule,
-        name: component.name,
-        ...(ref ? { ref } : {}),
-        price: money(0),
-        quantity: 1,
-      };
-    });
-    const skuRef = line.item_id ? refs.sku.get(line.item_id) : undefined;
-    return {
-      product_name: line.name,
-      ...(skuRef ? { sku_ref: skuRef } : {}),
-      price: money(line.unit_price - supplements),
-      quantity: String(line.quantity),
-      ...(line.vat_rate != null ? { tax_rate: String(line.vat_rate) } : {}),
-      options: [...components, ...options],
-    };
+      });
+    }
+    const tax = line.vat_rate != null ? { tax_rate: String(line.vat_rate) } : {};
+    const base = line.unit_price - supplements;
+
+    if (line.item_id || !line.components?.length) {
+      return [
+        {
+          product_name: line.name,
+          ...(skuRef ? { sku_ref: skuRef } : {}),
+          price: money(base),
+          quantity: String(line.quantity),
+          ...tax,
+          options,
+        },
+      ];
+    }
+
+    const dealRef = refs.deal.get(line.name);
+    return Array.from({ length: line.quantity }, () => {
+      const dealKey = String(Object.keys(deals).length);
+      deals[dealKey] = { name: line.name, ...(dealRef ? { ref: dealRef } : {}) };
+      return line.components!.map((component, index) => {
+        const ref = component.item_id ? refs.sku.get(component.item_id) : undefined;
+        return {
+          product_name: component.name,
+          ...(ref ? { sku_ref: ref } : {}),
+          price: money(index === 0 ? base : 0),
+          quantity: "1",
+          ...tax,
+          options: index === 0 ? options : [],
+          deal_line: { deal_key: dealKey },
+        };
+      });
+    }).flat();
   });
 
   const tip = order.tip_amount ?? 0;
@@ -273,6 +325,7 @@ export async function buildOrder(
         : { asap: true }),
       ...(order.customer_note ? { customer_notes: order.customer_note } : {}),
       items,
+      ...(Object.keys(deals).length ? { deals } : {}),
       ...(tip > 0
         ? {
             charges: [

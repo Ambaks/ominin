@@ -325,9 +325,13 @@ export function HubriseSettings() {
           <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline p-4">
             <div>
               <p className="text-sm font-medium">Carte associée à la caisse</p>
-              <p className="mt-0.5 text-xs text-muted">
+              <p
+                className={`mt-0.5 text-xs ${
+                  (status.mapping?.mapped ?? 0) < (status.mapping?.total ?? 0) ? "text-ember-2" : "text-muted"
+                }`}
+              >
                 {status.mapping?.mapped ?? 0} sur {status.mapping?.total ?? 0} articles ont leur code.
-                Sans code, la caisse reçoit la ligne mais ne la reconnaît pas.
+                Sans code, la caisse reçoit la ligne sans la reconnaître, et certaines la refusent.
               </p>
             </div>
             <Link

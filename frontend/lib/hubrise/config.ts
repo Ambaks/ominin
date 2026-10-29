@@ -63,6 +63,5 @@ export const HUBRISE = {
     cash: "Espèces",
     card: "Carte",
     tip: "Pourboire",
-    formule: "Formule",
   },
 } as const;

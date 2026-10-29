@@ -15,10 +15,12 @@ import {
   adjustPoints,
   createTier,
   deleteTier,
+  eraseCustomer,
   loadLoyalty,
   loadLoyaltyStats,
   saveLoyaltySettings,
   updateTier,
+  type LoyaltyCustomer,
   type LoyaltyData,
   type LoyaltyStats,
   type LoyaltyTier,
@@ -26,6 +28,7 @@ import {
 } from "@/lib/gestion/fidelite";
 import { formatDateTime } from "@/lib/gestion/format";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import { syncTill } from "@/lib/hubrise/kick";
 import type { MenuCategory } from "@/lib/menu-data";
 
 /*
@@ -50,9 +53,11 @@ type Adjusting = { contact: string | null } | null;
 function LoyaltyManager({
   etablissementId,
   categories,
+  hubriseConnected,
 }: {
   etablissementId: string;
   categories: MenuCategory[];
+  hubriseConnected: boolean;
 }) {
   const toast = useToast();
   const [data, setData] = useState<LoyaltyData | null>(null);
@@ -61,6 +66,7 @@ function LoyaltyManager({
   const [editing, setEditing] = useState<TierEditing>(null);
   const [tierToDelete, setTierToDelete] = useState<LoyaltyTier | null>(null);
   const [adjusting, setAdjusting] = useState<Adjusting>(null);
+  const [customerToErase, setCustomerToErase] = useState<LoyaltyCustomer | null>(null);
   const [search, setSearch] = useState("");
 
   const report = useCallback(
@@ -155,6 +161,18 @@ function LoyaltyManager({
         `${points > 0 ? "+" : ""}${points} points pour ${contact}.`
       );
       setAdjusting(null);
+      await refresh();
+    } catch (error) {
+      report(error);
+    }
+  };
+
+  const erase = async (customer: LoyaltyCustomer) => {
+    setCustomerToErase(null);
+    try {
+      await eraseCustomer(etablissementId, customer.id);
+      syncTill(hubriseConnected);
+      toast.success("Client effacé.");
       await refresh();
     } catch (error) {
       report(error);
@@ -316,6 +334,14 @@ function LoyaltyManager({
               >
                 <EditIcon className="size-3.5" />
               </button>
+              <button
+                type="button"
+                onClick={() => setCustomerToErase(customer)}
+                aria-label={`Effacer ${customer.contact}`}
+                className={deleteButtonClass}
+              >
+                <TrashIcon className="size-3.5" />
+              </button>
             </div>
           </div>
         ))}
@@ -343,6 +369,16 @@ function LoyaltyManager({
           destructive
           onConfirm={() => void removeTier(tierToDelete)}
           onClose={() => setTierToDelete(null)}
+        />
+      )}
+      {customerToErase && (
+        <ConfirmDialog
+          title="Effacer ce client ?"
+          message={`${customerToErase.contact} perd sa carte et ses ${customerToErase.points} points ; ses commandes passées perdent nom, téléphone et note, leurs montants restent pour votre comptabilité.${hubriseConnected ? " Sa fiche est aussi anonymisée dans votre caisse." : ""} C'est définitif : à faire quand le client le demande.`}
+          confirmLabel="Effacer"
+          destructive
+          onConfirm={() => void erase(customerToErase)}
+          onClose={() => setCustomerToErase(null)}
         />
       )}
       {adjusting && (
@@ -379,6 +415,7 @@ export default function FidelitePage() {
         <LoyaltyManager
           etablissementId={state.etablissement.id}
           categories={state.categories}
+          hubriseConnected={state.etablissement.hubriseConnected}
         />
       ) : (
         <EmptyState
