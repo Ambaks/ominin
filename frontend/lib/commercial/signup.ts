@@ -52,19 +52,23 @@ export async function getSignup(admin: Admin, id: string): Promise<Signup> {
 
 const linkState = (done: boolean, later: boolean): LinkState => (done ? "done" : later ? "later" : "todo");
 
-/** Stripe n'est interrogé qu'une fois le compte créé : avant, il n'y a rien à relire. */
+/*
+ * Stripe n'est interrogé que si le restaurant a commencé son compte de
+ * paiement : avant, il n'y a rien à relire.
+ */
 export async function signupProgress(admin: Admin, stripe: () => Stripe, signup: Signup): Promise<SignupProgress> {
   const etablissementId = signup.etablissement_id;
-  const [stripeStatus, { count: hubrise }] = etablissementId
+  const [{ data: account }, { count: hubrise }] = etablissementId
     ? await Promise.all([
-        connectStatus(admin, stripe(), etablissementId),
+        admin.from("payment_accounts").select("etablissement_id").eq("etablissement_id", etablissementId).maybeSingle(),
         admin.from("hubrise_connections").select("etablissement_id", { count: "exact", head: true }).eq("etablissement_id", etablissementId),
       ])
-    : [{ chargesEnabled: false }, { count: 0 }];
+    : [{ data: null }, { count: 0 }];
+  const chargesEnabled = account && etablissementId ? (await connectStatus(admin, stripe(), etablissementId)).chargesEnabled : false;
   return {
     restaurant: signup.restaurant.name,
     accountCreated: etablissementId !== null,
-    stripe: linkState(stripeStatus.chargesEnabled, signup.stripe_later),
+    stripe: linkState(chargesEnabled, signup.stripe_later),
     hubrise: linkState((hubrise ?? 0) > 0, signup.hubrise_later),
     photos: signup.photos.length,
     finished: signup.finished_at !== null,

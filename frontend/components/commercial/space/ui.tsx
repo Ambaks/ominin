@@ -1,6 +1,3 @@
-import type { RestaurantState } from "@/lib/commercial/api";
-import { normalizePhone } from "@/lib/shop/phone";
-
 /*
  * Briques de l'espace commercial, au style de l'admin : cartes à filet,
  * boutons pleins en braise pour l'action principale, contours pour le reste.
@@ -33,27 +30,6 @@ export function PageTitle({ children, sub }: { children: React.ReactNode; sub?: 
   );
 }
 
-/** Étiquette du statut d'un restaurant : ce que tout commercial voit. */
-export function StatePill({ state }: { state: RestaurantState }) {
-  const [label, tone] =
-    state.kind === "client"
-      ? ["Déjà client", "border-status-signed/40 text-status-signed"]
-      : state.kind === "opted_out"
-        ? ["Ne veut plus être contacté", "border-ember-3/40 text-ember-3"]
-        : state.kind === "reserved"
-          ? state.mine
-            ? [state.pending ? "À vous · en attente" : "À vous", "border-ember-2/50 bg-ember-2/10 text-ember-1"]
-            : [`Réservé${state.step ? ` · étape ${state.step}` : ""}`, "border-hairline text-muted"]
-          : state.in_talks
-            ? ["En discussion avec Ominin", "border-status-appointment/40 text-status-appointment"]
-            : ["Libre", "border-status-to-contact/40 text-status-to-contact"];
-  return (
-    <span className={`inline-flex shrink-0 items-center rounded-full border px-2.5 py-0.5 text-[11px] font-semibold ${tone}`}>
-      {label}
-    </span>
-  );
-}
-
 export function ErrorNote({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
     <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-hairline px-6 py-10 text-center">
@@ -78,12 +54,6 @@ export function Skeleton() {
 }
 
 export const telHref = (phone: string) => `tel:${phone.replace(/[^\d+]/g, "")}`;
-
-/** Lien WhatsApp d'un numéro, ou null s'il ne se lit pas comme un numéro. */
-export function whatsappHref(phone: string): string | null {
-  const international = normalizePhone(phone);
-  return international ? `https://wa.me/${international.slice(1)}` : null;
-}
 
 /** Message d'une erreur de la base, tel quel : les fonctions écrivent en français. */
 export const errorMessage = (cause: unknown) =>

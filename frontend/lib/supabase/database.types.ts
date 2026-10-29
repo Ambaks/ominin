@@ -8151,6 +8151,7 @@ export type Database = {
         Args: never
         Returns: { etablissement_id: string; id: string }[]
       }
+      commercial_release_holds: { Args: never; Returns: number }
       commercial_release_requests: {
         Args: never
         Returns: { discord_message_id: string; id: string; status: string }[]
