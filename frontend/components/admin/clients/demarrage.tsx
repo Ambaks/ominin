@@ -33,26 +33,19 @@ interface CommercialSignup {
 }
 
 /* Inscrit pendant la visite d'un commercial : qui, le responsable à recontacter, les photos du menu. */
-function CommercialSignupCard({ etablissementId }: { etablissementId: string }) {
+function CommercialSignupCard({ etablissementId, signup }: { etablissementId: string; signup: CommercialSignup }) {
   const toast = useToast();
-  const [signup, setSignup] = useState<CommercialSignup | null>(null);
   const [open, setOpen] = useState<boolean | null>(null);
   const [busy, setBusy] = useState(false);
   useEffect(() => {
-    const db = createClient();
-    db.from("commercial_signups")
-      .select("kind, manager_name, manager_phone, manager_email, photos, finished_at, commerciaux(email, first_name, last_name)")
-      .eq("etablissement_id", etablissementId)
-      .maybeSingle()
-      .then(({ data }) => setSignup(data));
-    db.from("subscriptions")
+    createClient()
+      .from("subscriptions")
       .select("status")
       .eq("etablissement_id", etablissementId)
       .eq("product", "offre")
       .maybeSingle()
       .then(({ data }) => setOpen(data?.status === "active"));
   }, [etablissementId]);
-  if (!signup) return null;
 
   const openSpace = async () => {
     setBusy(true);
@@ -119,15 +112,27 @@ function CommercialSignupCard({ etablissementId }: { etablissementId: string }) 
 }
 
 export function ClientDemarrage({ etablissementId }: { etablissementId: string }) {
+  // undefined : en lecture ; null : inscrit seul.
+  const [signup, setSignup] = useState<CommercialSignup | null | undefined>(undefined);
+  useEffect(() => {
+    createClient()
+      .from("commercial_signups")
+      .select("kind, manager_name, manager_phone, manager_email, photos, finished_at, commerciaux(email, first_name, last_name)")
+      .eq("etablissement_id", etablissementId)
+      .maybeSingle()
+      .then(({ data }) => setSignup(data));
+  }, [etablissementId]);
+  if (signup === undefined) return <div aria-busy className="shimmer h-64 rounded-2xl" />;
   return (
     <div className="flex flex-col gap-6">
-      <CommercialSignupCard etablissementId={etablissementId} />
-      <StarterSetup etablissementId={etablissementId} />
+      {signup && <CommercialSignupCard etablissementId={etablissementId} signup={signup} />}
+      <StarterSetup etablissementId={etablissementId} offered={signup !== null} />
     </div>
   );
 }
 
-function StarterSetup({ etablissementId }: { etablissementId: string }) {
+/** offered : inscrit avec un commercial, le matériel est offert par Ominin (décision du 29/10) : la liste, sans montants. */
+function StarterSetup({ etablissementId, offered }: { etablissementId: string; offered: boolean }) {
   const toast = useToast();
   const [setup, setSetup] = useState<Setup | null | undefined>(undefined);
 
@@ -198,7 +203,7 @@ function StarterSetup({ etablissementId }: { etablissementId: string }) {
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-lg font-medium">Sa commande</h2>
           <p className="text-xs text-faint">
-            {setup.notifiedAt ? `Réglée le ${formatDate(setup.notifiedAt)}` : "Pas encore réglée"}
+            {offered ? "Offerte par Ominin" : setup.notifiedAt ? `Réglée le ${formatDate(setup.notifiedAt)}` : "Pas encore réglée"}
           </p>
         </div>
         <dl className="flex flex-col gap-2.5 text-sm">
@@ -208,9 +213,13 @@ function StarterSetup({ etablissementId }: { etablissementId: string }) {
                 {line.label}
                 {line.detail && <span className="block text-xs text-faint">{line.detail}</span>}
               </dt>
-              <dd className={line.amount === null ? "text-xs italic text-faint" : "font-medium"}>
-                {line.amount === null ? "sur devis" : formatPrice(line.amount)}
-              </dd>
+              {offered ? (
+                <dd className="font-medium">× {line.quantity}</dd>
+              ) : (
+                <dd className={line.amount === null ? "text-xs italic text-faint" : "font-medium"}>
+                  {line.amount === null ? "sur devis" : formatPrice(line.amount)}
+                </dd>
+              )}
             </div>
           ))}
         </dl>
