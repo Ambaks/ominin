@@ -7,6 +7,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import type { Json } from "@/lib/supabase/database.types";
 import type { ReelScript, RenderStatus } from "@/lib/social/reel";
+import type { PostScript, ProduceReport } from "@/lib/social/script";
 import { check, must } from "@/lib/supabase/result";
 import { rollingWeekStart } from "./format";
 import { PRODUCTS, type Product } from "./products";
@@ -126,6 +127,10 @@ export interface SocialPost {
   slides: Slide[];
   /** Reel seulement : le script, l'état de son rendu, la vidéo rendue. */
   reel: ReelScript | null;
+  /** Reel en scènes (reel vide) : le script en blocs animés, et les notes
+   * des agents du montage une fois la vidéo polie. Pas modifiable ici. */
+  script: PostScript | null;
+  production: ProduceReport | null;
   renderStatus: RenderStatus | null;
   renderError: string | null;
   /** Avancement du rendu en cours (workflow social-render) : étape, part
@@ -265,7 +270,7 @@ export async function fetchSocialPosts(): Promise<SocialPost[]> {
     await createClient()
       .from("social_posts")
       .select(
-        "id, brand, post_date, scheduled_at, status, feedback, updated_at, format, topic, angle, slides, reel, render_status, render_error, render_stage, render_progress, render_eta_seconds, video_path, review, captions, social_playbooks(version), social_publications(id, status, permalink, error, published_at, metrics, metrics_settled_at, social_accounts(platform, handle))"
+        "id, brand, post_date, scheduled_at, status, feedback, updated_at, format, topic, angle, slides, reel, script, production, render_status, render_error, render_stage, render_progress, render_eta_seconds, video_path, review, captions, social_playbooks(version), social_publications(id, status, permalink, error, published_at, metrics, metrics_settled_at, social_accounts(platform, handle))"
       )
       .order("scheduled_at", { ascending: false })
       .limit(SOCIAL_POSTS_FETCH_LIMIT)
@@ -283,6 +288,8 @@ export async function fetchSocialPosts(): Promise<SocialPost[]> {
     angle: row.angle,
     slides: row.slides as unknown as Slide[],
     reel: row.reel as unknown as ReelScript | null,
+    script: row.script as unknown as PostScript | null,
+    production: row.production as unknown as ProduceReport | null,
     renderStatus: row.render_status as RenderStatus | null,
     renderError: row.render_error,
     renderStage: row.render_stage,

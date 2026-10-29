@@ -6310,10 +6310,12 @@ export type Database = {
           captions: Json
           created_at: string
           feedback: string | null
+          feature: string | null
           format: string
           id: string
           playbook_id: string
           post_date: string
+          production: Json | null
           reel: Json | null
           render_error: string | null
           render_eta_seconds: number | null
@@ -6322,6 +6324,7 @@ export type Database = {
           render_status: string | null
           review: Json | null
           scheduled_at: string
+          script: Json | null
           slides: Json
           status: string
           topic: string
@@ -6334,10 +6337,12 @@ export type Database = {
           captions: Json
           created_at?: string
           feedback?: string | null
+          feature?: string | null
           format?: string
           id?: string
           playbook_id: string
           post_date: string
+          production?: Json | null
           reel?: Json | null
           render_error?: string | null
           render_eta_seconds?: number | null
@@ -6346,6 +6351,7 @@ export type Database = {
           render_status?: string | null
           review?: Json | null
           scheduled_at: string
+          script?: Json | null
           slides: Json
           status?: string
           topic: string
@@ -6358,10 +6364,12 @@ export type Database = {
           captions?: Json
           created_at?: string
           feedback?: string | null
+          feature?: string | null
           format?: string
           id?: string
           playbook_id?: string
           post_date?: string
+          production?: Json | null
           reel?: Json | null
           render_error?: string | null
           render_eta_seconds?: number | null
@@ -6370,6 +6378,7 @@ export type Database = {
           render_status?: string | null
           review?: Json | null
           scheduled_at?: string
+          script?: Json | null
           slides?: Json
           status?: string
           topic?: string

@@ -1,3 +1,4 @@
+import type { PostScript } from "../../frontend/lib/social/script.ts";
 import { required } from "./env.ts";
 
 /*
@@ -24,7 +25,10 @@ async function rest(path: string, init: RequestInit = {}) {
 export interface PendingReel {
   id: string;
   brand: string;
-  reel: { scenes: unknown[]; cta: string };
+  /** Un Reel à voix off, ou un Reel en scènes (script) : jamais les deux. */
+  reel: { scenes: unknown[]; cta: string } | null;
+  script: PostScript | null;
+  feature: string | null;
   video_path: string | null;
 }
 
@@ -32,7 +36,7 @@ export interface PendingReel {
  * interrompu : le workflow n'en fait tourner qu'un à la fois. */
 export async function pendingReels(): Promise<PendingReel[]> {
   const query = new URLSearchParams({
-    select: "id,brand,reel,video_path",
+    select: "id,brand,reel,script,feature,video_path",
     format: "eq.reel",
     render_status: "in.(pending,rendering)",
     status: "in.(draft,approved)",

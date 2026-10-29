@@ -18,7 +18,7 @@ import { MUSIC } from "@/lib/social/music";
 import type { ReelScene, ReelScript, ReelVisual } from "@/lib/social/reel";
 import { SCREENS } from "@/lib/social/screens";
 import { STOCK } from "@/lib/social/stock";
-import { FORMAT_LABELS, PostMedia } from "./post-media";
+import { FORMAT_LABELS, PostMedia, formatScore } from "./post-media";
 import { PRIMARY_BUTTON, SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
 /*
@@ -28,7 +28,8 @@ import { PRIMARY_BUTTON, SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
  * avec un commentaire, on valide ou on écarte. Un post validé part à son
  * heure ; il reste modifiable, ou peut repasser en brouillon, jusque-là.
  * Un Reel ne se valide qu'une fois sa vidéo rendue ; modifier son script la
- * fait refaire.
+ * fait refaire. Un Reel en scènes n'a que ses légendes à modifier ici : son
+ * script se corrige par une réécriture.
  */
 
 const STATUS: Record<
@@ -89,7 +90,7 @@ function ReviewNote({ review }: { review: PostReview }) {
       <summary className="cursor-pointer text-muted">
         Arbitre :{" "}
         <span className="font-semibold text-foreground">
-          {review.score.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}/10
+          {formatScore(review.score)}
         </span>
         {review.rounds > 0 && ` · ${review.rounds} réécriture${review.rounds > 1 ? "s" : ""}`}
       </summary>
@@ -374,11 +375,13 @@ function EditForm({
       }}
       className="flex flex-col gap-4"
     >
-      <p className="text-xs text-faint">
-        Dans un titre ou un texte à l&apos;écran, les mots entre [[ ]] sont
-        posés sur le dégradé de la marque.
-        {reel && " Modifier le script refait la vidéo (quelques minutes)."}
-      </p>
+      {(reel || slides.length > 0) && (
+        <p className="text-xs text-faint">
+          Dans un titre ou un texte à l&apos;écran, les mots entre [[ ]] sont
+          posés sur le dégradé de la marque.
+          {reel && " Modifier le script refait la vidéo (quelques minutes)."}
+        </p>
+      )}
       {reel && (
         <ReelEditor reel={reel} screens={screens} clips={clips} onChange={setReel} />
       )}

@@ -183,6 +183,10 @@ class Settings(BaseSettings):
     # rewrites; the best version goes to the admin. Decided by Marwan.
     social_review_target: float = 8.0
     social_review_max_rounds: int = 3
+    # Brands whose Reels are written in scenes (blocks of the site, no
+    # voiceover, polished by the montage agents at render time) instead of
+    # carousels and voiceover Reels. Menu first, decided 2026-10-29.
+    social_scene_brands: list[str] = ["menu"]
     # Metrics are refreshed at each analysis until a post is this old, then
     # frozen; only frozen posts feed it (a day-old reach is undecided).
     social_settle_days: int = 3
