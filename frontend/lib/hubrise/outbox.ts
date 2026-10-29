@@ -93,6 +93,7 @@ const UNDELIVERED: Record<string, string> = {
   order_payments: "règlement non transmis à HubRise",
   order_status: "statut non transmis à HubRise",
   stock: "stock non transmis à HubRise",
+  customer_anonymise: "effacement d'un client non transmis à HubRise",
 };
 
 async function abandon(admin: Admin, row: Row, message: string) {
@@ -285,6 +286,33 @@ async function pushStock(admin: Admin, row: Row, token: Connection | null) {
   await settle(admin, row, { status: "sent", last_error: null });
 }
 
+/**
+ * Client effacé dans Ominin (erase_loyalty_customer) : HubRise l'anonymise
+ * aussi. Inconnu de la liste de clients reliée (404, liste changée) : rien
+ * à anonymiser.
+ */
+async function pushAnonymise(admin: Admin, row: Row, connection: Connection) {
+  if (!row.hubrise_id || !connection.customer_list_id) {
+    await settle(admin, row, { status: "skipped", last_error: "Aucune liste de clients." });
+    return;
+  }
+  try {
+    await callHubrise(
+      admin,
+      connection,
+      `/customer_lists/${connection.customer_list_id}/customers/${row.hubrise_id}/anonymise`,
+      { method: "POST", body: "{}" }
+    );
+  } catch (error) {
+    if (error instanceof HubriseError && error.status === 404) {
+      await settle(admin, row, { status: "skipped", last_error: "Client inconnu de HubRise." });
+      return;
+    }
+    throw error;
+  }
+  await settle(admin, row, { status: "sent", last_error: null });
+}
+
 async function process(admin: Admin, row: Row) {
   const connection = await getConnection(admin, row.etablissement_id);
   if (!connection) {
@@ -296,6 +324,7 @@ async function process(admin: Admin, row: Row) {
     else if (row.kind === "order_cancel") await pushCancel(admin, row, connection);
     else if (row.kind === "order_payments") await pushPayments(admin, row, connection);
     else if (row.kind === "order_status") await pushStatus(admin, row, connection);
+    else if (row.kind === "customer_anonymise") await pushAnonymise(admin, row, connection);
     else await pushStock(admin, row, connection);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);

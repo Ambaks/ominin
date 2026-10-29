@@ -156,6 +156,22 @@ export async function adjustPoints(
   );
 }
 
+/**
+ * Droit à l'effacement : la carte du client, et nom, téléphone et note de ses
+ * commandes passées (loyalty_erase_customer) ; la caisse HubRise suit.
+ */
+export async function eraseCustomer(
+  etablissementId: string,
+  customerId: string
+): Promise<void> {
+  check(
+    await createClient().rpc("loyalty_erase_customer", {
+      p_etablissement_id: etablissementId,
+      p_customer_id: customerId,
+    })
+  );
+}
+
 /** Une semaine du programme (du lundi, heure de Paris). */
 export interface LoyaltyWeek {
   /** Lundi de la semaine, AAAA-MM-JJ. */
