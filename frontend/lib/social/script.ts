@@ -1,4 +1,3 @@
-import { MUSIC_BY_ID } from "./music";
 import { SCREEN_BY_ID } from "./screens";
 import type { SocialBrand } from "./brands";
 
@@ -9,6 +8,7 @@ import type { SocialBrand } from "./brands";
  * ce script, les agents du montage (social-video/scripts/produce) le
  * corrigent scène par scène puis transition par transition : ils ne
  * changent que ce que ces catalogues permettent, jamais le dessin des blocs.
+ * Sans son : la publication se lit en silence, comme la plupart des Reels.
  */
 
 export type BlockId = "hook" | "phone" | "relay" | "points" | "cta";
@@ -56,8 +56,6 @@ export interface PostScript {
   scenes: PostScene[];
   /** Une de moins que de scènes : transitions[i] joint les scènes i et i + 1. */
   transitions: PostTransition[];
-  /** Musique sous la publication (lib/social/music), ou "" : sans musique. */
-  music?: string;
 }
 
 /** La note d'un arbitre du montage (social-video/scripts/produce). */
@@ -197,7 +195,6 @@ export function transitionError(transition: PostTransition): string | null {
 }
 
 export function scriptError(script: PostScript): string | null {
-  if (script.music && !MUSIC_BY_ID.has(script.music)) return `musique inconnue « ${script.music} »`;
   if (script.scenes.length < 2) return "au moins deux scènes";
   if (script.scenes.at(-1)?.block !== "cta") return "la dernière scène est l'appel à l'action";
   if (script.transitions.length !== script.scenes.length - 1) return "une transition entre chaque paire de scènes";

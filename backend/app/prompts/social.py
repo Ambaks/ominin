@@ -434,7 +434,7 @@ class TransitionDraft(BaseModel):
 
 class ScenePostDraft(BaseModel):
     """A Reel in scenes (frontend/lib/social/script.ts): animated blocks of
-    the site filled with text, no voiceover; polished by the montage agents
+    the site filled with text, silent; polished by the montage agents
     at render time."""
 
     topic: str
@@ -442,7 +442,6 @@ class ScenePostDraft(BaseModel):
     story: str
     scenes: list[SceneDraft]
     transitions: list[TransitionDraft]
-    music: str
     caption_instagram: str
     caption_facebook: str
     caption_snapchat: str
@@ -663,11 +662,10 @@ def compose_scenes_system(
     guidelines: str,
     pricing: dict[str, str] | None,
     screens: list[dict],
-    music: list[dict],
     blocks: dict,
     handles: dict[str, str],
 ) -> str:
-    """The writer of a Reel in scenes: the blocks of the site, no voiceover."""
+    """The writer of a Reel in scenes: the blocks of the site, silent."""
     keyword = EXAMPLES[brand][0]
     numbers = PRICED if brand == "ominin" or (pricing or {}).get(brand) else UNPRICED
     return f"""\
@@ -684,7 +682,7 @@ COMPTES INSTAGRAM DE LA FAMILLE OMININ (à citer pour renvoyer vers une offre) :
 RÈGLES INTANGIBLES :
 {INVARIANTS}
 
-LE FORMAT : un Reel de 12 à 20 secondes, en scènes, SANS voix off. Chaque \
+LE FORMAT : un Reel de 12 à 20 secondes, en scènes, SANS son. Chaque \
 scène est un bloc animé du site (mêmes composants, mêmes couleurs) que tu \
 remplis de son texte ; deux scènes voisines se joignent par une transition. \
 Le texte à l'écran porte toute l'histoire : un titre court par scène, une \
@@ -723,8 +721,6 @@ BLOCS (le bloc, puis chacune de ses props et sa limite) :
 CAPTURES DISPONIBLES pour le bloc phone (id : ce qu'on y voit) :
 {_catalogue(screens, "Aucune capture disponible : pas de bloc phone.")}
 
-MUSIQUES DISPONIBLES (id : ambiance) :
-{_catalogue(music, "Aucune musique disponible : music vaut une chaîne vide.")}
 
 FORMAT DE SORTIE :
 - topic : le sujet en quelques mots. angle : en une phrase, le parti pris \
@@ -736,7 +732,6 @@ bloc ; la durée laisse lire le titre (environ trois mots par seconde, plus \
 une seconde d'entrée).
 - transitions : une de moins que de scènes (kind, direction, frames) ; \
 direction ne compte que pour slide, wipe et flip (mets from-right sinon).
-- music : l'id de la musique dont l'ambiance sert le Reel.
 {CAPTIONS}
 
 La fonctionnalité à présenter, quand on te la donne, est le sujet de la \
@@ -763,7 +758,6 @@ def _post_lines(post: dict) -> list[str]:
             )
             for index, scene in enumerate(script.get("scenes", []), 1)
         ),
-        *([f"Musique : {script['music']}"] if script.get("music") else []),
         *(
             f"  image {index}. [{slide['kicker']}] {slide['title']} — {slide['body']}"
             + (f" (capture {slide['screen']})" if slide.get("screen") else "")

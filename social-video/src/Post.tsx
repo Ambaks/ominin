@@ -1,6 +1,5 @@
 import { Fragment } from "react";
-import { Audio, Easing, interpolate, useVideoConfig } from "remotion";
-import { MUSIC_BY_ID } from "../../frontend/lib/social/music.ts";
+import { Easing } from "remotion";
 import { TransitionSeries, linearTiming } from "@remotion/transitions";
 import { fade } from "@remotion/transitions/fade";
 import { flip } from "@remotion/transitions/flip";
@@ -22,9 +21,6 @@ import type { PostProps } from "./types.ts";
  */
 
 const easing = Easing.bezier(0.65, 0, 0.35, 1);
-/* La musique, sans voix par-dessus : présente, avec une entrée et une sortie en fondu d'une seconde. */
-const MUSIC_VOLUME = 0.55;
-const MUSIC_FADE_FRAMES = 30;
 
 /* Un élément par présentation : TransitionSeries lit ses enfants directs, et
  * chaque présentation a ses props. Une coupe n'en a pas. */
@@ -48,23 +44,9 @@ function transitionElement({ kind, direction, frames }: PostTransition) {
   }
 }
 
-export function Post({ brand, scenes, transitions, music }: PostProps) {
-  const { durationInFrames } = useVideoConfig();
-  const track = music ? MUSIC_BY_ID.get(music) : undefined;
+export function Post({ brand, scenes, transitions }: PostProps) {
   return (
-    <>
-      {track && (
-        <Audio
-          src={track.url}
-          volume={(frame) =>
-            interpolate(frame, [0, MUSIC_FADE_FRAMES, durationInFrames - MUSIC_FADE_FRAMES, durationInFrames], [0, MUSIC_VOLUME, MUSIC_VOLUME, 0], {
-              extrapolateLeft: "clamp",
-              extrapolateRight: "clamp",
-            })
-          }
-        />
-      )}
-      <TransitionSeries>
+    <TransitionSeries>
       {scenes.map((scene, index) => {
         const transition = transitions[index - 1];
         return (
@@ -76,7 +58,6 @@ export function Post({ brand, scenes, transitions, music }: PostProps) {
           </Fragment>
         );
       })}
-      </TransitionSeries>
-    </>
+    </TransitionSeries>
   );
 }

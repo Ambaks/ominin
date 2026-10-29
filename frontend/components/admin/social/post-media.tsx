@@ -235,9 +235,6 @@ function ScriptScenes({
             <p className="mt-0.5 text-muted">{production.final.verdict}</p>
           </>
         )}
-        <p className="mt-1 text-muted">
-          {MUSIC_BY_ID.get(script.music ?? "")?.mood ?? "Sans musique"}
-        </p>
       </li>
     </ol>
   );

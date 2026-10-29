@@ -352,7 +352,6 @@ class _Context:
                 playbook["guidelines"],
                 self.pricing,
                 screens,
-                self.music,
                 self.blocks,
                 self.handles,
             )
@@ -464,10 +463,6 @@ class _Context:
                 "brand": brand,
                 "scenes": [scene.model_dump() for scene in draft.scenes],
                 "transitions": [t.model_dump() for t in draft.transitions],
-                # Une musique inconnue n'empêche pas le Reel : sans musique.
-                "music": draft.music
-                if draft.music in {m["id"] for m in self.music}
-                else "",
             },
             "production": None,
             "render_status": "pending",
