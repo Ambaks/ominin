@@ -42,7 +42,7 @@ async function post(id: string, action: string, body?: unknown): Promise<{ url?:
  * paiement : on récupère les infos, on crée le compte, puis on branche Stripe
  * et HubRise (ou plus tard) et on prend le menu en photo.
  */
-export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hubriseManagerUrl: string }) {
+export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hubriseManagerUrl: string | null }) {
   const [progress, setProgress] = useState<SignupProgress | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [step, setStep] = useState<BeforeAccount>("compte");
@@ -177,7 +177,6 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
               setStep("offre");
             }}
           />
-          {back("responsable")}
         </Shell>
       );
     }
@@ -238,9 +237,11 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
         {hasHubrise === false ? (
           <div className={`${cardClass} flex flex-col gap-3 text-sm`}>
             <p>Créez votre compte HubRise, puis revenez ici pour le relier.</p>
-            <a href={hubriseManagerUrl} target="_blank" rel="noopener" className={ghostButton}>
-              Créer mon compte HubRise
-            </a>
+            {hubriseManagerUrl && (
+              <a href={hubriseManagerUrl} target="_blank" rel="noopener" className={ghostButton}>
+                Créer mon compte HubRise
+              </a>
+            )}
           </div>
         ) : (
           hasHubrise === null && (

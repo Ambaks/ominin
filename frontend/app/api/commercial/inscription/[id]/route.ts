@@ -8,7 +8,7 @@ export async function GET(_request: Request, { params }: RouteContext<"/api/comm
   const { id } = await params;
   const admin = createAdminClient();
   try {
-    return NextResponse.json(await signupProgress(admin, getStripe(), await getSignup(admin, id)));
+    return NextResponse.json(await signupProgress(admin, getStripe, await getSignup(admin, id)));
   } catch (cause) {
     if (cause instanceof SignupError) return NextResponse.json({ error: cause.message }, { status: cause.status });
     throw cause;

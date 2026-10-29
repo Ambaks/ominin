@@ -441,7 +441,8 @@ export function ConnectComposer({
         const min = fastFood ? 0 : 1;
         return {
           title: fastFood ? q.tables.titleFastFood : q.tables.title,
-          hint: fastFood ? q.tables.hintFastFood : q.tables.hint,
+          // L'aide des tables donne le prix du Cachet : jamais avec un commercial.
+          hint: fastFood ? q.tables.hintFastFood : onDone ? undefined : q.tables.hint,
           canContinue: step.done(answers),
           body: (
             <div className="flex items-center justify-center gap-5 py-4">
@@ -550,7 +551,7 @@ export function ConnectComposer({
                 disabled={!current.canContinue}
                 className="ember-gradient rounded-full px-6 py-2.5 text-sm font-semibold text-background transition-opacity disabled:opacity-30"
               >
-                {isLast ? composerPage.finish : composerPage.next}
+                {isLast && !onDone ? composerPage.finish : composerPage.next}
               </button>
             </div>
           </div>

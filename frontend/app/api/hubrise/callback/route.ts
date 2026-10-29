@@ -1,7 +1,7 @@
 import { after, NextResponse } from "next/server";
 import { postDiscord } from "@/lib/discord";
 import { exchangeCode, HUBRISE_SIGNUP_COOKIE, HUBRISE_STATE_COOKIE } from "@/lib/hubrise/client";
-import { getConnection } from "@/lib/hubrise/connection";
+import { getConnection, type Connection } from "@/lib/hubrise/connection";
 import { releaseBlocked } from "@/lib/hubrise/outbox";
 import { kickHubrise, registerCallback, syncAll } from "@/lib/hubrise/sync";
 import { publicRequestOrigin } from "@/lib/request-origin";
@@ -17,7 +17,7 @@ import { requireGerant } from "@/lib/supabase/gerant";
  * lieu déjà relié garde les réglages de la caisse et relâche les envois
  * bloqués par le 401. Lancé depuis une inscription avec un commercial, le
  * lieu est relié à l'établissement de cette inscription, et le retour se
- * fait sur le questionnaire.
+ * fait sur le questionnaire. Un nouveau lieu est annoncé dans #inscriptions.
  */
 
 function readCookie(request: Request, cookie: string): string | null {
@@ -37,7 +37,7 @@ function readCookie(request: Request, cookie: string): string | null {
 async function announceLocation(
   admin: ReturnType<typeof createAdminClient>,
   etablissementId: string,
-  connection: NonNullable<Awaited<ReturnType<typeof getConnection>>>
+  connection: Connection
 ) {
   const { data } = await admin.from("etablissements").select("name").eq("id", etablissementId).single();
   const location = [connection.account_name, connection.location_name].filter(Boolean).join(" · ");

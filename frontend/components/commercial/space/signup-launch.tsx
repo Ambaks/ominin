@@ -38,8 +38,8 @@ export function SignupLaunch({ restaurantId, restaurantName }: { restaurantId: s
     if (!id || !showQr) return;
     const read = () =>
       void fetch(`/api/commercial/inscription/${id}`)
-        .then((response) => response.json())
-        .then((result: SignupProgress) => setProgress(result));
+        .then((response) => (response.ok ? (response.json() as Promise<SignupProgress>) : null))
+        .then((result) => result && setProgress(result));
     read();
     const timer = setInterval(read, SIGNUP_FOLLOW_POLL_MS);
     return () => clearInterval(timer);

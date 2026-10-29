@@ -50,6 +50,10 @@ function SettingsForm() {
   const incomplete = FIELDS.some(({ key, required }) => required && draft[key] === "");
 
   const save = async () => {
+    if (guide.trim() && !guide.trim().startsWith("https://")) {
+      toast.error("Le lien du guide doit commencer par https://");
+      return;
+    }
     try {
       await updateSettings({
         ...Object.fromEntries(FIELDS.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])),
@@ -67,7 +71,7 @@ function SettingsForm() {
       <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">Espace des commerciaux</h2>
       <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
         {FIELDS.map(({ key, label, unit, hint, required }) => (
-          <li key={key} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
+          <li key={key} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
             <label htmlFor={`setting-${key}`} className="min-w-0 flex-1 text-sm">
               {label}
               {required && <span className="text-ember-2"> *</span>}

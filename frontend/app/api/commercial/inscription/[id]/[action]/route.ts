@@ -3,6 +3,7 @@ import { HUBRISE_SIGNUP_COOKIE, HUBRISE_STATE_COOKIE, hubriseAuthorizeUrl } from
 import { HUBRISE } from "@/lib/hubrise/config";
 import { SignupError, createSignupAccount, finishSignup, getSignup, signupProgress, type Signup } from "@/lib/commercial/signup";
 import type { SignupAccountInput } from "@/lib/commercial/signup-form";
+import { LegalVersionError } from "@/lib/legal/server";
 import { publicRequestOrigin } from "@/lib/request-origin";
 import { commercialPrefix } from "@/lib/site";
 import { connectOnboardingLink } from "@/lib/stripe/connect";
@@ -75,7 +76,7 @@ async function act(action: string, request: Request, admin: Admin, signup: Signu
       return NextResponse.json({ ok: true });
     }
     case "fin": {
-      await finishSignup(admin, signup, await signupProgress(admin, getStripe(), signup));
+      await finishSignup(admin, signup, await signupProgress(admin, getStripe, signup));
       return NextResponse.json({ ok: true });
     }
     default:
@@ -92,7 +93,12 @@ export async function POST(request: Request, { params }: RouteContext<"/api/comm
     return await act(action, request, admin, signup);
   } catch (cause) {
     if (cause instanceof SignupError) return NextResponse.json({ error: cause.message }, { status: cause.status });
+    if (cause instanceof LegalVersionError) return NextResponse.json({ error: cause.message }, { status: 409 });
+    // Le gérant lit l'écran : la cause technique reste dans les journaux.
     console.error("[inscription]", action, cause);
-    return NextResponse.json({ error: cause instanceof Error ? cause.message : String(cause) }, { status: 500 });
+    return NextResponse.json(
+      { error: "Cette étape n’a pas fonctionné. Réessayez, ou faites-la plus tard ; le commercial peut prévenir Ominin." },
+      { status: 500 }
+    );
   }
 }

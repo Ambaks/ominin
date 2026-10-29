@@ -12,9 +12,13 @@ import * as api from "@/lib/commercial/api";
 import { spaceHref } from "./shell";
 import { ErrorNote, Skeleton, cardClass, errorMessage, ghostButton, primaryButton, telHref } from "./ui";
 
-/* Les quatre couleurs de la carte, prises dans la palette des statuts de l'admin. */
+/*
+ * Les quatre couleurs de la carte, prises dans la palette des statuts de
+ * l'admin. « Libre » n'est pas le bleu de « à contacter » : c'est celui du
+ * point de position du commercial.
+ */
 const LEGEND: { status: LeadStatus; label: string }[] = [
-  { status: "to_contact", label: "Libre" },
+  { status: "interested", label: "Libre" },
   { status: "appointment_scheduled", label: "Contacté par Léa" },
   { status: "visited", label: "Visité" },
   { status: "signed", label: "Client" },
@@ -23,7 +27,7 @@ const LEGEND: { status: LeadStatus; label: string }[] = [
 function mapStatus(place: api.MapRestaurant): LeadStatus {
   if (place.state === "client") return "signed";
   if (place.state === "visited") return "visited";
-  return place.contacted_by_lea ? "appointment_scheduled" : "to_contact";
+  return place.contacted_by_lea ? "appointment_scheduled" : "interested";
 }
 
 function toLead(place: api.MapRestaurant): LeadLite {

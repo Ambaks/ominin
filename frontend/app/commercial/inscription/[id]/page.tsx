@@ -6,7 +6,5 @@ import { SignupQuestionnaire } from "@/components/commercial/signup/questionnair
  */
 export default async function InscriptionPage({ params }: PageProps<"/commercial/inscription/[id]">) {
   const { id } = await params;
-  const hubriseManagerUrl = process.env.HUBRISE_MANAGER_URL;
-  if (!hubriseManagerUrl) throw new Error("HUBRISE_MANAGER_URL manquant.");
-  return <SignupQuestionnaire id={id} hubriseManagerUrl={hubriseManagerUrl} />;
+  return <SignupQuestionnaire id={id} hubriseManagerUrl={process.env.HUBRISE_MANAGER_URL ?? null} />;
 }

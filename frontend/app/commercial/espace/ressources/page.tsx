@@ -31,7 +31,8 @@ export default async function RessourcesPage() {
   const offers = [
     {
       name: `Menu · ${connect.name}`,
-      price: `${formatPrice(connect.price)}${pricingSection.perMonth} + ${connect.commission!.percent} % ${connect.commission!.basis}`,
+      // Sans abonnement : la commission seule, pas « 0,00 €/mois ».
+      price: `${connect.price ? `${formatPrice(connect.price)}${pricingSection.perMonth} + ` : ""}${connect.commission!.percent} % ${connect.commission!.basis}`,
       url: `${menuSiteUrl}#tarifs`,
     },
     {
