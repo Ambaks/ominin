@@ -110,13 +110,16 @@ function Stepper({
 /**
  * Avec `onDone` (inscription par un commercial), le composeur ne montre aucun
  * prix et rend les réponses à la dernière question, au lieu du récapitulatif.
+ * Avec `tillDetail`, le choix de la caisse reste à l'écran, ce détail dessous.
  */
 export function ConnectComposer({
   defaultTables,
   onDone,
+  tillDetail,
 }: {
   defaultTables: number;
   onDone?: (answers: Answers) => void;
+  tillDetail?: (till: string) => ReactNode;
 }) {
   const [answers, setAnswers] = useState(() => initialAnswers(defaultTables));
   const [index, setIndex] = useState(0);
@@ -204,6 +207,8 @@ export function ConnectComposer({
         const otherOpen = showOther || (answers.till !== null && !featuredTills.some((till) => till.name === answers.till));
         const query = tillQuery.trim();
         const results = searchTills(tillQuery);
+        const pickTill = (till: string) => (tillDetail ? update({ till }) : choose({ till }));
+        const picked = tillName(answers);
         return {
           title: q.till.title,
           canContinue: step.done(answers),
@@ -217,7 +222,7 @@ export function ConnectComposer({
                     aria-pressed={answers.till === till.name}
                     onClick={() => {
                       setShowOther(false);
-                      choose({ till: till.name });
+                      pickTill(till.name);
                     }}
                     className={`flex items-center gap-3 rounded-2xl border p-3 text-left text-sm font-medium transition-all duration-300 ${
                       answers.till === till.name
@@ -261,7 +266,7 @@ export function ConnectComposer({
                       onKeyDown={(event) => {
                         if (event.key !== "Enter") return;
                         const pick = results.length === 1 ? results[0].name : query;
-                        if (pick) choose({ till: pick });
+                        if (pick) pickTill(pick);
                       }}
                       placeholder={q.till.search}
                       aria-label={q.till.search}
@@ -274,7 +279,7 @@ export function ConnectComposer({
                         <button
                           type="button"
                           aria-pressed={answers.till === till.name}
-                          onClick={() => choose({ till: till.name })}
+                          onClick={() => pickTill(till.name)}
                           className={`flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2.5 text-left text-sm transition-colors ${
                             answers.till === till.name ? "bg-ember-2/10" : "hover:bg-foreground/5"
                           }`}
@@ -302,7 +307,7 @@ export function ConnectComposer({
                         <button
                           type="button"
                           aria-pressed={answers.till === query}
-                          onClick={() => choose({ till: query })}
+                          onClick={() => pickTill(query)}
                           className="flex w-full flex-col gap-0.5 rounded-xl border border-dashed border-hairline px-3 py-2.5 text-left text-sm hover:border-ember-2/40"
                         >
                           <span className="font-medium">{q.till.typed(query)}</span>
@@ -313,6 +318,7 @@ export function ConnectComposer({
                   </ul>
                 </div>
               )}
+              {tillDetail && picked && <div key={picked}>{tillDetail(picked)}</div>}
             </>
           ),
         };

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { ChevronLeftIcon } from "@/components/admin/icons";
+import { TillFees } from "@/components/commercial/signup/till-fees";
 import { FieldGroup, Choice, cardClass, errorMessage, ghostButton, primaryButton } from "@/components/commercial/space/ui";
 import { ConnectComposer } from "@/components/composer/connect-composer";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
@@ -184,6 +185,7 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
         <Shell step="4 · Votre service" onBack={back("responsable")}>
           <ConnectComposer
             defaultTables={quotePage.defaultTables}
+            tillDetail={(till) => <TillFees till={till} />}
             onDone={(answers) => {
               setSetup(answers);
               setStep("offre");
