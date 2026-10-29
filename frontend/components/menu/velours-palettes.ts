@@ -12,6 +12,14 @@ export type VeloursPalette = {
   flat: string;
 };
 
+// Vert bouteille, reflet sauge.
+const panisVelours: VeloursPalette = {
+  deep: [".035,.15,.08", ".05,.22,.115"],
+  mid: [".08,.33,.17", ".1,.4,.21"],
+  sheen: ".6,.74,.58",
+  flat: "#0a2a17",
+};
+
 // Aubergine, reflet rosé.
 const bohoVelours: VeloursPalette = {
   deep: [".058,.031,.069", ".078,.042,.093"],
@@ -21,13 +29,9 @@ const bohoVelours: VeloursPalette = {
 };
 
 export const veloursPalettes: Record<string, VeloursPalette> = {
-  // Vert bouteille, reflet sauge.
-  "caffe-panis": {
-    deep: [".035,.15,.08", ".05,.22,.115"],
-    mid: [".08,.33,.17", ".1,.4,.21"],
-    sheen: ".6,.74,.58",
-    flat: "#0a2a17",
-  },
+  "caffe-panis": panisVelours,
+  // Le clone de démonstration de Caffè Panis, branché sur HubRise.
+  "caffe-panis-demo": panisVelours,
   boho: bohoVelours,
   // La démonstration des bulles du Boho (lib/bulles/demo).
   "boho-demo": bohoVelours,
