@@ -140,55 +140,60 @@ async function renderVoiced(reels: PendingReel[]): Promise<string[]> {
     }
   }
 
-  // Le bundle embarque le dossier public : il se fait une fois tout préparé.
+  // Le bundle embarque le dossier public : il se fait une fois tout préparé,
+  // et s'efface ensuite (31 Mo par rendu dans le dossier temporaire).
   const serveUrl = await bundleSite();
-  for (const { reel, props } of prepared) {
-    try {
-      const composition = await selectComposition({ serveUrl, id: "Reel", inputProps: props });
-      const output = join(OUT, `${reel.id}.mp4`);
-      const started = Date.now();
-      let reported = 0;
-      await renderMedia({
-        composition,
-        serveUrl,
-        codec: "h264",
-        audioCodec: "aac",
-        outputLocation: output,
-        inputProps: props,
-        // Avancement du montage, écrit en base par paliers : l'admin le relit.
-        onProgress: ({ progress: done }) => {
-          if (done - reported < PROGRESS_STEP || done <= 0) return;
-          reported = done;
-          const elapsed = (Date.now() - started) / 1000;
-          void progress(
-            reel.id,
-            "Montage",
-            STEPS.queued + (STEPS.upload - STEPS.queued) * done,
-            Math.round((elapsed * (1 - done)) / done),
-          ).catch(() => undefined);
-        },
-      });
-      await progress(reel.id, "Envoi de la vidéo", STEPS.upload);
-      const path = `${reel.id}/${Date.now()}.mp4`;
-      await upload(path, await readFile(output));
-      if (
-        await updatePost(reel.id, "rendering", {
-          render_status: "ready",
-          video_path: path,
-          render_stage: null,
-          render_progress: 1,
-          render_eta_seconds: null,
-        })
-      ) {
-        if (reel.video_path) await remove(reel.video_path);
-        console.log(`Reel ${reel.id} rendu : ${path}`);
-      } else {
-        // Script modifié pendant le rendu : cette vidéo est déjà périmée.
-        await remove(path);
+  try {
+    for (const { reel, props } of prepared) {
+      try {
+        const composition = await selectComposition({ serveUrl, id: "Reel", inputProps: props });
+        const output = join(OUT, `${reel.id}.mp4`);
+        const started = Date.now();
+        let reported = 0;
+        await renderMedia({
+          composition,
+          serveUrl,
+          codec: "h264",
+          audioCodec: "aac",
+          outputLocation: output,
+          inputProps: props,
+          // Avancement du montage, écrit en base par paliers : l'admin le relit.
+          onProgress: ({ progress: done }) => {
+            if (done - reported < PROGRESS_STEP || done <= 0) return;
+            reported = done;
+            const elapsed = (Date.now() - started) / 1000;
+            void progress(
+              reel.id,
+              "Montage",
+              STEPS.queued + (STEPS.upload - STEPS.queued) * done,
+              Math.round((elapsed * (1 - done)) / done),
+            ).catch(() => undefined);
+          },
+        });
+        await progress(reel.id, "Envoi de la vidéo", STEPS.upload);
+        const path = `${reel.id}/${Date.now()}.mp4`;
+        await upload(path, await readFile(output));
+        if (
+          await updatePost(reel.id, "rendering", {
+            render_status: "ready",
+            video_path: path,
+            render_stage: null,
+            render_progress: 1,
+            render_eta_seconds: null,
+          })
+        ) {
+          if (reel.video_path) await remove(reel.video_path);
+          console.log(`Reel ${reel.id} rendu : ${path}`);
+        } else {
+          // Script modifié pendant le rendu : cette vidéo est déjà périmée.
+          await remove(path);
+        }
+      } catch (error) {
+        failures.push(await fail(reel, error));
       }
-    } catch (error) {
-      failures.push(await fail(reel, error));
     }
+  } finally {
+    await rm(serveUrl, { recursive: true, force: true });
   }
   return failures;
 }

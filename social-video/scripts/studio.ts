@@ -43,7 +43,10 @@ export type Studio = Awaited<ReturnType<typeof openStudio>>;
 export async function openStudio() {
   await prepareShared();
   const serveUrl = await bundleSite();
-  const browser = await openBrowser("chrome");
+  const browser = await openBrowser("chrome").catch(async (error) => {
+    await rm(serveUrl, { recursive: true, force: true });
+    throw error;
+  });
 
   async function composition(props: PostProps) {
     return selectComposition({ serveUrl, id: "Post", inputProps: props, puppeteerInstance: browser });
@@ -107,6 +110,13 @@ export async function openStudio() {
         puppeteerInstance: browser,
       });
     },
-    close: () => browser.close({ silent: true }),
+    /** Ferme le navigateur et efface le bundle (31 Mo par ouverture dans le dossier temporaire). */
+    async close() {
+      try {
+        await browser.close({ silent: true });
+      } finally {
+        await rm(serveUrl, { recursive: true, force: true });
+      }
+    },
   };
 }
