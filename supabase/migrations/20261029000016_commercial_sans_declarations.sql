@@ -415,6 +415,7 @@ grant execute on function public.projet_add_client(text, public.ominin_product, 
 
 alter table public.commercial_clients
   drop column declaration_id,
+  drop column alert,
   alter column signup_id set not null;
 
 delete from public.commercial_emails where kind not in ('statement', 'detail', 'urssaf');

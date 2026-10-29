@@ -1538,7 +1538,6 @@ export type Database = {
       }
       commercial_clients: {
         Row: {
-          alert: string | null
           commercial_id: string
           commission_from: string | null
           created_at: string
@@ -1547,24 +1546,22 @@ export type Database = {
           id: string
           restaurant_id: string
           shop_id: string | null
-          signup_id: string | null
+          signup_id: string
           validated_at: string | null
         }
         Insert: {
-          alert?: string | null
-          commercial_id?: string
+          commercial_id: string
           commission_from?: string | null
           created_at?: string
           ended_at?: string | null
           etablissement_id?: string | null
           id?: string
-          restaurant_id?: string
+          restaurant_id: string
           shop_id?: string | null
-          signup_id?: string | null
+          signup_id: string
           validated_at?: string | null
         }
         Update: {
-          alert?: string | null
           commercial_id?: string
           commission_from?: string | null
           created_at?: string
@@ -1573,7 +1570,7 @@ export type Database = {
           id?: string
           restaurant_id?: string
           shop_id?: string | null
-          signup_id?: string | null
+          signup_id?: string
           validated_at?: string | null
         }
         Relationships: [
