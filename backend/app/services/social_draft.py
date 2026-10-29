@@ -5,16 +5,23 @@ publishing slot of the next seven days (social_slot_weekdays at
 social_slot_time), in the format it picks — Reel, carousel or single image —
 from the brand sheets, the editorial line in force, the current prices, the
 catalogues of screenshots and filmed demos, and the recent and planned
-posts. A separate reviewer call scores every version out of 10; Claude
+posts. Each post presents one feature of the catalogue
+(frontend/lib/social/features.ts): the least recently presented one, so the
+brand goes round the whole catalogue and never shows the same twice in a
+row. A separate reviewer call scores every version out of 10; Claude
 rewrites from its critique until the draft reaches the target score, and the
 best version is kept with its review. A Reel is a script of scenes: the social-render workflow turns it into
-a video (set off here, or by run_social_render). Nothing is published here:
+a video (set off here, or by run_social_render). For the brands of
+social_scene_brands, every post is a Reel in scenes instead — blocks of the
+site filled with text, no voiceover (frontend/lib/social/script.ts) — that
+the montage agents polish scene by scene at render time. Nothing is published here:
 drafts wait in /admin/reseaux, where an admin approves them, edits them, or
 asks for a rewrite — which run_social_redraft performs.
 
 Re-running is safe: a slot that already has a post for the brand is skipped.
 """
 
+import random
 from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
@@ -29,7 +36,9 @@ from app.prompts.social import (
     PostDraft,
     PostReview,
     ReelScene,
+    ScenePostDraft,
     compose_content,
+    compose_scenes_system,
     compose_system,
     review_content,
     review_system,
@@ -59,8 +68,9 @@ def run_social_draft(*, flush=None) -> dict:
             if slot.date().isoformat() in taken:
                 continue
             keepalive.ping_if_due()
+            feature = context.next_feature(brand)
             try:
-                draft = context.compose(brand, slot.date())
+                draft = context.compose(brand, slot.date(), feature)
             except Exception as exc:  # noqa: BLE001 — one slot must not stop the others
                 stats["failed"] += 1
                 errors.append(f"{brand} {slot.date()} : {type(exc).__name__}: {exc}")
@@ -113,7 +123,7 @@ def run_social_redraft(*, flush=None) -> dict:
                 sb.table("social_posts")
                 .select(
                     "id, brand, post_date, format, topic, angle, slides, reel,"
-                    " captions, feedback"
+                    " script, captions, feedback, feature"
                 )
                 .eq("status", "redrafting")
                 .execute()
@@ -127,7 +137,10 @@ def run_social_redraft(*, flush=None) -> dict:
             keepalive.ping_if_due()
             try:
                 draft = context.compose(
-                    post["brand"], date.fromisoformat(post["post_date"]), previous=post
+                    post["brand"],
+                    date.fromisoformat(post["post_date"]),
+                    context.feature(post["feature"]),
+                    previous=post,
                 )
             except Exception as exc:  # noqa: BLE001 — the post goes back to draft
                 stats["failed"] += 1
@@ -219,16 +232,21 @@ def _slots() -> list[datetime]:
 
 class _Context:
     """What every draft of a run is written from, read once per run: prices,
-    screenshots and filmed demos served by the site, Instagram handles."""
+    features, screenshots and filmed demos served by the site, Instagram
+    handles."""
 
     def __init__(self, sb) -> None:
         self.sb = sb
         self.errors: list[str] = []
         self.pricing = self._site("tarifs", {})
+        self.features = self._site("features", [])
+        # Fonctionnalités déjà choisies pendant ce run, la plus récente en tête.
+        self._picked: dict[str, list[str]] = {}
         self.screens = self._site("screens", [])
         self.clips = self._site("clips", [])
         self.stock = self._site("stock", [])
         self.music = self._site("music", [])
+        self.blocks = self._site("blocks", {})
         accounts = (
             sb.table("social_accounts")
             .select("brand, platform, handle")
@@ -258,12 +276,59 @@ class _Context:
             self.errors.append(f"/api/social/{route} illisible : {exc}")
             return empty
 
-    def compose(self, brand: str, day: date, previous: dict | None = None) -> dict:
+    def _features_for(self, brand: str) -> list[dict]:
+        # Ominin présente les trois offres : tout le catalogue lui est ouvert.
+        return [f for f in self.features if brand == "ominin" or f["brand"] == brand]
+
+    def feature(self, feature_id: str | None) -> dict | None:
+        return next((f for f in self.features if f["id"] == feature_id), None)
+
+    def next_feature(self, brand: str) -> dict | None:
+        """The feature of the brand presented least recently — one never
+        presented first, at random among equals. None without a catalogue:
+        the writer then picks its subject alone."""
+        candidates = self._features_for(brand)
+        if not candidates:
+            return None
+        history = self._picked.get(brand, []) + [
+            row["feature"]
+            for row in (
+                self.sb.table("social_posts")
+                .select("feature")
+                .eq("brand", brand)
+                .neq("status", "rejected")
+                .not_.is_("feature", "null")
+                .order("post_date", desc=True)
+                .limit(len(candidates))
+                .execute()
+            ).data
+        ]
+
+        def age(feature: dict) -> int:
+            return (
+                history.index(feature["id"])
+                if feature["id"] in history
+                else len(history)
+            )
+
+        oldest = max(age(f) for f in candidates)
+        choice = random.choice([f for f in candidates if age(f) == oldest])
+        self._picked[brand] = [choice["id"], *self._picked.get(brand, [])]
+        return choice
+
+    def compose(
+        self,
+        brand: str,
+        day: date,
+        feature: dict | None,
+        previous: dict | None = None,
+    ) -> dict:
         """The post's columns for this draft, with the reviewer's opinion:
         each version is scored by a separate call and rewritten from its
         critique until it reaches social_review_target or runs out of
         rewrites; the best one is kept. Raises ValueError when Claude's first
         output breaks the format's rules: the slot is reported, not filled.
+        feature: the catalogue entry the post presents, or None.
         previous: the post an admin sent back, with their feedback — kept in
         every rewrite."""
         playbook = current_playbook(self.sb, brand)
@@ -280,15 +345,28 @@ class _Context:
             .limit(settings.social_history_size)
             .execute()
         ).data
-        writer = compose_system(
-            brand,
-            playbook["guidelines"],
-            self.pricing,
-            screens,
-            clips,
-            stock,
-            self.music,
-            self.handles,
+        scenes = brand in settings.social_scene_brands
+        writer = (
+            compose_scenes_system(
+                brand,
+                playbook["guidelines"],
+                self.pricing,
+                screens,
+                self.music,
+                self.blocks,
+                self.handles,
+            )
+            if scenes
+            else compose_system(
+                brand,
+                playbook["guidelines"],
+                self.pricing,
+                screens,
+                clips,
+                stock,
+                self.music,
+                self.handles,
+            )
         )
         reviewer = review_system(
             brand,
@@ -302,15 +380,25 @@ class _Context:
         feedback = previous.get("feedback") if previous else None
 
         def write(content: str) -> dict:
-            row = self._row(
-                parse_structured(writer, content, PostDraft), screens, clips, stock
+            row = (
+                self._scene_row(
+                    brand, parse_structured(writer, content, ScenePostDraft), screens
+                )
+                if scenes
+                else self._row(
+                    parse_structured(writer, content, PostDraft), screens, clips, stock
+                )
             )
-            return {**row, "playbook_id": playbook["id"]}
+            return {
+                **row,
+                "playbook_id": playbook["id"],
+                "feature": feature["id"] if feature else None,
+            }
 
         def review(row: dict) -> PostReview:
-            return parse_structured(reviewer, review_content(row), PostReview)
+            return parse_structured(reviewer, review_content(row, feature), PostReview)
 
-        row = write(compose_content(day, recent, previous))
+        row = write(compose_content(day, recent, feature, previous))
         best, best_review, rounds = row, review(row), 0
         latest_review = best_review
         while (
@@ -322,7 +410,11 @@ class _Context:
             try:
                 row = write(
                     compose_content(
-                        day, recent, {**row, "feedback": feedback}, latest_review
+                        day,
+                        recent,
+                        feature,
+                        {**row, "feedback": feedback},
+                        latest_review,
                     )
                 )
             except ValueError:
@@ -333,6 +425,55 @@ class _Context:
             if latest_review.score > best_review.score:
                 best, best_review = row, latest_review
         return {**best, "review": {**best_review.model_dump(), "rounds": rounds}}
+
+    def _scene_row(
+        self, brand: str, draft: ScenePostDraft, screens: list[dict]
+    ) -> dict:
+        """The post's columns from one scene writer output. Raises ValueError
+        when its structure breaks the format; text limits are the montage's
+        (social-video checks every scene, and its agents rewrite what's off)."""
+        known_blocks = {b["id"] for b in self.blocks.get("blocks", [])}
+        if not known_blocks:
+            raise ValueError("/api/social/blocks illisible : pas de catalogue")
+        if not draft.scenes or draft.scenes[0].block != "hook":
+            raise ValueError("la première scène est l'accroche (hook)")
+        if draft.scenes[-1].block != "cta":
+            raise ValueError("la dernière scène est l'appel à l'action (cta)")
+        if len(draft.transitions) != len(draft.scenes) - 1:
+            raise ValueError(
+                f"{len(draft.transitions)} transitions pour {len(draft.scenes)} scènes"
+            )
+        shown = {s["id"] for s in screens}
+        for index, scene in enumerate(draft.scenes, 1):
+            if scene.block not in known_blocks:
+                raise ValueError(f"scène {index} : bloc inconnu « {scene.block} »")
+            if scene.block == "phone" and scene.props.get("screen") not in shown:
+                raise ValueError(f"scène {index} : capture inconnue")
+        return {
+            "format": "reel",
+            "topic": draft.topic,
+            "angle": draft.angle,
+            "captions": {
+                "instagram": draft.caption_instagram,
+                "facebook": draft.caption_facebook,
+                "snapchat": draft.caption_snapchat,
+            },
+            "slides": [],
+            "reel": None,
+            "script": {
+                "brand": brand,
+                "scenes": [scene.model_dump() for scene in draft.scenes],
+                "transitions": [t.model_dump() for t in draft.transitions],
+                # Une musique inconnue n'empêche pas le Reel : sans musique.
+                "music": draft.music
+                if draft.music in {m["id"] for m in self.music}
+                else "",
+            },
+            "production": None,
+            "render_status": "pending",
+            "render_error": None,
+            "video_path": None,
+        }
 
     def _row(
         self,
@@ -353,6 +494,8 @@ class _Context:
                 "snapchat": draft.caption_snapchat,
             },
             "reel": None,
+            "script": None,
+            "production": None,
             "render_status": None,
             "render_error": None,
             "video_path": None,

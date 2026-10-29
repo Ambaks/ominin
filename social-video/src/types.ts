@@ -1,6 +1,8 @@
 import type { SocialBrand } from "../../frontend/lib/social/brands.ts";
 import type { ReelVisual } from "../../frontend/lib/social/reel.ts";
 
+import type { PostScript } from "../../frontend/lib/social/script.ts";
+
 export type { ReelScript } from "../../frontend/lib/social/reel.ts";
 
 /** Scène prête à monter : médias résolus, durée fixée par la voix. */
@@ -27,3 +29,5 @@ export interface ReelProps extends Record<string, unknown> {
   /** URL du morceau (catalogue Mixkit), ou null : la voix seule. */
   music: string | null;
 }
+
+export interface PostProps extends PostScript, Record<string, unknown> {}

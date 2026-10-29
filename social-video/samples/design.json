@@ -1,0 +1,38 @@
+{
+  "hook": [
+    { "block": "hook", "frames": 75, "props": { "eyebrow": "Coup de feu", "title": "Vos clients [[attendent.]]" } },
+    { "block": "hook", "frames": 75, "props": { "eyebrow": "Fidélité", "title": "Ils ne reviennent pas [[sans raison.]]" } }
+  ],
+  "phone": [
+    { "block": "phone", "frames": 90, "props": { "title": "Ils scannent, la carte [[s'ouvre.]]", "screen": "menu-carte" } },
+    { "block": "phone", "frames": 90, "props": { "title": "Le panier, [[sans attendre.]]", "screen": "menu-panier" } }
+  ],
+  "relay": [
+    { "block": "relay", "frames": 150, "props": { "title": "La commande part [[en cuisine.]]" } },
+    { "block": "relay", "frames": 120, "props": { "title": "Payée [[avant le dessert.]]" } }
+  ],
+  "points": [
+    {
+      "block": "points",
+      "frames": 105,
+      "props": {
+        "kicker": "Depuis la table",
+        "title": "Sans attendre [[personne.]]",
+        "points": ["Le panier, les options, une note", "Envoyé en cuisine en temps réel", "Sans créer de compte"]
+      }
+    },
+    {
+      "block": "points",
+      "frames": 90,
+      "props": {
+        "kicker": "Fidélité",
+        "title": "Des points à [[chaque commande.]]",
+        "points": ["Un téléphone ou un e-mail suffit", "Des récompenses à vos paliers"]
+      }
+    }
+  ],
+  "cta": [
+    { "block": "cta", "frames": 90, "props": { "cta": "Écrivez [[MENU]] en message", "line": "Une réponse de l'équipe qui le construit." } },
+    { "block": "cta", "frames": 75, "props": { "cta": "Écrivez [[MENU]] en message", "line": "On vous montre votre carte en vrai." } }
+  ]
+}

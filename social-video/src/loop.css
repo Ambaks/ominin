@@ -1,0 +1,38 @@
+@import "../../frontend/app/globals.css";
+@import "../../frontend/components/landing-kit/kit.css";
+@source "./";
+/* Composants du site montés tels quels dans les scènes. */
+@source "../../frontend/components/landing/iphone-frame.tsx";
+@source "../../frontend/components/pitch/qr-code.tsx";
+
+/* Toile 1080 de large : 1rem = 36 px, les tailles du site à l'échelle. */
+:root {
+  font-size: 36px;
+  --font-kit: "Geist";
+  --font-instrument-sans: "Instrument Sans";
+}
+
+/* Le rendu fige chaque image : rien ne bouge hors de l'horloge de Remotion. */
+.loop *,
+.loop *::before,
+.loop *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* Le pavé braise se pose de gauche à droite, à l'avancement --mark (0 → 1). */
+.loop .kit-mark {
+  padding-right: 0.2em;
+}
+
+/* La grille du site, assez marquée pour se lire sur un téléphone, et sur
+   toute la hauteur de la toile. */
+.loop .kit-grid {
+  background-image:
+    linear-gradient(color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in oklab, var(--foreground) 14%, transparent) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 90% 75% at 50% 45%, black, transparent);
+}
+.loop .kit-mark::before {
+  transform: scaleX(var(--mark, 1));
+}

@@ -4,12 +4,14 @@ import type { SocialPost } from "@/lib/admin/social";
 import { slideUrl } from "@/lib/social/brands";
 import { MUSIC_BY_ID } from "@/lib/social/music";
 import { videoUrl } from "@/lib/social/reel";
+import type { BlockId, PostScript, ProduceReport, TransitionKind } from "@/lib/social/script";
 import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
 /*
  * Ce qu'un post montre, quel que soit son format : les images du carrousel
- * ou de l'image seule, ou la vidéo du Reel avec son script. Partagé par les
- * onglets « À valider » et « Publications ».
+ * ou de l'image seule, ou la vidéo du Reel avec son script (voix off, ou
+ * scènes en blocs animés). Partagé par les onglets « À valider » et
+ * « Publications ».
  */
 
 export const FORMAT_LABELS: Record<SocialPost["format"], string> = {
@@ -24,6 +26,24 @@ const VISUAL_LABELS = {
   stock: "Vidéo de personnes",
   title: "Texte seul",
 } as const;
+
+const BLOCK_LABELS: Record<BlockId, string> = {
+  hook: "Accroche",
+  phone: "Téléphone",
+  relay: "Relais",
+  points: "Points",
+  cta: "Appel à l'action",
+};
+
+const TRANSITION_LABELS: Record<TransitionKind, string> = {
+  cut: "Coupe franche",
+  fade: "Fondu",
+  slide: "Glissement",
+  wipe: "Balayage",
+  flip: "Retournement",
+  iris: "Iris",
+  push: "Coupe poussée",
+};
 
 const RENDER_LABELS = {
   pending: "En attente du serveur de rendu…",
@@ -80,6 +100,11 @@ export function PostThumb({ post }: { post: SocialPost }) {
   );
 }
 
+/** Une note d'arbitre, à la française : 8,5/10. */
+export function formatScore(score: number): string {
+  return `${score.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })}/10`;
+}
+
 export function PostMedia({
   post,
   onRetryRender,
@@ -88,7 +113,7 @@ export function PostMedia({
   /** Relancer un rendu en échec (onglet « À valider » seulement). */
   onRetryRender?: () => void;
 }) {
-  if (post.format !== "reel" || !post.reel) {
+  if (post.format !== "reel" || !(post.reel || post.script)) {
     return (
       <div className="no-scrollbar flex gap-3 overflow-x-auto">
         {post.slides.map((_, index) => (
@@ -135,25 +160,85 @@ export function PostMedia({
           )}
         </div>
       )}
-      <ol className="flex min-w-0 flex-1 flex-col gap-2">
-        {post.reel.scenes.map((scene, index) => (
-          <li key={index} className="rounded-xl bg-surface-raised p-3 text-sm">
-            <p className={SECTION_TITLE}>
-              Scène {index + 1} · {VISUAL_LABELS[scene.visual]}
-              {scene.media && ` · ${scene.media}`}
+      {post.reel ? (
+        <ol className="flex min-w-0 flex-1 flex-col gap-2">
+          {post.reel.scenes.map((scene, index) => (
+            <li key={index} className="rounded-xl bg-surface-raised p-3 text-sm">
+              <p className={SECTION_TITLE}>
+                Scène {index + 1} · {VISUAL_LABELS[scene.visual]}
+                {scene.media && ` · ${scene.media}`}
+              </p>
+              <p className="mt-1 font-medium">{scene.caption}</p>
+              <p className="mt-0.5 text-muted">« {scene.voiceover} »</p>
+            </li>
+          ))}
+          <li className="rounded-xl bg-surface-raised p-3 text-sm">
+            <p className={SECTION_TITLE}>Écran final</p>
+            <p className="mt-1 font-medium">{post.reel.cta}</p>
+            <p className="mt-1 text-muted">
+              {MUSIC_BY_ID.get(post.reel.music)?.mood ?? "Sans musique"}
             </p>
-            <p className="mt-1 font-medium">{scene.caption}</p>
-            <p className="mt-0.5 text-muted">« {scene.voiceover} »</p>
           </li>
-        ))}
-        <li className="rounded-xl bg-surface-raised p-3 text-sm">
-          <p className={SECTION_TITLE}>Écran final</p>
-          <p className="mt-1 font-medium">{post.reel.cta}</p>
-          <p className="mt-1 text-muted">
-            {MUSIC_BY_ID.get(post.reel.music)?.mood ?? "Sans musique"}
-          </p>
-        </li>
-      </ol>
+        </ol>
+      ) : (
+        <ScriptScenes script={post.script!} production={post.production} />
+      )}
     </div>
+  );
+}
+
+/** Les scènes d'un Reel en blocs, la transition qui joint chacune à la
+ * suivante, et les notes du montage quand les agents l'ont poli. */
+function ScriptScenes({
+  script,
+  production,
+}: {
+  script: PostScript;
+  production: ProduceReport | null;
+}) {
+  return (
+    <ol className="flex min-w-0 flex-1 flex-col gap-2">
+      {script.scenes.map((scene, index) => {
+        const reviews = production?.scenes[index] ?? [];
+        const transition = script.transitions[index];
+        return (
+          <li key={index} className="flex flex-col gap-2">
+            <div className="rounded-xl bg-surface-raised p-3 text-sm">
+              <p className={SECTION_TITLE}>
+                Scène {index + 1} · {BLOCK_LABELS[scene.block]}
+                {reviews.length > 0 &&
+                  ` · ${formatScore(Math.max(...reviews.map((review) => review.score)))}`}
+              </p>
+              <p className="mt-1 font-medium">
+                {scene.block === "cta" ? scene.props.cta : scene.props.title}
+              </p>
+              {scene.block === "points" && (
+                <ul className="mt-0.5 list-disc pl-5 text-muted">
+                  {scene.props.points.map((point) => (
+                    <li key={point}>{point}</li>
+                  ))}
+                </ul>
+              )}
+              {scene.block === "cta" && <p className="mt-0.5 text-muted">{scene.props.line}</p>}
+            </div>
+            {transition && (
+              <p className="px-3 text-xs text-faint">↓ {TRANSITION_LABELS[transition.kind]}</p>
+            )}
+          </li>
+        );
+      })}
+      <li className="rounded-xl bg-surface-raised p-3 text-sm">
+        <p className={SECTION_TITLE}>Montage</p>
+        {production && (
+          <>
+            <p className="mt-1 font-medium">{formatScore(production.final.score)}</p>
+            <p className="mt-0.5 text-muted">{production.final.verdict}</p>
+          </>
+        )}
+        <p className="mt-1 text-muted">
+          {MUSIC_BY_ID.get(script.music ?? "")?.mood ?? "Sans musique"}
+        </p>
+      </li>
+    </ol>
   );
 }
