@@ -24,4 +24,4 @@ keeps their own graph and refreshes it here.
    (`git log --oneline ORIG_HEAD..HEAD`, grouped by author), any new
    migration in `supabase/migrations/` among them, and whether the graph
    was refreshed. For the details of what the other person did, point to
-   admin → Projet → Journal.
+   the Discord #journal channel.

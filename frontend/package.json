@@ -23,7 +23,7 @@
     "shop:owner": "tsx --env-file=../backend/.env scripts/shop-owner.ts",
     "photos:shrink": "tsx --env-file=../backend/.env scripts/shrink-photos.ts",
     "menu:gerant": "tsx --env-file=../backend/.env scripts/lien-gerant.ts",
-    "journal": "tsx --env-file=../backend/.env scripts/journal.ts",
+    "journal": "tsx --env-file=../backend/.env --env-file-if-exists=.env.local scripts/journal.ts",
     "agents:activate": "tsx --env-file=../backend/.env scripts/agents-activate.ts",
     "db:login": "supabase --workdir .. login",
     "db:link": "supabase --workdir .. link",
