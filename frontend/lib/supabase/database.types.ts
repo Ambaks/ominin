@@ -2148,6 +2148,60 @@ export type Database = {
           },
         ]
       }
+      commercial_visits: {
+        Row: {
+          commercial_id: string
+          contact_email: string | null
+          contact_name: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          note: string | null
+          outcome: string
+          reason: string | null
+          restaurant_id: string
+        }
+        Insert: {
+          commercial_id: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          outcome: string
+          reason?: string | null
+          restaurant_id: string
+        }
+        Update: {
+          commercial_id?: string
+          contact_email?: string | null
+          contact_name?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          outcome?: string
+          reason?: string | null
+          restaurant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_visits_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_visits_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commerciaux: {
         Row: {
           address: string | null
@@ -7795,7 +7849,7 @@ export type Database = {
         Returns: string
       }
       commercial_map: {
-        Args: never
+        Args: { p_restaurant?: string }
         Returns: {
           address: string
           city: string
@@ -8038,6 +8092,7 @@ export type Database = {
       }
       commercial_urssaf_reminders: { Args: never; Returns: number }
       commercial_version_in_force: { Args: never; Returns: string }
+      commercial_visit: { Args: { p: Json; p_restaurant: string }; Returns: string }
       contribuer_bulle: {
         Args: {
           p_email: string

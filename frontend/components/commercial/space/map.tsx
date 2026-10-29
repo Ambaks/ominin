@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { MapCanvas } from "@/components/admin/carte/map-canvas";
 import { Field, inputClass } from "@/components/ui/field";
@@ -8,6 +9,7 @@ import { STATUS_MAP_COLORS } from "@/lib/admin/status";
 import type { GeoPoint, LeadLite, LeadStatus } from "@/lib/admin/types";
 import { MAPS_DIRECTIONS_BASE } from "@/lib/collect/shared";
 import * as api from "@/lib/commercial/api";
+import { spaceHref } from "./shell";
 import { ErrorNote, Skeleton, cardClass, errorMessage, ghostButton, primaryButton, telHref } from "./ui";
 
 /* Les quatre couleurs de la carte, prises dans la palette des statuts de l'admin. */
@@ -70,6 +72,11 @@ function RestaurantCard({ place }: { place: api.MapRestaurant }) {
           <span className="rounded-full border border-hairline px-2.5 py-0.5 text-muted">Déjà contacté par Léa</span>
         )}
       </div>
+      {(place.state === "free" || place.mine) && (
+        <Link href={spaceHref(`/visite/${place.id}`)} className={primaryButton}>
+          Je suis là
+        </Link>
+      )}
       <div className="flex gap-2">
         <a href={directions} target="_blank" rel="noopener" className={`${ghostButton} flex-1`}>
           Itinéraire

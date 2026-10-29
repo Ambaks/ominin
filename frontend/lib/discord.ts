@@ -19,6 +19,32 @@ function discordConfig() {
   return { token, guild };
 }
 
+/* Les salons où écrit le site, chacun lu de l'environnement. */
+const CHANNELS = {
+  terrain: "DISCORD_TERRAIN_CHANNEL_ID",
+  victoires: "DISCORD_VICTOIRES_CHANNEL_ID",
+  demandes: "DISCORD_DEMANDES_CHANNEL_ID",
+  inscriptions: "DISCORD_INSCRIPTIONS_CHANNEL_ID",
+} as const;
+
+export type DiscordChannel = keyof typeof CHANNELS;
+
+/**
+ * Poste un message dans un salon. Seuls les membres listés dans `mentions`
+ * sont notifiés, même si le texte en cite d'autres.
+ */
+export async function postDiscord(channel: DiscordChannel, content: string, mentions: string[] = []): Promise<void> {
+  const { token } = discordConfig();
+  const channelId = process.env[CHANNELS[channel]];
+  if (!channelId) throw new Error(`${CHANNELS[channel]} manquant.`);
+  const response = await fetch(`${DISCORD_API}/channels/${channelId}/messages`, {
+    method: "POST",
+    headers: { Authorization: `Bot ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ content, allowed_mentions: { users: mentions } }),
+  });
+  if (!response.ok) throw new Error(`Discord a répondu ${response.status}.`);
+}
+
 /** Les membres humains du serveur, pour relier chaque commercial à son compte. */
 export async function discordMembers(): Promise<DiscordMember[]> {
   const { token, guild } = discordConfig();
