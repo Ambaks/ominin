@@ -10531,6 +10531,9 @@ const withDemoAllergens = (registry: Record<string, Restaurant>): Record<string,
   );
 };
 
+/** Le clone de Caffè Panis en base (même carte, demo), branché sur le compte de test HubRise. */
+export const CAFFE_PANIS_DEMO_SLUG = "caffe-panis-demo";
+
 const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [trattoriaLucia.slug]: trattoriaLucia,
   [boho.slug]: boho,
@@ -10546,6 +10549,7 @@ const restaurants: Record<string, Restaurant> = withDemoAllergens({
   [leVictoria.slug]: leVictoria,
   [cafeDesArts.slug]: cafeDesArts,
   [caffePanis.slug]: caffePanis,
+  [CAFFE_PANIS_DEMO_SLUG]: { ...caffePanis, slug: CAFFE_PANIS_DEMO_SLUG },
   [boulangerieCyprien.slug]: boulangerieCyprien,
   [brasserieLaissac.slug]: brasserieLaissac,
   [lEtoile.slug]: lEtoile,
@@ -10578,6 +10582,7 @@ const themeClasses: Record<string, string> = {
   [leVictoria.slug]: "theme-le-victoria",
   [cafeDesArts.slug]: "theme-cafe-des-arts",
   [caffePanis.slug]: "theme-caffe-panis",
+  [CAFFE_PANIS_DEMO_SLUG]: "theme-caffe-panis",
   [boulangerieCyprien.slug]: "theme-boulangerie-cyprien",
   [brasserieLaissac.slug]: "theme-brasserie-laissac",
   [lEtoile.slug]: "theme-l-etoile",
