@@ -36,15 +36,37 @@ interface CommercialSignup {
 function CommercialSignupCard({ etablissementId }: { etablissementId: string }) {
   const toast = useToast();
   const [signup, setSignup] = useState<CommercialSignup | null>(null);
+  const [open, setOpen] = useState<boolean | null>(null);
+  const [busy, setBusy] = useState(false);
   useEffect(() => {
-    createClient()
-      .from("commercial_signups")
+    const db = createClient();
+    db.from("commercial_signups")
       .select("kind, manager_name, manager_phone, manager_email, photos, finished_at, commerciaux(email, first_name, last_name)")
       .eq("etablissement_id", etablissementId)
       .maybeSingle()
       .then(({ data }) => setSignup(data));
+    db.from("subscriptions")
+      .select("status")
+      .eq("etablissement_id", etablissementId)
+      .eq("product", "offre")
+      .maybeSingle()
+      .then(({ data }) => setOpen(data?.status === "active"));
   }, [etablissementId]);
   if (!signup) return null;
+
+  const openSpace = async () => {
+    setBusy(true);
+    const response = await fetch("/api/admin/commerciaux/ouvrir", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ etablissementId }),
+    });
+    const result = (await response.json().catch(() => ({}))) as { error?: string };
+    setBusy(false);
+    if (!response.ok) return toast.error(result.error ?? "Ouverture impossible.");
+    setOpen(true);
+    toast.success("Espace ouvert : le gérant accède à sa gestion.");
+  };
   const rows: [string, string][] = [
     ["Commercial", displayName(signup.commerciaux)],
     ["Type", SIGNUP_KINDS.find((kind) => kind.id === signup.kind)?.label ?? "—"],
@@ -53,7 +75,23 @@ function CommercialSignupCard({ etablissementId }: { etablissementId: string }) 
   ];
   return (
     <section className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-5 lg:col-span-2">
-      <h2 className="font-display text-lg font-medium">Inscrit avec un commercial</h2>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="font-display text-lg font-medium">Inscrit avec un commercial</h2>
+        {open === false && (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void openSpace()}
+            className="ember-gradient rounded-full px-4 py-2 text-sm font-semibold text-background disabled:opacity-60"
+          >
+            Menu créé : ouvrir son espace
+          </button>
+        )}
+        {open && <span className="text-xs font-semibold text-ember-1">Espace ouvert</span>}
+      </div>
+      {open === false && (
+        <p className="text-sm text-muted">Sa gestion affiche « Votre menu est en création » tant que l’espace n’est pas ouvert.</p>
+      )}
       <dl className="flex flex-col gap-2.5 text-sm">
         {rows.map(([label, value]) => (
           <div key={label} className="flex justify-between gap-4">

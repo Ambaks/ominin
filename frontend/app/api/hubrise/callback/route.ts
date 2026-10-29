@@ -1,4 +1,5 @@
 import { after, NextResponse } from "next/server";
+import { postDiscord } from "@/lib/discord";
 import { exchangeCode, HUBRISE_SIGNUP_COOKIE, HUBRISE_STATE_COOKIE } from "@/lib/hubrise/client";
 import { getConnection } from "@/lib/hubrise/connection";
 import { releaseBlocked } from "@/lib/hubrise/outbox";
@@ -27,6 +28,24 @@ function readCookie(request: Request, cookie: string): string | null {
     if (name === cookie) return rest.join("=");
   }
   return null;
+}
+
+/**
+ * Un nouveau lieu relié est facturé par HubRise au restaurant tant qu'Ominin
+ * ne l'a pas rattaché à son compte de facturation : l'équipe est prévenue.
+ */
+async function announceLocation(
+  admin: ReturnType<typeof createAdminClient>,
+  etablissementId: string,
+  connection: NonNullable<Awaited<ReturnType<typeof getConnection>>>
+) {
+  const { data } = await admin.from("etablissements").select("name").eq("id", etablissementId).single();
+  const location = [connection.account_name, connection.location_name].filter(Boolean).join(" · ");
+  await postDiscord(
+    "inscriptions",
+    `🔌 **${data?.name ?? etablissementId}** a relié HubRise : ${location} (${connection.location_id}).\n` +
+      "À faire : accepter son invitation HubRise, puis rattacher ce point de vente au compte de facturation Ominin."
+  ).catch((error) => console.error("[discord] point de vente HubRise non annoncé", error));
 }
 
 /** L'établissement à relier : celui de l'inscription en cours, ou celui du gérant connecté. */
@@ -74,6 +93,7 @@ export async function GET(request: Request) {
   try {
     const tokens = await exchangeCode(code);
     const admin = createAdminClient();
+    const previous = await getConnection(admin, etablissementId);
     const { error } = await admin.from("hubrise_connections").upsert({
       etablissement_id: etablissementId,
       access_token: tokens.access_token,
@@ -98,6 +118,9 @@ export async function GET(request: Request) {
     after(async () => {
       await syncAll(admin, connection);
     });
+    if (previous?.location_id !== connection.location_id) {
+      after(() => announceLocation(admin, etablissementId, connection));
+    }
     return back("retour");
   } catch (error) {
     console.error("[hubrise] connexion impossible", {
