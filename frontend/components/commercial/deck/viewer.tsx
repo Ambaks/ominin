@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { spaceHref } from "@/components/commercial/space/shell";
 
 /*
  * Le deck à l'écran du commercial : une diapositive par écran, qu'on fait
@@ -8,19 +9,28 @@ import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type
  * mise en cache hors ligne se feuillette même avant l'hydratation), ← → au
  * clavier, et le plein écran quand le navigateur le permet (pas Safari sur
  * iPhone : le deck y remplit déjà la fenêtre).
+ *
+ * Ouvert depuis la fiche d'un restaurant (?restaurant=<id>), le deck y
+ * ramène ; sinon, vers Ressources. Le paramètre se lit dans le navigateur :
+ * hors ligne, la copie en cache est celle d'une autre visite.
  */
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const onFullscreenChange = (notify: () => void) => {
   document.addEventListener("fullscreenchange", notify);
   return () => document.removeEventListener("fullscreenchange", notify);
 };
 const noSubscription = () => () => undefined;
+const restaurantParam = () => new URLSearchParams(window.location.search).get("restaurant");
 
-export function DeckViewer({ title, backHref, slides }: { title: string; backHref: string; slides: ReactNode[] }) {
+export function DeckViewer({ title, slides }: { title: string; slides: ReactNode[] }) {
   const track = useRef<HTMLDivElement>(null);
   const [current, setCurrent] = useState(0);
   const canFullscreen = useSyncExternalStore(noSubscription, () => document.fullscreenEnabled, () => false);
   const fullscreen = useSyncExternalStore(onFullscreenChange, () => document.fullscreenElement !== null, () => false);
+  const restaurant = useSyncExternalStore(noSubscription, restaurantParam, () => null);
+  const backHref = spaceHref(restaurant && UUID.test(restaurant) ? `/visite/${restaurant}` : "/ressources");
 
   const go = (index: number) => {
     const node = track.current;
