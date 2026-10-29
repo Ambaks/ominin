@@ -21,7 +21,6 @@ import {
   fetchOverview,
   theoreticalCommission,
 } from "@/lib/admin/metrics";
-import { OFFRE_LABELS } from "@/lib/gestion/constants";
 
 /*
  * Synthèse des clients. Deux questions, et rien d'autre : combien ils
@@ -152,7 +151,6 @@ function MenuClients() {
               <thead>
                 <tr className="border-b border-hairline text-left text-[10px] uppercase tracking-[0.18em] text-faint">
                   <th className="px-4 py-3 font-semibold">Client</th>
-                  <th className="px-4 py-3 font-semibold">Offre</th>
                   <th className="px-4 py-3 text-right font-semibold">Visites</th>
                   <th className="px-4 py-3 text-right font-semibold">Conv.</th>
                   <th className="px-4 py-3 text-right font-semibold">Cmdes</th>
@@ -181,9 +179,6 @@ function MenuClients() {
                           · encaissement non relié
                         </span>
                       )}
-                    </td>
-                    <td className="px-4 py-3 text-muted">
-                      {OFFRE_LABELS[row.offre]}
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {row.sessions}

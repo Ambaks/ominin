@@ -15,7 +15,6 @@ import {
 import { inputClass } from "@/components/ui/field";
 import { activeSaison, type Saison } from "@/lib/menu/saison";
 import {
-  OFFRE_LABELS,
   ORDER_TAB_HINTS,
   ORDER_TAB_LABELS,
   ORDER_TABS,
@@ -515,7 +514,7 @@ export function Capabilities({
           <h2 className="font-display text-xl font-medium">{client.name}</h2>
           <p className="mt-0.5 text-sm text-muted">
             {client.products.offre
-              ? `Ominin ${OFFRE_LABELS[client.products.offre]}`
+              ? "Ominin"
               : client.products.collect
                 ? "Click & collect seul"
                 : "Aucun abonnement actif"}
@@ -600,9 +599,7 @@ export function Capabilities({
       <p className="text-xs leading-relaxed text-faint">
         Une case laissée telle que l&rsquo;offre la donne ne s&rsquo;enregistre
         pas : ce client suivra les évolutions d&rsquo;
-        {client.products.offre
-          ? `Ominin ${OFFRE_LABELS[client.products.offre]}`
-          : "son offre"}
+        {client.products.offre ? "Ominin" : "son offre"}
         . Les écarts, eux, tiennent jusqu&rsquo;à ce qu&rsquo;on les retire.
         L&rsquo;ordre des étapes, lui, s&rsquo;enregistre toujours tel quel.
       </p>

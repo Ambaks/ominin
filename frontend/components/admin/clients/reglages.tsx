@@ -3,7 +3,6 @@
 import type { ReactNode } from "react";
 import { formatPercent } from "@/lib/admin/format";
 import type { ClientOverview } from "@/lib/admin/metrics";
-import { OFFRE_LABELS } from "@/lib/gestion/constants";
 
 const PROVIDER_LABELS: Record<string, string> = {
   stripe: "Stripe",
@@ -14,7 +13,6 @@ export function ClientReglages({ client }: { client: ClientOverview }) {
   return (
     <div className="rounded-2xl border border-hairline bg-surface">
       <dl className="divide-y divide-hairline text-sm">
-        <Row label="Offre" value={OFFRE_LABELS[client.offre] ?? client.offre} />
         <Row
           label="Encaisseur"
           value={
