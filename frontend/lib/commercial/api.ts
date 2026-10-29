@@ -7,7 +7,7 @@ import type { Json } from "@/lib/supabase/database.types";
  * Appels de l'espace commercial : uniquement les fonctions commercial_* de la
  * base (security definer), qui vérifient l'accès et ne servent que ce que le
  * commercial a le droit de voir. Les fonctions qui rendent du jsonb sont
- * typées ici, d'après leur définition SQL (migration 20261028000003).
+ * typées ici, d'après leur définition SQL.
  */
 
 /** commercial_account() : ce que l'espace affiche du compte. */
@@ -26,9 +26,6 @@ export interface CommercialAccount {
   notice_given_at: string | null;
   option_exercised_at: string | null;
   kit_demo_slugs: string[];
-  declaration_cap: number | null;
-  cooldown_days: number | null;
-  note_max: number | null;
 }
 
 const db = () => createClient();
@@ -38,13 +35,6 @@ async function call<T>(promise: PromiseLike<{ data: unknown; error: { message: s
   if (error) throw new Error(error.message);
   return data as T;
 }
-
-/** Envoie les e-mails du contrat que le geste vient de mettre en file (espace et admin). */
-export const flushEmails = (): Promise<void> =>
-  fetch("/api/commercial/envois", { method: "POST" }).then(
-    () => undefined,
-    () => undefined
-  );
 
 export const createRestaurant = (input: Record<string, string | number | undefined>) =>
   call<string>(db().rpc("commercial_create_restaurant", { p: input as Json }));
@@ -127,7 +117,7 @@ export interface RestaurantRecap {
   client: { commission_from: string; commission_until: string } | null;
 }
 
-export type PushEventKey = "relance" | "demo" | "inscription" | "expiration" | "releve" | "opposition";
+export type PushEventKey = "releve";
 
 export const setPushPrefs = (prefs: Partial<Record<PushEventKey, boolean>>) =>
   call<null>(db().rpc("commercial_set_push_prefs", { p_prefs: prefs as Json }));

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { AuthForm } from "@/components/auth/auth-form";
 import { Wordmark } from "@/components/brand/wordmark";
-import { SignupLinkBanner } from "@/lib/commercial/signup-link";
 
 export const metadata: Metadata = { title: "Créer ma boutique — Ominin Shop", robots: { index: false, follow: false } };
 
@@ -22,7 +21,6 @@ export default async function ShopInscriptionPage({ searchParams }: PageProps<"/
       subtitle="Créez votre compte, puis votre boutique : elle sera en ligne dès que vos premiers produits seront ajoutés."
       signUpData={{ product: "shop" }}
       authError={error === "auth"}
-      beforeCard={<SignupLinkBanner product="shop" />}
     />
   );
 }

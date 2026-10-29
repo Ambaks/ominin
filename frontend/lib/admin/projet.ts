@@ -343,10 +343,7 @@ export function updateClientNotes(id: string, notes: string): Promise<void> {
   );
 }
 
-/**
- * Fiche du CRM du client : tant qu'il y est relié, il est « en discussion
- * avec Ominin » et aucun commercial ne peut le déclarer.
- */
+/** Fiche du CRM du client. */
 export function updateClientRestaurant(id: string, restaurantId: string | null): Promise<void> {
   return optimistic(
     (data) => ({

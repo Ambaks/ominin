@@ -13,7 +13,6 @@ import { pricingSection } from "@/lib/landing-data";
 import { createClient } from "@/lib/supabase/client";
 import type { Json } from "@/lib/supabase/database.types";
 import { announceSignup } from "@/lib/signup-notify";
-import { SignupLinkError, usePrefill, useSignupLink } from "@/lib/commercial/signup-link";
 
 function slugify(value: string): string {
   return value
@@ -43,11 +42,6 @@ export function OnboardingForm({
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
-  const { info: link, error: linkError } = useSignupLink("menu");
-  usePrefill(name, (value) => {
-    setName(value);
-    if (!slugEdited) setSlug(slugify(value));
-  }, link?.name);
   const [offre, setOffre] = useState<Offre>(initialOffre ?? "digital");
   const [tableCount, setTableCount] = useState(
     initialTables ? String(initialTables) : ""
@@ -141,7 +135,6 @@ export function OnboardingForm({
   return (
     <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
       <ThemeToggle className="fixed right-4 top-4" />
-      <SignupLinkError error={linkError} />
       <div className="text-center">
         <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
           Bienvenue sur Ominin

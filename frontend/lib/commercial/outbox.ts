@@ -1,13 +1,10 @@
-import { OWNERS } from "@/lib/admin/owners";
-import { notifyOwners } from "@/lib/admin/push";
 import { sendEmail, type MailAttachment } from "@/lib/gmail";
 import { card, escapeHtml } from "@/lib/gestion/invite-notify";
 import { contactEmail } from "@/lib/landing-data";
-import { frenchDate } from "@/lib/legal/format";
 import { commercialPrefix, commercialSiteUrl } from "@/lib/site";
 import type { createAdminClient } from "@/lib/supabase/admin";
 import type { MonthLine, PushEventKey, Statement } from "./api";
-import { END_LABELS, LEA_LABELS, REFUSAL_LABELS, monthLabel, type EndReason, type RefusalReason } from "./labels";
+import { monthLabel } from "./labels";
 import { notifyCommercial } from "./push";
 import { displayName } from "./record";
 import { statementCsv, statementFilename, statementPdf } from "./statement";
@@ -24,27 +21,11 @@ type Admin = ReturnType<typeof createAdminClient>;
 interface OutboxRow {
   id: string;
   kind: string;
-  detail: string | null;
-  declaration_id: string | null;
   commerciaux: { id: string; email: string; first_name: string | null; last_name: string | null };
   commercial_statements: (Pick<Statement, "month" | "adjustments" | "total_cents" | "sent_at"> & { lines: MonthLine[] }) | null;
-  commercial_declarations: {
-    restaurant_id: string;
-    declared_at: string;
-    confirm_deadline: string | null;
-    reserved_until: string | null;
-    ended_at: string | null;
-    decision_note: string | null;
-    refusal_reason: RefusalReason | null;
-    end_reason: EndReason | null;
-    crm_restaurants: { name: string; address: string | null; city: string | null };
-  } | null;
 }
 
 const EYEBROW = "Espace commercial";
-
-const where = (r: { name: string; address: string | null; city: string | null }) =>
-  escapeHtml([r.name, [r.address, r.city].filter(Boolean).join(", ")].filter(Boolean).join(", "));
 
 interface Message {
   subject: string;
@@ -57,7 +38,7 @@ interface Message {
 }
 
 /** Relevé envoyé (art. 5.1), détail des encaissements (art. 5.4), attestation URSSAF due (art. 2.5). */
-function composeAccount(row: OutboxRow): Message | null {
+function compose(row: OutboxRow): Message | null {
   if (row.kind === "urssaf") {
     return {
       subject: "Attestation URSSAF à déposer",
@@ -99,82 +80,11 @@ function composeAccount(row: OutboxRow): Message | null {
   return null;
 }
 
-/** Sujet et corps HTML de chaque sorte d'e-mail. */
-function compose(row: OutboxRow): Message | null {
-  const d = row.commercial_declarations;
-  if (!d) return composeAccount(row);
-  const r = d.crm_restaurants;
-  const declared = frenchDate(d.declared_at);
-  const path = `/espace/restaurants/${d.restaurant_id}`;
-  switch (row.kind) {
-    case "confirmed":
-      return {
-        subject: `Déclaration confirmée : ${r.name}`,
-        heading: "Déclaration confirmée.",
-        body:
-          (row.detail === "tacit"
-            ? `Ominin n&rsquo;a pas r&eacute;pondu dans le d&eacute;lai pr&eacute;vu &agrave; l&rsquo;article 4.3 du contrat : votre d&eacute;claration du ${declared} pour ${where(r)} est confirm&eacute;e de droit le ${frenchDate(d.confirm_deadline!)}.`
-            : row.detail === "reassigned"
-              ? `Avec l&rsquo;accord &eacute;crit du commercial qui l&rsquo;avait d&eacute;clar&eacute;, Ominin vous attribue ${where(r)}.`
-              : `Ominin confirme l&rsquo;enregistrement de votre d&eacute;claration du ${declared} pour ${where(r)} (article 4.3 du contrat).`) +
-          ` Le restaurant vous est r&eacute;serv&eacute; jusqu&rsquo;au ${frenchDate(d.reserved_until!)} : s&rsquo;il s&rsquo;inscrit d&rsquo;ici l&agrave;, il devient votre Client Apport&eacute;.`,
-        path,
-      };
-    case "refused":
-      return {
-        subject: `Déclaration refusée : ${r.name}`,
-        heading: "Déclaration non enregistrée.",
-        body: `Ominin ne peut pas enregistrer votre d&eacute;claration du ${declared} pour ${where(r)} : ${escapeHtml(REFUSAL_LABELS[d.refusal_reason ?? "admin"])}${d.decision_note ? ` (${escapeHtml(d.decision_note)})` : ""}. Article 4.3 du contrat.`,
-        path,
-      };
-    case "signed":
-      return {
-        subject: `${r.name} s'est inscrit chez Ominin`,
-        heading: "Votre restaurant s’est inscrit.",
-        body: `${where(r)}, que vous avez d&eacute;clar&eacute; le ${declared}, a sign&eacute; avec Ominin le ${frenchDate(d.ended_at!)}. C&rsquo;est un Client Apport&eacute; (articles 4.3 et 6.2 du contrat).`,
-        path: "/espace/clients",
-        push: "inscription",
-      };
-    case "demo_ready":
-      return {
-        subject: `Démo prête : ${r.name}`,
-        heading: "Sa démo est prête.",
-        body: `La d&eacute;mo &agrave; ses couleurs de ${where(r)} est en ligne : ${escapeHtml(row.detail ?? "")}. Elle est aussi sur la fiche du restaurant, dans votre espace.`,
-        path,
-        push: "demo",
-      };
-    case "opposition":
-      return {
-        subject: `${r.name} ne veut plus être contacté`,
-        heading: "Le restaurant s’oppose à la prospection.",
-        body: `${where(r)} a demand&eacute; &agrave; ne plus &ecirc;tre contact&eacute;. Votre d&eacute;claration est close : merci de ne plus le d&eacute;marcher (article 6.1 du contrat).`,
-        path,
-        push: "opposition",
-      };
-    case "lea_reply":
-      return {
-        subject: `${r.name} a répondu à Ominin`,
-        heading: "Le restaurant a répondu à Ominin.",
-        body: `${where(r)}, que vous avez d&eacute;clar&eacute;, a r&eacute;pondu &agrave; un ancien e-mail d&rsquo;Ominin : ${escapeHtml(LEA_LABELS[row.detail ?? ""] ?? "réponse")}. Ominin la traite ; votre d&eacute;claration n&rsquo;est pas modifi&eacute;e.`,
-        path,
-      };
-    case "released":
-      return {
-        subject: `Déclaration close : ${r.name}`,
-        heading: "Déclaration close.",
-        body: `Votre d&eacute;claration du ${declared} pour ${where(r)} est close : ${escapeHtml(END_LABELS[d.end_reason ?? "other"].toLowerCase())}${d.decision_note ? ` (${escapeHtml(d.decision_note)})` : ""}.`,
-        path,
-      };
-    default:
-      return null;
-  }
-}
-
 export async function flushOutbox(admin: Admin): Promise<{ sent: number; failed: number }> {
   const { data, error } = await admin
     .from("commercial_emails")
     .select(
-      "id, kind, detail, declaration_id, commerciaux(id, email, first_name, last_name), commercial_statements(month, lines, adjustments, total_cents, sent_at), commercial_declarations(restaurant_id, declared_at, confirm_deadline, reserved_until, ended_at, decision_note, refusal_reason, end_reason, crm_restaurants(name, address, city))"
+      "id, kind, commerciaux(id, email, first_name, last_name), commercial_statements(month, lines, adjustments, total_cents, sent_at)"
     )
     .is("sent_at", null)
     .order("created_at");
@@ -216,16 +126,6 @@ export async function flushOutbox(admin: Admin): Promise<{ sent: number; failed:
           url: `${commercialPrefix}${message.path}`,
         }).catch((cause) => console.error("[commercial] notification non envoyée", cause));
       }
-      // Une inscription par lien prévient aussi les admins : Projet lancé,
-      // Client Apporté à valider s'il lève une alerte.
-      if (row.kind === "signed" && row.commercial_declarations) {
-        await notifyOwners(OWNERS, {
-          title: `Inscrit · ${row.commercial_declarations.crm_restaurants.name}`,
-          body: `Client Apporté de ${displayName(row.commerciaux)}. À suivre dans le Projet.`,
-          tag: `inscription-${row.declaration_id}`,
-          url: "/commerciaux?onglet=inscriptions",
-        }).catch((cause) => console.error("[commercial] notification admin non envoyée", cause));
-      }
     } catch (cause) {
       failed++;
       console.error("[commercial] e-mail non envoyé", row.id, cause);
@@ -237,4 +137,3 @@ export async function flushOutbox(admin: Admin): Promise<{ sent: number; failed:
   }
   return { sent, failed };
 }
-
