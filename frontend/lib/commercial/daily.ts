@@ -5,7 +5,9 @@ import type { createAdminClient } from "@/lib/supabase/admin";
 import { commercialPrefix } from "@/lib/site";
 import { flushOutbox, notifyNewDeclarations } from "./outbox";
 import { notifyCommercial } from "./push";
+import { getStripe } from "@/lib/stripe/server";
 import { releaseRequests } from "./requests";
+import { settleSignups } from "./signup";
 import { displayName } from "./record";
 
 type Admin = ReturnType<typeof createAdminClient>;
@@ -42,6 +44,8 @@ export async function runDaily(admin: Admin) {
   const followups = await call("commercial_appointment_followups");
   // Demandes de visite échues : libérées pour tous, ou gardées par qui a avancé.
   const visitRequests = await releaseRequests(admin);
+  // Inscriptions finies après coup (Stripe, HubRise depuis la gestion) : clients.
+  const signups = await settleSignups(admin, getStripe);
   const optionReminders = await remindOptions(admin);
   const finalStatements = await remindFinalStatements(admin);
   const pushed = await pushMorning(admin);
@@ -55,6 +59,7 @@ export async function runDaily(admin: Admin) {
     urssafReminders,
     followups,
     visitRequests,
+    signups,
     optionReminders,
     finalStatements,
     pushed,

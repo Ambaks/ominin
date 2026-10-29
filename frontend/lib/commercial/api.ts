@@ -381,6 +381,29 @@ export interface MapRestaurant {
 
 export const mapRestaurants = () => call<MapRestaurant[]>(db().rpc("commercial_map"));
 
+/** commercial_dashboard() : un restaurant visité ou inscrit par le commercial (migration 20261029000008). */
+export interface DashboardRestaurant {
+  id: string;
+  name: string;
+  at: string;
+  status: "signed" | "waiting" | "not_interested" | "absent";
+  /** En attente : ce qui manque pour qu'il soit client. */
+  missing: ("account" | "stripe" | "hubrise")[] | null;
+  signup_id: string | null;
+  commission_from: string | null;
+  commission_until: string | null;
+  earned_cents: number | null;
+  month_cents: number | null;
+}
+
+export interface Dashboard {
+  percent: number;
+  term_months: number;
+  restaurants: DashboardRestaurant[];
+}
+
+export const dashboard = () => call<Dashboard>(db().rpc("commercial_dashboard"));
+
 export type PushEventKey = "relance" | "demo" | "inscription" | "expiration" | "releve" | "opposition";
 
 export const setPushPrefs = (prefs: Partial<Record<PushEventKey, boolean>>) =>

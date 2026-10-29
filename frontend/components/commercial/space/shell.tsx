@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { createContext, useContext, useEffect } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
-import { MapPinIcon, PresentationIcon } from "@/components/admin/icons";
+import { ChartIcon, MapPinIcon, PresentationIcon } from "@/components/admin/icons";
 import { PaymentsIcon } from "@/components/gestion/icons";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
@@ -34,6 +34,7 @@ interface Tab {
 }
 
 const TABS: Tab[] = [
+  { path: "/tableau", label: "Tableau", icon: ChartIcon },
   { path: "/carte", label: "Carte", icon: MapPinIcon },
   { path: "/ressources", label: "Ressources", icon: PresentationIcon },
   { path: "/argent", label: "Argent", icon: PaymentsIcon, afterEnd: true },
