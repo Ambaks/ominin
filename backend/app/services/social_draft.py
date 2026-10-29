@@ -41,6 +41,7 @@ from app.prompts.social import (
     compose_scenes_system,
     compose_system,
     review_content,
+    review_scenes_system,
     review_system,
 )
 from app.services import keepalive, notify
@@ -367,14 +368,20 @@ class _Context:
                 self.handles,
             )
         )
-        reviewer = review_system(
-            brand,
-            playbook["guidelines"],
-            self.pricing,
-            screens,
-            clips,
-            stock,
-            self.music,
+        reviewer = (
+            review_scenes_system(
+                brand, playbook["guidelines"], self.pricing, screens, self.blocks
+            )
+            if scenes
+            else review_system(
+                brand,
+                playbook["guidelines"],
+                self.pricing,
+                screens,
+                clips,
+                stock,
+                self.music,
+            )
         )
         feedback = previous.get("feedback") if previous else None
 

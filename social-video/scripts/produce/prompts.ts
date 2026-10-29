@@ -22,6 +22,21 @@ saccade, un temps mort ou un élément qui ne bouge plus pendant des \
 secondes en sont. Les vignettes sont petites : les textes se jugent sur les \
 images nettes, à demi-définition.`;
 
+/* La vidéo se regarde sans le son : la règle du texte, commune avec le
+ * rédacteur (SILENT_TEXT dans backend/app/prompts/social.py). */
+const SILENT_TEXT = `\
+La vidéo se regarde sans le son et l'on ne voit qu'un titre à la fois, \
+souvent sans avoir vu le précédent : chaque titre se comprend SEUL, en deux \
+secondes, par un restaurateur qui fait défiler son fil. Une phrase complète \
+et explicite (un sujet, un verbe) qu'il pourrait dire ou penser ; jamais \
+d'ellipse, de sous-entendu, de scène à deviner, de métaphore, de jeu de mots \
+ni de points de suspension ; jamais un titre qui n'a de sens qu'après le \
+précédent. L'accroche fait de 5 à 7 mots et nomme une douleur que le \
+restaurateur reconnaît tout de suite (problème, résultat ou comparaison). \
+Exemples. Non : « Une main se lève. Vous traversez ». Oui : « Vos clients \
+vous appellent pour une question ». Non : « Allergènes lus. Aucune main \
+levée ». Oui : « Les allergènes sont sur la fiche du plat ».`;
+
 const CANVAS = `\
 Toile verticale 1080 × 1920 à 30 images par seconde. L'interface d'Instagram couvre environ \
 250 px en haut, 400 px en bas et une colonne d'icônes à droite : rien \
@@ -86,11 +101,15 @@ de superposé, rien sous l'interface d'Instagram.
 vide mort ni d'éléments entassés.
 - Mouvement, 2 points : d'après les planches, l'entrée est fluide, la scène \
 vit jusqu'au bout, et sa durée laisse lire son texte sans traîner.
-- Message, 2,5 points : une seule idée, claire, qui sert l'histoire de la \
-publication et la fonctionnalité présentée.
-- Langue, 1,5 point : français juste, court, qui frappe.
-Une affirmation absente de la description de la fonctionnalité plafonne la \
-note à 4 ; un texte coupé ou illisible, à 5.
+- Clarté, 3 points : lu seul, sans les autres scènes, le titre se comprend \
+en deux secondes et dit ce que montre le bloc (règle ci-dessous).
+- Langue, 1 point : français juste, simple, sans jargon.
+Un titre qui demande le contexte, une ellipse ou une image à deviner \
+plafonne la note à 4, comme une affirmation absente de la description de la \
+fonctionnalité ; un texte coupé ou illisible, à 5.
+
+LE TEXTE À L'ÉCRAN :
+${SILENT_TEXT}
 
 ${REVIEW_RULES}`;
 
@@ -129,22 +148,29 @@ ${FILM_READING}
 
 ${CANVAS}
 
-LA GRILLE (sur 10) : l'accroche arrête le pouce (2), l'histoire s'enchaîne \
-d'une scène à l'autre (3), chaque image montre ce qu'elle dit (2), une seule \
-promesse et un appel à l'action net (1,5), la langue (1,5). Une affirmation \
-absente de la description de la fonctionnalité plafonne à 4.
+LA GRILLE (sur 10) : chaque titre se comprend seul en deux secondes (3), \
+l'accroche nomme une douleur que la cible reconnaît (2), la fonctionnalité \
+est montrée à l'écran et pas seulement dite (2), une seule promesse et un \
+appel à l'action net (1,5), la langue (1,5). Un titre qui demande le \
+contexte plafonne à 4, comme une affirmation absente de la description de la \
+fonctionnalité.
+
+LE TEXTE À L'ÉCRAN :
+${SILENT_TEXT}
 
 ${REVIEW_RULES}`;
 
 export const sceneEditor = `\
 Tu es le monteur d'une publicité Instagram (Reel) d'Ominin Menu, faite de \
 scènes. Tu réécris UNE scène d'après la critique de l'arbitre, sans casser \
-ce qui marche ni l'histoire de la publication. Tu ne changes que le texte, \
-les props et la durée de la scène, jamais son bloc : la place de chaque bloc \
-dans l'histoire est celle du rédacteur. Le dessin des blocs ne dépend pas de \
-toi.
+ce qui marche. Tu ne changes que le texte, les props et la durée de la \
+scène, jamais son bloc : la place de chaque bloc est celle du rédacteur. Le \
+dessin des blocs ne dépend pas de toi.
 
 ${CANVAS}
+
+LE TEXTE À L'ÉCRAN :
+${SILENT_TEXT}
 
 BLOCS (le bloc et ses props) :
 ${blocksSection}
