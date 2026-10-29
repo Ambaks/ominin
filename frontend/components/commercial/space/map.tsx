@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { MapCanvas } from "@/components/admin/carte/map-canvas";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
@@ -32,19 +32,28 @@ function mapStatus(place: api.MapRestaurant): LeadStatus {
   return place.contacted_by_lea ? "appointment_scheduled" : "interested";
 }
 
-function toLead(place: api.MapRestaurant): LeadLite {
+const POINT_STATUS: Record<api.MapPointState, LeadStatus> = {
+  c: "signed",
+  m: "visited",
+  v: "visited",
+  l: "appointment_scheduled",
+  f: "interested",
+};
+
+/* La carte ne dessine que des points : le reste de la fiche vient au toucher. */
+function toLead([id, lat, lng, state]: api.MapPoint): LeadLite {
   return {
-    restaurantId: place.id,
-    leadId: place.id,
-    name: place.name,
+    restaurantId: id,
+    leadId: id,
+    name: "",
     category: "restaurant",
-    city: place.city,
-    address: place.address,
-    lat: place.latitude,
-    lng: place.longitude,
-    status: mapStatus(place),
+    city: null,
+    address: null,
+    lat,
+    lng,
+    status: POINT_STATUS[state],
     priority: "medium",
-    phone: place.phone,
+    phone: null,
     email: null,
     hasWebsite: false,
     ownerName: null,
@@ -173,14 +182,19 @@ function AddRestaurant({ position, onClose, onAdded }: { position: GeoPoint; onC
  * la position du commercial suivie en direct.
  */
 export function MapScreen() {
-  const [places, setPlaces] = useState<api.MapRestaurant[] | null>(null);
+  const [points, setPoints] = useState<api.MapPoint[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [position, setPosition] = useState<GeoPoint | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
+  const [place, setPlace] = useState<api.MapRestaurant | null>(null);
   const [adding, setAdding] = useState(false);
 
   const load = useCallback(
-    () => api.mapRestaurants().then(setPlaces, (cause: unknown) => setError(errorMessage(cause))),
+    () => api.mapPoints().then(setPoints, (cause: unknown) => setError(errorMessage(cause))),
+    []
+  );
+  const loadPlace = useCallback(
+    (id: string) => api.mapRestaurant(id).then(setPlace, (cause: unknown) => setError(errorMessage(cause))),
     []
   );
 
@@ -193,12 +207,18 @@ export function MapScreen() {
     return () => navigator.geolocation.clearWatch(watch);
   }, [load]);
 
-  if (error) return <ErrorNote message={error} onRetry={() => void load()} />;
-  if (!places) return <Skeleton />;
+  const leads = useMemo(() => points?.map(toLead) ?? [], [points]);
 
-  const leads = places.map(toLead);
+  const select = (id: string | null) => {
+    setSelected(id);
+    setPlace(null);
+    if (id) void loadPlace(id);
+  };
+
+  if (error) return <ErrorNote message={error} onRetry={() => void load()} />;
+  if (!points) return <Skeleton />;
+
   const current = leads.find((lead) => lead.restaurantId === selected) ?? null;
-  const place = places.find((entry) => entry.id === selected);
 
   return (
     <div className="flex flex-col gap-3">
@@ -214,9 +234,21 @@ export function MapScreen() {
         <MapCanvas
           leads={leads}
           selected={current}
-          onSelect={setSelected}
+          onSelect={select}
           myPosition={position}
-          renderCard={() => place && <RestaurantCard place={place} onChange={() => void load()} />}
+          renderCard={() =>
+            place?.id === selected ? (
+              <RestaurantCard
+                place={place}
+                onChange={() => {
+                  void load();
+                  void loadPlace(place.id);
+                }}
+              />
+            ) : (
+              <div className={`${cardClass} shimmer h-32 w-full shadow-lg lg:w-72`} />
+            )
+          }
         />
       </div>
       <button
@@ -234,8 +266,7 @@ export function MapScreen() {
           onClose={() => setAdding(false)}
           onAdded={(id) => {
             setAdding(false);
-            setSelected(id);
-            void load();
+            void load().then(() => select(id));
           }}
         />
       )}
