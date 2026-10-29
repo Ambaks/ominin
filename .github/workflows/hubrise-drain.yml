@@ -4,7 +4,9 @@
 # carte, alerte les commandes que la caisse n'a pas reprises et purge les
 # envois anciens.
 #
-# L'échec du workflow EST le canal d'alerte : la route répond en erreur dès
+# La cadence réelle vient de pg_cron (20261029000010) : GitHub ne tient pas
+# le « */5 » et ne passe que toutes les quelques heures. Ce workflow reste
+# pour son échec, qui EST le canal d'alerte : la route répond en erreur dès
 # qu'une relecture a échoué.
 name: hubrise-drain
 
