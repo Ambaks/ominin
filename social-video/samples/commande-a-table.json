@@ -6,38 +6,54 @@
       {
         "block": "hook",
         "frames": 75,
-        "props": { "eyebrow": "Coup de feu", "title": "Vos clients attendent [[pour commander.]]" }
+        "props": {
+          "eyebrow": "Coup de feu",
+          "title": "Vos clients attendent [[pour commander.]]"
+        }
       },
       {
         "block": "phone",
         "frames": 90,
-        "props": { "title": "Ils scannent, la carte [[s'ouvre.]]", "screen": "menu-carte" }
+        "props": {
+          "title": "Ils scannent, la carte [[s'ouvre.]]",
+          "screen": "menu-carte"
+        }
       },
       {
         "block": "relay",
         "frames": 150,
-        "props": { "title": "La commande part [[en cuisine.]]" }
-      },
-      {
-        "block": "points",
-        "frames": 105,
         "props": {
-          "kicker": "Depuis la table",
-          "title": "Sans attendre [[personne.]]",
-          "points": ["Le panier, les options, une note", "Envoyé en cuisine en temps réel", "Sans créer de compte"]
+          "title": "La commande part [[en cuisine.]]"
         }
       },
       {
         "block": "cta",
         "frames": 90,
-        "props": { "cta": "Écrivez [[MENU]] en message", "line": "Une réponse de l'équipe qui le construit." }
+        "props": {
+          "cta": "Écrivez [[MENU]] en message",
+          "line": "Une réponse de l'équipe qui le construit."
+        }
       }
     ],
     "transitions": [
-      { "kind": "push", "direction": "from-right", "frames": 14 },
-      { "kind": "slide", "direction": "from-bottom", "frames": 16 },
-      { "kind": "wipe", "direction": "from-left", "frames": 14 },
-      { "kind": "fade", "direction": "from-right", "frames": 12 }
-    ]
+      {
+        "kind": "slide",
+        "direction": "from-right",
+        "frames": 14
+      },
+      {
+        "kind": "wipe",
+        "direction": "from-bottom",
+        "frames": 14
+      },
+      {
+        "kind": "slide",
+        "direction": "from-left",
+        "frames": 14
+      }
+    ],
+    "format": "probleme-solution",
+    "look": "braise",
+    "rhythm": "fluide"
   }
 }

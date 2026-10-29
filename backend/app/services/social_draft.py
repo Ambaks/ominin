@@ -22,6 +22,7 @@ Re-running is safe: a slot that already has a post for the brand is skipped.
 """
 
 import random
+import re
 from datetime import UTC, date, datetime, time, timedelta
 from zoneinfo import ZoneInfo
 
@@ -70,8 +71,13 @@ def run_social_draft(*, flush=None) -> dict:
                 continue
             keepalive.ping_if_due()
             feature = context.next_feature(brand)
+            variant = (
+                context.next_variant(brand, feature)
+                if brand in settings.social_scene_brands
+                else None
+            )
             try:
-                draft = context.compose(brand, slot.date(), feature)
+                draft = context.compose(brand, slot.date(), feature, variant=variant)
             except Exception as exc:  # noqa: BLE001 — one slot must not stop the others
                 stats["failed"] += 1
                 errors.append(f"{brand} {slot.date()} : {type(exc).__name__}: {exc}")
@@ -231,6 +237,37 @@ def _slots() -> list[datetime]:
     ]
 
 
+# Un chiffre dans la description d'une fonctionnalité, en chiffres ou en
+# lettres : seul il autorise le format « le chiffre », qui n'en invente pas.
+_NUMBER = re.compile(
+    r"\d|\b(deux|trois|quatre|cinq|six|sept|huit|neuf|dix|douze|quatorze|"
+    r"quinze|vingt|trente|soixante|cent|mille)\b",
+    re.IGNORECASE,
+)
+
+
+def _least_recent(options: list[str], history: list) -> str:
+    """The option used least recently in history (newest first) — one never
+    used first, at random among equals."""
+
+    def age(option: str) -> int:
+        return history.index(option) if option in history else len(history)
+
+    oldest = max(age(option) for option in options)
+    return random.choice([option for option in options if age(option) == oldest])
+
+
+def _follows(blocks: list[str], slots: list[dict]) -> bool:
+    """Do the scenes' blocks fill the format's slots, in order? Mirror of
+    follows() in frontend/lib/social/script.ts."""
+    if not slots:
+        return not blocks
+    slot, rest = slots[0], slots[1:]
+    if blocks and blocks[0] in slot["blocks"] and _follows(blocks[1:], rest):
+        return True
+    return bool(slot.get("optional")) and _follows(blocks, rest)
+
+
 class _Context:
     """What every draft of a run is written from, read once per run: prices,
     features, screenshots and filmed demos served by the site, Instagram
@@ -241,8 +278,10 @@ class _Context:
         self.errors: list[str] = []
         self.pricing = self._site("tarifs", {})
         self.features = self._site("features", [])
-        # Fonctionnalités déjà choisies pendant ce run, la plus récente en tête.
+        # Fonctionnalités et variantes déjà choisies pendant ce run, la plus
+        # récente en tête.
         self._picked: dict[str, list[str]] = {}
+        self._variants: dict[str, list[dict]] = {}
         self.screens = self._site("screens", [])
         self.clips = self._site("clips", [])
         self.stock = self._site("stock", [])
@@ -305,17 +344,42 @@ class _Context:
             ).data
         ]
 
-        def age(feature: dict) -> int:
-            return (
-                history.index(feature["id"])
-                if feature["id"] in history
-                else len(history)
-            )
+        choice_id = _least_recent([f["id"] for f in candidates], history)
+        self._picked[brand] = [choice_id, *self._picked.get(brand, [])]
+        return self.feature(choice_id)
 
-        oldest = max(age(f) for f in candidates)
-        choice = random.choice([f for f in candidates if age(f) == oldest])
-        self._picked[brand] = [choice["id"], *self._picked.get(brand, [])]
-        return choice
+    def next_variant(self, brand: str, feature: dict | None) -> dict:
+        """The format, look and rhythm of a Reel in scenes, each the one the
+        brand used least recently, so that two posts never look alike. « Le
+        chiffre » only when the feature's description holds a number."""
+        recent = self._variants.get(brand, []) + [
+            row["script"]
+            for row in (
+                self.sb.table("social_posts")
+                .select("script")
+                .eq("brand", brand)
+                .neq("status", "rejected")
+                .not_.is_("script", "null")
+                .order("post_date", desc=True)
+                .limit(settings.social_history_size)
+                .execute()
+            ).data
+        ]
+        formats = [
+            f["id"]
+            for f in self.blocks.get("formats", [])
+            if f["id"] != "le-chiffre" or (feature and _NUMBER.search(feature["does"]))
+        ]
+        variant = {
+            key: _least_recent(options, [script.get(key) for script in recent])
+            for key, options in (
+                ("format", formats),
+                ("look", [look["id"] for look in self.blocks.get("looks", [])]),
+                ("rhythm", [r["id"] for r in self.blocks.get("rhythms", [])]),
+            )
+        }
+        self._variants[brand] = [variant, *self._variants.get(brand, [])]
+        return variant
 
     def compose(
         self,
@@ -323,6 +387,7 @@ class _Context:
         day: date,
         feature: dict | None,
         previous: dict | None = None,
+        variant: dict | None = None,
     ) -> dict:
         """The post's columns for this draft, with the reviewer's opinion:
         each version is scored by a separate call and rewritten from its
@@ -331,7 +396,9 @@ class _Context:
         output breaks the format's rules: the slot is reported, not filled.
         feature: the catalogue entry the post presents, or None.
         previous: the post an admin sent back, with their feedback — kept in
-        every rewrite."""
+        every rewrite.
+        variant: the format, look and rhythm of a Reel in scenes (a rewrite
+        keeps the previous post's)."""
         playbook = current_playbook(self.sb, brand)
         # Ominin présente les trois offres : tout leur matériel lui est ouvert.
         screens = [s for s in self.screens if brand == "ominin" or s["brand"] == brand]
@@ -347,6 +414,12 @@ class _Context:
             .execute()
         ).data
         scenes = brand in settings.social_scene_brands
+        if scenes and previous and previous.get("script"):
+            variant = {
+                key: previous["script"][key] for key in ("format", "look", "rhythm")
+            }
+        elif scenes and not variant:
+            variant = self.next_variant(brand, feature)
         writer = (
             compose_scenes_system(
                 brand,
@@ -355,6 +428,7 @@ class _Context:
                 screens,
                 self.blocks,
                 self.handles,
+                variant,
             )
             if scenes
             else compose_system(
@@ -370,7 +444,12 @@ class _Context:
         )
         reviewer = (
             review_scenes_system(
-                brand, playbook["guidelines"], self.pricing, screens, self.blocks
+                brand,
+                playbook["guidelines"],
+                self.pricing,
+                screens,
+                self.blocks,
+                variant,
             )
             if scenes
             else review_system(
@@ -388,7 +467,10 @@ class _Context:
         def write(content: str) -> dict:
             row = (
                 self._scene_row(
-                    brand, parse_structured(writer, content, ScenePostDraft), screens
+                    brand,
+                    parse_structured(writer, content, ScenePostDraft),
+                    screens,
+                    variant,
                 )
                 if scenes
                 else self._row(
@@ -433,28 +515,52 @@ class _Context:
         return {**best, "review": {**best_review.model_dump(), "rounds": rounds}}
 
     def _scene_row(
-        self, brand: str, draft: ScenePostDraft, screens: list[dict]
+        self, brand: str, draft: ScenePostDraft, screens: list[dict], variant: dict
     ) -> dict:
         """The post's columns from one scene writer output. Raises ValueError
-        when its structure breaks the format; text limits are the montage's
+        when its scenes don't follow the format; transitions and durations
+        are brought into the rhythm; text limits are the montage's
         (social-video checks every scene, and its agents rewrite what's off)."""
-        known_blocks = {b["id"] for b in self.blocks.get("blocks", [])}
-        if not known_blocks:
+        catalogue = {
+            key: {item["id"]: item for item in self.blocks.get(key, [])}
+            for key in ("blocks", "formats", "rhythms")
+        }
+        if not catalogue["blocks"]:
             raise ValueError("/api/social/blocks illisible : pas de catalogue")
-        if not draft.scenes or draft.scenes[0].block != "hook":
-            raise ValueError("la première scène est l'accroche (hook)")
-        if draft.scenes[-1].block != "cta":
-            raise ValueError("la dernière scène est l'appel à l'action (cta)")
+        format_ = catalogue["formats"][variant["format"]]
+        rhythm = catalogue["rhythms"][variant["rhythm"]]
+        blocks = [scene.block for scene in draft.scenes]
+        if not _follows(blocks, format_["slots"]):
+            raise ValueError(
+                f"les scènes ({', '.join(blocks)}) ne suivent pas le format "
+                f"« {format_['name']} »"
+            )
         if len(draft.transitions) != len(draft.scenes) - 1:
             raise ValueError(
                 f"{len(draft.transitions)} transitions pour {len(draft.scenes)} scènes"
             )
         shown = {s["id"] for s in screens}
         for index, scene in enumerate(draft.scenes, 1):
-            if scene.block not in known_blocks:
-                raise ValueError(f"scène {index} : bloc inconnu « {scene.block} »")
             if scene.block == "phone" and scene.props.get("screen") not in shown:
                 raise ValueError(f"scène {index} : capture inconnue")
+        bounds, joins = rhythm["sceneFrames"], self.blocks["transitionFrames"]
+        scenes = [
+            {
+                **scene.model_dump(),
+                "frames": min(max(scene.frames, bounds["min"]), bounds["max"]),
+            }
+            for scene in draft.scenes
+        ]
+        transitions = [
+            {
+                **t.model_dump(),
+                "kind": t.kind
+                if t.kind in rhythm["transitions"]
+                else rhythm["transitions"][0],
+                "frames": min(max(t.frames, joins["min"]), joins["max"]),
+            }
+            for t in draft.transitions
+        ]
         return {
             "format": "reel",
             "topic": draft.topic,
@@ -468,8 +574,9 @@ class _Context:
             "reel": None,
             "script": {
                 "brand": brand,
-                "scenes": [scene.model_dump() for scene in draft.scenes],
-                "transitions": [t.model_dump() for t in draft.transitions],
+                **variant,
+                "scenes": scenes,
+                "transitions": transitions,
             },
             "production": None,
             "render_status": "pending",

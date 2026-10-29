@@ -1,6 +1,6 @@
 import type { Feature } from "../../../frontend/lib/social/features.ts";
 import { SCREENS } from "../../../frontend/lib/social/screens.ts";
-import { BLOCKS, SCENE_FRAMES, TRANSITION_FRAMES, TRANSITIONS, type PostScript } from "../../../frontend/lib/social/script.ts";
+import { BLOCKS, FORMATS, LOOKS, RHYTHMS, SCENE_FRAMES, TRANSITION_FRAMES, TRANSITIONS, type PostScript } from "../../../frontend/lib/social/script.ts";
 
 /*
  * Ce que lisent les agents du montage : des arbitres frais à chaque tour, qui
@@ -66,10 +66,23 @@ const screensSection = SCREENS.map((screen) => `- ${screen.id} : ${screen.descri
 
 const transitionsSection = TRANSITIONS.map((t) => `- ${t.kind} : ${t.description}`).join("\n");
 
+/** Le cadre imposé par le planning : les agents le gardent, ils ne le jugent pas. */
+function variantSection(script: PostScript): string {
+  const format = FORMATS.find((item) => item.id === script.format);
+  const rhythm = RHYTHMS.find((item) => item.id === script.rhythm);
+  const look = LOOKS.find((item) => item.id === script.look);
+  return [
+    "CADRE IMPOSÉ À LA PUBLICATION (ne le critique pas, ne le change pas) :",
+    `- format : ${format?.name} — ${format?.description}`,
+    `- habillage : ${look?.name}`,
+    `- rythme : ${rhythm?.name} ; transitions ${rhythm?.transitions.join(", ")} ; scènes de ${rhythm?.sceneFrames.min} à ${rhythm?.sceneFrames.max} images`,
+  ].join("\n");
+}
+
 export function storySection(script: PostScript): string {
   const scenes = script.scenes.map((scene, index) => `  ${index + 1}. ${scene.block} (${scene.frames} images) ${JSON.stringify(scene.props)}`);
   const joins = script.transitions.map((t, index) => `  ${index + 1}→${index + 2} : ${t.kind} ${t.direction} (${t.frames} images)`);
-  return `LA PUBLICATION ENTIÈRE :\n${scenes.join("\n")}\nTransitions :\n${joins.join("\n")}`;
+  return `${variantSection(script)}\n\nLA PUBLICATION ENTIÈRE :\n${scenes.join("\n")}\nTransitions :\n${joins.join("\n")}`;
 }
 
 const REVIEW_RULES = `\

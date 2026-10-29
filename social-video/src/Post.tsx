@@ -9,6 +9,7 @@ import { slide } from "@remotion/transitions/slide";
 import { wipe } from "@remotion/transitions/wipe";
 import type { PostTransition } from "../../frontend/lib/social/script.ts";
 import { SceneView } from "./blocks/scenes.tsx";
+import { LookContext } from "./look.ts";
 import { HEIGHT, WIDTH } from "./format.ts";
 import "./fonts.ts";
 import "./loop.css";
@@ -44,8 +45,9 @@ function transitionElement({ kind, direction, frames }: PostTransition) {
   }
 }
 
-export function Post({ brand, scenes, transitions }: PostProps) {
+export function Post({ brand, look, scenes, transitions }: PostProps) {
   return (
+    <LookContext.Provider value={look}>
     <TransitionSeries>
       {scenes.map((scene, index) => {
         const transition = transitions[index - 1];
@@ -59,5 +61,6 @@ export function Post({ brand, scenes, transitions }: PostProps) {
         );
       })}
     </TransitionSeries>
+    </LookContext.Provider>
   );
 }

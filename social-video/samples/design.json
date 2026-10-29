@@ -1,15 +1,133 @@
 {
   "hook": [
-    { "block": "hook", "frames": 75, "props": { "eyebrow": "Coup de feu", "title": "Vos clients [[attendent.]]" } },
-    { "block": "hook", "frames": 75, "props": { "eyebrow": "Fidélité", "title": "Ils ne reviennent pas [[sans raison.]]" } }
+    {
+      "block": "hook",
+      "frames": 75,
+      "props": {
+        "eyebrow": "Coup de feu",
+        "title": "Vos clients [[attendent.]]"
+      }
+    },
+    {
+      "block": "hook",
+      "frames": 75,
+      "props": {
+        "eyebrow": "Fidélité",
+        "title": "Ils ne reviennent pas [[sans raison.]]"
+      }
+    },
+    {
+      "block": "hook",
+      "frames": 75,
+      "props": {
+        "eyebrow": "Coup de feu",
+        "title": "Vos clients [[attendent.]]"
+      },
+      "look": "lin"
+    },
+    {
+      "block": "hook",
+      "frames": 75,
+      "props": {
+        "eyebrow": "Coup de feu",
+        "title": "Vos clients [[attendent.]]"
+      },
+      "look": "flamme"
+    },
+    {
+      "block": "hook",
+      "frames": 75,
+      "props": {
+        "eyebrow": "Coup de feu",
+        "title": "Vos clients [[attendent.]]"
+      },
+      "look": "nuit"
+    }
   ],
   "phone": [
-    { "block": "phone", "frames": 90, "props": { "title": "Ils scannent, la carte [[s'ouvre.]]", "screen": "menu-carte" } },
-    { "block": "phone", "frames": 90, "props": { "title": "Le panier, [[sans attendre.]]", "screen": "menu-panier" } }
+    {
+      "block": "phone",
+      "frames": 90,
+      "props": {
+        "title": "Ils scannent, la carte [[s'ouvre.]]",
+        "screen": "menu-carte"
+      }
+    },
+    {
+      "block": "phone",
+      "frames": 90,
+      "props": {
+        "title": "Le panier, [[sans attendre.]]",
+        "screen": "menu-panier"
+      }
+    },
+    {
+      "block": "phone",
+      "frames": 90,
+      "props": {
+        "title": "Ils scannent, la carte [[s'ouvre.]]",
+        "screen": "menu-carte"
+      },
+      "look": "lin"
+    },
+    {
+      "block": "phone",
+      "frames": 90,
+      "props": {
+        "title": "Ils scannent, la carte [[s'ouvre.]]",
+        "screen": "menu-carte"
+      },
+      "look": "flamme"
+    },
+    {
+      "block": "phone",
+      "frames": 90,
+      "props": {
+        "title": "Ils scannent, la carte [[s'ouvre.]]",
+        "screen": "menu-carte"
+      },
+      "look": "nuit"
+    }
   ],
   "relay": [
-    { "block": "relay", "frames": 150, "props": { "title": "La commande part [[en cuisine.]]" } },
-    { "block": "relay", "frames": 120, "props": { "title": "Payée [[avant le dessert.]]" } }
+    {
+      "block": "relay",
+      "frames": 150,
+      "props": {
+        "title": "La commande part [[en cuisine.]]"
+      }
+    },
+    {
+      "block": "relay",
+      "frames": 120,
+      "props": {
+        "title": "Payée [[avant le dessert.]]"
+      }
+    },
+    {
+      "block": "relay",
+      "frames": 150,
+      "props": {
+        "title": "La commande part [[en cuisine.]]"
+      },
+      "look": "lin"
+    },
+    {
+      "block": "relay",
+      "frames": 150,
+      "props": {
+        "title": "La commande part [[en cuisine.]]"
+      },
+      "look": "flamme"
+    },
+    {
+      "block": "relay",
+      "frames": 150,
+      "props": {
+        "title": "La commande part [[en cuisine.]]"
+      },
+      "look": "nuit"
+    }
   ],
   "points": [
     {
@@ -18,7 +136,11 @@
       "props": {
         "kicker": "Depuis la table",
         "title": "Sans attendre [[personne.]]",
-        "points": ["Le panier, les options, une note", "Envoyé en cuisine en temps réel", "Sans créer de compte"]
+        "points": [
+          "Le panier, les options, une note",
+          "Envoyé en cuisine en temps réel",
+          "Sans créer de compte"
+        ]
       }
     },
     {
@@ -27,12 +149,278 @@
       "props": {
         "kicker": "Fidélité",
         "title": "Des points à [[chaque commande.]]",
-        "points": ["Un téléphone ou un e-mail suffit", "Des récompenses à vos paliers"]
+        "points": [
+          "Un téléphone ou un e-mail suffit",
+          "Des récompenses à vos paliers"
+        ]
       }
+    },
+    {
+      "block": "points",
+      "frames": 105,
+      "props": {
+        "kicker": "Depuis la table",
+        "title": "Sans attendre [[personne.]]",
+        "points": [
+          "Le panier, les options, une note",
+          "Envoyé en cuisine en temps réel",
+          "Sans créer de compte"
+        ]
+      },
+      "look": "lin"
+    },
+    {
+      "block": "points",
+      "frames": 105,
+      "props": {
+        "kicker": "Depuis la table",
+        "title": "Sans attendre [[personne.]]",
+        "points": [
+          "Le panier, les options, une note",
+          "Envoyé en cuisine en temps réel",
+          "Sans créer de compte"
+        ]
+      },
+      "look": "flamme"
+    },
+    {
+      "block": "points",
+      "frames": 105,
+      "props": {
+        "kicker": "Depuis la table",
+        "title": "Sans attendre [[personne.]]",
+        "points": [
+          "Le panier, les options, une note",
+          "Envoyé en cuisine en temps réel",
+          "Sans créer de compte"
+        ]
+      },
+      "look": "nuit"
     }
   ],
   "cta": [
-    { "block": "cta", "frames": 90, "props": { "cta": "Écrivez [[MENU]] en message", "line": "Une réponse de l'équipe qui le construit." } },
-    { "block": "cta", "frames": 75, "props": { "cta": "Écrivez [[MENU]] en message", "line": "On vous montre votre carte en vrai." } }
+    {
+      "block": "cta",
+      "frames": 90,
+      "props": {
+        "cta": "Écrivez [[MENU]] en message",
+        "line": "Une réponse de l'équipe qui le construit."
+      }
+    },
+    {
+      "block": "cta",
+      "frames": 75,
+      "props": {
+        "cta": "Écrivez [[MENU]] en message",
+        "line": "On vous montre votre carte en vrai."
+      }
+    },
+    {
+      "block": "cta",
+      "frames": 90,
+      "props": {
+        "cta": "Écrivez [[MENU]] en message",
+        "line": "Une réponse de l'équipe qui le construit."
+      },
+      "look": "lin"
+    },
+    {
+      "block": "cta",
+      "frames": 90,
+      "props": {
+        "cta": "Écrivez [[MENU]] en message",
+        "line": "Une réponse de l'équipe qui le construit."
+      },
+      "look": "flamme"
+    },
+    {
+      "block": "cta",
+      "frames": 90,
+      "props": {
+        "cta": "Écrivez [[MENU]] en message",
+        "line": "Une réponse de l'équipe qui le construit."
+      },
+      "look": "nuit"
+    }
+  ],
+  "split": [
+    {
+      "block": "split",
+      "frames": 105,
+      "props": {
+        "title": "La carte, [[avant et après]]",
+        "beforeLabel": "Avant",
+        "before": "Vous réimprimez pour un seul prix",
+        "afterLabel": "Avec Ominin",
+        "after": "Vous changez le prix sur votre téléphone"
+      }
+    },
+    {
+      "block": "split",
+      "frames": 90,
+      "look": "lin",
+      "props": {
+        "title": "Encore une [[appli]] ?",
+        "beforeLabel": "On pense",
+        "before": "Le client doit installer une appli",
+        "afterLabel": "En vrai",
+        "after": "La carte s'ouvre dans son navigateur"
+      }
+    },
+    {
+      "block": "split",
+      "frames": 105,
+      "props": {
+        "title": "La carte, [[avant et après]]",
+        "beforeLabel": "Avant",
+        "before": "Vous réimprimez pour un seul prix",
+        "afterLabel": "Avec Ominin",
+        "after": "Vous changez le prix sur votre téléphone"
+      },
+      "look": "nuit"
+    },
+    {
+      "block": "split",
+      "frames": 90,
+      "props": {
+        "title": "Encore une [[appli]] ?",
+        "beforeLabel": "On pense",
+        "before": "Le client doit installer une appli",
+        "afterLabel": "En vrai",
+        "after": "La carte s'ouvre dans son navigateur"
+      },
+      "look": "flamme"
+    }
+  ],
+  "figure": [
+    {
+      "block": "figure",
+      "frames": 90,
+      "props": {
+        "title": "L'abonnement [[Connect]]",
+        "value": "0 €",
+        "label": "par mois, sans engagement"
+      }
+    },
+    {
+      "block": "figure",
+      "frames": 75,
+      "look": "lin",
+      "props": {
+        "title": "De la table [[à la cuisine]]",
+        "value": "18 s",
+        "label": "d'une commande payée au ticket cuisine"
+      }
+    },
+    {
+      "block": "figure",
+      "frames": 90,
+      "props": {
+        "title": "L'abonnement [[Connect]]",
+        "value": "0 €",
+        "label": "par mois, sans engagement"
+      },
+      "look": "nuit"
+    },
+    {
+      "block": "figure",
+      "frames": 75,
+      "props": {
+        "title": "De la table [[à la cuisine]]",
+        "value": "18 s",
+        "label": "d'une commande payée au ticket cuisine"
+      },
+      "look": "flamme"
+    }
+  ],
+  "steps": [
+    {
+      "block": "steps",
+      "frames": 120,
+      "props": {
+        "title": "Commander, [[en trois gestes]]",
+        "steps": [
+          "Le client scanne sa table",
+          "Il commande et paie en ligne",
+          "La commande arrive en cuisine"
+        ]
+      }
+    },
+    {
+      "block": "steps",
+      "frames": 105,
+      "look": "lin",
+      "props": {
+        "title": "Changer un prix, [[c'est tout]]",
+        "steps": [
+          "Ouvrez votre espace de gestion",
+          "Touchez le plat, changez le prix",
+          "Toutes les tables le voient"
+        ]
+      }
+    },
+    {
+      "block": "steps",
+      "frames": 120,
+      "props": {
+        "title": "Commander, [[en trois gestes]]",
+        "steps": [
+          "Le client scanne sa table",
+          "Il commande et paie en ligne",
+          "La commande arrive en cuisine"
+        ]
+      },
+      "look": "nuit"
+    },
+    {
+      "block": "steps",
+      "frames": 105,
+      "props": {
+        "title": "Changer un prix, [[c'est tout]]",
+        "steps": [
+          "Ouvrez votre espace de gestion",
+          "Touchez le plat, changez le prix",
+          "Toutes les tables le voient"
+        ]
+      },
+      "look": "flamme"
+    }
+  ],
+  "question": [
+    {
+      "block": "question",
+      "frames": 90,
+      "props": {
+        "question": "Il y a des allergènes dans ce plat ?",
+        "answer": "La réponse est [[sur la carte]]"
+      }
+    },
+    {
+      "block": "question",
+      "frames": 90,
+      "look": "lin",
+      "props": {
+        "question": "Encore une appli à installer pour mes clients ?",
+        "answer": "Non : la carte s'ouvre [[toute seule]]"
+      }
+    },
+    {
+      "block": "question",
+      "frames": 90,
+      "props": {
+        "question": "Il y a des allergènes dans ce plat ?",
+        "answer": "La réponse est [[sur la carte]]"
+      },
+      "look": "nuit"
+    },
+    {
+      "block": "question",
+      "frames": 90,
+      "props": {
+        "question": "Encore une appli à installer pour mes clients ?",
+        "answer": "Non : la carte s'ouvre [[toute seule]]"
+      },
+      "look": "flamme"
+    }
   ]
 }

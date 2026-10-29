@@ -1,7 +1,7 @@
 import { mkdir, readFile, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { setTimeout as sleep } from "node:timers/promises";
-import { type BlockId, type PostScene, sceneError } from "../../frontend/lib/social/script.ts";
+import { type BlockId, type LookId, type PostScene, sceneError } from "../../frontend/lib/social/script.ts";
 import { describeFilm, sceneFilm } from "./film.ts";
 import { openStudio, ROOT, type Studio } from "./studio.ts";
 
@@ -17,7 +17,10 @@ const LOCK_POLL_MS = 2000;
 /* Un verrou plus vieux vient d'un rendu interrompu : on le reprend. */
 const LOCK_STALE_MS = 10 * 60 * 1000;
 
-export async function designSamples(): Promise<Record<BlockId, PostScene[]>> {
+/** Un contenu d'essai : une scène, et l'habillage sur lequel la voir (braise par défaut). */
+export type DesignSample = PostScene & { look?: LookId };
+
+export async function designSamples(): Promise<Record<BlockId, DesignSample[]>> {
   return JSON.parse(await readFile(join(ROOT, "samples", "design.json"), "utf8"));
 }
 
@@ -50,13 +53,14 @@ export async function withStudio<T>(work: (studio: Studio) => Promise<T>): Promi
 }
 
 /** Les planches-contacts d'un bloc sur chacun de ses contenus d'essai, décrites pour un agent. */
-export async function blockFilm(studio: Studio, block: BlockId, scenes: PostScene[], dir: string): Promise<string> {
+export async function blockFilm(studio: Studio, block: BlockId, samples: DesignSample[], dir: string): Promise<string> {
   const lines: string[] = [];
-  for (const [index, scene] of scenes.entries()) {
+  for (const [index, { look = "braise", ...scene }] of samples.entries()) {
     const error = sceneError(scene);
     if (error) throw new Error(`${block} ${index + 1} : ${error}`);
-    const film = await sceneFilm(studio, { brand: "menu", scenes: [scene], transitions: [] }, join(dir, `c${index + 1}`));
-    lines.push(`CONTENU ${index + 1} : ${JSON.stringify(scene.props)}`, describeFilm(film), "");
+    const script = { brand: "menu" as const, format: "probleme-solution" as const, look, rhythm: "fluide" as const, scenes: [scene], transitions: [] };
+    const film = await sceneFilm(studio, script, join(dir, `c${index + 1}`));
+    lines.push(`CONTENU ${index + 1} (habillage ${look}) : ${JSON.stringify(scene.props)}`, describeFilm(film), "");
   }
   return lines.join("\n");
 }

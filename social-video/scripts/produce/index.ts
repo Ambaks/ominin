@@ -6,6 +6,7 @@ import {
   scriptFrames,
   TRANSITION_FRAMES,
   transitionError,
+  RHYTHMS,
   type PostScene,
   type PostScript,
   type PostTransition,
@@ -113,6 +114,17 @@ function reviewPrompt(run: Run, script: PostScript, subject: string, film: strin
   return [featureSection(run.feature), "", storySection(script), "", subject, "", film].join("\n");
 }
 
+/** Le rythme imposé à la publication : ses transitions et la durée d'une scène. */
+const rhythmOf = (script: PostScript) => RHYTHMS.find((rhythm) => rhythm.id === script.rhythm)!;
+
+/** Une scène réécrite garde son bloc et la durée du rythme. */
+function keepsShape(candidate: PostScene, original: PostScene, script: PostScript): string | null {
+  if (candidate.block !== original.block) return `garde le bloc « ${original.block} »`;
+  const { min, max } = rhythmOf(script).sceneFrames;
+  if (candidate.frames < min || candidate.frames > max) return `durée de ${min} à ${max} images (rythme imposé)`;
+  return sceneError(candidate);
+}
+
 /** Le rédacteur ne compte pas les caractères : une scène hors des limites du
  * bloc est réécrite par un monteur avant le premier rendu, une transition
  * hors de ses bornes y est ramenée. */
@@ -126,7 +138,7 @@ async function repair(run: Run, script: PostScript): Promise<PostScript> {
         sceneEditor,
         rewritePrompt(run, script, `SCÈNE ${index + 1} : ${JSON.stringify(scene)}`, review),
         SCENE_SCHEMA,
-        (candidate) => (candidate.block !== scene.block ? `garde le bloc « ${scene.block} »` : sceneError(candidate)),
+        (candidate) => keepsShape(candidate, scene, script),
         run.dir,
       );
       if (!fixed) throw new Error(`scène ${index + 1} irréparable : ${error}`);
@@ -134,8 +146,18 @@ async function repair(run: Run, script: PostScript): Promise<PostScript> {
     }),
   );
   const { min, max } = TRANSITION_FRAMES;
-  const transitions = script.transitions.map((t) => ({ ...t, frames: Math.min(Math.max(Math.round(t.frames), min), max) }));
-  const repaired = { ...script, scenes, transitions };
+  const rhythm = rhythmOf(script);
+  const transitions = script.transitions.map((t) => ({
+    ...t,
+    kind: rhythm.transitions.includes(t.kind) ? t.kind : rhythm.transitions[0],
+    frames: Math.min(Math.max(Math.round(t.frames), min), max),
+  }));
+  const bounds = rhythm.sceneFrames;
+  const repaired = {
+    ...script,
+    scenes: scenes.map((scene) => ({ ...scene, frames: Math.min(Math.max(scene.frames, bounds.min), bounds.max) })),
+    transitions,
+  };
   const error = scriptError(repaired);
   if (error) throw new Error(`script refusé : ${error}`);
   return repaired;
@@ -156,7 +178,7 @@ function rewritePrompt(run: Run, script: PostScript, subject: string, review: Re
 }
 
 async function scenes(run: Run, script: PostScript): Promise<Piece<PostScene>[]> {
-  const alone = (scene: PostScene): PostScript => ({ brand: script.brand, scenes: [scene], transitions: [] });
+  const alone = (scene: PostScene): PostScript => ({ ...script, scenes: [scene], transitions: [] });
   const subject = (scene: PostScene, index: number) => `SCÈNE ${index + 1} : ${JSON.stringify(scene)}`;
   return loop<PostScene>(
     run,
@@ -178,7 +200,7 @@ async function scenes(run: Run, script: PostScript): Promise<Piece<PostScene>[]>
         sceneEditor,
         rewritePrompt(run, script, subject(piece.value, index), piece.review),
         SCENE_SCHEMA,
-        (scene) => (scene.block !== piece.value.block ? `garde le bloc « ${piece.value.block} »` : sceneError(scene)),
+        (scene) => keepsShape(scene, piece.value, script),
         run.dir,
       ),
   );
@@ -186,7 +208,7 @@ async function scenes(run: Run, script: PostScript): Promise<Piece<PostScene>[]>
 
 async function transitions(run: Run, script: PostScript): Promise<Piece<PostTransition>[]> {
   const pair = (transition: PostTransition, index: number): PostScript => ({
-    brand: script.brand,
+    ...script,
     scenes: [script.scenes[index], script.scenes[index + 1]],
     transitions: [transition],
   });
@@ -214,8 +236,10 @@ async function transitions(run: Run, script: PostScript): Promise<Piece<PostTran
       edit<PostTransition>(
         transitionEditor,
         rewritePrompt(run, script, subject(piece.value, index), piece.review),
-        TRANSITION_SCHEMA,
-        transitionError,
+        { ...TRANSITION_SCHEMA, properties: { ...TRANSITION_SCHEMA.properties, kind: { type: "string", enum: rhythmOf(script).transitions } } },
+        (transition) =>
+          transitionError(transition) ??
+          (rhythmOf(script).transitions.includes(transition.kind) ? null : `transitions du rythme : ${rhythmOf(script).transitions.join(", ")}`),
         run.dir,
       ),
   );

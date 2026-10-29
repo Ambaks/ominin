@@ -55,7 +55,7 @@ export function Headline({ title, start, size }: { title: string; start: number;
         const rendered = part.words.map((text, i) => (
           <span key={i}>
             {i > 0 && " "}
-            {word(text, markAt + 2 + i * WORD_STAGGER)}
+            {word(text, markAt + i * WORD_STAGGER)}
           </span>
         ));
         index += part.words.length;

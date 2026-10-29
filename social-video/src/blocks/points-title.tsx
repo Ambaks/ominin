@@ -1,5 +1,6 @@
-import { useLayoutEffect, useRef, useState } from "react";
+import { useContext, useLayoutEffect, useRef, useState } from "react";
 import { continueRender, delayRender } from "remotion";
+import { LookContext } from "../look.ts";
 import { progress } from "../motion.ts";
 import { parts } from "./headline.tsx";
 
@@ -15,6 +16,8 @@ import { parts } from "./headline.tsx";
 const MAX_SIZE = 130;
 /** Corps des mesures, en px. */
 const PROBE_SIZE = 100;
+/** Part de la largeur que prend le passage le plus long : le pavé garde de l'air. */
+const FIT = 0.94;
 const STAGGER = 3;
 const RISE = 14;
 const WIPE = 8;
@@ -41,6 +44,7 @@ export function PointsTitle({ title, start, frame, width, inset }: { title: stri
   const [size, setSize] = useState(MAX_SIZE);
   const [handle] = useState(() => delayRender("Corps du titre des points"));
   const pieces = parts(title);
+  const look = useContext(LookContext);
 
   /* Mesure une fois Geist chargée (src/fonts.ts ne l'ajoute qu'une fois prête). */
   useLayoutEffect(() => {
@@ -51,7 +55,7 @@ export function PointsTitle({ title, start, frame, width, inset }: { title: stri
         return;
       }
       const widest = Math.max(...[...probe.current!.children].map((child) => (child as HTMLElement).offsetWidth));
-      setSize(Math.min(MAX_SIZE, ((width - 2 * inset) * PROBE_SIZE) / widest));
+      setSize(Math.min(MAX_SIZE, ((width - 2 * inset) * PROBE_SIZE * FIT) / widest));
       continueRender(handle);
     };
     fit();
@@ -93,10 +97,19 @@ export function PointsTitle({ title, start, frame, width, inset }: { title: stri
         return (
           <div
             key={key}
-            className="relative my-[0.08em] overflow-hidden whitespace-nowrap rounded-[0.14em] text-background"
+            className={`relative my-[0.08em] overflow-hidden whitespace-nowrap rounded-[0.14em] ${look === "flamme" ? "text-foreground" : "text-background"}`}
             style={{ padding: `0.06em ${inset}px 0.1em`, clipPath: `inset(0 ${(1 - wipe) * 100}% 0 0 round 0.14em)` }}
           >
-            <div className="ember-gradient absolute inset-0" />
+            {/* Flamme : pavé crème, comme le surligné du plateau. Lin : départ tiré vers --ember-2, l'encre crème y reste lisible. */}
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  look === "flamme"
+                    ? "var(--background)"
+                    : `linear-gradient(100deg, ${look === "lin" ? "color-mix(in oklab, var(--ember-1), var(--ember-2) 65%)" : "var(--ember-1)"}, var(--ember-2) 55%, var(--ember-3))`,
+              }}
+            />
             <div
               className="absolute inset-y-0 w-[40%] bg-linear-to-r from-transparent via-white/35 to-transparent"
               style={{ transform: `translateX(${-120 + sheen * 370}%) skewX(-18deg)` }}

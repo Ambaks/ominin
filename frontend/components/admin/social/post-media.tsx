@@ -4,7 +4,16 @@ import type { SocialPost } from "@/lib/admin/social";
 import { slideUrl } from "@/lib/social/brands";
 import { MUSIC_BY_ID } from "@/lib/social/music";
 import { videoUrl } from "@/lib/social/reel";
-import type { BlockId, PostScript, ProduceReport, TransitionKind } from "@/lib/social/script";
+import {
+  type BlockId,
+  FORMATS,
+  LOOKS,
+  type PostScene,
+  type PostScript,
+  type ProduceReport,
+  RHYTHMS,
+  type TransitionKind,
+} from "@/lib/social/script";
 import { SECONDARY_BUTTON, SECTION_TITLE } from "./styles";
 
 /*
@@ -32,8 +41,42 @@ const BLOCK_LABELS: Record<BlockId, string> = {
   phone: "Téléphone",
   relay: "Relais",
   points: "Points",
+  split: "Face-à-face",
+  figure: "Chiffre",
+  steps: "Étapes",
+  question: "Question",
   cta: "Appel à l'action",
 };
+
+/** Le texte principal d'une scène, celui qui se lit en premier. */
+function mainText(scene: PostScene): string {
+  switch (scene.block) {
+    case "cta":
+      return scene.props.cta;
+    case "question":
+      return `« ${scene.props.question} » ${scene.props.answer}`;
+    default:
+      return scene.props.title;
+  }
+}
+
+/** Le détail sous le texte principal : points, étapes, côtés, chiffre, ligne. */
+function details(scene: PostScene): string[] {
+  switch (scene.block) {
+    case "points":
+      return scene.props.points;
+    case "steps":
+      return scene.props.steps;
+    case "split":
+      return [`${scene.props.beforeLabel} : ${scene.props.before}`, `${scene.props.afterLabel} : ${scene.props.after}`];
+    case "figure":
+      return [`${scene.props.value} ${scene.props.label}`];
+    case "cta":
+      return [scene.props.line];
+    default:
+      return [];
+  }
+}
 
 const TRANSITION_LABELS: Record<TransitionKind, string> = {
   cut: "Coupe franche",
@@ -209,17 +252,14 @@ function ScriptScenes({
                 {reviews.length > 0 &&
                   ` · ${formatScore(Math.max(...reviews.map((review) => review.score)))}`}
               </p>
-              <p className="mt-1 font-medium">
-                {scene.block === "cta" ? scene.props.cta : scene.props.title}
-              </p>
-              {scene.block === "points" && (
+              <p className="mt-1 font-medium">{mainText(scene)}</p>
+              {details(scene).length > 0 && (
                 <ul className="mt-0.5 list-disc pl-5 text-muted">
-                  {scene.props.points.map((point) => (
-                    <li key={point}>{point}</li>
+                  {details(scene).map((line) => (
+                    <li key={line}>{line}</li>
                   ))}
                 </ul>
               )}
-              {scene.block === "cta" && <p className="mt-0.5 text-muted">{scene.props.line}</p>}
             </div>
             {transition && (
               <p className="px-3 text-xs text-faint">↓ {TRANSITION_LABELS[transition.kind]}</p>
@@ -229,6 +269,11 @@ function ScriptScenes({
       })}
       <li className="rounded-xl bg-surface-raised p-3 text-sm">
         <p className={SECTION_TITLE}>Montage</p>
+        <p className="mt-1 text-muted">
+          {FORMATS.find((item) => item.id === script.format)?.name} ·{" "}
+          {LOOKS.find((item) => item.id === script.look)?.name.split(" :")[0]} ·{" "}
+          {RHYTHMS.find((item) => item.id === script.rhythm)?.name.split(" :")[0]}
+        </p>
         {production && (
           <>
             <p className="mt-1 font-medium">{formatScore(production.final.score)}</p>

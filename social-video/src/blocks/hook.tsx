@@ -2,35 +2,48 @@ import { useCurrentFrame, useVideoConfig } from "remotion";
 import type { HookProps } from "../../../frontend/lib/social/script.ts";
 import { progress, wave } from "../motion.ts";
 import { HookCachet } from "./hook-cachet.tsx";
-import { HookTitle } from "./hook-title.tsx";
+import { HookTitle, markStart } from "./hook-title.tsx";
 import { SAFE, Stage, type BlockBrand } from "./stage.tsx";
 
 /*
- * L'accroche : l'étiquette du sujet et le grand titre au pavé braise, posés
- * sur le Cachet de la table, lui-même posé sur un plan de grille qui file
- * vers le bas de la toile, sous l'interface. La carte ne bouge pas d'un
- * titre à l'autre : le titre s'empile vers le haut au-dessus d'elle.
+ * L'accroche : l'étiquette du sujet, le grand titre au pavé braise et le
+ * Cachet de la table, empilés et centrés sur la zone utile, au-dessus d'un
+ * plan de grille qui file vers le bas de la toile, sous l'interface. Le
+ * titre prend toute la largeur au-dessus de la colonne d'icônes et se règle
+ * sur la hauteur qui lui reste ; la carte entre quand le pavé s'écrit.
  */
 
-/* Haut de la carte sur la toile, et écart du titre à la carte, en px. */
-const CARD_TOP = 1060;
-const TITLE_GAP = 90;
+/* Marge latérale du titre et de la carte, en px. */
+const MARGIN = 48;
+/* Zone de l'ensemble sur la toile, en px : le bas est celui de la carte,
+ * dont le texte reste au-dessus de l'interface. */
+const REGION = { top: 300, bottom: 1556 };
+/* Hauteur de la carte posée, de l'étiquette avec son écart au titre, et
+ * écart du titre à la carte, en px. */
+const CARD_HEIGHT = 590;
+const EYEBROW_HEIGHT = 84;
+const TITLE_GAP = 52;
+/* Retard de la carte sur l'écriture du pavé, en images. */
+const CARD_LAG = 4;
 /* Plan de grille : défilement en px par image, et ses lignes de braise. */
-const FLOOR_SPEED = 1.5;
-const FLOOR_LINE = "color-mix(in oklab, var(--ember-2) 26%, transparent)";
+const FLOOR_SPEED = 3;
+const FLOOR_LINE = "color-mix(in oklab, var(--ember-2) 48%, transparent)";
+/* Halo sous la carte : taille en px, intensité en %, souffle, période en images. */
+const POOL = { width: 900, height: 280, strength: 48, breathe: 0.3, period: 36 };
 
 function HookEyebrow({ text }: { text: string }) {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const shown = progress(frame, 0, 8);
+  /* Déjà presque posée à la première image : le Reel ne s'ouvre jamais sur du vide. */
+  const shown = progress(frame, -4, 6);
   const pulse = Math.max(0, wave(frame, fps));
   return (
     <p
-      className="flex items-center gap-[0.42rem] text-[1.05rem] font-bold uppercase tracking-[0.14em] text-ember-1"
+      className="flex items-center gap-[0.45rem] text-[1.15rem] font-bold uppercase tracking-[0.14em] text-ember-1"
       style={{ opacity: shown, transform: `translateY(${(1 - shown) * 16}px)` }}
     >
       <span
-        className="ember-gradient size-[0.45rem] shrink-0 rounded-full"
+        className="ember-gradient size-[0.5rem] shrink-0 rounded-full"
         style={{ transform: `scale(${1 + pulse * 0.25})`, boxShadow: `0 0 ${12 + pulse * 20}px var(--ember-2)` }}
       />
       {text}
@@ -40,11 +53,14 @@ function HookEyebrow({ text }: { text: string }) {
 
 export function Hook({ eyebrow, title }: BlockBrand & HookProps) {
   const frame = useCurrentFrame();
-  const { width, height, durationInFrames } = useVideoConfig();
-  const floor = progress(frame, 4, 20);
+  const { width, height } = useVideoConfig();
+  const floor = progress(frame, 0, 12);
+  const cardAt = markStart(title, 0) + CARD_LAG;
+  /* Le halo naît quand la carte se pose : en flamme, il est une ombre. */
+  const pool = progress(frame, cardAt + 4, 10) * (1 - POOL.breathe + wave(frame, POOL.period) * POOL.breathe);
+  const column = width - 2 * MARGIN;
   return (
     <Stage>
-      {/* Toute la toile : le plan de grille et la flaque de lumière sous la carte. */}
       <div className="absolute" style={{ left: -SAFE.left, top: -SAFE.top, width, height }}>
         <div className="absolute inset-x-[-30%] bottom-0 h-[62%]" style={{ perspective: 700, opacity: floor }}>
           <div
@@ -59,23 +75,28 @@ export function Hook({ eyebrow, title }: BlockBrand & HookProps) {
             }}
           />
         </div>
-        <div
-          className="absolute inset-0"
-          style={{
-            opacity: floor * (0.85 + wave(frame, durationInFrames) * 0.15),
-            background: `radial-gradient(ellipse 620px 300px at 50% ${CARD_TOP + 560}px, color-mix(in oklab, var(--ember-2) 34%, transparent), transparent)`,
-          }}
-        />
-      </div>
 
-      <div className="absolute inset-x-0 top-0 flex flex-col justify-end" style={{ height: CARD_TOP - SAFE.top - TITLE_GAP }}>
-        <HookEyebrow text={eyebrow} />
-        <div className="mt-[1rem]">
-          <HookTitle title={title} start={2} />
+        <div
+          className="absolute flex flex-col justify-center"
+          style={{ left: MARGIN, top: REGION.top, width: column, height: REGION.bottom - REGION.top }}
+        >
+          <HookEyebrow text={eyebrow} />
+          <div className="mt-[0.6rem]" style={{ marginBottom: TITLE_GAP }}>
+            <HookTitle title={title} start={0} column={column} budget={REGION.bottom - REGION.top - EYEBROW_HEIGHT - TITLE_GAP - CARD_HEIGHT} />
+          </div>
+          <div className="relative">
+            <div
+              className="absolute left-1/2 top-full -translate-x-1/2 -translate-y-1/2"
+              style={{
+                width: POOL.width,
+                height: POOL.height,
+                opacity: pool,
+                background: `radial-gradient(closest-side, color-mix(in oklab, var(--ember-2) ${POOL.strength}%, transparent), transparent)`,
+              }}
+            />
+            <HookCachet start={cardAt} width={column} />
+          </div>
         </div>
-      </div>
-      <div className="absolute left-0" style={{ top: CARD_TOP - SAFE.top }}>
-        <HookCachet />
       </div>
     </Stage>
   );

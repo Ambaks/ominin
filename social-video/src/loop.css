@@ -36,3 +36,104 @@
 .loop .kit-mark::before {
   transform: scaleX(var(--mark, 1));
 }
+
+/*
+  Habillages (frontend/lib/social/script.ts, LOOKS) : chacun redéfinit les
+  jetons du site sur la scène, les blocs suivent sans le savoir. Rôles :
+  --background est aussi l'encre posée sur la braise (pavé, pastilles),
+  --ember-* l'accent lisible sur la toile.
+*/
+
+/* Braise : le fond sombre des landings, grille fine, halo qui respire. */
+.stage-halo {
+  background:
+    radial-gradient(circle 620px at 78% 52%, color-mix(in oklab, var(--ember-2) 38%, transparent), transparent),
+    radial-gradient(circle 520px at 12% 88%, color-mix(in oklab, var(--ember-3) 26%, transparent), transparent);
+}
+
+/* Lin : le mode clair du site ; braises et petits textes un cran plus
+   foncés pour tenir sur un écran de téléphone. */
+.look-lin {
+  --background: #faf6f0;
+  --foreground: #221b13;
+  --surface: #f2ebe0;
+  --surface-raised: #ffffff;
+  --hairline: rgba(34, 27, 19, 0.12);
+  --muted: #6e5f4e;
+  --faint: #8f7e69;
+  --ember-1: #9a6512;
+  --ember-2: #c05a32;
+  --ember-3: #a83848;
+  color-scheme: light;
+}
+.look-lin .kit-grid {
+  opacity: 0.6;
+}
+.look-lin .stage-halo {
+  background:
+    radial-gradient(circle 700px at 82% 40%, color-mix(in oklab, var(--ember-1) 26%, transparent), transparent),
+    radial-gradient(circle 560px at 8% 92%, color-mix(in oklab, var(--ember-3) 14%, transparent), transparent);
+}
+
+/* Nuit : noir profond, sans grille ; un seul faisceau tombe du haut,
+   chaud au cœur, éteint avant le bas de la toile. */
+.look-nuit {
+  --background: #050403;
+  --foreground: #f7f1e8;
+  --surface: #100c09;
+  --surface-raised: #17120e;
+  --hairline: rgba(247, 241, 232, 0.1);
+  --faint: #857868;
+}
+.look-nuit .kit-grid {
+  display: none;
+}
+.look-nuit .stage-halo {
+  background:
+    radial-gradient(ellipse 30% 9% at 50% 8%, color-mix(in oklab, var(--ember-1) 55%, transparent), transparent),
+    conic-gradient(
+      from 158deg at 50% 4%,
+      transparent,
+      color-mix(in oklab, var(--ember-2) 11%, transparent) 10deg,
+      color-mix(in oklab, var(--ember-1) 26%, transparent) 18deg 26deg,
+      color-mix(in oklab, var(--ember-2) 11%, transparent) 34deg,
+      transparent 44deg
+    );
+  mask-image: linear-gradient(to bottom, black 25%, transparent 88%);
+}
+
+/* Flamme : toute la toile au dégradé de braise, sans grille. La braise des
+   blocs passe au brun brûlé (pavé, pastilles, étiquettes), le papier crème
+   sert d'encre sur elle et de fond aux cartes et aux écrans. Le rose n'arrive
+   qu'en bas, sous l'interface d'Instagram : le texte reste lisible partout. */
+.look-flamme {
+  --background: #fbf3ea;
+  --foreground: #1a0f0a;
+  --surface: #f6e8d9;
+  --surface-raised: #fffaf4;
+  --hairline: rgba(26, 15, 10, 0.16);
+  --muted: #4a2a1c;
+  --faint: #5e3322;
+  --ember-1: #4a1c0c;
+  --ember-2: #2a100a;
+  --ember-3: #3e0f1f;
+  color-scheme: light;
+  background-image: linear-gradient(165deg, #f4b860, #ec8f52 38%, #e2764b 66%, #cf5a5a);
+}
+.look-flamme .kit-grid {
+  display: none;
+}
+.look-flamme .stage-halo {
+  background:
+    radial-gradient(circle 760px at 72% 34%, rgba(255, 244, 228, 0.3), transparent),
+    radial-gradient(circle 640px at 10% 96%, rgba(120, 30, 40, 0.18), transparent);
+}
+
+/* Flamme : le pavé du titre en crème, texte sombre — un pavé brun se perdait
+   à côté des mots du titre, sombres eux aussi. */
+.look-flamme .kit-mark {
+  color: var(--foreground);
+}
+.look-flamme .kit-mark::before {
+  background: var(--background);
+}

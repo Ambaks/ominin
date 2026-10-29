@@ -1,10 +1,14 @@
 import type { PostScene } from "../../../frontend/lib/social/script.ts";
 import { Cta } from "./cta.tsx";
+import { Figure } from "./figure.tsx";
 import { Hook } from "./hook.tsx";
 import { Phone } from "./phone.tsx";
 import { Points } from "./points.tsx";
+import { Question } from "./question.tsx";
 import { Relay } from "./relay.tsx";
+import { Split } from "./split.tsx";
 import type { BlockBrand } from "./stage.tsx";
+import { Steps } from "./steps.tsx";
 
 /*
  * Les blocs d'une publication, un par scène (frontend/lib/social/script.ts),
@@ -22,6 +26,14 @@ export function SceneView({ brand, scene }: BlockBrand & { scene: PostScene }) {
       return <Relay brand={brand} {...scene.props} />;
     case "points":
       return <Points brand={brand} {...scene.props} />;
+    case "split":
+      return <Split brand={brand} {...scene.props} />;
+    case "figure":
+      return <Figure brand={brand} {...scene.props} />;
+    case "steps":
+      return <Steps brand={brand} {...scene.props} />;
+    case "question":
+      return <Question brand={brand} {...scene.props} />;
     case "cta":
       return <Cta brand={brand} {...scene.props} />;
   }

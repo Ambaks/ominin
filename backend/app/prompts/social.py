@@ -386,17 +386,16 @@ Jamais d'ellipse, de sous-entendu, de scène à deviner, de métaphore, de jeu \
 de mots ni de points de suspension ; jamais un titre qui n'a de sens qu'après \
 le précédent. Le restaurateur est « vous », ses clients sont « vos \
 clients ».
-- L'accroche (bloc hook, toujours la première scène) : de 5 à 7 mots, une \
+- L'accroche (la première scène : bloc hook, ou bloc question quand le \
+format l'impose) : de 5 à 7 mots, une \
 douleur que le restaurateur reconnaît tout de suite, dite avec ses mots. Une \
 de ces trois formes : le problème (« Vos clients attendent pour commander \
 ? »), le résultat (« Vos tables commandent sans attendre »), la comparaison \
 (« Carte papier ou carte toujours à jour ? »).
-- L'ordre : l'accroche (la douleur), puis ce que fait la fonctionnalité, dit \
-simplement, puis la preuve (l'outil montré à l'écran), puis l'appel à \
-l'action (bloc cta, toujours la dernière scène). De 4 à 6 scènes ; la \
-fonctionnalité est MONTRÉE au moins une fois, pas seulement dite : le bloc \
-phone avec la capture où on la voit, ou relay pour la commande et le paiement \
-à table.
+- L'ordre des scènes est celui du format imposé à la publication ; l'appel \
+à l'action (bloc cta) est toujours la dernière. La fonctionnalité est \
+MONTRÉE au moins une fois, pas seulement dite : le bloc phone avec la \
+capture où on la voit, ou relay pour la commande et le paiement à table.
 - Un titre dit ce que montre son bloc : sur un bloc phone, ce qu'on lit sur \
 la capture. Les points disent en deux ou trois lignes concrètes ce que fait \
 la fonctionnalité, rien de plus que sa description.
@@ -691,6 +690,24 @@ def _blocks_section(blocks: dict) -> str:
     return "\n".join(lines)
 
 
+def _variant_section(blocks: dict, variant: dict) -> str:
+    """The format and rhythm imposed on this post, so that two posts in a
+    row never take the same shape."""
+    format_ = next(f for f in blocks["formats"] if f["id"] == variant["format"])
+    rhythm = next(r for r in blocks["rhythms"] if r["id"] == variant["rhythm"])
+    slots = " → ".join(
+        " ou ".join(slot["blocks"]) + (" (facultatif)" if slot.get("optional") else "")
+        for slot in format_["slots"]
+    )
+    frames = rhythm["sceneFrames"]
+    return f"""\
+FORMAT IMPOSÉ : {format_["name"]}. {format_["description"]}
+Les scènes, dans cet ordre exact : {slots}.
+RYTHME IMPOSÉ : {rhythm["name"]}. Transitions : {", ".join(rhythm["transitions"])} \
+uniquement ; chaque scène dure de {frames["min"]} à {frames["max"]} images.\
+"""
+
+
 def compose_scenes_system(
     brand: str,
     guidelines: str,
@@ -698,6 +715,7 @@ def compose_scenes_system(
     screens: list[dict],
     blocks: dict,
     handles: dict[str, str],
+    variant: dict,
 ) -> str:
     """The writer of a Reel in scenes: the blocks of the site, silent."""
     keyword = EXAMPLES[brand][0]
@@ -726,6 +744,10 @@ rythme : vise juste dès le départ.
 LE TEXTE À L'ÉCRAN :
 {SILENT_TEXT}
 {numbers}
+
+CETTE PUBLICATION (imposé par le planning, pour ne pas ressembler aux \
+précédentes ; ne t'en écarte pas) :
+{_variant_section(blocks, variant)}
 - L'appel à l'action : cta vaut exactement « Écrivez [[{keyword}]] en \
 message » ; line dit ce qu'on obtient en écrivant (une réponse de l'équipe \
 qui construit). La légende le répète en dernière phrase.
@@ -943,6 +965,7 @@ def review_scenes_system(
     pricing: dict[str, str] | None,
     screens: list[dict],
     blocks: dict,
+    variant: dict,
 ) -> str:
     """The reviewer of a Reel in scenes: silent, so clarity comes first."""
     keyword = EXAMPLES[brand][0]
@@ -961,6 +984,10 @@ RÈGLES INTANGIBLES :
 
 LE TEXTE À L'ÉCRAN, tel qu'il doit être :
 {SILENT_TEXT}
+
+LE FORMAT ET LE RYTHME, imposés par le planning (ne les critique pas, juge \
+la publication dans ce cadre) :
+{_variant_section(blocks, variant)}
 
 LIGNE ÉDITORIALE EN VIGUEUR :
 {guidelines}

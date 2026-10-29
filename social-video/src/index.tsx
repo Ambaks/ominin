@@ -16,6 +16,9 @@ const preview: ReelProps = {
 
 const postPreview: PostProps = {
   brand: "menu",
+  format: "probleme-solution",
+  look: "braise",
+  rhythm: "fluide",
   scenes: [
     { block: "hook", frames: 75, props: { eyebrow: "Commande à table", title: "Vos tables prennent les [[commandes.]]" } },
     { block: "cta", frames: 75, props: { cta: "Écrivez [[MENU]] en message", line: "On vous répond nous-mêmes." } },
