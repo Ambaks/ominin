@@ -1,0 +1,812 @@
+/*
+  Après le repas, chez Caffè Panis : le vert des portes, la mosaïque du sol, et
+  la question du serveur qui repasse à table. La tasse se dessine, sa vapeur
+  monte, les assiettes se posent une à une comme sur un plateau. Un choix fait
+  parle le langage des feuilles de la maison (panis-sheets.css) : le vert,
+  l'écrit en ivoire, le filet de laiton qui se trace, la lueur qui en fait deux
+  fois le tour. Mouvement réduit : tout est là, sans rien qui bouge.
+*/
+
+[data-menu-root].theme-caffe-panis {
+  & [role="dialog"]:has(> .after-meal) {
+    border-color: rgb(238 234 199 / 0.16);
+    background: var(--cp-green-deep);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      0 -1.5rem 4rem -1rem rgb(2 26 12 / 0.7);
+  }
+
+  & .after-meal {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 auto;
+    overflow: clip;
+    color: var(--cp-ivory);
+    background: linear-gradient(180deg, #17663a 0%, var(--cp-green) 42%, var(--cp-green-deep) 100%);
+  }
+
+  /* Le satin court sur toute la hauteur d'écran : la feuille qui grandit le
+     découvre, sans l'étirer. Sans WebGL, le dégradé ci-dessus. */
+  & .after-meal-satin {
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: -1;
+    height: 100lvh;
+    pointer-events: none;
+  }
+
+  & .after-meal-satin > canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Par-dessus le satin : la mosaïque du sol, le grain, et un voile qui garde
+     l'écrit lisible sur les crêtes du tissu. */
+  & .after-meal::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      var(--cp-mosaic) 0 0 / 0.75rem 0.75rem repeat-x,
+      var(--cp-grain),
+      linear-gradient(180deg, rgb(4 30 14 / 0.3), rgb(4 30 14 / 0.12) 38%, rgb(4 24 12 / 0.5));
+    pointer-events: none;
+  }
+
+  & .after-meal-close {
+    position: absolute;
+    top: 1.125rem;
+    right: 0.5rem;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: rgb(238 234 199 / 0.82);
+  }
+
+  /* ---- L'en-tête ------------------------------------------------------- */
+
+  & .after-meal-head {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.125rem 1.5rem 0;
+    text-align: center;
+  }
+
+  & .after-meal-mark {
+    display: block;
+    width: 3.25rem;
+    height: 3.25rem;
+    color: color-mix(in srgb, var(--cp-laiton) 72%, #fff4cf);
+  }
+
+  & .after-meal-kicker {
+    margin-top: 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--cp-laiton) 62%, #fff4cf);
+  }
+
+  & .after-meal-title {
+    margin-top: 0.5rem;
+    max-width: 19rem;
+    font-family: var(--brand-display);
+    font-size: clamp(2rem, 9.2vw, 2.5rem);
+    font-weight: 800;
+    font-variation-settings: "SOFT" 100, "opsz" 144;
+    line-height: 1.04;
+    letter-spacing: -0.012em;
+    text-wrap: balance;
+    text-shadow: 0 1px 18px rgb(4 24 12 / 0.55);
+  }
+
+  & .after-meal-rule {
+    display: block;
+    width: 3.5rem;
+    height: 1.5px;
+    margin-top: 0.875rem;
+    background: var(--cp-laiton);
+  }
+
+  & .after-meal-lead {
+    margin-top: 0.75rem;
+    max-width: 18.5rem;
+    font-size: 0.9375rem;
+    line-height: 1.42;
+    color: rgb(238 234 199 / 0.86);
+    text-wrap: balance;
+  }
+
+  /* ---- Les assiettes --------------------------------------------------- */
+
+  & .after-meal-cards {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+    padding: 1rem 1.25rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scroll-padding-inline: 1.25rem;
+    scrollbar-width: none;
+    mask-image: linear-gradient(90deg, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
+  }
+
+  & .after-meal-cards::-webkit-scrollbar {
+    display: none;
+  }
+
+  & .after-meal-slot {
+    flex: 0 0 min(10.25rem, 42vw);
+    scroll-snap-align: start;
+  }
+
+  /* Deux assiettes partagent la largeur ; une seule la prend. */
+  & .after-meal:is([data-count="1"], [data-count="2"]) .after-meal-cards {
+    justify-content: center;
+  }
+
+  & .after-meal[data-count="2"] .after-meal-slot {
+    flex: 1 1 0;
+    max-width: 11rem;
+  }
+
+  & .after-meal[data-count="1"] .after-meal-slot {
+    flex: 0 1 15rem;
+  }
+
+  & .after-meal-card {
+    --cp-rayon: 1.125rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    text-align: left;
+    border-radius: var(--cp-rayon);
+    color: var(--cp-green);
+    background: var(--cp-grain), var(--surface);
+    box-shadow:
+      0 0 0 1px rgb(238 234 199 / 0.28),
+      0 1.25rem 1.75rem -1rem rgb(1 18 8 / 0.85);
+  }
+
+  & .after-meal-photo {
+    position: relative;
+    display: block;
+    aspect-ratio: 4 / 4.4;
+    overflow: hidden;
+    border-radius: var(--cp-rayon) var(--cp-rayon) 0 0;
+    background: var(--cp-green-deep);
+  }
+
+  & .after-meal-photo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* Les photos de la carte sont prises de loin, sur le papier de leur marque
+     de livraison : on resserre sur le plat. */
+  & .after-meal-photo img[src*="/plats/"] {
+    scale: 1.34;
+  }
+
+  /* Une canette sur fond blanc : posée sur le papier de l'assiette, entière. */
+  & .after-meal-photo:has(img[src*="/big-smash/"]) {
+    background: transparent;
+  }
+
+  & .after-meal-photo img[src*="/big-smash/"] {
+    padding: 5%;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+  }
+
+  & .after-meal-card[data-on] .after-meal-photo:has(img[src*="/big-smash/"]) {
+    background: var(--surface);
+  }
+
+  & .after-meal-card-body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 0.625rem;
+    padding: 0.75rem 0.75rem 0.75rem;
+    border-radius: 0 0 var(--cp-rayon) var(--cp-rayon);
+  }
+
+  & .after-meal-name {
+    font-family: var(--brand-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    font-variation-settings: "SOFT" 100, "opsz" 36;
+    line-height: 1.12;
+  }
+
+  & .after-meal-price {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.25rem;
+    border-radius: 999px;
+    padding-inline: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--cp-ivory);
+    background: var(--cp-green);
+  }
+
+  /* Le choix fait : le vert, l'écrit en ivoire, le filet de laiton. */
+  & .after-meal-card[data-on] {
+    color: var(--cp-ivory);
+    background: var(--cp-grain), #0c3f20;
+    box-shadow:
+      0 0 0 1.5px var(--cp-laiton),
+      0 1.25rem 1.75rem -1rem rgb(1 18 8 / 0.85);
+  }
+
+  & .after-meal-card[data-on] .after-meal-price {
+    color: var(--cp-green-deep);
+    background: var(--cp-ivory);
+  }
+
+  & .after-meal-card:focus-visible,
+  & .after-meal-close:focus-visible,
+  & .after-meal-cta:focus-visible,
+  & .after-meal-decline:focus-visible {
+    outline: 2px solid var(--cp-ivory);
+    outline-offset: 2px;
+  }
+
+  /* ---- La vapeur du café ----------------------------------------------- */
+
+  & .after-meal-vapour {
+    position: absolute;
+    inset: 0;
+    display: none;
+    pointer-events: none;
+  }
+
+  /* ---- Le pied --------------------------------------------------------- */
+
+  & .after-meal-foot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    position: sticky;
+    bottom: 0;
+    margin-top: auto;
+    padding: 0.125rem 1.25rem calc(0.625rem + env(safe-area-inset-bottom));
+  }
+
+  /* L'accord du chef, ajouté d'un toucher : son assiette peut être hors de vue. */
+  & .after-meal-combo {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    margin-bottom: 0.625rem;
+    font-size: 0.8125rem;
+    line-height: 1.32;
+    color: rgb(238 234 199 / 0.92);
+  }
+
+  & .after-meal-combo img {
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    border-radius: 0.75rem;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px var(--cp-laiton);
+  }
+
+  & .after-meal-combo p {
+    flex: 1;
+    min-width: 0;
+    text-wrap: pretty;
+  }
+
+  & .after-meal-combo span {
+    display: block;
+    margin-bottom: 0.125rem;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--cp-laiton) 62%, #fff4cf);
+  }
+
+  & .after-meal-combo button {
+    flex-shrink: 0;
+    min-height: 2.75rem;
+    border: 1.5px solid var(--cp-laiton);
+    border-radius: 999px;
+    padding-inline: 0.75rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    white-space: nowrap;
+    color: var(--cp-ivory);
+  }
+
+  & .after-meal-combo button:focus-visible {
+    outline: 2px solid var(--cp-ivory);
+    outline-offset: 2px;
+  }
+
+  & .after-meal-cta {
+    align-self: stretch;
+    min-height: 3rem;
+    border-radius: 999px;
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--cp-green-deep);
+    background: var(--cp-ivory);
+    box-shadow: 0 0.875rem 1.75rem -0.75rem rgb(0 0 0 / 0.65);
+  }
+
+  & .after-meal-decline {
+    min-height: 2.75rem;
+    padding-inline: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: rgb(238 234 199 / 0.88);
+  }
+
+  /* La sortie, et l'avis à côté d'elle : discret tant qu'une suite se propose. */
+  & .after-meal-exits {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+  }
+
+  & .after-meal-review {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    min-height: 2.75rem;
+    padding-inline: 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--cp-ivory);
+  }
+
+  & .after-meal-review svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    flex-shrink: 0;
+    color: color-mix(in srgb, var(--cp-laiton) 72%, #fff4cf);
+  }
+
+  /* Un filet entre les deux : le lien garde sa hauteur de doigt, sous le filet. */
+  & .after-meal-decline + .after-meal-review {
+    position: relative;
+  }
+
+  & .after-meal-decline + .after-meal-review::before {
+    content: "";
+    position: absolute;
+    inset: 0.75rem auto 0.75rem 0;
+    width: 1px;
+    background: rgb(238 234 199 / 0.28);
+  }
+
+  & .after-meal-cta.after-meal-review {
+    min-height: 3rem;
+    font-size: 0.9375rem;
+    font-weight: 700;
+    color: var(--cp-green-deep);
+  }
+
+  & .after-meal-cta.after-meal-review svg {
+    width: 1rem;
+    height: 1rem;
+    color: #a67c24;
+  }
+
+  /* Trop étroit pour les deux sur une ligne : l'un sous l'autre, sans filet. */
+  @media (max-width: 20.5rem) {
+    & .after-meal-exits {
+      flex-direction: column;
+    }
+
+    & .after-meal-decline + .after-meal-review::before {
+      display: none;
+    }
+  }
+
+  /* Le remerciement seul, sans assiettes. */
+  & .after-meal[data-count="0"] .after-meal-foot {
+    padding-top: 1.5rem;
+  }
+
+  & .after-meal-review:focus-visible {
+    outline: 2px solid var(--cp-ivory);
+    outline-offset: 2px;
+  }
+
+  /* La barre d'adresse mange la hauteur : un grand téléphone n'a guère que
+     660 px dans Safari. La tête se resserre, les assiettes gardent leur
+     photo ; un choix fait, la tasse cède sa place au bouton. */
+  @media (max-height: 46rem) {
+    & .after-meal-head {
+      padding-top: 1.625rem;
+    }
+
+    & .after-meal-mark {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+
+    & .after-meal:has(.after-meal-cta) .after-meal-mark {
+      display: none;
+    }
+
+    & .after-meal-title {
+      max-width: none;
+      font-size: clamp(1.5rem, 7.2vw, 1.875rem);
+    }
+
+    & .after-meal-rule {
+      display: none;
+    }
+
+    & .after-meal-lead {
+      margin-top: 0.5rem;
+      font-size: 0.875rem;
+    }
+
+    & .after-meal-cards {
+      margin-top: 0;
+    }
+
+    & .after-meal-photo {
+      aspect-ratio: 1;
+    }
+  }
+
+  /* L'accord du chef affiché : la feuille lui fait sa place sans défiler. */
+  @media (max-height: 54rem) {
+    & .after-meal:has(.after-meal-combo) .after-meal-mark {
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+  }
+
+  @media (max-height: 46rem) {
+    & .after-meal:has(.after-meal-combo) .after-meal-photo {
+      aspect-ratio: 8 / 7;
+    }
+  }
+
+  /* Petit téléphone. */
+  @media (max-height: 40rem) {
+    & .after-meal-mark {
+      display: none;
+    }
+
+    & .after-meal-kicker {
+      margin-top: 0;
+    }
+
+    & .after-meal-lead {
+      max-width: none;
+    }
+
+    & .after-meal-photo {
+      aspect-ratio: 4 / 3;
+    }
+
+    & .after-meal-cards {
+      padding-bottom: 0.5rem;
+    }
+
+    & .after-meal-card-body {
+      gap: 0.375rem;
+      padding: 0.5rem 0.625rem 0.625rem;
+    }
+  }
+
+  /* Paysage. */
+  @media (max-height: 30rem) {
+    & .after-meal-photo {
+      aspect-ratio: 16 / 9;
+    }
+  }
+
+  /* Écran étroit : le nom le plus long tient sur une ligne, sans creuser ses voisines. */
+  @media (max-width: 24rem) {
+    & .after-meal-decline,
+    & .after-meal-review:not(.after-meal-cta) {
+      padding-inline: 0.5rem;
+      font-size: 0.8125rem;
+    }
+
+    & .after-meal-slot {
+      flex-basis: min(10.25rem, 46vw);
+    }
+
+    & .after-meal-name {
+      font-size: 0.9375rem;
+    }
+  }
+
+  /* ---- Démo : sauter l'attente ----------------------------------------- */
+
+  & .after-meal-demo {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 41;
+    min-height: 3rem;
+    border: 1px dashed color-mix(in srgb, var(--cp-green) 55%, transparent);
+    border-radius: 999px;
+    padding: 0.5rem 1rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--cp-green);
+    background: var(--surface);
+    box-shadow: 0 0.75rem 1.5rem -0.75rem rgb(0 0 0 / 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-menu-root].theme-caffe-panis {
+    /* La tasse se dessine, la vapeur monte en boucle, doucement. */
+    & .after-meal-trace {
+      stroke-dasharray: 1;
+      animation: am-trace 0.6s var(--cp-glisse) 0.12s backwards;
+    }
+
+    & .after-meal-trace:nth-last-of-type(2) {
+      animation-delay: 0.3s;
+    }
+
+    & .after-meal-trace:last-of-type {
+      animation-delay: 0.44s;
+    }
+
+    & .after-meal-steam {
+      stroke-dasharray: 1;
+      animation: am-vapeur 3.2s ease-in-out 1s infinite backwards;
+    }
+
+    & .after-meal-steam:nth-of-type(2) {
+      animation-delay: 1.4s;
+    }
+
+    & .after-meal-steam:nth-of-type(3) {
+      animation-delay: 1.8s;
+    }
+
+    & :is(.after-meal-kicker, .after-meal-title, .after-meal-lead) {
+      animation: cp-entre 0.55s var(--cp-glisse) backwards;
+    }
+
+    & .after-meal-kicker {
+      animation-delay: 0.16s;
+    }
+
+    & .after-meal-title {
+      animation-delay: 0.22s;
+    }
+
+    & .after-meal-lead {
+      animation-delay: 0.32s;
+    }
+
+    & .after-meal-rule {
+      animation: am-filet 0.7s var(--cp-glisse) 0.36s backwards;
+    }
+
+    /* Les assiettes se posent une à une, du centre du plateau. */
+    & .after-meal-slot {
+      animation: am-pose 0.8s var(--cp-ressort) backwards;
+      animation-delay: calc(0.38s + var(--i, 0) * 0.09s);
+    }
+
+    & .after-meal-photo img {
+      animation: am-recule 1.6s var(--cp-glisse) backwards;
+      animation-delay: calc(0.38s + var(--i, 0) * 0.09s);
+    }
+
+    & .after-meal-foot {
+      animation: cp-entre 0.5s var(--cp-glisse) 0.72s backwards;
+    }
+
+    & .after-meal-card {
+      transition:
+        scale 0.2s var(--cp-glisse),
+        box-shadow 0.35s;
+    }
+
+    & .after-meal-card:active {
+      scale: 0.97;
+    }
+
+    & .after-meal-card[data-fresh] {
+      animation: cp-choix 0.45s var(--cp-ressort);
+    }
+
+    /* La lueur en fait deux fois le tour, et s'éteint. */
+    & .after-meal-card[data-fresh]::after {
+      content: "";
+      position: absolute;
+      inset: -1.5px;
+      border-radius: calc(var(--cp-rayon) + 1.5px);
+      padding: 2px;
+      background: conic-gradient(
+        from var(--cp-tour, 0deg),
+        transparent 0 190deg,
+        rgb(60 207 122 / calc(var(--cp-eclat, 0) * 0.8)) 285deg,
+        rgb(201 162 75 / var(--cp-eclat, 0)) 338deg,
+        rgb(255 246 214 / var(--cp-eclat, 0)) 357deg,
+        transparent 360deg
+      );
+      mask:
+        linear-gradient(#000 0 0) content-box exclude,
+        linear-gradient(#000 0 0);
+      pointer-events: none;
+      animation:
+        cp-tour 1.3s linear 2,
+        cp-eclat 2.6s linear;
+    }
+
+    & .after-meal-card[data-fresh]::before {
+      content: "";
+      position: absolute;
+      inset: -4px;
+      border-radius: calc(var(--cp-rayon) + 4px);
+      padding: 6px;
+      background: conic-gradient(
+        from var(--cp-tour, 0deg),
+        transparent 0 200deg,
+        rgb(60 207 122 / calc(var(--cp-eclat, 0) * 0.75)) 295deg,
+        rgb(255 236 170 / calc(var(--cp-eclat, 0) * 0.9)) 350deg,
+        transparent 360deg
+      );
+      mask:
+        linear-gradient(#000 0 0) content-box exclude,
+        linear-gradient(#000 0 0);
+      filter: blur(6px);
+      pointer-events: none;
+      animation:
+        cp-tour 1.3s linear 2,
+        cp-eclat 2.6s linear;
+    }
+
+    & .after-meal-card[data-on] .after-meal-price {
+      animation: am-pastille 0.4s var(--cp-ressort);
+    }
+
+    /* Une fois la feuille assez ouverte pour eux : sa hauteur glisse en 380 ms. */
+    & .after-meal-combo {
+      animation: cp-entre 0.42s var(--cp-glisse) 0.14s backwards;
+    }
+
+    & .after-meal-cta {
+      animation: cp-entre 0.42s var(--cp-glisse) 0.24s backwards;
+    }
+
+    /* La vapeur sur la photo du café : trois volutes floues qui montent. */
+    & .after-meal-vapour {
+      display: block;
+    }
+
+    & .after-meal-vapour i {
+      position: absolute;
+      bottom: 34%;
+      left: 34%;
+      width: 1.25rem;
+      height: 3.5rem;
+      border-radius: 50%;
+      background: radial-gradient(closest-side, rgb(255 255 255 / 0.7), transparent);
+      filter: blur(5px);
+      opacity: 0;
+      animation: am-volute 3.6s ease-out infinite;
+    }
+
+    & .after-meal-vapour i:nth-child(2) {
+      left: 52%;
+      animation-delay: 1.2s;
+    }
+
+    & .after-meal-vapour i:nth-child(3) {
+      left: 44%;
+      animation-delay: 2.4s;
+    }
+
+    & .after-meal-demo {
+      animation: cp-entre 0.45s var(--cp-glisse) backwards;
+    }
+  }
+}
+
+@keyframes am-trace {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes am-vapeur {
+  0% {
+    stroke-dashoffset: 1;
+    opacity: 0;
+    transform: translateY(1.5px);
+  }
+  35% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  75% {
+    stroke-dashoffset: 0;
+    opacity: 0.6;
+  }
+  100% {
+    stroke-dashoffset: -1;
+    opacity: 0;
+    transform: translateY(-2.5px);
+  }
+}
+
+@keyframes am-filet {
+  from {
+    transform: scaleX(0);
+  }
+}
+
+@keyframes am-pose {
+  from {
+    opacity: 0;
+    transform: translate3d(calc((1 - var(--i, 0)) * 1.75rem), 2.75rem, 0)
+      rotate(calc((var(--i, 0) - 1) * -3.5deg)) scale(0.88);
+  }
+}
+
+@keyframes am-recule {
+  from {
+    transform: scale(1.14);
+  }
+}
+
+@keyframes am-pastille {
+  from {
+    transform: scale(0.82);
+  }
+}
+
+@keyframes am-volute {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 1rem, 0) scale(0.7);
+  }
+  30% {
+    opacity: 0.85;
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(0.5rem, -3.5rem, 0) scale(1.5, 1.2);
+  }
+}

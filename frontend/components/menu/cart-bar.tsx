@@ -149,6 +149,13 @@ export function CartBar() {
   // Un compteur et non l'étape : l'ouverture remet l'étape sans rien focaliser.
   const [stepMoves, setStepMoves] = useState(0);
   const [allLines, setAllLines] = useState(false);
+  const [openRequests, setOpenRequests] = useState(cart.openRequests);
+  if (openRequests !== cart.openRequests) {
+    setOpenRequests(cart.openRequests);
+    setStep("commande");
+    setAllLines(false);
+    setOpen(true);
+  }
   const stepTitleRef = useRef<HTMLHeadingElement>(null);
   useEffect(() => {
     if (stepMoves === 0) return;
