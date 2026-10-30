@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
 import { ChevronLeftIcon } from "@/components/admin/icons";
 import { ClientActivity } from "@/components/admin/clients/activity";
+import { broughtByLabel, useBroughtBy } from "@/components/admin/clients/brought-by";
 import { ClientAnalytique } from "@/components/admin/clients/analytique";
 import { ClientDemarrage } from "@/components/admin/clients/demarrage";
 import { ClientReglages } from "@/components/admin/clients/reglages";
@@ -46,6 +47,7 @@ function ClientDetail() {
   const search = useSearchParams();
   const { basePath } = useAdminBasePath();
 
+  const broughtBy = useBroughtBy();
   const [days, setDays] = useState<number>(CLIENT_PERIOD_DAYS[1]);
   const [client, setClient] = useState<ClientOverview | null | undefined>(
     undefined
@@ -122,6 +124,9 @@ function ClientDetail() {
           <h1 className="mt-1 truncate font-display text-2xl font-medium">
             {client.name}
           </h1>
+          <p className="mt-1 text-xs text-muted">
+            {broughtByLabel(broughtBy, client.etablissement_id)}
+          </p>
         </div>
         {view !== "reglages" && view !== "demarrage" && view !== "materiel" && (
           <PillTabs
