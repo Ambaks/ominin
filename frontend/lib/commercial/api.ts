@@ -36,7 +36,17 @@ async function call<T>(promise: PromiseLike<{ data: unknown; error: { message: s
   return data as T;
 }
 
-export const createRestaurant = (input: Record<string, string | number | undefined>) =>
+/*
+ * Dernière réponse d'un écran, gardée en mémoire le temps de la visite :
+ * revenir sur un onglet l'affiche tout de suite, puis le rafraîchit.
+ */
+const last = new Map<string, unknown>();
+function remembered<T>(key: string, fetch: () => Promise<T>) {
+  const run = () => fetch().then((data) => (last.set(key, data), data));
+  return Object.assign(run, { last: () => (last.get(key) as T | undefined) ?? null });
+}
+
+export const createRestaurant =(input: Record<string, string | number | undefined>) =>
   call<string>(db().rpc("commercial_create_restaurant", { p: input as Json }));
 
 export const resign = () => call<string>(db().rpc("commercial_resign"));
@@ -64,7 +74,7 @@ export interface MapRestaurant {
 export type MapPointState = "c" | "m" | "v" | "l" | "f";
 export type MapPoint = [id: string, lat: number, lng: number, state: MapPointState];
 
-export const mapPoints = () => call<MapPoint[]>(db().rpc("commercial_map_points"));
+export const mapPoints = remembered("mapPoints", () => call<MapPoint[]>(db().rpc("commercial_map_points")));
 
 /** La fiche d'un point, chargée quand le commercial le touche. */
 export const mapRestaurant = (id: string) =>
@@ -90,7 +100,7 @@ export interface Dashboard {
   restaurants: DashboardRestaurant[];
 }
 
-export const dashboard = () => call<Dashboard>(db().rpc("commercial_dashboard"));
+export const dashboard = remembered("dashboard", () => call<Dashboard>(db().rpc("commercial_dashboard")));
 
 /** commercial_restaurant_recap() : ce que le commercial a récupéré sur un restaurant (migration 20261029000015). */
 export interface RestaurantRecap {
@@ -172,7 +182,7 @@ export interface Money {
   documents: { kind: "sirene" | "urssaf"; uploaded_at: string }[];
 }
 
-export const money = () => call<Money>(db().rpc("commercial_money"));
+export const money = remembered("money", () => call<Money>(db().rpc("commercial_money")));
 
 /**
  * Fichier déposé dans commercial-docs/<commercial>/<dossier>/ (lecture :
