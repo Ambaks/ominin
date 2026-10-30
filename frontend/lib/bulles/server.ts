@@ -7,7 +7,7 @@ export type BulleCheckout = { provider: "demo" } | { provider: "square"; locatio
 /**
  * Le restaurant peut-il encaisser une place en ligne ? Démonstration, ou
  * Square activé avec un point de vente et un compte relié — la caisse du
- * menu, sans commission. Vérifié avant de tenir une place : sinon le client
+ * menu, avec la même commission. Vérifié avant de tenir une place : sinon le client
  * remplirait le formulaire pour se heurter au paiement.
  */
 export async function bulleCheckout(admin: Admin, etablissementId: string): Promise<BulleCheckout | null> {
