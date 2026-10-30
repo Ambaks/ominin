@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { ContactLink, ContractToSign, Notice } from "@/components/commercial/contract";
 import { CommercialShell } from "@/components/commercial/shell";
+import { CodeForm } from "@/components/commercial/space/code-form";
 import { SpaceShell } from "@/components/commercial/space/shell";
 import { commercialPrefix } from "@/lib/site";
 import { commercialAccount } from "@/lib/commercial/session";
@@ -33,6 +34,20 @@ export default async function EspaceLayout({ children }: { children: React.React
           Cet espace est réservé aux commerciaux invités par Ominin. Si vous
           pensez qu’il s’agit d’une erreur, écrivez-nous à <ContactLink />.
         </Notice>
+      </CommercialShell>
+    );
+  }
+  // Entré par un lien : le code à 6 chiffres d'abord, pour se connecter depuis l'application installée.
+  if (!user.app_metadata.providers?.includes("google") && !user.user_metadata.commercial_code_set) {
+    return (
+      <CommercialShell email={email}>
+        <div className="mx-auto flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-hairline bg-surface p-6">
+          <div>
+            <h1 className="font-display text-xl font-medium">Choisis ton code</h1>
+            <p className="mt-1 text-sm text-muted">Tu te connecteras avec ton e-mail et ce code, notamment depuis l’application sur ton téléphone.</p>
+          </div>
+          <CodeForm submitLabel="Valider mon code" />
+        </div>
       </CommercialShell>
     );
   }

@@ -94,6 +94,60 @@ const SERVICES: Record<string, Service> = {
     cadenceS: [7, 22, 30, 26, 34, 28],
     maxOpen: 8,
   },
+  // Un samedi soir au Boho : entrecôtes et pizzas, cocktails et chichas.
+  boho: {
+    tables: 30,
+    clock: { hours: 20, minutes: 35 },
+    turnoverMin: 15,
+    orders: [
+      { table: 12, minutesAgo: 34, served: 3, lines: [["Mojito", 2], ["L'Entrecôte « La Fameuse »", 1], ["Pizza Chèvre Miel", 1]] },
+      { table: 4, minutesAgo: 28, served: 2, paidBy: "carte", lines: [["Coca Cola", 2], ["Burger original Boho", 2], ["Tiramisu au café", 1]] },
+      { table: 21, minutesAgo: 22, served: 2, lines: [["Sex on the Beach", 2], ["Assortiment BOHO", 1], ["Pizza Saumon Norvégienne", 1]] },
+      { table: 9, minutesAgo: 15, served: 1, lines: [["Ice Tea", 2], ["Pièce de poulet grillée", 1], ["Salade César", 1]] },
+      { table: 17, minutesAgo: 9, served: 1, paidBy: "especes", lines: [["Latina Passion", 2], ["Nems poulet (x4)", 1], ["Pizza Poulet Indienne", 1]] },
+      { table: 6, minutesAgo: 5, lines: [["Coca Zero", 1], ["Magret de canard grillé", 1], ["Crème brûlée", 1]] },
+      { table: 25, minutesAgo: 2, lines: [["Blue Lagoon", 2], ["Crevettes tempura (x2)", 2]] },
+      { table: 14, minutesAgo: 1, lines: [["Classique", 1], ["Perrier", 2], ["Samoussas bœuf (x4)", 1]] },
+    ],
+    arrivals: {
+      meals: [
+        [["L'Entrecôte « La Fameuse »", 2], ["Coca Cola", 2]],
+        [["Pizza Margarita", 1], ["Mojito", 1]],
+        [["Burger original Boho", 1], ["Evian", 1]],
+        [["Tomate burrata", 1], ["Escalope de saumon frais à la plancha", 1], ["Terracota", 2]],
+        [["Premium", 1], ["Red Dragon", 2]],
+      ],
+      sides: [[], [["Crêpes Nutella", 1]], [["Espresso", 2]], [], [["Gaufre Nutella", 1]], [["Nems légumes (x4)", 1]], [["Fraise Tagada", 1]]],
+    },
+    cadenceS: [8, 24, 31, 27, 35, 29],
+    maxOpen: 10,
+  },
+  // Un midi chez Caffè Panis : pizzas, pâtes et burratas.
+  "caffe-panis": {
+    tables: 20,
+    clock: { hours: 12, minutes: 50 },
+    turnoverMin: 12,
+    orders: [
+      { table: 5, minutesAgo: 31, served: 3, lines: [["Coca-Cola", 2], ["Pizza Margherita", 1], ["Pasta Carbonara Originale", 1]] },
+      { table: 11, minutesAgo: 25, served: 2, paidBy: "carte", lines: [["Fuzetea Pêche", 2], ["Classic Burrata", 1], ["Pizza Mama King", 1]] },
+      { table: 2, minutesAgo: 19, served: 2, lines: [["Coca-Cola Zéro", 1], ["Pasta Alla Bolognese", 1], ["Il Tiramisù", 1]] },
+      { table: 16, minutesAgo: 12, served: 1, lines: [["Coca-Cola", 2], ["Pizza Truffle Suprême", 1], ["Trio d'arancini", 1]] },
+      { table: 8, minutesAgo: 6, lines: [["Fuzetea Pêche", 1], ["Le Dwich Regina", 1], ["Deurty Cookie", 1]] },
+      { table: 13, minutesAgo: 2, lines: [["Coca-Cola Zéro", 2], ["Pasta Al Tartufo", 1], ["Pizza Capo", 1]] },
+    ],
+    arrivals: {
+      meals: [
+        [["Pizza Puissance 4", 1], ["Coca-Cola", 1]],
+        [["Pasta Con Il Pesto", 2], ["Fuzetea Pêche", 2]],
+        [["Les Dwich du Gang", 1], ["Coca-Cola Zéro", 1]],
+        [["Burrata Pesto Forever", 1], ["Pizza Green Circle", 1]],
+        [["Pasta All'Amatriciana", 1], ["Coca-Cola", 1]],
+      ],
+      sides: [[], [["Mousse Big-love", 1]], [["Café Illy", 2]], [], [["Prosciutto", 1]], [["Il Tiramisù", 2]], [["Deurty Cookie", 1]]],
+    },
+    cadenceS: [8, 24, 31, 27, 35, 29],
+    maxOpen: 8,
+  },
   // Un samedi soir au Victoria, en plein happy hour (16h–1h), à l'heure de la
   // vue groupe : la terrasse boit, la cuisine sort tapas, burgers et pizzas.
   // Lignes de sa carte (lib/menu-data) ; 45 tables, l'hypothèse de la vue

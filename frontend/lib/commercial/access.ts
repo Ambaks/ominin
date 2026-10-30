@@ -1,4 +1,5 @@
-import type { createAdminClient } from "@/lib/supabase/admin";
+import type { User } from "@supabase/supabase-js";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { commercialOrigin, commercialPrefix } from "@/lib/site";
 import { sendAccessEmail } from "./mail";
 
@@ -63,6 +64,28 @@ async function commercialAccount(admin: Admin, email: string): Promise<string> {
   // ne boucle pas, l'admin relance.
   if (retried.error) throw new Error("Un compte vient d'être ouvert à cette adresse : réessayez.");
   return retried.data.user.id;
+}
+
+/**
+ * Rattache une connexion Google à la fiche invitée à cette adresse, encore
+ * sans compte, et marque le compte « commercial » : les liens envoyés ensuite
+ * le reconnaissent. Sans invitation, rien n'est ouvert.
+ */
+export async function linkGoogleCommercial(user: User) {
+  if (!user.email || !user.app_metadata.providers?.includes("google")) return;
+  const admin = createAdminClient();
+  const { data, error } = await admin
+    .from("commerciaux")
+    .update({ user_id: user.id })
+    .eq("email", user.email.toLowerCase())
+    .is("user_id", null)
+    .select("id");
+  if (error) throw new Error(error.message);
+  if (!data.length) return;
+  const { error: markError } = await admin.auth.admin.updateUserById(user.id, {
+    app_metadata: { commercial: true },
+  });
+  if (markError) throw markError;
 }
 
 /**

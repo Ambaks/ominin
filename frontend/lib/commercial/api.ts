@@ -49,7 +49,10 @@ function remembered<T>(key: string, fetch: () => Promise<T>) {
 export const createRestaurant =(input: Record<string, string | number | undefined>) =>
   call<string>(db().rpc("commercial_create_restaurant", { p: input as Json }));
 
-export const resign = () => call<string>(db().rpc("commercial_resign"));
+export const removeRestaurant = (id: string) =>
+  call<null>(db().rpc("commercial_remove_restaurant", { p_restaurant: id }));
+
+export const resign =() => call<string>(db().rpc("commercial_resign"));
 
 /** commercial_map() : un restaurant de la carte et son état (migration 20261029000002). */
 export interface MapRestaurant {
@@ -68,6 +71,9 @@ export interface MapRestaurant {
   /** Sa demande de visite sur ce restaurant : en attente, ou refusée jusqu'à request_ends. */
   request: "pending" | "refused" | null;
   request_ends: string | null;
+  /** Le dernier passage, tous commerciaux confondus (migration 20261030000200). */
+  last_by: string | null;
+  last_at: string | null;
 }
 
 /** commercial_map_points() : la carte en points [id, latitude, longitude, état] (migration 20261029000018). */

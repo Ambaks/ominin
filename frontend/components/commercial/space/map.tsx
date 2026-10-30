@@ -119,6 +119,11 @@ function RestaurantCard({ place, onChange }: { place: api.MapRestaurant; onChang
           <span className="rounded-full border border-hairline px-2.5 py-0.5 text-muted">Déjà contacté par Léa</span>
         )}
       </div>
+      {place.last_by && place.last_at && (
+        <p className="text-sm text-muted">
+          {place.last_by} est passé le {frenchDate(place.last_at)}.
+        </p>
+      )}
       {(place.state === "free" || place.mine) && (
         <Link href={spaceHref(`/visite/${place.id}`)} className={primaryButton}>
           Je suis là
