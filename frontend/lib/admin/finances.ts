@@ -86,7 +86,7 @@ export async function receiptUrl(path: string, ttlSeconds: number): Promise<stri
 
 /** Une source de recettes sur un mois : ce que le client a encaissé, ce qui revient à Ominin. */
 export interface RevenueLine {
-  source: "menu" | "collect" | "bulles" | "shop" | "club" | "manual" | "invoice";
+  source: "menu" | "collect" | "shop" | "club" | "manual" | "invoice";
   provider: string | null;
   payments: number;
   volumeCents: number;
@@ -105,7 +105,6 @@ export const revenueTotal = (month: RevenueMonth): number =>
 const SOURCE_LABELS: Record<RevenueLine["source"], string> = {
   menu: "Commission Menu",
   collect: "Commission Collect",
-  bulles: "Commission Bulles",
   shop: "Commission Shop",
   club: "Frais Club",
   manual: "Encaissements hors Stripe",

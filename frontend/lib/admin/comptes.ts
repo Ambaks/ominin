@@ -32,7 +32,7 @@ export interface RoleAccess {
 /** Les taux réglables de chaque type d'accès. */
 export const FEE_FIELDS: Record<RoleKind, { key: FeeField; label: string }[]> = {
   menu: [
-    { key: "platform_fee_percent", label: "Menu et Bulles" },
+    { key: "platform_fee_percent", label: "Menu" },
     { key: "collect_fee_percent", label: "Collect" },
     { key: "table_fee_percent", label: "Club" },
   ],
