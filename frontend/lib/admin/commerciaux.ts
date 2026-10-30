@@ -39,6 +39,39 @@ export interface CommercialRow {
   commissionPercent: number | null;
 }
 
+/**
+ * Qui a amené chaque client : établissement ou boutique → nom du commercial.
+ * L'inscription en cours compte dès qu'elle a créé l'établissement ; le Client
+ * Apporté le plus récent l'emporte. Absent de la carte : venu par les fondateurs.
+ */
+export async function fetchBroughtBy(): Promise<Map<string, string>> {
+  const supabase = createClient();
+  const [commerciaux, signups, clients] = await Promise.all([
+    supabase.from("commerciaux").select("id, email, first_name, last_name").then(must),
+    supabase
+      .from("commercial_signups")
+      .select("etablissement_id, commercial_id")
+      .not("etablissement_id", "is", null)
+      .then(must),
+    supabase
+      .from("commercial_clients")
+      .select("etablissement_id, shop_id, commercial_id")
+      .order("created_at", { ascending: true })
+      .then(must),
+  ]);
+  const names = new Map(commerciaux.map((row) => [row.id, displayName(row)]));
+  const broughtBy = new Map<string, string>();
+  for (const { etablissement_id, shop_id, commercial_id } of [
+    ...signups.map((row) => ({ ...row, shop_id: null })),
+    ...clients,
+  ]) {
+    const scope = etablissement_id ?? shop_id;
+    const name = names.get(commercial_id);
+    if (scope && name) broughtBy.set(scope, name);
+  }
+  return broughtBy;
+}
+
 export async function fetchCommerciaux(): Promise<CommercialRow[]> {
   const rows = await createClient()
     .from("commerciaux")

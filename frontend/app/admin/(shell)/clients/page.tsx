@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo } from "react";
 import { StatTile } from "@/components/admin/charts";
 import { AgentsClients } from "@/components/admin/clients/agents";
+import { broughtByLabel, useBroughtBy } from "@/components/admin/clients/brought-by";
 import { ClipClients } from "@/components/admin/clients/clip";
 import {
   ClientsSkeleton,
@@ -43,6 +44,7 @@ export default function ClientsPage() {
 function MenuClients() {
   const { basePath } = useAdminBasePath();
   const { days, setDays, data } = usePeriodPair(fetchOverview);
+  const broughtBy = useBroughtBy();
   const rows = data?.rows ?? null;
 
   const totals = useMemo(() => {
@@ -179,6 +181,9 @@ function MenuClients() {
                           · encaissement non relié
                         </span>
                       )}
+                      <p className="text-xs text-faint">
+                        {broughtByLabel(broughtBy, row.etablissement_id)}
+                      </p>
                     </td>
                     <td className="px-4 py-3 text-right tabular-nums">
                       {row.sessions}

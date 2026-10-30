@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { StatTile } from "@/components/admin/charts";
+import { broughtByLabel, useBroughtBy } from "@/components/admin/clients/brought-by";
 import { EmptyState } from "@/components/ui/empty-state";
 import { formatEuros, formatRelative } from "@/lib/admin/format";
 import { fetchShopClients, type ShopClient } from "@/lib/admin/metrics";
@@ -40,6 +41,7 @@ const euros = (cents: number) => formatEuros(cents / 100);
 
 export function ShopClients() {
   const { days, setDays, data } = usePeriodPair(fetchShopClients);
+  const broughtBy = useBroughtBy();
   const rows = data?.rows ?? null;
 
   const totals = useMemo(() => {
@@ -146,6 +148,7 @@ export function ShopClients() {
                       <p className="font-medium">{row.name}</p>
                       <p className="text-xs text-faint">
                         {[
+                          broughtByLabel(broughtBy, row.shop_id),
                           row.owner_email ?? "sans propriétaire",
                           row.is_active ? null : "hors ligne",
                           // Compte Stripe incapable d'encaisser.
