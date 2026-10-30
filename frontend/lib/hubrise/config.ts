@@ -24,8 +24,6 @@ export const HUBRISE = {
     retentionDays: 30,
   },
 
-  /** Relecture complète du catalogue, des stocks et des horaires (callbacks perdus). */
-  reconcileIntervalMin: 60,
   /**
    * Un catalogue modifié est relu une fois ce calme revenu : GET /catalogs/:id
    * est plafonné à 10 requêtes par minute.
@@ -39,9 +37,9 @@ export const HUBRISE = {
   /**
    * Portées demandées, et rien de plus : orders.write pour les commandes,
    * customer_list.write pour les clients, catalog.read pour les références,
-   * inventory.write pour lire et pousser les stocks.
+   * inventory.read pour lire les stocks.
    */
-  scope: "location[orders.write,customer_list.write,catalog.read,inventory.write]",
+  scope: "location[orders.write,customer_list.write,catalog.read,inventory.read]",
   /** Événements reçus : ceux de nos commandes, du catalogue, des stocks, du lieu. */
   callbackEvents: {
     own_order: ["update"],

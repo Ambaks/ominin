@@ -8,7 +8,6 @@ select pg_temp.act(:'a_user');
 select public.commercial_visit(:'r1', '{"outcome":"not_interested","reason":"price"}');
 select pg_temp.ok(jsonb_array_length(public.commercial_dashboard() -> 'restaurants') = 1, 'retrait : la visite est au tableau de bord');
 
-update public.commercial_visits set created_at = now() - interval '1 hour' where restaurant_id = :'r1';
 select public.commercial_remove_restaurant(:'r1');
 select pg_temp.ok(jsonb_array_length(public.commercial_dashboard() -> 'restaurants') = 0, 'retrait : il quitte le tableau de bord');
 select pg_temp.reset();
@@ -20,8 +19,8 @@ select pg_temp.ok((select state from public.commercial_map(:'r1')) = 'free', 're
 select pg_temp.ok((select last_by is not null and last_at is not null from public.commercial_map(:'r1')), 'retrait : le passage reste visible');
 select pg_temp.reset();
 
-select pg_temp.act(:'a_user');
 update public.commercial_removed set at = now() - interval '1 minute' where restaurant_id = :'r1';
+select pg_temp.act(:'a_user');
 select public.commercial_visit(:'r1', '{"outcome":"not_interested","reason":"time"}');
 select pg_temp.ok(jsonb_array_length(public.commercial_dashboard() -> 'restaurants') = 1, 'retrait : y retourner le remet au tableau de bord');
 select pg_temp.reset();

@@ -22,6 +22,7 @@ if [ "${SKIP_SETUP:-0}" != "1" ]; then
   MSYS_NO_PATHCONV=1 docker exec "$name" mkdir -p /work
   docker cp "$(to_host "$root/supabase/tests/stubs.sql")" "$name:/work/stubs.sql"
   docker cp "$(to_host "$root/supabase/migrations")" "$name:/work/migrations"
+  MSYS_NO_PATHCONV=1 docker exec "$name" sh -c "sed -i -E '/^create extension if not exists pg_(cron|net) /d' /work/migrations/*.sql"
   {
     echo '\i /work/stubs.sql'
     for file in "$root"/supabase/migrations/*.sql; do echo "\\i /work/migrations/$(basename "$file")"; done

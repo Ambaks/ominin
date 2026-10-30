@@ -89,3 +89,7 @@ alter default privileges in schema public grant all on tables to anon, authentic
 alter default privileges in schema public grant all on sequences to anon, authenticated, service_role;
 alter default privileges in schema public grant execute on functions to anon, authenticated, service_role;
 grant usage on schema public to anon, authenticated, service_role;
+
+-- pg_cron n'existe pas dans l'image de test : run.sh retire son create extension.
+create schema if not exists cron;
+create function cron.schedule(text, text, text) returns bigint language sql as 'select 1::bigint';

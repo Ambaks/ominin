@@ -81,6 +81,10 @@ Backend (run from `backend/`):
   pushes, and posts a summary to the team journal (Discord #journal,
   `npm run journal`). The README is the source of truth for
   collaborators (and their agents) about where the project stands.
+- The team journal does not depend on anyone typing a command. Every agent
+  `git push` gets a summary entry (a `PostToolUse` hook,
+  `.claude/hooks/journal-reminder.mjs`, demands it), and every arrival on
+  `main` is announced by the `journal-merge` GitHub Action.
 - `graphify-out/` is local and not versioned: each person keeps their own
   graph, refreshed by `/pull` (`graphify update .`, incremental, AST-only,
   free).

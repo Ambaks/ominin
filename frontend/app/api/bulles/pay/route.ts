@@ -161,6 +161,8 @@ export async function POST(request: Request) {
 
     const feePercent = part.etablissements?.platform_fee_percent ?? 0;
     const feeCents = feePercent > 0 ? Math.round((part.amount_cents * feePercent) / 100) : 0;
+    const { error: feeError } = await admin.from("bulle_parts").update({ fee_cents: feeCents }).eq("id", part.id);
+    if (feeError) throw new Error(feeError.message);
     const squareOrderId = placed.id;
     const { payment } = await call((token) =>
       createPayment(token, {

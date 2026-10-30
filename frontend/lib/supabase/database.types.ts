@@ -798,6 +798,7 @@ export type Database = {
           created_at: string
           email: string | null
           etablissement_id: string
+          fee_cents: number | null
           hold_expires_at: string | null
           id: string
           method: Database["public"]["Enums"]["bulle_part_method"]
@@ -819,6 +820,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           etablissement_id: string
+          fee_cents?: number | null
           hold_expires_at?: string | null
           id?: string
           method: Database["public"]["Enums"]["bulle_part_method"]
@@ -840,6 +842,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           etablissement_id?: string
+          fee_cents?: number | null
           hold_expires_at?: string | null
           id?: string
           method?: Database["public"]["Enums"]["bulle_part_method"]
@@ -7092,11 +7095,12 @@ export type Database = {
       admin_revenue_months: {
         Args: never
         Returns: {
-          club_cents: number
-          manual_cents: number
-          menu_cents: number
+          fee_cents: number
           month: string
-          shop_cents: number
+          payments: number
+          provider: string | null
+          source: string
+          volume_cents: number
         }[]
       }
       admin_account_scopes: {
@@ -7114,11 +7118,11 @@ export type Database = {
           p_scope: string
           p_user: string
         }
-        Returns: undefined
+        Returns: Database["public"]["Tables"]["admin_account_events"]["Row"]
       }
       admin_account_set_admin: {
         Args: { p_admin: boolean; p_user: string }
-        Returns: undefined
+        Returns: Database["public"]["Tables"]["admin_account_events"]["Row"]
       }
       admin_accounts: {
         Args: never
