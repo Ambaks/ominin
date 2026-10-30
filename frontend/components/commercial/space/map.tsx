@@ -182,7 +182,7 @@ function AddRestaurant({ position, onClose, onAdded }: { position: GeoPoint; onC
  * la position du commercial suivie en direct.
  */
 export function MapScreen() {
-  const [points, setPoints] = useState<api.MapPoint[] | null>(null);
+  const [points, setPoints] = useState(api.mapPoints.last);
   const [error, setError] = useState<string | null>(null);
   const [position, setPosition] = useState<GeoPoint | null>(null);
   const [selected, setSelected] = useState<string | null>(null);

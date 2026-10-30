@@ -57,7 +57,7 @@ function Row({ place }: { place: api.DashboardRestaurant }) {
  * calculée à la lecture.
  */
 export function DashboardScreen() {
-  const [data, setData] = useState<api.Dashboard | null>(null);
+  const [data, setData] = useState(api.dashboard.last);
   const [error, setError] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
 

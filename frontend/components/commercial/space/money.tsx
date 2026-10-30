@@ -155,7 +155,7 @@ function StatementCard({ statement, canAskDetail, onChange }: {
  * contestation. Reste ouvert après la fin du contrat (article 8).
  */
 export function MoneyScreen() {
-  const [data, setData] = useState<api.Money | null>(null);
+  const [data, setData] = useState(api.money.last);
   const [error, setError] = useState<string | null>(null);
   const load = useCallback(() => api.money().then(setData, (cause: unknown) => setError(errorMessage(cause))), []);
   // Ce que rapportent les restaurants change en continu : relu à chaque retour sur l'écran.
@@ -215,7 +215,7 @@ export function MoneyScreen() {
 export function Documents() {
   const account = useAccount();
   const run = useRunMutation();
-  const [data, setData] = useState<api.Money | null>(null);
+  const [data, setData] = useState(api.money.last);
   const load = useCallback(() => api.money().then(setData), []);
   useEffect(() => void load(), [load]);
   if (!data) return null;
