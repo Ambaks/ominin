@@ -109,8 +109,10 @@ function weekendBands(f: Frame, nights: Day[], X: ReturnType<typeof nightScale>)
 function nightAxis(ctx: ChartContext, f: Frame, nights: Day[], X: ReturnType<typeof nightScale>) {
   const g = el("g", {}, f.svg);
   const roomy = X.band >= 30;
+  const step = roomy ? 1 : Math.max(2, Math.ceil(18 / X.band));
+  const last = nights.length - 1;
   nights.forEach((n, i) => {
-    if (!roomy && i % 2 && i !== nights.length - 1) return;
+    if (i !== last && (i % step || last - i < step)) return;
     const d = +n.day.slice(8);
     text(g, X.x(i), f.y0 + 14, d === 1 ? ctx.c.oct1 : String(d), "tick", "middle");
     if (roomy) text(g, X.x(i), f.y0 + 28, ctx.c.days.short[dowIndex(n)], "tick sub", "middle");

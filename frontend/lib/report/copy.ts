@@ -106,7 +106,7 @@ const frWeekend = (r: Report, long = false) => {
   const m = (n: Day) => (long ? month(n, "septembre", "octobre") : month(n, "sept.", "oct."));
   return sameMonth(fri, sat) ? `${frNum(fri)} et ${frNum(sat)} ${m(sat)}` : `${frNum(fri)} ${m(fri)} et ${frNum(sat)} ${m(sat)}`;
 };
-const dowRange = (r: Report) => [Math.min(...r.heat.nights_dow), Math.max(...r.heat.nights_dow)] as const;
+const dowRange = (r: Report) => [...new Set([Math.min(...r.heat.nights_dow), Math.max(...r.heat.nights_dow)])];
 const frClock = (h: number, m: number) => (h === 0 && m === 0 ? "minuit" : `${h}\u00a0h${m ? `\u00a0${pad2(m)}` : ""}`);
 
 /** Titre et description de la page pour les moteurs et les aperçus de lien : rendu serveur, donc en anglais. */
