@@ -26,6 +26,10 @@ export const FORMULE_MODELES = [
 ] as const;
 /** L'accord du chef : accords proposés à la fois dans le panier du menu QR. */
 export const CART_PAIRINGS_COUNT = 2;
+/** Après le repas : le temps laissé au client, depuis le scan du retrait, avant de lui proposer la suite. */
+export const AFTER_MEAL_DELAY_MS = 17 * 60_000;
+/** Après le repas : passé ce temps depuis le scan du retrait, la proposition n'a plus de sens. */
+export const AFTER_MEAL_EXPIRY_MS = 2 * 60 * 60_000;
 /** Lignes du panier montrées d'emblée : au-delà, la liste se replie sous l'accord du chef et la fidélité. */
 export const CART_LINES_SHOWN = 3;
 /** Articles d'un palier de fidélité montrés d'emblée dans le panier : au-delà, « Voir les N autres ». */
