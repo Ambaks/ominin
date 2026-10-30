@@ -34,6 +34,52 @@ interface Service {
 }
 
 const SERVICES: Record<string, Service> = {
+  // Un matin de boulangerie : la file avant le travail.
+  "boulangerie-cyprien": {
+    tickets: [
+      { number: 12, minutesAgo: 24, status: "servie", lines: [["Croissant", 2], ["Baguette de tradition", 1]] },
+      { number: 13, minutesAgo: 20, status: "servie", lines: [["Chocolatine", 3]] },
+      { number: 14, minutesAgo: 16, status: "servie", lines: [["Pain Cyprien", 1], ["Flan", 2]] },
+      { number: 15, minutesAgo: 12, status: "servie", lines: [["Chausson aux pommes", 1], ["Baguette tradition aux graines", 1]] },
+      { number: 16, minutesAgo: 8, status: "prete", lines: [["Éclair tout chocolat", 2], ["Pain complet", 1]] },
+      { number: 17, minutesAgo: 5, status: "payee", lines: [["Croissant", 4], ["Chocolatine", 2]] },
+      { number: 18, minutesAgo: 3, status: "payee", lines: [["Paris-Brest", 1], ["Baguette de tradition", 2]] },
+      { number: 19, minutesAgo: 1, status: "payee", lines: [["Pain des Copains", 1], ["Chou praliné-pécan", 2]] },
+    ],
+    openAtStart: 3,
+    arrivals: [
+      [["Croissant", 2], ["Pain viennois", 1]],
+      [["Baba au rhum revisité", 2]],
+      [["Baguette au charbon végétal", 1], ["Flan", 1]],
+      [["Tarte framboise-basilic", 1], ["Chocolatine", 2]],
+      [["Millefeuille caramel", 2], ["Pain de mie boulanger", 1]],
+    ],
+    cadenceS: [6, 32, 41, 27, 45, 30],
+    maxOpen: 10,
+  },
+  // Une nuit à L'Étoile : les commandes du bar, payées sans quitter la piste.
+  "l-etoile": {
+    tickets: [
+      { number: 201, minutesAgo: 26, status: "servie", lines: [["Moët Brut", 1], ["Coca-Cola", 2]] },
+      { number: 202, minutesAgo: 22, status: "servie", lines: [["Black Label", 1], ["Fuzetea", 2]] },
+      { number: 203, minutesAgo: 18, status: "servie", lines: [["Ciroc", 1], ["Hexis Energy", 3]] },
+      { number: 204, minutesAgo: 13, status: "servie", lines: [["Don Julio Blanco", 1], ["Cristaline", 2]] },
+      { number: 205, minutesAgo: 9, status: "prete", lines: [["Ruinart Blanc de Blancs", 1]] },
+      { number: 206, minutesAgo: 5, status: "payee", lines: [["Belvedere", 1], ["Coca-Cola Zéro", 3]] },
+      { number: 207, minutesAgo: 3, status: "payee", lines: [["Jack Daniel's", 1], ["Coca-Cola", 2]] },
+      { number: 208, minutesAgo: 1, status: "payee", lines: [["Moët Rosé", 1], ["Cristaline", 1]] },
+    ],
+    openAtStart: 3,
+    arrivals: [
+      [["Hennessy Fine", 1], ["Coca-Cola", 2]],
+      [["Tanqueray Ten", 1], ["Fuzetea", 2]],
+      [["Moët Ice", 1]],
+      [["Zacapa", 1], ["Coca-Cola Zéro", 2]],
+      [["Dom Pérignon Lumineuse", 1], ["Cristaline", 2]],
+    ],
+    cadenceS: [6, 32, 41, 27, 45, 30],
+    maxOpen: 10,
+  },
   "o-crousti-poulet": {
     tickets: [
       { number: 30, minutesAgo: 40, status: "servie", lines: [["Menu Solo", 1, "1 cuisse", "Potatoes", "Pepsi"]] },

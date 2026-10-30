@@ -3,13 +3,14 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { useRunMutation } from "@/components/ui/toast";
+import { useRunMutation, useToast } from "@/components/ui/toast";
 import { resign } from "@/lib/commercial/api";
 import { commercialName } from "@/lib/commercial/record";
 import { COMMERCIAL_NOTICE_MONTHS } from "@/lib/legal/constants";
 import { frenchDate } from "@/lib/legal/format";
 import { commercialPrefix } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
+import { CodeForm } from "./code-form";
 import { useAccount } from "./shell";
 import { PageTitle, SectionTitle, cardClass, ghostButton } from "./ui";
 
@@ -18,6 +19,7 @@ export function AccountPanel() {
   const account = useAccount();
   const router = useRouter();
   const run = useRunMutation();
+  const toast = useToast();
   const [confirming, setConfirming] = useState(false);
 
   const signOut = async () => {
@@ -49,6 +51,13 @@ export function AccountPanel() {
         <p className="text-xs text-faint">
           L’identité fait partie du contrat signé : pour la changer, écrivez à Ominin.
         </p>
+      </section>
+
+      <section className="flex flex-col gap-2.5">
+        <SectionTitle>Changer mon code</SectionTitle>
+        <div className={cardClass}>
+          <CodeForm submitLabel="Enregistrer" onDone={() => toast.success("Code enregistré.")} />
+        </div>
       </section>
 
       <section className="flex flex-col gap-2.5">

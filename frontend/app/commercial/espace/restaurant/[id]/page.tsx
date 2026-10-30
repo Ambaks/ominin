@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PageTitle, SectionTitle, cardClass, ghostButton, primaryButton, telHref } from "@/components/commercial/space/ui";
+import { RemoveRestaurant } from "@/components/commercial/space/remove-restaurant";
 import type { RestaurantRecap } from "@/lib/commercial/api";
 import { requireRunningContract } from "@/lib/commercial/session";
 import { SIGNUP_KINDS } from "@/lib/commercial/signup-form";
@@ -104,6 +105,7 @@ export default async function RecapPage({ params }: PageProps<"/commercial/espac
           J’y retourne
         </Link>
       )}
+      {!client && !signup?.account && <RemoveRestaurant id={recap.id} name={recap.name} />}
     </div>
   );
 }

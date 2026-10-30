@@ -5,6 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import * as api from "@/lib/commercial/api";
 import { euros } from "@/lib/commercial/labels";
 import { frenchDate } from "@/lib/legal/format";
+import { InstallTip } from "./install-tip";
 import { spaceHref } from "./shell";
 import { ErrorNote, PageTitle, SectionTitle, Skeleton, cardClass, errorMessage } from "./ui";
 
@@ -78,6 +79,7 @@ export function DashboardScreen() {
 
   return (
     <div className="flex flex-col gap-7">
+      <InstallTip />
       <PageTitle sub={`${data.percent} % de ce qu’Ominin gagne sur tes clients, pendant ${data.term_months} mois.`}>
         Tableau de bord
       </PageTitle>

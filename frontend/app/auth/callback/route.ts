@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { linkGoogleCommercial } from "@/lib/commercial/access";
 import { commercialPrefix } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
@@ -34,8 +35,12 @@ export async function GET(request: Request) {
   }
 
   if (code) {
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (!error) return NextResponse.redirect(`${base}${next}`);
+    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      // Un commercial invité qui arrive par Google : Google a vérifié l'adresse.
+      if (next === `${commercialPrefix}/espace`) await linkGoogleCommercial(data.user);
+      return NextResponse.redirect(`${base}${next}`);
+    }
   }
 
   // Sur ominin.com, l'espace commercial a sa propre page de connexion : un
