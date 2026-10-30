@@ -19,8 +19,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
  * Paiement d'une part de bulle par la caisse Square du restaurant, comme une
- * commande du menu (/api/square/pay) mais sans commission Ominin ni envoi en
- * cuisine : une commande Square sans fulfillment, puis son paiement. La
+ * commande du menu (/api/square/pay), avec la même commission Ominin
+ * (platform_fee_percent) mais sans envoi en cuisine : une commande Square
+ * sans fulfillment, puis son paiement. La
  * carte est tokenisée dans le navigateur ; le montant est relu en base.
  * Même garde contre le double débit : clé de commande déterministe, clé de
  * paiement persistée avant l'appel, relecture de la commande Square avant
@@ -40,7 +41,7 @@ export async function POST(request: Request) {
   const { data: part } = await admin
     .from("bulle_parts")
     .select(
-      "id, etablissement_id, method, status, places, amount_cents, hold_expires_at, square_order_id, bulle_reservations(starts_at, ends_at, place_cents, bulles(name)), etablissements(name, bulle_reglages(vat_rate))"
+      "id, etablissement_id, method, status, places, amount_cents, hold_expires_at, square_order_id, bulle_reservations(starts_at, ends_at, place_cents, bulles(name)), etablissements(name, platform_fee_percent, bulle_reglages(vat_rate))"
     )
     .eq("id", partId)
     .maybeSingle();
@@ -158,6 +159,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Ce paiement n'est plus en cours." }, { status: 409 });
     }
 
+    const feePercent = part.etablissements?.platform_fee_percent ?? 0;
+    const feeCents = feePercent > 0 ? Math.round((part.amount_cents * feePercent) / 100) : 0;
     const squareOrderId = placed.id;
     const { payment } = await call((token) =>
       createPayment(token, {
@@ -166,6 +169,9 @@ export async function POST(request: Request) {
         order_id: squareOrderId,
         location_id: checkout.locationId,
         amount_money: { amount: part.amount_cents, currency: CURRENCY },
+        ...(feeCents > 0 && {
+          app_fee_money: { amount: feeCents, currency: CURRENCY },
+        }),
         reference_id: part.id,
         note: label,
       })
