@@ -8,9 +8,8 @@ type Admin = ReturnType<typeof createAdminClient>;
  * Stocks de la caisse → carte. Chez HubRise, stock « 0 » = épuisé et une
  * référence absente de l'inventaire = illimitée. Les articles et choix RELIÉS
  * à la caisse suivent donc son inventaire à la lettre : c'est elle qui compte
- * ses ventes, Ominin n'y pousse rien de sa propre décrémentation (le double
- * comptage serait garanti). Un article épuisé à la main côté Ominin repart
- * en sens inverse par la file d'envoi (hubrise_enqueue_stock).
+ * ses ventes, et Ominin ne lui pousse aucun stock (consigne de HubRise). Un
+ * article épuisé à la main côté Ominin ne l'est que sur la carte.
  */
 
 interface InventoryEntry {

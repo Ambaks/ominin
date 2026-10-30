@@ -1,8 +1,7 @@
 # Filet de la connexion HubRise. La commande part dès qu'elle devient « vraie »
-# (lib/push/server.ts) ; ce passage rattrape ce qui n'est pas parti, relit le
-# catalogue, les stocks et les horaires dont un callback perdu aurait privé la
-# carte, alerte les commandes que la caisse n'a pas reprises et purge les
-# envois anciens.
+# (lib/push/server.ts) ; ce passage rattrape ce qui n'est pas parti, relit un
+# catalogue modifié, alerte les commandes que la caisse n'a pas reprises et
+# purge les envois anciens.
 #
 # La cadence réelle vient de pg_cron (20261029000010) : GitHub ne tient pas
 # le « */5 » et ne passe que toutes les quelques heures. Ce workflow reste
@@ -19,7 +18,7 @@ jobs:
   drain:
     runs-on: ubuntu-latest
     steps:
-      - name: Vider la file HubRise et relire la caisse
+      - name: Vider la file HubRise
         run: |
           response=$(curl -sf --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
             -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
