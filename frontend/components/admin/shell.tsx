@@ -27,9 +27,11 @@ import { retryLoad, useAdminLoadError } from "@/lib/admin/store";
 import { createClient } from "@/lib/supabase/client";
 import {
   BotIcon,
+  CalendarIcon,
   ChartIcon,
   FlagIcon,
   MapPinIcon,
+  NoteIcon,
   PulseIcon,
   ShareIcon,
   SlidersIcon,
@@ -57,9 +59,11 @@ interface Section {
 }
 
 /*
- * Trois questions, trois onglets. Marketing va chercher des restaurants ;
+ * Quatre questions, quatre onglets. Marketing va chercher des restaurants ;
  * Clients regarde ceux qui ont signé ; Projet suit ce qui reste pour finir
- * les offres (Tâches) et les clients à interfacer (Intégration). L'écran des fiches de prospection (crm_restaurants) prend le
+ * les offres (Tâches) et les clients à interfacer (Intégration) ; Entreprise
+ * tient ce qui concerne Ominin elle-même, tous produits confondus (Comptes,
+ * Finances, Prestataires, Échéances, Documents), d'où l'absence de barre produit. L'écran des fiches de prospection (crm_restaurants) prend le
  * nom de qui l'on prospecte pour le produit (Restaurants, Boutiques,
  * Clippeurs, Entreprises) ; côté Clients, ce sont des établissements.
  *
@@ -130,6 +134,17 @@ const SECTIONS: Section[] = [
     items: [
       { href: "/taches", label: "Tâches", icon: FlagIcon },
       { href: "/projet", label: "Intégration", icon: StoreIcon },
+    ],
+  },
+  {
+    id: "entreprise",
+    label: "Entreprise",
+    items: [
+      { href: "/comptes", label: "Comptes", icon: UserIcon },
+      { href: "/finances", label: "Finances", icon: ChartIcon },
+      { href: "/prestataires", label: "Prestataires", icon: ShareIcon },
+      { href: "/echeances", label: "Échéances", icon: CalendarIcon },
+      { href: "/documents", label: "Documents", icon: NoteIcon },
     ],
   },
 ];
@@ -331,7 +346,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                 <p className="truncate font-display text-lg font-medium leading-none">
                   Ominin Admin
                 </p>
-                <nav className="flex h-6.5 gap-1">
+                <nav className="no-scrollbar flex h-6.5 gap-1 overflow-x-auto">
                   {hydrated &&
                     SECTIONS.map((item) => {
                       const active = item.id === section.id;
@@ -343,7 +358,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
                             landingOf(item, product).href,
                           )}
                           aria-current={active ? "page" : undefined}
-                          className={`rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
+                          // Sur téléphone, l'onglet actif peut naître hors champ.
+                          ref={active ? (link) => link?.scrollIntoView({ block: "nearest", inline: "nearest" }) : undefined}
+                          className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
                             active
                               ? "ember-gradient text-background"
                               : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
@@ -374,6 +391,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               className="no-scrollbar -mx-5 -mb-px flex h-7.5 gap-5 overflow-x-auto px-5 lg:mx-0 lg:px-0"
             >
               {hydrated &&
+                section.id !== "entreprise" &&
                 [null, ...PRODUCTS].map((target) => {
                   const active = target === product;
                   return (
