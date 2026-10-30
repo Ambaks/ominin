@@ -52,10 +52,9 @@ removed at the end (`git worktree remove`).
    the merge commit (`gh api "repos/Ambaks/ominin/deployments?sha=<sha>"`,
    environment `Production – ominin`); if it fails while the PR preview
    passed, it is usually a Vercel hiccup: an empty commit merged the same
-   way redeploys it. Then a one-line journal entry, from `frontend/`:
-   `npm run journal -- "En ligne : <PR title>" <file>`, the file holding
-   `- Mergé dans main (#<n>), déployé par Vercel.` plus any migration
-   applied.
+   way redeploys it. The `journal-merge` GitHub Action announces the merge
+   in the journal; only if a migration was applied, add an entry from
+   `frontend/`: `npm run journal -- "Migration : <PR title>" <file>`.
 
 7. **Report** in two sentences: PR number merged, deployment and
    migrations state.
