@@ -1,6 +1,6 @@
 /**
- * Après un encaissement, une correction, une commande prête ou remise dans
- * l'espace : la caisse HubRise suit tout de suite (sinon au passage du cron).
+ * Après un encaissement, une correction ou une annulation dans l'espace : la
+ * caisse HubRise suit tout de suite (sinon au passage du cron).
  * Sans attendre la réponse : la modification, elle, a déjà réussi. Rien pour
  * un établissement sans caisse reliée.
  */

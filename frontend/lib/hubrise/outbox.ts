@@ -20,10 +20,13 @@ type Row = Tables<"hubrise_outbox">;
  * la cherche par private_ref — sinon la caisse sortirait deux tickets, le
  * même défaut que le doublon d'Omilink sur accusé perdu.
  *
- * Les règlements et l'état d'une commande (order_payments, order_status)
- * portent ce qu'elle est au moment de l'envoi : leur ligne repart à chaque
- * changement (hubrise_enqueue_sync remet ses essais à zéro). Un envoi en
- * cours ne la marque donc terminée que si ses essais n'ont pas bougé.
+ * Les règlements d'une commande (order_payments) portent ce qu'ils sont au
+ * moment de l'envoi : leur ligne repart à chaque changement
+ * (hubrise_enqueue_sync remet ses essais à zéro). Un envoi en cours ne la
+ * marque donc terminée que si ses essais n'ont pas bougé.
+ *
+ * La caisse tient les stocks et les statuts : Ominin ne lui écrit que
+ * l'annulation d'une commande (consigne de HubRise).
  */
 
 function backoffMs(attempts: number): number {
@@ -91,8 +94,6 @@ const UNDELIVERED: Record<string, string> = {
   order: "commande non transmise à HubRise",
   order_cancel: "annulation non transmise à HubRise",
   order_payments: "règlement non transmis à HubRise",
-  order_status: "statut non transmis à HubRise",
-  stock: "stock non transmis à HubRise",
   customer_anonymise: "effacement d'un client non transmis à HubRise",
 };
 
@@ -229,66 +230,6 @@ async function pushPayments(admin: Admin, row: Row, connection: Connection) {
   await settle(admin, row, { status: "sent", last_error: null });
 }
 
-/** Statuts HubRise d'où une commande ne repart plus : la caisse l'a close. */
-const CLOSED = ["completed", "cancelled", "rejected"];
-
-/**
- * Une commande numérotée prête, remise, ou reprise en préparation après un
- * « Prête » trop tôt : la caisse suit, sauf si elle l'a déjà close. Le
- * paiement ne change rien ici — la caisse accepte elle-même ses nouvelles
- * commandes.
- */
-async function pushStatus(admin: Admin, row: Row, connection: Connection) {
-  if (!row.order_id) return;
-  const hubriseOrderId = await sentOrderId(admin, row);
-  if (!hubriseOrderId) return;
-  const { data: order } = await admin
-    .from("orders")
-    .select("status, hubrise_status")
-    .eq("id", row.order_id)
-    .maybeSingle();
-  const target =
-    order?.status === "prete"
-      ? "awaiting_collection"
-      : order?.status === "servie"
-        ? "completed"
-        : order?.status === "payee" && order.hubrise_status === "awaiting_collection"
-          ? "in_preparation"
-          : null;
-  if (target && target !== order?.hubrise_status && !CLOSED.includes(order?.hubrise_status ?? "")) {
-    await callHubrise(admin, connection, `/location/orders/${hubriseOrderId}`, {
-      method: "PATCH",
-      body: JSON.stringify({ status: target }),
-    });
-    // Nos propres écritures ne nous reviennent pas en callback : on la note.
-    await admin.from("orders").update({ hubrise_status: target }).eq("id", row.order_id);
-  }
-  await settle(admin, row, { status: "sent", last_error: null });
-}
-
-/** Épuisé côté Ominin → stock 0 chez HubRise ; remis en vente → entrée retirée (illimité). */
-async function pushStock(admin: Admin, row: Row, token: Connection | null) {
-  if (!token || !row.item_id) return;
-  const [{ data: item }, { data: ref }] = await Promise.all([
-    admin.from("items").select("disponible").eq("id", row.item_id).maybeSingle(),
-    admin
-      .from("hubrise_ref_map")
-      .select("ref")
-      .eq("item_id", row.item_id)
-      .is("choice_id", null)
-      .maybeSingle(),
-  ]);
-  if (!item || !ref) {
-    await settle(admin, row, { status: "skipped", last_error: "Article non relié." });
-    return;
-  }
-  await callHubrise(admin, token, "/location/inventory", {
-    method: "PATCH",
-    body: JSON.stringify([{ sku_ref: ref.ref, stock: item.disponible ? null : "0" }]),
-  });
-  await settle(admin, row, { status: "sent", last_error: null });
-}
-
 /**
  * Client effacé dans Ominin (erase_loyalty_customer) : HubRise l'anonymise
  * aussi. Inconnu de la liste de clients reliée (404, liste changée) : rien
@@ -326,9 +267,7 @@ async function process(admin: Admin, row: Row) {
     if (row.kind === "order") await pushOrder(admin, row, connection);
     else if (row.kind === "order_cancel") await pushCancel(admin, row, connection);
     else if (row.kind === "order_payments") await pushPayments(admin, row, connection);
-    else if (row.kind === "order_status") await pushStatus(admin, row, connection);
     else if (row.kind === "customer_anonymise") await pushAnonymise(admin, row, connection);
-    else await pushStock(admin, row, connection);
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     const status = error instanceof HubriseError ? error.status : null;

@@ -70,27 +70,20 @@ export function kickHubrise(): void {
 }
 
 /**
- * Filet périodique (workflow hubrise-drain) : renvoie ce qui n'est pas parti,
- * relit ce dont un callback perdu aurait privé les connexions, relit le
- * catalogue une fois qu'il s'est tu, alerte sur les commandes que la caisse
- * n'a pas prises et purge les envois anciens.
+ * Filet périodique (pg_cron, workflow hubrise-drain) : renvoie ce qui n'est pas
+ * parti, relit le catalogue une fois qu'il s'est tu, alerte sur les commandes
+ * que la caisse n'a pas prises et purge les envois anciens. Le reste ne se lit
+ * que sur événement (consigne de HubRise) ; le gérant peut tout relire à la main.
  */
 export async function runCron(admin: Admin) {
   const sent = await drainOutbox(admin);
 
   const { data: connections } = await admin.from("hubrise_connections").select("*");
-  const now = Date.now();
-  const stale = now - HUBRISE.reconcileIntervalMin * 60_000;
-  const quiet = now - HUBRISE.catalogDebounceS * 1000;
+  const quiet = Date.now() - HUBRISE.catalogDebounceS * 1000;
   const failures: string[] = [];
 
   for (const connection of connections ?? []) {
     if (connection.last_failed_at) continue;
-    const old = (at: string | null) => !at || new Date(at).getTime() < stale;
-    if (old(connection.catalog_synced_at) && old(connection.inventory_synced_at)) {
-      failures.push(...(await syncAll(admin, connection)));
-      continue;
-    }
     if (connection.catalog_dirty_at && new Date(connection.catalog_dirty_at).getTime() < quiet) {
       try {
         await pullCatalog(admin, connection);

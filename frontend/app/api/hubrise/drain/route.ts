@@ -5,8 +5,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 /*
  * Filet HubRise, appelé toutes les 5 minutes par pg_cron (20261029000010)
  * et de temps à autre par le workflow hubrise-drain.yml : renvoie les
- * commandes pas parties, relit catalogue / stocks / horaires, alerte les
- * commandes que la caisse n'a pas reprises, purge les envois anciens.
+ * commandes pas parties, relit un catalogue modifié, alerte les commandes
+ * que la caisse n'a pas reprises, purge les envois anciens.
  * L'échec du workflow EST le canal d'alerte : la route répond 500 si une
  * relecture a échoué.
  */

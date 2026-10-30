@@ -1,4 +1,3 @@
-import { syncTill } from "@/lib/hubrise/kick";
 import { createClient } from "@/lib/supabase/client";
 import { must } from "@/lib/supabase/result";
 import { HANDOVER_STATUSES } from "./constants";
@@ -80,9 +79,8 @@ export async function handOver(orderId: string): Promise<string | null> {
         .eq("id", orderId)
         .not("order_number", "is", null)
         .in("status", HANDOVER_STATUSES)
-        .select("handed_over_at, etablissements(hubrise_connected)")
+        .select("handed_over_at")
     )
   );
-  syncTill(rows[0]?.etablissements.hubrise_connected ?? false);
   return rows[0]?.handed_over_at ?? null;
 }
