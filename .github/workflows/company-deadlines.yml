@@ -1,0 +1,24 @@
+# Admin, onglet Entreprise : les rappels d'échéances, à l'heure du point du matin.
+name: company-deadlines
+
+on:
+  schedule:
+    - cron: "30 6 * * *"
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Envoyer les rappels
+        run: |
+          curl -sf --max-time 60 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.MENU_URL }}/api/admin/echeances/cron"
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Les rappels d'échéances n'ont pas tourné\",\"body\":\"Touche pour ouvrir le run et voir l'erreur.\",\"key\":\"${{ github.workflow }}\",\"url\":\"${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"urgent\":true}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true

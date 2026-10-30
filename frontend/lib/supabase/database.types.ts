@@ -119,6 +119,242 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_account_events: {
+        Row: {
+          action: string
+          actor_email: string
+          actor_id: string | null
+          created_at: string
+          detail: Json
+          id: string
+          target_email: string
+          target_id: string
+        }
+        Insert: {
+          action: string
+          actor_email: string
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          target_email: string
+          target_id: string
+        }
+        Update: {
+          action?: string
+          actor_email?: string
+          actor_id?: string | null
+          created_at?: string
+          detail?: Json
+          id?: string
+          target_email?: string
+          target_id?: string
+        }
+        Relationships: []
+      }
+      company_deadlines: {
+        Row: {
+          category: string | null
+          created_at: string
+          done_at: string | null
+          due_on: string
+          id: string
+          note: string | null
+          recurrence: string
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          done_at?: string | null
+          due_on: string
+          id?: string
+          note?: string | null
+          recurrence?: string
+          title: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          done_at?: string | null
+          due_on?: string
+          id?: string
+          note?: string | null
+          recurrence?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      company_documents: {
+        Row: {
+          category: string | null
+          created_at: string
+          expires_on: string | null
+          file_name: string
+          id: string
+          issued_on: string | null
+          note: string | null
+          path: string
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          expires_on?: string | null
+          file_name: string
+          id?: string
+          issued_on?: string | null
+          note?: string | null
+          path: string
+          title: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          expires_on?: string | null
+          file_name?: string
+          id?: string
+          issued_on?: string | null
+          note?: string | null
+          path?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      company_vendors: {
+        Row: {
+          access_people: string | null
+          account_holder: string | null
+          created_at: string
+          free_limits: string | null
+          id: string
+          name: string
+          note: string | null
+          plan: string | null
+          purpose: string | null
+          renewal_on: string | null
+          subscription_id: string | null
+          url: string | null
+        }
+        Insert: {
+          access_people?: string | null
+          account_holder?: string | null
+          created_at?: string
+          free_limits?: string | null
+          id?: string
+          name: string
+          note?: string | null
+          plan?: string | null
+          purpose?: string | null
+          renewal_on?: string | null
+          subscription_id?: string | null
+          url?: string | null
+        }
+        Update: {
+          access_people?: string | null
+          account_holder?: string | null
+          created_at?: string
+          free_limits?: string | null
+          id?: string
+          name?: string
+          note?: string | null
+          plan?: string | null
+          purpose?: string | null
+          renewal_on?: string | null
+          subscription_id?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_vendors_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "finance_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finance_expenses: {
+        Row: {
+          amount_cents: number
+          category: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          label: string
+          note: string | null
+          receipt_path: string | null
+          spent_on: string
+          vat_cents: number
+        }
+        Insert: {
+          amount_cents: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label: string
+          note?: string | null
+          receipt_path?: string | null
+          spent_on: string
+          vat_cents?: number
+        }
+        Update: {
+          amount_cents?: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          label?: string
+          note?: string | null
+          receipt_path?: string | null
+          spent_on?: string
+          vat_cents?: number
+        }
+        Relationships: []
+      }
+      finance_subscriptions: {
+        Row: {
+          amount_cents: number
+          category: string | null
+          created_at: string
+          created_by: string | null
+          ends_on: string | null
+          frequency: string
+          id: string
+          name: string
+          note: string | null
+          starts_on: string
+          vat_cents: number
+        }
+        Insert: {
+          amount_cents: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          frequency: string
+          id?: string
+          name: string
+          note?: string | null
+          starts_on: string
+          vat_cents?: number
+        }
+        Update: {
+          amount_cents?: number
+          category?: string | null
+          created_at?: string
+          created_by?: string | null
+          ends_on?: string | null
+          frequency?: string
+          id?: string
+          name?: string
+          note?: string | null
+          starts_on?: string
+          vat_cents?: number
+        }
+        Relationships: []
+      }
       admin_users: {
         Row: {
           created_at: string
@@ -562,6 +798,7 @@ export type Database = {
           created_at: string
           email: string | null
           etablissement_id: string
+          fee_cents: number | null
           hold_expires_at: string | null
           id: string
           method: Database["public"]["Enums"]["bulle_part_method"]
@@ -583,6 +820,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           etablissement_id: string
+          fee_cents?: number | null
           hold_expires_at?: string | null
           id?: string
           method: Database["public"]["Enums"]["bulle_part_method"]
@@ -604,6 +842,7 @@ export type Database = {
           created_at?: string
           email?: string | null
           etablissement_id?: string
+          fee_cents?: number | null
           hold_expires_at?: string | null
           id?: string
           method?: Database["public"]["Enums"]["bulle_part_method"]
@@ -6853,6 +7092,51 @@ export type Database = {
         Returns: undefined
       }
       accept_invitation: { Args: { p_token: string }; Returns: string }
+      admin_revenue_months: {
+        Args: never
+        Returns: {
+          fee_cents: number
+          month: string
+          payments: number
+          provider: string | null
+          source: string
+          volume_cents: number
+        }[]
+      }
+      admin_account_scopes: {
+        Args: never
+        Returns: {
+          id: string
+          kind: string
+          name: string
+        }[]
+      }
+      admin_account_set_access: {
+        Args: {
+          p_kind: string
+          p_role: string | null
+          p_scope: string
+          p_user: string
+        }
+        Returns: Database["public"]["Tables"]["admin_account_events"]["Row"]
+      }
+      admin_account_set_admin: {
+        Args: { p_admin: boolean; p_user: string }
+        Returns: Database["public"]["Tables"]["admin_account_events"]["Row"]
+      }
+      admin_accounts: {
+        Args: never
+        Returns: {
+          access: Json
+          banned_until: string
+          created_at: string
+          email: string
+          is_admin: boolean
+          last_sign_in_at: string
+          phone: string
+          user_id: string
+        }[]
+      }
       admin_agents_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {
@@ -7433,6 +7717,8 @@ export type Database = {
           google_maps_url: string
           holder: string
           id: string
+          last_at: string
+          last_by: string
           latitude: number
           longitude: number
           mine: boolean
@@ -7507,6 +7793,7 @@ export type Database = {
         Returns: { discord_message_id: string; id: string; status: string }[]
       }
       commercial_request_visit: { Args: { p_restaurant: string }; Returns: string }
+      commercial_remove_restaurant: { Args: { p_restaurant: string }; Returns: undefined }
       commercial_restaurant_recap: { Args: { p_restaurant: string }; Returns: Json }
       commercial_signup_client: { Args: { p_signup: string }; Returns: boolean }
       commercial_request_detail: {

@@ -17,6 +17,15 @@ import type {
  * chaînes.
  */
 
+/** Durée d'une suspension de compte : sans fin pratique, jusqu'à réactivation. */
+export const ACCOUNT_BAN_DURATION = "876000h";
+
+/** Rappels d'une échéance : tant de jours avant, puis le jour même. */
+export const DEADLINE_REMINDER_DAYS: readonly number[] = [7, 0];
+
+/** Durée de validité du lien d'ouverture d'un justificatif. */
+export const RECEIPT_URL_TTL_S = 60;
+
 export const STATUS_ORDER: readonly LeadStatus[] = [
   "new",
   "to_contact",
