@@ -366,12 +366,6 @@ export default function ImportPage() {
             >
               Voir la liste
             </Link>
-            <Link
-              href={`${basePath}/carte`}
-              className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-            >
-              Voir la carte
-            </Link>
             <button
               type="button"
               onClick={() => setPhase({ name: "select" })}

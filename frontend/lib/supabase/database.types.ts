@@ -1977,6 +1977,39 @@ export type Database = {
           },
         ]
       }
+      commercial_removed: {
+        Row: {
+          at: string
+          commercial_id: string
+          restaurant_id: string
+        }
+        Insert: {
+          at?: string
+          commercial_id: string
+          restaurant_id: string
+        }
+        Update: {
+          at?: string
+          commercial_id?: string
+          restaurant_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "commercial_removed_commercial_id_fkey"
+            columns: ["commercial_id"]
+            isOneToOne: false
+            referencedRelation: "commerciaux"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "commercial_removed_restaurant_id_fkey"
+            columns: ["restaurant_id"]
+            isOneToOne: false
+            referencedRelation: "crm_restaurants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       commercial_settings: {
         Row: {
           club_fees_included: boolean | null
@@ -1986,7 +2019,6 @@ export type Database = {
           detail_response_days: number
           eligible_stripe_prices: string[]
           final_statement_days: number
-          guide_url: string | null
           id: boolean
           kit_demo_slugs: string[]
           notice_months: number
@@ -2008,7 +2040,6 @@ export type Database = {
           detail_response_days: number
           eligible_stripe_prices?: string[]
           final_statement_days: number
-          guide_url?: string | null
           id?: boolean
           kit_demo_slugs?: string[]
           notice_months: number
@@ -2030,7 +2061,6 @@ export type Database = {
           detail_response_days?: number
           eligible_stripe_prices?: string[]
           final_statement_days?: number
-          guide_url?: string | null
           id?: boolean
           kit_demo_slugs?: string[]
           notice_months?: number
@@ -7703,7 +7733,6 @@ export type Database = {
         }[]
       }
       commercial_dashboard: { Args: never; Returns: Json }
-      commercial_guide_url: { Args: never; Returns: string }
       commercial_is_client: {
         Args: { r: Database["public"]["Tables"]["crm_restaurants"]["Row"] }
         Returns: boolean

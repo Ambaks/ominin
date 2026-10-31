@@ -22,7 +22,7 @@ import type { RestaurantCategory } from "@/lib/admin/types";
 import { FilterIcon, SearchIcon } from "./icons";
 
 /*
- * Barre commune carte / liste : recherche, puces de statut, volet Filtres.
+ * Barre commune aux listes : recherche, puces de statut, volet Filtres.
  * L'état vit dans lib/admin/filters (singleton) — passer d'une page à
  * l'autre garde le même sous-ensemble.
  */
@@ -34,23 +34,15 @@ function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   return next;
 }
 
-export function FilterBar({ floating = false }: { floating?: boolean }) {
+export function FilterBar() {
   const filters = useFilters();
   const { cities } = useFilterOptions();
   const [panelOpen, setPanelOpen] = useState(false);
   const activeCount = countActiveFilters(filters);
 
   return (
-    <div
-      className={
-        floating
-          ? "pointer-events-none absolute inset-x-3 top-3 z-10 flex flex-col gap-2 lg:inset-x-4 lg:top-4"
-          : "flex flex-col gap-2"
-      }
-    >
-      <div
-        className={`flex items-center gap-2 ${floating ? "pointer-events-auto" : ""}`}
-      >
+    <div className="flex flex-col gap-2">
+      <div className="flex items-center gap-2">
         <div className="relative min-w-0 flex-1 lg:max-w-sm">
           <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-faint" />
           <input
@@ -77,11 +69,7 @@ export function FilterBar({ floating = false }: { floating?: boolean }) {
         </button>
       </div>
 
-      <div
-        className={`no-scrollbar flex gap-1.5 overflow-x-auto ${
-          floating ? "pointer-events-auto -mx-3 px-3 lg:mx-0 lg:px-0" : "-mx-5 px-5 lg:mx-0 lg:px-0"
-        }`}
-      >
+      <div className="no-scrollbar -mx-5 flex gap-1.5 overflow-x-auto px-5 lg:mx-0 lg:px-0">
         {STATUS_ORDER.map((status) => {
           const active = filters.statuses.has(status);
           return (
