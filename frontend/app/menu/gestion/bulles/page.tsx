@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { BullesBoard } from "@/components/gestion/bulles/board";
 import { EmptyState, ErrorNotice, GlassButton, SectionHeading, Shimmer } from "@/components/gestion/ui";
+import { bullesTabName } from "@/lib/gestion/constants";
 import { contactEmail } from "@/lib/landing-data";
 import { currentServiceDate } from "@/lib/bulles/format";
 import { loadSetup, useBulleDay, type BulleSetup } from "@/lib/gestion/bulles-api";
@@ -43,11 +44,12 @@ export default function BullesPage() {
     };
   }, [etablissementId, setupVersion]);
   const reloadSetup = useCallback(() => setSetupVersion((count) => count + 1), []);
+  const title = state ? bullesTabName(state.etablissement.slug) : "";
 
   if (state && !hasFeature("bulles")) {
     return (
       <div className="grid gap-6">
-        <SectionHeading level={1} title="Réservations" />
+        <SectionHeading level={1} title={title} />
         <EmptyState
           text="La réservation en ligne s'ouvre sur demande : parlez-en à Ominin."
           action={role === "gerant" ? <GlassButton href={`mailto:${contactEmail}`}>Écrire à Ominin</GlassButton> : undefined}
@@ -58,7 +60,7 @@ export default function BullesPage() {
   if (setupError != null && !setup) {
     return (
       <div className="grid gap-6">
-        <SectionHeading level={1} title="Réservations" />
+        <SectionHeading level={1} title={title} />
         <ErrorNotice error={setupError} onRetry={reloadSetup} />
       </div>
     );
@@ -66,7 +68,7 @@ export default function BullesPage() {
   if (!state || !setup || !etablissementId) {
     return (
       <div aria-busy className="grid gap-6">
-        <SectionHeading level={1} title="Réservations" />
+        <SectionHeading level={1} title={title} />
         <Shimmer className="h-(--g-control) max-w-sm" />
         <Shimmer className="h-64" />
       </div>
