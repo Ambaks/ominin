@@ -39,6 +39,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      analyses_settings: {
+        Row: {
+          etablissement_id: string
+          food_cost_target: number | null
+          hourly_labor_cost: number | null
+          labor_cost_target: number | null
+          prime_cost_target: number | null
+          updated_at: string
+        }
+        Insert: {
+          etablissement_id: string
+          food_cost_target?: number | null
+          hourly_labor_cost?: number | null
+          labor_cost_target?: number | null
+          prime_cost_target?: number | null
+          updated_at?: string
+        }
+        Update: {
+          etablissement_id?: string
+          food_cost_target?: number | null
+          hourly_labor_cost?: number | null
+          labor_cost_target?: number | null
+          prime_cost_target?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      category_costs: {
+        Row: { category_id: string; cost_percent: number; etablissement_id: string; updated_at: string }
+        Insert: { category_id: string; cost_percent: number; etablissement_id: string; updated_at?: string }
+        Update: { category_id?: string; cost_percent?: number; etablissement_id?: string; updated_at?: string }
+        Relationships: []
+      }
+      item_costs: {
+        Row: { etablissement_id: string; item_id: string; unit_cost: number; updated_at: string }
+        Insert: { etablissement_id: string; item_id: string; unit_cost: number; updated_at?: string }
+        Update: { etablissement_id?: string; item_id?: string; unit_cost?: number; updated_at?: string }
+        Relationships: []
+      }
       admin_alert_counters: {
         Row: {
           hits: number
@@ -7401,6 +7440,19 @@ export type Database = {
           restaurant_id: string
           restaurant_name: string
         }[]
+      }
+      gestion_analyses: {
+        Args: {
+          p_day_end_hour: number
+          p_default_vat: number
+          p_etablissement_id: string
+          p_from: string
+          p_history_from: string
+          p_replaced_minutes: number
+          p_to: string
+          p_visit_gap_hours: number
+        }
+        Returns: Json
       }
       gestion_daily_sales: {
         Args: {

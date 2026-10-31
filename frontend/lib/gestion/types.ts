@@ -47,6 +47,7 @@ export type ServiceMode = "restaurant" | "fast_food";
 export type Feature =
   | "qr"
   | "apercu"
+  | "analyses"
   | "commandes"
   | "retraits"
   | "paiements"

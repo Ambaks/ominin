@@ -51,6 +51,7 @@ import {
   ApercuIcon,
   BagIcon,
   BellIcon,
+  ChartIcon,
   BullesIcon,
   ClockIcon,
   CommandesIcon,
@@ -103,6 +104,7 @@ const NAV_ITEMS: NavItem[] = [
   { href: "/gestion/bulles", label: "Réservations", feature: "bulles", icon: BullesIcon, excludeRoles: ["cuisinier"] },
   { href: "/gestion/retraits", label: "Retraits", feature: "retraits", icon: BagIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "paiements", icon: PaymentsIcon, gerantOnly: true },
+  { href: "/gestion/analyses", label: "Analyses", feature: "analyses", icon: ChartIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
   // Le gérant pointe et planifie depuis Équipe, qui porte aussi le planning
   // et le journal.

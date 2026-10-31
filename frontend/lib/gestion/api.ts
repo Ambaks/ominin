@@ -4,7 +4,8 @@ import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
-import { ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
+import type { AnalysesData, AnalysesSettings } from "./analyses";
+import { ANALYSES, DEFAULT_VAT_RATE, ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import {
   rowToAffiche,
   rowToClosure,
@@ -956,6 +957,87 @@ export async function loadDailySales(from: string, to: string, dayEndHour: numbe
       p_day_end_hour: dayEndHour,
     })
   );
+}
+
+export interface AnalysesRange {
+  from: string;
+  to: string;
+  historyFrom: string;
+  dayEndHour: number;
+}
+
+export async function loadAnalyses(range: AnalysesRange): Promise<AnalysesData> {
+  const supabase = createClient();
+  const data = must(
+    await supabase.rpc("gestion_analyses", {
+      p_etablissement_id: etablissementId(),
+      p_from: range.from,
+      p_to: range.to,
+      p_history_from: range.historyFrom,
+      p_day_end_hour: range.dayEndHour,
+      p_default_vat: DEFAULT_VAT_RATE,
+      p_replaced_minutes: ANALYSES.replacedMinutes,
+      p_visit_gap_hours: ANALYSES.visitGapHours,
+    })
+  );
+  return data as unknown as AnalysesData;
+}
+
+export interface AnalysesCostsChange {
+  settings: AnalysesSettings;
+  /** Une valeur nulle retire le coût : on retombe sur la part de la catégorie, ou sur rien. */
+  categories: { id: string; value: number | null }[];
+  items: { id: string; value: number | null }[];
+}
+
+export async function saveAnalysesCosts(change: AnalysesCostsChange): Promise<void> {
+  const supabase = createClient();
+  const etablissement_id = etablissementId();
+  const removed = (rows: { id: string; value: number | null }[]) =>
+    rows.filter((row) => row.value == null).map((row) => row.id);
+  const kept = (rows: { id: string; value: number | null }[]) =>
+    rows.flatMap((row) => (row.value == null ? [] : [{ id: row.id, value: row.value }]));
+  const updated_at = new Date().toISOString();
+
+  check(
+    await supabase
+      .from("analyses_settings")
+      .upsert({ etablissement_id, ...change.settings, updated_at })
+  );
+  const categoriesToKeep = kept(change.categories);
+  if (categoriesToKeep.length > 0) {
+    check(
+      await supabase.from("category_costs").upsert(
+        categoriesToKeep.map((row) => ({
+          category_id: row.id,
+          etablissement_id,
+          cost_percent: row.value,
+          updated_at,
+        }))
+      )
+    );
+  }
+  const categoriesToRemove = removed(change.categories);
+  if (categoriesToRemove.length > 0) {
+    check(await supabase.from("category_costs").delete().in("category_id", categoriesToRemove));
+  }
+  const itemsToKeep = kept(change.items);
+  if (itemsToKeep.length > 0) {
+    check(
+      await supabase.from("item_costs").upsert(
+        itemsToKeep.map((row) => ({
+          item_id: row.id,
+          etablissement_id,
+          unit_cost: row.value,
+          updated_at,
+        }))
+      )
+    );
+  }
+  const itemsToRemove = removed(change.items);
+  if (itemsToRemove.length > 0) {
+    check(await supabase.from("item_costs").delete().in("item_id", itemsToRemove));
+  }
 }
 
 export async function verifyAdminPin(code: string): Promise<boolean> {
