@@ -313,7 +313,7 @@ export default function ApercuPage() {
       <Block i={block++}>
         <SectionHeading
           level={1}
-          title="Aperçu"
+          title="Aujourd’hui"
           sub={todayLabel.charAt(0).toUpperCase() + todayLabel.slice(1)}
         />
       </Block>

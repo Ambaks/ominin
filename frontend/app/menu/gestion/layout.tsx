@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GestionShell } from "@/components/gestion/shell";
+import { kitFont } from "@/components/landing-kit/font";
 
 export const metadata: Metadata = {
   title: "Espace de gestion — Ominin",
@@ -9,5 +10,9 @@ export const metadata: Metadata = {
 export default function GestionLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <GestionShell>{children}</GestionShell>;
+  return (
+    <div className={`g-titres contents ${kitFont.variable}`}>
+      <GestionShell>{children}</GestionShell>
+    </div>
+  );
 }
