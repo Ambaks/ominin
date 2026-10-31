@@ -289,6 +289,17 @@ export interface Restaurant {
    */
   demoHappyHour?: { name: string; prices: Record<string, number> };
   /**
+   * La suite proposée après le retrait au bar (AfterMeal), par id d'article :
+   * ce qui compte pour dessert et pour café, ce qui se grignote avec une
+   * autre tournée. images : la photo d'un article qui n'en a pas à la carte.
+   */
+  afterMeal?: {
+    desserts: string[];
+    coffees: string[];
+    snacks: string[];
+    images?: Record<string, string>;
+  };
+  /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
    * elle tient lieu de hero à elle seule, sans texte superposé. Ses
    * dimensions sont celles du fichier, en pixels : le hero en tire la
@@ -5983,6 +5994,7 @@ const caffePanis: Restaurant = {
   phone: "+33 4 99 67 65 38",
   hours: "Tous\u00a0les\u00a0jours 9h–\u20601h",
   highlights: ["De 9h à 1h, 7j/7"],
+  googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJGXVvYn-vthIRMGVbHHR6tss",
   // Accords provisoires, à régénérer avec backend/scripts/pairings.py.
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.
@@ -5991,6 +6003,17 @@ const caffePanis: Restaurant = {
   demoHappyHour: {
     name: "Aperitivo Happy Hour",
     prices: { margherita: 9, "cafe-illy": 1.5, "coca-cola": 2 },
+  },
+  afterMeal: {
+    desserts: ["il-tiramisu", "mousse-big-love", "deurty-cookie"],
+    coffees: ["cafe-illy"],
+    snacks: ["trio-arancini", "classic-burrata"],
+    images: {
+      "cafe-illy": "/caffe-panis/boissons/cafe-illy.webp",
+      "coca-cola": "/big-smash/coca-cola.webp",
+      "coca-cola-zero": "/big-smash/coca-cola.webp",
+      "fuzetea-peche": "/big-smash/fuze-tea-peche.webp",
+    },
   },
   // Les paliers de sa fidélité en production (1 € = 1 point).
   demoLoyalty: {

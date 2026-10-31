@@ -248,6 +248,9 @@ interface CartContextValue extends CartConfig {
   closedAt: string | null;
   /** Le plat d'une ligne du panier qu'une fermeture coupe, s'il y en a un. */
   closedDish: (line: CartLine) => string | undefined;
+  /** Les demandes d'ouvrir le panier venues d'ailleurs que sa barre (AfterMeal). */
+  openRequests: number;
+  requestOpen: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -335,6 +338,9 @@ export function CartProvider({
       // reste en mémoire.
     }
   }, [lines, storageKey, restoredKey]);
+
+  const [openRequests, setOpenRequests] = useState(0);
+  const requestOpen = useCallback(() => setOpenRequests((count) => count + 1), []);
 
   const addLine = useCallback(
     (line: Omit<CartLine, "quantity">, quantity = 1) => {
@@ -472,6 +478,8 @@ export function CartProvider({
           : closed.has(line.itemId)
             ? line.name
             : undefined,
+      openRequests,
+      requestOpen,
     };
   }, [
     config,
@@ -487,6 +495,8 @@ export function CartProvider({
     closed,
     refreshClosed,
     closedAt,
+    openRequests,
+    requestOpen,
   ]);
 
   return (

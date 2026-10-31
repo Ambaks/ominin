@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
+import { AfterMeal } from "@/components/menu/after-meal";
 import { CartBar } from "@/components/menu/cart-bar";
 import { MenuBody } from "@/components/menu/menu-body";
 import { FormulesSection } from "@/components/menu/formules";
@@ -14,6 +15,7 @@ import { SaisonAmbient } from "@/components/menu/saison/saison";
 import { SAISONS } from "@/lib/menu/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
+import { resolveAfterMeal } from "@/lib/menu/after-meal";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import { CartProvider } from "@/lib/menu/cart";
@@ -67,6 +69,10 @@ import { applyTarifs } from "@/lib/menu/tarifs";
  * de son ticket, que le bar scanne pour la marquer retirée. Avec
  * ?service=fast-food, le même retrait sur un ticket numéroté, comme en
  * production (etablissements.bar_pickup).
+ *
+ * Avec ?retrait=bar, un établissement doté d'une suite d'aperçu (afterMeal) la
+ * propose à ses couleurs au retour du client, le délai passé depuis le scan du
+ * retrait : même page fermée entre-temps. Un bouton « Démo » saute l'attente.
  *
  * ?categories=top|rail|wheel essaie une autre présentation des catégories
  * que celle de l'établissement.
@@ -271,6 +277,7 @@ export default async function MenuPreviewPage({
           </MenuBody>
           <MenuFooter restaurant={restaurant} themeToggle={!themeClass} />
           {happyHour && <HappyHourPill happyHour={happyHour} />}
+          {themeClass && restaurant.afterMeal && <AfterMeal offer={resolveAfterMeal(restaurant)} />}
           {loyalty && (
             <LoyaltyWelcome
               brand={brandName(restaurant)}

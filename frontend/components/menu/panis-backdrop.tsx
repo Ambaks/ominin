@@ -79,7 +79,7 @@ const renderScale = (width: number, height: number) =>
    réutilise pas. Rendu à 24 images par seconde au repos, à 60 pendant un
    défilement, pour que le satin suive la carte sans à-coups. Un rendu
    logiciel ou sans précision haute garde la teinte à plat. */
-function startVelours(host: HTMLElement, palette: VeloursPalette) {
+export function startVelours(host: HTMLElement, palette: VeloursPalette) {
   const canvas = host.appendChild(document.createElement("canvas"));
   const gl = canvas.getContext("webgl", {
     alpha: false,
