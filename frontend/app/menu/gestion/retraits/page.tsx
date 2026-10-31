@@ -1,14 +1,25 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { PaymentDialog } from "@/components/gestion/commandes/payment-dialog";
 import { PaymentPinDialog } from "@/components/gestion/commandes/payment-pin-dialog";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
+import { BagIcon, ClockIcon } from "@/components/gestion/icons";
+import { describeError } from "@/lib/gestion/errors";
+import { CashIcon, CoinsIcon, OnlineIcon } from "@/components/gestion/paiements/icons";
 import { PickupOrderDialog } from "@/components/gestion/retraits/pickup-order-dialog";
 import { ProductionList } from "@/components/gestion/retraits/production-list";
 import { RetraitCard } from "@/components/gestion/retraits/retrait-card";
-import { EmptyState } from "@/components/ui/empty-state";
-import { PillTabs } from "@/components/ui/pill-tabs";
+import {
+  Chip,
+  EmptyState,
+  GlassButton,
+  Input,
+  Notice,
+  SectionHeading,
+  Segmented,
+  StatTile,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { formatDayLong, isoDayOf, parisDate, shiftDay } from "@/lib/collect/hours";
 import * as api from "@/lib/gestion/api";
@@ -31,6 +42,17 @@ import { useNow } from "@/lib/gestion/use-now";
 import { formatPrice } from "@/lib/menu/format";
 
 type View = "commandes" | "production";
+
+const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
+
+function Block({ i, className = "", children }: { i: number; className?: string; children: React.ReactNode }) {
+  return (
+    <div className={`g-rise ${className}`} style={{ "--g-i": i } as CSSProperties}>
+      {children}
+    </div>
+  );
+}
 
 /*
  * Retraits : le click & collect jour par jour. Le comptoir y voit qui passe
@@ -83,6 +105,17 @@ export default function RetraitsPage() {
   const strip = Array.from({ length: RETRAITS_DAYS_SHOWN }, (_, index) => shiftDay(today, index));
   // Un jour choisi au calendrier, plus loin que la bande : il s'y ajoute.
   if (!strip.includes(day)) strip.push(day);
+  const dayLabel = capitalize(formatDayLong(day));
+  const showSummary = role === "gerant" && summary.count > 0 && view === "commandes";
+  // Sous le titre du jour : ce qu'il reste à remettre, et pour le gérant au
+  // téléphone, où les tuiles n'ont pas leur place, la journée en une ligne.
+  const daySub = [
+    open.length > 0 ? `${open.length} à remettre` : ofDay.length > 0 ? "tout est remis" : undefined,
+    showSummary ? formatPrice(summary.total) : undefined,
+    showSummary && summary.due > 0 ? `${formatPrice(summary.due)} à encaisser` : undefined,
+  ]
+    .filter(Boolean)
+    .join(" · ") || undefined;
 
   const requestHandOver = (order: Order) => {
     if (state.etablissement.paymentPinSet) setAuthorizing(order);
@@ -108,85 +141,83 @@ export default function RetraitsPage() {
         }`
       );
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
   };
 
+  const jumpToFresh = () => {
+    // Au premier jour qui en compte une ; celle d'un jour passé attend sous « Pas encore retirées ».
+    setChosenDay([...fresh.keys()].sort()[0]);
+    setChosenView("commandes");
+    // Le jour affiché, la première commande à prendre en charge vient à l'écran.
+    requestAnimationFrame(() =>
+      document.querySelector("[data-retrait-new]")?.scrollIntoView({ block: "center" })
+    );
+  };
+
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3 print:hidden">
-        <div>
-          <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-            Retraits
-          </h1>
-          <p className="mt-1 text-sm text-muted">
-            {role === "cuisinier"
-              ? "Ce qu'il reste à préparer, jour par jour."
-              : "Les commandes à emporter, jour par jour."}
-          </p>
-        </div>
-        {takesOrders && (
-          <button
-            type="button"
-            onClick={() => setCreating(true)}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-          >
-            Nouvelle commande
-          </button>
-        )}
-      </div>
+    <div className="grid gap-5">
+      <Block i={0} className="print:hidden">
+        <SectionHeading
+          level={1}
+          title="Retraits"
+          sub={role === "cuisinier" ? "Ce qu'il reste à préparer, jour par jour" : undefined}
+          right={
+            takesOrders ? (
+              <GlassButton variant="primary" onClick={() => setCreating(true)}>
+                Nouvelle commande
+              </GlassButton>
+            ) : undefined
+          }
+        />
+      </Block>
 
       {takesOrders && freshTotal > 0 && (
-        <button
-          type="button"
-          // Au premier jour qui en compte une ; celle d'un jour passé attend sous « Pas encore retirées ».
-          onClick={() => {
-            setChosenDay([...fresh.keys()].sort()[0]);
-            setChosenView("commandes");
-            // Le jour affiché, la première commande à prendre en charge vient à l'écran.
-            requestAnimationFrame(() =>
-              document.querySelector("[data-retrait-new]")?.scrollIntoView({ block: "center" })
-            );
-          }}
-          className="flex min-h-11 items-center gap-2.5 self-start rounded-2xl border border-ember-2/40 bg-ember-2/10 px-4 py-2 text-left text-sm font-medium transition-colors hover:border-ember-2/70 print:hidden"
-        >
-          <span aria-hidden className="size-2 shrink-0 rounded-full bg-ember-3" />
-          {`${freshTotal} nouvelle${freshTotal > 1 ? "s" : ""} commande${freshTotal > 1 ? "s" : ""} du site à prendre en charge`}
-        </button>
+        <Block i={1} className="print:hidden">
+          <Notice
+            tone="info"
+            icon={<BagIcon />}
+            title={plural(freshTotal, "nouvelle commande")}
+            text="du site, à prendre en charge"
+            action={
+              <GlassButton variant="primary" onClick={jumpToFresh}>
+                Voir
+              </GlassButton>
+            }
+          />
+        </Block>
       )}
 
-      <div className="flex flex-col gap-3 print:hidden">
+      <Block i={2} className="flex items-center gap-3 print:hidden">
         <div
           ref={stripRef}
           role="group"
           aria-label="Jour de retrait"
-          // Le bord droit s'efface : la bande se poursuit au doigt ou à la molette.
-          // Un jour ramené en vue s'arrête à la marge du contenu, et avant ce fondu.
-          className="no-scrollbar -mx-5 flex scroll-pl-5 scroll-pr-12 gap-2 overflow-x-auto px-5 pb-1 [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)] lg:mx-0 lg:scroll-pl-0 lg:px-0"
+          // Le bord droit s'efface : la bande se poursuit au doigt ou à la molette ;
+          // la dernière tuile s'arrête avant le fondu.
+          className="no-scrollbar -m-1 flex min-w-0 flex-1 basis-0 gap-2 overflow-x-auto overscroll-x-contain scroll-pr-12 p-1 pr-12 [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)]"
         >
           {strip.map((candidate) => {
             const active = candidate === day;
             const count = counts.get(candidate) ?? 0;
             const freshCount = fresh.get(candidate) ?? 0;
-            const shut = !(state.etablissement.openingHours?.[String(isoDayOf(candidate))]?.length);
+            const shut = !state.etablissement.openingHours?.[String(isoDayOf(candidate))]?.length;
             const tile = dayTile(candidate, today);
             return (
               <button
                 key={candidate}
                 type="button"
                 aria-pressed={active}
-                aria-label={`${formatDayLong(candidate)}${shut ? ", fermé" : ""}, ${count} retrait${count > 1 ? "s" : ""} à remettre${
-                  freshCount > 0
-                    ? `, dont ${freshCount} nouvelle${freshCount > 1 ? "s" : ""} commande${freshCount > 1 ? "s" : ""}`
-                    : ""
+                aria-label={`${formatDayLong(candidate)}${shut ? ", fermé" : ""}, ${plural(count, "retrait")} à remettre${
+                  freshCount > 0 ? `, dont ${plural(freshCount, "nouvelle commande")}` : ""
                 }`}
                 onClick={() => setChosenDay(candidate)}
-                className={`relative flex w-14 shrink-0 flex-col items-center gap-0.5 rounded-2xl py-2.5 transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-2 ${
+                className={`g-press relative flex w-14 shrink-0 flex-col items-center gap-0.5 rounded-g-card border py-2.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1 ${
                   active
-                    ? "ember-gradient text-background"
+                    ? "ember-gradient border-transparent text-background"
                     : count > 0
-                      ? "border border-ember-2/40 text-foreground hover:border-ember-2/70"
-                      : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
+                      ? "border-ember-2/40 bg-surface/70 text-foreground"
+                      : "border-hairline bg-surface/70 text-muted"
                 }`}
               >
                 {freshCount > 0 && (
@@ -195,13 +226,11 @@ export default function RetraitsPage() {
                     className={`absolute right-1.5 top-1.5 size-2 rounded-full ${active ? "bg-background" : "bg-ember-3"}`}
                   />
                 )}
-                <span className="text-[10px] font-semibold uppercase tracking-wider">
-                  {tile.weekday}
-                </span>
-                <span className="font-display text-xl leading-none tabular-nums">{tile.date}</span>
+                <span className="text-g-axis font-semibold uppercase tracking-wider">{tile.weekday}</span>
+                <span className="text-g-h2 tabular-nums">{tile.date}</span>
                 <span
-                  className={`mt-0.5 h-4 text-[10px] font-semibold tabular-nums ${
-                    active ? "" : count > 0 ? "text-ember-2" : "text-faint"
+                  className={`mt-0.5 h-4 text-g-label font-semibold tabular-nums ${
+                    active ? "" : count > 0 ? "text-ember-2" : "text-muted"
                   }`}
                 >
                   {count > 0 ? count : shut ? "fermé" : ""}
@@ -210,114 +239,149 @@ export default function RetraitsPage() {
             );
           })}
         </div>
-        <label className="flex items-center gap-2 self-start text-sm text-muted">
-          Autre jour
-          <input
+        <label className="flex shrink-0 items-center gap-2 text-g-label text-muted">
+          <span className="max-sm:sr-only">Autre jour</span>
+          <Input
             type="date"
+            aria-label="Autre jour"
             value={day}
             min={today}
             onChange={(event) => {
               if (event.target.value) setChosenDay(event.target.value);
             }}
-            className="rounded-xl border border-hairline bg-background px-3 py-2 text-base outline-none transition-colors focus:border-ember-2/50 lg:pointer-fine:text-sm"
           />
         </label>
-      </div>
+      </Block>
 
       {overdue.length > 0 && view === "commandes" && (
-        <section aria-labelledby="retraits-retard" className="flex flex-col gap-3 print:hidden">
-          <h2 id="retraits-retard" className="text-sm font-semibold text-ember-3">
-            Pas encore retirées ({overdue.length})
-          </h2>
-          {overdue.map((order) => (
-            <RetraitCard key={order.id} order={order} today={today} showDay onHandOver={requestHandOver} />
-          ))}
-        </section>
-      )}
-
-      <div className="flex flex-wrap items-end justify-between gap-3 print:hidden">
-        <h2 className="font-display text-xl font-medium first-letter:uppercase">{formatDayLong(day)}</h2>
-        <PillTabs
-          tabs={[
-            { id: "commandes", label: "Retraits", count: open.length || undefined },
-            { id: "production", label: "À produire" },
-          ]}
-          activeId={view}
-          onSelect={(id) => setChosenView(id as View)}
-        />
-      </div>
-
-      {role === "gerant" && summary.count > 0 && view === "commandes" && (
-        <div className="flex flex-col gap-2 print:hidden">
-          <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {[
-              {
-                label: "Retraits du jour",
-                value: formatPrice(summary.total),
-                // Remises comprises, annulées exclues ; les pastilles ne comptent que celles à remettre.
-                hint: `${summary.count} retrait${summary.count > 1 ? "s" : ""}${
-                  open.length > 0 ? ` · ${open.length} à remettre` : ""
-                }`,
-              },
-              { label: "Payé en ligne", value: formatPrice(summary.paidOnline), hint: "à la commande" },
-              { label: "Encaissé au comptoir", value: formatPrice(summary.paidAtCounter), hint: "au retrait" },
-              { label: "Reste à encaisser", value: formatPrice(summary.due), hint: "au retrait" },
-            ].map((tile) => (
-              <div key={tile.label} className="rounded-2xl border border-hairline bg-surface px-4 py-3">
-                <dt className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-                  {tile.label}
-                </dt>
-                <dd className="mt-1 font-display text-xl tabular-nums">{tile.value}</dd>
-                <dd className="text-xs text-muted">{tile.hint}</dd>
-              </div>
+        <Block i={3} className="grid gap-3 print:hidden">
+          <SectionHeading
+            id="retraits-retard"
+            title="Pas encore retirées"
+            right={
+              <Chip tone="problem" icon={<ClockIcon />}>
+                {plural(overdue.length, "retrait")} en retard
+              </Chip>
+            }
+          />
+          <section aria-labelledby="retraits-retard" className="grid gap-3">
+            {overdue.map((order) => (
+              <RetraitCard key={order.id} order={order} today={today} showDay onHandOver={requestHandOver} />
             ))}
-          </dl>
-          <p className="text-xs text-muted">
-            Ce que valent les retraits de ce jour, quel que soit le jour du paiement.
-            L&apos;argent encaissé chaque jour est dans Paiements.
-          </p>
-        </div>
+          </section>
+        </Block>
       )}
 
-      {ofDay.length === 0 ? (
-        <EmptyState
-          title="Aucun retrait ce jour-là"
-          body={
-            takesOrders
-              ? "Les commandes du site et celles prises au comptoir ou au téléphone apparaîtront ici, à leur heure de retrait."
-              : "Les commandes de ce jour apparaîtront ici dès qu'elles seront passées."
-          }
-        />
-      ) : view === "production" ? (
-        <ProductionList orders={ofDay} title={formatDayLong(day)} shopName={state.etablissement.name} />
-      ) : (
-        <div className="flex flex-col gap-3">
-          {open.length === 0 && (
-            <p className="rounded-2xl border border-dashed border-hairline px-5 py-6 text-center text-sm text-muted">
-              Tout est remis pour ce jour-là.
-            </p>
-          )}
-          {open.map((order) => (
-            <RetraitCard key={order.id} order={order} today={today} onHandOver={requestHandOver} />
-          ))}
-          {closed.length > 0 && (
-            <>
-              <button
-                type="button"
-                aria-expanded={showClosed}
-                onClick={() => setShowClosed((shown) => !shown)}
-                className="self-start rounded-full px-1 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-              >
-                {showClosed ? "Masquer" : "Voir"} les remises et annulations ({closed.length})
-              </button>
-              {showClosed &&
-                closed.map((order) => (
-                  <RetraitCard key={order.id} order={order} today={today} onHandOver={requestHandOver} />
-                ))}
-            </>
-          )}
+      <Block i={4} className="grid gap-5">
+        <div className="print:hidden">
+          <SectionHeading
+            title={dayLabel}
+            sub={daySub}
+            right={
+              <Segmented
+                label="Vue"
+                options={[
+                  { value: "commandes", label: "Retraits" },
+                  { value: "production", label: "À produire" },
+                ]}
+                value={view}
+                onChange={setChosenView}
+              />
+            }
+          />
         </div>
-      )}
+
+        {/* Sur téléphone, la journée du gérant tient dans le sous-titre du
+            jour : la première commande à traiter vient d'abord (§ 2.7). */}
+        {showSummary && (
+          <div className="grid gap-g-gap print:hidden max-sm:hidden sm:grid-cols-2 xl:grid-cols-4">
+            <StatTile
+              entity="money"
+              icon={<CoinsIcon />}
+              label="Retraits du jour"
+              value={formatPrice(summary.total)}
+              // Remises comprises, annulées exclues ; les pastilles ne comptent que celles à remettre.
+              baseline={`${plural(summary.count, "retrait")}${open.length > 0 ? ` · ${open.length} à remettre` : ""}`}
+              title="Ce que valent les retraits de ce jour, quel que soit le jour du paiement. L'argent encaissé chaque jour est dans Paiements."
+            />
+            <StatTile
+              entity="money"
+              icon={<OnlineIcon />}
+              label="Payé en ligne"
+              value={formatPrice(summary.paidOnline)}
+              baseline="à la commande"
+              title="Réglé sur le site au moment de la commande"
+            />
+            <StatTile
+              entity="money"
+              icon={<CashIcon />}
+              label="Encaissé au comptoir"
+              value={formatPrice(summary.paidAtCounter)}
+              baseline="au retrait"
+              title="Réglé au comptoir à la remise, quel que soit le jour"
+            />
+            <StatTile
+              entity="money"
+              icon={<ClockIcon />}
+              label="Reste à encaisser"
+              value={formatPrice(summary.due)}
+              baseline="au retrait"
+              title="Ce que les clients régleront en passant"
+            />
+            <p className="text-g-meta text-muted sm:col-span-2 xl:col-span-4">
+              Ce que valent les retraits de ce jour, quel que soit le jour du paiement ; l&apos;argent encaissé
+              chaque jour est dans Paiements.
+            </p>
+          </div>
+        )}
+
+        {ofDay.length === 0 ? (
+          <EmptyState
+            text={
+              takesOrders
+                ? "Aucun retrait ce jour-là : les commandes du site et celles prises au comptoir ou au téléphone apparaîtront ici, à leur heure."
+                : "Aucun retrait ce jour-là : les commandes apparaîtront ici dès qu'elles seront passées."
+            }
+            action={
+              takesOrders ? (
+                <GlassButton onClick={() => setCreating(true)}>Nouvelle commande</GlassButton>
+              ) : undefined
+            }
+          />
+        ) : view === "production" ? (
+          <ProductionList orders={ofDay} title={formatDayLong(day)} shopName={state.etablissement.name} />
+        ) : (
+          <div className="grid gap-3">
+            {open.length === 0 && (
+              <EmptyState
+                text={
+                  closed.some((order) => order.status === "retiree")
+                    ? "Tout est remis pour ce jour-là."
+                    : "Rien à remettre : les commandes de ce jour sont annulées."
+                }
+              />
+            )}
+            {open.map((order) => (
+              <RetraitCard key={order.id} order={order} today={today} onHandOver={requestHandOver} />
+            ))}
+            {closed.length > 0 && (
+              <>
+                <GlassButton
+                  className="justify-self-start"
+                  aria-expanded={showClosed}
+                  onClick={() => setShowClosed((shown) => !shown)}
+                >
+                  {showClosed ? "Masquer" : "Voir"} les remises et annulations ({closed.length})
+                </GlassButton>
+                {showClosed &&
+                  closed.map((order) => (
+                    <RetraitCard key={order.id} order={order} today={today} onHandOver={requestHandOver} />
+                  ))}
+              </>
+            )}
+          </div>
+        )}
+      </Block>
 
       {creating && (
         <PickupOrderDialog

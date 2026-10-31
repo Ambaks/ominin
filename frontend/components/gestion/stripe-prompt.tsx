@@ -2,7 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import { XIcon } from "./icons";
+import { GlassButton, Plate } from "./ui";
 
 /*
  * Invite à relier le compte Stripe, en tête de l'Aperçu : gérant d'une offre
@@ -29,7 +32,11 @@ export function StripePrompt() {
   useEffect(() => {
     if (!eligible) return;
     fetch("/api/stripe/connect")
-      .then((response) => response.json())
+      .then((response) => {
+        // Une session expirée n'est pas un compte à relier : sans réponse sûre, rien ne s'affiche.
+        if (!response.ok) throw response;
+        return response.json();
+      })
       .then((body: { chargesEnabled?: boolean }) => {
         setChargesEnabled(Boolean(body.chargesEnabled));
       })
@@ -48,53 +55,41 @@ export function StripePrompt() {
       const response = await fetch("/api/stripe/connect", { method: "POST" });
       const body = (await response.json()) as { url?: string; error?: string };
       if (!response.ok || !body.url) {
-        throw new Error(body.error ?? "Une erreur est survenue.");
+        throw body.error ? new Error(body.error) : response;
       }
       window.location.assign(body.url);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
+      toast.error(describeError(error).message);
       setBusy(false);
     }
   };
 
   return (
-    <section
+    <Plate
       data-visite="stripe"
-      className="flex flex-col gap-4 rounded-2xl border border-ember-2/40 bg-surface p-5 lg:flex-row lg:items-center lg:justify-between lg:p-6"
+      className="g-rise g-money flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between"
     >
-      <div>
-        <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-          Paiement en ligne
-        </p>
-        <h2 className="mt-1 font-display text-lg font-medium">
-          Reliez votre compte Stripe
-        </h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">
+      <div className="min-w-0">
+        <p className="g-eyebrow">Paiement en ligne</p>
+        <h2 className="mt-2 font-display text-g-h2">Reliez votre compte Stripe</h2>
+        <p className="mt-1 text-g-body text-muted">
           Vos clients pourront régler leur commande par carte, Apple Pay ou
           Google Pay, directement sur votre compte.
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-4">
-        <button
-          type="button"
+      <div className="flex shrink-0 items-center gap-3">
+        <GlassButton
+          variant="primary"
           data-visite="stripe-relier"
           onClick={() => void startOnboarding()}
           disabled={busy}
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
         >
           {busy ? "Redirection…" : "Relier mon compte Stripe"}
-        </button>
-        <button
-          type="button"
-          onClick={() => setDismissed(true)}
-          aria-label="Masquer"
-          className="text-xl leading-none text-muted"
-        >
-          ×
-        </button>
+        </GlassButton>
+        <GlassButton variant="icon" aria-label="Masquer" onClick={() => setDismissed(true)}>
+          <XIcon />
+        </GlassButton>
       </div>
-    </section>
+    </Plate>
   );
 }

@@ -1,13 +1,21 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { TableState } from "@/components/club/floor-plan";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { UnderlineTabs } from "./underline-tabs";
-import { Toggle } from "@/components/ui/toggle";
+import { AlertIcon, ExternalLinkIcon } from "@/components/gestion/icons";
+import {
+  ConfirmSheet,
+  Field,
+  GlassButton,
+  Input,
+  Notice,
+  Plate,
+  SectionHeading,
+  Segmented,
+  Switch,
+  Textarea,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { slugify, uniqueSlug } from "@/lib/admin/slug";
 import {
@@ -33,19 +41,20 @@ import {
 } from "@/lib/gestion/club-selectors";
 import type { ClubState } from "@/lib/gestion/club-store";
 import { CLUB_LIMITS, WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { uploadPhoto } from "@/lib/gestion/photo";
 import { useNow } from "@/lib/gestion/use-now";
 import { clubSiteUrl } from "@/lib/site";
-import { CheckIcon } from "@/components/gestion/icons";
 import { BackToSoirees } from "./club-states";
 import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 import { NightPlan, PlanLegend } from "./night-plan";
 
 /*
- * Préparer une soirée (gérant) : ce qu'en lit le client — titre, horaire,
- * affiche, billetterie —, les zones mises en vente ce soir-là et leur prix,
- * les tables gardées hors vente, et la liste d'invités. Une soirée naît en
- * brouillon ; la publier l'ouvre aux réservations.
+ * Préparer une soirée (gérant). Quatre champs suffisent — titre, jour,
+ * ouverture, fermeture — et deux gestes : « Créer et publier », ou en
+ * brouillon. Le reste (affiche, billets, zones et prix, tables gardées,
+ * liste d'invités) attend sous « Options de la soirée » ; l'adresse de la
+ * page, générée, se modifie sur demande. Les erreurs se lisent au champ.
  */
 
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -119,106 +128,23 @@ function autoSlug(title: string, date: string): string {
   return slugify(title, day);
 }
 
-/** Les onglets de l'éditeur, dans l'ordre où l'on prépare une soirée. */
-const SECTIONS = [
-  { id: "infos", label: "Infos" },
-  { id: "affiche", label: "Affiche & billets" },
-  { id: "zones", label: "Zones & prix" },
-  { id: "gardees", label: "Tables gardées" },
-  { id: "invites", label: "Liste d'invités" },
-] as const;
+/** Les champs qui vivent sous « Options » : une erreur de l'un d'eux les déplie. */
+const OPTION_FIELDS = new Set(["ticketUrl", "zones", "capacity", "maxParty"]);
 
-type SectionId = (typeof SECTIONS)[number]["id"];
-
-/** L'onglet de chaque champ contrôlé : une erreur y ramène. */
-const ERROR_TAB = {
-  title: "infos",
-  slug: "infos",
-  date: "infos",
-  end: "infos",
-  ticketUrl: "affiche",
-  zones: "zones",
-  capacity: "invites",
-  maxParty: "invites",
-} as const satisfies Record<string, SectionId>;
-
-/** Un onglet de l'éditeur : affiché seul, le reste de la soirée attend son tour. */
-function Section({
-  id,
-  current,
-  title,
-  hint,
-  children,
-}: {
-  id: SectionId;
-  current: SectionId;
-  title: string;
-  hint?: string;
-  children: React.ReactNode;
-}) {
-  if (id !== current) return null;
+/** Un bloc des options : titre, phrase, puis ses champs. */
+function Option({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
   return (
-    <section
-      id={`panneau-${id}`}
-      role="tabpanel"
-      aria-labelledby={`onglet-${id}`}
-      className="soirees-entree flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5"
-    >
+    <section className="flex flex-col gap-4 border-t border-hairline px-5 py-5 first:border-t-0">
       <div>
-        <h2 className="font-display text-lg font-medium">{title}</h2>
-        {hint && <p className="mt-1 text-sm text-muted">{hint}</p>}
+        <h3 className="font-display text-g-name">{title}</h3>
+        {hint && <p className="mt-1 text-g-meta text-muted">{hint}</p>}
       </div>
       {children}
     </section>
   );
 }
 
-/** Les onglets, collés sous l'en-tête ; un point signale celui qui a un champ à corriger. */
-function SectionTabs({
-  available,
-  current,
-  flagged,
-  onSelect,
-}: {
-  available: SectionId[];
-  current: SectionId;
-  flagged: SectionId[];
-  onSelect: (id: SectionId) => void;
-}) {
-  return (
-    <div
-      role="tablist"
-      aria-label="Préparer la soirée"
-      className="defile no-scrollbar sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 flex gap-1.5 overflow-x-auto bg-background/90 py-2 backdrop-blur-md lg:mx-0"
-    >
-      {SECTIONS.filter((section) => available.includes(section.id)).map((section, index) => {
-        const active = section.id === current;
-        return (
-          <button
-            key={section.id}
-            id={`onglet-${section.id}`}
-            type="button"
-            role="tab"
-            aria-selected={active}
-            aria-controls={`panneau-${section.id}`}
-            onClick={() => onSelect(section.id)}
-            className={`flex min-h-11 shrink-0 items-center gap-2 rounded-full border px-4 text-sm font-medium lg:pointer-fine:min-h-9 ${
-              active
-                ? "border-[var(--soirees-gold)] text-foreground"
-                : "border-hairline text-muted hover:text-foreground"
-            }`}
-          >
-            <span className="tabular-nums text-xs text-muted">{index + 1}</span>
-            {section.label}
-            {flagged.includes(section.id) && (
-              <span className="size-1.5 rounded-full bg-ember-3" aria-label="(à corriger)" />
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
-}
+const rise = (index: number) => ({ "--g-i": index }) as CSSProperties;
 
 export function EventEditor({
   club,
@@ -234,13 +160,16 @@ export function EventEditor({
   const [saved, setSaved] = useState(() => initialDraft(club, event));
   const [draft, setDraft] = useState(saved);
   const [slugTouched, setSlugTouched] = useState(event !== null);
+  const [editSlug, setEditSlug] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
-  const [tab, setTab] = useState<SectionId>("infos");
+  // Les options s'ouvrent d'elles-mêmes sur une soirée existante : c'est là qu'on y revient.
+  const [optionsOpen, setOptionsOpen] = useState(event !== null);
   /** Réservations que le dernier passage n'a pas pu rendre (remboursement refusé, réseau). */
   const [failed, setFailed] = useState<string[]>([]);
+  const fileInput = useRef<HTMLInputElement>(null);
   const zonesOn = club.zones.filter((zone) => draft.zones[zone.id]?.on);
   const [planZoneId, setPlanZoneId] = useState(zonesOn[0]?.id ?? null);
 
@@ -263,7 +192,7 @@ export function EventEditor({
   const settled = sold.filter((booking) => booking.status !== "en_attente").length;
   const clubEntered = sold.filter(isClubEntered).length;
 
-  // Validation : ce que la base refuserait, dit avant l'envoi.
+  // Validation : ce que la base refuserait, dit avant l'envoi, au champ.
   const title = draft.title.trim();
   const slugTaken = club.events.some((e) => e.id !== event?.id && e.slug === draft.slug);
   const startsAt =
@@ -284,15 +213,23 @@ export function EventEditor({
       return [zone.id, raw ? (cents && cents > 0 ? cents : NaN) : null];
     })
   );
+  const zoneError = (zoneId: string) =>
+    draft.zones[zoneId]?.on && Number.isNaN(zonePrices[zoneId])
+      ? "Un prix en euros, ou vide pour garder celui de la zone."
+      : undefined;
   const errors = {
     title: title ? undefined : "Donnez un titre à la soirée.",
-    slug: !SLUG_PATTERN.test(draft.slug)
+    // Sans titre ni adresse saisie, c'est le titre qui manque, pas l'adresse.
+    slug: !title && !slugTouched
+      ? undefined
+      : !SLUG_PATTERN.test(draft.slug)
       ? "Lettres minuscules, chiffres et tirets seulement."
       : slugTaken
         ? "Une autre soirée a déjà cette adresse."
         : undefined,
-    date: startsAt ? undefined : "Choisissez le jour et l'heure d'ouverture.",
-    end: endsAt ? undefined : "Indiquez l'heure de fermeture.",
+    date: isCalendarDay(draft.date) ? undefined : "Choisissez le jour.",
+    start: draft.start ? undefined : "Indiquez l'heure d'ouverture.",
+    end: draft.end ? undefined : "Indiquez l'heure de fermeture.",
     ticketUrl:
       !ticketUrl || (/^https:\/\/\S+\.\S+/.test(ticketUrl) && URL.canParse(ticketUrl))
         ? undefined
@@ -305,16 +242,10 @@ export function EventEditor({
       maxParty === null || (Number.isInteger(maxParty) && maxParty >= 1 && maxParty <= CLUB_LIMITS.guestMaxParty)
         ? undefined
         : `Entre 1 et ${CLUB_LIMITS.guestMaxParty} personnes.`,
-    zones: zonesOn.some((zone) => Number.isNaN(zonePrices[zone.id]))
-      ? "Un prix en euros, ou vide pour garder celui de la zone."
-      : undefined,
+    zones: zonesOn.some((zone) => zoneError(zone.id)) ? "zones" : undefined,
   };
-  const valid = Object.values(errors).every((error) => !error);
-  const flagged = [
-    ...new Set(
-      (Object.keys(errors) as (keyof typeof errors)[]).filter((key) => errors[key]).map((key) => ERROR_TAB[key])
-    ),
-  ];
+  const valid = Object.values(errors).every((error) => !error) && startsAt !== null && endsAt !== null;
+  const flagged = (Object.keys(errors) as (keyof typeof errors)[]).filter((key) => errors[key]);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const ended = event ? isPast(event, now) : false;
   // Soirée annulée dont des tables tiennent encore : un remboursement a
@@ -327,12 +258,23 @@ export function EventEditor({
     const zone = club.zones.find((candidate) => candidate.id === table?.zoneId);
     return table && zone ? tableName(zone.name, table.label) : "?";
   };
+  const shownError = (key: keyof typeof errors) => (showErrors ? errors[key] : undefined);
+
+  /** Les erreurs se montrent au champ ; la première reçoit le focus, les options s'ouvrent si elle y vit. */
+  const revealErrors = () => {
+    setShowErrors(true);
+    if (errors.slug) setEditSlug(true);
+    if (flagged.some((key) => OPTION_FIELDS.has(key))) setOptionsOpen(true);
+    requestAnimationFrame(() => {
+      const first = document.querySelector<HTMLElement>('.soirees [aria-invalid="true"]');
+      first?.scrollIntoView({ block: "center" });
+      first?.focus({ preventScroll: true });
+    });
+  };
 
   const save = async (publish?: boolean) => {
     if (!valid || !startsAt || !endsAt) {
-      setShowErrors(true);
-      if (flagged[0]) setTab(flagged[0]);
-      toast.error("Certains champs sont à corriger.");
+      revealErrors();
       return;
     }
     setSaving(true);
@@ -358,15 +300,27 @@ export function EventEditor({
           onIds.has(club.tables.find((table) => table.id === id)?.zoneId ?? "")
         ),
       });
-      if (publish !== undefined) await clubApi.setPublished(result.id, publish);
+      if (publish !== undefined) {
+        try {
+          await clubApi.setPublished(result.id, publish);
+        } catch (error) {
+          // La soirée existe déjà : on rejoint sa page, d'où « Publier » se relance.
+          if (event) throw error;
+          toast.error(`Soirée créée, mais pas publiée. ${describeError(error).text}`);
+          router.replace(`/gestion/soirees/${result.id}`);
+          return;
+        }
+      }
       setSaved(draft);
       let message = publish
-        ? "Soirée publiée : les réservations sont ouvertes."
+        ? event
+          ? "Soirée publiée : les réservations sont ouvertes."
+          : "Soirée créée et publiée : les réservations sont ouvertes."
         : publish === false
-          ? "Soirée dépubliée."
+          ? "Soirée repassée en brouillon : les clients ne la voient plus."
           : event
             ? "Soirée enregistrée."
-            : "Soirée créée, en brouillon.";
+            : "Soirée créée, en brouillon : publiez-la quand tout est prêt.";
       if (hoursChanged && settled > 0 && !event?.cancelledAt) {
         const notified = await clubApi.notifyEventChanged(result.id);
         if (notified > 0) {
@@ -376,7 +330,7 @@ export function EventEditor({
       toast.success(message);
       if (!event) router.replace(`/gestion/soirees/${result.id}`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     } finally {
       setSaving(false);
     }
@@ -387,7 +341,7 @@ export function EventEditor({
     try {
       set("posterUrl", await uploadPhoto(file));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "L'envoi de l'affiche a échoué.");
+      toast.error(describeError(error).message);
     } finally {
       setUploading(false);
     }
@@ -415,7 +369,7 @@ export function EventEditor({
         toast.success(summary);
       }
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     } finally {
       setSaving(false);
     }
@@ -437,86 +391,134 @@ export function EventEditor({
       blocked.has(tableId) ? draft.blocked.filter((id) => id !== tableId) : [...draft.blocked, tableId]
     );
   };
-  const tabs = SECTIONS.map((section) => section.id).filter((id) => id !== "gardees" || Boolean(planZone));
-  const nextTab = tabs[tabs.indexOf(tab) + 1];
   const blockedIn = (zoneId: string) =>
     draft.blocked.filter((id) => club.tables.find((table) => table.id === id)?.zoneId === zoneId).length;
-  const shownError = (key: keyof typeof errors) => (showErrors ? errors[key] : undefined);
+
+  const siteHost = clubSiteUrl.replace(/^https?:\/\//, "");
+  const pageUrl = `${siteHost}/${clubSlug}/${draft.slug || "…"}`;
+  const guestsOn = draft.guestListOpen;
+  // Ce que les options contiennent, lu sans les déplier.
+  const optionsSummary = [
+    club.zones.length === 0
+      ? "aucune zone"
+      : zonesOn.length === club.zones.length
+      ? "toutes les zones en vente"
+      : `${zonesOn.length} zone${zonesOn.length > 1 ? "s" : ""} en vente`,
+    draft.blocked.length > 0 && `${draft.blocked.length} table${draft.blocked.length > 1 ? "s" : ""} gardée${draft.blocked.length > 1 ? "s" : ""}`,
+    draft.posterUrl ? "affiche" : "sans affiche",
+    ticketUrl && "billetterie",
+    guestsOn ? "liste d'invités ouverte" : "liste d'invités fermée",
+  ].filter(Boolean);
+
+  const status = event
+    ? event.cancelledAt
+      ? "Soirée annulée : chaque table a été rendue à son client."
+      : event.published
+        ? `Publiée · ${formatNight(event.startsAt)}`
+        : "Brouillon : invisible des clients tant qu'elle n'est pas publiée."
+    : "Quatre champs, puis publiez-la : vos clients réservent leur table sur sa page.";
 
   return (
-    <div className="flex flex-col gap-6 pb-20">
-      <div className="flex flex-col gap-3">
+    <div className="soirees-page flex flex-col gap-6">
+      <div className="g-rise flex flex-col gap-2" style={rise(0)}>
         <BackToSoirees />
-        <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-              {event ? event.title : "Nouvelle soirée"}
-            </h1>
-            <p className="mt-1 text-sm text-muted">
-              {event
-                ? event.cancelledAt
-                  ? "Soirée annulée : chaque table a été rendue à son client."
-                  : event.published
-                    ? `Publiée · ${formatNight(event.startsAt)}`
-                    : "Brouillon : invisible des clients tant qu'elle n'est pas publiée."
-                : "Elle naît en brouillon : publiez-la quand tout est prêt."}
-            </p>
-          </div>
-          {event && (
-            <div className="flex flex-wrap gap-2">
-              {!event.cancelledAt && (
-                <Link
-                  href={`/gestion/soirees/${event.id}/live`}
-                  className="flex min-h-11 items-center rounded-full border border-hairline px-4 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:min-h-9"
-                >
-                  Plan du soir
-                </Link>
-              )}
-              {event.published && (
-                <a
-                  href={`${clubSiteUrl}/${clubSlug}/${event.slug}`}
-                  target="_blank"
-                  rel="noopener"
-                  className="flex min-h-11 items-center rounded-full border border-hairline px-4 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:min-h-9"
-                >
-                  Voir la page
-                </a>
-              )}
-            </div>
-          )}
-        </div>
+        <SectionHeading
+          level={1}
+          title={event ? event.title : "Nouvelle soirée"}
+          sub={status}
+          right={
+            event ? (
+              <div className="flex flex-wrap gap-2">
+                {!event.cancelledAt && <GlassButton href={`/gestion/soirees/${event.id}/live`}>Plan du soir</GlassButton>}
+                {event.published && (
+                  <a
+                    href={`${clubSiteUrl}/${clubSlug}/${event.slug}`}
+                    target="_blank"
+                    rel="noopener"
+                    className="g-btn g-btn-secondary g-press"
+                  >
+                    Voir la page
+                    <ExternalLinkIcon />
+                  </a>
+                )}
+              </div>
+            ) : undefined
+          }
+        />
       </div>
 
-      <SectionTabs available={tabs} current={tab} flagged={showErrors ? flagged : []} onSelect={setTab} />
+      {event?.cancelledAt && pending.length > 0 && (
+        <Notice
+          title="Tables encore à rendre"
+          text={`${pending.length} réservation${pending.length > 1 ? "s" : ""} n'${pending.length > 1 ? "ont" : "a"} pas pu être rendue${pending.length > 1 ? "s" : ""}. Relancer ne rembourse jamais deux fois.`}
+          action={
+            <GlassButton variant="primary" disabled={saving} onClick={() => void cancelNight()}>
+              {saving ? "Remboursements…" : "Relancer les remboursements"}
+            </GlassButton>
+          }
+        />
+      )}
+      {event?.cancelledAt && pending.length > 0 && (
+        <Plate className="divide-y divide-hairline">
+          {pending.map((booking) => (
+            <div key={booking.id} className="flex min-h-g-control items-center justify-between gap-3 px-4 py-2 text-g-body">
+              <span className="min-w-0 truncate">
+                {labelOf(booking.tableId)} · {booking.name}
+              </span>
+              <span className="shrink-0 text-muted tabular-nums">
+                {formatCents(booking.totalCents)}
+                {failed.includes(booking.id) ? " · échec" : ""}
+              </span>
+            </div>
+          ))}
+        </Plate>
+      )}
 
-      <Section id="infos" current={tab} title="La soirée">
+      <Plate className="g-rise flex flex-col gap-4 p-5" style={rise(1)}>
+        <h2 className="font-display text-g-h2">La soirée</h2>
         <Field label="Titre" required error={shownError("title")}>
-          <input
+          <Input
             value={draft.title}
             maxLength={CLUB_LIMITS.title}
             onChange={(e) => set("title", e.target.value)}
             placeholder="Five Stars"
-            aria-invalid={Boolean(shownError("title")) || undefined}
-            className={inputClass}
           />
         </Field>
-        <div className="grid gap-4 sm:grid-cols-3">
-          <Field label="Jour" required error={shownError("date")}>
-            <input
-              type="date"
-              value={draft.date}
-              onChange={(e) => set("date", e.target.value)}
-              aria-invalid={Boolean(shownError("date")) || undefined}
-              className={inputClass}
+        {editSlug ? (
+          <Field
+            label="Adresse de la page"
+            required
+            error={shownError("slug")}
+            hint={event?.published ? "La changer casse les liens déjà partagés." : pageUrl}
+          >
+            <Input
+              value={draft.slug}
+              onChange={(e) => {
+                setSlugTouched(true);
+                set("slug", e.target.value.toLowerCase());
+              }}
+              autoCapitalize="none"
+              spellCheck={false}
             />
           </Field>
-          <Field label="Ouverture" required>
-            <input
-              type="time"
-              value={draft.start}
-              onChange={(e) => set("start", e.target.value)}
-              className={inputClass}
-            />
+        ) : (
+          <p className="-mt-2 flex flex-wrap items-center gap-x-2 text-g-meta text-muted">
+            <span className="min-w-0 truncate">{pageUrl}</span>
+            <button
+              type="button"
+              onClick={() => setEditSlug(true)}
+              className="g-press min-h-g-control font-medium text-foreground underline underline-offset-4"
+            >
+              Modifier l&rsquo;adresse
+            </button>
+          </p>
+        )}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Field label="Jour" required error={shownError("date")}>
+            <Input type="date" value={draft.date} onChange={(e) => set("date", e.target.value)} />
+          </Field>
+          <Field label="Ouverture" required error={shownError("start")}>
+            <Input type="time" value={draft.start} onChange={(e) => set("start", e.target.value)} />
           </Field>
           <Field
             label="Fermeture"
@@ -524,365 +526,260 @@ export function EventEditor({
             error={shownError("end")}
             hint={nextDay && isCalendarDay(draft.date) ? `Le lendemain, ${formatNight(`${shiftDay(draft.date, 1)}T12:00:00Z`)}.` : undefined}
           >
-            <input
-              type="time"
-              value={draft.end}
-              onChange={(e) => set("end", e.target.value)}
-              aria-invalid={Boolean(shownError("end")) || undefined}
-              className={inputClass}
-            />
+            <Input type="time" value={draft.end} onChange={(e) => set("end", e.target.value)} />
           </Field>
         </div>
         {settled > 0 && (
-          <p className="text-xs text-muted">
-            Un nouvel horaire est envoyé par e-mail aux clients des tables réglées.
-          </p>
+          <p className="text-g-meta text-muted">Un nouvel horaire est envoyé par e-mail aux clients des tables réglées.</p>
         )}
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Étiquette" hint="« Showcase », « Étudiants » : affichée sur l'affiche.">
-            <input
-              value={draft.tag}
-              maxLength={CLUB_LIMITS.tag}
-              onChange={(e) => set("tag", e.target.value)}
-              className={inputClass}
-            />
-          </Field>
-          <Field
-            label="Adresse de la page"
-            required
-            error={shownError("slug")}
-            hint={
-              event?.published
-                ? "La changer casse les liens déjà partagés."
-                : `${clubSiteUrl.replace(/^https?:\/\//, "")}/${clubSlug}/${draft.slug || "…"}`
-            }
-          >
-            <input
-              value={draft.slug}
-              onChange={(e) => {
-                setSlugTouched(true);
-                set("slug", e.target.value.toLowerCase());
-              }}
-              aria-invalid={Boolean(shownError("slug")) || undefined}
-              autoCapitalize="none"
-              spellCheck={false}
-              className={inputClass}
-            />
-          </Field>
-        </div>
-        <Field label="Description">
-          <textarea
-            value={draft.description}
-            maxLength={CLUB_LIMITS.description}
-            onChange={(e) => set("description", e.target.value)}
-            rows={3}
-            placeholder="Le line-up, l'ambiance, le dress code."
-            className={inputClass}
-          />
-        </Field>
-      </Section>
+      </Plate>
 
-      <Section id="affiche" current={tab} title="Affiche et billets" hint="Les entrées restent chez votre billetterie : la page y renvoie.">
-        <div className="flex flex-wrap items-center gap-4">
-          {draft.posterUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element -- affiche du club, servie par Supabase Storage
-            <img
-              src={draft.posterUrl}
-              alt="Affiche de la soirée"
-              className="h-36 w-28 rounded-xl border border-hairline object-cover"
-            />
-          ) : (
-            <span className="flex h-36 w-28 items-center justify-center rounded-xl border border-dashed border-hairline px-3 text-center text-xs text-muted">
-              Pas d&rsquo;affiche
-            </span>
-          )}
-          <div className="flex flex-col gap-2">
-            <label className="ember-gradient inline-flex min-h-11 cursor-pointer items-center justify-center rounded-full px-5 text-sm font-semibold text-background focus-within:outline-2 focus-within:outline-offset-2 focus-within:outline-ember-1 lg:pointer-fine:min-h-9">
-              {uploading ? "Envoi…" : draft.posterUrl ? "Changer l'affiche" : "Ajouter une affiche"}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                disabled={uploading}
-                className="sr-only"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  e.target.value = "";
-                  if (file) void upload(file);
-                }}
-              />
-            </label>
-            {draft.posterUrl && (
-              <button
-                type="button"
-                onClick={() => set("posterUrl", null)}
-                className="rounded-full border border-hairline px-5 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-3/40 hover:text-ember-3"
-              >
-                Retirer
-              </button>
-            )}
+      <Plate className="g-rise" style={rise(2)}>
+        <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+          <div className="min-w-0">
+            <h2 className="font-display text-g-h2">Options de la soirée</h2>
+            <p className="mt-1 text-g-meta text-muted first-letter:uppercase">{optionsSummary.join(" · ")}</p>
           </div>
+          <GlassButton
+            aria-expanded={optionsOpen}
+            aria-controls={optionsOpen ? "options-soiree" : undefined}
+            aria-label={`${optionsOpen ? "Replier" : "Ouvrir"} les options de la soirée`}
+            onClick={() => setOptionsOpen(!optionsOpen)}
+          >
+            {optionsOpen ? "Replier" : "Ouvrir"}
+          </GlassButton>
         </div>
-        <Field label="Lien de la billetterie" hint="Shotgun, Dice… vide s'il n'y a pas d'entrées en vente." error={shownError("ticketUrl")}>
-          <input
-            type="url"
-            inputMode="url"
-            value={draft.ticketUrl}
-            onChange={(e) => set("ticketUrl", e.target.value)}
-            placeholder="https://shotgun.live/events/…"
-            aria-invalid={Boolean(shownError("ticketUrl")) || undefined}
-            className={inputClass}
-          />
-        </Field>
-      </Section>
-
-      <Section
-        id="zones"
-        current={tab}
-        title="Tables en vente"
-        hint="Les zones ouvertes ce soir et leur prix. Vide, le prix est celui de la zone."
-      >
-        <ul className="divide-y divide-hairline rounded-2xl border border-hairline">
-          {club.zones.map((zone) => {
-            const zoneDraft = draft.zones[zone.id] ?? { on: false, price: "" };
-            const count = club.tables.filter((table) => table.zoneId === zone.id).length;
-            const invalid = zoneDraft.on && Number.isNaN(zonePrices[zone.id]);
-            return (
-              <li
-                key={zone.id}
-                className="grid grid-cols-[auto_1fr] items-center gap-x-4 gap-y-3 px-4 py-3.5 sm:grid-cols-[auto_1fr_9rem]"
-              >
-                <Toggle
-                  checked={zoneDraft.on}
-                  onChange={(on) => {
-                    set("zones", { ...draft.zones, [zone.id]: { ...zoneDraft, on } });
-                    if (on && !planZone) setPlanZoneId(zone.id);
-                  }}
-                  label={`Vendre les tables ${zone.name}`}
-                />
-                <div className="min-w-0">
-                  <p className="text-sm font-medium">{zone.name}</p>
-                  <p className="line-clamp-2 text-xs text-muted">
-                    {count} table{count > 1 ? "s" : ""} · {formatCents(zone.priceCents)}
-                    {zone.inclus ? ` · ${zone.inclus}` : ""}
-                  </p>
-                </div>
-                {zoneDraft.on && (
-                  <EurosInput
-                    value={zoneDraft.price}
-                    onChange={(price) => set("zones", { ...draft.zones, [zone.id]: { ...zoneDraft, price } })}
-                    placeholder={eurosToInput(zone.priceCents)}
-                    invalid={invalid}
-                    label={`Prix d'une table ${zone.name} ce soir`}
-                    className="col-span-2 sm:col-span-1"
+        {optionsOpen && (
+          <div id="options-soiree" className="border-t border-hairline">
+            <Option title="Sur la page" hint="Ce que le client lit sous le titre.">
+              <div className="grid gap-4 sm:grid-cols-[14rem_1fr]">
+                <Field label="Étiquette" hint="« Showcase », « Étudiants » : affichée sur l'affiche.">
+                  <Input value={draft.tag} maxLength={CLUB_LIMITS.tag} onChange={(e) => set("tag", e.target.value)} />
+                </Field>
+                <Field label="Description">
+                  <Textarea
+                    value={draft.description}
+                    maxLength={CLUB_LIMITS.description}
+                    onChange={(e) => set("description", e.target.value)}
+                    rows={3}
+                    placeholder="Le line-up, l'ambiance, le dress code."
                   />
+                </Field>
+              </div>
+            </Option>
+
+            <Option title="Affiche et billets" hint="Les entrées restent chez votre billetterie : la page y renvoie.">
+              <div className="flex flex-wrap items-center gap-4">
+                {draft.posterUrl ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- affiche du club, servie par Supabase Storage
+                  <img
+                    src={draft.posterUrl}
+                    alt="Affiche de la soirée"
+                    className="h-36 w-28 rounded-g-card border border-hairline object-cover"
+                  />
+                ) : (
+                  <span className="flex h-36 w-28 items-center justify-center rounded-g-card border border-dashed border-hairline px-3 text-center text-g-meta text-muted">
+                    Pas d&rsquo;affiche
+                  </span>
                 )}
-              </li>
-            );
-          })}
-        </ul>
-        {shownError("zones") && (
-          <p role="alert" className="text-xs font-medium text-ember-3">
-            {errors.zones}
-          </p>
-        )}
+                <div className="flex flex-col gap-2">
+                  <input
+                    ref={fileInput}
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    className="sr-only"
+                    tabIndex={-1}
+                    aria-hidden
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      e.target.value = "";
+                      if (file) void upload(file);
+                    }}
+                  />
+                  <GlassButton variant="primary" disabled={uploading} onClick={() => fileInput.current?.click()}>
+                    {uploading ? "Envoi…" : draft.posterUrl ? "Changer l'affiche" : "Ajouter une affiche"}
+                  </GlassButton>
+                  {draft.posterUrl && <GlassButton onClick={() => set("posterUrl", null)}>Retirer l&rsquo;affiche</GlassButton>}
+                </div>
+              </div>
+              <Field label="Lien de la billetterie" hint="Shotgun, Dice… vide s'il n'y a pas d'entrées en vente." error={shownError("ticketUrl")}>
+                <Input
+                  type="url"
+                  inputMode="url"
+                  value={draft.ticketUrl}
+                  onChange={(e) => set("ticketUrl", e.target.value)}
+                  placeholder="https://shotgun.live/events/…"
+                />
+              </Field>
+            </Option>
 
-      </Section>
+            {club.zones.length > 0 && (
+            <Option title="Tables en vente" hint="Les zones ouvertes ce soir et leur prix. Vide, le prix est celui de la zone.">
+              <ul className="flex flex-col gap-4">
+                {club.zones.map((zone) => {
+                  const zoneDraft = draft.zones[zone.id] ?? { on: false, price: "" };
+                  const count = club.tables.filter((table) => table.zoneId === zone.id).length;
+                  return (
+                    <li key={zone.id} className="grid gap-x-4 gap-y-3 sm:grid-cols-[1fr_10rem] sm:items-start">
+                      <Switch
+                        checked={zoneDraft.on}
+                        onChange={(on) => {
+                          set("zones", { ...draft.zones, [zone.id]: { ...zoneDraft, on } });
+                          if (on && !planZone) setPlanZoneId(zone.id);
+                        }}
+                        label={zone.name}
+                        hint={`${count} table${count > 1 ? "s" : ""} · ${formatCents(zone.priceCents)}${zone.inclus ? ` · ${zone.inclus}` : ""}`}
+                      />
+                      {zoneDraft.on && (
+                        <Field label="Prix ce soir" error={showErrors ? zoneError(zone.id) : undefined}>
+                          <EurosInput
+                            value={zoneDraft.price}
+                            onChange={(price) => set("zones", { ...draft.zones, [zone.id]: { ...zoneDraft, price } })}
+                            placeholder={eurosToInput(zone.priceCents)}
+                            label={`Prix d'une table ${zone.name} ce soir`}
+                          />
+                        </Field>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            </Option>
+            )}
 
-      {planZone && (
-        <Section
-          id="gardees"
-          current={tab}
-          title="Tables gardées"
-          hint="Touchez une table pour la garder hors vente ce soir — artiste, habitués. Vous pourrez toujours la réserver vous-même."
-        >
-          {zonesOn.length > 1 && (
-            <UnderlineTabs
-            label="Zone du plan"
-              tabs={zonesOn.map((zone) => ({ id: zone.id, label: zone.name, count: blockedIn(zone.id) }))}
-              activeId={planZone.id}
-              onSelect={setPlanZoneId}
-            />
-          )}
-          <NightPlan
-            key={planZone.id}
-            compact
-            zone={planZone}
-            tables={planTables}
-            states={planStates}
-            onSelect={(table) => toggleBlocked(table.id)}
-            describe={(table, state) =>
-              `${tableName(planZone.name, table.label)}, ${table.seats} places, ${
-                state === "libre" ? "en vente" : (TABLE_STATE_LABELS[state] ?? state).toLowerCase()
-              }`
-            }
-          />
-          <PlanLegend states={["libre", "gardee", "payee", "attente"]} />
-        </Section>
-      )}
+            {planZone && (
 
-      <Section id="invites" current={tab} title="Liste d'invités" hint="Une inscription gratuite depuis la page de la soirée ; l'équipe coche les arrivées à la porte.">
-        <div className="flex items-center justify-between gap-4">
-          <p className="text-sm font-medium">Inscriptions ouvertes</p>
-          <Toggle
-            checked={draft.guestListOpen}
-            onChange={(open) => set("guestListOpen", open)}
-            label="Ouvrir la liste d'invités"
-          />
-        </div>
-        {draft.guestListOpen && (
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Places sur la liste" hint="Vide : sans plafond." error={shownError("capacity")}>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={draft.guestCapacity}
-                onChange={(e) => set("guestCapacity", e.target.value)}
-                aria-invalid={Boolean(shownError("capacity")) || undefined}
-                className={inputClass}
-              />
-            </Field>
-            <Field label="Personnes par inscription" error={shownError("maxParty")}>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                max={CLUB_LIMITS.guestMaxParty}
-                value={draft.guestMaxParty}
-                onChange={(e) => set("guestMaxParty", e.target.value)}
-                aria-invalid={Boolean(shownError("maxParty")) || undefined}
-                className={inputClass}
-              />
-            </Field>
+              <Option
+                title="Tables gardées"
+                hint="Touchez une table pour la garder hors vente ce soir : artiste, habitués. Vous pourrez toujours la réserver vous-même."
+              >
+                {zonesOn.length > 1 && (
+                  <div className="seg-defile">
+                    <Segmented
+                      label="Zone du plan"
+                      glass={false}
+                      options={zonesOn.map((zone) => ({
+                        value: zone.id,
+                        label: blockedIn(zone.id) > 0 ? `${zone.name} · ${blockedIn(zone.id)}` : zone.name,
+                      }))}
+                      value={planZone.id}
+                      onChange={setPlanZoneId}
+                    />
+                  </div>
+                )}
+                <NightPlan
+                  key={planZone.id}
+                  compact
+                  zone={planZone}
+                  tables={planTables}
+                  states={planStates}
+                  onSelect={(table) => toggleBlocked(table.id)}
+                  describe={(table, state) =>
+                    `${tableName(planZone.name, table.label)}, ${table.seats} places, ${
+                      state === "libre" ? "en vente" : (TABLE_STATE_LABELS[state] ?? state).toLowerCase()
+                    }`
+                  }
+                />
+                <PlanLegend states={["libre", "gardee", "payee", "attente"]} />
+              </Option>
+            )}
+
+            <Option title="Liste d'invités" hint="Une inscription gratuite depuis la page de la soirée ; l'équipe coche les arrivées à la porte.">
+              <Switch checked={guestsOn} onChange={(open) => set("guestListOpen", open)} label="Inscriptions ouvertes" />
+              {guestsOn && (
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Field label="Places sur la liste" hint="Vide : sans plafond." error={shownError("capacity")}>
+                    <Input
+                      numeric
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      value={draft.guestCapacity}
+                      onChange={(e) => set("guestCapacity", e.target.value)}
+                    />
+                  </Field>
+                  <Field label="Personnes par inscription" hint={`Entre 1 et ${CLUB_LIMITS.guestMaxParty}.`} error={shownError("maxParty")}>
+                    <Input
+                      numeric
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={CLUB_LIMITS.guestMaxParty}
+                      value={draft.guestMaxParty}
+                      onChange={(e) => set("guestMaxParty", e.target.value)}
+                    />
+                  </Field>
+                </div>
+              )}
+            </Option>
           </div>
         )}
-      </Section>
-
-      {nextTab && (
-        <button
-          type="button"
-          onClick={() => setTab(nextTab)}
-          className="flex min-h-11 items-center gap-2 self-end rounded-full border border-hairline px-5 text-sm font-medium hover:border-[var(--soirees-gold)]"
-        >
-          Suivant : {SECTIONS.find((section) => section.id === nextTab)?.label}
-          <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="m9 6 6 6-6 6" />
-          </svg>
-        </button>
-      )}
-
-      {event?.cancelledAt && pending.length > 0 && (
-        <section
-          role="alert"
-          className="flex flex-col gap-4 rounded-2xl border border-ember-3/40 bg-ember-3/5 p-5"
-        >
-          <div>
-            <h2 className="font-display text-lg font-medium">Tables encore à rendre</h2>
-            <p className="mt-1 text-sm text-muted">
-              La soirée est annulée, mais {pending.length} réservation{pending.length > 1 ? "s" : ""}{" "}
-              n&rsquo;{pending.length > 1 ? "ont" : "a"} pas pu être rendue{pending.length > 1 ? "s" : ""}. Relancer
-              ne rembourse jamais deux fois.
-            </p>
-          </div>
-          <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface text-sm">
-            {pending.map((booking) => (
-              <li key={booking.id} className="flex items-center justify-between gap-3 px-4 py-2.5">
-                <span className="min-w-0 truncate">
-                  {labelOf(booking.tableId)} · {booking.name}
-                </span>
-                <span className="shrink-0 tabular-nums text-muted">
-                  {formatCents(booking.totalCents)}
-                  {failed.includes(booking.id) ? " · échec" : ""}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <button
-            type="button"
-            onClick={() => void cancelNight()}
-            disabled={saving}
-            className="ember-gradient min-h-11 self-start rounded-full px-5 text-sm font-semibold text-background disabled:opacity-50"
-          >
-            {saving ? "Remboursements en cours…" : "Relancer les remboursements"}
-          </button>
-        </section>
-      )}
+      </Plate>
 
       {event && !event.cancelledAt && !ended && (
-        <section
-          aria-labelledby="zone-sensible"
-          className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-ember-3/50 bg-ember-3/5 p-5"
-        >
+        <Plate className="g-rise flex flex-wrap items-center justify-between gap-4 p-5" style={rise(3)}>
           <div className="min-w-0 flex-1">
-            <p id="zone-sensible" className="text-xs font-semibold uppercase tracking-wider text-ember-3">
-              Zone sensible
-            </p>
-            <h2 className="mt-1 font-display text-lg font-medium">Annuler la soirée</h2>
-            <p className="mt-1 text-sm text-muted">
-              Chaque table est rendue à son client, remboursée si elle a été payée en ligne, et le
-              client prévenu par e-mail.
+            <h2 className="font-display text-g-h2">Annuler la soirée</h2>
+            <p className="mt-1 text-g-meta text-muted">
+              Chaque table est rendue à son client, remboursée si elle a été payée en ligne, et le client prévenu par e-mail.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => setConfirmCancel(true)}
-            disabled={saving}
-            className="rounded-full border border-ember-3/50 bg-ember-3/10 px-5 py-2.5 text-sm font-semibold text-ember-3 transition-colors hover:bg-ember-3/20 disabled:opacity-50"
-          >
+          <GlassButton variant="danger" disabled={saving} onClick={() => setConfirmCancel(true)}>
             Annuler la soirée
-          </button>
-        </section>
+          </GlassButton>
+        </Plate>
       )}
 
-      <div className="soirees-barre fixed inset-x-0 bottom-0 z-30 border-t border-hairline bg-background/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-md">
-        <div className="mx-auto flex w-full max-w-2xl items-center justify-end gap-2 px-5 py-3 sm:gap-3 lg:max-w-5xl lg:px-10">
-          {/* L'état de la soirée se lit d'un coup d'œil : rien de neuf, à enregistrer, enregistré. */}
-          <p
-            className="mr-auto flex items-center gap-2 text-sm"
-            aria-live="polite"
-            data-etat={saving ? "envoi" : dirty || !event ? "modifie" : "enregistre"}
-          >
-            {saving ? (
-              <span className="text-muted">Enregistrement…</span>
-            ) : dirty || !event ? (
-              <>
-                <span className="size-2 rounded-full bg-[var(--soirees-gold)]" aria-hidden />
-                <span className="font-medium">{event ? "À enregistrer" : "Pas encore créée"}</span>
-              </>
-            ) : (
-              <>
-                <CheckIcon className="size-4 text-[var(--soirees-ok)]" />
-                <span className="text-muted">Enregistré</span>
-              </>
+      <div className="soirees-barre g-glass g-rise flex flex-wrap items-center justify-end gap-2 px-3 py-2 sm:gap-3 sm:px-4" style={rise(4)}>
+        {/* L'état de la soirée se lit d'un coup d'œil : rien de neuf, à enregistrer, enregistré. */}
+        <p className="mr-auto flex min-w-0 items-center gap-2 text-g-label" aria-live="polite">
+          {saving ? (
+            <span className="text-muted">Enregistrement…</span>
+          ) : showErrors && !valid ? (
+            <>
+              <AlertIcon className="size-4 shrink-0 text-ember-3" />
+              <span className="font-medium">Un champ est à corriger</span>
+            </>
+          ) : !event ? (
+            <span className="text-muted max-sm:hidden">Pas encore créée</span>
+          ) : dirty ? (
+            <>
+              <span className="size-2 shrink-0 rounded-full bg-ember-1" aria-hidden />
+              <span className="font-medium">À enregistrer</span>
+            </>
+          ) : (
+            <span className="text-muted">Enregistré</span>
+          )}
+        </p>
+        {event ? (
+          <>
+            {!event.cancelledAt && (
+              <GlassButton disabled={saving} onClick={() => void save(!event.published)}>
+                {event.published ? "Repasser en brouillon" : "Publier"}
+              </GlassButton>
             )}
-          </p>
-          {event && !event.cancelledAt && (
-            <button
-              type="button"
-              onClick={() => void save(!event.published)}
-              disabled={saving}
-              className="min-h-11 rounded-full border border-hairline px-5 text-sm font-semibold text-foreground hover:border-[var(--soirees-gold)] disabled:opacity-50"
-            >
-              {event.published ? "Dépublier" : "Publier"}
-            </button>
-          )}
-          {(dirty || !event) && (
-            <button
-              type="button"
-              onClick={() => void save()}
-              disabled={saving}
-              className="ember-gradient min-h-11 rounded-full px-5 text-sm font-semibold disabled:opacity-50"
-            >
-              {saving ? "Enregistrement…" : event ? "Enregistrer" : "Créer la soirée"}
-            </button>
-          )}
-        </div>
+            {dirty && (
+              <GlassButton variant="primary" disabled={saving} onClick={() => void save()}>
+                Enregistrer
+              </GlassButton>
+            )}
+          </>
+        ) : (
+          <>
+            <GlassButton disabled={saving} onClick={() => void save()}>
+              Créer en brouillon
+            </GlassButton>
+            <GlassButton variant="primary" disabled={saving} onClick={() => void save(true)}>
+              Créer et publier
+            </GlassButton>
+          </>
+        )}
       </div>
 
       {confirmCancel && event && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Annuler « ${event.title} » ?`}
-          message={`La soirée reste affichée, marquée annulée, et plus aucune table ne s'y vend. ${
+          text={`La soirée reste affichée, marquée annulée, et plus aucune table ne s'y vend. ${
             paidOnline > 0
               ? `${paidOnline} table${paidOnline > 1 ? "s" : ""} payée${paidOnline > 1 ? "s" : ""} en ligne ${paidOnline > 1 ? "sont remboursées" : "est remboursée"} d'office, frais de service compris. `
               : ""

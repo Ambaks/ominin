@@ -10,15 +10,19 @@ import {
   type VisiteStep,
 } from "@/lib/gestion/visites";
 import { ChevronDownIcon, XIcon } from "./icons";
+import { GlassButton, Plate } from "./ui";
 
 /*
  * La visite d'une page. Montée tant que la page en a une, elle surveille
  * quelles étapes ont leur cible à l'écran — et le dit au shell, qui n'affiche
  * le bouton « ? » qu'alors. Ouverte, c'est un dialogue modal natif (le reste
  * de la page devient inerte, Échap la passe) qui assombrit tout sauf la
- * cible, et pose la carte d'explication à côté d'elle. Le halo glisse d'une
- * cible à l'autre et suit la sienne quand la page défile ou se redimensionne,
- * puis se tient immobile.
+ * cible, et pose la bulle d'explication à côté d'elle — un cadre de verre du
+ * kit, le texte sur sa plaque, le compteur d'étapes et « Suivant » / « Passer ».
+ * Le halo glisse d'une cible à l'autre et suit la sienne quand la page défile
+ * ou se redimensionne, puis se tient immobile. Une cible qui est elle-même
+ * une commande (bouton, lien, interrupteur) se touche à travers le halo : la
+ * visite s'écarte et le geste passe.
  */
 
 interface Box {
@@ -39,6 +43,8 @@ const HALO_PX = 6;
 const GAP_PX = 12;
 /** Marge d'écran de la carte, sur ses côtés comme dans sa largeur. */
 const EDGE_PX = 16;
+/** Paramètre d'URL qui ouvre la visite de la page. */
+const VISITE_PARAM = "visite";
 /** Glissement du halo d'une cible à la suivante. */
 const SLIDE_MS = 320;
 
@@ -49,9 +55,9 @@ const QUIET_FOCUS = {
   focusVisible: false,
 } as FocusOptions;
 
-const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1";
-const TEXT_BUTTON_CLASS = `-mx-2 min-h-11 whitespace-nowrap rounded-full px-2 text-sm font-medium text-muted transition-colors hover:text-foreground lg:pointer-fine:min-h-9 ${FOCUS_RING}`;
+/** Ce qui répond au doigt : une cible éclairée de cette forme reste cliquable sous la visite. */
+const INTERACTIVE =
+  "a[href], button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), summary, [role=\"button\"], [role=\"tab\"], [role=\"switch\"]:not(:disabled)";
 
 const ease = (t: number) => 1 - (1 - t) ** 3;
 
@@ -310,7 +316,7 @@ type VisiteFin = "vue" | "toutes" | "plus-tard";
 export function VisiteGuidee({
   visite,
   state,
-  open,
+  open: openedByShell,
   auto,
   onShown,
   onClose,
@@ -328,13 +334,18 @@ export function VisiteGuidee({
   const dialogRef = useRef<HTMLDialogElement>(null);
   const haloRef = useRef<HTMLDivElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
-  const primaryRef = useRef<HTMLButtonElement>(null);
   // Dernier halo dessiné : la cible suivante part de là.
   const drawnRef = useRef<Box | null>(null);
   // À l'ouverture : où rendre le focus et le défilement en sortant.
   const returnRef = useRef<{ opener: Element | null; scrollY: number } | null>(
     null
   );
+  // ?visite=<id> à l'arrivée sur la page l'ouvre aussi. Le shell ne monte la
+  // visite qu'une fois l'état chargé, donc côté client : window est sûr.
+  const [askedByUrl, setAskedByUrl] = useState(
+    () => new URLSearchParams(window.location.search).get(VISITE_PARAM) === visite.id
+  );
+  const open = openedByShell || askedByUrl;
   const openRef = useRef(open);
   const stateRef = useRef(state);
   // Fermeture voulue par la visite, et non imposée par le navigateur.
@@ -352,6 +363,9 @@ export function VisiteGuidee({
   const [current, setCurrent] = useState<VisiteStep | null>(null);
   // Étape dont la carte est posée : avant, elle reste masquée.
   const [placed, setPlaced] = useState<VisiteStep | null>(null);
+  // La carte n'entre en fondu qu'à l'ouverture ou quand la page saute : d'une
+  // étape à l'autre sur place, « Suivant » répond tout de suite.
+  const [fades, setFades] = useState(true);
 
   useEffect(() => {
     openRef.current = open;
@@ -442,6 +456,7 @@ export function VisiteGuidee({
     let pinned = target !== null && isPinned(target);
     const slide = prefersReducedMotion() ? 0 : SLIDE_MS;
     let phase: "depart" | "fermeture" | "ouverture" | "suivi" = "depart";
+    const first = drawnRef.current === null;
     let from = drawnRef.current ?? centre();
     let start = 0;
     // Position de la cible dans la page au départ (le défilement ne la change
@@ -513,10 +528,15 @@ export function VisiteGuidee({
             ).docked);
         if (!inPlace && refitting) setPlaced(null);
         refitting = false;
-        if (inPlace) phase = "ouverture";
-        else if (slide && from.width > 0 && from.height > 0)
-          phase = "fermeture";
-        else jump();
+        if (inPlace) {
+          phase = "ouverture";
+          setFades(first);
+          setPlaced(step);
+        } else {
+          setFades(true);
+          if (slide && from.width > 0 && from.height > 0) phase = "fermeture";
+          else jump();
+        }
       }
       const progressAt = () => (slide ? Math.min((now - start) / slide, 1) : 1);
       if (phase === "fermeture" && progressAt() === 1) jump();
@@ -604,7 +624,10 @@ export function VisiteGuidee({
   // n'en a pas besoin, le clavier le retrouve à la touche suivante.
   const isPlaced = step !== undefined && placed === step;
   useEffect(() => {
-    if (isPlaced) primaryRef.current?.focus(QUIET_FOCUS);
+    if (isPlaced)
+      cardRef.current
+        ?.querySelector<HTMLElement>("[data-principal]")
+        ?.focus(QUIET_FOCUS);
   }, [isPlaced, step]);
 
   if (!step) return null;
@@ -628,6 +651,13 @@ export function VisiteGuidee({
     setCurrent(null);
     setPlaced(null);
     drawnRef.current = null;
+    if (askedByUrl) {
+      setAskedByUrl(false);
+      // Recharger la page ne rouvre pas une visite terminée.
+      const url = new URL(window.location.href);
+      url.searchParams.delete(VISITE_PARAM);
+      window.history.replaceState(window.history.state, "", url);
+    }
     onClose(fin);
   };
   // Passer : la dernière étape atteinte, c'est une visite vue jusqu'au bout.
@@ -683,17 +713,26 @@ export function VisiteGuidee({
     element.focus(QUIET_FOCUS);
     element.click();
   };
-  // L'élément éclairé du geste se touche comme le bouton de la carte.
-  const overAction = (event: React.MouseEvent) => {
-    if (!action) return false;
-    const rect = findTarget(action.target)?.getBoundingClientRect();
-    return Boolean(
-      rect &&
+  // Ce qui se touche à travers le halo : l'élément du geste, ou la cible
+  // elle-même quand elle est une commande. Un cadre ou une section éclairés
+  // ne réagissent pas : la visite reste.
+  const pressable = (): string | null => {
+    if (action) return action.target;
+    // Le « ? » relancerait la visite qu'on est en train de suivre.
+    if (step.target && step.target !== "aide" && findTarget(step.target)?.matches(INTERACTIVE))
+      return step.target;
+    return null;
+  };
+  const overPressable = (event: React.MouseEvent) => {
+    const key = pressable();
+    const rect = key ? findTarget(key)?.getBoundingClientRect() : undefined;
+    return rect &&
       event.clientX >= rect.left &&
       event.clientX <= rect.right &&
       event.clientY >= rect.top &&
       event.clientY <= rect.bottom
-    );
+      ? key
+      : null;
   };
 
   return (
@@ -729,18 +768,19 @@ export function VisiteGuidee({
         data-centre=""
         className="visite-halo absolute"
         onPointerMove={(event) => {
-          event.currentTarget.style.cursor = overAction(event) ? "pointer" : "";
+          event.currentTarget.style.cursor = overPressable(event) ? "pointer" : "";
         }}
         onClick={(event) => {
-          if (action && overAction(event)) act(action.target);
+          const key = overPressable(event);
+          if (key) act(key);
         }}
       />
 
       <div
         key={visite.steps.indexOf(step)}
         ref={cardRef}
-        className={`absolute flex touch-pan-y flex-col gap-3 overflow-y-auto overscroll-contain rounded-2xl border border-hairline bg-surface-raised p-5 shadow-2xl [@media(max-height:44rem)]:gap-2 [@media(max-height:44rem)]:p-4 [@media(max-height:30rem)]:gap-1.5 [@media(max-height:30rem)]:p-3 ${
-          isPlaced ? "visite-card" : ""
+        className={`g-glass g-glass-orders absolute flex touch-pan-y flex-col overflow-y-auto overscroll-contain p-g-pad ${
+          isPlaced && fades ? "visite-card" : ""
         }`}
         style={{
           width: `min(22rem, calc(100vw - ${EDGE_PX * 2}px))`,
@@ -748,91 +788,70 @@ export function VisiteGuidee({
           visibility: isPlaced ? undefined : "hidden",
         }}
       >
-        <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <p
-              id="visite-etape"
-              className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]"
-            >
-              Visite guidée
-              <span className="sr-only">
-                , étape {index + 1} sur {steps.length}
-              </span>
-            </p>
+        <div className="g-cap justify-between pr-0">
+          <p id="visite-etape" className="flex items-baseline gap-2.5">
+            <span className="g-eyebrow">Visite guidée</span>
             {steps.length > 1 && (
-              <span aria-hidden className="flex items-center gap-1">
-                {steps.map((dot, i) => (
-                  <span
-                    key={visite.steps.indexOf(dot)}
-                    className={`h-1.5 rounded-full transition-all ${
-                      i === index
-                        ? "w-4 bg-ember-2"
-                        : i < index
-                          ? "w-1.5 bg-ember-2/50"
-                          : "w-1.5 bg-muted/35"
-                    }`}
-                  />
-                ))}
+              <span className="text-g-meta tabular-nums text-muted">
+                <span className="sr-only">Étape </span>
+                {index + 1}
+                <span aria-hidden> / </span>
+                <span className="sr-only">sur </span>
+                {steps.length}
               </span>
             )}
-          </div>
-          <button
-            type="button"
-            onClick={() => skip()}
+          </p>
+          <GlassButton
+            variant="icon"
             aria-label="Fermer la visite"
-            className={`-m-2 flex size-11 shrink-0 items-center justify-center rounded-full text-muted transition-colors hover:text-foreground lg:pointer-fine:size-9 ${FOCUS_RING}`}
+            onClick={() => skip()}
           >
-            <XIcon className="size-4" />
-          </button>
+            <XIcon />
+          </GlassButton>
         </div>
-        <h2
-          id="visite-titre"
-          className="font-display text-lg font-medium leading-snug [@media(max-height:30rem)]:text-base"
-        >
-          {texte(step.title, state)}
-        </h2>
-        <p
-          id="visite-texte"
-          className="whitespace-pre-line text-sm leading-relaxed text-muted"
-        >
-          {texte(step.body, state)}
-        </p>
-        <div className="mt-1 flex items-center justify-between gap-3">
+        <Plate className="px-4 py-3.5 [@media(max-height:30rem)]:py-2.5">
+          <h2
+            id="visite-titre"
+            className="font-display text-g-h2 [@media(max-height:30rem)]:text-g-name"
+          >
+            {texte(step.title, state)}
+          </h2>
+          <p
+            id="visite-texte"
+            className="mt-1.5 whitespace-pre-line text-g-body text-muted"
+          >
+            {texte(step.body, state)}
+          </p>
+        </Plate>
+        <div className="flex items-center justify-between gap-2 px-1.5 pt-2 pb-1 [@media(max-height:30rem)]:pt-1.5">
           {action ? (
-            <button
-              type="button"
-              onClick={last ? () => close("vue") : () => go(1)}
-              className={TEXT_BUTTON_CLASS}
-            >
-              {last ? "Terminer" : "Pas maintenant"}
-            </button>
+            <GlassButton onClick={last ? () => close("vue") : () => go(1)}>
+              {last ? "Terminer" : "Suivant"}
+            </GlassButton>
           ) : last ? (
             <span />
           ) : (
-            <button
-              type="button"
-              onClick={() => skip(true)}
-              className={TEXT_BUTTON_CLASS}
-            >
-              {auto && visite.id === "bienvenue" && index === 0
-                ? "Passer les visites"
-                : "Passer la visite"}
-            </button>
+            auto && visite.id === "bienvenue" && index === 0 ? (
+              <GlassButton onClick={() => skip(true)}>Passer les visites</GlassButton>
+            ) : (
+              <GlassButton aria-label="Passer la visite" onClick={() => skip(true)}>
+                Passer
+              </GlassButton>
+            )
           )}
           <div className="flex items-center gap-2">
             {index > 0 && (
-              <button
-                type="button"
+              <GlassButton
+                variant="icon"
                 onClick={() => go(-1)}
                 aria-label="Étape précédente"
-                className={`flex size-11 items-center justify-center rounded-full border border-hairline text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:size-9 ${FOCUS_RING}`}
               >
-                <ChevronDownIcon className="size-4 rotate-90" />
-              </button>
+                <ChevronDownIcon className="rotate-90" />
+              </GlassButton>
             )}
-            <button
-              ref={primaryRef}
-              type="button"
+            <GlassButton
+              variant="primary"
+              data-principal=""
               // Focalisé par la visite, le bouton ne garderait pas trace d'un
               // appui : Chrome mettrait alors un anneau sur la feuille que
               // son geste ouvre. Lâché à l'appui, il reprend un focus de
@@ -844,11 +863,9 @@ export function VisiteGuidee({
               // lui-même le numéro, le titre et le texte de l'étape.
               aria-describedby="visite-etape visite-titre visite-texte"
               onClick={action ? () => act(action.target) : () => go(1)}
-              className={`ember-gradient min-h-11 whitespace-nowrap rounded-full px-5 text-sm font-semibold text-background lg:pointer-fine:min-h-9 ${FOCUS_RING}`}
             >
-              {action?.label ??
-                (last ? "Terminer" : step.target ? "Suivant" : "C’est parti")}
-            </button>
+              {action?.label ?? (last ? "Terminer" : "Suivant")}
+            </GlassButton>
           </div>
         </div>
       </div>

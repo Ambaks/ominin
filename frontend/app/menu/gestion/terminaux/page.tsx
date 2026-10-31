@@ -1,14 +1,31 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
-import { EditIcon, TrashIcon } from "@/components/gestion/icons";
-import { DeviceAddModal } from "@/components/gestion/terminaux/device-add-modal";
-import { PrinterFormModal } from "@/components/gestion/terminaux/printer-form-modal";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
+import {
+  CheckIcon,
+  ClockIcon,
+  EditIcon,
+  OfflineIcon,
+  TrashIcon,
+} from "@/components/gestion/icons";
+import { DeviceAddSheet } from "@/components/gestion/terminaux/device-add-sheet";
+import { PrinterFormSheet } from "@/components/gestion/terminaux/printer-form-sheet";
+import {
+  Chip,
+  ConfirmSheet,
+  EmptyState,
+  ErrorNotice,
+  GlassButton,
+  GlassFrame,
+  Plate,
+  ReserveGerant,
+  SectionHeading,
+  Shimmer,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { DEFAULT_PRINTER_PORT, TERMINAUX_REFRESH_MS } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { formatDateTime, formatTime } from "@/lib/gestion/format";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import {
@@ -30,64 +47,57 @@ import {
 } from "@/lib/gestion/terminaux";
 
 /*
- * Le gérant voit ici ses boîtiers Omilink (le Raspberry Pi qui relie la
- * cuisine à Ominin) et ses imprimantes, leur état de santé rafraîchi en
- * continu ; il rattache un boîtier qui s'est annoncé, lui fait chercher les
+ * Le gérant voit ici son boîtier Omilink (le Raspberry Pi qui relie la
+ * cuisine à Ominin) et ses imprimantes, leur état de santé relu en continu ;
+ * il rattache un boîtier qui s'est annoncé, lui fait chercher les
  * imprimantes du réseau, déclare, modifie, teste ou retire une imprimante.
+ * Deux cadres, dans l'ordre de l'installation : le boîtier, puis ce qu'il
+ * relie. L'état est un constat calme : une pastille, une phrase, pas de
+ * clignotement.
  */
-
-const cardClass = "rounded-2xl border border-hairline bg-surface px-4 py-3";
-const iconButtonClass =
-  "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground";
-const deleteButtonClass =
-  "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3";
-const smallButtonClass =
-  "rounded-full border border-hairline px-3.5 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-60";
-const addButtonClass =
-  "ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background";
 
 type Health = "ok" | "ko" | "unknown";
 
-const DOT_CLASS: Record<Health, string> = {
-  ok: "bg-ember-1",
-  ko: "bg-ember-3",
-  unknown: "bg-faint",
-};
-
-function StatusDot({ health }: { health: Health }) {
-  return <span className={`size-2 shrink-0 rounded-full ${DOT_CLASS[health]}`} />;
-}
-
-type LinkState = "online" | "offline" | "waiting";
-
-const BADGE: Record<LinkState, { pill: string; dot: string; label: string }> = {
-  online: { pill: "border-ember-1/30 bg-ember-1/10 text-ember-1", dot: "bg-ember-1", label: "Connecté" },
-  offline: { pill: "border-ember-3/30 bg-ember-3/10 text-ember-3", dot: "bg-ember-3", label: "Hors ligne" },
-  waiting: { pill: "border-hairline text-faint", dot: "bg-faint", label: "En attente" },
-};
-
-/** Pastille d'état du boîtier ; le point pulse tant que le lien est vivant. */
-function LinkBadge({ state }: { state: LinkState }) {
-  const { pill, dot, label } = BADGE[state];
-  return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${pill}`}
-    >
-      <span className="relative flex size-1.5">
-        {state === "online" && (
-          <span
-            className={`absolute inline-flex size-full animate-ping rounded-full opacity-75 motion-reduce:hidden ${dot}`}
-          />
-        )}
-        <span className={`relative inline-flex size-1.5 rounded-full ${dot}`} />
-      </span>
-      {label}
-    </span>
-  );
+/** Pastille d'état, posée : l'icône dit la famille, le mot reste en clair ; grenat seulement pour un problème. */
+function HealthChip({ health, children }: { health: Health; children: ReactNode }) {
+  if (health === "ko") {
+    return (
+      <Chip tone="problem" icon={<OfflineIcon />}>
+        {children}
+      </Chip>
+    );
+  }
+  return <Chip icon={health === "ok" ? <CheckIcon /> : <ClockIcon />}>{children}</Chip>;
 }
 
 function secondsAgo(iso: string, now: number): number {
   return Math.max(0, Math.round((now - new Date(iso).getTime()) / 1000));
+}
+
+/** Une carte d'appareil : le nom et son état sur la première ligne, le détail dessous, les gestes en pied. */
+function Card({ name, title, chip, meta, children, actions }: {
+  name: string;
+  title?: string;
+  chip: ReactNode;
+  meta: ReactNode;
+  children?: ReactNode;
+  actions: ReactNode;
+}) {
+  return (
+    <Plate className="flex flex-col gap-3 p-4">
+      <div className="flex flex-col gap-1.5">
+        <p className="flex items-center gap-2">
+          <span className="min-w-0 flex-1 truncate text-g-body font-semibold" title={title}>
+            {name}
+          </span>
+          <span className="shrink-0">{chip}</span>
+        </p>
+        <p className="text-g-meta text-muted [overflow-wrap:anywhere]">{meta}</p>
+      </div>
+      {children}
+      <div className="flex flex-wrap justify-end gap-2">{actions}</div>
+    </Plate>
+  );
 }
 
 function DeviceCard({
@@ -110,79 +120,67 @@ function DeviceCard({
   const code = deviceCode(device.serial);
   const found = device.discovered_printers.filter((host) => !declaredHosts.has(host));
   const scanDone = online && device.scanned_at != null && !isScanning(device);
+  const health: Health = online ? "ok" : device.last_seen_at ? "ko" : "unknown";
   return (
-    <div className={`${cardClass} flex flex-col gap-3`}>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <p className="flex flex-wrap items-center gap-2 text-sm font-medium">
-            <span className="truncate">{device.name}</span>
-            {code && (
-              <span className="shrink-0 rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
-                n° {code}
-              </span>
-            )}
-            <LinkBadge
-              state={online ? "online" : device.last_seen_at ? "offline" : "waiting"}
-            />
-          </p>
-          <p className="text-xs text-faint">
-            {online && device.last_seen_at
-              ? `Relié à Ominin — dernier signe de vie il y a ${secondsAgo(device.last_seen_at, now)} s`
-              : device.last_seen_at
-                ? `Hors ligne — dernier contact le ${formatDateTime(device.last_seen_at)}`
-                : "En attente de sa première connexion"}
-            {device.version && ` · version ${device.version.slice(0, 7)}`}
-          </p>
-        </div>
-        <div className="flex shrink-0 items-center gap-1.5">
+    <Card
+      name={device.name}
+      title={device.version ? `Version ${device.version.slice(0, 7)}` : undefined}
+      chip={
+        <HealthChip health={health}>
+          {health === "ok" ? "Connecté" : health === "ko" ? "Hors ligne" : "Jamais connecté"}
+        </HealthChip>
+      }
+      meta={
+        <>
+          {code && <span className="tabular-nums">n° {code} · </span>}
+          {online && device.last_seen_at
+            ? `Relié à Ominin — dernier signe de vie il y a ${secondsAgo(device.last_seen_at, now)} s`
+            : device.last_seen_at
+              ? `Hors ligne — dernier contact le ${formatDateTime(device.last_seen_at)}`
+              : "En attente de sa première connexion"}
+        </>
+      }
+      actions={
+        <>
           {online && (
-            <button
-              type="button"
-              onClick={onScan}
-              disabled={scanning}
-              className={smallButtonClass}
-            >
+            <GlassButton onClick={onScan} disabled={scanning} aria-label={`Rechercher des imprimantes via ${device.name}`}>
               {scanning ? "Recherche en cours…" : "Rechercher des imprimantes"}
-            </button>
+            </GlassButton>
           )}
-          <button
-            type="button"
+          <GlassButton
+            variant="icon"
+            aria-label={`Retirer le boîtier ${device.name}`}
+            title="Retirer le boîtier"
             onClick={onDelete}
-            aria-label="Retirer le boîtier"
-            className={deleteButtonClass}
           >
-            <TrashIcon className="size-3.5" />
-          </button>
-        </div>
-      </div>
+            <TrashIcon />
+          </GlassButton>
+        </>
+      }
+    >
       {scanDone &&
         (found.length ? (
-          <ul className="flex flex-col gap-2">
+          <ul className="grid gap-2" aria-label="Imprimantes détectées">
             {found.map((host) => (
-              <li
-                key={host}
-                className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-hairline px-3 py-2"
-              >
-                <span className="text-sm">
-                  Imprimante détectée · <span className="font-medium">{host}</span>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => onAddPrinter(host)}
-                  className={smallButtonClass}
-                >
-                  Ajouter
-                </button>
+              <li key={host}>
+                <Plate className="flex min-h-g-control items-center justify-between gap-3 px-4 py-2">
+                  <span className="min-w-0 truncate text-g-body">
+                    Imprimante détectée · <span className="font-medium tabular-nums">{host}</span>
+                  </span>
+                  <GlassButton variant="primary" onClick={() => onAddPrinter(host)} aria-label={`Ajouter l’imprimante ${host}`}>
+                    Ajouter
+                  </GlassButton>
+                </Plate>
               </li>
             ))}
           </ul>
         ) : device.discovered_printers.length === 0 ? (
-          <p className="text-xs text-faint">
-            Aucune imprimante trouvée sur le port {DEFAULT_PRINTER_PORT} — vérifiez
-            qu&rsquo;elle est allumée et reliée au même réseau que le boîtier.
+          <p className="text-g-meta text-muted">
+            Aucune imprimante trouvée sur le port {DEFAULT_PRINTER_PORT} — vérifiez qu’elle est allumée et
+            reliée au même réseau que le boîtier.
           </p>
         ) : null)}
-    </div>
+    </Card>
   );
 }
 
@@ -190,28 +188,34 @@ function printerHealth(
   printer: Printer,
   deviceOnline: boolean,
   now: number
-): { health: Health; label: string } {
-  if (!deviceOnline) return { health: "unknown", label: "Boîtier Omilink hors ligne" };
+): { health: Health; label: string; text: string | null } {
+  if (!deviceOnline) return { health: "unknown", label: "Boîtier hors ligne", text: null };
   if (!isRecent(printer.checked_at, now)) {
-    return { health: "unknown", label: "Vérification en cours…" };
+    return { health: "unknown", label: "Pas encore vérifiée", text: null };
   }
   if (printer.last_error) {
     return {
       health: "ko",
-      label: "Injoignable — vérifiez qu'elle est allumée et reliée au réseau",
+      label: "Injoignable",
+      text: "Vérifiez qu’elle est allumée et reliée au réseau.",
     };
   }
-  return { health: "ok", label: "En ligne" };
+  return { health: "ok", label: "En ligne", text: null };
 }
 
-function testLabel(job: PrintJob | undefined, now: number): string | null {
+/** Le dernier test lancé d'ici : imprimé (et quand), en route, ou bloqué. */
+function TestChip({ job, now }: { job: PrintJob | undefined; now: number }) {
   if (!job) return null;
   if (job.status === "printed" && job.printed_at) {
-    return `Test imprimé à ${formatTime(job.printed_at)}.`;
+    return <Chip icon={<CheckIcon />}>Test imprimé à {formatTime(job.printed_at)}</Chip>;
   }
-  return isRecent(job.created_at, now)
-    ? "Test envoyé…"
-    : "Test en attente : l'imprimante ou le boîtier est hors ligne.";
+  return isRecent(job.created_at, now) ? (
+    <Chip icon={<ClockIcon />}>Test envoyé…</Chip>
+  ) : (
+    <Chip tone="problem" icon={<OfflineIcon />}>
+      Test en attente : imprimante ou boîtier hors ligne
+    </Chip>
+  );
 }
 
 function PrinterCard({
@@ -222,7 +226,6 @@ function PrinterCard({
   now,
   onTest,
   onEdit,
-  onDelete,
 }: {
   printer: Printer;
   deviceName: string | null;
@@ -231,40 +234,38 @@ function PrinterCard({
   now: number;
   onTest: () => void;
   onEdit: () => void;
-  onDelete: () => void;
 }) {
-  const { health, label } = printerHealth(printer, deviceOnline, now);
-  const testStatus = testLabel(test, now);
+  const { health, label, text } = printerHealth(printer, deviceOnline, now);
   return (
-    <div className={`${cardClass} flex items-start justify-between gap-3`}>
-      <div className="min-w-0">
-        <p className="flex items-center gap-2 text-sm font-medium">
-          <StatusDot health={health} />
-          <span className="truncate">{printer.name}</span>
+    <Card
+      name={printer.name}
+      chip={<HealthChip health={health}>{label}</HealthChip>}
+      meta={
+        <>
+          <span className="tabular-nums">
+            {printer.host}:{printer.port}
+          </span>
+          {deviceName && ` · via ${deviceName}`}
+          {text && ` · ${text}`}
+        </>
+      }
+      actions={
+        <>
+          <GlassButton onClick={onTest} aria-label={`Tester ${printer.name}`}>
+            Tester
+          </GlassButton>
+          <GlassButton variant="icon" aria-label={`Modifier ${printer.name}`} title="Modifier" onClick={onEdit}>
+            <EditIcon />
+          </GlassButton>
+        </>
+      }
+    >
+      {test && (
+        <p role="status" className="flex">
+          <TestChip job={test} now={now} />
         </p>
-        <p className="text-xs text-faint">
-          {printer.host}:{printer.port}
-          {deviceName && ` · via ${deviceName}`} · {label}
-        </p>
-        {testStatus && <p className="mt-1 text-xs text-muted">{testStatus}</p>}
-      </div>
-      <div className="flex shrink-0 items-center gap-1.5">
-        <button type="button" onClick={onTest} className={smallButtonClass}>
-          Tester
-        </button>
-        <button type="button" onClick={onEdit} aria-label="Modifier" className={iconButtonClass}>
-          <EditIcon className="size-3.5" />
-        </button>
-        <button
-          type="button"
-          onClick={onDelete}
-          aria-label="Supprimer"
-          className={deleteButtonClass}
-        >
-          <TrashIcon className="size-3.5" />
-        </button>
-      </div>
-    </div>
+      )}
+    </Card>
   );
 }
 
@@ -273,14 +274,11 @@ type Editing =
   | { mode: "edit"; printer: Printer }
   | null;
 
-function TerminauxManager({
-  etablissementId,
-}: {
-  etablissementId: string;
-}) {
+function TerminauxManager({ etablissementId }: { etablissementId: string }) {
   const toast = useToast();
   const [devices, setDevices] = useState<OmilinkDevice[] | null>(null);
   const [printers, setPrinters] = useState<Printer[]>([]);
+  const [error, setError] = useState<unknown>(null);
   // Dernier test lancé depuis cette page, par imprimante ; ceux encore en
   // attente sont relus à chaque rafraîchissement.
   const [tests, setTests] = useState<Record<string, PrintJob>>({});
@@ -299,6 +297,7 @@ function TerminauxManager({
     setDevices(data.devices);
     setPrinters(data.printers);
     setNow(Date.now());
+    setError(null);
     if (jobs.length) {
       setTests((current) => {
         const next = { ...current };
@@ -311,33 +310,26 @@ function TerminauxManager({
     }
   }, [etablissementId]);
 
-  const report = useCallback(
-    (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue."),
-    [toast]
-  );
-
+  // Une relecture manquée se dit une fois, en bandeau, et s'efface à la suivante.
   useEffect(() => {
-    const load = () => refresh().catch(report);
+    const load = () => refresh().catch(setError);
     load();
     const timer = setInterval(load, TERMINAUX_REFRESH_MS);
     return () => clearInterval(timer);
-  }, [refresh, report]);
+  }, [refresh]);
+
+  const report = (error: unknown) => toast.error(describeError(error).message);
 
   const savePrinter = async (input: PrinterInput) => {
-    try {
-      if (editing?.mode === "edit") {
-        await updatePrinter(editing.printer.id, input);
-        toast.success(`${input.name} modifiée.`);
-      } else {
-        await createPrinter(etablissementId, input);
-        toast.success(`${input.name} ajoutée : chaque nouvelle commande y sortira.`);
-      }
-      setEditing(null);
-      await refresh();
-    } catch (error) {
-      report(error);
+    if (editing?.mode === "edit") {
+      await updatePrinter(editing.printer.id, input);
+      toast.success(`${input.name} modifiée.`);
+    } else {
+      await createPrinter(etablissementId, input);
+      toast.success(`${input.name} ajoutée : chaque nouvelle commande y sortira.`);
     }
+    setEditing(null);
+    await refresh();
   };
 
   const removePrinter = async (printer: Printer) => {
@@ -383,10 +375,11 @@ function TerminauxManager({
   };
 
   if (!devices) {
+    if (error != null) return <ErrorNotice error={error} onRetry={() => refresh().catch(setError)} />;
     return (
-      <div aria-busy className="flex flex-col gap-3">
-        <div className="shimmer h-16 rounded-2xl" />
-        <div className="shimmer h-16 rounded-2xl" />
+      <div aria-busy className="grid gap-g-gap">
+        <Shimmer className="h-24 rounded-g-frame" />
+        <Shimmer className="h-24 rounded-g-frame" />
       </div>
     );
   }
@@ -394,114 +387,122 @@ function TerminauxManager({
   const deviceById = new Map(devices.map((device) => [device.id, device]));
   const declaredHosts = new Set(printers.map((printer) => printer.host));
   const addDeviceButton = (
-    <button type="button" onClick={() => setAddingDevice(true)} className={addButtonClass}>
+    <GlassButton variant="primary" onClick={() => setAddingDevice(true)}>
       Ajouter un boîtier
-    </button>
+    </GlassButton>
   );
 
   return (
-    <div className="flex max-w-xl flex-col gap-8">
-      <section data-visite="terminaux-omilink" className="visite-encart flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-lg font-medium">Boîtiers Omilink</h2>
-          {devices.length > 0 && addDeviceButton}
-        </div>
-        {devices.length ? (
-          devices.map((device) => (
-            <DeviceCard
-              key={device.id}
-              device={device}
-              declaredHosts={declaredHosts}
-              now={now}
-              onScan={() => void scan(device)}
-              onAddPrinter={(host) =>
-                setEditing({ mode: "new", defaults: { host, deviceId: device.id } })
-              }
-              onDelete={() => setDeviceToDelete(device)}
+    <div className="grid gap-g-gap">
+      {error != null && <ErrorNotice error={error} onRetry={() => refresh().catch(setError)} />}
+
+      <section data-visite="terminaux-omilink" className="visite-encart">
+        <GlassFrame i={1} entity="orders" eyebrow="1 · Le boîtier Omilink" className="grid gap-g-pad">
+          {devices.length ? (
+            devices.map((device) => (
+              <DeviceCard
+                key={device.id}
+                device={device}
+                declaredHosts={declaredHosts}
+                now={now}
+                onScan={() => void scan(device)}
+                onAddPrinter={(host) => setEditing({ mode: "new", defaults: { host, deviceId: device.id } })}
+                onDelete={() => setDeviceToDelete(device)}
+              />
+            ))
+          ) : (
+            <EmptyState
+              text="Branchez le boîtier Omilink au réseau du restaurant, puis ajoutez-le ici : il apparaît en quelques secondes."
+              action={addDeviceButton}
             />
-          ))
-        ) : (
-          <EmptyState
-            title="Aucun boîtier Omilink"
-            body="Le boîtier Omilink relie vos imprimantes à Ominin. Branchez-le au réseau du restaurant, puis ajoutez-le ici : il apparaît en quelques secondes."
-            action={addDeviceButton}
-          />
-        )}
+          )}
+          {devices.length > 0 && <div className="flex justify-end px-1 pb-1">{addDeviceButton}</div>}
+        </GlassFrame>
       </section>
 
-      <section data-visite="terminaux-imprimantes" className="visite-encart flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-lg font-medium">Imprimantes</h2>
-          {devices.length > 0 && (
-            <button
-              type="button"
-              onClick={() => setEditing({ mode: "new" })}
-              className={addButtonClass}
-            >
-              Ajouter une imprimante
-            </button>
+      <section data-visite="terminaux-imprimantes" className="visite-encart">
+        <GlassFrame i={2} entity="orders" eyebrow="2 · Les imprimantes" className="grid gap-g-pad">
+          {printers.length ? (
+            printers.map((printer) => {
+              const device = deviceById.get(printer.device_id);
+              return (
+                <PrinterCard
+                  key={printer.id}
+                  printer={printer}
+                  deviceName={devices.length > 1 ? (device?.name ?? null) : null}
+                  deviceOnline={isRecent(device?.last_seen_at ?? null, now)}
+                  test={tests[printer.id]}
+                  now={now}
+                  onTest={() => void test(printer)}
+                  onEdit={() => setEditing({ mode: "edit", printer })}
+                />
+              );
+            })
+          ) : (
+            <EmptyState
+              text={
+                devices.length
+                  ? "Aucune imprimante. Lancez « Rechercher des imprimantes » sur le boîtier, ou déclarez-en une à la main : chaque nouvelle commande y sortira en ticket."
+                  : "Disponible une fois le boîtier ajouté."
+              }
+              action={
+                devices.length > 0 ? (
+                  <GlassButton variant="primary" onClick={() => setEditing({ mode: "new" })}>
+                    Ajouter une imprimante
+                  </GlassButton>
+                ) : undefined
+              }
+            />
           )}
-        </div>
-        {printers.length ? (
-          printers.map((printer) => {
-            const device = deviceById.get(printer.device_id);
-            return (
-              <PrinterCard
-                key={printer.id}
-                printer={printer}
-                deviceName={devices.length > 1 ? (device?.name ?? null) : null}
-                deviceOnline={isRecent(device?.last_seen_at ?? null, now)}
-                test={tests[printer.id]}
-                now={now}
-                onTest={() => void test(printer)}
-                onEdit={() => setEditing({ mode: "edit", printer })}
-                onDelete={() => setPrinterToDelete(printer)}
-              />
-            );
-          })
-        ) : (
-          <EmptyState
-            title="Aucune imprimante"
-            body={
-              devices.length
-                ? "Lancez « Rechercher des imprimantes » sur le boîtier, ou déclarez-en une à la main : chaque nouvelle commande y sortira en ticket."
-                : "Ajoutez d'abord un boîtier Omilink : c'est lui qui relie les imprimantes à Ominin."
-            }
-          />
-        )}
+          {printers.length > 0 && (
+            <div className="flex justify-end px-1 pb-1">
+              <GlassButton variant="primary" onClick={() => setEditing({ mode: "new" })}>
+                Ajouter une imprimante
+              </GlassButton>
+            </div>
+          )}
+        </GlassFrame>
       </section>
 
       {addingDevice && (
-        <DeviceAddModal
+        <DeviceAddSheet
           etablissementId={etablissementId}
-          onCreated={() => void refresh().catch(report)}
+          onCreated={() => void refresh().catch(setError)}
           onClose={() => setAddingDevice(false)}
         />
       )}
       {deviceToDelete && (
-        <ConfirmDialog
-          title="Retirer le boîtier"
-          message={`${deviceToDelete.name} repassera en attente de rattachement : il pourra être ajouté à nouveau depuis « Ajouter un boîtier ».`}
-          confirmLabel="Retirer"
+        <ConfirmSheet
+          title={`Retirer « ${deviceToDelete.name} » ?`}
+          text="Le boîtier repasse en attente de rattachement : il pourra être ajouté à nouveau depuis « Ajouter un boîtier »."
+          confirmLabel="Retirer le boîtier"
           destructive
           onConfirm={() => void removeDevice(deviceToDelete)}
           onClose={() => setDeviceToDelete(null)}
         />
       )}
       {editing && (
-        <PrinterFormModal
+        <PrinterFormSheet
           printer={editing.mode === "edit" ? editing.printer : null}
           devices={devices}
           defaults={editing.mode === "new" ? editing.defaults : undefined}
           onSubmit={savePrinter}
+          onDelete={
+            editing.mode === "edit"
+              ? () => {
+                  setPrinterToDelete(editing.printer);
+                  setEditing(null);
+                }
+              : undefined
+          }
           onClose={() => setEditing(null)}
         />
       )}
       {printerToDelete && (
-        <ConfirmDialog
-          title="Retirer l'imprimante"
-          message={`${printerToDelete.name} ne recevra plus les tickets de commande. Ses tickets en attente sont abandonnés.`}
-          confirmLabel="Retirer"
+        <ConfirmSheet
+          title={`Retirer « ${printerToDelete.name} » ?`}
+          text="Elle ne recevra plus les tickets de commande. Ses tickets en attente sont abandonnés."
+          confirmLabel="Retirer l’imprimante"
           destructive
           onConfirm={() => void removePrinter(printerToDelete)}
           onClose={() => setPrinterToDelete(null)}
@@ -519,26 +520,18 @@ export default function TerminauxPage() {
   if (!hasFeature("terminaux")) return <FeatureLocked feature="terminaux" />;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-          Terminaux
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Le boîtier Omilink et les imprimantes de la cuisine : état en direct,
-          tests et réglages.
-        </p>
+    <div className="grid gap-5">
+      <div className="g-rise" style={{ "--g-i": 0 } as CSSProperties}>
+        <SectionHeading
+          level={1}
+          title="Imprimantes"
+          sub="Le boîtier Omilink et les imprimantes de la cuisine : état en direct, tests et réglages."
+        />
       </div>
-
       {role === "gerant" ? (
-        <TerminauxManager
-          etablissementId={state.etablissement.id}
-        />
+        <TerminauxManager etablissementId={state.etablissement.id} />
       ) : (
-        <EmptyState
-          title="Réservé au gérant"
-          body="Seul le gérant gère les terminaux de l'établissement."
-        />
+        <ReserveGerant ask="régler les imprimantes" />
       )}
     </div>
   );

@@ -239,7 +239,7 @@ function buildRows(data: Pilotage, measures: Measures | null): Row[] {
   ];
 }
 
-const SUGGESTION_LABELS: Record<Pilotage["suggestions"][number]["kind"], string> = {
+export const SUGGESTION_LABELS: Record<Pilotage["suggestions"][number]["kind"], string> = {
   panier: "Au panier",
   fiche: "Sur la fiche d'un plat",
   formule: "Formule à compléter",

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmSheet, GlassButton } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import {
   ORDER_ACTION_LABELS,
+  ORDER_STATUS_LABELS,
   PICKUP_ACTION_LABELS,
   PICKUP_STATUS_LABELS,
 } from "@/lib/gestion/constants";
@@ -15,11 +16,14 @@ import { lastServedAt, lineTotal, orderTotal } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
+import { BagIcon, CommandesIcon } from "../icons";
 import { EtaChooser } from "./eta-chooser";
-import { LineOptions, PaymentChip } from "./order-line";
-import { StatusBadge } from "./status-badge";
 import { HubriseRef } from "./hubrise-ref";
+import { LineOptions, PaymentChip } from "./order-line";
+import { ServiceCard } from "./service-card";
+import { StatusBadge } from "./status-badge";
 import { TillChip } from "./till-chip";
+import { describeError } from "@/lib/gestion/errors";
 
 /**
  * Une commande seule : le suivi d'une commande collect (accepter, prête,
@@ -30,12 +34,18 @@ export function OrderCard({
   order,
   place,
   pickupShop = false,
+  i,
+  ready,
 }: {
+  /** Arrivée en temps réel : l'onde de braise, une fois. */
+  ready?: boolean;
   order: Order;
   /** Sur place : la table ou le numéro du jour (placeLabel). */
   place: string;
   /** Boutique à emporter seule : boutons et statuts parlent comme Retraits. */
   pickupShop?: boolean;
+  /** Rang d'entrée dans la page. */
+  i?: number;
 }) {
   const { role } = useGestionAccess();
   const toast = useToast();
@@ -48,15 +58,13 @@ export function OrderCard({
   const transition = async (target: OrderStatus, estimatedReadyAt?: string) => {
     try {
       await api.updateOrderStatus(order.id, target, estimatedReadyAt);
-      toast.success(`Commande ${target === "en_preparation" ? "en préparation" : target === "prete" ? "prête" : target === "servie" ? "servie" : target === "retiree" ? "retirée" : "annulée"}.`);
+      toast.success(`Commande ${ORDER_STATUS_LABELS[target].toLowerCase()}.`);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
+      toast.error(describeError(error).message);
     }
   };
 
-  const heading = isCollect ? order.customerName ?? "Client" : place;
+  const heading = isCollect ? order.customerName || "Client" : place;
   // L'estimation ne sert qu'en préparation : prête ou remise, elle est dépassée.
   const readyAt = order.status === "en_preparation" ? order.estimatedReadyAt : undefined;
   // Servie, une commande dit quand — l'heure de sa dernière ligne apportée,
@@ -70,55 +78,51 @@ export function OrderCard({
       : pickupShop && isCollect
         ? PICKUP_STATUS_LABELS[order.status]
         : undefined;
-  const cancelMessage = `${place} : la commande sera annulée définitivement.`;
+  const cancelMessage = "Elle sera annulée définitivement, sans remboursement depuis cet écran.";
+  const closed = order.status === "servie" || order.status === "retiree" || order.status === "annulee";
 
   return (
-    // En colonne, le total au pied : il s'aligne d'une carte à l'autre d'un rang.
-    <article className="flex flex-col rounded-2xl border border-hairline bg-surface p-5">
-      {/* Trop étroit pour le nom entier, le statut passe dessous. */}
-      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-        <div className="flex min-w-0 items-baseline gap-2.5">
-          {isCollect && (
-            <span className="shrink-0 rounded-full border border-ember-2/30 bg-ember-2/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
-              Emporter
-            </span>
-          )}
+    <ServiceCard
+      entity={order.status === "annulee" ? "problem" : closed ? "none" : "orders"}
+      icon={isCollect ? <BagIcon /> : <CommandesIcon />}
+      eyebrow={`${isCollect ? "À emporter" : "Commande"} · ${formatTime(order.createdAt)}`}
+      title={
+        <span className="flex flex-wrap items-center gap-2">
+          {heading}
           {order.fromTill && <TillChip />}
-          <h3 className="min-w-0 break-words font-display text-lg font-medium">{heading}</h3>
-          <span className="shrink-0 text-[13px] tabular-nums text-muted">
-            {formatTime(order.createdAt)}
-          </span>
-        </div>
-        <StatusBadge status={order.status} label={statusLabel} />
-      </div>
-      <HubriseRef orders={[order]} />
-
-      {isCollect && (
-        <p className="mt-1 text-xs text-muted">
-          Retrait&nbsp;: {order.pickupAt ? formatPickup(order.pickupAt) : "dès que possible"}
-          {readyAt && ` · prête vers ${formatTime(readyAt)}`}
-        </p>
-      )}
+        </span>
+      }
+      right={<StatusBadge status={order.status} label={statusLabel} />}
+      i={i}
+      ready={ready}
+      sub={
+        <>
+          {isCollect && (
+            <p>
+              Retrait&nbsp;: {order.pickupAt ? formatPickup(order.pickupAt) : "dès que possible"}
+              {readyAt && ` · prête vers ${formatTime(readyAt)}`}
+            </p>
+          )}
+          <HubriseRef orders={[order]} sendState />
+        </>
+      }
+    >
       {isCollect && order.customerNote && (
-        <p className="whitespace-pre-line mt-2 rounded-xl bg-ember-2/10 px-3 py-2 text-sm leading-relaxed">
-          <span className="mr-1.5 text-[10px] font-semibold uppercase tracking-wider text-ember-2">
-            Mot du client
-          </span>
+        <p className="mt-3 whitespace-pre-line rounded-g-card border border-hairline px-3.5 py-2.5 text-g-body [overflow-wrap:anywhere]">
+          <span className="mr-1.5 text-g-meta font-semibold text-g-entity">Mot du client</span>
           « {order.customerNote} »
         </p>
       )}
 
-      <ul className="mb-4 mt-3 flex flex-col gap-1.5">
+      <ul className="mt-3 mb-4 flex flex-col gap-1.5">
         {order.items.map((line) => (
           <li key={line.id} className="flex flex-col gap-0.5">
-            <div className="flex items-baseline justify-between gap-4 text-sm">
+            <div className="flex items-baseline justify-between gap-4 text-g-body">
               <span>
                 <span className="tabular-nums text-muted">{line.quantity}×</span>{" "}
                 {line.name}
               </span>
-              <span className="tabular-nums text-muted">
-                {formatPrice(lineTotal(line))}
-              </span>
+              <span className="tabular-nums text-muted">{formatPrice(lineTotal(line))}</span>
             </div>
             {/* Le supplément reste : il explique le prix de la ligne. */}
             <LineOptions line={line} />
@@ -127,14 +131,12 @@ export function OrderCard({
       </ul>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-3">
-        <div className="flex items-center gap-2.5">
-          <span className="font-display text-lg text-ember-1">
-            {formatPrice(orderTotal(order))}
-          </span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="text-g-name tabular-nums">{formatPrice(orderTotal(order))}</span>
           {/* Le mode n'est posé qu'au règlement : sans lui, rien n'est encore payé. */}
           {(order.paidOnline || order.paymentMode) && <PaymentChip orders={[order]} />}
           {order.cashGiven != null && (
-            <span className="text-xs tabular-nums text-faint">
+            <span className="text-g-meta tabular-nums text-muted">
               Reçu {formatPrice(order.cashGiven)}
               {order.cashChange ? ` · Rendu ${formatPrice(order.cashChange)}` : ""}
             </span>
@@ -153,50 +155,38 @@ export function OrderCard({
             {targets
               .filter((target) => target !== "annulee")
               .map((target, index) => (
-                <button
+                // Une seule action principale : la suivante. La remise,
+                // raccourci d'une commande à emporter, reste en retrait.
+                <GlassButton
                   key={target}
-                  type="button"
+                  variant={index === 0 ? "primary" : "secondary"}
                   onClick={() => {
-                    if (
-                      target === "en_preparation" &&
-                      isCollect &&
-                      !order.pickupAt
-                    ) {
+                    if (target === "en_preparation" && isCollect && !order.pickupAt) {
                       setChoosingEta(true);
                     } else {
                       void transition(target);
                     }
                   }}
-                  // Une seule action principale : la suivante. La remise,
-                  // raccourci d'une commande à emporter, reste en retrait.
-                  className={
-                    index === 0
-                      ? "ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
-                      : "rounded-full border border-hairline px-4 py-2 text-xs font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-                  }
                 >
                   {(pickupShop && isCollect && PICKUP_ACTION_LABELS[target]) ||
                     ORDER_ACTION_LABELS[target as Exclude<OrderStatus, "en_attente">]}
-                </button>
+                </GlassButton>
               ))}
             {targets.includes("annulee") && (
-              <button
-                type="button"
-                onClick={() => setCancelling(true)}
-                className="rounded-full border border-ember-3/40 px-4 py-2 text-xs font-semibold text-ember-3 transition-colors hover:bg-ember-3/10"
-              >
+              <GlassButton variant="danger" onClick={() => setCancelling(true)}>
                 Annuler
-              </button>
+              </GlassButton>
             )}
           </div>
         ) : null}
       </div>
 
       {cancelling && (
-        <ConfirmDialog
-          title="Annuler la commande ?"
-          message={cancelMessage}
+        <ConfirmSheet
+          title={`Annuler la commande de ${place} ?`}
+          text={cancelMessage}
           confirmLabel="Annuler la commande"
+          cancelLabel="Garder la commande"
           destructive
           onClose={() => setCancelling(false)}
           onConfirm={async () => {
@@ -205,6 +195,6 @@ export function OrderCard({
           }}
         />
       )}
-    </article>
+    </ServiceCard>
   );
 }

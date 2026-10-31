@@ -149,6 +149,26 @@ export function TrashIcon(props: IconProps) {
   );
 }
 
+/** Un triangle d'alerte : une erreur de donnée. */
+export function AlertIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M12 3.5 21.5 20H2.5L12 3.5z" />
+      <path d="M12 9.5v4.5M12 17h.01" />
+    </Svg>
+  );
+}
+
+/** Un signal barré : hors connexion. */
+export function OfflineIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M3 3l18 18M8.5 15.5a5 5 0 0 1 4.6-1.4M5 12a9.5 9.5 0 0 1 3.4-2.2M12 7.5a9.5 9.5 0 0 1 7 4.5M15.6 15.6l.9.9" />
+      <path d="M12 19h.01" />
+    </Svg>
+  );
+}
+
 export function ChevronDownIcon(props: IconProps) {
   return (
     <Svg {...props}>

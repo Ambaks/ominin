@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { IconButton } from "@/components/ui/icon-button";
+import { EmptyState, GlassButton, Plate, Shimmer, StatTile } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import { formatTime } from "@/lib/gestion/format";
 import { isPickupShop, visibleStaff } from "@/lib/gestion/selectors";
 import { useGestion } from "@/lib/gestion/store";
@@ -36,6 +37,14 @@ function isToday(day: Date): boolean {
   return day.toDateString() === new Date().toDateString();
 }
 
+function Arrow({ left = false }: { left?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d={left ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} />
+    </svg>
+  );
+}
+
 export function WeekNav({
   start,
   onChange,
@@ -50,13 +59,10 @@ export function WeekNav({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2">
-        <IconButton
-          onClick={() => onChange(addDays(start, -7))}
-          aria-label="Semaine précédente"
-        >
-          <span className="text-xl leading-none">‹</span>
-        </IconButton>
-        <p className="text-sm font-medium">
+        <GlassButton variant="icon" onClick={() => onChange(addDays(start, -7))} aria-label="Semaine précédente">
+          <Arrow left />
+        </GlassButton>
+        <p className="text-center text-g-label font-semibold tabular-nums">
           {start.toLocaleDateString("fr-FR", {
             day: "numeric",
             ...(sameMonth ? {} : { month: "short" }),
@@ -64,12 +70,9 @@ export function WeekNav({
           {" – "}
           {end.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
         </p>
-        <IconButton
-          onClick={() => onChange(addDays(start, 7))}
-          aria-label="Semaine suivante"
-        >
-          <span className="text-xl leading-none">›</span>
-        </IconButton>
+        <GlassButton variant="icon" onClick={() => onChange(addDays(start, 7))} aria-label="Semaine suivante">
+          <Arrow />
+        </GlassButton>
       </div>
       {children}
     </div>
@@ -82,6 +85,7 @@ export function PlanningGrid({
   staff,
   shifts,
   start,
+  loading = false,
   onWeekChange,
   onChange,
 }: {
@@ -89,6 +93,8 @@ export function PlanningGrid({
   staff: Staff[];
   shifts: Shift[];
   start: Date;
+  /** La semaine se relit : la grille attend avant de se dire vide. */
+  loading?: boolean;
   onWeekChange: (start: Date) => void;
   onChange: () => void;
 }) {
@@ -121,7 +127,7 @@ export function PlanningGrid({
       onChange();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
     } finally {
       setCopying(false);
@@ -129,13 +135,9 @@ export function PlanningGrid({
   };
 
   const addStaff = (
-    <button
-      type="button"
-      onClick={() => setEditingStaff(null)}
-      className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-    >
+    <GlassButton onClick={() => setEditingStaff(null)}>
       {pickupShop ? "+ Ajouter un employé" : "+ Ajouter un serveur"}
-    </button>
+    </GlassButton>
   );
 
   const staffModal = editingStaff !== undefined && (
@@ -151,49 +153,58 @@ export function PlanningGrid({
 
   if (team.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-3">
-        <p className="text-sm text-muted">
-          Personne dans l&rsquo;équipe pour l&rsquo;instant. Ajoutez vos{" "}
-          {pickupShop ? "employés" : "serveurs"} : ils n&rsquo;ont pas besoin
-          de compte pour figurer au planning ni pour badger.
-        </p>
-        {addStaff}
+      <>
+        <EmptyState
+          text={`Personne dans l'équipe pour l'instant. Ajoutez vos ${pickupShop ? "employés" : "serveurs"} : ils n'ont pas besoin de compte pour figurer au planning ni pour badger.`}
+          action={addStaff}
+        />
         {staffModal}
-      </div>
+      </>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
       <WeekNav start={start} onChange={onWeekChange}>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {addStaff}
-          <button
-            type="button"
-            onClick={() => void copyToNext()}
-            disabled={copying || shifts.length === 0}
-            className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
-          >
-            Recopier sur la semaine suivante
-          </button>
+          {shifts.length > 0 ? (
+            <GlassButton onClick={() => void copyToNext()} disabled={copying}>
+              Recopier sur la semaine suivante
+            </GlassButton>
+          ) : (
+            !loading && (
+              <p className="text-g-meta text-muted">
+                Aucun créneau cette semaine : touchez une case pour en ajouter un.
+              </p>
+            )
+          )}
         </div>
       </WeekNav>
 
-      <div className="-mx-5 overflow-x-auto px-5 lg:mx-0 lg:px-0">
-        <div className="min-w-[52rem]">
-          <div className="grid grid-cols-[9rem_repeat(7,1fr)_5rem] gap-px rounded-2xl border border-hairline bg-hairline">
-            <div className="bg-surface-raised px-3 py-2.5" />
+      {loading ? (
+        <Shimmer className="h-40" />
+      ) : (
+      <div className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+        <p className="mb-2 text-g-meta text-muted lg:hidden">Faites glisser la grille pour voir toute la semaine.</p>
+        <Plate className="min-w-4xl overflow-hidden">
+          <div
+            role="group"
+            aria-label="Planning de la semaine"
+            className="grid grid-cols-[9rem_repeat(7,1fr)_5rem] gap-px bg-hairline"
+          >
+            <div className="sticky left-0 z-10 bg-surface px-3 py-2.5" />
             {days.map((day) => (
               <div
                 key={day.toDateString()}
-                className={`bg-surface-raised px-2 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider ${
-                  isToday(day) ? "text-ember-1" : "text-faint"
+                className={`bg-surface px-2 py-2.5 text-center text-g-meta font-semibold capitalize ${
+                  isToday(day) ? "border-b-2 border-ember-1 text-ember-1" : "text-muted"
                 }`}
               >
                 {dayLabel(day)}
               </div>
             ))}
-            <div className="bg-surface-raised px-2 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-faint">
+            <div className="bg-surface px-2 py-2.5 text-center text-g-meta font-semibold text-muted">
               Total
             </div>
 
@@ -205,16 +216,16 @@ export function PlanningGrid({
                     type="button"
                     onClick={() => setEditingStaff(member)}
                     title={`Fiche de ${member.name}`}
-                    className="flex items-center bg-surface px-3 py-2 text-left transition-colors hover:bg-surface-raised"
+                    className="sticky left-0 z-10 flex min-h-g-control items-center bg-surface px-3 py-2 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                   >
-                    <p className="truncate text-sm font-medium">{member.name}</p>
+                    <span className="truncate text-g-label font-semibold">{member.name}</span>
                   </button>
                   {days.map((day) => {
                     const cell = shiftsOf(shifts, member.id, day);
                     return (
                       <div
                         key={day.toDateString()}
-                        className="flex min-h-16 flex-col gap-1 bg-surface p-1.5"
+                        className={`flex min-h-16 flex-col gap-1 p-1.5 ${isToday(day) ? "bg-surface-raised" : "bg-surface"}`}
                       >
                         {cell.map((shift) => (
                           <button
@@ -222,7 +233,7 @@ export function PlanningGrid({
                             type="button"
                             onClick={() => setEditing({ day, shift })}
                             title={shift.note}
-                            className="rounded-lg border border-ember-2/30 bg-ember-2/10 px-1.5 py-2 text-xs font-semibold tabular-nums text-ember-2 transition-colors hover:border-ember-2/60"
+                            className="g-press g-orders min-h-g-control rounded-lg border border-(--g-ring-hover) bg-surface-raised px-1.5 py-2 text-g-meta font-semibold tabular-nums text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                           >
                             {formatTime(shift.startsAt)}–{formatTime(shift.endsAt)}
                           </button>
@@ -231,22 +242,23 @@ export function PlanningGrid({
                           type="button"
                           onClick={() => setEditing({ day, member })}
                           aria-label={`Ajouter un créneau pour ${member.name}`}
-                          className="flex min-h-9 items-center justify-center rounded-lg border border-dashed border-hairline text-base text-faint transition-colors hover:border-ember-2/40 hover:text-ember-1"
+                          className="g-press flex min-h-g-control items-center justify-center rounded-lg border border-dashed border-hairline text-g-body text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                         >
                           +
                         </button>
                       </div>
                     );
                   })}
-                  <div className="flex items-center justify-center bg-surface px-2 py-2 text-xs tabular-nums text-muted">
+                  <div className="flex items-center justify-center bg-surface px-2 py-2 text-g-meta tabular-nums text-muted">
                     {mine.length ? formatDuration(plannedMinutes(mine)) : "—"}
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
+        </Plate>
       </div>
+      )}
 
       {editing && (
         <ShiftModal
@@ -288,44 +300,37 @@ export function MonPlanning({
   const mineEntries = entriesOf(entries, staffId);
 
   const week = (
-    <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
-      {weekDays(start).map((day, index) => {
+    <Plate className="divide-y divide-hairline px-4">
+      {weekDays(start).map((day) => {
         const dayShifts = shiftsOf(mine, staffId, day);
         const dayEntries = entriesOf(mineEntries, staffId, day);
         return (
-          <li
+          <div
             key={day.toDateString()}
-            className={`flex flex-wrap items-start justify-between gap-3 px-5 py-3.5 ${
-              index > 0 ? "border-t border-hairline" : ""
-            } ${isToday(day) ? "bg-ember-2/[0.06]" : ""}`}
+            className={`flex flex-wrap items-start justify-between gap-3 py-3 ${isToday(day) ? "-mx-4 bg-surface-raised px-4" : ""}`}
           >
             <p
-              className={`w-24 shrink-0 text-sm capitalize ${
-                isToday(day) ? "font-medium text-ember-1" : "text-muted"
+              className={`w-24 shrink-0 text-g-label capitalize ${
+                isToday(day) ? "font-semibold text-ember-1" : "text-muted"
               }`}
             >
               {dayLabel(day)}
             </p>
             <div className="min-w-0 flex-1">
               {dayShifts.length === 0 && dayEntries.length === 0 ? (
-                <p className="text-sm text-faint">Repos</p>
+                <p className="text-g-label text-muted">Repos</p>
               ) : (
                 <div className="flex flex-col gap-1">
                   {dayShifts.map((shift) => (
-                    <p key={shift.id} className="text-sm">
+                    <p key={shift.id} className="text-g-label">
                       <span className="tabular-nums">
                         {formatTime(shift.startsAt)} – {formatTime(shift.endsAt)}
                       </span>
-                      {shift.note && (
-                        <span className="text-faint"> · {shift.note}</span>
-                      )}
+                      {shift.note && <span className="text-muted"> · {shift.note}</span>}
                     </p>
                   ))}
                   {dayEntries.map((entry) => (
-                    <p
-                      key={entry.id}
-                      className="text-xs tabular-nums text-ember-2"
-                    >
+                    <p key={entry.id} className="text-g-meta tabular-nums text-ember-2">
                       Badgé {formatTime(entry.startedAt)} –{" "}
                       {entry.endedAt ? formatTime(entry.endedAt) : "en cours"}
                     </p>
@@ -333,10 +338,10 @@ export function MonPlanning({
                 </div>
               )}
             </div>
-          </li>
+          </div>
         );
       })}
-    </ul>
+    </Plate>
   );
 
   if (!showHours) return week;
@@ -344,22 +349,13 @@ export function MonPlanning({
   return (
     <div className="flex flex-col gap-4">
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-hairline bg-surface p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Prévu
-          </p>
-          <p className="mt-1 font-display text-2xl tabular-nums">
-            {formatDuration(plannedMinutes(mine))}
-          </p>
-        </div>
-        <div className="rounded-2xl border border-hairline bg-surface p-4">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-            Badgé
-          </p>
-          <p className="mt-1 font-display text-2xl tabular-nums text-ember-1">
-            {formatDuration(workedMinutes(mineEntries, new Date()))}
-          </p>
-        </div>
+        <StatTile plain label="Prévu" value={formatDuration(plannedMinutes(mine))} />
+        <StatTile
+          plain
+          entity="money"
+          label="Badgé"
+          value={formatDuration(workedMinutes(mineEntries, new Date()))}
+        />
       </div>
       {week}
     </div>

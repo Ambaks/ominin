@@ -49,7 +49,7 @@ export function PayerRing({
         cy={centre}
         r={RING.progress}
         pathLength={1}
-        style={{ strokeDashoffset: 1 - share }}
+        style={{ "--part": share } as React.CSSProperties}
         transform={`rotate(-90 ${centre} ${centre})`}
       />
       <g transform={`translate(${centre} ${centre})`}>

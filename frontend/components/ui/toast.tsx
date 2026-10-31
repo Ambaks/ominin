@@ -10,6 +10,7 @@ import {
   useState,
 } from "react";
 import { TOAST_DURATION_MS } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 
 /** Ce qu'une annonce propose d'un appui : sa bulle devient un bouton (« Voir la table »). */
 interface ToastAction {
@@ -59,9 +60,7 @@ export function useRunMutation() {
         await action();
         if (success) toast.success(success);
       } catch (error) {
-        toast.error(
-          error instanceof Error ? error.message : "Une erreur est survenue."
-        );
+        toast.error(describeError(error).message);
       }
     },
     [toast]
@@ -103,6 +102,9 @@ export function ToastProvider({
         return;
       }
       setToasts((current) => [...current.filter((toast) => toast.kind !== "success"), entry]);
+      // Une erreur reste jusqu'au tap : trois secondes ne suffisent pas à
+      // lire quoi faire, et le geste à refaire attend derrière.
+      if (kind === "error") return;
       setTimeout(() => {
         setToasts((current) => current.filter((toast) => toast.id !== entry.id));
       }, TOAST_DURATION_MS);
@@ -116,12 +118,13 @@ export function ToastProvider({
   // Une seule place : le message montré a son temps, suspendu tant qu'on le
   // survole ou qu'il a le focus — un bouton ne disparaît pas sous le doigt —,
   // et rendu entier ensuite.
-  const shown = single ? toasts[0]?.id : undefined;
+  const shown = single ? toasts[0] : undefined;
+  const shownId = shown?.kind === "error" ? undefined : shown?.id;
   useEffect(() => {
-    if (shown === undefined || held === shown) return;
-    const timer = setTimeout(() => dismiss(shown), TOAST_DURATION_MS);
+    if (shownId === undefined || held === shownId) return;
+    const timer = setTimeout(() => dismiss(shownId), TOAST_DURATION_MS);
     return () => clearTimeout(timer);
-  }, [shown, held, dismiss]);
+  }, [shownId, held, dismiss]);
   const list = useMemo(
     () => ({ toasts: single ? toasts.slice(0, 1) : toasts, dismiss, hold: setHeld }),
     [single, toasts, dismiss]
@@ -186,6 +189,22 @@ export function ToastOutlet({ className, compact = false }: { className: string;
           </>
         );
         const { action } = toast;
+        if (!action && toast.kind === "error") {
+          return (
+            <button
+              key={toast.id}
+              type="button"
+              title="Fermer"
+              onClick={() => dismiss(toast.id)}
+              className={`${bubble} pointer-events-auto transition-colors hover:border-ember-2/50`}
+            >
+              {content}
+              <span aria-hidden className="ml-1 text-muted">
+                ×
+              </span>
+            </button>
+          );
+        }
         return action ? (
           <button
             key={toast.id}

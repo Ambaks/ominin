@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { setCategoryLayout } from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import type { CategoryLayout } from "@/lib/menu-data";
 
@@ -42,8 +43,8 @@ export function CategoryLayoutPicker({
             aria-checked={selected}
             disabled={disabled}
             onClick={() => selected || onChoose(option.id)}
-            className={`flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors disabled:cursor-wait ${
-              selected ? "border-ember-2/60 bg-surface-raised" : "border-hairline hover:border-ember-2/30"
+            className={`g-plate g-press flex flex-col gap-2 p-4 text-left disabled:cursor-wait ${
+              selected ? "border-ember-2/60" : ""
             }`}
           >
             <span className="flex items-center justify-between gap-3">
@@ -60,7 +61,7 @@ export function CategoryLayoutPicker({
                 >
                   {ICONS[option.id]}
                 </svg>
-                <span className="font-display text-base font-medium">{option.label}</span>
+                <span className="text-g-body font-semibold">{option.label}</span>
               </span>
               <span
                 aria-hidden
@@ -71,7 +72,7 @@ export function CategoryLayoutPicker({
                 {selected && <span className="ember-gradient size-2.5 rounded-full" />}
               </span>
             </span>
-            <span className="text-xs leading-relaxed text-muted">{option.body}</span>
+            <span className="text-g-meta text-muted">{option.body}</span>
           </button>
         );
       })}
@@ -93,17 +94,17 @@ export function CategoryLayoutSettings({ initialLayout }: { initialLayout: Categ
       toast.success(CATEGORY_LAYOUTS.find(({ id }) => id === next)?.saved ?? "");
     } catch (error) {
       setLayout(previous);
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <section className="flex max-w-xl flex-col gap-5 rounded-2xl border border-hairline bg-surface p-5 lg:p-6">
+    <section className="g-plate flex max-w-xl flex-col gap-5 p-5">
       <div>
-        <h2 className="font-display text-lg font-medium">Catégories du menu</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">
+        <h2 className="font-display text-g-h2">Catégories du menu</h2>
+        <p className="mt-1 text-g-meta text-muted">
           Comment vos clients passent d&rsquo;une catégorie à l&rsquo;autre sur le
           menu en ligne. Le menu suit votre choix en une minute.
         </p>

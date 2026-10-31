@@ -1,10 +1,8 @@
 "use client";
 
 import { ChevronDownIcon, XIcon } from "@/components/gestion/icons";
-import { inputClass } from "@/components/ui/field";
-import { IconButton } from "@/components/ui/icon-button";
-import { PriceInput } from "@/components/ui/price-input";
-import { Toggle } from "@/components/ui/toggle";
+import { GlassButton, Input, Select, Switch } from "@/components/gestion/ui";
+import { PrixInput } from "./prix-input";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import type { MenuItem, OptionGroup } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
@@ -107,20 +105,22 @@ function MoveButtons({
 }) {
   return (
     <>
-      <IconButton
+      <GlassButton
+        variant="icon"
         disabled={index === 0}
         onClick={() => onMove(-1)}
         aria-label={`Monter ${label}`}
       >
-        <ChevronDownIcon className="size-4 rotate-180" />
-      </IconButton>
-      <IconButton
+        <ChevronDownIcon className="rotate-180" />
+      </GlassButton>
+      <GlassButton
+        variant="icon"
         disabled={index === count - 1}
         onClick={() => onMove(1)}
         aria-label={`Descendre ${label}`}
       >
-        <ChevronDownIcon className="size-4" />
-      </IconButton>
+        <ChevronDownIcon />
+      </GlassButton>
     </>
   );
 }
@@ -164,36 +164,36 @@ export function OptionsEditor({
       {value.map((group, groupIndex) => (
         <div
           key={group.id}
-          className="flex flex-col gap-3 rounded-xl border border-hairline bg-background p-3"
+          className="g-plate flex flex-col gap-3 p-3"
         >
           <div className="flex items-center gap-2">
-            <input
+            <Input
               value={group.name}
               onChange={(event) =>
                 patchGroup(group.id, { name: event.target.value })
               }
-              placeholder="Nom du groupe (ex. Taille)"
-              className={inputClass}
+              placeholder="Taille"
+              aria-label="Nom du groupe d'options"
             />
-            <IconButton
-              tone="danger"
+            <GlassButton
+              variant="icon"
               onClick={() => onChange(value.filter((g) => g.id !== group.id))}
               aria-label={`Supprimer le groupe ${group.name || "sans nom"}`}
             >
-              <XIcon className="size-4" />
-            </IconButton>
+              <XIcon />
+            </GlassButton>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className="flex items-center gap-2 text-sm text-muted">
-              <Toggle
+            <span className="flex items-center gap-2 text-g-label text-muted">
+              <Switch
                 checked={group.obligatoire}
                 onChange={(checked) =>
                   patchGroup(group.id, { obligatoire: checked })
                 }
-                label="Groupe obligatoire"
+                aria-label="Choix obligatoire"
               />
-              Obligatoire
-            </label>
+              Le client doit choisir
+            </span>
             <div className="flex gap-2">
               <MoveButtons
                 index={groupIndex}
@@ -207,22 +207,24 @@ export function OptionsEditor({
           <div className="flex flex-col gap-2">
             {group.choices.map((choice, choiceIndex) => (
               <div key={choice.id} className="flex flex-wrap items-center gap-2">
-                <input
+                <Input
                   value={choice.name}
                   onChange={(event) =>
                     patchChoice(group.id, choice.id, {
                       name: event.target.value,
                     })
                   }
-                  placeholder="Choix"
-                  className={`${inputClass} min-w-40 flex-1`}
+                  placeholder="Grande"
+                  aria-label="Nom du choix"
+                  className="min-w-40 flex-1"
                 />
-                <PriceInput
+                <PrixInput
                   value={choice.supplement}
                   onChange={(supplement) =>
                     patchChoice(group.id, choice.id, { supplement })
                   }
                   placeholder="+0,00"
+                  aria-label="Supplément du choix"
                   className="w-28 shrink-0"
                 />
                 <MoveButtons
@@ -235,8 +237,8 @@ export function OptionsEditor({
                     })
                   }
                 />
-                <IconButton
-                  tone="danger"
+                <GlassButton
+                  variant="icon"
                   onClick={() =>
                     patchGroup(group.id, {
                       choices: group.choices.filter((c) => c.id !== choice.id),
@@ -244,12 +246,12 @@ export function OptionsEditor({
                   }
                   aria-label={`Supprimer le choix ${choice.name || "sans nom"}`}
                 >
-                  <XIcon className="size-4" />
-                </IconButton>
+                  <XIcon />
+                </GlassButton>
               </div>
             ))}
-            <button
-              type="button"
+            <GlassButton
+              className="self-start"
               onClick={() =>
                 patchGroup(group.id, {
                   choices: [
@@ -258,17 +260,15 @@ export function OptionsEditor({
                   ],
                 })
               }
-              className="self-start rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-ember-1 transition-colors hover:border-ember-2/40"
             >
               + Ajouter un choix
-            </button>
+            </GlassButton>
           </div>
         </div>
       ))}
 
       <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
+        <GlassButton
           onClick={() =>
             onChange([
               ...value,
@@ -280,13 +280,13 @@ export function OptionsEditor({
               },
             ])
           }
-          className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
         >
           + Groupe d’options
-        </button>
+        </GlassButton>
         {importCandidates.length > 0 && (
-          <select
+          <Select
             value=""
+            aria-label="Importer les options d'un autre article"
             onChange={(event) => {
               const source = importCandidates.find(
                 (item) => item.id === event.target.value
@@ -295,7 +295,6 @@ export function OptionsEditor({
                 onChange([...value, ...optionsToDraft(source.options, true)]);
               }
             }}
-            className="appearance-none rounded-full border border-hairline bg-surface px-4 py-2.5 text-base font-medium text-muted outline-none transition-colors hover:text-foreground focus:border-ember-2/50 lg:pointer-fine:text-sm"
           >
             <option value="">Importer depuis un article…</option>
             {importCandidates.map((item) => (
@@ -303,7 +302,7 @@ export function OptionsEditor({
                 {item.name}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </div>
     </div>

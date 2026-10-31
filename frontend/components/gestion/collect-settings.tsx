@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
+import { describeError } from "@/lib/gestion/errors";
+import { Field, GlassButton, Input, Plate } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { setCollectSlotCapacity } from "@/lib/gestion/api";
 import { formatPrice } from "@/lib/menu/format";
@@ -18,58 +19,66 @@ export function CollectSettings({
 }) {
   const toast = useToast();
   const [capacity, setCapacity] = useState(initialSlotCapacity);
+  const [saved, setSaved] = useState(initialSlotCapacity);
+  const [busy, setBusy] = useState(false);
+  const valid = Number.isInteger(capacity) && capacity >= 1;
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!valid) return;
+    setBusy(true);
     try {
       await setCollectSlotCapacity(capacity);
+      setSaved(capacity);
       toast.success("Réglage enregistré.");
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
+      toast.error(describeError(error).message);
+    } finally {
+      setBusy(false);
     }
   };
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="flex max-w-xl flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5 lg:p-6"
-    >
-      <div>
-        <h2 className="font-display text-lg font-medium">Click &amp; Collect</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">
-          Paramètres du retrait en ligne.
-        </p>
-      </div>
-      <Field
-        label="Commandes par créneau"
-        hint="Nombre maximal de commandes que vous pouvez préparer sur un même créneau de retrait."
-      >
-        <input
-          type="number"
-          min={1}
-          value={capacity}
-          onChange={(event) => setCapacity(Number(event.target.value))}
-          required
-          className={`${inputClass} w-24`}
-        />
-      </Field>
-      <p className="text-xs leading-relaxed text-faint">
-        {!onlinePayment
-          ? "Pour fixer une commande minimum, activez «\u00a0Paiement en ligne\u00a0» dans «\u00a0Paiement à table\u00a0»."
-          : onlineMinOrder === null
-            ? "Aucune commande minimum. Elle se règle dans «\u00a0Paiement à table\u00a0»."
-            : `Commande minimum\u00a0: ${formatPrice(onlineMinOrder)}, réglée dans «\u00a0Paiement à table\u00a0».`}
-      </p>
-      <div className="flex justify-end">
-        <button
-          type="submit"
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+    <Plate className="max-w-xl p-5">
+      <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <div>
+          <h2 className="font-display text-g-h2">Click &amp; Collect</h2>
+          <p className="mt-1 text-muted">Paramètres du retrait en ligne.</p>
+        </div>
+        <Field
+          label="Commandes par créneau"
+          hint="Nombre maximal de commandes que vous pouvez préparer sur un même créneau de retrait."
+          error={valid ? undefined : "Indiquez au moins 1 commande par créneau."}
         >
-          Enregistrer
-        </button>
-      </div>
-    </form>
+          <Input
+            type="number"
+            min={1}
+            value={capacity}
+            onChange={(event) => setCapacity(Number(event.target.value))}
+            required
+            className="w-24"
+          />
+        </Field>
+        <p className="text-g-meta text-muted">
+          {!onlinePayment
+            ? "Pour fixer une commande minimum, activez « Paiement en ligne » dans « Paiement à table »."
+            : onlineMinOrder === null
+              ? "Aucune commande minimum. Elle se règle dans « Paiement à table »."
+              : `Commande minimum : ${formatPrice(onlineMinOrder)}, réglée dans « Paiement à table ».`}
+        </p>
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          {valid && capacity === saved && !busy && (
+            <span className="mr-auto text-g-meta text-muted">Rien à enregistrer.</span>
+          )}
+          <GlassButton
+            variant="primary"
+            type="submit"
+            disabled={busy || !valid || capacity === saved}
+          >
+            {busy ? "Enregistrement…" : "Enregistrer"}
+          </GlassButton>
+        </div>
+      </form>
+    </Plate>
   );
 }

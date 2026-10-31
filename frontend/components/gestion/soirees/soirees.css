@@ -1,24 +1,24 @@
 /*
   Écrans « Soirées » de l'espace de gestion (Ominin Club), sous .soirees
-  seulement : la gestion des restaurants garde son allure. Ils parlent la
-  langue des pages du club — Geist et ses chiffres Mono, un corail plein pour
-  le geste principal, l'or pour les accents —, sur les surfaces de la
-  gestion, en clair comme en sombre.
+  seulement (le shell la pose sur tout l'espace d'un club). La matière est
+  celle du kit ember glass — verre, plaques, aura — posée sur la nuit du
+  club ; les jetons que le kit lit (--ember-*, --status-signed, surfaces)
+  prennent ici les couleurs du club : l'or pour l'argent, le corail pour les
+  personnes et les tables, le lagon pour une arrivée. Aucune classe .g-*
+  n'est redéfinie : tout passe par les jetons.
 */
 
 /*
-  Jetons partagés avec les pages du club (components/club/tokens.css,
-  importé avec ce fichier par la mise en page des Soirées sous la classe
-  .club-tokens) : durées, courbes, corail, or, lagon. S'y ajoutent ici le
-  temps du halo d'un paiement et ce que la gestion a de propre — deux
-  thèmes, clair et sombre, là où les pages du club n'ont que la nuit.
+  Jetons partagés avec les pages du club (components/club/tokens.css, sous
+  .club-tokens) : durées, courbes, corail, or, lagon, états d'une table. S'y
+  ajoutent le temps du halo d'un paiement, et deux thèmes, clair et sombre,
+  là où les pages du club n'ont que la nuit.
 */
 .soirees {
   --soirees-halo: 1400ms;
   --soirees-coral: var(--c-coral);
   /* Le corail en texte ou en trait ; sur fond clair, foncé pour l'AA. */
   --soirees-coral-text: #ff7a5c;
-  --soirees-on-coral: #160904;
   --soirees-gold: var(--c-gold);
   --soirees-ok: var(--c-teal);
   --ember-1: var(--soirees-gold);
@@ -38,7 +38,7 @@
 
 html.light .soirees {
   --soirees-coral-text: #b8391b;
-  --soirees-gold: #8a6a2f;
+  --soirees-gold: #7d5f28;
   --soirees-ok: #1d7a52;
   /* Les jetons du club sont pensés pour la nuit : leurs pendants sur fond clair. */
   --etat-libre: #8a6a2f;
@@ -52,9 +52,8 @@ html.light .soirees {
 
 /*
   La typographie des pages du club : Bricolage Grotesque pour les titres,
-  Geist pour le texte, Geist Mono pour les chiffres. L'en-tête de l'espace
-  d'un club (.club-espace, posé par le shell) la prend aussi : plus de
-  serif sur le nom du club.
+  Geist pour le texte, Geist Mono pour les chiffres. Les H1, H2 et KPI du
+  kit (font-display, tabular-nums) prennent cette voix sans rien changer.
 */
 .club-espace {
   font-family: var(--c-sans);
@@ -72,40 +71,18 @@ html.light .soirees {
   letter-spacing: -0.02em;
 }
 
-/* Un seul système de boutons : corail plein pour le geste principal, contour pour le reste. */
-.soirees :is(.ember-gradient, .ember-flow) {
-  background-image: none;
-  background-color: var(--soirees-coral);
-  color: var(--soirees-on-coral);
-  box-shadow: none;
-}
-
+/* Le mot-symbole du shell, en or plutôt qu'en braise. */
 .soirees .ember-text {
   background-image: none;
   color: var(--soirees-gold);
 }
 
-.soirees :is(button, a) {
-  transition:
-    transform var(--c-slow) var(--c-spring),
-    background-color var(--c-base) var(--c-ease),
-    border-color var(--c-base) var(--c-ease),
-    color var(--c-base) var(--c-ease),
-    opacity var(--c-base) var(--c-ease);
-}
-
-.soirees :is(button, a):active:not(:disabled) {
-  transform: scale(0.97);
-  transition-duration: var(--c-fast);
-}
-
 /*
-  La nuit du club sur tout l'espace quand il montre ses soirées : les
-  surfaces marine et le texte des pages du club (mêmes valeurs que --c-ink,
-  --c-navy, --c-raised, --c-line, --c-text, --c-muted de tokens.css, qui ne
-  vivent que sous .club-tokens et ne remontent pas jusqu'à l'en-tête), un
-  ciel à peine étoilé. En clair, le même bleu en encre sur un papier lavande.
-  La gestion d'un restaurant n'affiche jamais .soirees : elle n'en voit rien.
+  La nuit du club sur tout l'espace : les surfaces marine et le texte des
+  pages du club (mêmes valeurs que --c-ink, --c-navy, --c-raised, --c-line,
+  --c-text, --c-muted de tokens.css, qui ne vivent que sous .club-tokens),
+  un ciel à peine étoilé sous l'aura du kit. En clair, le même bleu en encre
+  sur un papier lavande.
 */
 html:not(.light):has(.soirees) {
   --background: #070a1c;
@@ -141,9 +118,71 @@ html.light:has(.soirees) {
   --faint: #6b7096;
 }
 
-/* Une carte des soirées : la surface marine, un liseré d'or au survol. */
-.soirees .bg-surface {
-  background-image: linear-gradient(180deg, color-mix(in srgb, var(--foreground) 3%, transparent), transparent 40%);
+/* Focus visible sur ce que le kit n'habille pas (tables du plan, liens texte). */
+.soirees :is(a, summary, [role="tab"]):focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+
+/*
+  Une carte de soirée cliquable : une plaque entière qui mène à la soirée,
+  anneau de survol du kit à la souris.
+*/
+.soiree-carte {
+  color: inherit;
+  text-decoration: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .soiree-carte:hover {
+    border-color: var(--g-ring-hover);
+  }
+}
+
+/* Un segmenté plus large que sa colonne (noms de zones) défile, sans se tasser. */
+.seg-defile {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.seg-defile::-webkit-scrollbar {
+  display: none;
+}
+
+.seg-defile > .g-seg {
+  flex: none;
+}
+
+/* Un nom sans espace (titre, e-mail) passe à la ligne plutôt que de sortir de sa plaque. */
+.soirees-page {
+  overflow-wrap: anywhere;
+}
+
+/* Le libellé d'un bouton de porte, qui peut porter un gros montant : il passe sur deux lignes. */
+.porte-libelle {
+  min-width: 0;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.15;
+}
+
+/* La part réglée d'une table, en barre. */
+.part-barre {
+  width: calc(var(--part) * 100%);
+  transition: width var(--c-slow) var(--c-ease);
+}
+
+/*
+  Une barre d'enregistrement fixée en bas : un champ qui prend le focus,
+  ou une section rejointe, s'arrête au-dessus d'elle et sous la barre haute.
+*/
+html:has(.soirees-barre) {
+  scroll-padding-top: calc(var(--gestion-entete, 0px) + 4.5rem);
+}
+
+.soirees-page :is(input, textarea, select) {
+  scroll-margin-bottom: calc(var(--gestion-barre-bas, 1rem) + 5rem);
 }
 
 /* « En direct » : un point qui respire, son onde qui s'élargit. */
@@ -195,33 +234,6 @@ html.light:has(.soirees) {
   mask: var(--c-star) center / contain no-repeat;
 }
 
-/*
-  Une barre d'enregistrement fixée en bas : un champ qui prend le focus,
-  ou une section rejointe, s'arrête au-dessus d'elle et sous les barres
-  collées du haut.
-*/
-html:has(.soirees-barre) {
-  scroll-padding-top: calc(var(--gestion-entete, 0px) + 4.5rem);
-  scroll-padding-bottom: 6rem;
-}
-
-/* Focus visible partout, au clavier comme au lecteur d'écran. */
-.soirees :is(a, button, input, select, textarea, summary):focus-visible {
-  outline: 2px solid var(--soirees-gold);
-  outline-offset: 2px;
-}
-
-.soirees-entree {
-  animation: soirees-entree var(--c-slow) var(--c-ease) backwards;
-}
-
-@keyframes soirees-entree {
-  from {
-    opacity: 0;
-    transform: translateY(6px);
-  }
-}
-
 /* Statut qui change : la pastille se pose. */
 .statut-pose {
   animation: statut-pose var(--c-slow) var(--c-spring) backwards;
@@ -257,6 +269,11 @@ html:has(.soirees-barre) {
   pointer-events: none;
 }
 
+/* Une table qui entre : la liste la replie une fois la confirmation jouée, pas avant. */
+.rangee[data-presence="sortie"]:has(.porte-rangee[data-phase="parti"]) {
+  animation-delay: var(--g-ready-dur);
+}
+
 @keyframes rangee-ouvre {
   from {
     grid-template-rows: 0fr;
@@ -273,20 +290,21 @@ html:has(.soirees-barre) {
 
 /* ---------------------------------------------------------------------------
    Statuts : un mot, une teinte et un signe — la couleur seule ne suffit pas
-   (corail et vert se confondent pour un œil sur douze). */
+   (corail et lagon se confondent pour un œil sur douze). Même gabarit que
+   la pastille du kit (--g-chip-h). */
 
 .statut {
   --statut: var(--muted);
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
+  height: var(--g-chip-h);
   border-radius: 9999px;
   border: 1px solid color-mix(in srgb, var(--statut) 45%, transparent);
-  background: color-mix(in srgb, var(--statut) 12%, transparent);
-  padding: 0.125rem 0.5rem;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
+  background: color-mix(in srgb, var(--statut) 12%, var(--surface));
+  padding: 0 0.5625rem 0 0.4375rem;
+  font-size: var(--g-text-meta);
+  font-weight: 500;
   white-space: nowrap;
   color: var(--foreground);
 }
@@ -307,11 +325,11 @@ html:has(.soirees-barre) {
   --statut: var(--etat-attente);
 }
 
-/*
-  La pastille d'un statut : l'étoile du client, à la couleur de l'état. Les
-  signes ✓ et € restent posés sur les tables du plan : la couleur seule ne
-  suffit pas (corail et lagon se confondent pour un œil sur douze).
-*/
+.statut[data-state="gardee"] {
+  --statut: var(--etat-gardee);
+}
+
+/* La pastille d'un statut : l'étoile du client, à la couleur de l'état. */
 .plan-legende {
   display: inline-block;
   width: 0.875rem;
@@ -586,8 +604,72 @@ html:has(.soirees-barre) {
   }
 }
 
+/*
+  Plan entier : les pastilles des places se chevaucheraient d'une table à
+  l'autre ; seule celle de la table choisie reste. Elles reviennent toutes
+  dès qu'on agrandit (et la fiche de la table dit ses places).
+*/
+.plan-cadre:not([data-zoomed]) .plan-table:not([data-selected]) .plan-places {
+  opacity: 0;
+}
+
+.gestion-plan .plan-places {
+  transition: opacity var(--c-base) var(--c-ease);
+}
+
+/* Les tables d'une zone en tuiles (téléphone) : remplies de la couleur de leur état. */
+.tuile {
+  --tuile: var(--etat-libre);
+  display: flex;
+  width: 100%;
+  min-height: var(--g-control);
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+  border-radius: var(--g-input-r);
+  border: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
+  transition:
+    background-color var(--c-base) var(--c-ease),
+    border-color var(--c-base) var(--c-ease);
+}
+
+.tuile[data-state="payee"] {
+  --tuile: var(--etat-payee);
+}
+
+.tuile[data-state="attente"] {
+  --tuile: var(--etat-attente);
+}
+
+.tuile[data-state="arrivee"] {
+  --tuile: var(--etat-arrivee);
+}
+
+.tuile[data-state="prise"] {
+  --tuile: var(--etat-prise);
+}
+
+.tuile[data-state="gardee"] {
+  --tuile: var(--etat-gardee);
+}
+
+/* Une table tenue se remplit de la couleur de son état ; une table libre reste sobre. */
+.tuile:is([data-state="payee"], [data-state="attente"], [data-state="arrivee"], [data-state="prise"]) {
+  border-color: color-mix(in srgb, var(--tuile) 60%, transparent);
+  background: color-mix(in srgb, var(--tuile) 22%, var(--surface));
+}
+
+.tuile:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+
 /* ---------------------------------------------------------------------------
-   Mode porte : une rangée se glisse vers la droite pour faire entrer. */
+   La porte : « Faire entrer » est écrit sur chaque rangée ; le glissé vers
+   la droite reste un raccourci. Une entrée est le seul moment qui mérite
+   un peu de fête : la coche bondit, son onde s'élargit, la rangée part. */
 
 .porte-rangee {
   position: relative;
@@ -603,9 +685,10 @@ html:has(.soirees-barre) {
   align-items: center;
   gap: 0.625rem;
   padding-inline: 1.25rem;
+  border-radius: inherit;
   background: color-mix(in srgb, var(--soirees-ok) 18%, var(--surface));
   color: var(--foreground);
-  font-size: 0.875rem;
+  font-size: var(--g-text-label);
   font-weight: 600;
   /* Invisible au repos, il apparaît avec le glissé et s'efface au retour. */
   opacity: var(--progres, 0);
@@ -624,6 +707,7 @@ html:has(.soirees-barre) {
 
 /* L'icône grandit et se remplit avec le glissé. */
 .porte-coche {
+  position: relative;
   display: inline-flex;
   width: 1.75rem;
   height: 1.75rem;
@@ -652,9 +736,25 @@ html:has(.soirees-barre) {
   background: color-mix(in srgb, var(--soirees-ok) 42%, var(--surface));
 }
 
+/* Elle entre : la coche se pose en ressort, l'onde du kit (.g-ready) s'élargit depuis elle. */
+.porte-rangee[data-phase="parti"] .porte-coche {
+  background: var(--soirees-ok);
+  color: var(--etat-encre);
+  animation: entree-coche var(--c-state) var(--c-spring) both;
+}
+
+@keyframes entree-coche {
+  from {
+    transform: scale(0.6);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 .porte-contenu {
   position: relative;
-  background: var(--surface);
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
   transform: translateX(var(--glisse, 0px));
   /* Lâchée avant le seuil, la rangée revient en ressort. */
   transition: transform var(--c-sheet) var(--c-spring);
@@ -666,9 +766,10 @@ html:has(.soirees-barre) {
 
 /* La rangée validée part vers la droite, puis la liste la replie. */
 .porte-rangee[data-phase="parti"] .porte-contenu {
-  transition: transform var(--c-base) var(--c-exit);
+  transition: transform var(--c-slow) var(--c-exit) var(--c-fast);
 }
 
+/* Ce qui reste à encaisser cercle la rangée de corail : c'est là que l'argent se prend. */
 .porte-rangee[data-a-regler] .porte-contenu {
   box-shadow: inset 0 0 0 1.5px var(--soirees-coral);
 }
@@ -684,41 +785,40 @@ html:has(.soirees-barre) {
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .soirees-entree,
-  .statut-pose,
-  .rangee[data-presence="entree"] {
-    animation: none;
-  }
-  /* Sans mouvement, une rangée qui part s'efface sur place. */
-  .rangee[data-presence="sortie"] {
-    animation: plan-eclat-fondu var(--c-slow) linear forwards;
-  }
-  .soirees :is(button, a):active:not(:disabled) {
-    transform: none;
-  }
-  .gestion-plan .plan-forme,
-  .gestion-plan .plan-halo,
-  .plan-cadre,
-  .porte-rangee[data-phase] .porte-contenu {
-    transition: none;
-  }
-  .porte-rangee[data-indice] .porte-contenu,
-  .porte-rangee[data-phase="pret"] .porte-coche {
-    animation: none;
-  }
-  /* Le halo reste en place et s'éteint : le signal demeure. */
-  .plan-eclat {
-    animation: plan-eclat-fondu calc(var(--soirees-halo) * 3) ease-out 1;
-  }
+/* Ce qui reste à encaisser sur une table : du texte clair sur la surface, un repère corail. */
+.reste {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: var(--g-chip-h);
+  border-radius: 9999px;
+  border: 1px solid var(--hairline);
+  background: var(--surface-raised);
+  padding: 0 0.5625rem 0 0.4375rem;
+  font-size: var(--g-text-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--foreground);
 }
 
-@keyframes plan-eclat-fondu {
+/* La porte en plein écran, au téléphone : la page ne défile plus dessous, l'en-tête évite l'encoche. */
+html:has(.porte-ecran) {
+  overflow: hidden;
+}
+
+.porte-ecran-tete {
+  padding-top: max(0.75rem, env(safe-area-inset-top));
+}
+
+/* Elle monte depuis le bas. */
+.porte-ecran {
+  animation: porte-ecran var(--c-slow) var(--c-ease) backwards;
+}
+
+@keyframes porte-ecran {
   from {
-    opacity: 1;
-  }
-  to {
     opacity: 0;
+    transform: translateY(var(--g-dialog-rise));
   }
 }
 
@@ -737,6 +837,7 @@ html:has(.soirees-barre) {
   stroke-width: 3;
   stroke-linecap: round;
   stroke-dasharray: 1;
+  stroke-dashoffset: calc(1 - var(--part));
   transition: stroke-dashoffset var(--c-sheet) var(--c-ease);
   animation: anneau-part var(--c-sheet) var(--c-ease) both;
 }
@@ -804,111 +905,97 @@ html:has(.soirees-barre) {
   font-weight: 700;
 }
 
+/* ---------------------------------------------------------------------------
+   Sans mouvement : tout se pose, rien ne glisse ; un signal reste visible. */
+
 @media (prefers-reduced-motion: reduce) {
+  .statut-pose,
+  .rangee[data-presence="entree"],
+  .porte-ecran,
   .anneau-part,
-  .anneau-place {
+  .anneau-place,
+  .porte-rangee[data-indice] .porte-contenu,
+  .porte-rangee[data-phase="pret"] .porte-coche,
+  .porte-rangee[data-phase="parti"] .porte-coche,
+  .porte-rangee[data-phase="parti"] .porte-coche::after,
+  .pouls::after {
     animation: none;
   }
+  /* Sans mouvement, une rangée qui part s'efface sur place. */
+  .rangee[data-presence="sortie"],
+  .rangee[data-presence="sortie"]:has(.porte-rangee[data-phase="parti"]) {
+    animation: plan-eclat-fondu var(--c-slow) linear forwards;
+    animation-delay: 0s;
+  }
+  .part-barre,
+  .gestion-plan .plan-forme,
+  .gestion-plan .plan-halo,
+  .gestion-plan .plan-places,
+  .plan-cadre,
+  .tuile,
+  .porte-fond,
   .anneau-part,
   .anneau-plein,
-  .porte-fond {
+  .porte-rangee[data-phase] .porte-contenu {
     transition: none;
+  }
+  /* Le halo reste en place et s'éteint : le signal demeure. */
+  .plan-eclat {
+    animation: plan-eclat-fondu calc(var(--soirees-halo) * 3) ease-out 1;
   }
 }
 
-/* Onglets soulignés (underline-tabs.tsx) : le trait d'or glisse sous l'onglet ouvert. */
-.onglet::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: -1px;
-  height: 2px;
-  border-radius: 2px;
-  background: var(--soirees-gold);
-  transform: scaleX(0);
-  transition: transform var(--c-base) var(--c-ease);
-}
-
-.onglet[aria-selected="true"]::after {
-  transform: scaleX(1);
-}
-
-/* Une rangée qui défile : ses bords s'estompent plutôt que de couper un mot. */
-.defile {
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 1.25rem, #000 calc(100% - 1.25rem), transparent);
-  padding-inline: 1.25rem;
-  scroll-padding-inline: 1.25rem;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .onglet::after {
-    transition: none;
+@keyframes plan-eclat-fondu {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
 
 /*
-  Plan entier : les pastilles des places se chevaucheraient d'une table à
-  l'autre ; seule celle de la table choisie reste. Elles reviennent toutes
-  dès qu'on agrandit (et la fiche de la table dit ses places).
+  La barre des gestes d'une soirée (enregistrer, publier) : collée en bas de
+  l'écran tant que la page défile dessous, au-dessus de la barre d'onglets
+  du téléphone (le shell donne sa hauteur en --gestion-barre-bas).
 */
-.plan-cadre:not([data-zoomed]) .plan-table:not([data-selected]) .plan-places {
-  opacity: 0;
+.g-glass.soirees-barre {
+  position: sticky;
+  bottom: calc(var(--gestion-barre-bas, 1rem) - var(--g-gap) + var(--g-frame-margin));
+  z-index: 30;
 }
 
-.gestion-plan .plan-places {
-  transition: opacity var(--c-base) var(--c-ease);
-}
-
-/* Les tables d'une zone en tuiles (téléphone) : remplies de la couleur de leur état. */
-.tuile {
-  --tuile: var(--etat-libre);
-  border-color: var(--hairline);
-  background: var(--surface);
-  transition:
-    background-color var(--c-base) var(--c-ease),
-    border-color var(--c-base) var(--c-ease);
-}
-
-.tuile[data-state="payee"] {
-  --tuile: var(--etat-payee);
-}
-
-.tuile[data-state="attente"] {
-  --tuile: var(--etat-attente);
-}
-
-.tuile[data-state="arrivee"] {
-  --tuile: var(--etat-arrivee);
-}
-
-.tuile[data-state="prise"] {
-  --tuile: var(--etat-prise);
-}
-
-.tuile[data-state="gardee"] {
-  --tuile: var(--etat-gardee);
-  background: var(--surface);
-}
-
-/* Une table tenue se remplit de la couleur de son état ; une table libre reste sobre. */
-.tuile:is([data-state="payee"], [data-state="attente"], [data-state="arrivee"], [data-state="prise"]) {
-  border-color: color-mix(in srgb, var(--tuile) 60%, transparent);
-  background: color-mix(in srgb, var(--tuile) 22%, var(--surface));
-}
-
-/* Ce qui reste à encaisser sur une table : du texte clair sur la surface, un repère corail. */
-.reste {
+/* La coche d'un invité : un bouton rond, lagon une fois l'arrivée cochée. */
+.invite-coche {
   display: inline-flex;
+  flex: none;
+  width: var(--g-control);
+  height: var(--g-control);
   align-items: center;
-  gap: 0.375rem;
+  justify-content: center;
   border-radius: 9999px;
   border: 1px solid var(--hairline);
-  background: var(--surface-raised);
-  padding: 0.125rem 0.5rem;
-  font-size: 12px;
-  font-weight: 600;
-  line-height: 1.4;
-  white-space: nowrap;
-  color: var(--foreground);
+  color: var(--muted);
+  transition:
+    background-color var(--g-hover-dur),
+    border-color var(--g-hover-dur),
+    color var(--g-hover-dur);
+}
+
+.invite-coche[aria-pressed="true"] {
+  border-color: transparent;
+  background: var(--status-signed);
+  color: var(--etat-encre);
+}
+
+.invite-coche:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .invite-coche[aria-pressed="false"]:hover {
+    border-color: var(--g-ring-hover);
+    color: var(--foreground);
+  }
 }

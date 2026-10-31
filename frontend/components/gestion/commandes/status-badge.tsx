@@ -1,16 +1,9 @@
+import { Chip } from "@/components/gestion/ui";
 import { ORDER_STATUS_LABELS } from "@/lib/gestion/constants";
 import type { OrderStatus } from "@/lib/gestion/types";
+import { XIcon } from "../icons";
 
-const STATUS_CLASSES: Record<OrderStatus, string> = {
-  en_attente: "border-ember-1/40 bg-ember-1/10 text-ember-1",
-  en_preparation: "border-ember-2/40 bg-ember-2/10 text-ember-2",
-  prete: "ember-text border-ember-2/35 bg-background/60",
-  servie: "border-hairline bg-surface text-muted",
-  payee: "border-hairline bg-surface text-faint",
-  annulee: "border-ember-3/40 bg-ember-3/10 text-ember-3",
-  retiree: "border-hairline bg-surface text-faint",
-};
-
+/** L'état d'une commande seule : une pastille, grenat quand elle est annulée. */
 export function StatusBadge({
   status,
   label = ORDER_STATUS_LABELS[status],
@@ -19,11 +12,11 @@ export function StatusBadge({
   /** Le mot du contexte : une commande fast food est « Remise », pas « Servie ». */
   label?: string;
 }) {
-  return (
-    <span
-      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${STATUS_CLASSES[status]}`}
-    >
+  return status === "annulee" ? (
+    <Chip tone="problem" icon={<XIcon />}>
       {label}
-    </span>
+    </Chip>
+  ) : (
+    <Chip>{label}</Chip>
   );
 }

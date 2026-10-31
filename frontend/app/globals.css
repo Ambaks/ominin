@@ -13131,6 +13131,49 @@ html:has([data-menu-root].theme-rosemarie) body {
   --color-ember-3: var(--ember-3);
   --color-chart-mark: var(--chart-mark);
 
+  /* Gestion v2 — ember glass : jetons --g-* exposés aux utilitaires. */
+  --color-g-entity: var(--g-entity);
+  --radius-g-card: var(--g-radius-card);
+  --radius-g-frame: var(--g-radius-frame);
+  --radius-g-hero: var(--g-radius-hero);
+  --spacing-g-pad: var(--g-pad);
+  --spacing-g-gap: var(--g-gap);
+  --spacing-g-control: var(--g-control);
+  --spacing-g-chip: var(--g-chip-h);
+  --spacing-g-rail: var(--g-rail);
+  --text-g-day: var(--g-text-day);
+  --text-g-day--line-height: 1;
+  --text-g-day--letter-spacing: -0.03em;
+  --text-g-day--font-weight: 600;
+  --text-g-kpi: var(--g-text-kpi);
+  --text-g-kpi--line-height: 1;
+  --text-g-kpi--letter-spacing: -0.03em;
+  --text-g-kpi--font-weight: 600;
+  --text-g-counter: var(--g-text-counter);
+  --text-g-counter--line-height: 1;
+  --text-g-counter--letter-spacing: -0.03em;
+  --text-g-counter--font-weight: 600;
+  --text-g-h1: var(--g-text-h1);
+  --text-g-h1--line-height: 1.05;
+  --text-g-h1--letter-spacing: -0.02em;
+  --text-g-h1--font-weight: 600;
+  --text-g-h2: var(--g-text-h2);
+  --text-g-h2--line-height: 1.15;
+  --text-g-h2--letter-spacing: -0.015em;
+  --text-g-h2--font-weight: 600;
+  --text-g-name: var(--g-text-name);
+  --text-g-name--line-height: 1;
+  --text-g-name--letter-spacing: -0.01em;
+  --text-g-name--font-weight: 600;
+  --text-g-body: var(--g-text-body);
+  --text-g-body--line-height: 1.45;
+  --text-g-label: var(--g-text-label);
+  --text-g-label--line-height: 1.4;
+  --text-g-meta: var(--g-text-meta);
+  --text-g-meta--line-height: 1.35;
+  --text-g-axis: var(--g-text-axis);
+  --text-g-axis--line-height: 1;
+
   --color-status-new: var(--status-new);
   --color-status-to-contact: var(--status-to-contact);
   --color-status-contacted: var(--status-contacted);
@@ -13807,6 +13850,1929 @@ body {
 
 .fab-breathe {
   animation: fab-breathe 2.6s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Gestion v2 — ember glass
+   Matière du back-office refait : verre dépoli sur une aura de braises, et
+   des « plaques » claires pour tout ce qui porte des chiffres. Jetons --g-*
+   seuls (tout nombre nouveau vit ici), utilitaires .g-*, replis quand la
+   transparence, le backdrop-filter ou le mouvement sont refusés. Contrat :
+   components/gestion/DESIGN.md. Aucune teinte hors des jetons du haut du
+   fichier : les mélanges passent par color-mix.
+   ========================================================================== */
+
+:root {
+  /* Verre */
+  --g-blur: 20px;
+  --g-saturate: 1.4;
+  --g-scrim: 64%;
+  --g-tint-a: 10%;
+  --g-tint-a-problem: 12%;
+  --g-specular: var(--shimmer-highlight);
+  --g-ring: var(--hairline);
+  --g-ring-hover: color-mix(in srgb, var(--ember-2) 40%, transparent);
+  --g-bloom: var(--glow-inner);
+  --g-shadow: var(--glow-outer);
+  --g-shade: color-mix(in srgb, var(--background) 55%, transparent);
+  --g-edge: color-mix(in srgb, var(--background) 40%, transparent);
+  --g-drop: color-mix(in srgb, var(--background) 80%, transparent);
+  --g-sheen: color-mix(in srgb, var(--foreground) 4%, transparent);
+  --g-rim: color-mix(in srgb, var(--ember-2) 14%, transparent);
+  --g-glass-max: 12;
+
+  /* Plaque (données) */
+  --g-plate: 70%;
+
+  /* Aura : trois radiales de braise, dérive 54–70 s, transform seul */
+  --g-mesh-1: color-mix(in oklab, var(--ember-2) 32%, transparent);
+  --g-mesh-2: color-mix(in oklab, var(--ember-3) 22%, transparent);
+  --g-mesh-3: color-mix(in oklab, var(--ember-1) 18%, transparent);
+  --g-mesh-dur-1: 62s;
+  --g-mesh-dur-2: 70s;
+  --g-mesh-dur-3: 54s;
+
+  /* Rayons et espaces */
+  --g-radius-card: 16px;
+  --g-radius-frame: 20px;
+  --g-radius-hero: 24px;
+  --g-radius-tabbar: 28px;
+  --g-pad: 6px;
+  --g-gap: 16px;
+  --g-rail: 232px;
+  --g-rail-narrow: 200px;
+  --g-cap-h: 30px;
+  --g-cap-h-hero: 34px;
+  --g-control: 44px;
+  --g-fab: 56px;
+  --g-chip-h: 24px;
+  --g-row-h: 44px;
+  --g-rank-meta-w: 7ch;
+  --g-share-slim: 3px;
+  --g-share-bar: 8px;
+  --g-chart-h: 236px;
+  --g-chart-h-dense: 176px;
+  --g-gutter: 40px;
+  --g-gutter-dense: 26px;
+  --g-axis-h: 40px;
+  --g-axis-h-dense: 20px;
+  --g-bar-w: min(46px, 62%);
+  --g-bar-r: 7px;
+  --g-bar-r-dense: 3px;
+  --g-bar-cap: 6px;
+  --g-bar-cap-dense: 3px;
+  --g-bar-gap-dense: 3px;
+  --g-bar-body: 28%;
+  --g-seg-h: 36px;
+  --g-seg-pad: 4px;
+  --g-chip-tint: 18%;
+  --g-chip-ring: 35%;
+  --g-badge: 18px;
+  --g-icon: 20px;
+  --g-icon-sm: 16px;
+  --g-icon-chip: 14px;
+
+  /* Coquille : rail, barre haute, barre d'onglets, feuille « Plus » */
+  --g-frame-margin: 12px;
+  --g-col-gap: 12px;
+  --g-content-max: 1440px;
+  --g-rail-pad: 12px;
+  --g-rail-pad-top: 22px;
+  --g-nav-top: 26px;
+  --g-nav-h: 42px;
+  --g-nav-gap: 2px;
+  --g-nav-group-h: 34px;
+  --g-brand: 20px;
+  --g-brand-sm: 15px;
+  --g-topbar-h: 60px;
+  --g-topbar-h-sm: 56px;
+  --g-topbar-mx: 24px;
+  --g-topbar-mx-sm: 16px;
+  --g-tabbar-inset: 6px;
+  --g-tabbar-bottom: 12px;
+  --g-tabbar-pad-y: 5px;
+  --g-tabbar-pad-x: 4px;
+  --g-tab-h: 54px;
+  --g-tab-r: 22px;
+  --g-text-tab: 10px;
+  --g-sheet-item-h: 66px;
+  --g-sheet-dur: 240ms;
+
+  /* Mise en route (carte « Avant votre premier service ») */
+  --g-check: 22px;
+  --g-step-h: 52px;
+
+  /* Formulaires : champ, saisie, interrupteur, feuille */
+  --g-field-gap: 6px;
+  --g-text-field: 11px;
+  --g-field-tracking: 0.14em;
+  --g-input-r: 12px;
+  --g-input-px: 14px;
+  --g-input-pr: 44px;
+  --g-input-text: 16px;
+  --g-input-invalid: 70%;
+  --g-textarea-min: 96px;
+  --g-switch-w: 48px;
+  --g-switch-h: 28px;
+  --g-switch-thumb: 20px;
+  --g-switch-pad: 4px;
+  --g-switch-hit: 44px;
+  --g-dialog-w: 520px;
+  --g-dialog-w-wide: 1120px;
+  --g-dialog-max-h: 85dvh;
+  --g-dialog-pad: 20px;
+  --g-dialog-handle-w: 36px;
+  --g-dialog-handle-h: 4px;
+  --g-dialog-rise: 24px;
+  --g-backdrop: 55%;
+  --g-danger-ring: 50%;
+
+  /* Typographie */
+  --g-text-day: 40px;
+  --g-text-kpi: 28px;
+  --g-text-counter: 56px;
+  --g-text-h1: 36px;
+  --g-text-h2: 20px;
+  --g-text-name: 18px;
+  --g-text-body: 14px;
+  --g-text-label: 13px;
+  --g-text-meta: 12px;
+  --g-text-axis: 11px;
+  --g-text-eyebrow: 10px;
+
+  /* Mouvement */
+  --g-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --g-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --g-rise-dur: 0.6s;
+  --g-rise-y: 14px;
+  --g-stagger: 70ms;
+  --g-press-dur: 200ms;
+  --g-press-scale: 0.96;
+  --g-ready-dur: 700ms;
+  --g-ready-spread: 18px;
+  --g-morph-dur: 200ms;
+  --g-hover-dur: 150ms;
+  --g-shimmer-dur: 1.8s;
+
+  --g-entity: var(--muted);
+}
+
+html.light {
+  --g-shade: color-mix(in srgb, var(--foreground) 8%, transparent);
+  --g-edge: color-mix(in srgb, var(--foreground) 6%, transparent);
+  --g-drop: color-mix(in srgb, var(--foreground) 18%, transparent);
+  --g-sheen: color-mix(in srgb, var(--surface-raised) 60%, transparent);
+  --g-mesh-1: color-mix(in oklab, var(--ember-2) 18%, transparent);
+  --g-mesh-2: color-mix(in oklab, var(--ember-3) 12%, transparent);
+  --g-mesh-3: color-mix(in oklab, var(--ember-1) 14%, transparent);
+  --g-backdrop: 40%;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --g-control: 36px;
+    --g-seg-h: 32px;
+    --g-input-text: var(--g-text-body);
+  }
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --g-rail: var(--g-rail-narrow);
+  }
+}
+@media (max-width: 720px) {
+  :root {
+    --g-text-counter: 48px;
+  }
+}
+
+/* Entité : la couleur suit ce que le bloc mesure. */
+.g-money {
+  --g-entity: var(--ember-1);
+}
+.g-orders {
+  --g-entity: var(--ember-2);
+}
+.g-problem {
+  --g-entity: var(--ember-3);
+}
+
+/* Aura fixe sous tout l'espace : trois disques flous qui dérivent. */
+.g-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.g-mesh i {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.g-mesh i:nth-child(1) {
+  left: 28%;
+  top: -34%;
+  width: 92vmin;
+  height: 92vmin;
+  background: radial-gradient(closest-side, var(--g-mesh-1), transparent);
+  animation: g-drift-a var(--g-mesh-dur-1) ease-in-out infinite alternate;
+}
+.g-mesh i:nth-child(2) {
+  left: -24%;
+  top: 42%;
+  width: 84vmin;
+  height: 84vmin;
+  background: radial-gradient(closest-side, var(--g-mesh-2), transparent);
+  animation: g-drift-b var(--g-mesh-dur-2) ease-in-out infinite alternate;
+}
+.g-mesh i:nth-child(3) {
+  left: 56%;
+  top: 38%;
+  width: 76vmin;
+  height: 76vmin;
+  background: radial-gradient(closest-side, var(--g-mesh-3), transparent);
+  animation: g-drift-c var(--g-mesh-dur-3) ease-in-out infinite alternate;
+}
+@keyframes g-drift-a {
+  to {
+    transform: translate(-14%, 18%) scale(1.08);
+  }
+}
+@keyframes g-drift-b {
+  to {
+    transform: translate(22%, -16%) scale(0.94);
+  }
+}
+@keyframes g-drift-c {
+  to {
+    transform: translate(-18%, -22%) scale(1.1);
+  }
+}
+
+/* Verre : fond flouté et saturé sous un voile de surface et une teinte
+   d'entité ; reflet en haut à gauche, anneau filet, liseré de braise et ombre
+   en bas à droite, bloom ambre, halo. Tout le ring tient dans box-shadow :
+   aucun masque (mask-composite n'est pas appliqué par certains Chromium
+   mobiles, et l'anneau voilait alors tout le cadre). Le contenu n'est jamais
+   flouté : il vit sur une plaque. */
+.g-glass {
+  position: relative;
+  isolation: isolate;
+  --g-r: var(--g-radius-frame);
+  border-radius: var(--g-r);
+  background:
+    radial-gradient(140% 110% at 0% 0%, var(--g-bloom), transparent 58%),
+    linear-gradient(135deg, var(--g-sheen), transparent 46%),
+    linear-gradient(
+      color-mix(in srgb, var(--g-tint, var(--surface)) var(--g-tint-on, 0%), transparent),
+      color-mix(in srgb, var(--g-tint, var(--surface)) var(--g-tint-on, 0%), transparent)
+    ),
+    color-mix(in srgb, var(--surface) var(--g-scrim), transparent);
+  -webkit-backdrop-filter: blur(var(--g-blur)) saturate(var(--g-saturate));
+  backdrop-filter: blur(var(--g-blur)) saturate(var(--g-saturate));
+  box-shadow:
+    inset 1px 1px 0 var(--g-specular),
+    inset -1px -1px 0 var(--g-rim),
+    inset 0 0 0 1px var(--g-ring),
+    inset -1px -1px 0 var(--g-shade),
+    0 0 0 1px var(--g-edge),
+    0 24px 48px -28px var(--g-drop),
+    0 0 44px -6px var(--g-shadow);
+  transition: box-shadow var(--g-hover-dur);
+}
+.g-glass-hero {
+  --g-r: var(--g-radius-hero);
+  --g-cap-h: var(--g-cap-h-hero);
+}
+.g-glass-pill {
+  --g-r: 9999px;
+}
+.g-glass-money {
+  --g-tint: var(--ember-1);
+  --g-tint-on: var(--g-tint-a);
+  --g-entity: var(--ember-1);
+}
+.g-glass-orders {
+  --g-tint: var(--ember-2);
+  --g-tint-on: var(--g-tint-a);
+  --g-entity: var(--ember-2);
+}
+.g-glass-problem {
+  --g-tint: var(--ember-3);
+  --g-tint-on: var(--g-tint-a-problem);
+  --g-entity: var(--ember-3);
+}
+@media (hover: hover) and (pointer: fine) {
+  a.g-glass:hover,
+  button.g-glass:hover {
+    --g-ring: var(--g-ring-hover);
+  }
+}
+
+/* Surtitre d'un cadre : rangée d'en-tête à la couleur de l'entité. */
+.g-cap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--g-cap-h);
+  padding: 0 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.g-eyebrow {
+  font-size: var(--g-text-eyebrow);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--g-entity);
+}
+
+/* Plaque : la surface des données, jamais floutée. Dans un cadre de verre,
+   son rayon est celui du cadre moins la marge (rayons concentriques). */
+.g-plate {
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
+  border: 1px solid var(--hairline);
+  border-radius: var(--g-radius-card);
+  min-width: 0;
+}
+.g-glass > .g-plate {
+  border-radius: calc(var(--g-r) - var(--g-pad));
+}
+
+/* Entrée : montée en fondu au montage, décalée par --g-i (index du bloc).
+   Une transition depuis @starting-style, pas une animation : l'état de base
+   est l'état visible et rien n'en dépend — capture précoce, animations
+   figées ou mouvement réduit montrent la page telle qu'elle est. Le délai
+   est posé par propriété : une autre transition sur le même élément
+   (survol, appui) n'en hérite pas. */
+.g-rise {
+  --g-rise-delay: calc(var(--g-i, 0) * var(--g-stagger));
+  transition:
+    opacity var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay),
+    transform var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay);
+}
+@starting-style {
+  .g-rise {
+    opacity: 0;
+    transform: translateY(var(--g-rise-y));
+  }
+}
+/* Espace monté hors de vue (onglet caché) : rien à faire entrer. */
+[data-entrance="off"] .g-rise {
+  transition: none;
+}
+
+/* Appui : la commande se tasse sous le doigt, jamais désactivée. Au doigt,
+   seul le transform transite : une pilule qui change d'habit (filet → pleine)
+   le fait d'un coup, sans texte qui fond sur un fond instantané ; les fondus
+   de bordure et de couleur sont réservés à la souris (bloc survol, plus bas). */
+.g-press {
+  transition: transform var(--g-press-dur) var(--g-ease-out);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-press:active:not(:disabled) {
+  transform: scale(var(--g-press-scale));
+}
+
+/* « C'est prêt » : une onde de braise part du bord et s'éteint, une fois.
+   Sur un pseudo-élément, pour ne pas toucher au box-shadow de l'hôte (tout
+   le verre y tient) ; box-shadow seul — ni opacité ni transform : une carte
+   déjà visible ne cligne jamais. Réservé à l'arrivée en temps réel, jamais à
+   l'appareil qui a appuyé. */
+:where(.g-ready) {
+  position: relative;
+}
+.g-ready::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: g-ready var(--g-ready-dur) var(--g-ease-out) forwards;
+}
+@keyframes g-ready {
+  from {
+    box-shadow: 0 0 0 0 var(--ember-1);
+  }
+  to {
+    box-shadow: 0 0 0 var(--g-ready-spread) transparent;
+  }
+}
+
+/* Segmenté : radios natifs, pouce qui glisse en dégradé de marque. */
+.g-seg {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  position: relative;
+  padding: var(--g-seg-pad);
+  border: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+.g-seg.g-plate {
+  border-radius: 9999px;
+}
+.g-seg input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.g-seg label {
+  position: relative;
+  z-index: 1;
+  height: var(--g-seg-h);
+  padding: 0 1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  font-size: var(--g-text-label);
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--g-morph-dur);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+/* Cible tactile : un calque invisible porte la hauteur --g-control, le
+   segment visible garde --g-seg-h ; l'étiquette (z-index 1) reste au-dessus
+   du pouce (z-index 0). */
+.g-seg label::before {
+  content: "";
+  position: absolute;
+  inset-block: calc((var(--g-seg-h) - var(--g-control)) / 2);
+  inset-inline: 0;
+}
+.g-seg input:checked + label {
+  color: var(--background);
+}
+.g-seg input:focus-visible + label {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-seg-thumb {
+  position: absolute;
+  z-index: 0;
+  top: var(--g-seg-pad);
+  bottom: var(--g-seg-pad);
+  left: var(--g-seg-pad);
+  width: calc((100% - 2 * var(--g-seg-pad)) / var(--g-seg-n));
+  border-radius: 9999px;
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  transform: translateX(calc(var(--g-seg-i) * 100%));
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+}
+
+/* Liste classée : part en barre fine ou en barre pleine à bouchon, le long
+   du bord bas de la ligne. */
+.g-rank li {
+  position: relative;
+  display: grid;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--g-row-h);
+  padding-bottom: calc(var(--g-share) + 0.25rem);
+}
+.g-rank li::after {
+  content: "";
+  position: absolute;
+  left: var(--g-share-x, 0);
+  right: 0;
+  bottom: 0;
+  height: var(--g-share);
+  border-radius: calc(var(--g-share) / 2);
+  background:
+    linear-gradient(90deg, var(--g-entity), var(--g-entity)) 0 0 /
+      calc(var(--g-v) / var(--g-max) * 100%) 100% no-repeat,
+    var(--surface-raised);
+}
+.g-rank-slim {
+  --g-share: var(--g-share-slim);
+}
+.g-rank-slim li {
+  grid-template-columns: 1.125rem minmax(0, 1fr) auto;
+  --g-share-x: 1.75rem;
+}
+.g-rank-slim li::after {
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--g-entity) 75%, transparent),
+    color-mix(in srgb, var(--g-entity) 75%, transparent)
+  );
+}
+.g-rank-bar {
+  --g-share: var(--g-share-bar);
+}
+.g-rank-bar li {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-bottom: calc(var(--g-share) + 0.5rem);
+}
+.g-rank-bar li[data-meta] {
+  grid-template-columns: minmax(0, 1fr) auto minmax(var(--g-rank-meta-w), auto);
+}
+.g-rank-bar li::after {
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--g-entity) var(--g-bar-body), var(--surface))
+        calc(var(--g-v) / var(--g-max) * 100% - var(--g-bar-cap)),
+      var(--g-entity) calc(var(--g-v) / var(--g-max) * 100% - var(--g-bar-cap)),
+      var(--g-entity) calc(var(--g-v) / var(--g-max) * 100%),
+      var(--surface-raised) calc(var(--g-v) / var(--g-max) * 100%)
+    );
+}
+
+/* Barres : grille, barres à bouchon, axe tabulaire à droite, maximum
+   étiqueté. Hauteurs en pourcentage de --g-top (le plafond de l'axe). */
+.g-bars {
+  position: relative;
+  height: var(--g-chart-h);
+  --g-gut: var(--g-gutter);
+  --g-ax: var(--g-axis-h);
+  --g-r-bar: var(--g-bar-r);
+  --g-cap: var(--g-bar-cap);
+  --g-w: var(--g-bar-w);
+  --g-bgap: 0px;
+}
+.g-bars-dense {
+  height: var(--g-chart-h-dense);
+  --g-gut: var(--g-gutter-dense);
+  --g-ax: var(--g-axis-h-dense);
+  --g-r-bar: var(--g-bar-r-dense);
+  --g-cap: var(--g-bar-cap-dense);
+  --g-w: 100%;
+  --g-bgap: var(--g-bar-gap-dense);
+}
+.g-bars-grid,
+.g-bars-plot {
+  position: absolute;
+  inset: 0 var(--g-gut) var(--g-ax) 0;
+}
+.g-bars-grid i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--g-y) / var(--g-top) * 100%);
+  height: 1px;
+  background: var(--hairline);
+}
+.g-bars-grid i:first-child {
+  background: var(--faint);
+}
+.g-bars-grid i span {
+  position: absolute;
+  right: calc(-1 * var(--g-gut));
+  width: calc(var(--g-gut) - 0.375rem);
+  bottom: -0.3125rem;
+  text-align: right;
+  font-size: var(--g-text-axis);
+  line-height: 1;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.g-bars-plot {
+  display: grid;
+  grid-template-columns: repeat(var(--g-n), minmax(0, 1fr));
+  align-items: end;
+  gap: var(--g-bgap);
+  padding: 0 var(--g-pad);
+}
+.g-bars-dense .g-bars-plot {
+  padding: 0;
+}
+.g-bar {
+  position: relative;
+  height: calc(var(--g-v) / var(--g-top) * 100%);
+  width: var(--g-w);
+  margin: 0 auto;
+  border-radius: var(--g-r-bar) var(--g-r-bar) 2px 2px;
+  background: color-mix(in srgb, var(--g-entity) var(--g-bar-body), var(--surface));
+}
+.g-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--g-cap);
+  border-radius: var(--g-r-bar) var(--g-r-bar) 0 0;
+  background: var(--g-entity);
+}
+.g-bar b {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.4375rem);
+  translate: -50% 0;
+  font-size: var(--g-text-meta);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.g-bars-axis {
+  position: absolute;
+  left: 0;
+  right: var(--g-gut);
+  bottom: 0;
+  height: var(--g-ax);
+  display: grid;
+  grid-template-columns: repeat(var(--g-n), minmax(0, 1fr));
+  padding: 0.375rem var(--g-pad) 0;
+  text-align: center;
+  font-size: var(--g-text-meta);
+  line-height: 1.35;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.g-bars-dense .g-bars-axis {
+  padding: 0.25rem 0 0;
+  text-align: left;
+  font-size: var(--g-text-axis);
+  white-space: nowrap;
+}
+.g-bars-axis small {
+  display: block;
+  font-size: var(--g-text-meta);
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+/* Chargement : la plaque elle-même scintille. */
+.g-shimmer {
+  border-radius: var(--g-radius-card);
+  background-image: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--surface) var(--g-plate), transparent) 40%,
+    var(--g-specular) 50%,
+    color-mix(in srgb, var(--surface) var(--g-plate), transparent) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--g-shimmer-dur) linear infinite;
+}
+
+/* Données en attente : l'ancien état reste, estompé, le temps du rechargement. */
+.g-stale {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity var(--g-hover-dur);
+}
+
+/* Pastille d'état : filet neutre, ou teintée grenat pour un problème. */
+.g-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: var(--g-chip-h);
+  padding: 0 0.5625rem 0 0.4375rem;
+  border-radius: 9999px;
+  font-size: var(--g-text-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--foreground);
+  border: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
+}
+.g-chip svg {
+  width: var(--g-icon-chip);
+  height: var(--g-icon-chip);
+  color: var(--g-entity);
+}
+.g-chip-problem {
+  --g-entity: var(--ember-3);
+  background: color-mix(in srgb, var(--ember-3) var(--g-chip-tint), var(--surface));
+  border-color: color-mix(in srgb, var(--ember-3) var(--g-chip-ring), transparent);
+}
+
+/* Commandes : pilule pleine (dégradé de marque), pilule filet, bouton icône. */
+.g-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: var(--g-control);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  font-size: var(--g-text-label);
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--foreground);
+  text-decoration: none;
+  cursor: pointer;
+}
+.g-btn:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+.g-btn svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+}
+.g-btn-primary {
+  padding: 0 1.125rem;
+}
+.g-btn-primary,
+.g-fab {
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  color: var(--background);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--ember-2) 60%, transparent);
+}
+/* Bouton d'action flottant : rond, posé au-dessus de la barre d'onglets à
+   droite (même formule que la feuille « Plus ») ; sur ordinateur, dans
+   l'angle bas-droit. .g-fab-label l'étire quand il porte un mot. L'appui
+   vient de .g-press, posé dans le balisage comme sur toute commande. */
+.g-fab {
+  position: fixed;
+  z-index: 30;
+  right: var(--g-topbar-mx-sm);
+  bottom: calc(
+    var(--g-tab-h) + 2 * var(--g-tabbar-pad-y) + var(--g-frame-margin) +
+      max(var(--g-tabbar-bottom), env(safe-area-inset-bottom, 0px))
+  );
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: var(--g-fab);
+  height: var(--g-fab);
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  font-size: var(--g-text-label);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.g-fab svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+}
+.g-fab-label {
+  width: auto;
+  padding-inline: var(--g-input-px);
+}
+@media (min-width: 1024px) {
+  .g-fab {
+    right: var(--g-topbar-mx);
+    bottom: var(--g-topbar-mx);
+  }
+}
+.g-btn-secondary {
+  padding: 0 0.875rem;
+  border-color: var(--hairline);
+}
+.g-btn-icon {
+  width: var(--g-control);
+  padding: 0;
+  border-color: var(--hairline);
+  color: var(--muted);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-press {
+    transition:
+      transform var(--g-press-dur) var(--g-ease-out),
+      border-color var(--g-hover-dur),
+      color var(--g-hover-dur);
+  }
+  .g-btn-secondary:hover,
+  .g-btn-icon:hover {
+    border-color: var(--g-ring-hover);
+    color: var(--foreground);
+  }
+}
+.g-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: var(--g-badge);
+  height: var(--g-badge);
+  padding: 0 0.3125rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--ember-3) 88%, var(--foreground));
+  color: var(--background);
+  font-size: var(--g-text-axis);
+  font-weight: 700;
+  line-height: var(--g-badge);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+:is(.g-btn, .g-fab, a.g-glass, button.g-glass):focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-bars-dense .g-bars-axis span:last-child {
+  text-align: right;
+}
+
+/* Coquille de l'espace : la grille rail + colonne, au-dessus de l'aura. */
+.g-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 1024px) {
+  .g-shell {
+    grid-template-columns: var(--g-rail) minmax(0, 1fr);
+    column-gap: var(--g-col-gap);
+  }
+}
+.g-col {
+  min-width: 0;
+  max-width: var(--g-content-max);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rail de verre, collé à gauche, à la hauteur de l'écran. */
+.g-rail {
+  display: none;
+  position: sticky;
+  top: var(--g-frame-margin);
+  align-self: start;
+  height: calc(100dvh - 2 * var(--g-frame-margin));
+  margin: var(--g-frame-margin) 0 var(--g-frame-margin) var(--g-frame-margin);
+  padding: var(--g-rail-pad-top) var(--g-rail-pad) var(--g-rail-pad);
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  --g-r: var(--g-radius-hero);
+}
+.g-rail::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .g-rail {
+    display: flex;
+  }
+}
+@media print {
+  .g-mesh,
+  .g-rail,
+  .g-topbar,
+  .g-tabbar,
+  .g-sheet {
+    display: none;
+  }
+}
+
+/* Mot-symbole : « Ominin » en braise, le produit à côté. */
+.g-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  padding: 0 var(--g-rail-pad);
+  font-size: var(--g-brand);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.g-brand small {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--g-text-body);
+  color: var(--foreground);
+}
+.g-brand-sm {
+  font-size: var(--g-brand-sm);
+  padding: 0 0.5rem 0 0.25rem;
+}
+
+/* Entrées du rail : pilules ; la pilule active est un seul élément qui
+   glisse en transform d'une entrée à l'autre. */
+.g-nav {
+  position: relative;
+  display: grid;
+  gap: var(--g-nav-gap);
+  margin-top: var(--g-nav-top);
+}
+.g-nav-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: var(--g-nav-h);
+  padding: 0 var(--g-rail-pad);
+  border-radius: 9999px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--g-text-body);
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--g-hover-dur),
+    background-color var(--g-hover-dur);
+}
+.g-nav-item.g-rise {
+  transition:
+    color var(--g-hover-dur),
+    background-color var(--g-hover-dur),
+    opacity var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay),
+    transform var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay);
+}
+.g-nav-item svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+}
+.g-nav-item[aria-current="page"] {
+  color: var(--background);
+  font-weight: 600;
+}
+.g-nav-item:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-nav-item[aria-current="page"]:focus-visible,
+.g-tab[aria-current="page"]:focus-visible {
+  outline-color: var(--foreground);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-nav-item:hover:not([aria-current="page"]) {
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--surface-raised) 72%, transparent);
+  }
+}
+.g-nav-pill {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--g-nav-h);
+  border-radius: 9999px;
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--ember-2) 60%, transparent);
+  transform: translateY(var(--g-nav-y, 0px));
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+  pointer-events: none;
+}
+.g-nav-group {
+  display: flex;
+  align-items: end;
+  height: var(--g-nav-group-h);
+  padding: 0 var(--g-rail-pad) 0.375rem;
+}
+
+/* Compteur posé dans une entrée (ce qui attend un geste). */
+.g-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--g-badge);
+  height: var(--g-badge);
+  padding: 0 0.3125rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--ember-3) 88%, var(--foreground));
+  color: var(--background);
+  font-size: var(--g-text-axis);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.g-nav-item .g-count {
+  margin-left: auto;
+}
+
+/* Barre haute : collée, de verre, allégée. */
+.g-topbar {
+  position: sticky;
+  top: var(--g-frame-margin);
+  z-index: 40;
+  margin: var(--g-frame-margin) var(--g-topbar-mx-sm) 0;
+  height: var(--g-topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0 0.625rem 0 1.125rem;
+}
+@media (min-width: 1024px) {
+  .g-topbar {
+    margin: var(--g-frame-margin) var(--g-topbar-mx) 0;
+  }
+}
+@media (max-width: 720px) {
+  .g-topbar {
+    height: var(--g-topbar-h-sm);
+    gap: 0.375rem;
+    padding: 0 0.5rem 0 0.875rem;
+  }
+}
+.g-who {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  margin-right: auto;
+}
+
+/* Barre d'onglets flottante (sous 1024 px) : quatre entrées + « Plus ». */
+.g-tabbar {
+  position: fixed;
+  left: var(--g-tabbar-inset);
+  right: var(--g-tabbar-inset);
+  bottom: max(var(--g-tabbar-bottom), env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(var(--g-tabs), minmax(0, 1fr));
+  gap: 1px;
+  padding: var(--g-tabbar-pad-y) var(--g-tabbar-pad-x);
+  --g-r: var(--g-radius-tabbar);
+}
+@media (min-width: 1024px) {
+  .g-tabbar {
+    display: none;
+  }
+}
+.g-tab {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.25rem;
+  height: var(--g-tab-h);
+  padding: 0 1px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--g-tab-r);
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--g-text-tab);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--g-hover-dur),
+    color var(--g-hover-dur),
+    transform var(--g-press-dur) var(--g-ease-out);
+}
+.g-tab svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+}
+.g-tab > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.g-tab[aria-current="page"] {
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  color: var(--background);
+}
+.g-tab[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--surface-raised) 80%, transparent);
+  color: var(--foreground);
+}
+.g-tab:active:not(:disabled) {
+  transform: scale(var(--g-press-scale));
+}
+.g-tab .g-count {
+  position: absolute;
+  top: 0.375rem;
+  left: calc(50% + 0.375rem);
+}
+.g-tab:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: -2px;
+}
+
+/* Feuille « Plus » : dialogue natif de verre, posé au-dessus de la barre. */
+dialog.g-sheet {
+  /* .g-glass pose position: relative ; sur un <dialog> modal cela devient absolute
+     et la feuille suit le document défilé — on la fixe à l'écran. */
+  position: fixed;
+  inset: 0;
+  margin: auto var(--g-tabbar-inset)
+    calc(
+      var(--g-tab-h) + 2 * var(--g-tabbar-pad-y) + var(--g-frame-margin) +
+        max(var(--g-tabbar-bottom), env(safe-area-inset-bottom, 0px))
+    );
+  width: calc(100% - 2 * var(--g-tabbar-inset));
+  max-width: none;
+  max-height: calc(100dvh - var(--g-tab-h) - 2 * var(--g-tabbar-pad-y) - 3 * var(--g-frame-margin));
+  padding: 0.5rem;
+  border: 0;
+  color: var(--foreground);
+  overflow: hidden;
+  --g-r: var(--g-radius-tabbar);
+}
+.g-sheet::backdrop {
+  background: color-mix(in srgb, var(--background) 55%, transparent);
+}
+.g-sheet[open] {
+  animation: g-sheet-in var(--g-sheet-dur) var(--g-ease-out);
+}
+@keyframes g-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--g-gap));
+  }
+}
+.g-sheet-body {
+  display: grid;
+  gap: 0.5rem;
+  max-height: inherit;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.25rem;
+}
+.g-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+.g-sheet-item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.375rem;
+  height: var(--g-sheet-item-h);
+  padding: 0 0.375rem;
+  overflow: hidden;
+  border-radius: var(--g-radius-card);
+  border: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
+  color: var(--foreground);
+  font-size: var(--g-text-meta);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-sheet-item svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  color: var(--muted);
+}
+.g-sheet-item[aria-current="page"] {
+  border-color: var(--g-ring-hover);
+}
+.g-sheet-item[aria-current="page"] svg {
+  color: var(--ember-1);
+}
+.g-sheet-item > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.g-sheet-item .g-count {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+}
+.g-sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: var(--g-row-h);
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: var(--g-radius-card);
+  background: transparent;
+  color: var(--foreground);
+  font-size: var(--g-text-body);
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-sheet-row svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+  color: var(--muted);
+}
+.g-sheet-row .g-count {
+  margin-left: auto;
+}
+:is(.g-sheet-item, .g-sheet-row):focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+
+/* Commande qui se replie au téléphone : l'icône seule, le libellé masqué. */
+@media (max-width: 720px) {
+  .g-btn-collapse {
+    width: var(--g-control);
+    padding: 0;
+  }
+  .g-btn-collapse > span {
+    display: none;
+  }
+}
+
+/* Mise en route : étapes cochées d'elles-mêmes, barre d'avancement fine. */
+.g-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--g-step-h);
+  padding: 0 0.25rem;
+  border-top: 1px solid var(--hairline);
+  color: var(--foreground);
+  text-decoration: none;
+}
+.g-step:first-child {
+  border-top: 0;
+}
+.g-step[data-done] .g-step-label {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--faint);
+}
+.g-check {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--g-check);
+  height: var(--g-check);
+  border-radius: 9999px;
+  border: 1.5px solid var(--faint);
+  color: transparent;
+}
+.g-check[data-done] {
+  border-color: var(--status-signed);
+  background: var(--status-signed);
+  color: var(--background);
+}
+.g-check svg {
+  width: var(--g-icon-chip);
+  height: var(--g-icon-chip);
+}
+.g-progress {
+  height: var(--g-share-slim);
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+.g-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--status-signed);
+  transform-origin: left;
+  transform: scaleX(calc(var(--g-v) / var(--g-max)));
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+}
+
+/* Formulaires : champ, saisie, liste, interrupteur, case, feuille. Les
+   saisies vivent sur --background (jamais sur du flou), filet en anneau,
+   focus braise ; 16 px au doigt pour qu'iOS ne zoome pas. */
+.g-field {
+  display: grid;
+  gap: var(--g-field-gap);
+  min-width: 0;
+}
+.g-field-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-size: var(--g-text-field);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: var(--g-field-tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.g-field-label b {
+  color: var(--ember-2);
+  font-weight: 600;
+}
+.g-field-hint,
+.g-field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  font-size: var(--g-text-meta);
+  line-height: 1.35;
+}
+.g-field-hint {
+  color: var(--muted);
+}
+.g-field-error {
+  color: var(--ember-3);
+  font-weight: 500;
+}
+.g-field-error svg {
+  flex: none;
+  width: var(--g-icon-sm);
+  height: var(--g-icon-sm);
+  margin-top: 0.0625rem;
+}
+
+.g-input,
+.g-select select {
+  display: block;
+  width: 100%;
+  min-height: var(--g-control);
+  padding: 0 var(--g-input-px);
+  border: 0;
+  border-radius: var(--g-input-r);
+  background: var(--background);
+  box-shadow: inset 0 0 0 1px var(--g-ring);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--g-input-text);
+  line-height: 1.4;
+  transition: box-shadow var(--g-hover-dur);
+}
+.g-input::placeholder {
+  color: var(--faint);
+}
+.g-input:focus-visible,
+.g-select select:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-input[aria-invalid="true"],
+.g-select select[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ember-3) var(--g-input-invalid), transparent);
+}
+.g-input:disabled,
+.g-select select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.g-input-num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+textarea.g-input {
+  min-height: var(--g-textarea-min);
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  resize: vertical;
+}
+.g-input-wrap {
+  position: relative;
+  min-width: 0;
+}
+.g-input-wrap .g-input {
+  padding-right: var(--g-input-pr);
+}
+.g-input-unit {
+  position: absolute;
+  right: var(--g-input-px);
+  top: 50%;
+  translate: 0 -50%;
+  pointer-events: none;
+  font-size: var(--g-text-label);
+  color: var(--muted);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-input:hover:not(:disabled, :focus-visible, [aria-invalid="true"]),
+  .g-select select:hover:not(:disabled, :focus-visible, [aria-invalid="true"]) {
+    box-shadow: inset 0 0 0 1px var(--g-ring-hover);
+  }
+}
+
+.g-select {
+  position: relative;
+  min-width: 0;
+}
+.g-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: var(--g-input-pr);
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+.g-select svg {
+  position: absolute;
+  right: var(--g-input-px);
+  top: 50%;
+  translate: 0 -50%;
+  width: var(--g-icon-sm);
+  height: var(--g-icon-sm);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Interrupteur : rail 28 × 48, pouce qui glisse en transform seul, 44 px
+   de zone tactile par un pseudo-élément invisible. */
+.g-switch {
+  position: relative;
+  flex: none;
+  width: var(--g-switch-w);
+  height: var(--g-switch-h);
+  padding: 0;
+  border: 1px solid var(--g-ring);
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--g-morph-dur),
+    border-color var(--g-morph-dur);
+}
+.g-switch::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--g-switch-h) - var(--g-switch-hit)) / 2) calc((var(--g-switch-w) - var(--g-switch-hit)) / 2);
+}
+.g-switch i {
+  position: absolute;
+  top: calc(var(--g-switch-pad) - 1px);
+  left: calc(var(--g-switch-pad) - 1px);
+  width: var(--g-switch-thumb);
+  height: var(--g-switch-thumb);
+  border-radius: 9999px;
+  background: var(--muted);
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+}
+.g-switch[aria-checked="true"] {
+  border-color: transparent;
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+}
+.g-switch[aria-checked="true"] i {
+  background: var(--background);
+  transform: translateX(calc(var(--g-switch-w) - var(--g-switch-thumb) - 2 * var(--g-switch-pad)));
+}
+.g-switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.g-switch:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: var(--g-control);
+}
+.g-switch-row > span {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+.g-switch-row small {
+  font-size: var(--g-text-meta);
+  color: var(--muted);
+}
+
+/* Case à cocher : case native invisible, boîte dessinée, coche en icône. */
+.g-checkbox {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: var(--g-control);
+  padding: 0.5rem 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+.g-checkbox-box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--g-check);
+  height: var(--g-check);
+  margin-top: 0.0625rem;
+  border-radius: calc(var(--g-check) / 3);
+  border: 1.5px solid var(--faint);
+  background: var(--background);
+  color: transparent;
+  transition:
+    background-color var(--g-hover-dur),
+    border-color var(--g-hover-dur);
+}
+.g-checkbox-box svg {
+  width: var(--g-icon-chip);
+  height: var(--g-icon-chip);
+}
+.g-checkbox input:checked + .g-checkbox-box {
+  border-color: var(--ember-2);
+  background: var(--ember-2);
+  color: var(--background);
+}
+.g-checkbox input:focus-visible + .g-checkbox-box {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-checkbox input:disabled ~ * {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.g-checkbox-text {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+  font-size: var(--g-text-body);
+}
+.g-checkbox-text small {
+  font-size: var(--g-text-meta);
+  color: var(--muted);
+}
+
+/* Feuille : dialogue natif de verre, collé en bas au téléphone, centré dès
+   1024 px ; le corps est une plaque (le formulaire ne pose rien sur du flou).
+   Un seul élément de verre. */
+dialog.g-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: var(--g-dialog-max-h);
+  padding: var(--g-pad);
+  border: 0;
+  color: var(--foreground);
+  overflow: hidden;
+  --g-r: var(--g-radius-hero);
+  border-radius: var(--g-r) var(--g-r) 0 0;
+}
+.g-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.g-dialog::backdrop {
+  background: color-mix(in srgb, var(--background) var(--g-backdrop), transparent);
+}
+.g-dialog[open] {
+  animation: g-dialog-up var(--g-sheet-dur) var(--g-ease-out);
+}
+@keyframes g-dialog-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--g-dialog-rise));
+  }
+}
+@media (min-width: 1024px) {
+  dialog.g-dialog {
+    margin: auto;
+    width: min(var(--g-dialog-w), 100% - 2 * var(--g-gap));
+    border-radius: var(--g-r);
+  }
+  dialog.g-dialog-wide {
+    width: min(var(--g-dialog-w-wide), 100% - 2 * var(--g-gap));
+  }
+  .g-dialog[open] {
+    animation-name: g-dialog-in;
+  }
+  @keyframes g-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--g-gap));
+    }
+  }
+}
+@media (max-width: 1023px) {
+  dialog.g-dialog-wide {
+    max-height: 100dvh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}
+.g-dialog-handle {
+  width: var(--g-dialog-handle-w);
+  height: var(--g-dialog-handle-h);
+  margin: 0.25rem auto 0;
+  border-radius: 9999px;
+  background: var(--faint);
+}
+@media (min-width: 1024px) {
+  .g-dialog-handle {
+    display: none;
+  }
+}
+.g-dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--g-control);
+  padding: 0.5rem 0.25rem 0.5rem 0.875rem;
+}
+.g-dialog-head h2 {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--g-text-h2);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+.g-dialog-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--g-dialog-pad);
+  -webkit-overflow-scrolling: touch;
+}
+.g-dialog-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+.g-dialog-foot > p {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: var(--g-text-meta);
+  color: var(--muted);
+}
+@media (min-width: 1024px) {
+  .g-dialog-foot {
+    padding-bottom: 0.5rem;
+  }
+  .g-dialog-foot > p {
+    flex: 1 1 0;
+  }
+}
+html:has(dialog.g-dialog[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+/* Commande destructrice : filet grenat, texte entier — jamais la couleur seule. */
+.g-btn-danger {
+  padding: 0 0.875rem;
+  border-color: color-mix(in srgb, var(--ember-3) var(--g-danger-ring), transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-btn-danger:hover {
+    border-color: var(--ember-3);
+    background: color-mix(in srgb, var(--ember-3) var(--g-tint-a-problem), transparent);
+  }
+}
+
+/* Replis : sans transparence ni backdrop-filter, le verre devient surface
+   opaque et l'aura disparaît ; sans mouvement, rien ne bouge. */
+@media (prefers-reduced-transparency: reduce) {
+  .g-glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--surface-raised);
+  }
+  .g-plate,
+  .g-shimmer {
+    background: var(--surface);
+  }
+  .g-mesh {
+    display: none;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .g-glass {
+    background: var(--surface-raised);
+  }
+  .g-plate,
+  .g-shimmer {
+    background: var(--surface);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g-mesh i,
+  .g-shimmer,
+  .g-sheet[open],
+  .g-dialog[open],
+  .g-ready::after {
+    animation: none;
+  }
+  .g-glass,
+  .g-press,
+  .g-btn-danger,
+  .g-input,
+  .g-select select,
+  .g-switch,
+  .g-switch i,
+  .g-checkbox-box,
+  .g-seg label,
+  .g-seg-thumb,
+  .g-stale,
+  .g-rise,
+  .g-nav-item,
+  .g-nav-pill,
+  .g-tab,
+  .g-progress i {
+    transition: none;
+  }
+  .g-press:active:not(:disabled),
+  .g-tab:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* ==========================================================================
+   Gestion v2 — thèmes de l'espace (data-g-theme)
+   Par appareil, posés sur .g-shell (et l'enveloppe de /menu/kit). Sans
+   attribut : Ember glass, le kit ci-dessus tel quel. L'attribut surcharge
+   jetons et matière, jamais la mise en page. La seule teinte hors des jetons
+   du haut du fichier est --g-teal-base. Jamais sur un club : ses .soirees
+   remappent déjà les embers. L'aura est sœur de .g-shell dans l'espace et
+   enfant de l'enveloppe dans le kit, d'où les deux chemins de ses sélecteurs.
+   Contrat : components/gestion/DESIGN.md § 15.
+   ========================================================================== */
+
+:root {
+  /* Ember teal */
+  --g-teal-base: #7fc6d6;
+  --g-teal: var(--g-teal-base);
+  --g-mesh-teal: color-mix(in oklab, var(--g-teal-base) 32%, transparent);
+
+  /* Néon braise */
+  --g-neon-edge: color-mix(in srgb, var(--ember-2) 22%, transparent);
+  --g-neon-halo: color-mix(in srgb, var(--ember-2) 12%, transparent);
+  --g-neon-nav-halo: color-mix(in srgb, var(--ember-2) 38%, transparent);
+  --g-neon-nav-halo-r: 26px;
+  --g-neon-cap-glow-r: 12px;
+  --g-neon-cap-glow-a: 55%;
+  --g-neon-num-glow-r: 14px;
+  --g-neon-num-glow-a: 35%;
+  --g-neon-aura-1: color-mix(in oklab, var(--ember-2) 46%, transparent);
+  --g-neon-aura-2: color-mix(in oklab, var(--ember-3) 30%, transparent);
+  --g-neon-aura-h: 420px;
+  --g-neon-breathe-dur: 9s;
+  --g-neon-grid: 56px;
+  --g-neon-grid-h: 640px;
+
+  /* Sélecteur de thème dans le rail : deux lignes, le rail est étroit */
+  --g-seg-h-rail: 40px;
+}
+
+html.light {
+  /* 44 % : 5,2:1 sur --surface, 4,3 à 4,7:1 sur le verre teinté du surtitre. */
+  --g-teal: color-mix(in srgb, var(--g-teal-base) 44%, var(--foreground));
+  --g-mesh-teal: color-mix(in oklab, var(--g-teal-base) 18%, transparent);
+  --g-neon-cap-glow-a: 30%;
+  --g-neon-aura-1: color-mix(in oklab, var(--ember-2) 24%, transparent);
+  --g-neon-aura-2: color-mix(in oklab, var(--ember-3) 14%, transparent);
+}
+
+.g-rail .g-seg {
+  display: grid;
+  --g-seg-h: var(--g-seg-h-rail);
+}
+.g-rail .g-seg label {
+  padding: 0 var(--g-seg-pad);
+  font-size: var(--g-text-axis);
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+}
+.g-sheet .g-seg label {
+  padding: 0 var(--g-seg-pad);
+}
+
+/* Ember teal : la matière du verre, les commandes en teal, la braise de
+   l'aura en radiale froide. Le dégradé de marque ne bouge pas. */
+[data-g-theme="teal"] :is(.g-orders, .g-glass-orders) {
+  --g-entity: var(--g-teal);
+  --g-rim: color-mix(in srgb, var(--g-teal) 14%, transparent);
+}
+[data-g-theme="teal"] .g-glass-orders {
+  --g-tint: var(--g-teal);
+}
+:is([data-g-theme="teal"] > .g-mesh, .g-mesh:has(+ [data-g-theme="teal"])) {
+  --g-mesh-1: var(--g-mesh-teal);
+}
+
+/* Néon braise : plus de flou. Le verre devient une carte à plat, filet et
+   liseré de braise ; la lumière se concentre sur les barres, la navigation
+   active et les chiffres du jour. Les données denses restent à plat. */
+[data-g-theme="neon"] {
+  --g-plate: 100%;
+  --g-rim: var(--g-neon-edge);
+  --g-shade: transparent;
+  --g-shadow: var(--g-neon-halo);
+}
+[data-g-theme="neon"] .g-glass {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--surface-raised);
+}
+[data-g-theme="neon"] :is(.g-rail, .g-topbar, .g-tabbar) {
+  background: var(--surface);
+}
+[data-g-theme="neon"] dialog::backdrop {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+[data-g-theme="neon"] :is(.g-nav-pill, .g-tab[aria-current="page"]) {
+  box-shadow: 0 0 var(--g-neon-nav-halo-r) var(--g-neon-nav-halo);
+}
+[data-g-theme="neon"] .g-bars:not(.g-bars-dense) .g-bar::before {
+  box-shadow: 0 0 var(--g-neon-cap-glow-r)
+    color-mix(in srgb, var(--g-entity) var(--g-neon-cap-glow-a), transparent);
+}
+[data-g-theme="neon"] :is(.g-glass-money, .g-glass-orders, .g-glass-problem).g-glass-hero .text-g-day {
+  color: var(--g-entity);
+  text-shadow: 0 0 var(--g-neon-num-glow-r)
+    color-mix(in srgb, var(--g-entity) var(--g-neon-num-glow-a), transparent);
+}
+/* Clair : pas de lueur sur du texte, et le chiffre sur --surface-raised : le
+   --ember-1 clair n'atteint 3:1 (grand texte) que là. */
+html.light [data-g-theme="neon"] .g-glass-hero .text-g-day {
+  text-shadow: none;
+}
+html.light [data-g-theme="neon"] .g-glass-hero > .g-plate {
+  background: var(--surface-raised);
+}
+
+/* L'aura du néon : une lueur en haut de page et la grille fondue vers le bas,
+   sur les disques de .g-mesh. Sans transparence, .g-mesh disparaît toujours. */
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i {
+  animation: none;
+  inset: 0 0 auto;
+  width: auto;
+  border-radius: 0;
+}
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(1) {
+  height: var(--g-neon-aura-h);
+  transform-origin: 72% 0;
+  background:
+    radial-gradient(60% 100% at 72% -10%, var(--g-neon-aura-1), transparent 70%),
+    radial-gradient(40% 80% at 8% -20%, var(--g-neon-aura-2), transparent 70%);
+}
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(2) {
+  height: var(--g-neon-grid-h);
+  background:
+    linear-gradient(var(--hairline) 1px, transparent 1px) 0 0 / 100% var(--g-neon-grid),
+    linear-gradient(90deg, var(--hairline) 1px, transparent 1px) 0 0 / var(--g-neon-grid) 100%;
+  -webkit-mask-image: linear-gradient(to bottom, var(--foreground) 5%, transparent 80%);
+  mask-image: linear-gradient(to bottom, var(--foreground) 5%, transparent 80%);
+}
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(3) {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(1) {
+    animation: g-neon-breathe var(--g-neon-breathe-dur) ease-in-out infinite;
+  }
+}
+@keyframes g-neon-breathe {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
 }
 
 /* Visite guidée de l'espace de gestion : tout s'assombrit sauf la cible,

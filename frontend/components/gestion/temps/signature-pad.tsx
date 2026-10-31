@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { GlassButton } from "@/components/gestion/ui";
 
 /*
  * Signature manuscrite, au doigt sur la tablette du comptoir. Enregistrée en
@@ -101,20 +102,14 @@ export function SignaturePad({
         onPointerUp={end}
         onPointerLeave={end}
         aria-label="Zone de signature"
-        className="h-40 w-full touch-none rounded-xl border border-hairline bg-white"
+        className="h-40 w-full touch-none rounded-g-card border border-hairline bg-white"
         style={{ aspectRatio: `${WIDTH} / ${HEIGHT}` }}
       />
       <div className="flex items-center justify-between">
-        <p className="text-xs text-faint">
+        <p className="text-g-meta text-muted">
           {drawn ? "Signature enregistrée." : "Signez avec votre doigt."}
         </p>
-        <button
-          type="button"
-          onClick={clear}
-          className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-        >
-          Effacer
-        </button>
+        <GlassButton onClick={clear}>Effacer</GlassButton>
       </div>
     </div>
   );

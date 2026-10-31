@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { EmptyState } from "@/components/ui/empty-state";
+import { AlertIcon, LockIcon, OfflineIcon } from "@/components/gestion/icons";
+import { EmptyState, GlassButton, Notice, Shimmer } from "@/components/gestion/ui";
+import { describeError, type ErrorFamily } from "@/lib/gestion/errors";
+import { contactEmail } from "@/lib/landing-data";
 import { retryClubLoad } from "@/lib/gestion/club-store";
 
 /* Les états d'attente des écrans Soirées : fermé, en chargement, en échec. */
@@ -9,8 +12,12 @@ import { retryClubLoad } from "@/lib/gestion/club-store";
 export function ClubLocked() {
   return (
     <EmptyState
-      title="Soirées non activées"
-      body="Les soirées et la réservation de tables font partie d'Ominin Club. Écrivez-nous pour les ouvrir à votre établissement."
+      text="Les soirées et la réservation de tables font partie d'Ominin Club : écrivez-nous pour les ouvrir à votre établissement."
+      action={
+        <GlassButton href={`mailto:${contactEmail}?subject=${encodeURIComponent("Ouvrir Ominin Club")}`}>
+          Nous écrire
+        </GlassButton>
+      }
     />
   );
 }
@@ -18,23 +25,23 @@ export function ClubLocked() {
 /** En attendant les données, la silhouette de l'écran qui vient : la liste, ou une soirée. */
 export function ClubSkeleton({ variant = "liste" }: { variant?: "liste" | "soiree" }) {
   return (
-    <div aria-busy aria-label="Chargement" className="flex flex-col gap-4">
-      <div className="shimmer h-8 w-48 rounded-xl" />
+    <div aria-busy aria-label="Chargement" className="flex flex-col gap-g-gap">
+      <Shimmer className="h-9 w-48" />
       {variant === "soiree" ? (
         <>
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-g-gap lg:grid-cols-4">
             {[0, 1, 2, 3].map((index) => (
-              <div key={index} className="shimmer h-20 rounded-2xl" />
+              <Shimmer key={index} className="h-24" />
             ))}
           </div>
-          <div className="shimmer h-11 w-64 max-w-full rounded-full" />
-          <div className="shimmer aspect-[6/5] rounded-2xl lg:aspect-[2/1]" />
+          <Shimmer className="h-g-control w-64 max-w-full rounded-full" />
+          <Shimmer className="aspect-[6/5] lg:aspect-[2/1]" />
         </>
       ) : (
         <>
-          <div className="shimmer h-11 w-80 max-w-full rounded-full" />
+          <Shimmer className="h-g-control w-80 max-w-full rounded-full" />
           {[0, 1, 2].map((index) => (
-            <div key={index} className="shimmer h-36 rounded-2xl" />
+            <Shimmer key={index} className="h-36" />
           ))}
         </>
       )}
@@ -42,20 +49,27 @@ export function ClubSkeleton({ variant = "liste" }: { variant?: "liste" | "soire
   );
 }
 
+const LOAD_ICON: Record<ErrorFamily, typeof AlertIcon> = {
+  reseau: OfflineIcon,
+  droit: LockIcon,
+  donnee: AlertIcon,
+};
+
+/**
+ * L'échec de chargement, une fois, en bandeau grenat. C'est une lecture, pas
+ * un enregistrement : le titre le dit, et « Réessayer » est toujours là, seul
+ * recours de ces écrans.
+ */
 export function ClubLoadError({ message }: { message: string }) {
+  const described = describeError(message);
+  const Icon = LOAD_ICON[described.family];
+  const data = described.family === "donnee";
   return (
-    <EmptyState
-      title="Chargement impossible"
-      body={message}
-      action={
-        <button
-          type="button"
-          onClick={() => retryClubLoad()}
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-        >
-          Réessayer
-        </button>
-      }
+    <Notice
+      icon={<Icon />}
+      title={data ? "Chargement impossible" : described.title}
+      text={data ? "Réessayez, ou rechargez la page." : described.text}
+      action={<GlassButton onClick={() => retryClubLoad()}>Réessayer</GlassButton>}
     />
   );
 }
@@ -63,16 +77,8 @@ export function ClubLoadError({ message }: { message: string }) {
 export function NightNotFound() {
   return (
     <EmptyState
-      title="Soirée introuvable"
-      body="Elle a peut-être été supprimée, ou le lien est incomplet."
-      action={
-        <Link
-          href="/gestion/soirees"
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-        >
-          Toutes les soirées
-        </Link>
-      }
+      text="Soirée introuvable : elle a peut-être été supprimée, ou le lien est incomplet."
+      action={<GlassButton href="/gestion/soirees">Toutes les soirées</GlassButton>}
     />
   );
 }
@@ -82,9 +88,9 @@ export function BackToSoirees() {
   return (
     <Link
       href="/gestion/soirees"
-      className="inline-flex min-h-11 items-center gap-1.5 self-start text-sm font-medium text-muted transition-colors hover:text-foreground lg:pointer-fine:min-h-9"
+      className="inline-flex min-h-g-control items-center gap-1 self-start rounded-full text-g-label font-medium text-muted transition-colors hover:text-foreground"
     >
-      <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <svg viewBox="0 0 24 24" className="size-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
         <path d="M15 18l-6-6 6-6" />
       </svg>
       Soirées

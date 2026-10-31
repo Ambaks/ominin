@@ -3,8 +3,7 @@
 import { useState } from "react";
 import { EditIcon } from "@/components/gestion/icons";
 import { StaffModal } from "@/components/gestion/temps/staff-modal";
-import { EmptyState } from "@/components/ui/empty-state";
-import { IconButton } from "@/components/ui/icon-button";
+import { Chip, EmptyState, GlassButton, Plate } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { isPickupShop, roleLabels } from "@/lib/gestion/selectors";
 import { useGestion } from "@/lib/gestion/store";
@@ -42,35 +41,17 @@ function CopyLink({ staff }: { staff: Staff }) {
   };
 
   return (
-    <button
-      type="button"
-      onClick={() => void copy()}
-      title="Copier son lien de planning"
-      className="shrink-0 rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-    >
+    <GlassButton onClick={() => void copy()} title="Copier son lien de planning">
       {copied ? "Lien copié" : "Copier le lien"}
-    </button>
+    </GlassButton>
   );
 }
 
-function Tag({
-  tone,
-  children,
-}: {
-  tone: "ember" | "warn" | "muted";
-  children: React.ReactNode;
-}) {
-  const tones = {
-    ember: "border-ember-2/30 bg-ember-2/10 text-ember-2",
-    warn: "border-ember-3/40 bg-ember-3/10 text-ember-3",
-    muted: "border-hairline text-faint",
-  };
+function Dot() {
   return (
-    <span
-      className={`flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${tones[tone]}`}
-    >
-      {children}
-    </span>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <circle cx="12" cy="12" r="5" />
+    </svg>
   );
 }
 
@@ -90,82 +71,76 @@ export function StaffList({
   const roleLabel = roleLabels(state);
   const pickupShop = isPickupShop(state);
   const now = new Date();
+  const addLabel = pickupShop ? "+ Ajouter un employé" : "+ Ajouter un serveur";
 
   return (
-    <div className="flex max-w-xl flex-col gap-4">
+    <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h2 className="font-display text-lg font-medium">L&rsquo;équipe</h2>
-          <p className="mt-0.5 text-sm text-muted">
-            Un prénom et un code suffisent. Les heures sont celles badgées
-            cette semaine.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setCreating(true)}
-          className="ember-gradient shrink-0 rounded-full px-4 py-2.5 text-sm font-semibold text-background"
-        >
-          {pickupShop ? "+ Ajouter un employé" : "+ Ajouter un serveur"}
-        </button>
+        <p className="text-g-label text-muted">
+          Un prénom et un code suffisent. Les heures sont celles badgées cette semaine.
+        </p>
+        <GlassButton variant="primary" onClick={() => setCreating(true)}>
+          {addLabel}
+        </GlassButton>
       </div>
 
       {staff.length === 0 ? (
         <EmptyState
-          title="Personne dans l'équipe"
-          body={`Ajoutez vos ${pickupShop ? "employés" : "serveurs"} : ils apparaîtront sur la badgeuse et dans le planning.`}
+          text={`Personne dans l'équipe. Ajoutez vos ${pickupShop ? "employés" : "serveurs"} : ils apparaîtront sur la badgeuse et dans le planning.`}
+          action={
+            <GlassButton variant="primary" onClick={() => setCreating(true)}>
+              {addLabel}
+            </GlassButton>
+          }
         />
       ) : (
-        <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+        <Plate className="divide-y divide-hairline px-4">
           {staff.map((member) => {
             const worked = workedMinutes(entriesOf(entries, member.id), now);
             const inService = openEntry(entries, member.id) != null;
             return (
               <div
                 key={member.id}
-                className={`flex flex-wrap items-center gap-x-4 gap-y-2 px-5 py-3.5 ${
+                className={`flex flex-wrap items-center gap-x-3 gap-y-2 py-3 ${
                   member.hidden ? "opacity-60" : ""
                 }`}
               >
                 <button
                   type="button"
                   onClick={() => setEditing(member)}
-                  className="min-w-0 flex-1 py-1 text-left transition-colors hover:text-ember-1"
+                  className="min-h-g-control min-w-0 flex-1 rounded-g-card py-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                 >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="truncate text-sm font-medium">{member.name}</p>
+                  <span className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-g-label font-semibold">{member.name}</span>
                     {inService && (
-                      <Tag tone="ember">
-                        <span
-                          className="size-1.5 animate-pulse rounded-full bg-ember-2"
-                          aria-hidden
-                        />
-                        En service
-                      </Tag>
+                      <span className="g-orders">
+                        <Chip icon={<Dot />}>En service</Chip>
+                      </span>
                     )}
-                    {member.hidden && <Tag tone="muted">Masqué</Tag>}
-                    {!member.codeSet && <Tag tone="warn">Sans code</Tag>}
-                  </div>
-                  <p className="text-xs text-faint">
+                    {member.hidden && <Chip>Masqué</Chip>}
+                    {!member.codeSet && <Chip tone="problem">Sans code</Chip>}
+                  </span>
+                  <span className="block text-g-meta text-muted">
                     {roleLabel[member.role]}
                     {member.userId ? " · a un compte" : ""}
-                  </p>
+                  </span>
                 </button>
-                <span className="shrink-0 font-display text-base tabular-nums">
+                <span className="shrink-0 text-g-label font-semibold tabular-nums">
                   {worked > 0 ? formatDuration(worked) : "—"}
                 </span>
                 {/* La ligne entière ouvre déjà la fiche ; le crayon le dit. */}
-                <IconButton
+                <GlassButton
+                  variant="icon"
                   onClick={() => setEditing(member)}
                   aria-label={`Modifier ${member.name}`}
                 >
-                  <EditIcon className="size-4" />
-                </IconButton>
+                  <EditIcon />
+                </GlassButton>
                 <CopyLink staff={member} />
               </div>
             );
           })}
-        </div>
+        </Plate>
       )}
 
       {(creating || editing) && (
