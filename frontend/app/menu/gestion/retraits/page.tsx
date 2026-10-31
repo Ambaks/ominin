@@ -141,9 +141,7 @@ export default function RetraitsPage() {
         }`
       );
     } catch (error) {
-      // « Impossible d'enregistrer » ne dit rien d'un paiement refusé.
-      const described = describeError(error);
-      toast.error(described.family === "donnee" ? `Commande non encaissée. ${described.text}` : described.message);
+      toast.error(describeError(error).message);
     }
   };
 

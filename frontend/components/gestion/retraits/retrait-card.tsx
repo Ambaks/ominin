@@ -44,6 +44,15 @@ export function RetraitCard({
   const [handingEarly, setHandingEarly] = useState(false);
   const [choosingEta, setChoosingEta] = useState(false);
   const [busy, setBusy] = useState(false);
+  // « C'est prêt » : la carte luit une fois quand la commande passe à prête
+  // depuis un autre appareil. Celui qui appuie a déjà le bouton, la pastille
+  // et le toast : son propre geste arrive au store pendant `busy`.
+  const [seenStatus, setSeenStatus] = useState(order.status);
+  const [readyPulse, setReadyPulse] = useState(false);
+  if (order.status !== seenStatus) {
+    setSeenStatus(order.status);
+    setReadyPulse(order.status === "prete" && !busy);
+  }
   const fromSite = paidThroughSite(order);
   const due = amountDue(order);
   const open = isPickupOpen(order);
@@ -79,7 +88,8 @@ export function RetraitCard({
       data-retrait-new={isNew || undefined}
       // La plaque pose son filet hors couche : le liseré d'une nouvelle
       // commande s'impose. Une carte close se lit en gris, sans passer sous 4,5:1.
-      className={`flex flex-col gap-3 p-4 sm:p-5 ${isNew ? "border-ember-2/50!" : ""} ${open ? "" : "text-muted"}`}
+      className={`flex flex-col gap-3 p-4 sm:p-5 ${isNew ? "border-ember-2/50!" : ""} ${open ? "" : "text-muted"} ${readyPulse ? "g-ready" : ""}`}
+      onAnimationEnd={() => setReadyPulse(false)}
     >
       {/* Au doigt, le nom a sa ligne entière sous l'heure : c'est lui que
           le comptoir cherche. */}

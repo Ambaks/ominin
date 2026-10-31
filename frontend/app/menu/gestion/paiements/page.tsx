@@ -22,7 +22,7 @@ import {
 } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { PAYMENT_MODE_LABELS, PAYMENTS_PAGE_SIZE } from "@/lib/gestion/constants";
+import { PAYMENT_MODE_LABELS, PAYMENTS_PAGE_SIZE, SMALL_BASE } from "@/lib/gestion/constants";
 import {
   isCancelledPaid,
   isPaid,
@@ -104,12 +104,6 @@ function groupByDay(orders: Order[], dayEndHour: number): DayGroup[] {
 const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
 
 /**
- * Sous cette base, un pourcentage ment (DESIGN § 8, « ~5 ») : le repère est
- * alors le montant d'alors, en gris. À faire monter dans lib/gestion/constants.
- */
-const SMALL_BASE_PAYMENTS = 5;
-
-/**
  * Le repère du chiffre du jour : le même jour de la semaine dernière, à la
  * même heure, en écart signé quand la base le permet ; sous une petite base,
  * le montant d'alors ; sans base, rien de plus que ce qu'on sait.
@@ -121,7 +115,7 @@ function todayBaseline(
 ): { delta?: { text: string; tone: DeltaTone }; baseline: string } {
   const when = `${weekday} dernier à cette heure`;
   if (lastWeek.payments === 0) return { baseline: `rien d'encaissé ${when}` };
-  if (lastWeek.payments < SMALL_BASE_PAYMENTS) {
+  if (lastWeek.payments < SMALL_BASE) {
     return { baseline: `était ${formatPrice(lastWeek.total)} ${when}` };
   }
   const ratio = Math.round(((today - lastWeek.total) / lastWeek.total) * 100);
@@ -288,12 +282,11 @@ function PaiementsContent({
   const todayRef = todayBaseline(todayTotal, lastWeek, weekday);
   const todayTips = todayPaid.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
   const tipShares = tipsByStaff(todayPaid, state.staff);
-  // Deux « Marie » : la liste classée se repère par libellé.
-  const tipItems = tipShares.map(({ staff, tip }, index) => {
-    const twins = tipShares.filter((share) => share.staff.name === staff.name).length;
-    const rank = tipShares.slice(0, index).filter((share) => share.staff.name === staff.name).length + 1;
-    return { label: twins > 1 ? `${staff.name} · ${rank}` : staff.name, value: formatPrice(tip), amount: tip };
-  });
+  const tipItems = tipShares.map(({ staff, tip }) => ({
+    label: staff.name,
+    value: formatPrice(tip),
+    amount: tip,
+  }));
   const unattributedTips = todayTips - tipShares.reduce((sum, share) => sum + share.tip, 0);
   const showTips = hasFeature("pourboires") && tipShares.length > 0;
   const modeShares = [
