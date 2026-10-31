@@ -4,18 +4,28 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 import { BellIcon, ClockIcon, CommandesIcon, type IconProps } from "@/components/gestion/icons";
 import {
   Bars,
+  Checkbox,
   Chip,
+  ConfirmSheet,
   EmptyState,
+  ErrorNotice,
+  Field,
   GlassButton,
   GlassFrame,
+  Input,
   Mesh,
   Notice,
   Plate,
   RankedList,
+  ReserveGerant,
   SectionHeading,
   Segmented,
+  Select,
+  Sheet,
   Shimmer,
   StatTile,
+  Switch,
+  Textarea,
 } from "@/components/gestion/ui";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 
@@ -67,6 +77,14 @@ const PERIODS = [
   { value: "30", label: "30 jours" },
 ] as const;
 type Period = (typeof PERIODS)[number]["value"];
+type Open = "sheet" | "wide" | "confirm" | null;
+
+/* Les trois familles d'erreur, telles qu'elles arrivent : fetch, PostgREST, Postgres. */
+const ERRORS = {
+  reseau: new TypeError("Failed to fetch"),
+  droit: { code: "42501", message: "permission denied for table items" },
+  donnee: { code: "23505", message: "duplicate key value violates unique constraint", details: "Key (name)=(Tiramisù) already exists." },
+};
 
 function Svg({ className, children }: IconProps & { children: ReactNode }) {
   return (
@@ -130,6 +148,11 @@ function Card({ title, sub, children }: { title: string; sub?: string; children:
 
 export function KitPreview() {
   const [period, setPeriod] = useState<Period>("7");
+  const [open, setOpen] = useState<Open>(null);
+  const [price, setPrice] = useState("");
+  const [visible, setVisible] = useState(true);
+  const [agreed, setAgreed] = useState(false);
+  const close = () => setOpen(null);
   return (
     <>
       <Mesh />
@@ -342,7 +365,107 @@ export function KitPreview() {
               value="a"
               onChange={() => {}}
             />
+            <GlassButton variant="danger">Supprimer l’article</GlassButton>
           </Plate>
+        </Block>
+
+        <Block i={7} className="grid gap-g-gap">
+          <SectionHeading title="Formulaires" sub="champ, saisie, liste, interrupteur, case, feuille · un seul Enregistrer par section" />
+          <Card title="Fiche article" sub="enregistrée d’un bloc">
+            <form
+              className="grid gap-4 sm:grid-cols-2"
+              onSubmit={(event) => {
+                event.preventDefault();
+                setOpen("confirm");
+              }}
+            >
+              <Field label="Nom" required hint="Tel qu’il s’affiche sur la carte.">
+                <Input name="name" placeholder="Burrata di Parma" autoComplete="off" />
+              </Field>
+              <Field label="Prix" required error={price ? undefined : "Indiquez un prix pour enregistrer."}>
+                <Input name="price" numeric unit="€" placeholder="0,00" value={price} onChange={(event) => setPrice(event.target.value)} />
+              </Field>
+              <Field label="Catégorie" hint="Une catégorie de votre carte.">
+                <Select name="category" defaultValue="antipasti">
+                  <option value="antipasti">Antipasti</option>
+                  <option value="pizze">Pizze</option>
+                  <option value="dolci">Dolci</option>
+                </Select>
+              </Field>
+              <Field label="Description" hint="Deux lignes, lues sous le nom." className="sm:col-span-2">
+                <Textarea name="description" placeholder="Burrata crémeuse, jambon de Parme 24 mois, roquette." />
+              </Field>
+              <div className="grid gap-1 sm:col-span-2">
+                <Switch label="Visible sur la carte" hint="Masqué, il reste dans les formules." checked={visible} onChange={setVisible} />
+                <Checkbox label="Contient des allergènes" hint="La fiche les listera au client." checked={agreed} onChange={setAgreed} />
+              </div>
+              <div className="flex flex-wrap items-center justify-end gap-2 sm:col-span-2">
+                {!price && <p className="mr-auto text-g-meta text-muted">Indiquez un prix pour enregistrer.</p>}
+                <GlassButton onClick={() => setOpen("sheet")}>Ouvrir une feuille</GlassButton>
+                <GlassButton onClick={() => setOpen("wide")}>Feuille large</GlassButton>
+                <GlassButton type="submit" variant="primary" disabled={!price}>
+                  Enregistrer
+                </GlassButton>
+              </div>
+            </form>
+          </Card>
+          <div className="flex items-center gap-3">
+            <Switch aria-label="Ouvert" checked={visible} onChange={setVisible} />
+            <Switch aria-label="Fermé" checked={false} onChange={() => {}} disabled />
+            <Checkbox label="Case seule" checked onChange={() => {}} />
+          </div>
+          {open === "sheet" && (
+            <Sheet
+              title="Modifier le prix"
+              description="Le nouveau prix s’applique aux prochaines commandes."
+              onClose={close}
+              footer={
+                <>
+                  <GlassButton onClick={close}>Annuler</GlassButton>
+                  <GlassButton variant="primary" onClick={close}>
+                    Enregistrer
+                  </GlassButton>
+                </>
+              }
+            >
+              <Field label="Prix" required>
+                <Input numeric unit="€" defaultValue="12,50" data-autofocus />
+              </Field>
+            </Sheet>
+          )}
+          {open === "wide" && (
+            <Sheet title="Nouvelle formule" size="wide" onClose={close} footer={<GlassButton onClick={close}>Fermer</GlassButton>}>
+              <div className="grid gap-g-gap lg:grid-cols-[3fr_2fr]">
+                <div className="grid gap-4">
+                  <Field label="Nom de la formule" required>
+                    <Input defaultValue="Formule midi" data-autofocus />
+                  </Field>
+                  <Field label="Prix" required>
+                    <Input numeric unit="€" defaultValue="18,00" />
+                  </Field>
+                </div>
+                <Shimmer className="min-h-40" />
+              </div>
+            </Sheet>
+          )}
+          {open === "confirm" && (
+            <ConfirmSheet
+              title="Supprimer « Burrata di Parma » ?"
+              text="L’article disparaît de la carte et des formules qui le proposent. Les commandes passées le gardent."
+              confirmLabel="Supprimer l’article"
+              destructive
+              onConfirm={close}
+              onClose={close}
+            />
+          )}
+        </Block>
+
+        <Block i={8} className="grid gap-g-gap">
+          <SectionHeading title="Erreurs" sub="réseau, droit, donnée · ce qui a cassé, quoi faire" />
+          <ErrorNotice error={ERRORS.reseau} onRetry={() => {}} />
+          <ErrorNotice error={ERRORS.droit} />
+          <ErrorNotice error={ERRORS.donnee} />
+          <ReserveGerant ask="modifier la carte" name="Marie" />
         </Block>
       </main>
     </>

@@ -13926,6 +13926,61 @@ body {
   --g-icon-sm: 16px;
   --g-icon-chip: 14px;
 
+  /* Coquille : rail, barre haute, barre d'onglets, feuille « Plus » */
+  --g-frame-margin: 12px;
+  --g-col-gap: 12px;
+  --g-content-max: 1440px;
+  --g-rail-pad: 12px;
+  --g-rail-pad-top: 22px;
+  --g-nav-top: 26px;
+  --g-nav-h: 42px;
+  --g-nav-gap: 2px;
+  --g-nav-group-h: 34px;
+  --g-brand: 20px;
+  --g-brand-sm: 15px;
+  --g-topbar-h: 60px;
+  --g-topbar-h-sm: 56px;
+  --g-topbar-mx: 24px;
+  --g-topbar-mx-sm: 16px;
+  --g-tabbar-inset: 6px;
+  --g-tabbar-bottom: 12px;
+  --g-tabbar-pad-y: 5px;
+  --g-tabbar-pad-x: 4px;
+  --g-tab-h: 54px;
+  --g-tab-r: 22px;
+  --g-text-tab: 10px;
+  --g-sheet-item-h: 66px;
+  --g-sheet-dur: 240ms;
+
+  /* Mise en route (carte « Avant votre premier service ») */
+  --g-check: 22px;
+  --g-step-h: 52px;
+
+  /* Formulaires : champ, saisie, interrupteur, feuille */
+  --g-field-gap: 6px;
+  --g-text-field: 11px;
+  --g-field-tracking: 0.14em;
+  --g-input-r: 12px;
+  --g-input-px: 14px;
+  --g-input-pr: 44px;
+  --g-input-text: 16px;
+  --g-input-invalid: 70%;
+  --g-textarea-min: 96px;
+  --g-switch-w: 48px;
+  --g-switch-h: 28px;
+  --g-switch-thumb: 20px;
+  --g-switch-pad: 4px;
+  --g-switch-hit: 44px;
+  --g-dialog-w: 520px;
+  --g-dialog-w-wide: 1120px;
+  --g-dialog-max-h: 85dvh;
+  --g-dialog-pad: 20px;
+  --g-dialog-handle-w: 36px;
+  --g-dialog-handle-h: 4px;
+  --g-dialog-rise: 24px;
+  --g-backdrop: 55%;
+  --g-danger-ring: 50%;
+
   /* Typographie */
   --g-text-day: 40px;
   --g-text-kpi: 28px;
@@ -13960,12 +14015,14 @@ html.light {
   --g-mesh-1: color-mix(in oklab, var(--ember-2) 18%, transparent);
   --g-mesh-2: color-mix(in oklab, var(--ember-3) 12%, transparent);
   --g-mesh-3: color-mix(in oklab, var(--ember-1) 14%, transparent);
+  --g-backdrop: 40%;
 }
 
 @media (hover: hover) and (pointer: fine) {
   :root {
     --g-control: 36px;
     --g-seg-h: 32px;
+    --g-input-text: var(--g-text-body);
   }
 }
 
@@ -14524,6 +14581,872 @@ html.light {
   text-align: right;
 }
 
+/* Coquille de l'espace : la grille rail + colonne, au-dessus de l'aura. */
+.g-shell {
+  position: relative;
+  z-index: 1;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 1024px) {
+  .g-shell {
+    grid-template-columns: var(--g-rail) minmax(0, 1fr);
+    column-gap: var(--g-col-gap);
+  }
+}
+.g-col {
+  min-width: 0;
+  max-width: var(--g-content-max);
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rail de verre, collé à gauche, à la hauteur de l'écran. */
+.g-rail {
+  display: none;
+  position: sticky;
+  top: var(--g-frame-margin);
+  align-self: start;
+  height: calc(100dvh - 2 * var(--g-frame-margin));
+  margin: var(--g-frame-margin) 0 var(--g-frame-margin) var(--g-frame-margin);
+  padding: var(--g-rail-pad-top) var(--g-rail-pad) var(--g-rail-pad);
+  flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  --g-r: var(--g-radius-hero);
+}
+.g-rail::-webkit-scrollbar {
+  display: none;
+}
+@media (min-width: 1024px) {
+  .g-rail {
+    display: flex;
+  }
+}
+@media print {
+  .g-mesh,
+  .g-rail,
+  .g-topbar,
+  .g-tabbar,
+  .g-sheet {
+    display: none;
+  }
+}
+
+/* Mot-symbole : « Ominin » en braise, le produit à côté. */
+.g-brand {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  padding: 0 var(--g-rail-pad);
+  font-size: var(--g-brand);
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+}
+.g-brand small {
+  font-family: var(--font-sans), sans-serif;
+  font-weight: 500;
+  font-size: var(--g-text-body);
+  color: var(--foreground);
+}
+.g-brand-sm {
+  font-size: var(--g-brand-sm);
+  padding: 0 0.5rem 0 0.25rem;
+}
+
+/* Entrées du rail : pilules ; la pilule active est un seul élément qui
+   glisse en transform d'une entrée à l'autre. */
+.g-nav {
+  position: relative;
+  display: grid;
+  gap: var(--g-nav-gap);
+  margin-top: var(--g-nav-top);
+}
+.g-nav-item {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  height: var(--g-nav-h);
+  padding: 0 var(--g-rail-pad);
+  border-radius: 9999px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--g-text-body);
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    color var(--g-hover-dur),
+    background-color var(--g-hover-dur);
+}
+.g-nav-item svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+}
+.g-nav-item[aria-current="page"] {
+  color: var(--background);
+  font-weight: 600;
+}
+.g-nav-item:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-nav-item[aria-current="page"]:focus-visible,
+.g-tab[aria-current="page"]:focus-visible {
+  outline-color: var(--foreground);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-nav-item:hover:not([aria-current="page"]) {
+    color: var(--foreground);
+    background: color-mix(in srgb, var(--surface-raised) 72%, transparent);
+  }
+}
+.g-nav-pill {
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: var(--g-nav-h);
+  border-radius: 9999px;
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--ember-2) 60%, transparent);
+  transform: translateY(var(--g-nav-y, 0px));
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+  pointer-events: none;
+}
+.g-nav-group {
+  display: flex;
+  align-items: end;
+  height: var(--g-nav-group-h);
+  padding: 0 var(--g-rail-pad) 0.375rem;
+}
+
+/* Compteur posé dans une entrée (ce qui attend un geste). */
+.g-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--g-badge);
+  height: var(--g-badge);
+  padding: 0 0.3125rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--ember-3) 88%, var(--foreground));
+  color: var(--background);
+  font-size: var(--g-text-axis);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.g-nav-item .g-count {
+  margin-left: auto;
+}
+
+/* Barre haute : collée, de verre, allégée. */
+.g-topbar {
+  position: sticky;
+  top: var(--g-frame-margin);
+  z-index: 40;
+  margin: var(--g-frame-margin) var(--g-topbar-mx-sm) 0;
+  height: var(--g-topbar-h);
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0 0.625rem 0 1.125rem;
+}
+@media (min-width: 1024px) {
+  .g-topbar {
+    margin: var(--g-frame-margin) var(--g-topbar-mx) 0;
+  }
+}
+@media (max-width: 720px) {
+  .g-topbar {
+    height: var(--g-topbar-h-sm);
+    gap: 0.375rem;
+    padding: 0 0.5rem 0 0.875rem;
+  }
+}
+.g-who {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-width: 0;
+  margin-right: auto;
+}
+
+/* Barre d'onglets flottante (sous 1024 px) : quatre entrées + « Plus ». */
+.g-tabbar {
+  position: fixed;
+  left: var(--g-tabbar-inset);
+  right: var(--g-tabbar-inset);
+  bottom: max(var(--g-tabbar-bottom), env(safe-area-inset-bottom, 0px));
+  z-index: 40;
+  display: grid;
+  grid-template-columns: repeat(var(--g-tabs), minmax(0, 1fr));
+  gap: 1px;
+  padding: var(--g-tabbar-pad-y) var(--g-tabbar-pad-x);
+  --g-r: var(--g-radius-tabbar);
+}
+@media (min-width: 1024px) {
+  .g-tabbar {
+    display: none;
+  }
+}
+.g-tab {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.25rem;
+  height: var(--g-tab-h);
+  padding: 0 1px;
+  overflow: hidden;
+  border: 0;
+  border-radius: var(--g-tab-r);
+  background: transparent;
+  color: var(--muted);
+  font-size: var(--g-text-tab);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--g-hover-dur),
+    color var(--g-hover-dur),
+    transform var(--g-press-dur) var(--g-ease-out);
+}
+.g-tab svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+}
+.g-tab > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.g-tab[aria-current="page"] {
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  color: var(--background);
+}
+.g-tab[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--surface-raised) 80%, transparent);
+  color: var(--foreground);
+}
+.g-tab:active:not(:disabled) {
+  transform: scale(var(--g-press-scale));
+}
+.g-tab .g-count {
+  position: absolute;
+  top: 0.375rem;
+  left: calc(50% + 0.375rem);
+}
+.g-tab:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: -2px;
+}
+
+/* Feuille « Plus » : dialogue natif de verre, posé au-dessus de la barre. */
+.g-sheet {
+  margin: auto var(--g-tabbar-inset)
+    calc(
+      var(--g-tab-h) + 2 * var(--g-tabbar-pad-y) + var(--g-frame-margin) +
+        max(var(--g-tabbar-bottom), env(safe-area-inset-bottom, 0px))
+    );
+  width: calc(100% - 2 * var(--g-tabbar-inset));
+  max-width: none;
+  max-height: calc(100dvh - var(--g-tab-h) - 2 * var(--g-tabbar-pad-y) - 3 * var(--g-frame-margin));
+  padding: 0.5rem;
+  border: 0;
+  color: var(--foreground);
+  overflow: hidden;
+  --g-r: var(--g-radius-tabbar);
+}
+.g-sheet::backdrop {
+  background: color-mix(in srgb, var(--background) 55%, transparent);
+}
+.g-sheet[open] {
+  animation: g-sheet-in var(--g-sheet-dur) var(--g-ease-out);
+}
+@keyframes g-sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--g-gap));
+  }
+}
+.g-sheet-body {
+  display: grid;
+  gap: 0.5rem;
+  max-height: inherit;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.25rem;
+}
+.g-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.25rem;
+}
+.g-sheet-item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  gap: 0.375rem;
+  height: var(--g-sheet-item-h);
+  padding: 0 0.375rem;
+  overflow: hidden;
+  border-radius: var(--g-radius-card);
+  border: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
+  color: var(--foreground);
+  font-size: var(--g-text-meta);
+  font-weight: 600;
+  line-height: 1;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-sheet-item svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  color: var(--muted);
+}
+.g-sheet-item[aria-current="page"] {
+  border-color: var(--g-ring-hover);
+}
+.g-sheet-item[aria-current="page"] svg {
+  color: var(--ember-1);
+}
+.g-sheet-item > span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.g-sheet-item .g-count {
+  position: absolute;
+  top: 0.375rem;
+  right: 0.375rem;
+}
+.g-sheet-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  min-height: var(--g-row-h);
+  padding: 0 0.75rem;
+  border: 0;
+  border-radius: var(--g-radius-card);
+  background: transparent;
+  color: var(--foreground);
+  font-size: var(--g-text-body);
+  font-weight: 500;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-sheet-row svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+  color: var(--muted);
+}
+.g-sheet-row .g-count {
+  margin-left: auto;
+}
+:is(.g-sheet-item, .g-sheet-row):focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+
+/* Commande qui se replie au téléphone : l'icône seule, le libellé masqué. */
+@media (max-width: 720px) {
+  .g-btn-collapse {
+    width: var(--g-control);
+    padding: 0;
+  }
+  .g-btn-collapse > span {
+    display: none;
+  }
+}
+
+/* Mise en route : étapes cochées d'elles-mêmes, barre d'avancement fine. */
+.g-step {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--g-step-h);
+  padding: 0 0.25rem;
+  border-top: 1px solid var(--hairline);
+  color: var(--foreground);
+  text-decoration: none;
+}
+.g-step:first-child {
+  border-top: 0;
+}
+.g-step[data-done] .g-step-label {
+  color: var(--muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--faint);
+}
+.g-check {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--g-check);
+  height: var(--g-check);
+  border-radius: 9999px;
+  border: 1.5px solid var(--faint);
+  color: transparent;
+}
+.g-check[data-done] {
+  border-color: var(--status-signed);
+  background: var(--status-signed);
+  color: var(--background);
+}
+.g-check svg {
+  width: var(--g-icon-chip);
+  height: var(--g-icon-chip);
+}
+.g-progress {
+  height: var(--g-share-slim);
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+.g-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--status-signed);
+  transform-origin: left;
+  transform: scaleX(calc(var(--g-v) / var(--g-max)));
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+}
+
+/* Formulaires : champ, saisie, liste, interrupteur, case, feuille. Les
+   saisies vivent sur --background (jamais sur du flou), filet en anneau,
+   focus braise ; 16 px au doigt pour qu'iOS ne zoome pas. */
+.g-field {
+  display: grid;
+  gap: var(--g-field-gap);
+  min-width: 0;
+}
+.g-field-label {
+  display: flex;
+  align-items: baseline;
+  gap: 0.375rem;
+  font-size: var(--g-text-field);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: var(--g-field-tracking);
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.g-field-label b {
+  color: var(--ember-2);
+  font-weight: 600;
+}
+.g-field-hint,
+.g-field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.375rem;
+  font-size: var(--g-text-meta);
+  line-height: 1.35;
+}
+.g-field-hint {
+  color: var(--muted);
+}
+.g-field-error {
+  color: var(--ember-3);
+  font-weight: 500;
+}
+.g-field-error svg {
+  flex: none;
+  width: var(--g-icon-sm);
+  height: var(--g-icon-sm);
+  margin-top: 0.0625rem;
+}
+
+.g-input,
+.g-select select {
+  display: block;
+  width: 100%;
+  min-height: var(--g-control);
+  padding: 0 var(--g-input-px);
+  border: 0;
+  border-radius: var(--g-input-r);
+  background: var(--background);
+  box-shadow: inset 0 0 0 1px var(--g-ring);
+  color: var(--foreground);
+  font: inherit;
+  font-size: var(--g-input-text);
+  line-height: 1.4;
+  transition: box-shadow var(--g-hover-dur);
+}
+.g-input::placeholder {
+  color: var(--faint);
+}
+.g-input:focus-visible,
+.g-select select:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-input[aria-invalid="true"],
+.g-select select[aria-invalid="true"] {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ember-3) var(--g-input-invalid), transparent);
+}
+.g-input:disabled,
+.g-select select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.g-input-num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+textarea.g-input {
+  min-height: var(--g-textarea-min);
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  resize: vertical;
+}
+.g-input-wrap {
+  position: relative;
+  min-width: 0;
+}
+.g-input-wrap .g-input {
+  padding-right: var(--g-input-pr);
+}
+.g-input-unit {
+  position: absolute;
+  right: var(--g-input-px);
+  top: 50%;
+  translate: 0 -50%;
+  pointer-events: none;
+  font-size: var(--g-text-label);
+  color: var(--muted);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-input:hover:not(:disabled, :focus-visible, [aria-invalid="true"]),
+  .g-select select:hover:not(:disabled, :focus-visible, [aria-invalid="true"]) {
+    box-shadow: inset 0 0 0 1px var(--g-ring-hover);
+  }
+}
+
+.g-select {
+  position: relative;
+  min-width: 0;
+}
+.g-select select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: var(--g-input-pr);
+  cursor: pointer;
+  text-overflow: ellipsis;
+}
+.g-select svg {
+  position: absolute;
+  right: var(--g-input-px);
+  top: 50%;
+  translate: 0 -50%;
+  width: var(--g-icon-sm);
+  height: var(--g-icon-sm);
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* Interrupteur : rail 28 × 48, pouce qui glisse en transform seul, 44 px
+   de zone tactile par un pseudo-élément invisible. */
+.g-switch {
+  position: relative;
+  flex: none;
+  width: var(--g-switch-w);
+  height: var(--g-switch-h);
+  padding: 0;
+  border: 1px solid var(--g-ring);
+  border-radius: 9999px;
+  background: var(--surface-raised);
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    background-color var(--g-morph-dur),
+    border-color var(--g-morph-dur);
+}
+.g-switch::before {
+  content: "";
+  position: absolute;
+  inset: calc((var(--g-switch-h) - var(--g-switch-hit)) / 2) calc((var(--g-switch-w) - var(--g-switch-hit)) / 2);
+}
+.g-switch i {
+  position: absolute;
+  top: calc(var(--g-switch-pad) - 1px);
+  left: calc(var(--g-switch-pad) - 1px);
+  width: var(--g-switch-thumb);
+  height: var(--g-switch-thumb);
+  border-radius: 9999px;
+  background: var(--muted);
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+}
+.g-switch[aria-checked="true"] {
+  border-color: transparent;
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+}
+.g-switch[aria-checked="true"] i {
+  background: var(--background);
+  transform: translateX(calc(var(--g-switch-w) - var(--g-switch-thumb) - 2 * var(--g-switch-pad)));
+}
+.g-switch:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.g-switch:focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-switch-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: var(--g-control);
+}
+.g-switch-row > span {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+}
+.g-switch-row small {
+  font-size: var(--g-text-meta);
+  color: var(--muted);
+}
+
+/* Case à cocher : case native invisible, boîte dessinée, coche en icône. */
+.g-checkbox {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  min-height: var(--g-control);
+  padding: 0.5rem 0;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-checkbox input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+.g-checkbox-box {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: var(--g-check);
+  height: var(--g-check);
+  margin-top: 0.0625rem;
+  border-radius: calc(var(--g-check) / 3);
+  border: 1.5px solid var(--faint);
+  background: var(--background);
+  color: transparent;
+  transition:
+    background-color var(--g-hover-dur),
+    border-color var(--g-hover-dur);
+}
+.g-checkbox-box svg {
+  width: var(--g-icon-chip);
+  height: var(--g-icon-chip);
+}
+.g-checkbox input:checked + .g-checkbox-box {
+  border-color: var(--ember-2);
+  background: var(--ember-2);
+  color: var(--background);
+}
+.g-checkbox input:focus-visible + .g-checkbox-box {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-checkbox input:disabled ~ * {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.g-checkbox-text {
+  display: grid;
+  gap: 0.125rem;
+  min-width: 0;
+  font-size: var(--g-text-body);
+}
+.g-checkbox-text small {
+  font-size: var(--g-text-meta);
+  color: var(--muted);
+}
+
+/* Feuille : dialogue natif de verre, collé en bas au téléphone, centré dès
+   1024 px ; le corps est une plaque (le formulaire ne pose rien sur du flou).
+   Un seul élément de verre. */
+.g-dialog {
+  margin: auto 0 0;
+  width: 100%;
+  max-width: none;
+  max-height: var(--g-dialog-max-h);
+  padding: var(--g-pad);
+  border: 0;
+  color: var(--foreground);
+  overflow: hidden;
+  --g-r: var(--g-radius-hero);
+  border-radius: var(--g-r) var(--g-r) 0 0;
+}
+.g-dialog[open] {
+  display: flex;
+  flex-direction: column;
+}
+.g-dialog::backdrop {
+  background: color-mix(in srgb, var(--background) var(--g-backdrop), transparent);
+}
+.g-dialog[open] {
+  animation: g-dialog-up var(--g-sheet-dur) var(--g-ease-out);
+}
+@keyframes g-dialog-up {
+  from {
+    opacity: 0;
+    transform: translateY(var(--g-dialog-rise));
+  }
+}
+@media (min-width: 1024px) {
+  .g-dialog {
+    margin: auto;
+    width: min(var(--g-dialog-w), 100% - 2 * var(--g-gap));
+    border-radius: var(--g-r);
+  }
+  .g-dialog-wide {
+    width: min(var(--g-dialog-w-wide), 100% - 2 * var(--g-gap));
+  }
+  .g-dialog[open] {
+    animation-name: g-dialog-in;
+  }
+  @keyframes g-dialog-in {
+    from {
+      opacity: 0;
+      transform: translateY(var(--g-gap));
+    }
+  }
+}
+@media (max-width: 1023px) {
+  .g-dialog-wide {
+    max-height: 100dvh;
+    height: 100dvh;
+    border-radius: 0;
+  }
+}
+.g-dialog-handle {
+  width: var(--g-dialog-handle-w);
+  height: var(--g-dialog-handle-h);
+  margin: 0.25rem auto 0;
+  border-radius: 9999px;
+  background: var(--faint);
+}
+@media (min-width: 1024px) {
+  .g-dialog-handle {
+    display: none;
+  }
+}
+.g-dialog-head {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--g-control);
+  padding: 0.5rem 0.25rem 0.5rem 0.875rem;
+}
+.g-dialog-head h2 {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--g-text-h2);
+  line-height: 1.15;
+  letter-spacing: -0.015em;
+  font-weight: 600;
+}
+.g-dialog-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: var(--g-dialog-pad);
+  -webkit-overflow-scrolling: touch;
+}
+.g-dialog-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.75rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0px));
+}
+.g-dialog-foot > p {
+  flex: 1 1 100%;
+  margin: 0;
+  font-size: var(--g-text-meta);
+  color: var(--muted);
+}
+@media (min-width: 1024px) {
+  .g-dialog-foot {
+    padding-bottom: 0.5rem;
+  }
+  .g-dialog-foot > p {
+    flex: 1 1 0;
+  }
+}
+html:has(dialog.g-dialog[open]) {
+  overflow: hidden;
+  scrollbar-gutter: stable;
+}
+
+/* Commande destructrice : filet grenat, texte entier — jamais la couleur seule. */
+.g-btn-danger {
+  padding: 0 0.875rem;
+  border-color: color-mix(in srgb, var(--ember-3) var(--g-danger-ring), transparent);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-btn-danger:hover {
+    border-color: var(--ember-3);
+    background: color-mix(in srgb, var(--ember-3) var(--g-tint-a-problem), transparent);
+  }
+}
+
 /* Replis : sans transparence ni backdrop-filter, le verre devient surface
    opaque et l'aura disparaît ; sans mouvement, rien ne bouge. */
 @media (prefers-reduced-transparency: reduce) {
@@ -14552,17 +15475,30 @@ html.light {
 @media (prefers-reduced-motion: reduce) {
   .g-mesh i,
   .g-rise,
-  .g-shimmer {
+  .g-shimmer,
+  .g-sheet[open],
+  .g-dialog[open] {
     animation: none;
   }
   .g-glass,
   .g-press,
+  .g-btn-danger,
+  .g-input,
+  .g-select select,
+  .g-switch,
+  .g-switch i,
+  .g-checkbox-box,
   .g-seg label,
   .g-seg-thumb,
-  .g-stale {
+  .g-stale,
+  .g-nav-item,
+  .g-nav-pill,
+  .g-tab,
+  .g-progress i {
     transition: none;
   }
-  .g-press:active:not(:disabled) {
+  .g-press:active:not(:disabled),
+  .g-tab:active:not(:disabled) {
     transform: none;
   }
 }

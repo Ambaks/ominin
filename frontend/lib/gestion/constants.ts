@@ -117,11 +117,17 @@ export const COUNTER_WAIT_WARN_MINUTES = 8;
 export const COUNTER_WAIT_LATE_MINUTES = 15;
 /** Salle : minutes d'attente au-delà desquelles une table à servir se signale. */
 export const SERVICE_LATE_MINUTES = 20;
+/** « Le midi en semaine » sans horaires d'ouverture : la plage de repli (même forme qu'une plage d'OpeningHours). */
+export const LUNCH_FALLBACK: [string, string] = ["11:30", "14:30"];
+/** L'heure qu'une plage d'ouverture doit couvrir pour compter comme le midi. */
+export const LUNCH_PIVOT = "12:30";
 
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
 /** Invite aux notifications push écartée sur cet appareil (page Commandes). */
 export const PUSH_PROMPT_DISMISSED_KEY = "ominin-push-prompt-dismissed";
+/** Une commande a été saisie sur cet appareil : le bouton « Nouvelle commande » se replie en rond. */
+export const STAFF_ORDER_ENTERED_KEY = "ominin-staff-order-entered";
 
 /**
  * Délais proposés à l'acceptation d'une commande collect « dès que

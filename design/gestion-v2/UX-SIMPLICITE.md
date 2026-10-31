@@ -267,9 +267,9 @@ Ominin est déjà plus proche de Toast que des incumbents français sur un point
 
 | Rôle · mode | 1 | 2 | 3 | 4 | Plus (feuille) |
 |---|---|---|---|---|---|
-| Gérant · restaurant | Aujourd'hui (ex-Aperçu) | Commandes | Tables | Carte | Paiements · Équipe · Réservations · Fidélité · Réglages · Alertes · Abonnement · Se déconnecter |
-| Gérant · fast food | Aujourd'hui | Commandes | Carte | Paiements | Équipe · Fidélité · Réglages · Alertes · Abonnement · Scanner |
-| Gérant · boutique à emporter | Aujourd'hui | Retraits | Carte | Paiements | Équipe · Réglages · Alertes · Abonnement |
+| Gérant · restaurant | Aperçu | Commandes | Tables | Carte | Paiements · Équipe · Réservations · Fidélité · Réglages · Alertes · Abonnement · Se déconnecter |
+| Gérant · fast food | Aperçu | Commandes | Carte | Paiements | Équipe · Fidélité · Réglages · Alertes · Abonnement · Scanner |
+| Gérant · boutique à emporter | Aperçu | Retraits | Carte | Paiements | Équipe · Réglages · Alertes · Abonnement |
 | Gérant · club | Soirées | (plan du soir de ce soir, s'il y en a un) | Paiements | Équipe | Réglages · Alertes · Abonnement |
 | Serveur | Commandes | Tables | Pointage | Carte | Alertes · Mon compte · Se déconnecter |
 | Cuisinier | Cuisine (= épuisés + fermetures) | Commandes | Pointage | — | Alertes · Mon compte |
@@ -285,7 +285,7 @@ La feuille « Plus » est un **bottom sheet** (le langage de feuilles qu'Ominin 
 
 | Aujourd'hui | Proposé | Pourquoi |
 |---|---|---|
-| Aperçu | **Aujourd'hui** | C'est une page de jour ; « Aperçu » ne dit pas de quoi. (Alternative : garder Aperçu, mais le sous-titre devient la date + « votre journée ».) |
+| Aperçu | **Aperçu** (gardé, décision d'Ambaka) | Le sous-titre devient la date + « votre journée ». |
 | Menu | **Carte** | « Menu » est aussi le mot des formules (« menu du midi ») et de la navigation. Les restaurateurs disent « la carte ». (La visite dit déjà « votre carte ».) |
 | Terminaux | **Imprimantes** | Un « terminal », pour un restaurateur, c'est le TPE. La page gère des imprimantes de cuisine et leur boîtier. |
 | Produits | **Abonnement** (ou « Mon offre ») | « Produits » se lit « mes plats ». |
@@ -366,6 +366,8 @@ Pourquoi fort : c'est le geste de cuisine le plus fréquent et il a aujourd'hui 
 Et un geste de saisie rapide pour la première carte : **« Ajouter plusieurs articles »** = une ligne par plat « Nom — prix », qui crée les articles d'un coup (le gérant qui recopie une carte papier de 40 lignes). C'est le vrai « aha » de la carte : la voir apparaître sur son téléphone en cinq minutes.
 
 ### 3.7 Des catégories proposées à la première carte — impact moyen, effort faible
+
+**Abandonné le 31 octobre (décision 6, § 7) : les restaurants définissent leurs catégories.** Conservé ci-dessous pour mémoire ; seule la mise du bouton « + Ajouter un article » dans l'état vide « Catégorie vide » et l'apparence de champ de la note de catégorie restent à faire.
 
 **Pages.** Menu (état vide), `category-manager.tsx`, visite « menu-vide ».
 
@@ -613,11 +615,38 @@ Recherche web du 31 octobre (17 recherches, pages officielles lues sauf mention)
 6. Des étapes réutilisables entre formules (modèle Innovorder : une « Boisson » partagée) : utile pour les fast foods à six formules, un second lieu d'édition pour les autres. Oui, non, ou plus tard ?
 7. « Proposé d'office » (sélection par défaut, modèle Square) : à ajouter dès la refonte ?
 
+## 7. Décisions d'Ambaka (31 octobre 2026)
+
+Réponses aux 18 questions des § 5 et § 6.7, dans l'ordre où elles lui ont été posées. Elles font foi sur le reste du document.
+
+| # | Question | Décision |
+|---|---|---|
+| 1 | Renommages (§ 3.2) | **Tous acceptés sauf Aperçu, qui reste Aperçu.** Carte, Imprimantes, Abonnement, Réservations, Réglages, Pointage, Alertes, Récompenses. |
+| 2 | Quatre onglets fixes, Tables et Carte dans la barre du gérant restaurant, Paiements et Équipe dans « Plus » | **Oui.** |
+| 3 | Visite d'accueil | **Une carte de bienvenue + la liste de mise en route** ; le « ? » ouvert aux employés. |
+| 4 | Règle d'encaissement par défaut | **Garder** « encaisser fait partir en cuisine » ; pas de question à l'inscription. |
+| 5 | Réglages en 4 sections + « Plus de réglages », codes dans Appareils et Encaissement | **Oui.** |
+| 6 | Catégories proposées en un tap et saisie « plusieurs articles » | **Non : ce sont les restaurants qui définissent leurs catégories.** L'état vide garde « Créer une catégorie » ; pas de modèle. (La saisie « plusieurs articles » tombe avec.) |
+| 7 | Écran Cuisine avec interrupteur « En vente » | **Oui pour le cuisinier** ; pour le serveur seulement là où le restaurant lui a ouvert ce droit. |
+| 8 | Déconnexion | **Dans « Plus »**, avec confirmation sur une tablette verrouillée. |
+| 9 | Premiers pas des employés (email qui nomme le rôle, état vide avec la règle, commande d'exemple Table 0) | **Les trois.** |
+| 10 | Club : « Créer et publier » en un geste, « Faire entrer » toujours visible à la porte | **Oui aux deux.** |
+| 11 | Les trois bugs hors périmètre (pas de réinitialisation de mot de passe, « Activation en cours… » sans délai, offre « digital » par défaut) | **Routés vers une session de correction à part**, hors de la refonte. |
+| 12 | Affiche multi-formules (BOHO) | **Option repliée « Présentation »** dans l'onglet Formules. |
+| 13 | Préréglage « Le midi en semaine » | **Déduit des horaires d'ouverture**, repli 11 h 30 – 14 h 30. |
+| 14 | Étape facultative | **Dans chaque feuille d'étape, repliée.** |
+| 15 | Choix hors carte | **Supprimés : le plat se crée sur la carte, masqué seul** (il vit avec les autres, le ticket cuisine suit). |
+| 16 | Aperçu client en direct dans l'éditeur | **Dès la première passe.** |
+| 17 | Étapes réutilisables entre formules | **Plus tard.** |
+| 18 | « Proposé d'office » (sélection par défaut par étape) | **Oui.** |
+
+Conséquences à répercuter : § 3.7 est abandonné ; § 3.6 garde la fiche article en deux temps mais sans la saisie groupée ; § 3.1 et l'annexe A disent « Aperçu » ; § 6.4 retire « Ajouter un choix qui n'est pas sur la carte » de la feuille d'étape et § 6.3 note qu'un article peut être « masqué seul » (visible seulement en formule), ce qui est un petit ajout au modèle d'article.
+
 ## Annexe A — Glossaire proposé (un mot par concept)
 
 | Concept | Mot retenu | À ne plus employer |
 |---|---|---|
-| La page du jour du gérant | Aujourd'hui | Aperçu, tableau de bord |
+| La page du jour du gérant | Aperçu | tableau de bord, accueil |
 | La liste des plats | la carte | le menu (réservé au produit « menu QR » et aux formules) |
 | Un plat ou une boisson | article | produit, item |
 | Entrée + plat + dessert à prix fixe | formule | menu, deal |

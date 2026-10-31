@@ -1,18 +1,21 @@
 import Link from "next/link";
 import type { ButtonHTMLAttributes } from "react";
 
-type Variant = "primary" | "secondary" | "icon";
+type Variant = "primary" | "secondary" | "danger" | "icon";
 
 type Props = Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> & {
   variant?: Variant;
+  /** submit dans un formulaire ; button sinon. */
+  type?: "button" | "submit";
   /** Lien habillé en bouton. */
   href?: string;
   /** Compteur sur un bouton icône (non-lus). */
   badge?: number;
-} & ({ variant: "icon"; "aria-label": string } | { variant?: "primary" | "secondary" });
+} & ({ variant: "icon"; "aria-label": string } | { variant?: "primary" | "secondary" | "danger" });
 
 export function GlassButton({
   variant = "secondary",
+  type = "button",
   href,
   badge,
   className = "",
@@ -35,7 +38,7 @@ export function GlassButton({
       {content}
     </Link>
   ) : (
-    <button type="button" {...props} className={classes}>
+    <button type={type} {...props} className={classes}>
       {content}
     </button>
   );

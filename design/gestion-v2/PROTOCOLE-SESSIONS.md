@@ -11,8 +11,10 @@ pas entre elles : tout passe par la tête.
   `node_modules` est un lien vers l'installation principale).
 - Compte de test : le gérant de `trattoria-lucia` (`test@ominin.com`), établissement de démo en base de
   production. On y lit, on y clique, on peut y créer des commandes de test ; on n'y règle rien de
-  Stripe/HubRise/Popina/imprimantes réelles. Le navigateur intégré partage sa session entre toutes les
-  sessions Claude : si vous arrivez sur `/connexion`, demandez à la tête, n'inventez pas d'identifiants.
+  Stripe/HubRise/Popina/imprimantes réelles. Chaque session a son propre navigateur intégré, sans cookie :
+  à l'arrivée sur `/connexion`, lire `frontend/.env.test.local` (`TEST_GERANT_EMAIL`, `TEST_GERANT_PASSWORD`,
+  fichier local ignoré par git, à ne jamais recopier dans un message ou un compte rendu) et se connecter
+  soi-même dans le volet avec `form_input`. Ne jamais inventer d'identifiants.
 - Fichiers à soi : chaque session ne modifie que les fichiers de son périmètre (liste ci-dessous). Les
   fichiers partagés — `frontend/app/globals.css`, `frontend/components/gestion/ui/**`,
   `frontend/components/gestion/shell.tsx`, `frontend/components/gestion/visite-guidee.tsx`,
@@ -21,8 +23,11 @@ pas entre elles : tout passe par la tête.
 - Commits : `git add <vos fichiers>` puis `git commit` sur `gestion-v2`, message en français comme le dépôt
   (« Gestion v2 — Commandes : … »). Si `index.lock` existe, attendre 10 s et réessayer. Jamais de `git push`,
   jamais de `git checkout`/`switch`/`stash`/`reset`, jamais de modification de la branche d'une autre
-  session. Le build doit rester vert pour tout le monde : `npx tsc --noEmit` et `npm run lint` avant
-  chaque commit, et un type cassé se répare dans la minute.
+  session. Le build doit rester vert pour tout le monde : `npx tsc --noEmit` et `npm run lint` **une seule
+  fois par tour, juste avant le commit, jamais en cours de construction**, et toujours derrière le verrou
+  partagé (un seul contrôle à la fois pour toute la flotte, chaque `tsc` coûte 800 Mo et un cœur) :
+  `until mkdir /tmp/gestion-check.lock 2>/dev/null; do sleep 5; done; npx tsc --noEmit; npm run lint; rmdir /tmp/gestion-check.lock`
+  (le `rmdir` doit s'exécuter même en cas d'échec). Un type cassé se répare dans la minute.
 
 ## Le contrat visuel
 
@@ -38,16 +43,24 @@ réel Supabase, carillon, impression, PIN, raccourcis, attributs `data-visite`, 
 l'interface, pas le produit — sauf décision écrite de la tête (les propositions de simplification de la
 session UX arrivent par elle).
 
-## La boucle : quatre tours maximum, objectif 10/10
+## La boucle : trois tours maximum, objectif 10/10
 
 Pour **chaque page** du périmètre, dans l'ordre d'importance :
 
 1. **Construire** la page sur le kit (ou la corriger, à partir du tour 2). Téléphone 375 × 812 d'abord,
    puis 1024 et 1440. Mouvement : entrées `g-rise` décalées, pressions, transitions d'état ; de la beauté
    là où l'œil se pose, de la retenue sur les données.
-2. **Captures** : `bash /Users/naiahoard/ominin/.claude/skills/new-restaurant/scripts/pw.sh tour.cjs <url> <prefixe> 375 812 6`
-   puis la même à `1440 900 4`, et `pw.sh check_page.cjs <url>` (débordements, console, polices). Regardez
-   les PNG vous-mêmes avant de les donner aux relecteurs. **Un seul navigateur headless à la fois par session,
+2. **Captures** : les pages de gestion exigent une session ; seul le **navigateur intégré** (outils
+   `mcp__Claude_Browser__*`, déjà connecté en gérant de trattoria-lucia, cookie partagé entre sessions) les
+   voit. Y charger la page avec `preview_start` `{url: "http://localhost:7200/gestion/..."}`, `resize_window`
+   en `mobile` (375 × 812) puis `desktop` / `{width: 1440, height: 900}`, et `computer` `screenshot` à chaque
+   position de défilement utile ; `read_console_messages` et `read_page` complètent. Un Playwright headless
+   (`pw.sh tour.cjs`, `check_page.cjs`) ne sert que pour `/menu/kit` ou une page hors connexion. Regardez
+   les captures vous-mêmes avant de les commenter aux relecteurs ; les relecteurs, qui tournent dans votre
+   session, peuvent relire la page dans le même navigateur intégré, un à la fois.
+   **Mémoire :** le Mac est à la limite. Fermez l'onglet du navigateur intégré (`tabs_close`) **dès qu'une
+   capture ou une relecture est finie** — un volet ouvert sans capture en cours est une faute ; n'ouvrez pas
+   plus d'un onglet ; les relecteurs lisent les captures plutôt que la page. **Un seul navigateur headless à la fois par session,
    fermé dès la capture finie** (le Mac a 8 Go : le gestionnaire de ressources tue tout Chromium inactif
    plus de 30 min ; six au plus pour toute la flotte). Les relecteurs jugent sur les images, ils ne
    lancent pas de navigateur. Le serveur de dev compile à la demande : laisser `networkidle` et un
@@ -69,7 +82,12 @@ Pour **chaque page** du périmètre, dans l'ordre d'importance :
    *guider* est un défaut à signaler à la tête (texte dans `frontend/lib/gestion/visites.ts`, gelé).
 5. **Corriger** les défauts remontés, dans l'ordre des notes les plus basses. Un relecteur qui note 10 au
    tour N n'est pas relancé au tour N+1 sur la même page (on ne relit que ce qui est sous la cible).
-6. S'arrêter quand les trois notes sont à 10, ou après le tour 4. Puis page suivante.
+6. **Pause obligatoire après le tour 1** (Ambaka, 2026-10-31) : une fois le premier tour fini (construction,
+   captures, trois relectures, corrections, commit), envoyer à la tête le compte rendu du tour avec les
+   chemins des captures téléphone + bureau, puis **attendre son « go »** avant d'entamer les tours 2 et 3.
+   Pendant l'attente, passer au tour 1 de la page suivante du périmètre. Ambaka regarde les rendus entre
+   les deux.
+7. S'arrêter quand les trois notes sont à 10, ou après le tour 3. Puis page suivante.
 
 ## Compte rendu à la tête (SendMessage à « Dashboard design research »)
 
@@ -105,10 +123,18 @@ comportements » là où elles la contredisent, et uniquement là. En particulie
 
 - Navigation par rôle : 4 onglets fixes + « Plus » (feuille), tableau par rôle en § 3.1 — construite par la
   tête dans le shell ; les pages n'y touchent pas mais doivent exister aux nouveaux noms.
-- Vocabulaire : Aperçu → **Aujourd'hui**, Menu → **Carte**, Terminaux → **Imprimantes**, Produits →
+- Vocabulaire : **Aperçu reste Aperçu.** Menu → **Carte**, Terminaux → **Imprimantes**, Produits →
   **Abonnement**, Établissement → **Réglages**, Badgeage → **Pointage**, Notifications → **Alertes**,
   Paliers → **Récompenses**, Bulles → **Réservations**. Les URLs restent celles d'aujourd'hui tant que la
   tête n'a pas tranché la migration des liens diffusés ; seuls les libellés changent.
+- **§ 7 d'UX-SIMPLICITE.md (les 18 réponses d'Ambaka) prime sur le reste du document.** Notamment : pas de
+  catégories proposées ni de saisie « plusieurs articles » (§ 3.7 abandonné, seul reste le bouton
+  « + Ajouter un article » de l'état vide) ; barre mobile gérant = Aperçu · Commandes · Tables · Carte + Plus ;
+  carte de bienvenue + liste « Avant votre premier service » ; écran Cuisine avec « En vente » (serveur
+  seulement si le restaurant l'autorise) ; déconnexion dans Plus ; formules : « le midi en semaine » déduit
+  des horaires (repli 11 h 30 – 14 h 30), étape facultative repliée, choix hors carte supprimés (plat créé
+  « masqué seul »), aperçu client dès la première passe, « proposé d'office » oui, étapes réutilisables plus
+  tard, affiche multi-formules en option « Présentation » repliée.
 - La cloche disparaît (§ 3.10) : les alertes vivent dans « Plus » et dans Réglages ; la session « alertes »
   conçoit ce fil.
 - La visite d'accueil est remplacée par la carte « Avant votre premier service » sur Aujourd'hui (§ 3.3),
@@ -122,3 +148,17 @@ comportements » là où elles la contredisent, et uniquement là. En particulie
   prendre la valeur par défaut que le document propose, la construire, et la signaler dans le compte rendu
   (« choix par défaut : … »). Il réagira sur le rendu.
 - Tout reste en développement sur `gestion-v2` : rien ne part sur `main`, rien n'est déployé.
+- **HubRise, intouchable (Ambaka, 2026-10-31).** Un restaurant relié à HubRise doit retrouver tout ce qu'il
+  voit aujourd'hui : état de la connexion et réglages (`hubrise-settings.tsx`), références HubRise sur les
+  commandes (`commandes/hubrise-ref.tsx`, cartes commande / encaisser / servir / comptoir / retrait), les
+  mentions dans Caisse, Paiements, Fidélité, et toute correspondance carte ↔ caisse. On n'en change ni la
+  logique ni les données ; on les **montre** au même endroit ou mieux, lisibles, jamais masquées derrière
+  un repli par défaut. Avant de commencer : `grep -rn -i hubrise` sur vos fichiers, chaque occurrence est
+  listée dans votre compte rendu avec « conservée telle quelle » ou « déplacée vers … ». Le relecteur
+  ingénierie vérifie la parité HubRise explicitement.
+  **Ajouter est permis, changer non :** si un restaurant relié à HubRise manque d'une information utile sur
+  votre page (référence, état de synchronisation, correspondance carte ↔ caisse, dernier envoi…), vous
+  pouvez l'afficher à partir des données déjà présentes dans le store ; la logique d'envoi et les données
+  restent intactes. Votre compte rendu final comporte deux listes obligatoires : « Ajouté » (chaque
+  information ou action HubRise ajoutée, où, pourquoi) et « Recommandé » (ce que vous changeriez dans
+  l'intégration ou ailleurs, sans l'avoir fait).

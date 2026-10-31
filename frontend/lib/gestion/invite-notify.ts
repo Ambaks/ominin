@@ -64,22 +64,65 @@ export function card(
 }
 
 /*
- * Seul le gérant est nommé : serveur et cuisinier deviennent Comptoir et
- * Préparation en boutique à emporter, ce que l'envoi ignore.
+ * L'email nomme le rôle et ce qu'il ouvre (UX-SIMPLICITE § 3.12) : la
+ * première chose qu'un serveur lit d'Ominin dit déjà ce qu'il fera. En
+ * boutique à emporter (`pickup`), serveur et cuisinier deviennent comptoir et
+ * préparation, comme dans l'espace.
  */
+interface RoleInvite {
+  /** « comme serveur », « au comptoir », « en préparation ». */
+  verb: string;
+  title: string;
+  body: string;
+}
+
+const ROLE_INVITE: Record<Role, RoleInvite> = {
+  gerant: {
+    verb: "comme",
+    title: "gérant",
+    body: "vous aurez la main sur la carte, l’équipe, les encaissements et les réglages",
+  },
+  serveur: {
+    verb: "comme",
+    title: "serveur",
+    body: "vous encaisserez et servirez les tables depuis la tablette de la salle",
+  },
+  cuisinier: {
+    verb: "comme",
+    title: "cuisinier",
+    body: "vous verrez les commandes en cuisine et marquerez les plats épuisés",
+  },
+};
+
+const PICKUP_ROLE_INVITE: Record<Role, RoleInvite> = {
+  gerant: ROLE_INVITE.gerant,
+  serveur: {
+    verb: "au",
+    title: "comptoir",
+    body: "vous prendrez les commandes, encaisserez et remettrez les retraits",
+  },
+  cuisinier: {
+    verb: "en",
+    title: "préparation",
+    body: "vous verrez ce qu’il reste à préparer, jour par jour, et marquerez les articles épuisés",
+  },
+};
+
 export async function sendInviteEmail(
   email: string,
   restaurantName: string,
   role: Role,
   actionLink: string,
+  pickup = false,
 ) {
   const name = escapeHtml(restaurantName);
+  const invite = (pickup ? PICKUP_ROLE_INVITE : ROLE_INVITE)[role];
   await sendEmail(
     email,
-    `${restaurantName} vous invite à rejoindre son équipe`,
+    `${restaurantName} vous invite ${invite.verb} ${invite.title}`,
     card(
       "Rejoignez l&rsquo;&eacute;quipe.",
-      `<strong>${name}</strong> vous invite ${role === "gerant" ? "en tant que <strong>g&eacute;rant</strong>" : "&agrave; rejoindre son &eacute;quipe"}. Acceptez l&rsquo;invitation pour acc&eacute;der &agrave; l&rsquo;espace de gestion.`,
+      `<strong>${name}</strong> vous invite ${invite.verb} <strong>${invite.title}</strong>&nbsp;: ${invite.body}. Acceptez l&rsquo;invitation pour ouvrir l&rsquo;espace de gestion.`,
       { label: "Accepter l’invitation", url: actionLink },
       "Vous n&rsquo;&ecirc;tes pas concern&eacute;&nbsp;? Ignorez simplement cet email.",
     ),
