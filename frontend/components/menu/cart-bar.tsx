@@ -20,6 +20,8 @@ import { preloadStripe, StripePayment } from "@/components/menu/stripe-payment";
 import { SumUpPayment } from "@/components/menu/sumup-payment";
 import { isOpenAt } from "@/lib/collect/hours";
 import { collectHref, normalizePhone, previewOrderKey, type PreviewCollectOrder } from "@/lib/collect/shared";
+import { rememberOrder, takeAppearance } from "@/lib/menu/after-meal";
+import { trackAfterMeal } from "@/lib/menu/analytics/tracker";
 import { useCart, type CartLine } from "@/lib/menu/cart";
 import { counterWords, formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
@@ -631,6 +633,16 @@ export function CartBar() {
     // Fast food : le numéro est gardé dès maintenant, quel que soit le
     // règlement — un client qui quitte la page de paiement le retrouve.
     tickets?.add(orderId);
+    if (cart.afterMealLive) {
+      rememberOrder(cart.slug, orderId);
+      const origin = takeAppearance(cart.slug);
+      if (origin) {
+        trackAfterMeal(cart.slug, origin.appearance, "commande", {
+          order: orderId,
+          ms: origin.ms,
+        });
+      }
+    }
     // Un échec de démarrage du règlement par carte, pour conclure le parcours.
     let failed = false;
     const fail = () => {

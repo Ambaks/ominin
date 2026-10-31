@@ -1,15 +1,19 @@
 "use client";
 
-import { useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { startVelours } from "@/components/menu/panis-backdrop";
 import { Sheet, useNoSheet } from "@/components/menu/sheet";
 import { veloursPalettes } from "@/components/menu/velours-palettes";
 import { httpHref } from "@/lib/admin/format";
-import { AFTER_MEAL_DELAY_MS, AFTER_MEAL_EXPIRY_MS } from "@/lib/gestion/constants";
+import { AFTER_MEAL_EXPIRY_MS } from "@/lib/gestion/constants";
 import {
   afterMealWait,
+  forgetOrder,
+  keepAppearance,
   nextStep,
+  parseOrders,
   parseVisit,
+  readOrdersText,
   readVisitText,
   saveVisit,
   subscribeVisit,
@@ -18,9 +22,12 @@ import {
   type AfterMealStep,
 } from "@/lib/menu/after-meal";
 import { ShownMark } from "@/components/menu/chef-pairings";
+import { trackAfterMeal, type AfterMealEvent } from "@/lib/menu/analytics/tracker";
 import { plainLine, useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
-import { isActiveTicket, useTickets } from "@/lib/menu/tickets";
+import { isActiveTicket, useTickets, type Ticket } from "@/lib/menu/tickets";
+import { createClient } from "@/lib/supabase/client";
+import { useOrderSignal } from "@/lib/supabase/use-order-signal";
 import type { MenuItem } from "@/lib/menu-data";
 import "./after-meal.css";
 
@@ -52,7 +59,17 @@ const WORDS: Record<AfterMealMoment, { kicker: string; title: string; lead: stri
   },
 };
 
-const DELAY_MINUTES = AFTER_MEAL_DELAY_MS / 60_000;
+const elapsed = (since: number) => Date.now() - since;
+
+const KICKER_OF: Record<AfterMealMoment, keyof NonNullable<AfterMealOffer["kickers"]>> = {
+  repas: "finir",
+  dessert: "finir",
+  sucre: "finir",
+  tournee: "encore",
+  verre: "encore",
+  grignoter: "encore",
+  fin: "merci",
+};
 
 /** Les noms et accords de la carte gardent l'apostrophe droite : on l'affiche typographique. */
 const typo = (text: string) => text.replaceAll("'", "’");
@@ -172,21 +189,56 @@ function AfterMealCard({
 function AfterMealSheet({
   step,
   offer,
+  tracked,
   onClosed,
 }: {
   step: AfterMealStep;
   offer: AfterMealOffer;
+  /** Sur le vrai menu : chaque geste se compte. Jamais en aperçu. */
+  tracked: boolean;
   onClosed: (toCart: boolean) => void;
 }) {
   const cart = useCart();
+  const slug = cart.slug;
+  const [appearance] = useState(() => crypto.randomUUID());
+  const [shownAt] = useState(() => Date.now());
+  // La sortie choisie ; sans elle, à la fermeture, le fond ou un geste.
+  const left = useRef(false);
+  const log = (
+    event: AfterMealEvent,
+    details: { item?: string } = {},
+    keepalive = false
+  ) => {
+    if (tracked) trackAfterMeal(slug, appearance, event, { ...details, ms: elapsed(shownAt) }, keepalive);
+  };
+  const leave = (event: AfterMealEvent, keepalive = false) => {
+    left.current = true;
+    log(event, {}, keepalive);
+  };
+
+  const shownItems = useMemo(() => step.items.map((item) => item.id), [step.items]);
+  useEffect(() => {
+    if (!tracked) return;
+    trackAfterMeal(slug, appearance, "apparue", { moment: step.moment, shownItems, ms: 0 });
+    const onHidden = () => {
+      if (document.visibilityState !== "hidden") return;
+      trackAfterMeal(slug, appearance, "page_quittee", { ms: elapsed(shownAt) }, true);
+    };
+    document.addEventListener("visibilitychange", onHidden);
+    return () => document.removeEventListener("visibilitychange", onHidden);
+  }, [tracked, slug, appearance, step.moment, shownItems, shownAt]);
+
   const titleId = useId();
   const toCart = useRef(false);
   const [fresh, setFresh] = useState<string | null>(null);
   const words = WORDS[step.moment];
-  const choose = (item: MenuItem) => {
+  const kicker = offer.kickers?.[KICKER_OF[step.moment]] ?? words.kicker;
+  const choose = (item: MenuItem, event: AfterMealEvent = "ajout") => {
     setFresh(item.id);
     cart.addLine(plainLine(item));
     cart.track("panier", { items: [item.id] });
+    log(event, { item: item.id });
+    if (tracked) keepAppearance(slug, appearance, shownAt);
   };
   const shown = new Set(step.items.map((item) => item.id));
   const inCart = (id: string) => cart.lines.some((line) => line.itemId === id);
@@ -201,7 +253,10 @@ function AfterMealSheet({
 
   return (
     <Sheet
-      onClosed={() => onClosed(toCart.current)}
+      onClosed={() => {
+        if (!left.current) log("fermee_autrement");
+        onClosed(toCart.current);
+      }}
       backdropCloses
       labelledBy={titleId}
       morphKey={`${chosen.length > 0}:${combo?.item.id ?? ""}`}
@@ -210,12 +265,20 @@ function AfterMealSheet({
         <div className="after-meal" data-count={step.items.length}>
           <ShownMark kind="apres_repas" />
           <Satin />
-          <button type="button" onClick={close} aria-label="Fermer" className="after-meal-close">
+          <button
+            type="button"
+            onClick={() => {
+              leave("croix");
+              close();
+            }}
+            aria-label="Fermer"
+            className="after-meal-close"
+          >
             ×
           </button>
           <header className="after-meal-head">
             <Mark moment={step.moment} />
-            <p className="after-meal-kicker">{words.kicker}</p>
+            <p className="after-meal-kicker">{kicker}</p>
             <h2 id={titleId} className="after-meal-title">
               {words.title}
             </h2>
@@ -235,6 +298,7 @@ function AfterMealSheet({
                     const line = cart.lines.find((candidate) => candidate.itemId === item.id);
                     if (line) {
                       cart.setQuantity(line.key, 0);
+                      log("retrait", { item: item.id });
                       return;
                     }
                     choose(item);
@@ -257,7 +321,7 @@ function AfterMealSheet({
                 <button
                   type="button"
                   aria-label={`Ajouter : ${lineName(comboItem)}, ${formatPrice(comboItem.price)}`}
-                  onClick={() => choose(comboItem)}
+                  onClick={() => choose(comboItem, "ajout_combo")}
                 >
                   + {formatPrice(comboItem.price)}
                 </button>
@@ -269,6 +333,7 @@ function AfterMealSheet({
                 className="after-meal-cta sheet-cta"
                 onClick={() => {
                   toCart.current = true;
+                  leave("voir_commande");
                   close();
                 }}
               >
@@ -276,20 +341,127 @@ function AfterMealSheet({
               </button>
             )}
             {offer.reviewUrl && step.items.length === 0 && (
-              <ReviewLink url={offer.reviewUrl} primary onLeave={close} />
+              <ReviewLink
+                url={offer.reviewUrl}
+                primary
+                onLeave={() => {
+                  leave("avis", true);
+                  close();
+                }}
+              />
             )}
             <div className="after-meal-exits">
-              <button type="button" onClick={close} className="after-meal-decline">
+              <button
+                type="button"
+                onClick={() => {
+                  leave("non_merci");
+                  close();
+                }}
+                className="after-meal-decline"
+              >
                 {amount > 0 ? "Plus tard" : "Non merci, ça ira"}
               </button>
               {offer.reviewUrl && step.items.length > 0 && (
-                <ReviewLink url={offer.reviewUrl} primary={false} onLeave={close} />
+                <ReviewLink
+                  url={offer.reviewUrl}
+                  primary={false}
+                  onLeave={() => {
+                    leave("avis", true);
+                    close();
+                  }}
+                />
               )}
             </div>
           </div>
         </div>
       )}
     </Sheet>
+  );
+}
+
+/** Une commande telle que la suite la lit : du ticket en aperçu, de order_ticket en production. */
+type WatchedOrder = Pick<Ticket, "id" | "status" | "lines"> & { servedAt?: string | null };
+
+/** Le ticket du retrait au bar, dans l'aperçu : le scan se joue sous les yeux. */
+export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
+  const tickets = useTickets();
+  return <AfterMealFlow
+      offer={offer}
+      enabled={Boolean(tickets?.barPickup)}
+      orders={tickets?.tickets}
+      tracked={false}
+    />;
+}
+
+/** Relit une commande à chaque signal, sans rien afficher. */
+function OrderWatcher({
+  id,
+  onUpdate,
+}: {
+  id: string;
+  onUpdate: (id: string, order: WatchedOrder | null) => void;
+}) {
+  const load = useCallback(
+    async (current: () => boolean) => {
+      const { data, error } = await createClient().rpc("order_ticket", { p_order: id });
+      // Une lecture en échec (réseau) ne dit rien de la commande : la suivante corrigera.
+      if (error || !current()) return;
+      const row = data[0];
+      onUpdate(
+        id,
+        row
+          ? { id, status: row.status, lines: row.items as unknown as Ticket["lines"], servedAt: row.served_at }
+          : null
+      );
+    },
+    [id, onUpdate]
+  );
+  useOrderSignal(id, load);
+  return null;
+}
+
+/**
+ * Sur le vrai menu d'un établissement sans suivi à l'écran : les commandes de ce
+ * téléphone se suivent sans rien montrer, jusqu'à servie. Une commande en attente
+ * de lecture compte comme en cours : la feuille n'interrompt pas à la réouverture.
+ */
+export function LiveAfterMeal({ offer }: { offer: AfterMealOffer }) {
+  const { slug, canOrder } = useCart();
+  const text = useSyncExternalStore(
+    subscribeVisit,
+    () => readOrdersText(slug),
+    () => null
+  );
+  const ids = useMemo(() => parseOrders(text), [text]);
+  const [read, setRead] = useState<Record<string, WatchedOrder>>({});
+  const onUpdate = useCallback(
+    (id: string, order: WatchedOrder | null) => {
+      // Servie sans heure, d'avant la colonne : on ne sait plus quand, pas de minuterie.
+      const usable = order && !(order.status === "servie" && !order.servedAt);
+      setRead((current) => {
+        if (usable) return { ...current, [id]: order };
+        const { [id]: gone, ...others } = current;
+        return gone ? others : current;
+      });
+      if (!usable || !isActiveTicket(order)) forgetOrder(slug, id);
+    },
+    [slug]
+  );
+  const orders = useMemo<WatchedOrder[]>(
+    () => [
+      ...Object.values(read),
+      ...ids.filter((id) => !read[id]).map((id) => ({ id, status: null, lines: [] })),
+    ],
+    [read, ids]
+  );
+  return (
+    <>
+      {ids.map((id) => (
+        <OrderWatcher key={id} id={id} onUpdate={onUpdate} />
+      ))}
+      {/* Sans table dans l'adresse, rien ne se commande : pas de quoi proposer. */}
+      <AfterMealFlow offer={offer} enabled={canOrder} orders={orders} tracked />
+    </>
   );
 }
 
@@ -300,9 +472,18 @@ function AfterMealSheet({
  * commande ne soit en cours et que le panier soit vide : un client qui
  * commande déjà n'a rien à entendre.
  */
-export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
+function AfterMealFlow({
+  offer,
+  enabled,
+  orders,
+  tracked,
+}: {
+  offer: AfterMealOffer;
+  enabled: boolean;
+  orders: WatchedOrder[] | undefined;
+  tracked: boolean;
+}) {
   const cart = useCart();
-  const tickets = useTickets();
   const noSheet = useNoSheet();
   const slug = cart.slug;
   const text = useSyncExternalStore(
@@ -313,12 +494,10 @@ export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
   const visit = useMemo(() => parseVisit(text), [text]);
   const [due, setDue] = useState<(AfterMealStep & { servedAt: number }) | null>(null);
   const [offered, setOffered] = useState<AfterMealStep | null>(null);
-  const enabled = Boolean(tickets?.barPickup);
 
   // Une commande passée arrête la minuterie ; le scan du bar la relance, gardé
   // pour survivre à la page. La suite se décide sur cette commande seule. En
   // aperçu, l'heure du scan est celle où la page le voit : il se joue sous ses yeux.
-  const orders = tickets?.tickets;
   useEffect(() => {
     if (!enabled) return;
     const current = parseVisit(readVisitText(slug));
@@ -328,7 +507,9 @@ export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
     );
     if (fresh.length > 0) {
       saveVisit(slug, {
-        servedAt: Date.now(),
+        servedAt: Math.max(
+          ...fresh.map((ticket) => (ticket.servedAt ? Date.parse(ticket.servedAt) : Date.now()))
+        ),
         orders: [...(current?.orders ?? []), ...fresh.map((ticket) => ticket.id)],
         lines: fresh.flatMap((ticket) => ticket.lines.map((line) => line.name)),
         shown: placed,
@@ -342,7 +523,7 @@ export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
     if (!enabled || !visit || visit.shown) return;
     // Expirée, elle reste gardée : ses commandes ne relancent pas la minuterie.
     const expire = () => saveVisit(slug, { ...visit, shown: true });
-    const wait = afterMealWait(visit, Date.now());
+    const wait = afterMealWait(visit, Date.now(), offer.delayMs);
     if (wait === null) {
       expire();
       return;
@@ -350,7 +531,7 @@ export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
     // La minuterie gèle avec l'onglet : elle se relit au retour, jamais en son absence.
     const check = () => {
       if (document.visibilityState !== "visible") return;
-      const left = afterMealWait(visit, Date.now());
+      const left = afterMealWait(visit, Date.now(), offer.delayMs);
       if (left === null) return expire();
       if (left > 0) return;
       const step = nextStep(offer, visit.lines, cart.closed);
@@ -386,16 +567,17 @@ export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
         <button
           type="button"
           className="after-meal-demo"
-          aria-label={`Démo : ${DELAY_MINUTES} minutes plus tard`}
-          onClick={() => saveVisit(slug, { ...visit, servedAt: Date.now() - AFTER_MEAL_DELAY_MS })}
+          aria-label={`Démo : ${offer.delayMs / 60_000} minutes plus tard`}
+          onClick={() => saveVisit(slug, { ...visit, servedAt: Date.now() - offer.delayMs })}
         >
-          Démo · {DELAY_MINUTES} min →
+          Démo · {offer.delayMs / 60_000} min →
         </button>
       )}
       {offered && (
         <AfterMealSheet
           step={offered}
           offer={offer}
+          tracked={tracked}
           onClosed={(toCart) => {
             setOffered(null);
             if (toCart) cart.requestOpen();

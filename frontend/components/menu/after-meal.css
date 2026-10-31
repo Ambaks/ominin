@@ -1,6 +1,6 @@
 /*
-  Après le repas, chez Caffè Panis : le vert des portes, la mosaïque du sol, et
-  la question du serveur qui repasse à table. La tasse se dessine, sa vapeur
+  Après le repas, chez Caffè Panis et au BOHO. À Panis : le vert des portes, la
+  mosaïque du sol, et la question du serveur qui repasse à table. La tasse se dessine, sa vapeur
   monte, les assiettes se posent une à une comme sur un plateau. Un choix fait
   parle le langage des feuilles de la maison (panis-sheets.css) : le vert,
   l'écrit en ivoire, le filet de laiton qui se trace, la lueur qui en fait deux
@@ -8,12 +8,52 @@
 */
 
 [data-menu-root].theme-caffe-panis {
+  --am-ivory-rgb: 238 234 199;
+  --am-shade-rgb: 1 18 8;
+  --am-veil-rgb: 4 30 14;
+  --am-glow-rgb: 60 207 122;
+  --am-top: #17663a;
+  --am-chosen: #0c3f20;
+  --am-star: #a67c24;
+  --am-card-ink: var(--cp-green);
+  --am-pill: var(--cp-green);
+  --am-pill-ink: var(--cp-ivory);
+  --am-title-weight: 800;
+  --am-name-weight: 700;
+}
+
+/* Le BOHO : l'aubergine de son velours, l'ambre de ses braises. Sans mosaïque
+   ni grain : ils sont à Panis. */
+[data-menu-root].theme-boho {
+  --cp-green: #3a2233;
+  --cp-green-deep: #1a1016;
+  --cp-ivory: #f6e9e6;
+  --cp-laiton: #e5b072;
+  --cp-mosaic: linear-gradient(transparent, transparent);
+  --cp-grain: linear-gradient(transparent, transparent);
+  --cp-ressort: cubic-bezier(0.34, 1.5, 0.64, 1);
+  --cp-glisse: cubic-bezier(0.22, 1, 0.36, 1);
+  --am-ivory-rgb: 246 233 230;
+  --am-shade-rgb: 10 4 12;
+  --am-veil-rgb: 15 8 18;
+  --am-glow-rgb: 217 127 106;
+  --am-top: #4a2a42;
+  --am-chosen: #4a2a42;
+  --am-star: #b5443a;
+  --am-card-ink: var(--foreground);
+  --am-pill: var(--ember-1);
+  --am-pill-ink: #251b20;
+  --am-title-weight: 400;
+  --am-name-weight: 400;
+}
+
+[data-menu-root]:is(.theme-caffe-panis, .theme-boho) {
   & [role="dialog"]:has(> .after-meal) {
-    border-color: rgb(238 234 199 / 0.16);
+    border-color: rgb(var(--am-ivory-rgb) / 0.16);
     background: var(--cp-green-deep);
     box-shadow:
       inset 0 1px 0 rgb(255 255 255 / 0.12),
-      0 -1.5rem 4rem -1rem rgb(2 26 12 / 0.7);
+      0 -1.5rem 4rem -1rem rgb(var(--am-shade-rgb) / 0.7);
   }
 
   & .after-meal {
@@ -24,7 +64,7 @@
     flex: 1 0 auto;
     overflow: clip;
     color: var(--cp-ivory);
-    background: linear-gradient(180deg, #17663a 0%, var(--cp-green) 42%, var(--cp-green-deep) 100%);
+    background: linear-gradient(180deg, var(--am-top) 0%, var(--cp-green) 42%, var(--cp-green-deep) 100%);
   }
 
   /* Le satin court sur toute la hauteur d'écran : la feuille qui grandit le
@@ -53,7 +93,7 @@
     background:
       var(--cp-mosaic) 0 0 / 0.75rem 0.75rem repeat-x,
       var(--cp-grain),
-      linear-gradient(180deg, rgb(4 30 14 / 0.3), rgb(4 30 14 / 0.12) 38%, rgb(4 24 12 / 0.5));
+      linear-gradient(180deg, rgb(var(--am-veil-rgb) / 0.3), rgb(var(--am-veil-rgb) / 0.12) 38%, rgb(var(--am-veil-rgb) / 0.5));
     pointer-events: none;
   }
 
@@ -69,7 +109,7 @@
     height: 2.75rem;
     font-size: 1.5rem;
     line-height: 1;
-    color: rgb(238 234 199 / 0.82);
+    color: rgb(var(--am-ivory-rgb) / 0.82);
   }
 
   /* ---- L'en-tête ------------------------------------------------------- */
@@ -103,12 +143,12 @@
     max-width: 19rem;
     font-family: var(--brand-display);
     font-size: clamp(2rem, 9.2vw, 2.5rem);
-    font-weight: 800;
+    font-weight: var(--am-title-weight);
     font-variation-settings: "SOFT" 100, "opsz" 144;
     line-height: 1.04;
     letter-spacing: -0.012em;
     text-wrap: balance;
-    text-shadow: 0 1px 18px rgb(4 24 12 / 0.55);
+    text-shadow: 0 1px 18px rgb(var(--am-veil-rgb) / 0.55);
   }
 
   & .after-meal-rule {
@@ -124,7 +164,7 @@
     max-width: 18.5rem;
     font-size: 0.9375rem;
     line-height: 1.42;
-    color: rgb(238 234 199 / 0.86);
+    color: rgb(var(--am-ivory-rgb) / 0.86);
     text-wrap: balance;
   }
 
@@ -174,11 +214,11 @@
     height: 100%;
     text-align: left;
     border-radius: var(--cp-rayon);
-    color: var(--cp-green);
+    color: var(--am-card-ink);
     background: var(--cp-grain), var(--surface);
     box-shadow:
-      0 0 0 1px rgb(238 234 199 / 0.28),
-      0 1.25rem 1.75rem -1rem rgb(1 18 8 / 0.85);
+      0 0 0 1px rgb(var(--am-ivory-rgb) / 0.28),
+      0 1.25rem 1.75rem -1rem rgb(var(--am-shade-rgb) / 0.85);
   }
 
   & .after-meal-photo {
@@ -230,7 +270,7 @@
   & .after-meal-name {
     font-family: var(--brand-display);
     font-size: 1.0625rem;
-    font-weight: 700;
+    font-weight: var(--am-name-weight);
     font-variation-settings: "SOFT" 100, "opsz" 36;
     line-height: 1.12;
   }
@@ -245,17 +285,17 @@
     font-size: 0.8125rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums lining-nums;
-    color: var(--cp-ivory);
-    background: var(--cp-green);
+    color: var(--am-pill-ink);
+    background: var(--am-pill);
   }
 
   /* Le choix fait : le vert, l'écrit en ivoire, le filet de laiton. */
   & .after-meal-card[data-on] {
     color: var(--cp-ivory);
-    background: var(--cp-grain), #0c3f20;
+    background: var(--cp-grain), var(--am-chosen);
     box-shadow:
       0 0 0 1.5px var(--cp-laiton),
-      0 1.25rem 1.75rem -1rem rgb(1 18 8 / 0.85);
+      0 1.25rem 1.75rem -1rem rgb(var(--am-shade-rgb) / 0.85);
   }
 
   & .after-meal-card[data-on] .after-meal-price {
@@ -302,7 +342,7 @@
     margin-bottom: 0.625rem;
     font-size: 0.8125rem;
     line-height: 1.32;
-    color: rgb(238 234 199 / 0.92);
+    color: rgb(var(--am-ivory-rgb) / 0.92);
   }
 
   & .after-meal-combo img {
@@ -366,7 +406,7 @@
     padding-inline: 1rem;
     font-size: 0.875rem;
     font-weight: 500;
-    color: rgb(238 234 199 / 0.88);
+    color: rgb(var(--am-ivory-rgb) / 0.88);
   }
 
   /* La sortie, et l'avis à côté d'elle : discret tant qu'une suite se propose. */
@@ -406,7 +446,7 @@
     position: absolute;
     inset: 0.75rem auto 0.75rem 0;
     width: 1px;
-    background: rgb(238 234 199 / 0.28);
+    background: rgb(var(--am-ivory-rgb) / 0.28);
   }
 
   & .after-meal-cta.after-meal-review {
@@ -419,7 +459,7 @@
   & .after-meal-cta.after-meal-review svg {
     width: 1rem;
     height: 1rem;
-    color: #a67c24;
+    color: var(--am-star);
   }
 
   /* Trop étroit pour les deux sur une ligne : l'un sous l'autre, sans filet. */
@@ -570,7 +610,7 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root].theme-caffe-panis {
+  [data-menu-root]:is(.theme-caffe-panis, .theme-boho) {
     /* La tasse se dessine, la vapeur monte en boucle, doucement. */
     & .after-meal-trace {
       stroke-dasharray: 1;
@@ -657,7 +697,7 @@
       background: conic-gradient(
         from var(--cp-tour, 0deg),
         transparent 0 190deg,
-        rgb(60 207 122 / calc(var(--cp-eclat, 0) * 0.8)) 285deg,
+        rgb(var(--am-glow-rgb) / calc(var(--cp-eclat, 0) * 0.8)) 285deg,
         rgb(201 162 75 / var(--cp-eclat, 0)) 338deg,
         rgb(255 246 214 / var(--cp-eclat, 0)) 357deg,
         transparent 360deg
@@ -680,7 +720,7 @@
       background: conic-gradient(
         from var(--cp-tour, 0deg),
         transparent 0 200deg,
-        rgb(60 207 122 / calc(var(--cp-eclat, 0) * 0.75)) 295deg,
+        rgb(var(--am-glow-rgb) / calc(var(--cp-eclat, 0) * 0.75)) 295deg,
         rgb(255 236 170 / calc(var(--cp-eclat, 0) * 0.9)) 350deg,
         transparent 360deg
       );

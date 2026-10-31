@@ -24,6 +24,8 @@ export const documents: Record<LegalDoc, LegalDocument[]> = {
   dpa: [dpa],
   // confidentialite20261026 (prospection par les commerciaux) s'inscrit ici
   // après sa relecture, puis npm run legal:publish.
+  // confidentialite20261101 (suite du repas) de même, avant la mise en service
+  // chez le BOHO.
   confidentialite: [confidentialite],
   // commercialV3 (commercial-v3.ts) s'inscrit ici après sa relecture par un
   // avocat et le choix de sa date d'effet, puis npm run legal:publish.

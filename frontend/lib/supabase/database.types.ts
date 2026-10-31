@@ -4052,6 +4052,45 @@ export type Database = {
           },
         ]
       }
+      after_meal_events: {
+        Row: {
+          appearance: string
+          created_at: string
+          etablissement_id: string
+          event: Database["public"]["Enums"]["after_meal_event"]
+          id: number
+          item_id: string | null
+          moment: string | null
+          ms_since_shown: number | null
+          order_id: string | null
+          shown_items: string[] | null
+        }
+        Insert: {
+          appearance: string
+          created_at?: string
+          etablissement_id: string
+          event: Database["public"]["Enums"]["after_meal_event"]
+          id?: never
+          item_id?: string | null
+          moment?: string | null
+          ms_since_shown?: number | null
+          order_id?: string | null
+          shown_items?: string[] | null
+        }
+        Update: {
+          appearance?: string
+          created_at?: string
+          etablissement_id?: string
+          event?: Database["public"]["Enums"]["after_meal_event"]
+          id?: never
+          item_id?: string | null
+          moment?: string | null
+          ms_since_shown?: number | null
+          order_id?: string | null
+          shown_items?: string[] | null
+        }
+        Relationships: []
+      }
       menu_suggestion_stats: {
         Row: {
           day: string
@@ -4599,6 +4638,7 @@ export type Database = {
           platform_fee_cents: number | null
           popina_order_id: string | null
           ready_at: string | null
+          served_at: string | null
           ready_by: string | null
           refund_id: string | null
           refunded_at: string | null
@@ -4638,6 +4678,7 @@ export type Database = {
           platform_fee_cents?: number | null
           popina_order_id?: string | null
           ready_at?: string | null
+          served_at?: string | null
           ready_by?: string | null
           refund_id?: string | null
           refunded_at?: string | null
@@ -4677,6 +4718,7 @@ export type Database = {
           platform_fee_cents?: number | null
           popina_order_id?: string | null
           ready_at?: string | null
+          served_at?: string | null
           ready_by?: string | null
           refund_id?: string | null
           refunded_at?: string | null
@@ -7480,6 +7522,10 @@ export type Database = {
           tips: number
         }[]
       }
+      admin_after_meal_stats: {
+        Args: { p_etab: string; p_from: string; p_to: string }
+        Returns: Json
+      }
       admin_menu_pilotage: {
         Args: {
           p_etab: string
@@ -8564,6 +8610,7 @@ export type Database = {
           order_number: number
           paid: boolean
           paying: boolean
+          served_at: string | null
           status: Database["public"]["Enums"]["order_status"]
           total: number
         }[]
@@ -8776,6 +8823,18 @@ export type Database = {
     }
     Enums: {
       accord_source: "panier" | "fiche" | "formule"
+      after_meal_event:
+        | "apparue"
+        | "ajout"
+        | "retrait"
+        | "ajout_combo"
+        | "voir_commande"
+        | "non_merci"
+        | "croix"
+        | "fermee_autrement"
+        | "avis"
+        | "page_quittee"
+        | "commande"
       allergen:
         | "gluten"
         | "crustaces"
@@ -9066,6 +9125,19 @@ export const Constants = {
   public: {
     Enums: {
       accord_source: ["panier", "fiche", "formule"],
+      after_meal_event: [
+        "apparue",
+        "ajout",
+        "retrait",
+        "ajout_combo",
+        "voir_commande",
+        "non_merci",
+        "croix",
+        "fermee_autrement",
+        "avis",
+        "page_quittee",
+        "commande",
+      ],
       allergen: [
         "gluten",
         "crustaces",
