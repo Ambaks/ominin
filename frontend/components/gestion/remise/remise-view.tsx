@@ -1,10 +1,11 @@
 "use client";
 
-import { useCallback, useEffect, useId, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { CounterLines } from "@/components/gestion/commandes/counter-lines";
-import { CheckIcon } from "@/components/gestion/icons";
+import { AlertIcon, CheckIcon } from "@/components/gestion/icons";
 import { GlassButton, GlassFrame, Plate, Shimmer, type Entity } from "@/components/gestion/ui";
 import { HANDOVER_STATUSES } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { formatTime } from "@/lib/gestion/format";
 import { can } from "@/lib/gestion/permissions";
 import { fetchRemise, handOver, type Remise } from "@/lib/gestion/remise";
@@ -39,14 +40,10 @@ export interface ManualAction {
   primary: boolean;
 }
 
-const messageOf = (error: unknown) =>
-  error instanceof TypeError
-    ? "Le réseau a coupé : vérifiez la connexion, puis réessayez."
-    : error instanceof Error
-      ? error.message
-      : "Une erreur est survenue.";
-
-const rise = (i: number) => ({ "--g-i": i }) as CSSProperties;
+/** La phrase de l'échec, sans son titre : le verdict de l'écran le porte déjà. */
+const messageOf = (error: unknown) => describeError(error).text;
+/** Le réseau a coupé : la requête a pu passer et sa réponse se perdre. */
+const isLost = (error: unknown) => describeError(error).family === "reseau";
 
 /** Le verdict : fait (inversé, lisible de loin), à surveiller (grenat), ou posé. */
 type Tone = "done" | "warn" | "plain";
@@ -148,11 +145,11 @@ export function RemiseView({
         await load(() => true);
       }
     } catch (error) {
-      if (error instanceof TypeError) lost.current = true;
+      if (isLost(error)) lost.current = true;
       setAttempt({
         state: "error",
         message: messageOf(error),
-        lost: error instanceof TypeError,
+        lost: isLost(error),
       });
     }
   }, [orderId, load]);
@@ -190,31 +187,48 @@ export function RemiseView({
   if (remise === undefined) {
     return (
       <div ref={resultRef} className="contents">
-        <Kicker />
         {loadError ? (
           <Outcome
             tone="warn"
+            eyebrow={kicker()}
             title="La commande ne s'est pas chargée"
             body={loadError}
-            action={<GlassButton variant="primary" className="w-full" onClick={() => void load(() => true)}>Réessayer</GlassButton>}
+            action={
+              <GlassButton variant="primary" className="w-full" onClick={() => void load(() => true)}>
+                Réessayer
+              </GlassButton>
+            }
           />
         ) : (
-          <GlassFrame entity="orders" eyebrow="Lecture du code…" className="g-rise" title="Un instant">
-            <Shimmer className="h-64" />
+          <GlassFrame entity="orders" eyebrow={kicker()} className="g-rise" title="Lecture du code…">
+            <Shimmer className="h-80" />
           </GlassFrame>
         )}
         {actions(null)}
       </div>
     );
   }
-  if (!remise || !order || !numbered) {
+  if (!remise || !order) {
     return (
       <div ref={resultRef} className="contents">
-        <Kicker />
         <Outcome
           tone="warn"
+          eyebrow={kicker()}
           title="Code inconnu"
           body="Ce code n'est pas une commande à retirer dans vos établissements. Vérifiez que ce téléphone est connecté au bon compte."
+        />
+        {actions(null)}
+      </div>
+    );
+  }
+  if (!numbered) {
+    return (
+      <div ref={resultRef} className="contents">
+        <Outcome
+          tone="warn"
+          eyebrow={kicker(remise.etablissementName)}
+          title="Pas un retrait au bar"
+          body="Cette commande n'a pas de numéro de retrait : elle se suit depuis Commandes."
         />
         {actions(null)}
       </div>
@@ -223,9 +237,9 @@ export function RemiseView({
   if (!allowed) {
     return (
       <div ref={resultRef} className="contents">
-        <Kicker etablissementName={remise.etablissementName} />
         <Outcome
           tone="warn"
+          eyebrow={kicker(remise.etablissementName)}
           title="Réservé à la salle"
           body="Votre rôle ne remet pas les commandes : un serveur ou le gérant scanne ce code."
         />
@@ -274,25 +288,20 @@ export function RemiseView({
                     body: `Commande de ${remise.etablissementName} : remettez-la seulement si le client y a commandé.`,
                     tone: "warn",
                   }
-                : {
-                    kicker: order.status === "prete" ? "Prête" : "En préparation",
-                    body: "Réglée : remettez-la quand le client est là.",
-                    tone: "plain",
-                  };
+                : order.status === "prete"
+                  ? { kicker: "Prête", body: "Remettez-la quand le client est là.", tone: "plain" }
+                  : {
+                      kicker: "En préparation",
+                      body: "Encore en cuisine : remettez-la quand elle sort et que le client est là.",
+                      tone: "plain",
+                    };
   const done = head.tone === "done";
+  // Elle ne se remet plus : le numéro s'efface derrière le verdict.
+  const closed = order.status === "servie" || order.status === "annulee";
 
   return (
     <div ref={resultRef} className="contents">
-      {/* Un scan à l'appareil photo ouvre un onglet : son titre dit lequel. */}
-      <title>{`N° ${order.orderNumber} · Retrait au bar`}</title>
-      <Kicker etablissementName={remise.etablissementName} />
-      <GlassFrame
-        entity={TONE_ENTITY[head.tone]}
-        hero
-        eyebrow={head.kicker}
-        icon={done ? <CheckIcon /> : undefined}
-        className="g-rise"
-      >
+      <GlassFrame entity={TONE_ENTITY[head.tone]} hero eyebrow={kicker(remise.etablissementName)} className="g-rise">
         <Plate className="overflow-hidden">
           {/* Remise : l'inverse du fond, lisible de loin dans les deux thèmes
               (le dégradé clair tombait à 3:1 en thème clair). */}
@@ -306,12 +315,17 @@ export function RemiseView({
               tabIndex={-1}
               // Le lecteur d'écran dit le verdict, puis le numéro et la phrase.
               aria-describedby={`${numberId} ${bodyId}`}
-              className={`text-g-label font-semibold ${done ? "text-background/80" : head.tone === "warn" ? "text-ember-3" : "text-muted"} outline-none`}
+              className="flex items-center gap-2 font-display text-g-h2 outline-none"
             >
+              {done && <CheckIcon className="size-(--g-icon) shrink-0" />}
+              {head.tone === "warn" && <AlertIcon className="g-problem size-(--g-icon) shrink-0 text-g-entity" />}
               {head.kicker}
             </h1>
-            <p id={numberId} className="flex items-baseline gap-1.5 font-semibold leading-none tabular-nums">
-              <span className="text-g-kpi opacity-60">N°</span>
+            <p
+              id={numberId}
+              className={`mt-1 flex items-baseline gap-1.5 font-semibold leading-none tabular-nums ${closed ? "text-muted" : ""}`}
+            >
+              <span className={`text-g-kpi ${done ? "text-background/60" : "text-muted"}`}>N°</span>
               <span className="text-7xl tracking-tight">{order.orderNumber}</span>
             </p>
             {remise.table !== null && (
@@ -319,7 +333,7 @@ export function RemiseView({
                 Table {remise.table}
               </p>
             )}
-            <p id={bodyId} className="mt-2 text-base leading-snug">
+            <p id={bodyId} role={attempt?.state === "pending" ? "status" : undefined} className="mt-2 text-base leading-snug">
               {head.body}
             </p>
           </article>
@@ -359,35 +373,38 @@ export function RemiseView({
             }
           : null
       )}
+      {/* Un scan à l'appareil photo ouvre un onglet : son titre dit lequel. En
+          dernier : les enfants gardent leur place d'un état à l'autre, le
+          cadre n'est pas remonté et son entrée ne rejoue pas. */}
+      <title>{`N° ${order.orderNumber} · Retrait au bar`}</title>
     </div>
   );
 }
 
-function Kicker({ etablissementName }: { etablissementName?: string }) {
-  return (
-    <p className="g-eyebrow g-orders g-rise" style={rise(0)}>
-      Retrait au bar{etablissementName && ` · ${etablissementName}`}
-    </p>
-  );
-}
+/** Le surtitre de l'écran : le geste, et l'établissement quand on le connaît. */
+const kicker = (etablissementName?: string) =>
+  `Retrait au bar${etablissementName ? ` · ${etablissementName}` : ""}`;
 
 /** Un verdict sans commande à montrer : le titre de la page, sa phrase, une suite. */
 function Outcome({
   tone,
+  eyebrow,
   title,
   body,
   action,
 }: {
   tone: Tone;
+  eyebrow: string;
   title: string;
   body: string;
   action?: React.ReactNode;
 }) {
   return (
-    <GlassFrame entity={TONE_ENTITY[tone]} hero className="g-rise">
+    <GlassFrame entity={TONE_ENTITY[tone]} hero eyebrow={eyebrow} className="g-rise">
       <Plate className="flex flex-col gap-3 px-5 py-6">
         {/* Titre de la page : il peut recevoir le focus (le résultat d'un scan). */}
-        <h1 tabIndex={-1} className="font-display text-g-h2 outline-none">
+        <h1 tabIndex={-1} className="flex items-center gap-2 font-display text-g-h2 outline-none">
+          {tone === "warn" && <AlertIcon className="g-problem size-(--g-icon) shrink-0 text-g-entity" />}
           {title}
         </h1>
         <p className="text-g-body text-muted">{body}</p>

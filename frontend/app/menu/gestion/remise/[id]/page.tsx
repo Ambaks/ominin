@@ -16,16 +16,18 @@ export default function RemisePage() {
   return (
     <>
       <Mesh />
-      <main className="relative z-1 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-5 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1.5rem,env(safe-area-inset-top))]">
+      <main className="relative z-1 mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-5 pt-[max(1.5rem,env(safe-area-inset-top))]">
         <RemiseView
           orderId={id}
           actions={(manual) => (
-            <>
+            // Collé au bas de l'écran, la remise à faire comprise : rien ne se
+            // cache sous une longue commande ni sur un petit téléphone.
+            <div className="sticky bottom-0 -mx-5 mt-auto flex flex-col gap-3 border-t border-hairline bg-background px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
               {manual?.action}
-              <GlassButton href="/gestion/commandes" className="w-full">
+              <GlassButton href="/gestion/commandes" variant={manual ? "secondary" : "primary"} className="w-full">
                 Voir les commandes
               </GlassButton>
-            </>
+            </div>
           )}
         />
       </main>
