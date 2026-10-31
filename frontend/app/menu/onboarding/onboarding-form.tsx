@@ -42,7 +42,11 @@ export function OnboardingForm({
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
   const [slugEdited, setSlugEdited] = useState(false);
-  const [offre, setOffre] = useState<Offre>(initialOffre ?? "digital");
+  // Sans devis, le select montre son premier choix : l'état part du même,
+  // sinon l'écran dit « Connect » et l'établissement naît en digital.
+  const [offre, setOffre] = useState<Offre>(
+    initialOffre ?? (pricingSection.plans[0].id as Offre)
+  );
   const [tableCount, setTableCount] = useState(
     initialTables ? String(initialTables) : ""
   );
