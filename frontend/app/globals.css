@@ -15450,6 +15450,18 @@ dialog.g-dialog {
   --g-r: var(--g-radius-hero);
   border-radius: var(--g-r) var(--g-r) 0 0;
 }
+dialog.g-dialog-center {
+  inset: var(--g-visible-top, 0px) 0 var(--g-visible-bottom, 0px);
+  margin: auto;
+  width: min(var(--g-dialog-w), 100% - 2 * var(--g-gap));
+  max-height: calc(
+    100dvh - var(--g-visible-top, 0px) - var(--g-visible-bottom, 0px) - 2 * var(--g-gap)
+  );
+  border-radius: var(--g-r);
+}
+.g-dialog-center .g-dialog-handle {
+  display: none;
+}
 .g-dialog[open] {
   display: flex;
   flex-direction: column;

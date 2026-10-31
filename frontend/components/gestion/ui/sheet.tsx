@@ -11,6 +11,8 @@ import { Plate } from "./plate";
  * en modal : le fond devient inerte, Échap ferme, le focus revient au bouton
  * d'origine ; la page ne défile plus dessous. À monter conditionnellement
  * (`{open && <Sheet …>}`) ; le champ attendu porte `data-autofocus`.
+ * `centered` : centré partout, dans ce que le clavier laisse visible ; pour un
+ * code à taper, qu'une feuille collée en bas laisserait sous le clavier.
  * Compte pour un élément de verre.
  */
 export function Sheet({
@@ -18,6 +20,7 @@ export function Sheet({
   description,
   onClose,
   size = "md",
+  centered = false,
   footer,
   children,
 }: {
@@ -26,6 +29,7 @@ export function Sheet({
   description?: string;
   onClose: () => void;
   size?: "md" | "wide";
+  centered?: boolean;
   /** Les commandes, à droite ; un `<p>` en premier y pose la phrase d'aide d'un bouton désactivé. */
   footer?: ReactNode;
   children: ReactNode;
@@ -40,6 +44,26 @@ export function Sheet({
     dialog.querySelector<HTMLElement>("[data-autofocus]")?.focus();
   }, []);
 
+  useEffect(() => {
+    const dialog = ref.current;
+    const visible = window.visualViewport;
+    if (!centered || !dialog || !visible) return;
+    const fit = () => {
+      dialog.style.setProperty("--g-visible-top", `${visible.offsetTop}px`);
+      dialog.style.setProperty(
+        "--g-visible-bottom",
+        `${Math.max(0, window.innerHeight - visible.height - visible.offsetTop)}px`
+      );
+    };
+    fit();
+    visible.addEventListener("resize", fit);
+    visible.addEventListener("scroll", fit);
+    return () => {
+      visible.removeEventListener("resize", fit);
+      visible.removeEventListener("scroll", fit);
+    };
+  }, [centered]);
+
   return (
     <dialog
       ref={ref}
@@ -49,7 +73,7 @@ export function Sheet({
       onClick={(event) => {
         if (event.target === ref.current) onClose();
       }}
-      className={`g-dialog g-glass ${size === "wide" ? "g-dialog-wide" : ""}`}
+      className={`g-dialog g-glass ${size === "wide" ? "g-dialog-wide" : ""} ${centered ? "g-dialog-center" : ""}`}
     >
       <span className="g-dialog-handle" aria-hidden />
       <header className="g-dialog-head">

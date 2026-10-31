@@ -38,6 +38,7 @@ export function PaymentPinDialog({
   return (
     <Sheet
       title="Code d’encaissement"
+      centered
       description="Le gérant l’a défini dans Réglages › Encaissement."
       onClose={onClose}
       footer={
