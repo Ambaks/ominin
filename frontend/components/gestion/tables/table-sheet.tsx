@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { EncaisserPanel } from "@/components/gestion/commandes/encaisser-card";
 import { ServirPanel } from "@/components/gestion/commandes/servir-card";
+import { ChevronDownIcon } from "@/components/gestion/icons";
 import {
   Chip,
   ConfirmSheet,
@@ -34,10 +35,10 @@ function serviceTitle(service: TableService): string {
 }
 
 /** Une section de la fiche : son titre, puis sa plaque ou son panneau. */
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
     <section className="grid gap-2">
-      <h3 className="font-display text-g-h2">{title}</h3>
+      {title && <h3 className="font-display text-g-h2">{title}</h3>}
       {children}
     </section>
   );
@@ -126,10 +127,8 @@ export function TableSheet({
     });
   };
 
-  const showSalle =
-    hasFeature("assignation") ||
-    (hasFeature("groupes_tables") && service.tables.length > 1) ||
-    hasFeature("terminaux");
+  const decides = hasFeature("assignation") || (hasFeature("groupes_tables") && service.tables.length > 1);
+  const showSalle = decides || hasFeature("terminaux");
 
   return (
     <Sheet title={serviceTitle(service)} onClose={onClose}>
@@ -137,25 +136,41 @@ export function TableSheet({
         {toPay.length > 0 && (
           <Section title="Addition">
             <EncaisserPanel orders={toPay} />
-            {canCancel && (
-              <ul className="grid gap-1.5">
-                {toPay.map((order) => (
-                  <li key={order.id} className="flex flex-wrap items-center justify-between gap-x-3 gap-y-1.5">
-                    <span className="text-g-meta text-muted">
-                      Commande de {formatTime(order.createdAt)} ·{" "}
-                      <span className="tabular-nums">{formatPrice(orderTotal(order))}</span>
-                    </span>
-                    <GlassButton
-                      variant="danger"
-                      disabled={busy !== null}
-                      onClick={() => setCancelling(order)}
-                    >
-                      Annuler la commande
-                    </GlassButton>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {canCancel &&
+              (toPay.length === 1 ? (
+                <div className="flex justify-end">
+                  <GlassButton variant="danger" disabled={busy !== null} onClick={() => setCancelling(toPay[0])}>
+                    Annuler la commande
+                  </GlassButton>
+                </div>
+              ) : (
+                <details className="group">
+                  <summary className="flex min-h-g-control cursor-pointer list-none items-center justify-end gap-1 text-g-label font-semibold text-muted [&::-webkit-details-marker]:hidden">
+                    Annuler une commande
+                    <ChevronDownIcon className="size-4 group-open:rotate-180" />
+                  </summary>
+                  <ul className="grid gap-2 pt-1">
+                    {toPay.map((order) => (
+                      <li key={order.id} className="flex items-center justify-between gap-3">
+                        <span className="min-w-0 text-g-meta text-muted">
+                          <span className="tabular-nums">
+                            {formatTime(order.createdAt)} · {formatPrice(orderTotal(order))}
+                          </span>
+                          <span className="block truncate">{order.items.map((line) => line.name).join(", ")}</span>
+                        </span>
+                        <GlassButton
+                          variant="danger"
+                          aria-label={`Annuler la commande de ${formatTime(order.createdAt)}`}
+                          disabled={busy !== null}
+                          onClick={() => setCancelling(order)}
+                        >
+                          Annuler
+                        </GlassButton>
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
           </Section>
         )}
 
@@ -166,7 +181,8 @@ export function TableSheet({
         )}
 
         {showSalle && (
-          <Section title="Salle">
+          // Le renvoi du ticket seul est un dépannage, pas une section de la salle.
+          <Section title={decides ? "Salle" : undefined}>
             {hasFeature("assignation") && (
               <Field label="Serveur">
                 <Select

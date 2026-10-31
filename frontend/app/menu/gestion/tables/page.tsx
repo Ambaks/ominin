@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
+import { CheckIcon, ClockIcon } from "@/components/gestion/icons";
 import { TableSheet } from "@/components/gestion/tables/table-sheet";
-import { EmptyState, GlassButton, SectionHeading } from "@/components/gestion/ui";
+import { Chip, EmptyState, GlassButton, SectionHeading } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { SERVICE_LATE_MINUTES, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { describeError } from "@/lib/gestion/errors";
-import { activeTables, type TableService } from "@/lib/gestion/selectors";
+import { activeTables, awaitsService, type TableService } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import { formatWait, useNow } from "@/lib/gestion/use-now";
 import type { GestionState, Staff } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 
@@ -48,8 +51,10 @@ function TableTile({
   selectable,
   rise,
   ready,
+  waited,
   visite,
   onClick,
+  onReadyEnd,
 }: {
   service: TableService;
   serveur: Staff | undefined;
@@ -60,8 +65,11 @@ function TableTile({
   rise: number;
   /** La table vient de s'ouvrir d'elle-même : une onde, une fois. */
   ready: boolean;
+  /** Minutes d'attente des plats à servir ; null quand il n'y en a pas. */
+  waited: number | null;
   visite: boolean;
   onClick: () => void;
+  onReadyEnd: () => void;
 }) {
   const { tables: joined, toPay, toServe } = service;
   return (
@@ -72,12 +80,21 @@ function TableTile({
         aria-pressed={joining ? selected : undefined}
         disabled={joining && !selectable}
         onClick={onClick}
-        className={`g-plate g-press relative ${ready ? "g-ready" : ""} flex h-full w-full flex-col items-start gap-2 p-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1 disabled:opacity-40 ${
+        // Une seule fois : une tuile remontée (tables séparées) ne rejoue pas l'onde.
+        onAnimationEnd={(event) => {
+          if (event.animationName === "g-ready") onReadyEnd();
+        }}
+        className={`g-plate g-press relative isolate ${ready ? "g-ready" : ""} flex h-full w-full flex-col items-start gap-2 p-4 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1 disabled:opacity-40 ${
           selected
-            ? "outline-2 -outline-offset-1 outline-ember-2 before:absolute before:inset-0 before:rounded-[inherit] before:bg-[color-mix(in_srgb,var(--ember-2)_var(--g-tint-a),transparent)]"
+            ? "outline-2 -outline-offset-1 outline-ember-2 before:absolute before:inset-0 before:-z-10 before:rounded-[inherit] before:bg-[color-mix(in_srgb,var(--ember-2)_var(--g-tint-a),transparent)]"
             : "pointer-fine:hover:outline-1 pointer-fine:hover:-outline-offset-1 pointer-fine:hover:outline-[var(--g-ring-hover)]"
         }`}
       >
+        {selected && (
+          <span className="g-orders absolute right-3 top-3 flex text-g-entity *:size-5">
+            <CheckIcon />
+          </span>
+        )}
         <span className="g-orders g-eyebrow">{joined.length > 1 ? "Tables" : "Table"}</span>
         <span className="font-display text-g-day tabular-nums">
           {joined.map((entry) => entry.number).join(" + ")}
@@ -86,9 +103,22 @@ function TableTile({
         {(toPay > 0 || toServe > 0) && (
           <span className="mt-auto flex flex-col gap-1 pt-1">
             {toPay > 0 && <Due entity="g-money" value={formatPrice(toPay)} label="à encaisser" />}
-            {toServe > 0 && <Due entity="g-orders" value={String(toServe)} label="à servir" />}
+            {toServe > 0 && (
+              <Due
+                entity="g-orders"
+                value={String(toServe)}
+                label={waited ? `à servir · ${formatWait(waited)}` : "à servir"}
+              />
+            )}
           </span>
         )}
+        {/* Le retard se dit en toutes lettres, comme sur la carte « À servir ». */}
+        {waited !== null && waited >= SERVICE_LATE_MINUTES && (
+          <Chip tone="problem" icon={<ClockIcon />}>
+            En retard
+          </Chip>
+        )}
+        {joining && !selectable && <Chip>Déjà réunies</Chip>}
       </button>
     </div>
   );
@@ -100,28 +130,40 @@ function TablesView({ state }: { state: GestionState }) {
   const [openTableId, setOpenTableId] = useState<string | null>(null);
   // Sélection en cours pour réunir des tables ; null quand on ne réunit pas.
   const [joining, setJoining] = useState<string[] | null>(null);
-  // Les tables présentes à l'arrivée montent en cascade ; celles qui s'ouvrent
-  // ensuite montent seules, sans attendre leur rang.
-  const [arrived] = useState(() => new Set(activeTables(state).map((entry) => entry.table.id)));
   const [creating, setCreating] = useState(false);
+  const now = useNow(WAIT_TICK_MS);
+  // La cascade ne vaut que pour l'arrivée sur la page : une tuile montée
+  // ensuite (table ouverte, tables séparées) n'attend pas son rang.
+  const [settled, setSettled] = useState(false);
+  useEffect(() => {
+    const frame = requestAnimationFrame(() => setSettled(true));
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const tables = activeTables(state);
 
   // Une table qui s'ouvre pendant le service (commande du QR, autre appareil)
   // se signale d'une onde. On suit le mobilier, pas les additions : séparer
-  // des tables n'ouvre rien. Prendre une commande ici tait la prochaine onde,
-  // la table n'apprend rien à qui vient de l'ouvrir ; un dialogue abandonné en
-  // perd une au plus.
+  // des tables n'ouvre rien. La table prise ici n'apprend rien à qui vient de
+  // l'ouvrir : rien pendant le dialogue, et il tait la table suivante, car sa
+  // commande peut arriver après lui. Un dialogue abandonné en perd une au plus.
   const seated = tables.flatMap((entry) => entry.tables.map((table) => table.id));
   const [known, setKnown] = useState(() => new Set(seated));
   const [ready, setReady] = useState<ReadonlySet<string>>(new Set());
   const [ownNext, setOwnNext] = useState(false);
+  const [opened, setOpened] = useState<string | null>(null);
   const fresh = seated.filter((id) => !known.has(id));
   if (fresh.length > 0 || known.size !== seated.length) {
     setKnown(new Set(seated));
     const kept = [...ready].filter((id) => seated.includes(id));
-    setReady(new Set(ownNext ? kept : [...kept, ...fresh]));
-    if (fresh.length > 0) setOwnNext(false);
+    const silent = creating || ownNext;
+    setReady(new Set(silent ? kept : [...kept, ...fresh]));
+    if (fresh.length > 0 && !creating) setOwnNext(false);
+    // Le lecteur d'écran, et le mouvement réduit qui coupe l'onde.
+    if (fresh.length > 0 && !silent) {
+      const numbers = state.tables.filter((table) => fresh.includes(table.id)).map((table) => table.number);
+      setOpened(`${numbers.length > 1 ? "Tables" : "Table"} ${numbers.join(", ")} en service.`);
+    }
   }
 
   const sheet = tables.find((entry) => entry.table.id === openTableId);
@@ -139,7 +181,6 @@ function TablesView({ state }: { state: GestionState }) {
   const staffById = new Map(state.staff.map((member) => [member.id, member]));
   const canJoin = hasFeature("groupes_tables");
   const canOrder = hasFeature("prise_commande");
-  const hasJoined = tables.some((entry) => entry.tables.length > 1);
 
   const join = async () => {
     const ids = joining ?? [];
@@ -166,11 +207,9 @@ function TablesView({ state }: { state: GestionState }) {
           level={1}
           title="Tables"
           sub={
-            joining
-              ? "Choisissez les tables à réunir sous une même addition."
-              : tables.length
-                ? "Les tables en service. Touchez une table pour voir son addition et ses plats."
-                : undefined
+            !joining && tables.length
+              ? "Les tables en service. Touchez une table pour voir son addition et ses plats."
+              : undefined
           }
           right={
             canJoin &&
@@ -191,8 +230,9 @@ function TablesView({ state }: { state: GestionState }) {
         />
         {joining && (
           <p role="status" className="mt-2 text-g-meta text-muted">
-            {joining.length < 2 ? "Cochez au moins deux tables pour les réunir." : `${joining.length} tables cochées.`}
-            {hasJoined && " Les tables déjà réunies restent telles quelles."}
+            {joining.length < 2
+              ? "Cochez au moins deux tables à réunir sous une même addition."
+              : `${joining.length} tables cochées.`}
           </p>
         )}
       </div>
@@ -208,26 +248,43 @@ function TablesView({ state }: { state: GestionState }) {
           />
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        // Le bas de page garde la place du bouton flottant : il ne cache jamais une tuile.
+        <div
+          className={`grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 ${canOrder ? "pb-[var(--g-fab)]" : ""}`}
+        >
           {tables.map((service, index) => {
-            const { table, tables: joined } = service;
+            const { table, tables: joined, orders } = service;
+            const oldest = orders.filter(awaitsService).map((order) => order.createdAt).sort()[0];
+            // En minutes d'horloge, comme la carte « À servir ».
+            const waited =
+              oldest && service.toServe > 0
+                ? Math.max(0, Math.floor(now.getTime() / 60_000) - Math.floor(Date.parse(oldest) / 60_000))
+                : null;
             return (
               <TableTile
-                key={table.id}
+                key={table.groupId ?? table.id}
                 service={service}
                 serveur={table.staffId ? staffById.get(table.staffId) : undefined}
                 joining={joining != null}
                 selected={joining?.includes(table.id) ?? false}
                 selectable={joined.length === 1}
-                rise={arrived.has(table.id) ? Math.min(index + 1, RISE_CAP) : 0}
+                rise={settled ? 0 : Math.min(index + 1, RISE_CAP)}
                 ready={ready.has(table.id)}
+                waited={waited}
                 visite={index === 0}
                 onClick={() => (joining ? toggle(table.id) : setOpenTableId(table.id))}
+                onReadyEnd={() =>
+                  setReady((current) => new Set([...current].filter((id) => id !== table.id)))
+                }
               />
             );
           })}
         </div>
       )}
+
+      <p role="status" className="sr-only">
+        {opened}
+      </p>
 
       {sheet && <TableSheet service={sheet} onClose={() => setOpenTableId(null)} />}
 
@@ -236,11 +293,11 @@ function TablesView({ state }: { state: GestionState }) {
           state={state}
           labelled={tables.length === 0}
           open={creating}
-          onOpen={() => {
-            setCreating(true);
+          onOpen={() => setCreating(true)}
+          onClose={() => {
+            setCreating(false);
             setOwnNext(true);
           }}
-          onClose={() => setCreating(false)}
         />
       )}
     </div>
