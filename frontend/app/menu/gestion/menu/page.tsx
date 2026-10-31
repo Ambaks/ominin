@@ -216,7 +216,7 @@ export default function MenuPage() {
           right={
             <div className="flex flex-wrap items-center gap-2">
               <div data-visite="menu-vues" className="rounded-full">
-                <Segmented<View> label="Vue" options={VIEWS} value={view} onChange={switchView} />
+                <Segmented<View> glass={false} label="Vue" options={VIEWS} value={view} onChange={switchView} />
               </div>
               {view === "menu" && addItemButton(true)}
               {view === "formules" && canEditFormules && state.formules.length > 0 && (

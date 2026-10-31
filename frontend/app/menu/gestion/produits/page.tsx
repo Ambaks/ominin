@@ -5,6 +5,7 @@ import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { CheckIcon, ExternalLinkIcon, ProductsIcon, TeamIcon } from "@/components/gestion/icons";
 import {
   Chip,
+  ErrorNotice,
   GlassButton,
   GlassFrame,
   Notice,
@@ -50,7 +51,7 @@ export default function ProduitsPage() {
       window.location.search.includes("checkout=succes")
   );
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   // Le passage à la formule groupée change la mensualité : c'est une vente,
   // donc une signature. Sans elle la route refuse, et le bouton resterait
   // mort — c'est exactement ce qui était arrivé ici.
@@ -94,17 +95,18 @@ export default function ProduitsPage() {
         setBusy(false);
       }
     } catch (cause) {
-      setError(
-        cause instanceof Error
-          ? cause.message
-          : "Activation impossible pour l'instant : vérifiez le réseau, puis réessayez."
-      );
+      setError(cause);
       setBusy(false);
     }
   };
 
+  // Une seule orchestration : le rang suit l'ordre des blocs de la page. Le
+  // verre monte lui-même (prop `i`), le flou échantillonne l'aura pendant l'entrée.
   let block = 0;
-  const rise = () => ({ className: "g-rise", style: { "--g-i": block++ } as CSSProperties });
+  const rise = (className = "") => ({
+    className: `g-rise ${className}`,
+    style: { "--g-i": block++ } as CSSProperties,
+  });
 
   return (
     <div className="flex flex-col gap-g-gap">
@@ -120,9 +122,21 @@ export default function ProduitsPage() {
         />
       </section>
 
-      <section {...rise()} className="g-rise grid gap-g-gap lg:grid-cols-2">
+      {/* Une erreur ne monte pas en fondu : elle répond au geste, tout de suite. */}
+      {isGerant && error != null && <ErrorNotice error={error} onRetry={() => void activateCollect()} />}
+      {isGerant && error == null && contractError && !collectActive && !confirming && (
+        <Notice title="Activation indisponible" text={contractError} />
+      )}
+
+      <section className="grid gap-g-gap lg:grid-cols-2">
         {offreProduct && (
-          <GlassFrame entity="money" eyebrow={offreProduct.eyebrow} icon={<ProductsIcon />}>
+          <GlassFrame
+            entity="money"
+            eyebrow={offreProduct.eyebrow}
+            icon={<ProductsIcon />}
+            i={block++}
+            className="lg:self-start"
+          >
             <Plate className="flex flex-col gap-4 p-5" data-visite="produits-offre">
               <ProductHead product={offreProduct} badge={<Chip icon={<CheckIcon />}>Active</Chip>} />
               <Features product={offreProduct} />
@@ -130,7 +144,7 @@ export default function ProduitsPage() {
           </GlassFrame>
         )}
 
-        <GlassFrame entity="orders" eyebrow="Votre rôle" icon={<TeamIcon />}>
+        <GlassFrame entity="orders" eyebrow="Votre rôle" icon={<TeamIcon />} i={block++} className="lg:self-start">
           <Plate className="flex flex-col gap-4 p-5">
             <div>
               <h2 className="font-display text-g-h2">{roleLabels(state)[state.role]}</h2>
@@ -139,7 +153,7 @@ export default function ProduitsPage() {
               </p>
             </div>
             <div>
-              <p className="mb-2 text-g-axis font-semibold uppercase tracking-wider text-faint">
+              <p className="mb-2 text-g-axis font-semibold uppercase tracking-wider text-muted">
                 Ce que vous pouvez faire
               </p>
               <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
@@ -154,7 +168,7 @@ export default function ProduitsPage() {
         </GlassFrame>
 
         {collectActive && (
-          <GlassFrame entity="money" eyebrow={collectProduct.eyebrow} icon={<ProductsIcon />}>
+          <GlassFrame entity="money" eyebrow={collectProduct.eyebrow} icon={<ProductsIcon />} i={block++} className="lg:self-start">
             <Plate className="flex flex-col gap-4 p-5">
               <ProductHead product={collectProduct} badge={<Chip icon={<CheckIcon />}>Actif</Chip>} />
               <Features product={collectProduct} />
@@ -181,19 +195,15 @@ export default function ProduitsPage() {
             />
           </section>
 
-          {(error || contractError) && (
-            <section {...rise()}>
-              <Notice title="Activation impossible" text={error ?? contractError ?? undefined} />
-            </section>
-          )}
-
-          <section {...rise()} className="g-rise grid gap-g-gap lg:grid-cols-2">
+          <section {...rise("grid gap-g-gap lg:grid-cols-2")}>
             {!collectActive && (
               <Plate className="flex flex-col gap-4 p-5" data-visite="produits-collect">
-                <ProductHead product={collectProduct} />
+                <ProductHead level={3} product={collectProduct} />
                 <Features product={collectProduct} />
                 {confirming ? (
-                  <Chip>Paiement reçu, activation en cours…</Chip>
+                  <p role="status">
+                    <Chip>Paiement reçu, activation en cours…</Chip>
+                  </p>
                 ) : (
                   <>
                     <AcceptTerms
@@ -234,7 +244,7 @@ export default function ProduitsPage() {
             {!pickupShop &&
               otherOffres.map((product, index) => (
                 <Plate key={product.id} className="flex flex-col gap-4 p-5">
-                  <ProductHead product={product} />
+                  <ProductHead level={3} product={product} />
                   <Features product={product} />
                   <a
                     href={changeOffreHref}
@@ -248,7 +258,7 @@ export default function ProduitsPage() {
               ))}
 
             <Plate className="flex flex-col gap-4 p-5">
-              <ProductHead product={clipProduct} />
+              <ProductHead level={3} product={clipProduct} />
               <Features product={clipProduct} />
               <a href={clipProduct.href} target="_blank" rel="noopener" className={LINK_CLASS}>
                 <ExternalLinkIcon />
@@ -262,17 +272,27 @@ export default function ProduitsPage() {
   );
 }
 
-function ProductHead({ product, badge }: { product: Product; badge?: ReactNode }) {
+function ProductHead({
+  product,
+  badge,
+  level = 2,
+}: {
+  product: Product;
+  badge?: ReactNode;
+  /** Titre de la page d'un produit actif, ou sous « Autres produits ». */
+  level?: 2 | 3;
+}) {
+  const Heading = level === 2 ? "h2" : "h3";
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           {!badge && (
-            <p className="text-g-axis font-semibold uppercase tracking-wider text-faint">
+            <p className="text-g-axis font-semibold uppercase tracking-wider text-muted">
               {product.eyebrow}
             </p>
           )}
-          <h2 className="font-display text-g-h2">{product.name}</h2>
+          <Heading className="font-display text-g-h2">{product.name}</Heading>
         </div>
         {badge}
       </div>
@@ -281,7 +301,7 @@ function ProductHead({ product, badge }: { product: Product; badge?: ReactNode }
         <p className="text-g-kpi tabular-nums">
           {product.price}
           {product.priceUnit && (
-            <span className="text-g-label font-normal text-muted">{product.priceUnit}</span>
+            <span className="text-g-label font-normal tracking-normal text-muted">{product.priceUnit}</span>
           )}
         </p>
         {product.priceNote && <p className="mt-1 text-g-meta text-muted">{product.priceNote}</p>}
