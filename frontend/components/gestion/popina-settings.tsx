@@ -116,8 +116,8 @@ export function PopinaSettings() {
 
   return (
     <SettingsCard
-      title="Ventes depuis la caisse (Popina)"
-      text="Chaque vente réglée sur la caisse arrive dans Commandes et Paiements, marquée « Caisse » ; elle se corrige sur la caisse."
+      title="Ventes de la caisse (Popina)"
+      text="Chaque vente réglée sur votre caisse arrive dans Commandes et Paiements, marquée « Caisse », et compte dans vos chiffres. Elle se corrige sur la caisse ; Ominin n'y envoie rien par ce lien."
       right={state}
     >
       {status === null ? (

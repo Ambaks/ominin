@@ -69,13 +69,13 @@ function errorMessage(code: string | null): string {
   return "réessayez.";
 }
 
-/** L'identifiant HubRise reste lisible au survol, pour le support, sans encombrer la fiche. */
 function Identity({ label, name, id }: { label: string; name?: string | null; id?: string | null }) {
   return (
-    <div>
+    <div className="min-w-0">
       <dt className="text-g-meta text-muted">{label}</dt>
-      <dd className="text-g-label" title={id ?? undefined}>
+      <dd className="text-g-label">
         {name ?? "—"}
+        {id && <span className="block break-all font-mono text-g-meta text-muted">{id}</span>}
       </dd>
     </div>
   );
@@ -262,8 +262,8 @@ export function HubriseSettings({
     <SettingsCard
       id="caisse"
       className="scroll-mt-28"
-      title="Commandes vers la caisse (HubRise)"
-      text="Vos commandes arrivent dans votre caisse (Popina, Zelty, Clyo…) ; elle nous rend ses stocks, ses horaires et l'état de chaque commande."
+      title="Caisse connectée (HubRise)"
+      text="Les commandes de votre menu arrivent directement dans votre caisse (Popina, Zelty, Clyo…), sans ressaisie. Votre caisse nous rend aussi ses stocks, ses horaires et l'état de chaque commande."
       right={
         connected ? (
           status.blocked ? (
@@ -312,11 +312,9 @@ export function HubriseSettings({
           <div className="flex flex-col gap-3 border-t border-hairline pt-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-g-label font-semibold">Synchronisation</p>
-              {!status.blocked && (
-                <GlassButton onClick={() => void refresh()} disabled={busy}>
-                  {busy ? "Lecture…" : "Tout relire"}
-                </GlassButton>
-              )}
+              <GlassButton onClick={() => void refresh()} disabled={busy || status.blocked}>
+                {busy ? "Lecture…" : "Tout relire"}
+              </GlassButton>
             </div>
             <dl className="grid gap-3 sm:grid-cols-3">
               {(
@@ -359,11 +357,11 @@ export function HubriseSettings({
               {`${problems} commande${problems > 1 ? "s" : ""} non transmise${problems > 1 ? "s" : ""} à la caisse.`}
             </p>
           ) : (
-            (status.outbox?.pending ?? 0) > 0 && (
-              <p className="text-g-label text-muted">
-                {`${status.outbox?.pending} commande${(status.outbox?.pending ?? 0) > 1 ? "s" : ""} en cours d'envoi.`}
-              </p>
-            )
+            <p className="text-g-label text-muted">
+              {status.outbox?.pending
+                ? `${status.outbox.pending} commande${status.outbox.pending > 1 ? "s" : ""} en cours d'envoi.`
+                : "Toutes les commandes sont transmises à la caisse."}
+            </p>
           )}
 
           {status.till && <TillSettings till={status.till} onSaved={() => void load()} />}
