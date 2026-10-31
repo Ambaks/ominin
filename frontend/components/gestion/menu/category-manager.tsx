@@ -2,10 +2,7 @@
 
 import { useState } from "react";
 import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
-import { Chip, GlassButton } from "@/components/gestion/ui";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Chip, ConfirmSheet, Field, GlassButton, Input, Sheet } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import type { MenuCategory } from "@/lib/menu-data";
@@ -47,29 +44,56 @@ export function CategoryManager({
     }, "Catégorie ajoutée.");
   };
 
+  // La confirmation remplace la feuille : imbriquée, Échap fermerait les deux.
+  if (deleting) {
+    return (
+      <ConfirmSheet
+        title={`Supprimer « ${deleting.name} » ?`}
+        text={
+          deleting.items.length > 0
+            ? `Ses ${deleting.items.length} article${deleting.items.length > 1 ? "s" : ""} disparaîtront aussi du menu, définitivement.`
+            : "Cette catégorie est vide."
+        }
+        confirmLabel="Supprimer la catégorie"
+        destructive
+        onClose={() => setDeleting(null)}
+        onConfirm={() =>
+          void run(async () => {
+            await api.deleteCategory(deleting.id);
+            setDeleting(null);
+          }, "Catégorie supprimée.")
+        }
+      />
+    );
+  }
+
   return (
-    <Modal title="Catégories" onClose={onClose}>
+    <Sheet
+      title="Catégories"
+      description="Dans l'ordre où vos clients les lisent. Tapez dans un nom pour le changer."
+      onClose={onClose}
+      footer={<GlassButton onClick={onClose}>Fermer</GlassButton>}
+    >
       <div className="flex flex-col gap-4">
-        <p className="text-g-meta text-muted">
-          Dans l&rsquo;ordre où vos clients les lisent. Tapez dans un nom pour le changer.
-        </p>
         <ul className="m-0 flex list-none flex-col gap-2 p-0">
           {categories.map((category, index) => (
-            <li key={category.id} className="g-plate flex items-center gap-2 p-2">
-              <input
+            <li key={category.id} className="flex flex-wrap items-center gap-2">
+              <Input
+                key={category.name}
                 defaultValue={category.name}
                 onBlur={(event) => rename(category, event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Enter") event.currentTarget.blur();
                 }}
                 aria-label={`Nom de la catégorie ${category.name}`}
-                className={`${inputClass} min-w-0 flex-1`}
+                className="min-w-0 flex-1 basis-full sm:basis-0"
               />
               <Chip>
                 {category.items.length} article{category.items.length > 1 ? "s" : ""}
               </Chip>
               <GlassButton
                 variant="icon"
+                className="ml-auto"
                 disabled={index === 0}
                 onClick={() => void move(index, -1)}
                 aria-label={`Monter ${category.name}`}
@@ -96,46 +120,20 @@ export function CategoryManager({
         </ul>
 
         <form onSubmit={add} className="flex items-end gap-2">
-          <div className="flex-1">
-            <Field label="Nouvelle catégorie">
-              <input
-                value={newName}
-                onChange={(event) => setNewName(event.target.value)}
-                placeholder="Entrées, pizzas, boissons…"
-                data-autofocus={categories.length === 0 ? "" : undefined}
-                className={inputClass}
-              />
-            </Field>
-          </div>
-          <button
-            type="submit"
-            disabled={!newName.trim()}
-            className="g-btn g-btn-primary g-press shrink-0"
-          >
+          <Field label="Nouvelle catégorie" className="flex-1">
+            <Input
+              value={newName}
+              onChange={(event) => setNewName(event.target.value)}
+              placeholder="Entrées, pizzas, boissons…"
+              data-autofocus={categories.length === 0 ? "" : undefined}
+            />
+          </Field>
+          <GlassButton type="submit" variant="primary" disabled={!newName.trim()} className="shrink-0">
             Ajouter
-          </button>
+          </GlassButton>
         </form>
       </div>
 
-      {deleting && (
-        <ConfirmDialog
-          title={`Supprimer « ${deleting.name} » ?`}
-          message={
-            deleting.items.length > 0
-              ? `Les ${deleting.items.length} articles de cette catégorie seront également supprimés.`
-              : "Cette catégorie est vide."
-          }
-          confirmLabel="Supprimer"
-          destructive
-          onClose={() => setDeleting(null)}
-          onConfirm={() =>
-            void run(async () => {
-              await api.deleteCategory(deleting.id);
-              setDeleting(null);
-            }, "Catégorie supprimée.")
-          }
-        />
-      )}
-    </Modal>
+    </Sheet>
   );
 }

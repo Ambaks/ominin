@@ -1,19 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { FormuleBuilder } from "@/components/gestion/formules/formule-builder";
+import { ChevronDownIcon, PaymentsIcon } from "@/components/gestion/icons";
 import { FormuleCard } from "@/components/gestion/formules/formule-card";
 import { Presentation } from "@/components/gestion/formules/presentation";
 import { CategoryManager } from "@/components/gestion/menu/category-manager";
 import { ItemFormModal } from "@/components/gestion/menu/item-form-modal";
 import { MenuItemCard } from "@/components/gestion/menu/menu-item-card";
 import { TarifsInline } from "@/components/gestion/tarifs-planifies";
-import { EmptyState, GlassButton, SectionHeading, Segmented } from "@/components/gestion/ui";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
+import {
+  Chip,
+  ConfirmSheet,
+  EmptyState,
+  Field,
+  GlassButton,
+  Input,
+  SectionHeading,
+  Segmented,
+  Select,
+} from "@/components/gestion/ui";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
@@ -38,6 +48,16 @@ const VIEWS: { value: View; label: string }[] = [
   { value: "formules", label: "Formules" },
 ];
 
+/** Ouvert à l'arrivée seulement : effacer la note ne replie pas le champ sous la main. */
+function SettingsFold({ initiallyOpen, children }: { initiallyOpen: boolean; children: ReactNode }) {
+  const [open] = useState(initiallyOpen);
+  return (
+    <details open={open} className="group">
+      {children}
+    </details>
+  );
+}
+
 export default function MenuPage() {
   const state = useGestion();
   const { can, role, hasFeature } = useGestionAccess();
@@ -45,6 +65,17 @@ export default function MenuPage() {
   const toast = useToast();
   const [view, setView] = useState<View>("menu");
   const [activeCatId, setActiveCatId] = useState<string | null>(null);
+  // Les fiches montent en fondu à l'arrivée seulement : pas à chaque
+  // catégorie touchée, ni à chaque flèche (l'animation repartirait).
+  const [settled, setSettled] = useState(false);
+  const pick = (id: string) => {
+    setSettled(true);
+    setActiveCatId(id);
+  };
+  const switchView = (next: View) => {
+    setSettled(true);
+    setView(next);
+  };
   const [creatingItem, setCreatingItem] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null);
@@ -104,8 +135,8 @@ export default function MenuPage() {
     });
     try {
       await setItemPrinter(itemId, printerId);
-    } catch {
-      toast.error("Imprimante non enregistrée : vérifiez le réseau, puis réessayez.");
+    } catch (error) {
+      toast.error(describeError(error).message);
       await refreshRouting();
     }
   };
@@ -140,9 +171,15 @@ export default function MenuPage() {
     state.dayEndHour
   );
   const itemCount = categories.reduce((sum, c) => sum + c.items.length, 0);
+  const sansAllergenes = categories
+    .filter((c) => !isDrinkCategory(c))
+    .flatMap((c) => c.items)
+    .filter((item) => item.allergens === undefined).length;
+  const categoryRules = category ? rulesOn("category", category.id) : [];
 
   const moveItem = (index: number, delta: -1 | 1) => {
     if (!category) return;
+    setSettled(true);
     const ids = moved(
       category.items.map((item) => item.id),
       index,
@@ -165,7 +202,7 @@ export default function MenuPage() {
 
   return (
     <div className="flex flex-col gap-g-gap">
-      <section className="g-rise" style={{ "--g-i": 0 } as CSSProperties}>
+      <section className="g-rise flex flex-col gap-3" style={{ "--g-i": 0 } as CSSProperties}>
         <SectionHeading
           level={1}
           title={view === "menu" ? "Carte" : "Formules"}
@@ -177,11 +214,31 @@ export default function MenuPage() {
               : "Entrée + plat, menu du midi… en tête du menu client."
           }
           right={
-            <div data-visite="menu-vues" className="rounded-full">
-              <Segmented<View> label="Vue" options={VIEWS} value={view} onChange={setView} />
+            <div className="flex flex-wrap items-center gap-2">
+              <div data-visite="menu-vues" className="rounded-full">
+                <Segmented<View> label="Vue" options={VIEWS} value={view} onChange={switchView} />
+              </div>
+              {view === "menu" && addItemButton(true)}
+              {view === "formules" && canEditFormules && state.formules.length > 0 && (
+                <GlassButton variant="primary" onClick={() => setCreatingFormule(true)}>
+                  + Nouvelle formule
+                </GlassButton>
+              )}
             </div>
           }
         />
+        {/* Relié à une caisse : la carte y est rapprochée par les noms (lib/hubrise/catalog.ts). */}
+        {state.etablissement.hubriseConnected && (
+          <p className="flex flex-wrap items-center gap-2 text-g-meta text-muted">
+            <Chip icon={<PaymentsIcon />}>Caisse reliée · HubRise</Chip>
+            Articles et formules sont rapprochés de la caisse par leur nom : un nouveau plat renommé ici doit porter le même nom en caisse.
+          </p>
+        )}
+        {view === "menu" && sansAllergenes > 0 && (
+          <p className="text-g-meta text-muted">
+            {sansAllergenes} article{sansAllergenes > 1 ? "s" : ""} sans allergènes renseignés : le menu renvoie le client à l&rsquo;équipe.
+          </p>
+        )}
       </section>
 
       {view === "menu" && (
@@ -206,13 +263,27 @@ export default function MenuPage() {
           ) : (
             <>
               <section
-                className="g-rise flex flex-wrap items-center gap-2"
+                className="g-rise flex items-center gap-2 sm:items-start"
                 style={{ "--g-i": 1 } as CSSProperties}
               >
+                {/* Au téléphone, une liste ; dès sm, les catégories en pilules. */}
+                <div className="min-w-0 flex-1 sm:hidden">
+                  <Select
+                    value={category.id}
+                    aria-label="Catégorie"
+                    onChange={(event) => pick(event.target.value)}
+                  >
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.items.length})
+                      </option>
+                    ))}
+                  </Select>
+                </div>
                 <div
                   role="tablist"
                   aria-label="Catégories"
-                  className="no-scrollbar -mx-4 flex max-w-full gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
+                  className="flex min-w-0 flex-1 flex-wrap gap-2 py-1 max-sm:hidden"
                 >
                   {categories.map((c) => {
                     const active = c.id === category.id;
@@ -222,7 +293,7 @@ export default function MenuPage() {
                         role="tab"
                         aria-selected={active}
                         variant={active ? "primary" : "secondary"}
-                        onClick={() => setActiveCatId(c.id)}
+                        onClick={() => pick(c.id)}
                       >
                         {c.name}
                         <span className={`text-g-meta tabular-nums ${active ? "" : "text-muted"}`}>
@@ -233,53 +304,62 @@ export default function MenuPage() {
                   })}
                 </div>
                 {canEditMenu && (
-                  <div className="ml-auto flex shrink-0 gap-2">
-                    <GlassButton data-visite="menu-categories" onClick={() => setManagingCats(true)}>
-                      Catégories
-                    </GlassButton>
-                    {addItemButton(true)}
-                  </div>
+                  <GlassButton data-visite="menu-categories" onClick={() => setManagingCats(true)}>
+                    Catégories
+                  </GlassButton>
                 )}
               </section>
 
               <section
-                className="g-rise flex flex-col gap-3"
+                className="g-rise"
                 style={{ "--g-i": 2 } as CSSProperties}
               >
                 {canEditMenu ? (
-                  <Field label="Note de catégorie" hint="Affichée sous son nom sur le menu client.">
-                    <input
-                      key={category.id}
-                      defaultValue={category.tagline ?? ""}
-                      placeholder="Servies avec leur pain maison…"
-                      onBlur={(event) => {
-                        const value = event.target.value;
-                        if (value.trim() === (category.tagline ?? "")) return;
-                        void run(
-                          () => api.updateCategoryTagline(category.id, value),
-                          "Note enregistrée."
-                        );
-                      }}
-                      onKeyDown={(event) => {
-                        if (event.key === "Enter") event.currentTarget.blur();
-                      }}
-                      className={`${inputClass} max-w-xl`}
-                    />
-                  </Field>
+                  <SettingsFold key={category.id} initiallyOpen={Boolean(category.tagline) || categoryRules.length > 0}>
+                    <summary className="flex min-h-g-control cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-0.5 [&::-webkit-details-marker]:hidden">
+                      <ChevronDownIcon className="size-4 shrink-0 -rotate-90 text-muted transition-transform group-open:rotate-0 motion-reduce:transition-none" />
+                      <span className="text-g-body font-semibold">Réglages de « {category.name} »</span>
+                      <span className="text-g-meta text-muted">
+                        {[
+                          category.tagline && "une note",
+                          categoryRules.length > 0 &&
+                            `${categoryRules.length} tarif${categoryRules.length > 1 ? "s" : ""} planifié${categoryRules.length > 1 ? "s" : ""}`,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ") || "note, tarifs planifiés"}
+                      </span>
+                    </summary>
+                    <div className="flex flex-col gap-3 pt-3">
+                      <Field label="Note de catégorie" hint="Affichée sous son nom sur le menu client." className="max-w-xl">
+                        <Input
+                          defaultValue={category.tagline ?? ""}
+                          placeholder="Servies avec leur pain maison"
+                          onBlur={(event) => {
+                            const value = event.target.value;
+                            if (value.trim() === (category.tagline ?? "")) return;
+                            void run(
+                              () => api.updateCategoryTagline(category.id, value),
+                              "Note enregistrée."
+                            );
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") event.currentTarget.blur();
+                          }}
+                        />
+                      </Field>
+                      {/* Un tarif posé ici vaut pour toute la catégorie, articles
+                          ajoutés plus tard compris. */}
+                      <TarifsInline
+                        target={{ kind: "category", id: category.id }}
+                        owned={categoryRules}
+                        categories={categories}
+                        canEdit={canTarif}
+                      />
+                    </div>
+                  </SettingsFold>
                 ) : (
-                  category.tagline && (
-                    <p className="text-g-meta text-muted">{category.tagline}</p>
-                  )
+                  category.tagline && <p className="text-g-meta text-muted">{category.tagline}</p>
                 )}
-
-                {/* Un tarif posé ici vaut pour toute la catégorie, articles
-                    ajoutés plus tard compris. */}
-                <TarifsInline
-                  target={{ kind: "category", id: category.id }}
-                  owned={rulesOn("category", category.id)}
-                  categories={categories}
-                  canEdit={canTarif}
-                />
               </section>
 
               {category.items.length === 0 ? (
@@ -290,12 +370,11 @@ export default function MenuPage() {
                   />
                 </section>
               ) : (
-                <div className="grid gap-g-gap lg:grid-cols-2">
+                <div className={`grid gap-g-gap lg:grid-cols-2 xl:grid-cols-3 ${settled ? "" : "g-rise"}`} style={{ "--g-i": 3 } as CSSProperties}>
                   {category.items.map((item, index) => (
                     <MenuItemCard
                       key={item.id}
                       item={item}
-                      index={index + 3}
                       drink={isDrinkCategory(category)}
                       printers={showRouting ? printers : []}
                       printerId={routing.get(item.id) ?? null}
@@ -329,14 +408,6 @@ export default function MenuPage() {
 
       {view === "formules" && (
         <>
-          {canEditFormules && state.formules.length > 0 && (
-            <section className="g-rise flex justify-end" style={{ "--g-i": 1 } as CSSProperties}>
-              <GlassButton variant="primary" onClick={() => setCreatingFormule(true)}>
-                + Nouvelle formule
-              </GlassButton>
-            </section>
-          )}
-
           {state.formules.length === 0 ? (
             <section className="g-rise" style={{ "--g-i": 1 } as CSSProperties}>
               <EmptyState
@@ -351,12 +422,11 @@ export default function MenuPage() {
               />
             </section>
           ) : (
-            <div className="grid gap-g-gap lg:grid-cols-2">
-              {state.formules.map((formule, index) => (
+            <div className="g-rise grid gap-g-gap lg:grid-cols-2 xl:grid-cols-3" style={{ "--g-i": 1 } as CSSProperties}>
+              {state.formules.map((formule) => (
                 <FormuleCard
                   key={formule.id}
                   formule={formule}
-                  index={index + 2}
                   placed={Boolean(formule.affiche)}
                   onEdit={() => setEditingFormule(formule)}
                   onDelete={() => setDeletingFormule(formule)}
@@ -365,10 +435,7 @@ export default function MenuPage() {
             </div>
           )}
 
-          <section
-            className="g-rise"
-            style={{ "--g-i": state.formules.length + 2 } as CSSProperties}
-          >
+          <section className="g-rise" style={{ "--g-i": 2 } as CSSProperties}>
             <Presentation
               affiches={state.affiches}
               formules={state.formules}
@@ -392,10 +459,10 @@ export default function MenuPage() {
       )}
 
       {deletingItem && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Supprimer « ${deletingItem.name} » ?`}
-          message="L'article sera retiré définitivement du menu. Pour une rupture passagère, désactivez plutôt « En vente »."
-          confirmLabel="Supprimer"
+          text="L'article disparaît définitivement du menu. Pour une rupture passagère, éteignez plutôt « En vente »."
+          confirmLabel="Supprimer l'article"
           destructive
           onClose={() => setDeletingItem(null)}
           onConfirm={() =>
@@ -423,10 +490,10 @@ export default function MenuPage() {
       )}
 
       {deletingFormule && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Supprimer « ${deletingFormule.name} » ?`}
-          message="La formule sera retirée définitivement du menu. Pour une pause, désactivez plutôt « En vente »."
-          confirmLabel="Supprimer"
+          text="La formule disparaît définitivement du menu. Pour une pause, éteignez plutôt « En vente »."
+          confirmLabel="Supprimer la formule"
           destructive
           onClose={() => setDeletingFormule(null)}
           onConfirm={() =>

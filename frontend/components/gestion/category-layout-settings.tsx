@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { setCategoryLayout } from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
 import type { CategoryLayout } from "@/lib/menu-data";
 
@@ -93,7 +94,7 @@ export function CategoryLayoutSettings({ initialLayout }: { initialLayout: Categ
       toast.success(CATEGORY_LAYOUTS.find(({ id }) => id === next)?.saved ?? "");
     } catch (error) {
       setLayout(previous);
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     } finally {
       setBusy(false);
     }

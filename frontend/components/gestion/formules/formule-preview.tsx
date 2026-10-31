@@ -5,7 +5,7 @@ import { etapeArticles } from "@/lib/gestion/formules";
 import type { Etape } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 import type { MenuCategory } from "@/lib/menu-data";
-import { etapeIncomplete, type EtapeAvecDefaut } from "./etape-draft";
+import { etapeIncomplete } from "./etape-draft";
 
 /** Choix cités sous une étape avant « … ». */
 const NAMES_SHOWN = 3;
@@ -54,7 +54,7 @@ export function FormulePreview({
           <ol className="m-0 flex list-none flex-col gap-2 p-0">
             {etapes.map((etape, index) => {
               const choices = etapeArticles(etape, categories);
-              const defaut = (etape as EtapeAvecDefaut).defaut;
+              const defaut = etape.defaut;
               const named = choices.slice(0, NAMES_SHOWN).map((choice) => choice.name);
               return (
                 <li key={etape.id} className="flex flex-col gap-0.5 border-t border-hairline pt-2 first:border-t-0 first:pt-0">

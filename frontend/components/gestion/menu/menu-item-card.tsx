@@ -1,16 +1,14 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import {
+  AlertIcon,
   ChevronDownIcon,
   EditIcon,
   MenuIcon,
   TrashIcon,
 } from "@/components/gestion/icons";
-import { Chip, GlassButton, Plate } from "@/components/gestion/ui";
-import { inputClass } from "@/components/ui/field";
+import { Chip, GlassButton, Input, Plate, Select, Switch } from "@/components/gestion/ui";
 import { useRunMutation, useToast } from "@/components/ui/toast";
-import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
@@ -24,7 +22,6 @@ import {
 
 export function MenuItemCard({
   item,
-  index = 0,
   drink = false,
   printers = [],
   printerId = null,
@@ -39,8 +36,6 @@ export function MenuItemCard({
   onPrinterChange,
 }: {
   item: MenuItem;
-  /** Rang dans la grille : décale son entrée. */
-  index?: number;
   /** Rangé dans une catégorie de boissons : le menu n'en montre pas les allergènes. */
   drink?: boolean;
   printers?: Printer[];
@@ -71,7 +66,7 @@ export function MenuItemCard({
     const trimmed = raw.trim();
     const stock = trimmed === "" ? null : Number.parseInt(trimmed, 10);
     if (stock !== null && (!Number.isInteger(stock) || stock < 0)) {
-      toast.error("Stock invalide : un nombre entier, ou vide pour illimité.");
+      toast.error("Stock refusé. Un nombre entier, ou vide pour illimité.");
       return;
     }
     if ((item.stock ?? null) === stock) return;
@@ -83,8 +78,7 @@ export function MenuItemCard({
       // La première fiche de la catégorie sert d'exemple à la visite de la Carte.
       data-visite={first ? "menu-article" : undefined}
       // min-w-0 : un nom long tient sur deux lignes au lieu d'élargir la grille.
-      className="g-rise flex min-w-0 gap-4 p-4"
-      style={{ "--g-i": index } as CSSProperties}
+      className="flex min-w-0 gap-4 p-4"
     >
       {item.image ? (
         // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
@@ -99,7 +93,7 @@ export function MenuItemCard({
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {/* Le nom ouvre la fiche, comme le crayon : la cible naturelle au doigt. */}
-            <h3 className="text-g-body font-semibold">
+            <h3 className="text-g-body font-semibold break-words">
               {canEdit ? (
                 // Le crayon reste l'arrêt du clavier : le nom ne double pas la tabulation.
                 <button type="button" tabIndex={-1} onClick={onEdit} className="cursor-pointer text-left">
@@ -115,7 +109,7 @@ export function MenuItemCard({
             )}
           </div>
           <span className="flex shrink-0 flex-col items-end gap-1.5">
-            <span className="g-money text-g-label font-semibold text-g-entity tabular-nums">
+            <span className="g-money text-g-body font-semibold text-g-entity tabular-nums">
               {formatPrice(item.price)}
             </span>
             {!available && (
@@ -127,20 +121,19 @@ export function MenuItemCard({
         </div>
 
         {item.description && (
-          <p className="line-clamp-2 text-g-meta text-muted">{item.description}</p>
+          <p className="line-clamp-2 text-g-meta text-muted break-words">{item.description}</p>
         )}
 
-        {/* Ce qui manque encore se voit : sans allergènes, le menu renvoie le client à l'équipe. */}
-        {!drink &&
-          (item.allergens === undefined ? (
-            <div>
-              <Chip>Allergènes non renseignés</Chip>
-            </div>
-          ) : (
-            <p className="text-g-meta text-muted">
-              {item.allergens.length === 0 ? "Aucun allergène" : allergenLine(item.allergens)}
-            </p>
-          ))}
+        {/* Ce qui manque encore se lit : sans allergènes, le menu renvoie le client à l'équipe. */}
+        {!drink && (
+          <p className="text-g-meta text-muted">
+            {item.allergens === undefined
+              ? "Allergènes non renseignés"
+              : item.allergens.length === 0
+                ? "Aucun allergène"
+                : allergenLine(item.allergens)}
+          </p>
+        )}
 
         {item.badges && item.badges.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
@@ -157,7 +150,7 @@ export function MenuItemCard({
             {/* Au doigt, pas d'infobulle : le geste est dit en clair. */}
             <p className="text-g-meta text-muted">
               {canAvailability
-                ? "Options : touchez un choix pour le marquer épuisé, touchez-le à nouveau pour le remettre."
+                ? "Touchez un choix pour le marquer épuisé, puis pour le remettre."
                 : "Options : ✓ disponible, ✕ épuisé."}
             </p>
             {item.options.map((group) => (
@@ -183,14 +176,14 @@ export function MenuItemCard({
                           ok ? `${choice.name} : épuisé.` : `${choice.name} : de nouveau disponible.`
                         )
                       }
-                      className={`g-press flex min-h-g-control items-center gap-1.5 rounded-full border px-3 text-g-meta font-semibold disabled:cursor-default ${
+                      className={`g-press flex min-h-g-control max-w-full items-center gap-1.5 rounded-full border px-3 text-g-meta font-semibold disabled:cursor-default ${
                         ok
                           ? "border-status-signed/40 text-foreground"
                           : "g-chip-problem text-foreground"
                       }`}
                     >
                       <span aria-hidden>{ok ? "✓" : "✕"}</span>
-                      <span className={ok ? undefined : "line-through"}>{choice.name}</span>
+                      <span className={`truncate ${ok ? "" : "line-through"}`}>{choice.name}</span>
                       {!ok && <span className="font-normal">épuisé</span>}
                     </button>
                   );
@@ -207,14 +200,15 @@ export function MenuItemCard({
         )}
 
         {closedBy && (
-          <div>
-            <Chip tone="problem">Fermé en ce moment ({closedBy}) : vu « Plus servi »</Chip>
-          </div>
+          <p className="flex items-start gap-1.5 text-g-meta">
+            <AlertIcon className="size-4 shrink-0 text-ember-3" />
+            <span>Fermé en ce moment ({closedBy})&nbsp;: vos clients le voient «&nbsp;Plus servi&nbsp;».</span>
+          </p>
         )}
 
-        <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <label className="flex min-h-g-control items-center gap-2 text-g-label text-muted">
-            <Toggle
+        <div className="mt-auto flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
+          <span className="flex min-h-g-control items-center gap-2 text-g-label text-muted">
+            <Switch
               checked={enVente}
               disabled={!canAvailability}
               onChange={(checked) =>
@@ -223,35 +217,38 @@ export function MenuItemCard({
                   checked ? "Article remis en vente." : "Article retiré de la vente."
                 )
               }
-              label={`Disponibilité de ${item.name}`}
+              aria-label={`${item.name} en vente`}
             />
             {enVente ? (item.stock === 0 ? "Épuisé" : "En vente") : "Retiré"}
-          </label>
+          </span>
 
           <label className="flex items-center gap-1.5 text-g-label text-muted">
             Stock
-            <input
-              key={`${item.id}-${item.stock ?? ""}`}
-              defaultValue={item.stock ?? ""}
-              disabled={!canAvailability}
-              inputMode="numeric"
-              placeholder="∞"
-              onBlur={(event) => commitStock(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") event.currentTarget.blur();
-              }}
-              className={`${inputClass} w-16 px-2 text-center disabled:opacity-40`}
-            />
+            <span className="w-24 shrink-0">
+              <Input
+                key={`${item.id}-${item.stock ?? ""}`}
+                numeric
+                inputMode="numeric"
+                defaultValue={item.stock ?? ""}
+                disabled={!canAvailability}
+                placeholder="∞"
+                aria-label={`Stock de ${item.name}`}
+                onBlur={(event) => commitStock(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") event.currentTarget.blur();
+                }}
+              />
+            </span>
           </label>
 
           {printers.length > 0 && (
             <label className="flex items-center gap-1.5 text-g-label text-muted">
               Imprimante
-              <select
+              <Select
                 value={printerId ?? ""}
                 disabled={!canRoute}
+                aria-label={`Imprimante de ${item.name}`}
                 onChange={(e) => onPrinterChange?.(e.target.value || null)}
-                className={`${inputClass} w-auto disabled:opacity-40`}
               >
                 <option value="">—</option>
                 {printers.map((p) => (
@@ -259,7 +256,7 @@ export function MenuItemCard({
                     {p.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </label>
           )}
 

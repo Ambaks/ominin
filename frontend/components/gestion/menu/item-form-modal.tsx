@@ -1,14 +1,12 @@
 "use client";
 
-import { useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
+import { useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { PhotoField } from "@/components/gestion/photo-field";
-import { GlassButton } from "@/components/gestion/ui";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
-import { PriceInput } from "@/components/ui/price-input";
+import { Field, GlassButton, Input, Select, Sheet, Textarea } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { DEFAULT_VAT_RATE, VAT_RATES } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
@@ -22,6 +20,7 @@ import {
   optionsToDraft,
   type OptionGroupDraft,
 } from "./options-editor";
+import { PrixInput } from "./prix-input";
 
 /*
  * La fiche article en deux temps (UX-SIMPLICITÉ § 3.6) : nom, prix, catégorie
@@ -48,7 +47,7 @@ export function ItemFormModal({
   // Sans service à table, ni accord ni cuisine : des mots qui vont à toute boutique.
   const pickupShop = isPickupShop(state);
   const toast = useToast();
-  const form = useRef<HTMLFormElement>(null);
+  const formId = "item-form";
 
   const [name, setName] = useState(item?.name ?? "");
   const [printName, setPrintName] = useState(item?.printName ?? "");
@@ -124,68 +123,59 @@ export function ItemFormModal({
       }
       onClose();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Impossible d'enregistrer. Rechargez la page et réessayez."
-      );
+      toast.error(describeError(error).message);
       setSaving(false);
     }
   };
 
   const menuOpen = Boolean(description || detail || pairing || badges.length);
-  const kitchenOpen = Boolean(printName || stock || (item && item.vatRate != null && item.vatRate !== DEFAULT_VAT_RATE));
+  const kitchenOpen = Boolean(
+    printName || stock || (item && item.vatRate != null && item.vatRate !== DEFAULT_VAT_RATE)
+  );
 
   return (
-    <Modal
+    <Sheet
       title={item ? "Modifier l'article" : "Nouvel article"}
       onClose={onClose}
       footer={
         <>
+          {saving && <p>Un instant…</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
-          <GlassButton
-            variant="primary"
-            disabled={saving}
-            onClick={() => form.current?.requestSubmit()}
-          >
-            {saving ? "Enregistrement…" : "Enregistrer"}
+          <GlassButton type="submit" form={formId} variant="primary" disabled={saving}>
+            Enregistrer
           </GlassButton>
         </>
       }
     >
-      <form ref={form} onSubmit={submit} noValidate className="flex flex-col gap-4">
+      <form id={formId} onSubmit={submit} noValidate className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
           <Field label="Nom" required error={nameError}>
-            <input
+            <Input
               value={name}
               onChange={(event) => setName(event.target.value)}
               placeholder={pickupShop ? "Tarte aux pommes" : "Burrata di Parma"}
-              aria-invalid={nameError ? true : undefined}
               data-autofocus={item ? undefined : ""}
-              className={inputClass}
             />
           </Field>
           <Field label="Prix" required error={priceError}>
-            <PriceInput value={price} onChange={setPrice} invalid={Boolean(priceError)} />
+            <PrixInput value={price} onChange={setPrice} />
           </Field>
         </div>
 
         <Field label="Catégorie" required>
-          <select
-            value={categoryId}
-            onChange={(event) => setCategoryId(event.target.value)}
-            className={inputClass}
-          >
+          <Select value={categoryId} onChange={(event) => setCategoryId(event.target.value)}>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
 
         <PhotoField value={image} onChange={setImage} alt="Aperçu de la photo du plat" />
 
         {!details ? (
-          <div className="flex flex-col gap-1.5 self-start">
+          <div className="flex flex-col items-start gap-1.5">
             <GlassButton onClick={() => setDetails(true)}>Ajouter des détails</GlassButton>
             <span className="text-g-meta text-muted">
               Description, allergènes, options, cuisine… tout peut attendre.
@@ -195,12 +185,11 @@ export function ItemFormModal({
           <div className="flex flex-col gap-2">
             <Group title="Sur le menu" open={menuOpen || !item}>
               <Field label="Description">
-                <textarea
+                <Textarea
                   value={description}
                   onChange={(event) => setDescription(event.target.value)}
                   rows={2}
                   placeholder="Ingrédients, préparation…"
-                  className={`${inputClass} resize-none`}
                 />
               </Field>
               <div className="grid gap-4 sm:grid-cols-2">
@@ -208,20 +197,15 @@ export function ItemFormModal({
                   label="Format"
                   hint={pickupShop ? "Portions (ex. 6 parts)" : "Volume ou portion (ex. 33 cl)"}
                 >
-                  <input
-                    value={detail}
-                    onChange={(event) => setDetail(event.target.value)}
-                    className={inputClass}
-                  />
+                  <Input value={detail} onChange={(event) => setDetail(event.target.value)} />
                 </Field>
                 {/* Masqué, l'accord déjà saisi reste enregistré tel quel. */}
                 {!pickupShop && (
                   <Field label="Suggestion" hint="Affichée sous le plat">
-                    <input
+                    <Input
                       value={pairing}
                       onChange={(event) => setPairing(event.target.value)}
                       placeholder="Idéal avec un Chianti"
-                      className={inputClass}
                     />
                   </Field>
                 )}
@@ -272,41 +256,35 @@ export function ItemFormModal({
                   label="Nom sur le ticket"
                   hint={`Ce que la ${pickupShop ? "préparation" : "cuisine"} lit sur l'imprimante. Vide : le nom de la carte.`}
                 >
-                  <input
+                  <Input
                     value={printName}
                     onChange={(event) => setPrintName(event.target.value)}
                     placeholder={name.trim() || (pickupShop ? "Tarte 6 parts" : "Entrecôte")}
                     maxLength={40}
-                    className={inputClass}
                   />
                 </Field>
               )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field label="Stock" hint="Vide = illimité" error={stockError}>
-                  <input
+                  <Input
+                    numeric
+                    inputMode="numeric"
                     value={stock}
                     onChange={(event) => setStock(event.target.value)}
-                    inputMode="numeric"
                     placeholder="∞"
-                    aria-invalid={stockError ? true : undefined}
-                    className={inputClass}
                   />
                 </Field>
                 <Field
                   label="TVA"
                   hint={pickupShop ? "Reprise sur les tickets et les paiements" : "Appliquée à cet article en caisse"}
                 >
-                  <select
-                    value={vatRate}
-                    onChange={(event) => setVatRate(event.target.value)}
-                    className={inputClass}
-                  >
+                  <Select value={vatRate} onChange={(event) => setVatRate(event.target.value)}>
                     {VAT_RATES.map((rate) => (
                       <option key={rate} value={String(rate)}>
                         {String(rate).replace(".", ",")} %
                       </option>
                     ))}
-                  </select>
+                  </Select>
                 </Field>
               </div>
             </Group>
@@ -314,17 +292,17 @@ export function ItemFormModal({
             {products.collect && (
               <Group title="À emporter" open={notice !== ""}>
                 <Field
-                  label="Délai de commande (heures)"
+                  label="Délai de commande"
                   hint="Click & collect : le client choisit un retrait au plus tôt ce délai après sa commande. Vide = pour le prochain créneau."
                   error={noticeError}
                 >
-                  <input
+                  <Input
+                    numeric
+                    inputMode="numeric"
+                    unit="h"
                     value={notice}
                     onChange={(event) => setNotice(event.target.value)}
-                    inputMode="numeric"
                     placeholder="48"
-                    aria-invalid={noticeError ? true : undefined}
-                    className={inputClass}
                   />
                 </Field>
               </Group>
@@ -332,7 +310,7 @@ export function ItemFormModal({
           </div>
         )}
       </form>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -346,7 +324,7 @@ function Group({ title, open, children }: { title: string; open: boolean; childr
         {title}
         <svg
           viewBox="0 0 24 24"
-          className="size-4 text-muted transition-transform group-open:rotate-180"
+          className="size-4 text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none"
           fill="none"
           stroke="currentColor"
           strokeWidth="1.75"
@@ -365,10 +343,8 @@ function Group({ title, open, children }: { title: string; open: boolean; childr
 /* Pas de Field : son <label> renverrait un clic sur l'intitulé au premier bouton. */
 function ChipsField({ label, children }: { label: string; children: ReactNode }) {
   return (
-    <fieldset className="flex flex-col gap-1.5">
-      <legend className="mb-1.5 text-g-axis font-semibold uppercase tracking-wider text-faint">
-        {label}
-      </legend>
+    <fieldset className="g-field">
+      <legend className="g-field-label">{label}</legend>
       <div className="flex flex-wrap gap-2">{children}</div>
     </fieldset>
   );

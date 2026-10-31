@@ -12,13 +12,6 @@ import type { MenuCategory, OptionGroup } from "@/lib/menu-data";
  * (sans itemId) sont gardés tels quels : la feuille ne sait plus en créer.
  */
 
-/**
- * « Proposé d'office » (décision 18) : le plat présélectionné d'une étape.
- * Demandé à la tête pour `Etape` (lib/gestion/types.ts, gelé) ; en attendant,
- * la clé voyage dans le JSON `etapes` sous ce type local.
- */
-export type EtapeAvecDefaut = Etape & { defaut?: string };
-
 export interface ArticleDraft {
   id: string;
   name: string;
@@ -74,10 +67,15 @@ export function modeleEtapes(
   return modele.map((name) => emptyEtape(name, modeleCategory(name, categories)?.id));
 }
 
-export function etapesToDraft(etapes: Etape[]): EtapeDraft[] {
+/**
+ * Le nom d'une étape posée sur une catégorie est celui de la catégorie tant que
+ * le gérant n'en a pas écrit un autre : il suit alors un changement de catégorie.
+ */
+export function etapesToDraft(etapes: Etape[], categories: MenuCategory[]): EtapeDraft[] {
   return etapes.map((etape) => ({
     id: etape.id,
-    name: etape.name,
+    name:
+      etape.name === categories.find((c) => c.id === etape.categoryId)?.name ? "" : etape.name,
     obligatoire: etape.obligatoire,
     categoryId: etape.categoryId,
     exclus: etape.exclus ?? [],
@@ -95,7 +93,7 @@ export function etapesToDraft(etapes: Etape[]): EtapeDraft[] {
       itemId: article.itemId,
       options: article.options,
     })),
-    defaut: (etape as EtapeAvecDefaut).defaut,
+    defaut: etape.defaut,
   }));
 }
 
@@ -129,7 +127,7 @@ export function draftToEtapes(
     const name =
       draft.name.trim() || category?.name || (articles.length ? LISTE_NAME : "");
     if (!name) return [];
-    const etape: EtapeAvecDefaut = {
+    const etape: Etape = {
       id: draft.id,
       name,
       obligatoire: draft.obligatoire,
@@ -146,6 +144,11 @@ export function draftToEtapes(
     }
     return [etape];
   });
+}
+
+/** L'ordre de la carte, pour ranger une liste fermée comme le menu la lit. */
+export function carteOrder(categories: MenuCategory[]): Map<string, number> {
+  return new Map(categories.flatMap((c) => c.items).map((item, index) => [item.id, index]));
 }
 
 /** Les choix qu'offre un brouillon d'étape, dans l'ordre de la carte. */

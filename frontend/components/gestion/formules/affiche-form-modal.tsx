@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { PhotoField } from "@/components/gestion/photo-field";
-import { GlassButton } from "@/components/gestion/ui";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field, GlassButton, Input, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 import type { Affiche } from "@/lib/gestion/types";
 
 export function AfficheFormModal({
@@ -18,7 +17,7 @@ export function AfficheFormModal({
   onClose: () => void;
 }) {
   const toast = useToast();
-  const form = useRef<HTMLFormElement>(null);
+  const formId = "affiche-form";
   const [image, setImage] = useState(affiche?.image ?? "");
   const [offres, setOffres] = useState(affiche ? String(affiche.offres) : "");
   const [submitted, setSubmitted] = useState(false);
@@ -26,6 +25,7 @@ export function AfficheFormModal({
 
   const parsedOffres = Number.parseInt(offres, 10);
   const offresValid = Number.isInteger(parsedOffres) && parsedOffres > 0;
+  const imageError = submitted && !image.trim() ? "Ajoutez l'image pour enregistrer." : undefined;
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -44,35 +44,31 @@ export function AfficheFormModal({
       }
       onClose();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Impossible d'enregistrer. Rechargez la page et réessayez."
-      );
+      toast.error(describeError(error).message);
       setSaving(false);
     }
   };
 
   return (
-    <Modal
+    <Sheet
       title={affiche ? "Modifier l'image" : "Image des offres"}
+      description="Un visuel qui présente vos offres côte à côte, avec leurs noms et leurs prix. Il défile en haut du menu ; sous lui, un bouton par formule ouvre sa composition."
       onClose={onClose}
       footer={
         <>
+          {saving && <p>Un instant…</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
-          <GlassButton variant="primary" disabled={saving} onClick={() => form.current?.requestSubmit()}>
-            {saving ? "Enregistrement…" : "Enregistrer"}
+          <GlassButton type="submit" form={formId} variant="primary" disabled={saving}>
+            Enregistrer
           </GlassButton>
         </>
       }
     >
-      <form ref={form} onSubmit={submit} noValidate className="flex flex-col gap-4">
-        <p className="text-g-meta text-muted">
-          Un visuel qui présente vos offres côte à côte, avec leurs noms et leurs
-          prix. Il défile en haut du menu ; sous lui, un bouton par formule ouvre sa composition.
-        </p>
+      <form id={formId} onSubmit={submit} noValidate className="flex flex-col gap-4">
         <PhotoField label="Image" value={image} onChange={setImage} alt="Aperçu de l'image des offres" />
-        {submitted && !image.trim() && (
-          <p role="alert" className="-mt-2 text-g-meta font-medium text-ember-3">
-            Ajoutez l&rsquo;image pour enregistrer.
+        {imageError && (
+          <p role="alert" className="g-field-error">
+            <span>{imageError}</span>
           </p>
         )}
         <Field
@@ -85,19 +81,16 @@ export function AfficheFormModal({
           }
           error={submitted && !offresValid ? "Indiquez au moins une offre." : undefined}
         >
-          <input
+          <Input
+            numeric
+            inputMode="numeric"
             value={offres}
             onChange={(event) => setOffres(event.target.value)}
-            type="number"
-            inputMode="numeric"
-            min={1}
-            step={1}
             placeholder="2"
-            aria-invalid={submitted && !offresValid ? true : undefined}
-            className={`${inputClass} max-w-32`}
+            className="max-w-32"
           />
         </Field>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

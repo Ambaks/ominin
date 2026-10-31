@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { EditIcon, TrashIcon } from "@/components/gestion/icons";
-import { GlassButton, Plate } from "@/components/gestion/ui";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { inputClass } from "@/components/ui/field";
+import { ChevronDownIcon, EditIcon, TrashIcon } from "@/components/gestion/icons";
+import { ConfirmSheet, Field, GlassButton, Plate, Select } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import type { Affiche, Formule } from "@/lib/gestion/types";
@@ -31,6 +29,8 @@ export function Presentation({
   const [editing, setEditing] = useState<Affiche | null>(null);
   const [deleting, setDeleting] = useState<Affiche | null>(null);
   const unplaced = formules.filter((formule) => !formule.affiche);
+  // Ouvert à l'arrivée seulement : supprimer la dernière image ne replie rien.
+  const [initiallyOpen] = useState(affiches.length > 0);
 
   if (affiches.length === 0 && !canEdit) return null;
 
@@ -40,12 +40,13 @@ export function Presentation({
   };
 
   return (
-    <details open={affiches.length > 0} className="group">
-      <summary className="flex min-h-g-control cursor-pointer list-none items-center gap-2 font-display text-g-h2 [&::-webkit-details-marker]:hidden">
-        Présentation
-        <span className="font-sans text-g-meta font-normal text-muted">
+    <details open={initiallyOpen} className="group">
+      <summary className="flex min-h-g-control cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-0.5 [&::-webkit-details-marker]:hidden">
+        <ChevronDownIcon className="size-4 shrink-0 -rotate-90 text-muted transition-transform group-open:rotate-0 motion-reduce:transition-none" />
+        <span className="text-g-body font-semibold">Présentation</span>
+        <span className="text-g-meta text-muted">
           {affiches.length === 0
-            ? "vos formules sur une seule image, en haut du menu"
+            ? "une image avec plusieurs offres cliquables, en haut du menu"
             : `${affiches.length} image${affiches.length > 1 ? "s" : ""} en haut du menu`}
         </span>
       </summary>
@@ -85,11 +86,8 @@ export function Presentation({
                   );
                   const options = [...(current ? [current] : []), ...unplaced];
                   return (
-                    <label key={rang} className="flex flex-col gap-1.5">
-                      <span className="text-g-axis font-semibold uppercase tracking-wider text-faint">
-                        Offre {rang}
-                      </span>
-                      <select
+                    <Field key={rang} label={`Offre ${rang}`}>
+                      <Select
                         value={current?.id ?? ""}
                         disabled={!canEdit}
                         onChange={(event) =>
@@ -98,7 +96,6 @@ export function Presentation({
                             event.target.value ? "Formule placée sur l'image." : "Formule retirée de l'image."
                           )
                         }
-                        className={inputClass}
                       >
                         <option value="">Aucune formule</option>
                         {options.map((formule) => (
@@ -106,8 +103,8 @@ export function Presentation({
                             {formule.name} · {formatPrice(formule.price)}
                           </option>
                         ))}
-                      </select>
-                    </label>
+                      </Select>
+                    </Field>
                   );
                 })}
               </div>
@@ -137,10 +134,10 @@ export function Presentation({
       )}
 
       {deleting && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Supprimer cette image ?"
-          message="Ses formules restent en vente, en tuiles sur le menu."
-          confirmLabel="Supprimer"
+          text="Ses formules restent en vente, en tuiles sur le menu."
+          confirmLabel="Supprimer l'image"
           destructive
           onClose={() => setDeleting(null)}
           onConfirm={() =>

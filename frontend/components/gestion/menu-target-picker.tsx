@@ -1,5 +1,6 @@
 "use client";
 
+import { Checkbox } from "@/components/gestion/ui";
 import type { MenuTarget } from "@/lib/gestion/types";
 import type { MenuCategory } from "@/lib/menu-data";
 
@@ -45,28 +46,24 @@ export function MenuTargetPicker({
     );
 
   return (
-    <div className="flex flex-col gap-2">
-      <span className="text-g-axis font-semibold uppercase tracking-wider text-faint">
-        {label} <span className="text-ember-2">*</span>
-      </span>
-      <p className="text-g-meta text-muted">
-        Cochez une catégorie entière et les articles que vous y ajouterez
-        plus tard suivront d&apos;eux-mêmes.
+    <fieldset className="g-field">
+      <legend className="g-field-label">
+        {label}
+        <b aria-hidden>*</b>
+      </legend>
+      <p className="g-field-hint">
+        Cochez une catégorie entière et les articles que vous y ajouterez plus tard suivront d&apos;eux-mêmes.
       </p>
-      <div className="g-plate flex flex-col gap-3 p-4">
+      <div className="g-plate flex flex-col gap-1 p-3">
         {categories.map((category) => {
           const wholeCategory = picked({ kind: "category", id: category.id });
           return (
             <div key={category.id} className="flex flex-col">
-              <label className="flex min-h-g-control items-center gap-2.5 text-g-body font-medium">
-                <input
-                  type="checkbox"
-                  checked={wholeCategory}
-                  onChange={() => toggle({ kind: "category", id: category.id })}
-                  className="size-4 accent-ember-2"
-                />
-                {category.name}
-              </label>
+              <Checkbox
+                checked={wholeCategory}
+                onChange={() => toggle({ kind: "category", id: category.id })}
+                label={<span className="font-semibold">{category.name}</span>}
+              />
               <div className="flex flex-col pl-7">
                 {category.items.map((item) => {
                   const wholeItem = wholeCategory || picked({ kind: "item", id: item.id });
@@ -75,43 +72,27 @@ export function MenuTargetPicker({
                     : [];
                   return (
                     <div key={item.id} className="flex flex-col">
-                      <label
-                        className={`flex min-h-g-control items-center gap-2.5 text-g-body ${
-                          wholeCategory ? "text-faint" : "text-muted"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={wholeItem}
-                          disabled={wholeCategory}
-                          onChange={() => toggle({ kind: "item", id: item.id })}
-                          className="size-4 accent-ember-2"
-                        />
-                        {item.name}
-                      </label>
+                      <Checkbox
+                        checked={wholeItem}
+                        disabled={wholeCategory}
+                        onChange={() => toggle({ kind: "item", id: item.id })}
+                        label={item.name}
+                      />
                       {choices.length > 0 && (
                         <div className="flex flex-wrap gap-x-4 pl-7">
                           {choices.map((choice) => (
-                            <label
+                            <Checkbox
                               key={choice.id}
-                              className={`flex min-h-g-control items-center gap-2 text-g-meta ${
-                                wholeItem ? "text-faint" : "text-muted"
-                              }`}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={
-                                  wholeItem ||
-                                  picked({ kind: "item", id: item.id, choiceId: choice.id })
-                                }
-                                disabled={wholeItem}
-                                onChange={() =>
-                                  toggle({ kind: "item", id: item.id, choiceId: choice.id })
-                                }
-                                className="size-4 accent-ember-2"
-                              />
-                              {choice.name}
-                            </label>
+                              checked={
+                                wholeItem ||
+                                picked({ kind: "item", id: item.id, choiceId: choice.id })
+                              }
+                              disabled={wholeItem}
+                              onChange={() =>
+                                toggle({ kind: "item", id: item.id, choiceId: choice.id })
+                              }
+                              label={choice.name}
+                            />
                           ))}
                         </div>
                       )}
@@ -123,6 +104,6 @@ export function MenuTargetPicker({
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }

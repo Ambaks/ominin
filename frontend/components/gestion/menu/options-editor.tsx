@@ -1,10 +1,8 @@
 "use client";
 
 import { ChevronDownIcon, XIcon } from "@/components/gestion/icons";
-import { inputClass } from "@/components/ui/field";
-import { GlassButton } from "@/components/gestion/ui";
-import { PriceInput } from "@/components/ui/price-input";
-import { Toggle } from "@/components/ui/toggle";
+import { GlassButton, Input, Select, Switch } from "@/components/gestion/ui";
+import { PrixInput } from "./prix-input";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import type { MenuItem, OptionGroup } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
@@ -169,13 +167,13 @@ export function OptionsEditor({
           className="g-plate flex flex-col gap-3 p-3"
         >
           <div className="flex items-center gap-2">
-            <input
+            <Input
               value={group.name}
               onChange={(event) =>
                 patchGroup(group.id, { name: event.target.value })
               }
-              placeholder="Nom du groupe (ex. Taille)"
-              className={inputClass}
+              placeholder="Taille"
+              aria-label="Nom du groupe d'options"
             />
             <GlassButton
               variant="icon"
@@ -186,16 +184,16 @@ export function OptionsEditor({
             </GlassButton>
           </div>
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className="flex items-center gap-2 text-g-label text-muted">
-              <Toggle
+            <span className="flex items-center gap-2 text-g-label text-muted">
+              <Switch
                 checked={group.obligatoire}
                 onChange={(checked) =>
                   patchGroup(group.id, { obligatoire: checked })
                 }
-                label="Groupe obligatoire"
+                aria-label="Choix obligatoire"
               />
-              Obligatoire
-            </label>
+              Le client doit choisir
+            </span>
             <div className="flex gap-2">
               <MoveButtons
                 index={groupIndex}
@@ -209,22 +207,24 @@ export function OptionsEditor({
           <div className="flex flex-col gap-2">
             {group.choices.map((choice, choiceIndex) => (
               <div key={choice.id} className="flex flex-wrap items-center gap-2">
-                <input
+                <Input
                   value={choice.name}
                   onChange={(event) =>
                     patchChoice(group.id, choice.id, {
                       name: event.target.value,
                     })
                   }
-                  placeholder="Choix"
-                  className={`${inputClass} min-w-40 flex-1`}
+                  placeholder="Grande"
+                  aria-label="Nom du choix"
+                  className="min-w-40 flex-1"
                 />
-                <PriceInput
+                <PrixInput
                   value={choice.supplement}
                   onChange={(supplement) =>
                     patchChoice(group.id, choice.id, { supplement })
                   }
                   placeholder="+0,00"
+                  aria-label="Supplément du choix"
                   className="w-28 shrink-0"
                 />
                 <MoveButtons
@@ -284,8 +284,9 @@ export function OptionsEditor({
           + Groupe d’options
         </GlassButton>
         {importCandidates.length > 0 && (
-          <select
+          <Select
             value=""
+            aria-label="Importer les options d'un autre article"
             onChange={(event) => {
               const source = importCandidates.find(
                 (item) => item.id === event.target.value
@@ -294,7 +295,6 @@ export function OptionsEditor({
                 onChange([...value, ...optionsToDraft(source.options, true)]);
               }
             }}
-            className={`${inputClass} w-auto rounded-full`}
           >
             <option value="">Importer depuis un article…</option>
             {importCandidates.map((item) => (
@@ -302,7 +302,7 @@ export function OptionsEditor({
                 {item.name}
               </option>
             ))}
-          </select>
+          </Select>
         )}
       </div>
     </div>

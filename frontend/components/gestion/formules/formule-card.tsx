@@ -1,12 +1,11 @@
 "use client";
 
-import type { CSSProperties } from "react";
 import { ClockIcon, EditIcon, TrashIcon } from "@/components/gestion/icons";
-import { Chip, GlassButton, Plate } from "@/components/gestion/ui";
+import { Chip, GlassButton, Plate, Switch } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
-import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
 import { formatHeure } from "@/lib/gestion/fermetures";
+import { WEEK_DAYS } from "@/lib/gestion/constants";
 import { formatDays } from "@/lib/gestion/format";
 import { etapeArticles } from "@/lib/gestion/formules";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
@@ -25,15 +24,27 @@ export function formuleSchedule(formule: Pick<Formule, "days" | "hours">): strin
     .join(" ");
 }
 
+/** La même chose, courte, pour une pastille : « lun.–ven. 11 h 30 – 14 h 30 ». */
+function shortSchedule(formule: Pick<Formule, "days" | "hours">): string {
+  const abbr = (iso: number) => `${WEEK_DAYS.find((day) => day.iso === iso)!.long.slice(0, 3)}.`;
+  const days = formule.days && [...formule.days].sort((a, b) => a - b);
+  const contiguous =
+    days && days.length > 2 && days.every((day, index) => index === 0 || day === days[index - 1] + 1);
+  return [
+    days && (contiguous ? `${abbr(days[0])}–${abbr(days[days.length - 1])}` : days.map(abbr).join(", ")),
+    formule.hours && `${formatHeure(formule.hours.startsAt)} – ${formatHeure(formule.hours.endsAt)}`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 export function FormuleCard({
   formule,
-  index = 0,
   placed = false,
   onEdit,
   onDelete,
 }: {
   formule: Formule;
-  index?: number;
   /** Présentée sur une image (affiche) plutôt qu'en tuile. */
   placed?: boolean;
   onEdit: () => void;
@@ -47,10 +58,10 @@ export function FormuleCard({
   const schedule = formuleSchedule(formule);
 
   return (
-    <Plate className="g-rise flex flex-col gap-3 p-4" style={{ "--g-i": index } as CSSProperties}>
+    <Plate className="flex flex-col gap-3 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h3 className="text-g-body font-semibold">
+          <h3 className="text-g-body font-semibold break-words">
             {canEdit ? (
               <button type="button" tabIndex={-1} onClick={onEdit} className="cursor-pointer text-left">
                 <span className="line-clamp-2">{formule.name}</span>
@@ -70,18 +81,22 @@ export function FormuleCard({
 
       <div className="flex flex-wrap gap-1.5">
         {formule.etapes.map((etape) => (
-          <Chip key={etape.id}>
-            {etape.name} · {etapeArticles(etape, categories).length}
-          </Chip>
+          <span key={etape.id} className="g-chip max-w-full truncate">
+            {etape.name} · {etapeArticles(etape, categories).length} choix
+          </span>
         ))}
-        {schedule && <Chip icon={<ClockIcon />}>{schedule}</Chip>}
+        {schedule && (
+          <span title={`Proposée ${schedule}`}>
+            <Chip icon={<ClockIcon />}>{shortSchedule(formule)}</Chip>
+          </span>
+        )}
         {placed && <Chip>Sur l&rsquo;image</Chip>}
         {incomplete && <Chip tone="problem">À compléter</Chip>}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-2 border-t border-hairline pt-3">
-        <label className="flex min-h-g-control items-center gap-2 text-g-label text-muted">
-          <Toggle
+        <span className="flex min-h-g-control items-center gap-2 text-g-label text-muted">
+          <Switch
             checked={formule.disponible}
             disabled={!canEdit}
             onChange={(checked) =>
@@ -90,10 +105,10 @@ export function FormuleCard({
                 checked ? "Formule remise en vente." : "Formule retirée de la vente."
               )
             }
-            label={`Disponibilité de ${formule.name}`}
+            aria-label={`${formule.name} en vente`}
           />
           {formule.disponible ? "En vente" : "Retirée"}
-        </label>
+        </span>
         {canEdit && (
           <span className="flex gap-1.5">
             <GlassButton variant="icon" onClick={onEdit} aria-label={`Modifier ${formule.name}`}>
