@@ -62,6 +62,11 @@ Backend (run from `backend/`):
 - Backend settings come only from `app/config.py` / environment variables —
   never hardcode secrets or URLs.
 - CORS is restricted to the frontend origin (see `FRONTEND_ORIGIN` env var).
+- Lists are paged at the database, never loaded whole: `LIST_PAGE_SIZES` (10 by
+  default, 25 on request) with « Voir plus » adding one page at a time, the
+  total coming from the query, and search running on the server. In gestion,
+  use `ListPager`. A list that can't outgrow a screen (a venue's rewards, say)
+  is exempt.
 
 ## Code quality
 

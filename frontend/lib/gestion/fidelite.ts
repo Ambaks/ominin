@@ -37,12 +37,17 @@ export interface LoyaltyCustomer {
 export interface LoyaltyData {
   settings: LoyaltySettings;
   tiers: LoyaltyTier[];
+}
+
+export interface LoyaltyCustomersPage {
   customers: LoyaltyCustomer[];
+  /** Tous ceux qui correspondent à la recherche, pas seulement cette page. */
+  total: number;
 }
 
 export async function loadLoyalty(etablissementId: string): Promise<LoyaltyData> {
   const supabase = createClient();
-  const [etab, tiers, customers] = await Promise.all([
+  const [etab, tiers] = await Promise.all([
     supabase
       .from("etablissements")
       .select("loyalty_enabled, loyalty_points_per_euro")
@@ -53,9 +58,6 @@ export async function loadLoyalty(etablissementId: string): Promise<LoyaltyData>
       .select("id, label, points, loyalty_reward_items(item_id)")
       .eq("etablissement_id", etablissementId)
       .order("points"),
-    supabase.rpc("loyalty_customers_summary", {
-      p_etablissement_id: etablissementId,
-    }),
   ]);
   const settings = must(etab);
   return {
@@ -69,13 +71,33 @@ export async function loadLoyalty(etablissementId: string): Promise<LoyaltyData>
       points: tier.points,
       itemIds: tier.loyalty_reward_items.map((link) => link.item_id),
     })),
-    customers: must(customers).map((customer) => ({
+  };
+}
+
+/** Une page de clients, les plus récemment actifs d'abord ; `search` est déjà normalisé. */
+export async function loadLoyaltyCustomers(
+  etablissementId: string,
+  search: string,
+  limit: number,
+  offset: number
+): Promise<LoyaltyCustomersPage> {
+  const rows = must(
+    await createClient().rpc("loyalty_customers_page", {
+      p_etablissement_id: etablissementId,
+      p_search: search,
+      p_limit: limit,
+      p_offset: offset,
+    })
+  );
+  return {
+    customers: rows.map((customer) => ({
       id: customer.id,
       contact: customer.contact,
       points: customer.points,
       lastActivity: customer.last_activity,
       hubriseCustomerId: customer.hubrise_customer_id ?? undefined,
     })),
+    total: rows[0]?.total ?? 0,
   };
 }
 
@@ -175,43 +197,63 @@ export async function eraseCustomer(
   );
 }
 
-/** Une semaine du programme (du lundi, heure de Paris). */
-export interface LoyaltyWeek {
-  /** Lundi de la semaine, AAAA-MM-JJ. */
-  week: string;
+/** Une case de la série : un jour, ou une semaine (du lundi, heure de Paris). */
+export interface LoyaltyBucket {
+  /** Son premier jour, AAAA-MM-JJ. */
+  bucket: string;
+  /** Faux avant la première carte : il n'y avait pas encore de programme. */
+  active: boolean;
   paidOrders: number;
   cardOrders: number;
   rewardsUsed: number;
+  /** Clients avec carte à la fin de la case. */
+  members: number;
   newMembers: number;
+  /** Téléphones reconnus à la fin de la case. */
+  phones: number;
+  newPhones: number;
 }
 
 export interface LoyaltyStats {
-  weeks: LoyaltyWeek[];
   members: number;
   returningMembers: number;
   rememberedPhones: number;
   pointsOutstanding: number;
 }
 
-/** Les résultats du programme, en tête de l'onglet. */
+/** Les totaux du programme, en tête de l'onglet. */
 export async function loadLoyaltyStats(etablissementId: string): Promise<LoyaltyStats> {
-  const supabase = createClient();
-  const [weeks, members] = await Promise.all([
-    supabase.rpc("loyalty_stats_weeks", { p_etablissement_id: etablissementId }),
-    supabase.rpc("loyalty_stats_members", { p_etablissement_id: etablissementId }),
-  ]);
-  const totals = must(members)[0];
+  const totals = must(
+    await createClient().rpc("loyalty_stats_members", { p_etablissement_id: etablissementId })
+  )[0];
   return {
-    weeks: must(weeks).map((row) => ({
-      week: row.week,
-      paidOrders: row.paid_orders,
-      cardOrders: row.card_orders,
-      rewardsUsed: row.rewards_used,
-      newMembers: row.new_members,
-    })),
     members: totals?.members ?? 0,
     returningMembers: totals?.returning_members ?? 0,
     rememberedPhones: totals?.remembered_phones ?? 0,
     pointsOutstanding: totals?.points_outstanding ?? 0,
   };
+}
+
+/** `days` : ces jours et ceux d'avant, du plus ancien au plus récent. Null : toutes les semaines. */
+export async function loadLoyaltySeries(
+  etablissementId: string,
+  days: number | null
+): Promise<LoyaltyBucket[]> {
+  const rows = must(
+    await createClient().rpc("loyalty_stats_series", {
+      p_etablissement_id: etablissementId,
+      p_days: days,
+    })
+  );
+  return rows.map((row) => ({
+    bucket: row.bucket,
+    active: row.active,
+    paidOrders: row.paid_orders,
+    cardOrders: row.card_orders,
+    rewardsUsed: row.rewards_used,
+    members: row.members,
+    newMembers: row.new_members,
+    phones: row.phones,
+    newPhones: row.new_phones,
+  }));
 }

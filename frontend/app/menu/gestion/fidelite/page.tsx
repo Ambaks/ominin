@@ -14,6 +14,7 @@ import {
   Field,
   GlassButton,
   Input,
+  ListPager,
   Plate,
   ReserveGerant,
   SectionHeading,
@@ -39,6 +40,7 @@ import {
 } from "@/lib/gestion/fidelite";
 import { formatDateTime } from "@/lib/gestion/format";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import { useLoyaltyCustomers } from "@/lib/gestion/use-loyalty-customers";
 import { syncTill } from "@/lib/hubrise/kick";
 import type { MenuCategory } from "@/lib/menu-data";
 
@@ -82,7 +84,7 @@ function LoyaltyManager({
   const [tierToDelete, setTierToDelete] = useState<LoyaltyTier | null>(null);
   const [adjusting, setAdjusting] = useState<Adjusting>(null);
   const [customerToErase, setCustomerToErase] = useState<LoyaltyCustomer | null>(null);
-  const [search, setSearch] = useState("");
+  const clients = useLoyaltyCustomers(etablissementId);
 
   const report = useCallback((error: unknown) => toast.error(describeError(error).message), [toast]);
 
@@ -202,7 +204,7 @@ function LoyaltyManager({
       await adjustPoints(etablissementId, contact, points);
       toast.success(`${points > 0 ? "+" : ""}${count(points)} points pour ${contact}.`);
       setAdjusting(null);
-      await refresh();
+      await Promise.all([refresh(), clients.reload()]);
     } catch (error) {
       report(error);
     }
@@ -215,17 +217,13 @@ function LoyaltyManager({
       await eraseCustomer(etablissementId, customer.id);
       syncTill(hubriseConnected);
       toast.success("Client effacé.");
-      await refresh();
+      await Promise.all([refresh(), clients.reload()]);
     } catch (error) {
       report(error);
     }
   };
 
-  const query = search.trim().toLowerCase().replace(/\s/g, "");
-  const customers = query
-    ? data.customers.filter((customer) => customer.contact.toLowerCase().includes(query))
-    : data.customers;
-  const hasResults = stats !== null && stats.weeks.length > 0;
+  const hasResults = stats !== null && stats.members > 0;
   const enabled = data.settings.enabled;
   let block = 0;
 
@@ -234,18 +232,13 @@ function LoyaltyManager({
       {loadError != null && <ErrorNotice error={loadError} onRetry={() => void refresh()} />}
 
       {(hasResults || statsError != null) && (
-        <section className="g-rise grid gap-4" style={rise(block++)} aria-labelledby="fidelite-resultats">
-          <SectionHeading
-            id="fidelite-resultats"
-            title="Résultats"
-            sub={hasResults ? `${plural(stats.weeks.length, "semaine", "semaines")} de programme` : undefined}
-          />
+        <div className="g-rise" style={rise(block++)}>
           {hasResults ? (
-            <LoyaltyResults stats={stats} />
+            <LoyaltyResults etablissementId={etablissementId} stats={stats} />
           ) : (
             <ErrorNotice error={statsError} onRetry={() => void refresh()} />
           )}
-        </section>
+        </div>
       )}
 
       <div className="grid gap-6 lg:grid-cols-[5fr_7fr] lg:items-start">
@@ -373,31 +366,41 @@ function LoyaltyManager({
           <SectionHeading
             id="fidelite-clients"
             title="Clients"
-            sub={data.customers.length ? `${count(data.customers.length)} avec une carte` : undefined}
+            sub={
+              clients.total == null || clients.total === 0
+                ? undefined
+                : clients.query
+                  ? plural(clients.total, "trouvé", "trouvés")
+                  : `${count(clients.total)} avec une carte`
+            }
             right={<GlassButton onClick={() => setAdjusting({ customer: null })}>Offrir des points</GlassButton>}
           />
-          {data.customers.length === 0 ? (
+          {clients.error != null && clients.total == null ? (
+            <ErrorNotice error={clients.error} onRetry={() => void clients.reload()} />
+          ) : clients.total == null ? (
+            <Shimmer className="h-[calc(var(--g-row-h)*4)]" />
+          ) : clients.total === 0 && !clients.query ? (
             <EmptyState text="Pas encore de client : ils apparaissent à leur première commande avec leur numéro ou leur email." />
           ) : (
             <Plate>
               <div className="px-4 pt-4">
                 <Input
                   type="search"
-                  value={search}
-                  onChange={(event) => setSearch(event.target.value)}
+                  value={clients.search}
+                  onChange={(event) => clients.setSearch(event.target.value)}
                   placeholder="06 12 34 56 78"
                   aria-label="Rechercher un client par numéro ou email"
                   enterKeyHint="search"
                   autoComplete="off"
                 />
               </div>
-              {customers.length === 0 ? (
+              {clients.customers.length === 0 ? (
                 <p role="status" className="px-5 py-6 text-center text-muted">
                   Aucun client ne correspond.
                 </p>
               ) : (
                 <ul className="m-0 mt-2 list-none p-0" aria-label="Clients du programme">
-                  {customers.map((customer) => (
+                  {clients.customers.map((customer) => (
                     <li key={customer.id} className="border-t border-hairline">
                       <button
                         type="button"
@@ -422,6 +425,14 @@ function LoyaltyManager({
                   ))}
                 </ul>
               )}
+              <ListPager
+                shown={clients.customers.length}
+                total={clients.total}
+                pageSize={clients.pageSize}
+                loading={clients.loading}
+                onPageSize={clients.setPageSize}
+                onMore={() => void clients.showMore()}
+              />
             </Plate>
           )}
         </section>
