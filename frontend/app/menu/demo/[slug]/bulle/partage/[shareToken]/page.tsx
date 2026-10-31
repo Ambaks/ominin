@@ -1,7 +1,7 @@
-import BullePartagePage from "@/app/menu/m/[slug]/bulle/partage/[shareToken]/page";
+import BullePartagePage from "@/app/menu/w/[slug]/bulle/partage/[shareToken]/page";
 import { demoParams } from "@/lib/bulles/demo-params";
 
-export { metadata } from "@/app/menu/m/[slug]/bulle/partage/[shareToken]/page";
+export { metadata } from "@/app/menu/w/[slug]/bulle/partage/[shareToken]/page";
 
 /* Les places se prennent pendant qu'on lit la page : relu à chaque visite. */
 export const dynamic = "force-dynamic";

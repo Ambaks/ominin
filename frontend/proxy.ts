@@ -148,6 +148,7 @@ const PRODUCTS: readonly ProductConfig[] = [
     afterLogin: "/gestion",
     legacyPaths: [
       "/m",
+      "/w",
       "/gestion",
       "/login",
       "/connexion",

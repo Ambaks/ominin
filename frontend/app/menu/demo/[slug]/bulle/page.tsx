@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import BullePage, { generateMetadata as bulleMetadata } from "@/app/menu/m/[slug]/bulle/page";
+import BullePage, { generateMetadata as bulleMetadata } from "@/app/menu/w/[slug]/bulle/page";
 import { demoParams } from "@/lib/bulles/demo-params";
 
 /* Réserver une bulle sur la démonstration : paiement de démonstration, aucun débit. */

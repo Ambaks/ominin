@@ -6,14 +6,15 @@ import { SiteMotion } from "@/components/sites/motion";
 import { fetchBulleOffer } from "@/lib/bulles/public";
 import { bohoFontVariables } from "@/lib/menu/brand-fonts";
 import { fetchRestaurant } from "@/lib/public-menu";
-import { BOHO_SITE_SLUG, BOHO_THEME_COLOR, bohoPhotos } from "@/lib/sites/boho";
+import { BOHO_THEME_COLOR, bohoPhotos } from "@/lib/sites/boho";
+import { isSiteOpen } from "@/lib/sites/public";
 import "@/components/sites/boho/boho.css";
 
 /*
- * Le site du Boho, sous le menu de l'établissement qui le porte
- * (BOHO_SITE_SLUG : sa démonstration avant la vente) en attendant un domaine
- * à lui. Tout autre établissement n'a pas cette page. Rendu puis revalidé comme le menu : la carte et les
- * horaires suivent la gestion sans toucher la base à chaque visite.
+ * Le site d'un établissement, ouvert par la capacité « Site web », en attendant
+ * un domaine à lui. Seul le Boho en a un pour l'instant. Rendu puis revalidé
+ * comme le menu : la carte et les horaires suivent la gestion sans toucher la
+ * base à chaque visite. Cocher ou décocher la case prend effet dans ce délai.
  */
 export const revalidate = 60;
 
@@ -22,15 +23,20 @@ export async function generateStaticParams() {
 }
 
 const getRestaurant = cache(fetchRestaurant);
+const getSiteOpen = cache(isSiteOpen);
+const getOffer = cache(fetchBulleOffer);
 
-const description =
-  "Restaurant chicha à l'ambiance bohème, avenue des États-Unis à Toulouse : grillades, cocktails, chichas, et des bulles chauffées à réserver dans le jardin.";
+const DESCRIPTION =
+  "Restaurant chicha à l'ambiance bohème, avenue des États-Unis à Toulouse : grillades, cocktails, chichas";
 
 export async function generateMetadata({
   params,
-}: PageProps<"/menu/m/[slug]/site">): Promise<Metadata> {
+}: PageProps<"/menu/w/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  if (slug !== BOHO_SITE_SLUG) notFound();
+  if (!(await getSiteOpen(slug))) notFound();
+  const description = (await getOffer(slug))
+    ? `${DESCRIPTION}, et des bulles chauffées à réserver dans le jardin.`
+    : `${DESCRIPTION}.`;
   return {
     title: "BOHO · Restaurant chicha à Toulouse",
     description,
@@ -50,10 +56,10 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default async function BohoSitePage({ params }: PageProps<"/menu/m/[slug]/site">) {
+export default async function BohoSitePage({ params }: PageProps<"/menu/w/[slug]">) {
   const { slug } = await params;
-  if (slug !== BOHO_SITE_SLUG) notFound();
-  const [data, offer] = await Promise.all([getRestaurant(slug), fetchBulleOffer(slug)]);
+  if (!(await getSiteOpen(slug))) notFound();
+  const [data, offer] = await Promise.all([getRestaurant(slug), getOffer(slug)]);
   if (!data) notFound();
 
   return (

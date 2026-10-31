@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default async function BullePartagePage({ params }: PageProps<"/menu/m/[slug]/bulle/partage/[shareToken]">) {
+export default async function BullePartagePage({ params }: PageProps<"/menu/w/[slug]/bulle/partage/[shareToken]">) {
   const { slug, shareToken } = await params;
   if (!isShareToken(shareToken)) notFound();
   const ticket = await fetchBulleTicket({ shareToken });

@@ -2,20 +2,21 @@ import { BOHO_DEMO_PATH, BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
 import { menuSiteUrl } from "@/lib/site";
 
 /*
- * Les pages publiques d'un établissement à bulles vivent sous son menu
- * (menu.ominin.com/m/<slug>/…) ; celles de la démonstration du Boho sous
- * /demo/boho. Absolues, elles marchent aussi bien dans un e-mail que sous la
+ * Le site d'un établissement et ses réservations vivent sous
+ * menu.ominin.com/w/<slug> ; ceux de la démonstration du Boho sous /demo/boho.
+ * Absolues, elles marchent aussi bien dans un e-mail que sous la
  * forme préfixée /menu du domaine principal.
  */
 const publicBase = (slug: string) =>
-  slug === BOHO_DEMO_SLUG ? `${menuSiteUrl}${BOHO_DEMO_PATH}` : `${menuSiteUrl}/m/${slug}`;
+  slug === BOHO_DEMO_SLUG ? `${menuSiteUrl}${BOHO_DEMO_PATH}` : `${menuSiteUrl}/w/${slug}`;
 
 /** La carte (le menu QR) de l'établissement. */
 export const carteUrl = (slug: string) =>
-  slug === BOHO_DEMO_SLUG ? `${publicBase(slug)}/carte` : publicBase(slug);
+  slug === BOHO_DEMO_SLUG ? `${publicBase(slug)}/carte` : `${menuSiteUrl}/m/${slug}`;
 
 /** Son site. */
-export const siteUrlOf = (slug: string) => `${publicBase(slug)}/site`;
+export const siteUrlOf = (slug: string) =>
+  slug === BOHO_DEMO_SLUG ? `${publicBase(slug)}/site` : publicBase(slug);
 
 export const bulleUrl = (slug: string) => `${publicBase(slug)}/bulle`;
 

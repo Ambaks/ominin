@@ -23,6 +23,7 @@ import {
 import type { Feature, OrderTab } from "@/lib/gestion/types";
 import { CategoryLayoutPicker } from "@/components/gestion/category-layout-settings";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
+import { hasBespokeSite } from "@/lib/sites/bespoke";
 import type { CategoryLayout } from "@/lib/menu-data";
 
 /*
@@ -468,6 +469,12 @@ export function Capabilities({
   const features = clientFeatures(client);
 
   const subscribed = client.products.offre != null || client.products.collect;
+  // Site et réservation portent l'identité de l'établissement : rien à ouvrir
+  // tant que son site n'a pas été développé.
+  const needsSite = (id: Feature | null) =>
+    (id === "site" || id === "bulles") && !hasBespokeSite(client.slug);
+  const siteHint = (id: Feature | null, hint: string) =>
+    needsSite(id) ? `${hint} Site à créer.` : hint;
 
   const set = async (feature: Feature, open: boolean) => {
     const overrides = nextOverrides(client, feature, open);
@@ -556,11 +563,11 @@ export function Capabilities({
                 hint={
                   view.id == null
                     ? `${view.hint} Toujours ouverte.`
-                    : view.hint
+                    : siteHint(view.id, view.hint)
                 }
                 checked={open}
                 fromPlan={view.id == null || client.overrides[view.id] == null}
-                disabled={saving || view.id == null}
+                disabled={saving || view.id == null || needsSite(view.id)}
                 onChange={
                   view.id
                     ? (value) => void set(view.id as Feature, value)
@@ -572,10 +579,10 @@ export function Capabilities({
                   key={feature.id}
                   nested
                   label={feature.label}
-                  hint={feature.hint}
+                  hint={siteHint(feature.id, feature.hint)}
                   checked={features[feature.id]}
                   fromPlan={client.overrides[feature.id] == null}
-                  disabled={saving || !open}
+                  disabled={saving || !open || needsSite(feature.id)}
                   onChange={(value) => void set(feature.id, value)}
                 />
               ))}
