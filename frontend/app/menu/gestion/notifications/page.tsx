@@ -295,7 +295,7 @@ function Fil({
       entity={calme ? "orders" : "problem"}
       eyebrow={calme ? "À régler" : `À régler · ${alertes.length}`}
       icon={calme ? <CheckIcon /> : <AlertIcon />}
-      className="g-rise [--g-i:1]"
+      i={1}
     >
       {calme && reading ? (
         <Plate aria-busy className="px-4 py-3.5">
