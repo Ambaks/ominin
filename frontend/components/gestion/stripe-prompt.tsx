@@ -32,7 +32,11 @@ export function StripePrompt() {
   useEffect(() => {
     if (!eligible) return;
     fetch("/api/stripe/connect")
-      .then((response) => response.json())
+      .then((response) => {
+        // Une session expirée n'est pas un compte à relier : sans réponse sûre, rien ne s'affiche.
+        if (!response.ok) throw response;
+        return response.json();
+      })
       .then((body: { chargesEnabled?: boolean }) => {
         setChargesEnabled(Boolean(body.chargesEnabled));
       })
@@ -63,7 +67,7 @@ export function StripePrompt() {
   return (
     <Plate
       data-visite="stripe"
-      className="g-money flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between"
+      className="g-rise g-money flex flex-col gap-4 p-5 lg:flex-row lg:items-center lg:justify-between"
     >
       <div className="min-w-0">
         <p className="g-eyebrow">Paiement en ligne</p>

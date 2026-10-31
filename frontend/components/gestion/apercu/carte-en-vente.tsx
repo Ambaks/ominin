@@ -6,7 +6,7 @@ import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
-import { isItemAvailable } from "@/lib/gestion/selectors";
+import { isItemAvailable, unavailableItems } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { hasBlockedRequiredGroup, type MenuItem } from "@/lib/menu-data";
@@ -92,18 +92,80 @@ function ArticleRow({
   );
 }
 
-export function CarteEnVente({ state }: { state: GestionState }) {
+/**
+ * L'écriture de « En vente » : l'état visé le temps de l'aller-retour pour que
+ * l'interrupteur réponde au doigt (le store le confirme, ou le rend sur erreur
+ * avec le toast), une écriture à la fois par article, et « Annuler » sur l'épuisé.
+ */
+function useEnVente() {
   const run = useRunMutation();
   const toast = useToast();
+  const [targets, setTargets] = useState<ReadonlyMap<string, boolean>>(new Map());
+  // Dans une ref : deux taps dans la même image voient déjà la première écriture.
+  const inFlight = useRef(new Set<string>());
+
+  const toggle = async (item: MenuItem, checked: boolean) => {
+    if (inFlight.current.has(item.id)) return;
+    inFlight.current.add(item.id);
+    setTargets((map) => new Map(map).set(item.id, checked));
+    await run(async () => {
+      await api.setItemAvailability(item.id, checked);
+      if (!checked) {
+        toast.notice(`« ${item.name} » épuisé.`, {
+          label: "Annuler",
+          onPress: () => void toggle(item, true),
+        });
+      }
+    });
+    inFlight.current.delete(item.id);
+    setTargets((map) => {
+      const next = new Map(map);
+      next.delete(item.id);
+      return next;
+    });
+  };
+
+  return { targets, toggle };
+}
+
+/** Les articles retirés de la vente, à l'Aperçu du gérant : le même geste, sans changer d'écran. */
+export function ArticlesEpuises({
+  state,
+  wide = false,
+}: {
+  state: GestionState;
+  /** Seul sur sa rangée : en colonnes, pour que l'interrupteur reste près du nom. */
+  wide?: boolean;
+}) {
+  const { targets, toggle } = useEnVente();
+  const now = useNow(WAIT_TICK_MS);
+  const closed = closedItems(
+    state.closures,
+    state.categories,
+    serviceClock(now, state.dayEndHour),
+    state.dayEndHour
+  );
+  return (
+    <ul role="list" className={`m-0 grid list-none p-0 sm:gap-2 ${wide ? "sm:grid-cols-2 xl:grid-cols-3" : ""}`}>
+      {unavailableItems(state).map((item) => (
+        <ArticleRow
+          key={item.id}
+          item={item}
+          target={targets.get(item.id)}
+          closedBy={closed.get(item.id)}
+          onToggle={(target, checked) => void toggle(target, checked)}
+        />
+      ))}
+    </ul>
+  );
+}
+
+export function CarteEnVente({ state }: { state: GestionState }) {
+  const { targets, toggle } = useEnVente();
   const now = useNow(WAIT_TICK_MS);
   const [query, setQuery] = useState("");
   const term = plain(useDeferredValue(query));
   const [onlyOut, setOnlyOut] = useState(false);
-  // L'état visé le temps de l'aller-retour : l'interrupteur répond au doigt,
-  // le store le confirme, ou le rend sur erreur, avec le toast.
-  const [targets, setTargets] = useState<ReadonlyMap<string, boolean>>(new Map());
-  // Une écriture à la fois par article, deux taps dans la même image compris.
-  const inFlight = useRef(new Set<string>());
 
   const items = state.categories.flatMap((category) => category.items);
   if (items.length === 0) {
@@ -126,27 +188,6 @@ export function CarteEnVente({ state }: { state: GestionState }) {
     .filter((group) => group.items.length > 0);
   // Le filtre se relâche de lui-même une fois le dernier épuisé remis en vente.
   const filtering = onlyOut && outCount > 0;
-
-  const toggle = async (item: MenuItem, checked: boolean) => {
-    if (inFlight.current.has(item.id)) return;
-    inFlight.current.add(item.id);
-    setTargets((map) => new Map(map).set(item.id, checked));
-    await run(async () => {
-      await api.setItemAvailability(item.id, checked);
-      if (!checked) {
-        toast.notice(`« ${item.name} » épuisé.`, {
-          label: "Annuler",
-          onPress: () => void toggle(item, true),
-        });
-      }
-    });
-    inFlight.current.delete(item.id);
-    setTargets((map) => {
-      const next = new Map(map);
-      next.delete(item.id);
-      return next;
-    });
-  };
 
   return (
     <Plate className="px-5 pb-3 pt-4.5">

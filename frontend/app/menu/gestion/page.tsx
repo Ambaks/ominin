@@ -3,7 +3,8 @@
 import { useEffect, useState, type CSSProperties, type HTMLAttributes, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { CuisinierApercu } from "@/components/gestion/apercu/cuisinier-apercu";
-import { MiseEnRoute } from "@/components/gestion/apercu/mise-en-route";
+import { ArticlesEpuises } from "@/components/gestion/apercu/carte-en-vente";
+import { MiseEnRoute, miseEnRouteDue } from "@/components/gestion/apercu/mise-en-route";
 import { ServeurApercu } from "@/components/gestion/apercu/serveur-apercu";
 import { FermeturesEnCours } from "@/components/gestion/fermetures-en-cours";
 import {
@@ -16,7 +17,6 @@ import {
 import { StripePrompt } from "@/components/gestion/stripe-prompt";
 import {
   Bars,
-  Chip,
   EmptyState,
   GlassButton,
   Plate,
@@ -27,19 +27,23 @@ import {
   type DeltaTone,
 } from "@/components/gestion/ui";
 import { formatPercent } from "@/lib/admin/format";
-import { ACCORD_SOURCE_LABELS, ANALYTICS_PERIOD_DAYS } from "@/lib/gestion/constants";
+import { ACCORD_SOURCE_LABELS, ANALYTICS_PERIOD_DAYS, SMALL_BASE } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu/format";
 import {
   accordStats,
   awaitsPayment,
   hasAccordSales,
+  isPaid,
   isPickupShop,
   openOrders,
+  orderTotal,
   ordersByHour,
+  paidAt,
   periodStats,
   revenueByDay,
   revenueToday,
   serviceDate,
+  serviceDayKey,
   tipsTotal,
   topVentes,
   topVentesToday,
@@ -48,6 +52,7 @@ import {
   type VenteEntry,
 } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import type { GestionState } from "@/lib/gestion/types";
 
 type Period = (typeof ANALYTICS_PERIOD_DAYS)[number];
 type PeriodKey = `${Period}`;
@@ -80,14 +85,44 @@ function niceTicks(max: number, lines: number): number[] {
   return Array.from({ length: lines + 1 }, (_, i) => i * step);
 }
 
-/** Écart signé et coloré par le sens ; rien sans base de comparaison. */
-function delta(current: number, previous: number): { text: string; tone: DeltaTone } | undefined {
-  if (previous <= 0) return undefined;
+function delta(current: number, previous: number): { text: string; tone: DeltaTone } {
   const ratio = (current - previous) / previous;
   return {
     text: `${ratio > 0 ? "+" : ""}${formatPercent(ratio)}`,
     tone: ratio > 0 ? "better" : ratio < 0 ? "worse" : "neutral",
   };
+}
+
+/** Ce qu'on avait encaissé le même jour la semaine dernière, à cette heure-ci. */
+function sameHourLastWeek(state: GestionState): { total: number; payments: number } {
+  const at = new Date();
+  at.setDate(at.getDate() - 7);
+  const day = serviceDayKey(at.toISOString(), state.dayEndHour);
+  const until = at.toISOString();
+  const paid = state.orders.filter(
+    (order) =>
+      isPaid(order) &&
+      serviceDayKey(paidAt(order), state.dayEndHour) === day &&
+      paidAt(order) <= until
+  );
+  return { total: paid.reduce((sum, order) => sum + orderTotal(order), 0), payments: paid.length };
+}
+
+/**
+ * Le repère d'un chiffre comparé (DESIGN § 8) : un écart signé quand la base
+ * le permet, la valeur d'alors sous une petite base, et rien de plus que ce
+ * qu'on sait sans base. Jamais un « vs » sans écart en face.
+ */
+function comparison(
+  current: number,
+  previous: { value: number; count: number },
+  when: string,
+  nothing: string,
+  format: (value: number) => string
+): { delta?: { text: string; tone: DeltaTone }; baseline: string } {
+  if (previous.count === 0) return { baseline: nothing };
+  if (previous.count < SMALL_BASE) return { baseline: `était ${format(previous.value)} ${when}` };
+  return { delta: delta(current, previous.value), baseline: `vs ${when}` };
 }
 
 const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
@@ -108,9 +143,9 @@ function Block({
 function Card({ title, sub, children }: { title: string; sub?: string; children: ReactNode }) {
   return (
     <Plate className="px-5 pb-4 pt-4.5">
-      <div className="mb-2.5 flex items-baseline justify-between gap-3">
+      <div className="mb-2.5 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
         <h2 className="font-display text-g-h2">{title}</h2>
-        {sub && <small className="whitespace-nowrap text-g-meta text-muted">{sub}</small>}
+        {sub && <small className="text-g-meta text-muted">{sub}</small>}
       </div>
       {children}
     </Plate>
@@ -234,12 +269,13 @@ export default function ApercuPage() {
   const weekday = serviceToday.toLocaleDateString("fr-FR", { weekday: "long" });
 
   // Le jour : commandes ouvertes et CA encaissé, comparé au même jour de la
-  // semaine passée (huit jours de service : le premier est ce jour-là).
+  // semaine passée à la même heure : une journée en cours ne se mesure pas à
+  // une journée finie.
   const open = hasCommandes ? openOrders(state) : [];
   const toPay = open.filter(awaitsPayment).length;
   const toServe = open.length - toPay;
   const caJour = hasCommandes ? revenueToday(state) : 0;
-  const sameDayLastWeek = hasCommandes ? revenueByDay(state, 8)[0].revenue : 0;
+  const lastWeek = hasCommandes ? sameHourLastWeek(state) : { total: 0, payments: 0 };
 
   const stats = hasCommandes ? periodStats(state, period) : null;
   const byDay = hasCommandes ? revenueByDay(state, period) : [];
@@ -265,7 +301,17 @@ export default function ApercuPage() {
           };
         })()
       : null;
-  const baseline = comparable ? `vs ${period} jours préc.` : `sur ${period} jours`;
+  // Trente jours : la période d'avant n'est pas chargée, on dit juste la durée.
+  const versus = (current: number, value: number, format: (value: number) => string) =>
+    previous
+      ? comparison(
+          current,
+          { value, count: previous.orders },
+          `les ${period} jours d’avant`,
+          `aucune vente les ${period} jours d’avant`,
+          format
+        )
+      : { baseline: `sur ${period} jours` };
   const otherPeriodWithData = ANALYTICS_PERIOD_DAYS.find(
     (days) => days !== period && periodStats(state, days).orders > 0
   );
@@ -281,7 +327,8 @@ export default function ApercuPage() {
         />
       </Block>
 
-      <StripePrompt />
+      {/* La carte de mise en route porte déjà ce geste : deux invites à relier se contrediraient. */}
+      {!miseEnRouteDue(state) && <StripePrompt />}
 
       <Block i={block++} className="empty:hidden">
         <MiseEnRoute state={state} />
@@ -305,10 +352,13 @@ export default function ApercuPage() {
             icon={<PaymentsIcon />}
             label="CA du jour"
             value={formatPrice(caJour)}
-            delta={delta(caJour, sameDayLastWeek)}
-            baseline={
-              sameDayLastWeek > 0 ? `vs ${weekday} dernier` : `aucune vente ${weekday} dernier`
-            }
+            {...comparison(
+              caJour,
+              { value: lastWeek.total, count: lastWeek.payments },
+              `${weekday} dernier à cette heure`,
+              `rien d’encaissé ${weekday} dernier à cette heure`,
+              formatPrice
+            )}
             href={hasFeature("paiements") ? "/gestion/paiements" : "/gestion/commandes"}
             title="Chiffre d’affaires encaissé sur la journée de service, TTC"
           />
@@ -322,7 +372,10 @@ export default function ApercuPage() {
       )}
 
       {(topVentesJour.length > 0 || indispo.length > 0) && (
-        <Block i={block++} className="grid gap-g-gap lg:grid-cols-[7fr_5fr]">
+        <Block
+          i={block++}
+          className={`grid gap-g-gap ${topVentesJour.length > 0 && indispo.length > 0 ? "lg:grid-cols-[7fr_5fr]" : ""}`}
+        >
           {topVentesJour.length > 0 && (
             <Card title="Top ventes du jour" sub="quantités">
               <RankedList
@@ -333,22 +386,10 @@ export default function ApercuPage() {
             </Card>
           )}
           {indispo.length > 0 && (
-            <Card title="À remettre en vente">
-              <ul className="m-0 grid list-none gap-1 p-0">
-                {indispo.map((item) => (
-                  <li
-                    key={item.id}
-                    className="flex min-h-13 items-center justify-between gap-3 border-t border-hairline first:border-t-0"
-                  >
-                    <span className="truncate">{item.name}</span>
-                    <Chip tone="problem">
-                      {item.stock === 0 ? "Stock épuisé" : "Retiré de la vente"}
-                    </Chip>
-                  </li>
-                ))}
-              </ul>
+            <Card title="À remettre en vente" sub={plural(indispo.length, "article")}>
+              <ArticlesEpuises state={state} wide={topVentesJour.length === 0} />
               <div className="mt-2 flex justify-end">
-                <GlassButton href="/gestion/menu">Gérer</GlassButton>
+                <GlassButton href="/gestion/menu">Voir la carte</GlassButton>
               </div>
             </Card>
           )}
@@ -374,8 +415,7 @@ export default function ApercuPage() {
               icon={<PaymentsIcon />}
               label="CA encaissé"
               value={stats.orders > 0 ? formatPrice(stats.revenue) : "—"}
-              delta={previous ? delta(stats.revenue, previous.revenue) : undefined}
-              baseline={baseline}
+              {...versus(stats.revenue, previous?.revenue ?? 0, formatPrice)}
               title={`Commandes payées sur ${period} jours, TTC`}
             />
             <StatTile
@@ -383,8 +423,7 @@ export default function ApercuPage() {
               icon={<ChartIcon />}
               label="Commandes payées"
               value={stats.orders > 0 ? String(stats.orders) : "—"}
-              delta={previous ? delta(stats.orders, previous.orders) : undefined}
-              baseline={baseline}
+              {...versus(stats.orders, previous?.orders ?? 0, String)}
               title={`Commandes payées sur ${period} jours`}
             />
             <StatTile
@@ -392,8 +431,7 @@ export default function ApercuPage() {
               icon={<BagIcon />}
               label="Panier moyen"
               value={stats.orders > 0 ? formatPrice(stats.avgTicket) : "—"}
-              delta={previous ? delta(stats.avgTicket, previous.avgTicket) : undefined}
-              baseline={baseline}
+              {...versus(stats.avgTicket, previous?.avgTicket ?? 0, formatPrice)}
               title="CA encaissé ÷ commandes payées"
             />
             <StatTile
@@ -401,8 +439,7 @@ export default function ApercuPage() {
               icon={<GiftIcon />}
               label="Pourboires"
               value={stats.orders > 0 ? formatPrice(tips) : "—"}
-              delta={previous ? delta(tips, previous.tips) : undefined}
-              baseline={baseline}
+              {...versus(tips, previous?.tips ?? 0, formatPrice)}
               title={`Pourboires laissés sur ${period} jours, en ligne comme au comptoir`}
             />
           </div>
@@ -497,13 +534,13 @@ export default function ApercuPage() {
                     Données détaillées (tableau)
                   </summary>
                   <div className="overflow-x-auto border-t border-hairline">
-                    <table className="w-full text-g-body tabular-nums">
+                    <table className="w-full whitespace-nowrap text-g-body tabular-nums">
                       <thead>
                         <tr className="text-left text-g-meta text-muted">
-                          <th className="px-5 py-3 font-medium">Jour</th>
-                          <th className="px-5 py-3 text-right font-medium">Commandes payées</th>
-                          <th className="px-5 py-3 text-right font-medium">CA encaissé</th>
-                          <th className="px-5 py-3 text-right font-medium">Panier</th>
+                          <th scope="col" className="px-5 py-3 font-medium">Jour</th>
+                          <th scope="col" className="px-5 py-3 text-right font-medium">Commandes payées</th>
+                          <th scope="col" className="px-5 py-3 text-right font-medium">CA encaissé</th>
+                          <th scope="col" className="px-5 py-3 text-right font-medium">Panier</th>
                         </tr>
                       </thead>
                       <tbody>

@@ -39,14 +39,14 @@ export function FermeturesEnCours({ state }: { state: GestionState }) {
             className="flex min-h-(--g-step-h) items-center justify-between gap-4 border-t border-hairline py-2 first:border-t-0"
           >
             <div className="min-w-0">
-              <p className="truncate text-g-body font-semibold">
+              <p className="text-g-body font-semibold [overflow-wrap:anywhere]">
                 {closure.name}
                 <span className="font-normal text-muted">
                   {" "}
                   · jusqu’à {closureUntil(closure, clock, state.dayEndHour)}
                 </span>
               </p>
-              <p className="truncate text-g-meta text-muted">
+              <p className="text-g-meta text-muted">
                 {describeTargets(closure, state.categories)}
               </p>
             </div>
