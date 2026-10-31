@@ -4,11 +4,11 @@ import { Card, KpiCard, PageHeader, primaryButton } from "@/components/shop/gest
 import { SalesChart } from "@/components/shop/gestion/sales-chart";
 import { DASHBOARD_CHART_DAYS, DASHBOARD_KPI_DAYS } from "@/lib/shop/constants";
 import { formatPrice, formatRelative, initials } from "@/lib/shop/format";
-import { getDashboardStats, listConversations, requireShopSession } from "@/lib/shop/server";
+import { getDashboardStats, listRecentOpenConversations, requireShopSession } from "@/lib/shop/server";
 
 export default async function ShopDashboardPage() {
   const { shop } = await requireShopSession();
-  const [stats, conversations] = await Promise.all([getDashboardStats(shop.id), listConversations(shop.id, "open")]);
+  const [stats, conversations] = await Promise.all([getDashboardStats(shop.id), listRecentOpenConversations(shop.id, 4)]);
   const trend = stats.revenuePrevious > 0 ? Math.round(((stats.revenue - stats.revenuePrevious) / stats.revenuePrevious) * 100) : null;
 
   return (
@@ -45,7 +45,7 @@ export default async function ShopDashboardPage() {
             <p className="py-4 text-sm text-muted">Aucune conversation ouverte.</p>
           ) : (
             <ul className="flex flex-col divide-y divide-hairline">
-              {conversations.slice(0, 4).map((c) => (
+              {conversations.map((c) => (
                 <li key={c.id}>
                   <Link href={`/gestion/messages/${c.id}`} className="flex items-start gap-3 py-3">
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-surface-raised text-[11px] font-semibold text-ember-1">{initials(c.customer_name ?? c.customer_email)}</span>

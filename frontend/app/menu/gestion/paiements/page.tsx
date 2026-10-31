@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useState, type CSSProperties } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { describeError } from "@/lib/gestion/errors";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
@@ -12,17 +12,19 @@ import {
   EmptyState,
   ErrorNotice,
   GlassButton,
+  ListPager,
   Plate,
   RankedList,
   ReserveGerant,
   SectionHeading,
   Segmented,
+  Shimmer,
   StatTile,
   type DeltaTone,
 } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { PAYMENT_MODE_LABELS, PAYMENTS_PAGE_SIZE, SMALL_BASE } from "@/lib/gestion/constants";
+import { PAYMENT_MODE_LABELS, SMALL_BASE } from "@/lib/gestion/constants";
 import {
   isCancelledPaid,
   isPaid,
@@ -38,6 +40,7 @@ import {
 import { fetchPaidOrders, useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Feature, GestionState, Order } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
+import { usePagedList } from "@/lib/use-paged-list";
 
 const MODE_FILTERS = [
   { value: "tous", label: "Tous" },
@@ -53,6 +56,8 @@ type ModeFilter = (typeof MODE_FILTERS)[number]["value"];
 function matchesMode(order: Order, filter: ModeFilter): boolean {
   return order.payments.some((leg) => leg.mode === filter);
 }
+
+const orderId = (order: Order) => order.id;
 
 function dedupeById(orders: Order[]): Order[] {
   const byId = new Map<string, Order>();
@@ -174,76 +179,46 @@ function PaiementsContent({
 }) {
   const toast = useToast();
   const [filter, setFilter] = useState<ModeFilter>("tous");
-  // La liste s'affiche par pages de PAYMENTS_PAGE_SIZE : en rendre d'un coup
-  // le mois que l'état contient figeait l'onglet. Au-delà de cette fenêtre,
-  // les pages viennent du serveur. Curseur : undefined tant qu'aucune n'est
-  // demandée, null une fois tout chargé.
-  const [shown, setShown] = useState(PAYMENTS_PAGE_SIZE);
-  const [history, setHistory] = useState<Order[]>([]);
-  const [cursor, setCursor] = useState<string | null | undefined>(undefined);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [historyError, setHistoryError] = useState<unknown>(null);
   const [editing, setEditing] = useState<Order | null>(null);
   const [voiding, setVoiding] = useState<Order | null>(null);
-  const sentinel = useRef<HTMLDivElement>(null);
+  const fetchPage = useCallback(
+    (_search: string, limit: number, offset: number) =>
+      fetchPaidOrders(filter === "tous" ? null : filter, limit, offset),
+    [filter]
+  );
+  const history = usePagedList({ fetchPage, rowId: orderId });
 
-  const loadHistory = useCallback(async (before: string | null) => {
-    setLoadingHistory(true);
-    setHistoryError(null);
-    try {
-      const page = await fetchPaidOrders(before);
-      setHistory((current) => [...current, ...page.orders]);
-      setCursor(page.nextCursor);
-    } catch (error) {
-      setHistoryError(error);
-    } finally {
-      setLoadingHistory(false);
-    }
-  }, []);
-
-  const listed = dedupeById([
-    // Le snapshot en dernier : sa version (realtime) prime sur la page chargée.
-    ...history,
-    ...state.orders,
-  ])
-    // Filtré après fusion : une commande à emporter prête n'est réglée que
-    // payée en ligne (isPaid) — réglée au retrait, elle ne l'est pas encore.
-    // Payée en ligne puis refusée par la caisse, elle reste visible, barrée.
+  // L'état, tenu en direct, reste la source des KPI et des totaux par jour : il
+  // couvre la fenêtre chargée au démarrage sans une requête de plus.
+  const paidInState = state.orders
+    .filter((order) => isPaid(order) || isCancelledPaid(order))
+    .filter((order) => filter === "tous" || matchesMode(order, filter));
+  const oldestPage = history.rows.reduce(
+    (oldest, order) => (paidAt(order) < oldest ? paidAt(order) : oldest),
+    "9999"
+  );
+  const allLoaded = history.total !== null && history.rows.length >= history.total;
+  const merged = dedupeById([
+    ...history.rows,
+    // La version en direct prime, et un encaissement arrive sans recharger.
+    ...paidInState.filter((order) => allLoaded || paidAt(order) >= oldestPage),
+  ]);
+  // Filtré après fusion : une commande annulée sous nos yeux quitte la liste.
+  const visible = merged
     .filter((order) => isPaid(order) || isCancelledPaid(order))
     .sort((a, b) => paidAt(b).localeCompare(paidAt(a)));
-
-  const visible = filter === "tous" ? listed : listed.filter((order) => matchesMode(order, filter));
-  // Seules les lignes s'arrêtent à `shown` : le compte et le total d'un jour
-  // portent sur tout ce qui est chargé.
-  const wholeDays = new Map(groupByDay(visible, state.dayEndHour).map((day) => [day.key, day]));
-  const days = groupByDay(visible.slice(0, shown), state.dayEndHour).map((day) => ({
+  // Le compte et le total d'un jour portent sur tout ce qui est connu de ce jour.
+  const wholeDays = new Map(
+    groupByDay(
+      dedupeById([...visible, ...paidInState]),
+      state.dayEndHour
+    ).map((day) => [day.key, day])
+  );
+  const days = groupByDay(visible, state.dayEndHour).map((day) => ({
     ...day,
     whole: wholeDays.get(day.key) ?? day,
   }));
-  const hasMore = shown < visible.length || cursor !== null;
-  const visibleCount = visible.length;
-  const showMore = useCallback(async () => {
-    if (loadingHistory) return;
-    // La fenêtre s'élargit avant l'appel : un filtre changé pendant le
-    // chargement garde son retour à la première page.
-    const next = shown + PAYMENTS_PAGE_SIZE;
-    setShown(next);
-    if (next > visibleCount && cursor !== null) await loadHistory(cursor ?? null);
-  }, [loadingHistory, shown, visibleCount, cursor, loadHistory]);
-  // Le bas de la liste charge la suite de lui-même (§ 3.14) ; le bouton
-  // reste pour le clavier et les lecteurs d'écran. Sous un filtre, seul le
-  // bouton va chercher plus loin sur le serveur : un mode rare ne doit pas
-  // télécharger tout l'historique à lui seul.
-  const autoLoads = filter === "tous" || shown < visibleCount;
-  useEffect(() => {
-    const element = sentinel.current;
-    if (!element || !autoLoads) return;
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) void showMore();
-    });
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [showMore, hasMore, historyError, autoLoads]);
+  const listed = state.orders.filter((order) => isPaid(order) || isCancelledPaid(order));
 
   const todayPaid = listed.filter(
     (order) => isPaid(order) && isServiceToday(paidAt(order), state.dayEndHour)
@@ -380,13 +355,17 @@ function PaiementsContent({
             value={filter}
             onChange={(value) => {
               setFilter(value);
-              setShown(PAYMENTS_PAGE_SIZE);
             }}
           />
         </div>
 
-        {visible.length === 0 ? (
-          filter === "tous" ? (
+        {history.total === null && history.error == null ? (
+          <div aria-busy className="grid gap-3">
+            <Shimmer className="h-28" />
+            <Shimmer className="h-28" />
+          </div>
+        ) : visible.length === 0 ? (
+          history.error != null ? null : filter === "tous" ? (
             <EmptyState
               text="Aucun paiement pour l'instant : les commandes encaissées apparaîtront ici, quel que soit le mode de règlement."
               action={
@@ -397,7 +376,7 @@ function PaiementsContent({
             />
           ) : (
             <EmptyState
-              text={`Aucun paiement ${EMPTY_BY_FILTER[filter]} ${hasMore ? "parmi ceux déjà chargés" : "pour l'instant"}.`}
+              text={`Aucun paiement ${EMPTY_BY_FILTER[filter]} pour l'instant.`}
               action={<GlassButton onClick={() => setFilter("tous")}>Tout afficher</GlassButton>}
             />
           )
@@ -431,15 +410,18 @@ function PaiementsContent({
           ))
         )}
 
-        {historyError != null && (
-          <ErrorNotice error={historyError} onRetry={() => void loadHistory(cursor ?? null)} />
+        {history.error != null && (
+          <ErrorNotice error={history.error} onRetry={() => void history.reload()} />
         )}
-        {hasMore && historyError == null && (
-          <div ref={sentinel} className="flex min-h-g-control items-center justify-center">
-            <GlassButton onClick={() => void showMore()} aria-busy={loadingHistory || undefined}>
-              {loadingHistory ? "Chargement…" : "Voir plus"}
-            </GlassButton>
-          </div>
+        {history.total !== null && (
+          <ListPager
+            shown={history.rows.length}
+            total={history.total}
+            pageSize={history.pageSize}
+            loading={history.loading}
+            onPageSize={history.setPageSize}
+            onMore={() => void history.showMore()}
+          />
         )}
       </Block>
 
@@ -451,8 +433,8 @@ function PaiementsContent({
             const order = editing;
             setEditing(null);
             try {
-              const updated = await api.updateOrderPayment(order.id, correction);
-              setHistory((current) => current.map((o) => (o.id === updated.id ? updated : o)));
+              await api.updateOrderPayment(order.id, correction);
+              await history.reload();
               toast.success("Encaissement modifié.");
             } catch (error) {
               toast.error(describeError(error).message);
@@ -475,7 +457,7 @@ function PaiementsContent({
             setVoiding(null);
             try {
               await api.voidPayment(order.id);
-              setHistory((current) => current.filter((o) => o.id !== order.id));
+              await history.reload();
               toast.success("Encaissement annulé.");
             } catch (error) {
               toast.error(describeError(error).message);

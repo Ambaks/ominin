@@ -1,17 +1,18 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { inputClass } from "@/components/ui/field";
-import { normalizeText } from "@/lib/admin/format";
-import { useAdmin } from "@/lib/admin/store";
+import { emptyFilters } from "@/lib/admin/filters";
+import { fetchLeadsPage } from "@/lib/admin/leads-page";
+import { LIST_SEARCH_DEBOUNCE_MS } from "@/lib/gestion/constants";
 import type { LeadLite } from "@/lib/admin/types";
 
 /** Nombre de suggestions affichées sous le champ. */
 const MAX_SUGGESTIONS = 8;
 
 /*
- * Combobox maison : filtre les lignes légères du store (nom + ville, sans
- * accents) et propose une liste cliquable. Assez pour un picker interne.
+ * Combobox maison : la base cherche (nom, ville, contact, sans accents) et
+ * le champ propose une liste cliquable. Assez pour un picker interne.
  */
 export function RestaurantPicker({
   value,
@@ -20,17 +21,40 @@ export function RestaurantPicker({
   value: LeadLite | null;
   onSelect: (lead: LeadLite | null) => void;
 }) {
-  const state = useAdmin();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
 
-  const suggestions = useMemo(() => {
-    const q = normalizeText(query.trim());
-    if (!q) return [];
-    return (state?.leads ?? [])
-      .filter((lead) => lead.searchKey.includes(q))
-      .slice(0, MAX_SUGGESTIONS);
-  }, [state?.leads, query]);
+  const [suggestions, setSuggestions] = useState<LeadLite[]>([]);
+
+  useEffect(() => {
+    const q = query.trim();
+    let current = true;
+    const timer = setTimeout(() => {
+      if (!q) {
+        setSuggestions([]);
+        return;
+      }
+      fetchLeadsPage(
+        {
+          filters: { ...emptyFilters(), q },
+          product: null,
+          appointmentIds: [],
+          sort: "name",
+          descending: false,
+        },
+        MAX_SUGGESTIONS,
+        0
+      )
+        .then((page) => {
+          if (current) setSuggestions(page.rows);
+        })
+        .catch(console.error);
+    }, LIST_SEARCH_DEBOUNCE_MS);
+    return () => {
+      current = false;
+      clearTimeout(timer);
+    };
+  }, [query]);
 
   if (value) {
     return (

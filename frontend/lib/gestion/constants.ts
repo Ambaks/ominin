@@ -42,10 +42,6 @@ export const SMALL_BASE = 5;
 /** Bascule de la journée de service. Miroir du défaut SQL de
  * etablissement_settings.day_end_hour. */
 export const DEFAULT_DAY_END_HOUR = 0;
-/** Onglet Paiements : encaissements affichés d'emblée, puis ajoutés à chaque « Voir plus ». */
-export const PAYMENTS_PAGE_SIZE = 20;
-/** Onglet Historique des commandes : commandes affichées d'emblée, puis ajoutées à chaque « Voir plus ». */
-export const ORDER_HISTORY_PAGE_SIZE = 10;
 /** Tailles de page au choix d'une longue liste : la première s'applique d'emblée. */
 export const LIST_PAGE_SIZES = [10, 25] as const;
 /** Recherche côté base : le temps de finir de taper avant d'interroger. */

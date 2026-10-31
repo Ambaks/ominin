@@ -65,8 +65,9 @@ Backend (run from `backend/`):
 - Lists are paged at the database, never loaded whole: `LIST_PAGE_SIZES` (10 by
   default, 25 on request) with « Voir plus » adding one page at a time, the
   total coming from the query, and search running on the server. In gestion,
-  use `ListPager`. A list that can't outgrow a screen (a venue's rewards, say)
-  is exempt.
+  use `ListPager`; in admin and shop gestion, `components/ui/list-pager.tsx`. Both
+  take their state from `usePagedList` (`lib/use-paged-list.ts`). A list that
+  can't outgrow a screen (a venue's rewards, say) is exempt.
 
 ## Code quality
 

@@ -9,7 +9,7 @@ import { CATEGORY_LABELS } from "@/lib/admin/constants";
 import { contactName, formatDayTime, formatRelative, httpHref } from "@/lib/admin/format";
 import { useLeadDetail } from "@/lib/admin/lead-cache";
 import { PRODUCTS, PRODUCT_LABELS, type Product } from "@/lib/admin/products";
-import { useAdmin } from "@/lib/admin/store";
+import { useLeadLite } from "@/lib/admin/store";
 import type { LeadDetail } from "@/lib/admin/types";
 import { MAPS_DIRECTIONS_BASE } from "@/lib/collect/shared";
 import {
@@ -75,7 +75,6 @@ export function LeadPanel({
   onClose: () => void;
 }) {
   const { detail, error, retry } = useLeadDetail(restaurantId);
-  const state = useAdmin();
   const run = useRunMutation();
   const [statusOpen, setStatusOpen] = useState(false);
   const [visitedOpen, setVisitedOpen] = useState(false);
@@ -84,8 +83,7 @@ export function LeadPanel({
   const [notesDraft, setNotesDraft] = useState<string | null>(null);
   const noteRef = useRef<HTMLTextAreaElement>(null);
 
-  const lite =
-    state?.leads.find((lead) => lead.restaurantId === restaurantId) ?? null;
+  const lite = useLeadLite(restaurantId);
 
   const toggleProduct = (product: Product) => {
     if (!lite) return;

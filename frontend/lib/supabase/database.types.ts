@@ -8416,6 +8416,77 @@ export type Database = {
         Returns: undefined
       }
       loyalty_contact: { Args: { p_raw: string }; Returns: string }
+      crm_cities: { Args: { p_product: string | null }; Returns: string[] }
+      crm_lead_summary: {
+        Args: {
+          p_product: string | null
+          p_today: string
+          p_tomorrow: string
+          p_week_end: string
+        }
+        Returns: {
+          status: string
+          leads: number
+          overdue: number
+          due_today: number
+          upcoming: number
+        }[]
+      }
+      crm_leads_page: {
+        Args: {
+          p_product: string | null
+          p_statuses: string[] | null
+          p_categories: string[] | null
+          p_cities: string[] | null
+          p_has_email: boolean
+          p_has_phone: boolean
+          p_has_website: boolean
+          p_has_follow_up: boolean
+          p_restaurant_ids: string[] | null
+          p_contact_before: string | null
+          p_tokens: string[]
+          p_sort: string
+          p_order: string[]
+          p_desc: boolean
+          p_limit: number
+          p_offset: number
+        }
+        Returns: {
+          id: string
+          lead_id: string
+          name: string
+          category: string
+          city: string | null
+          address: string | null
+          latitude: number | null
+          longitude: number | null
+          phone: string | null
+          email: string | null
+          website: string | null
+          owner_name: string | null
+          created_at: string
+          status: string
+          priority: string
+          last_contact_at: string | null
+          next_follow_up_at: string | null
+          target_products: string[]
+          total: number
+        }[]
+      }
+      outreach_qualified_score: {
+        Args: never
+        Returns: {
+          average: number | null
+          scored: number
+        }[]
+      }
+      shop_customer_totals: {
+        Args: { p_shop_id: string }
+        Returns: {
+          customers: number
+          revenue_cents: number
+        }[]
+      }
       loyalty_customers_page: {
         Args: {
           p_etablissement_id: string

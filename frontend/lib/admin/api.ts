@@ -1,15 +1,13 @@
 import { createClient } from "@/lib/supabase/client";
-import { check, must } from "@/lib/supabase/result";
+import { check, must, mustPage, type ListPage } from "@/lib/supabase/result";
+import type { Tables } from "@/lib/supabase/database.types";
 import {
   CONTACT_ACTIVITY_TYPES,
   CSV_IMPORT_CHUNK_SIZE,
-  OUTREACH_EMAILS_FETCH_LIMIT,
-  OUTREACH_PROSPECTS_FETCH_LIMIT,
-  OUTREACH_RUNS_FETCH_LIMIT,
   OUTREACH_VARIANTS_FETCH_LIMIT,
   POSITIVE_CLASSIFICATIONS,
 } from "./constants";
-import { dayStart, rollingWeekStart } from "./format";
+import { dayStart, normalizeText, rollingWeekStart } from "./format";
 import { patchDetail, refreshDetail } from "./lead-cache";
 import {
   LEAD_LITE_SELECT,
@@ -29,7 +27,7 @@ import {
 } from "./mappers";
 import type { Product } from "./products";
 import { slugify, uniqueSlug } from "./slug";
-import { commit, getState, reloadLeads } from "./store";
+import { commit, ensureLead, getState, reloadLeads } from "./store";
 import type {
   Activity,
   ActivityType,
@@ -72,14 +70,20 @@ function apply<T>(recipe: (draft: AdminState) => T): T {
 
 const userId = () => getState().userId;
 
-function findLite(draft: AdminState, restaurantId: string): LeadLite {
+/** Répercute une écriture sur la fiche, si le store la connaît. */
+function patchLite(
+  draft: AdminState,
+  restaurantId: string,
+  patch: Partial<LeadLite>
+) {
   const row = draft.leads.find((lead) => lead.restaurantId === restaurantId);
-  if (!row) throw new Error("Restaurant introuvable.");
-  return row;
+  if (row) Object.assign(row, patch);
 }
 
-const liteFor = (restaurantId: string): LeadLite =>
-  findLite(getState(), restaurantId);
+const withRestaurant = (lite: LeadLite | null) => ({
+  restaurantName: lite?.name,
+  targetProducts: lite?.targetProducts,
+});
 
 /** Tâches triées par échéance croissante, sans échéance en dernier. */
 const byDue = (a: TaskRow, b: TaskRow) =>
@@ -95,8 +99,9 @@ function recomputeFollowUp(draft: AdminState, restaurantId: string) {
         task.dueAt !== null
     )
     .map((task) => task.dueAt as string);
-  findLite(draft, restaurantId).nextFollowUpAt =
-    dues.length > 0 ? dues.sort()[0] : null;
+  patchLite(draft, restaurantId, {
+    nextFollowUpAt: dues.length > 0 ? dues.sort()[0] : null,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -114,7 +119,7 @@ export async function updateLeadStatus(
       .eq("restaurant_id", restaurantId)
   );
   apply((draft) => {
-    findLite(draft, restaurantId).status = status;
+    patchLite(draft, restaurantId, { status });
   });
   patchDetail(restaurantId, (draft) => {
     draft.lead.status = status;
@@ -134,7 +139,7 @@ export async function updateTargetProducts(
       .eq("restaurant_id", restaurantId)
   );
   apply((draft) => {
-    findLite(draft, restaurantId).targetProducts = targetProducts;
+    patchLite(draft, restaurantId, { targetProducts });
   });
 }
 
@@ -151,7 +156,7 @@ export async function markVisited(
   input: MarkVisitedInput
 ): Promise<void> {
   const supabase = createClient();
-  const lite = liteFor(restaurantId);
+  const lite = await ensureLead(restaurantId);
   const nowIso = new Date().toISOString();
 
   check(
@@ -191,11 +196,9 @@ export async function markVisited(
     : null;
 
   apply((draft) => {
-    const row = findLite(draft, restaurantId);
-    row.status = "visited";
-    row.lastContactAt = nowIso;
+    patchLite(draft, restaurantId, { status: "visited", lastContactAt: nowIso });
     if (taskRow) {
-      draft.tasks = [...draft.tasks, rowToTask(taskRow)].sort(byDue);
+      draft.tasks = [...draft.tasks, { ...rowToTask(taskRow), ...withRestaurant(lite) }].sort(byDue);
       recomputeFollowUp(draft, restaurantId);
     }
   });
@@ -222,7 +225,7 @@ export async function addActivity(
   input: ActivityInput
 ): Promise<Activity> {
   const supabase = createClient();
-  const lite = liteFor(restaurantId);
+  const lite = await ensureLead(restaurantId);
   const row = must(
     await supabase
       .from("crm_activities")
@@ -251,7 +254,7 @@ export async function addActivity(
   const activity = rowToActivity(row);
   if (isContact) {
     apply((draft) => {
-      findLite(draft, restaurantId).lastContactAt = row.created_at;
+      patchLite(draft, restaurantId, { lastContactAt: row.created_at });
     });
   }
   patchDetail(restaurantId, (draft) => {
@@ -354,9 +357,7 @@ export async function createRestaurant(
   const lite = rowToLeadLite(row);
   if (lite) {
     apply((draft) => {
-      draft.leads = [...draft.leads, lite].sort((a, b) =>
-        a.name.localeCompare(b.name, "fr")
-      );
+      draft.leads = [...draft.leads, lite];
     });
   }
   return inserted.id;
@@ -406,7 +407,7 @@ export interface TaskInput {
 
 export async function createTask(input: TaskInput): Promise<TaskRow> {
   const supabase = createClient();
-  const lite = input.restaurantId ? liteFor(input.restaurantId) : null;
+  const lite = input.restaurantId ? await ensureLead(input.restaurantId) : null;
   const row = must(
     await supabase
       .from("crm_tasks")
@@ -422,7 +423,7 @@ export async function createTask(input: TaskInput): Promise<TaskRow> {
       .select()
       .single()
   );
-  const task = rowToTask(row);
+  const task = { ...rowToTask(row), ...withRestaurant(lite) };
   apply((draft) => {
     draft.tasks = [...draft.tasks, task].sort(byDue);
     if (task.restaurantId) recomputeFollowUp(draft, task.restaurantId);
@@ -440,7 +441,7 @@ export async function updateTask(
   input: TaskInput
 ): Promise<TaskRow> {
   const supabase = createClient();
-  const lite = input.restaurantId ? liteFor(input.restaurantId) : null;
+  const lite = input.restaurantId ? await ensureLead(input.restaurantId) : null;
   const row = must(
     await supabase
       .from("crm_tasks")
@@ -456,7 +457,7 @@ export async function updateTask(
       .select()
       .single()
   );
-  const task = rowToTask(row);
+  const task = { ...rowToTask(row), ...withRestaurant(lite) };
   const previousRestaurantId = apply((draft) => {
     const previous = draft.tasks.find((t) => t.id === taskId);
     draft.tasks = draft.tasks
@@ -530,7 +531,7 @@ export async function createAppointment(
   input: AppointmentInput
 ): Promise<AppointmentRow> {
   const supabase = createClient();
-  const lite = liteFor(input.restaurantId);
+  const lite = await ensureLead(input.restaurantId);
   const row = must(
     await supabase
       .from("crm_appointments")
@@ -563,7 +564,7 @@ export async function createAppointment(
       .select()
       .single()
   );
-  const appointment = rowToAppointment(row);
+  const appointment = { ...rowToAppointment(row), ...withRestaurant(lite) };
   apply((draft) => {
     if (appointment.startAt >= dayStart().toISOString()) {
       draft.appointments = [...draft.appointments, appointment].sort((a, b) =>
@@ -729,13 +730,39 @@ export async function importRestaurants(
     const chunk = inserts.slice(i, i + CSV_IMPORT_CHUNK_SIZE);
     const { error } = await supabase.from("crm_restaurants").insert(chunk);
     if (error) {
-      await reloadLeads();
+      reloadLeads();
       throw new ImportError(error.message, i);
     }
     onProgress?.(Math.min(i + chunk.length, inserts.length), inserts.length);
   }
-  await reloadLeads();
+  reloadLeads();
   return inserts.length;
+}
+
+/** Clés de dédoublonnage d'un import contre l'existant : nom+ville, téléphone, email. */
+export async function fetchExistingLeadKeys() {
+  const supabase = createClient();
+  const PAGE = 1000;
+  const nameCity = new Set<string>();
+  const phones = new Set<string>();
+  const emails = new Set<string>();
+  for (let from = 0; ; from += PAGE) {
+    const batch = must(
+      await supabase
+        .from("crm_restaurants")
+        .select("name, city, phone, email")
+        .is("deleted_at", null)
+        .order("id")
+        .range(from, from + PAGE - 1)
+    );
+    for (const row of batch) {
+      nameCity.add(`${normalizeText(row.name)}|${normalizeText(row.city ?? "")}`);
+      const phone = (row.phone ?? "").replace(/\D/g, "");
+      if (phone) phones.add(phone);
+      if (row.email) emails.add(normalizeText(row.email));
+    }
+    if (batch.length < PAGE) return { nameCity, phones, emails };
+  }
 }
 
 async function fetchAllSlugs(): Promise<string[]> {
@@ -767,15 +794,69 @@ async function fetchAllSlugs(): Promise<string[]> {
 // Même logique pour les variantes de prompt : le statut change sous RLS et
 // le prochain run /agent/outreach relit la rotation.
 
-export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
-  const supabase = createClient();
-  const rows = must(
-    await supabase
-      .from("outreach_emails")
-      .select("*")
+const OUTREACH_EMAIL_SELECT = "*, crm_restaurants(name)" as const;
+
+export type OutreachBox = "pending" | "sent" | "received";
+
+const withRestaurantName = (
+  row: Tables<"outreach_emails"> & { crm_restaurants: { name: string } | null }
+): OutreachEmail => ({
+  ...rowToOutreachEmail(row),
+  restaurantName: row.crm_restaurants?.name ?? null,
+});
+
+export async function fetchOutreachEmailsPage(
+  box: OutreachBox,
+  limit: number,
+  offset: number
+): Promise<ListPage<OutreachEmail>> {
+  const select = () =>
+    createClient().from("outreach_emails").select(OUTREACH_EMAIL_SELECT, { count: "exact" });
+  const query =
+    box === "pending"
+      ? select().eq("status", "pending_approval")
+      : box === "received"
+        ? select().eq("direction", "inbound")
+        : select().eq("direction", "outbound").neq("status", "pending_approval");
+  const page = mustPage(
+    await query
       .order("created_at", { ascending: false })
-      .limit(OUTREACH_EMAILS_FETCH_LIMIT)
+      .order("id")
+      .range(offset, offset + limit - 1)
   );
+  return { rows: page.rows.map(withRestaurantName), total: page.total };
+}
+
+/** Les compteurs des onglets, sans une ligne. */
+export async function fetchOutreachBoxCounts(): Promise<{ sent: number; received: number }> {
+  const count = () =>
+    createClient().from("outreach_emails").select("id", { count: "exact", head: true });
+  const [sent, received] = await Promise.all([
+    count().eq("direction", "outbound").neq("status", "pending_approval"),
+    count().eq("direction", "inbound"),
+  ]);
+  check(sent);
+  check(received);
+  return { sent: sent.count ?? 0, received: received.count ?? 0 };
+}
+
+export async function fetchPositiveReplies(limit: number): Promise<OutreachEmail[]> {
+  const rows = must(
+    await createClient()
+      .from("outreach_emails")
+      .select(OUTREACH_EMAIL_SELECT)
+      .eq("direction", "inbound")
+      .in("classification", POSITIVE_CLASSIFICATIONS)
+      .order("created_at", { ascending: false })
+      .limit(limit)
+  );
+  return rows.map(withRestaurantName);
+}
+
+/** Les messages auxquels répondent les brouillons affichés. */
+export async function fetchOutreachEmailsByIds(ids: string[]): Promise<OutreachEmail[]> {
+  if (ids.length === 0) return [];
+  const rows = must(await createClient().from("outreach_emails").select("*").in("id", ids));
   return rows.map(rowToOutreachEmail);
 }
 
@@ -783,42 +864,33 @@ export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
 const PROSPECT_COLUMNS =
   "restaurant_id, qualification, disqualify_reason, has_digital_menu, email_source, ai_notes, priority_score, enriched_at, created_at, updated_at, crm_restaurants(name, city, phone, website)";
 
-/** Sans filtre : la fenêtre des lignes les plus récentes. Avec un verdict :
- * toutes ses lignes, paginées au-delà du plafond PostgREST (un verdict
- * comme « pas d'e-mail » en compte des centaines). */
-export async function fetchOutreachProspects(
-  filter: ProspectFilter = "all"
-): Promise<OutreachProspect[]> {
-  const supabase = createClient();
-  const select = () =>
-    supabase.from("outreach_prospects").select(PROSPECT_COLUMNS);
-  if (filter === "all") {
-    const rows = must(
-      await select()
-        .order("enriched_at", { ascending: false, nullsFirst: false })
-        .limit(OUTREACH_PROSPECTS_FETCH_LIMIT)
+/** Sans filtre : tous, du plus récemment enrichi au plus ancien. */
+export async function fetchOutreachProspectsPage(
+  filter: ProspectFilter,
+  limit: number,
+  offset: number
+): Promise<ListPage<OutreachProspect>> {
+  let query = createClient()
+    .from("outreach_prospects")
+    .select(PROSPECT_COLUMNS, { count: "exact" });
+  if (filter !== "all") {
+    query = query.eq(
+      filter === "qualified" || filter === "pending" ? "qualification" : "disqualify_reason",
+      filter
     );
-    return rows.map(rowToOutreachProspect);
   }
-  const column =
-    filter === "qualified" || filter === "pending"
-      ? "qualification"
-      : "disqualify_reason";
-  const PAGE = 1000;
-  const prospects: OutreachProspect[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const batch = must(
-      await select()
-        .eq(column, filter)
-        // Ordre stable obligatoire : sans lui, des pages .range() successives
-        // peuvent se chevaucher.
-        .order("enriched_at", { ascending: false, nullsFirst: false })
-        .order("restaurant_id")
-        .range(from, from + PAGE - 1)
-    );
-    prospects.push(...batch.map(rowToOutreachProspect));
-    if (batch.length < PAGE) return prospects;
-  }
+  const page = mustPage(
+    await query
+      .order("enriched_at", { ascending: false, nullsFirst: false })
+      .order("restaurant_id")
+      .range(offset, offset + limit - 1)
+  );
+  return { rows: page.rows.map(rowToOutreachProspect), total: page.total };
+}
+
+export async function fetchQualifiedScore(): Promise<{ average: number | null; scored: number }> {
+  const rows = must(await createClient().rpc("outreach_qualified_score"));
+  return { average: rows[0]?.average ?? null, scored: rows[0]?.scored ?? 0 };
 }
 
 export async function fetchProspectCounts(): Promise<ProspectCounts> {
@@ -846,16 +918,19 @@ export async function fetchProspectCounts(): Promise<ProspectCounts> {
   return { qualified, pending, no_email, contact_form, has_digital_menu, not_worth };
 }
 
-export async function fetchOutreachRuns(): Promise<OutreachRun[]> {
-  const supabase = createClient();
-  const rows = must(
-    await supabase
+export async function fetchOutreachRunsPage(
+  limit: number,
+  offset: number
+): Promise<ListPage<OutreachRun>> {
+  const page = mustPage(
+    await createClient()
       .from("outreach_runs")
-      .select("*")
+      .select("*", { count: "exact" })
       .order("started_at", { ascending: false })
-      .limit(OUTREACH_RUNS_FETCH_LIMIT)
+      .order("id")
+      .range(offset, offset + limit - 1)
   );
-  return rows.map(rowToOutreachRun);
+  return { rows: page.rows.map(rowToOutreachRun), total: page.total };
 }
 
 /** Édite un brouillon encore en attente. Garde .eq("status") : si le run
@@ -896,8 +971,7 @@ export async function rejectOutreachEmail(id: string): Promise<void> {
   );
 }
 
-/** Compteurs de campagne sur toute la table, pas seulement la fenêtre
- * OUTREACH_EMAILS_FETCH_LIMIT. Les réponses sont comptées par restaurant
+/** Compteurs de campagne sur toute la table. Les réponses sont comptées par restaurant
  * (un restaurateur peut écrire plusieurs fois) ; les rebonds n'en sont pas. */
 export async function fetchOutreachStats(): Promise<OutreachStats> {
   const supabase = createClient();

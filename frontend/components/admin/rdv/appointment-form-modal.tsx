@@ -12,7 +12,7 @@ import {
 } from "@/lib/admin/constants";
 import { contactName, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { useLeadDetail } from "@/lib/admin/lead-cache";
-import { useAdmin } from "@/lib/admin/store";
+import { useLeadLite } from "@/lib/admin/store";
 import type { AppointmentType, LeadLite } from "@/lib/admin/types";
 import { RestaurantPicker } from "../restaurant-picker";
 
@@ -29,11 +29,11 @@ export function AppointmentFormModal({
   restaurantId?: string;
   onClose: () => void;
 }) {
-  const state = useAdmin();
   const toast = useToast();
-  const [restaurant, setRestaurant] = useState<LeadLite | null>(
-    state?.leads.find((lead) => lead.restaurantId === restaurantId) ?? null
-  );
+  const initialRestaurant = useLeadLite(restaurantId);
+  // undefined : rien de choisi, la fiche d'origine vaut (elle peut encore arriver).
+  const [chosen, setRestaurant] = useState<LeadLite | null | undefined>(undefined);
+  const restaurant = chosen === undefined ? initialRestaurant : chosen;
   // Détail de la fiche : contacts pour le <select>, adresse pour le lieu.
   const { detail } = useLeadDetail(restaurant?.restaurantId ?? null);
 

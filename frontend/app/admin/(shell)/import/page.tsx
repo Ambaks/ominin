@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { ImportIcon } from "@/components/admin/icons";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { Toggle } from "@/components/ui/toggle";
@@ -13,7 +13,6 @@ import {
 } from "@/lib/admin/constants";
 import { isEmptyRow, parseCsv } from "@/lib/admin/csv";
 import { normalizeText } from "@/lib/admin/format";
-import { useAdmin } from "@/lib/admin/store";
 import type { RestaurantCategory } from "@/lib/admin/types";
 
 type RowStatus = "valid" | "warning" | "duplicate" | "invalid";
@@ -75,28 +74,12 @@ function parseCoordinate(
 }
 
 export default function ImportPage() {
-  const state = useAdmin();
   const { basePath } = useAdminBasePath();
   const [phase, setPhase] = useState<Phase>({ name: "select" });
   const [previewTab, setPreviewTab] = useState<"all" | "problems">("all");
 
-  /** Clés de dédoublonnage contre l'existant : nom+ville, téléphone, email. */
-  const existingKeys = useMemo(() => {
-    const nameCity = new Set<string>();
-    const phones = new Set<string>();
-    const emails = new Set<string>();
-    for (const lead of state?.leads ?? []) {
-      nameCity.add(
-        `${normalizeText(lead.name)}|${normalizeText(lead.city ?? "")}`
-      );
-      const phone = (lead.phone ?? "").replace(/\D/g, "");
-      if (phone) phones.add(phone);
-      if (lead.email) emails.add(normalizeText(lead.email));
-    }
-    return { nameCity, phones, emails };
-  }, [state?.leads]);
-
   const analyse = async (file: File) => {
+    const existingKeys = await api.fetchExistingLeadKeys();
     // Numéros de ligne du fichier réel, sauts vides compris : « Ligne N »
     // doit correspondre à ce que l'utilisateur voit dans son tableur.
     const numbered = parseCsv(await file.text())
