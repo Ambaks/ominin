@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type CSSProperties, type ReactNode } from "react";
+import { kitFont } from "@/components/landing-kit/font";
 import { BellIcon, ClockIcon, CommandesIcon, type IconProps } from "@/components/gestion/icons";
 import {
   Bars,
@@ -164,13 +165,13 @@ export function KitPreview() {
   const { theme, themeAttribute, setTheme } = useGestionTheme();
   const close = () => setOpen(null);
   return (
-    <div data-g-theme={themeAttribute}>
+    <div className={`g-titres ${kitFont.variable}`} data-g-theme={themeAttribute}>
       <Mesh />
       <main className="relative z-1 mx-auto grid w-full max-w-7xl gap-5 px-4 pb-14 pt-6 sm:px-6">
         <Block i={0}>
           <SectionHeading
             level={1}
-            title="Aperçu"
+            title="Aujourd’hui"
             sub="vendredi 31 octobre"
             right={
               <div className="flex items-center gap-2.5">

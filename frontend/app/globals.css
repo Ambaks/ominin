@@ -43,6 +43,7 @@
   --hairline: rgba(243, 236, 225, 0.09);
 
   --muted: #a1937f;
+  --g-prior: #6f675c;
   --faint: #6f6355;
 
   --ember-1: #f0b35b;
@@ -82,6 +83,7 @@ html.light {
   --hairline: rgba(34, 27, 19, 0.12);
 
   --muted: #7a6a58;
+  --g-prior: #d4ccc0;
   --faint: #a89a86;
 
   --ember-1: #c08515;
@@ -14687,6 +14689,10 @@ html.light {
 }
 
 /* Coquille de l'espace : la grille rail + colonne, au-dessus de l'aura. */
+/* Titres de l'espace : Geist. Un thème de restaurant imbriqué (aperçu du menu) garde sa police. */
+.g-titres {
+  --brand-display: var(--font-kit), var(--font-instrument-sans), sans-serif;
+}
 .g-shell {
   position: relative;
   z-index: 1;
@@ -15521,6 +15527,184 @@ dialog.g-dialog-center {
     height: 100dvh;
     border-radius: 0;
   }
+}
+/* Graphique comparé : la période en couleur d'entité, l'ombre de la précédente
+   en gris de référence (écarts validés, clair et sombre). Traits constants :
+   le SVG s'étire, ses traits non ; le texte reste en HTML. */
+.g-chart {
+  margin: 0;
+  --g-chart-gut: 56px;
+  --g-chart-h: 260px;
+}
+.g-chart-compact {
+  --g-chart-gut: 0px;
+  --g-chart-h: 104px;
+}
+.g-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-bottom: 0.75rem;
+  font-size: var(--g-text-meta);
+  color: var(--muted);
+}
+.g-chart-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.g-chart-key {
+  display: inline-block;
+  width: 14px;
+  height: 3px;
+  border-radius: 9999px;
+  flex: none;
+}
+.g-chart-key-now {
+  background: var(--g-entity);
+}
+.g-chart-key-prior {
+  height: 8px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--g-prior) 45%, transparent);
+  box-shadow: inset 0 -1.5px 0 var(--g-prior);
+}
+.g-chart-body {
+  position: relative;
+  padding-left: var(--g-chart-gut);
+}
+.g-chart-y {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: calc(var(--g-chart-gut) - 8px);
+  height: var(--g-chart-h);
+}
+.g-chart-y span {
+  position: absolute;
+  right: 0;
+  transform: translateY(50%);
+  font-size: var(--text-g-axis);
+  font-variant-numeric: tabular-nums;
+  color: var(--muted);
+}
+.g-chart-plot {
+  position: relative;
+  height: var(--g-chart-h);
+  touch-action: pan-y;
+}
+.g-chart-plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.g-chart-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--hairline);
+}
+.g-chart-prior-fill {
+  fill: var(--g-prior);
+  opacity: 0.28;
+}
+.g-chart-prior-line {
+  fill: none;
+  stroke: var(--g-prior);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.g-chart-now-fill {
+  fill: var(--g-entity);
+  opacity: 0.1;
+}
+.g-chart-now-line {
+  fill: none;
+  stroke: var(--g-entity);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.g-chart-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  margin: -4px 0 0 -4px;
+  border-radius: 9999px;
+  background: var(--g-entity);
+  box-shadow: 0 0 0 2px var(--background);
+  pointer-events: none;
+}
+.g-chart-dot-prior {
+  background: var(--g-prior);
+}
+.g-chart-cross {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--muted);
+  opacity: 0.5;
+  pointer-events: none;
+}
+.g-chart-tip {
+  position: absolute;
+  top: 0;
+  z-index: 2;
+  margin-left: 10px;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--hairline);
+  border-radius: 10px;
+  background: var(--background);
+  font-size: var(--g-text-meta);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.g-chart-tip-left {
+  transform: translateX(-100%);
+  margin-left: -10px;
+}
+.g-chart-tip p {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+.g-chart-tip-title {
+  display: block !important;
+  margin-bottom: 0.25rem;
+  color: var(--muted);
+}
+.g-chart-x {
+  position: relative;
+  height: 20px;
+  margin-top: 6px;
+}
+.g-chart-x span {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: var(--text-g-axis);
+  color: var(--muted);
+  white-space: nowrap;
+}
+.g-chart-x span:first-child {
+  transform: none;
+}
+.g-chart-x span:last-child:not(:first-child) {
+  transform: translateX(-100%);
+}
+@media (max-width: 639px) {
+  .g-chart-x-wide {
+    display: none;
+  }
+}
+.g-cap-more {
+  margin-left: auto;
+  color: var(--muted);
 }
 .g-dialog-handle {
   width: var(--g-dialog-handle-w);

@@ -97,7 +97,7 @@ section, et la surface des chiffres à l'intérieur d'un cadre de verre. Une pla
 `.g-glass` prend le rayon du cadre moins `--g-pad` (rayons concentriques).
 
 **Budget** : au plus `--g-glass-max` (12) éléments à `backdrop-filter` par écran, rail et barre haute compris.
-Un Aperçu type en consomme 10 (2 tuiles, 1 bandeau, 1 segmenté, 4 KPI, rail, barre haute) ; au-delà, on prend
+Un écran Aujourd’hui type en consomme 10 (2 tuiles, 1 bandeau, 1 segmenté, 4 KPI, rail, barre haute) ; au-delà, on prend
 `StatTile plain`, `Segmented glass={false}`, ou une plaque.
 
 **Replis** (automatiques) : sous `prefers-reduced-transparency: reduce` ou sans `backdrop-filter`, le verre
@@ -121,7 +121,7 @@ couleur chaude ne décore jamais. Les séries secondaires et les pistes sont `--
 
 ## 5. Typographie
 
-- **Fraunces 600** (`font-display`) : H1 `text-g-h1` 36 px, sections `text-g-h2` 20 px, nom du restaurant
+- **Geist 600** (`font-display`, via `.g-titres`) : H1 `text-g-h1` 36 px, sections `text-g-h2` 20 px, nom du restaurant
   `text-g-name` 18 px, mot-symbole « Ominin » en `.ember-text`.
 - **Instrument Sans**, `tabular-nums` pour tout chiffre : numéro du comptoir fast food `text-g-counter` 56 px
   600 (48 px ≤ 720), chiffres du jour `text-g-day` 40 px 600, KPI
@@ -258,7 +258,7 @@ point d'exclamation.
 | `GlassButton` | `variant?: primary · secondary · danger · icon` (icon exige `aria-label`), `type?: button · submit`, `href?`, `badge?`, attributs d'un `button` | pilule dégradé de marque / pilule filet / filet grenat (destructeur, toujours avec un mot) / bouton rond avec compteur ; appui d'office, désactivé à 30 % |
 | `RankedList` | `items: { label, value, amount, meta? }[]`, `entity?`, `size?: slim · bar`, `label?` | liste classée ; `slim` = rang + filet de 3 px, `bar` = barre de 8 px à bouchon, colonne `meta` à droite de largeur `--g-rank-meta-w` (montants alignés) ; lignes clés par rang + libellé, deux homonymes s'affichent tous deux |
 | `Bars` | `data: { label, value, sub? }[]`, `ticks: number[]`, `format`, `label`, `entity?`, `dense?` | barres à bouchon sur grille, axe tabulaire à droite, maximum étiqueté, infobulles `title` ; `dense` pour 24 colonnes (étiquette vide = colonne muette) |
-| `SectionHeading` | `title`, `sub?`, `right?`, `id?`, `level?: 1 · 2` | titre Fraunces 36 / 20 px, sous-titre `--muted`, emplacement à droite pour un contrôle ou une légende |
+| `SectionHeading` | `title`, `sub?`, `right?`, `id?`, `level?: 1 · 2` | titre Geist 36 / 20 px, sous-titre `--muted`, emplacement à droite pour un contrôle ou une légende |
 | `Shimmer` | `className?` | squelette scintillant à la taille donnée |
 | `EmptyState` | `text`, `action?` | plaque : une phrase, une action |
 | `ErrorNotice` | `error: unknown`, `onRetry?` | bandeau grenat de `describeError` : icône par famille (hors ligne, cadenas, alerte), « Réessayer » seulement si `retry` et `onRetry` |
@@ -269,6 +269,7 @@ point d'exclamation.
 | `Select` | attributs d'un `select`, `children` = `<option>` | liste native habillée, chevron à droite |
 | `Switch` | `checked`, `onChange`, `disabled?`, `label?`, `hint?`, `aria-label?` | `role="switch"` 28 × 48, rail dégradé de marque allumé, pouce en transform 200 ms, 44 px de zone tactile ; avec `label`, une ligne pleine largeur libellé + indication |
 | `Checkbox` | `checked`, `onChange`, `disabled?`, `label`, `hint?`, `name?` | case native sous une boîte dessinée (coche icône), libellé et case = une cible de 44 px |
+| `CompareChart` | `current`, `previous?`, `domain`, `ticks`, `yTicks`, `step?`, `compact?`, `format`, `tip`, `label` | une période sur l'ombre de la précédente (`--g-prior`, écarts validés clair et sombre), infobulle au survol ; le SVG s'étire, le texte reste en HTML |
 | `Sheet` | `title`, `description?`, `onClose`, `size?: md · wide`, `centered?`, `footer?`, `children` | `<dialog>` modal de verre : feuille basse au téléphone, centré ≥ 1024 (`wide` 1120 px, plein écran sous 1024) ; corps sur plaque défilante, Échap et fond ferment, focus rendu, page figée ; `data-autofocus` sur le champ attendu ; à monter conditionnellement |
 | `ConfirmSheet` | `title`, `text`, `confirmLabel`, `cancelLabel?`, `destructive?`, `busy?`, `onConfirm`, `onClose` | feuille de confirmation : Annuler (focus) puis l'action, `danger` si destructeur, « Un instant… » quand `busy` |
 

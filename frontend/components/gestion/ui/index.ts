@@ -1,6 +1,7 @@
 export type { Entity } from "./entity";
 export { ENTITY, GLASS_ENTITY } from "./entity";
 export { Bars, type Bar } from "./bars";
+export { CompareChart, niceTicks, type ChartPoint, type ChartSeries } from "./compare-chart";
 export { Checkbox } from "./checkbox";
 export { Chip } from "./chip";
 export { EmptyState } from "./empty-state";
