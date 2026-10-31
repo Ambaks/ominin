@@ -1,19 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { GlassButton } from "@/components/gestion/ui";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { uploadPhoto } from "@/lib/gestion/photo";
 
-/** Photo d'un plat ou d'une formule : téléversée (compressée) ou URL collée. */
+/** Photo d'un plat ou d'une affiche : téléversée (compressée) ou URL collée. */
 export function PhotoField({
   value,
   onChange,
   alt,
+  label = "Photo",
 }: {
   value: string;
   onChange: (url: string) => void;
   alt: string;
+  label?: string;
 }) {
   const toast = useToast();
   const [uploading, setUploading] = useState(false);
@@ -28,7 +31,7 @@ export function PhotoField({
       toast.success("Photo téléversée.");
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "L'envoi de la photo a échoué."
+        error instanceof Error ? error.message : "L'envoi de la photo a échoué. Réessayez avec une image plus légère."
       );
     } finally {
       setUploading(false);
@@ -36,20 +39,16 @@ export function PhotoField({
   };
 
   return (
-    <Field
-      label="Photo"
-      hint="Téléversez une image (compressée automatiquement) ou collez une URL"
-    >
+    <Field label={label} hint="Depuis votre téléphone (compressée automatiquement), ou une adresse d'image">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
+          {/* Un label habillé en commande : le sélecteur de fichier reste natif. */}
           <label
-            className={`shrink-0 cursor-pointer rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
-              uploading
-                ? "border border-hairline text-faint"
-                : "ember-gradient text-background"
+            className={`g-btn g-press shrink-0 cursor-pointer ${
+              uploading ? "g-btn-secondary text-faint" : "g-btn-primary"
             }`}
           >
-            {uploading ? "Envoi…" : "Téléverser une photo"}
+            {uploading ? "Envoi…" : value ? "Changer la photo" : "Téléverser une photo"}
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp"
@@ -63,6 +62,7 @@ export function PhotoField({
             onChange={(event) => onChange(event.target.value)}
             type="url"
             placeholder="ou https://…"
+            aria-label="Adresse de la photo"
             className={inputClass}
           />
         </div>
@@ -72,15 +72,9 @@ export function PhotoField({
             <img
               src={value}
               alt={alt}
-              className="h-24 w-40 rounded-xl border border-hairline object-cover"
+              className="h-24 w-40 rounded-g-card border border-hairline object-cover"
             />
-            <button
-              type="button"
-              onClick={() => onChange("")}
-              className="text-sm font-semibold text-muted transition-colors hover:text-foreground"
-            >
-              Retirer
-            </button>
+            <GlassButton onClick={() => onChange("")}>Retirer</GlassButton>
           </div>
         )}
       </div>

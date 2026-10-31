@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { DayPicker } from "@/components/gestion/day-picker";
+import { ClockIcon } from "@/components/gestion/icons";
 import { HoursField } from "@/components/gestion/hours-field";
 import { MenuTargetPicker } from "@/components/gestion/menu-target-picker";
+import { Chip, GlassButton, Segmented } from "@/components/gestion/ui";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
@@ -101,6 +103,21 @@ export function RuleForm({
     targets.length > 0 &&
     (allDay || (startsAt !== "" && endsAt !== "" && startsAt !== endsAt));
 
+  // Un bouton désactivé dit pourquoi (UX-SIMPLICITÉ § 3.9).
+  const missing = !name.trim()
+    ? "Donnez un nom au tarif pour enregistrer."
+    : value === null || value <= 0
+      ? "Indiquez l'écart de prix pour enregistrer."
+      : unit === "pourcentage" && direction === "remise" && value > 100
+        ? "Une remise ne peut pas dépasser 100 %."
+        : days.length === 0
+          ? "Cochez au moins un jour pour enregistrer."
+          : !allDay && (startsAt === "" || endsAt === "" || startsAt === endsAt)
+            ? "Indiquez les heures de début et de fin."
+            : targets.length === 0
+              ? "Cochez au moins un article ou une catégorie."
+              : "";
+
   const submit = async () => {
     if (!valid || value === null) return;
     setSaving(true);
@@ -134,29 +151,17 @@ export function RuleForm({
       footer={
         <>
           {rule && (
-            <button
-              type="button"
-              onClick={() => setDeleting(true)}
-              className="mr-auto rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-ember-3 transition-colors hover:border-ember-3/40"
-            >
+            <GlassButton className="mr-auto" onClick={() => setDeleting(true)}>
               Supprimer
-            </button>
+            </GlassButton>
           )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-          >
-            Annuler
-          </button>
-          <button
-            type="button"
-            disabled={!valid || saving}
-            onClick={() => void submit()}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-          >
+          {!valid && (
+            <span className="basis-full text-g-meta text-muted">{missing}</span>
+          )}
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" disabled={!valid || saving} onClick={() => void submit()}>
             {saving ? "Enregistrement…" : "Enregistrer"}
-          </button>
+          </GlassButton>
         </>
       }
     >
@@ -185,10 +190,10 @@ export function RuleForm({
       )}
       <div className="flex flex-col gap-5">
         {rule && (
-          <label className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-background px-4 py-3 text-sm">
+          <label className="g-plate flex items-center justify-between gap-4 px-4 py-3 text-g-body">
             <span className="font-medium">
               Tarif actif
-              <span className="mt-0.5 block text-xs font-normal text-muted">
+              <span className="mt-0.5 block text-g-meta font-normal text-muted">
                 Suspendu, il cesse de s&apos;appliquer sans être supprimé.
               </span>
             </span>
@@ -227,17 +232,19 @@ export function RuleForm({
         </Field>
 
         <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+          <span className="text-g-axis font-semibold uppercase tracking-wider text-faint">
             Écart <span className="text-ember-2">*</span>
           </span>
           <div className="flex flex-wrap items-center gap-2">
-            <Segmented
+            <Segmented<PriceRuleDirection>
+              glass={false}
+              label="Sens de l'écart"
               options={[
                 { value: "majoration", label: "Majoration" },
                 { value: "remise", label: "Remise" },
               ]}
               value={direction}
-              onChange={(next) => setDirection(next as PriceRuleDirection)}
+              onChange={setDirection}
             />
             {unit === "montant" ? (
               <PriceInput
@@ -260,20 +267,22 @@ export function RuleForm({
                 </span>
               </div>
             )}
-            <Segmented
+            <Segmented<PriceRuleUnit>
+              glass={false}
+              label="Unité de l'écart"
               options={[
                 { value: "montant", label: "€" },
                 { value: "pourcentage", label: "%" },
               ]}
               value={unit}
-              onChange={(next) => setUnit(next as PriceRuleUnit)}
+              onChange={setUnit}
             />
           </div>
           {unit === "pourcentage" &&
             direction === "remise" &&
             value !== null &&
             value > 100 && (
-              <span className="text-xs text-ember-3">
+              <span role="alert" className="text-g-meta font-medium text-ember-3">
                 Une remise ne peut pas dépasser 100 %.
               </span>
             )}
@@ -299,35 +308,6 @@ export function RuleForm({
         />
       </div>
     </Modal>
-  );
-}
-
-function Segmented({
-  options,
-  value,
-  onChange,
-}: {
-  options: { value: string; label: string }[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div className="flex rounded-full border border-hairline p-0.5">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-            value === option.value
-              ? "ember-gradient text-background"
-              : "text-muted hover:text-foreground"
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
   );
 }
 
@@ -388,32 +368,25 @@ export function TarifsInline({
     return null;
   }
 
-  const chipClass = (actif: boolean) =>
-    `rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-      actif
-        ? "border-ember-2/35 text-ember-1"
-        : "border-hairline text-faint line-through"
-    }`;
-
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="g-money flex flex-wrap items-center gap-1.5">
       {effective && (
-        <span
-          title={`Tarif en vigueur : ${effective.ruleName}`}
-          className="rounded-full bg-ember-2/15 px-2 py-0.5 text-[10px] font-semibold text-ember-1"
-        >
-          En ce moment {effective.format && `${effective.format} `}
-          {formatPrice(effective.price)}
+        <span title={`Tarif en vigueur : ${effective.ruleName}`}>
+          <Chip icon={<ClockIcon />}>
+            En ce moment {effective.format && `${effective.format} `}
+            {formatPrice(effective.price)}
+          </Chip>
         </span>
       )}
       {owned.map((rule) => (
+        // Une pastille qu'on peut ouvrir : la classe du kit sur un bouton.
         <button
           key={rule.id}
           type="button"
           disabled={!canEdit}
           onClick={() => setEditing(rule)}
           title={`${formatDays(rule.days)} · ${formatWindow(rule)}`}
-          className={`${chipClass(rule.actif)} transition-colors enabled:hover:border-ember-2/60`}
+          className={`g-chip g-press ${rule.actif ? "" : "text-muted line-through"}`}
         >
           {rule.name} {formatAdjustment(rule)}
           {formatsOf(rule)}
@@ -423,16 +396,18 @@ export function TarifsInline({
         <span
           key={rule.id}
           title={`Posé sur la catégorie · ${formatDays(rule.days)} · ${formatWindow(rule)}`}
-          className={chipClass(rule.actif)}
+          className={rule.actif ? "" : "text-muted line-through"}
         >
-          {rule.name} {formatAdjustment(rule)} · catégorie
+          <Chip>
+            {rule.name} {formatAdjustment(rule)} · catégorie
+          </Chip>
         </span>
       ))}
       {canEdit && offerNew && (
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="rounded-full border border-dashed border-hairline px-2 py-0.5 text-[10px] font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+          className="g-chip g-press border-dashed text-muted"
         >
           + Tarif planifié
         </button>

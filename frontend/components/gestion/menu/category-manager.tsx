@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
+import { Chip, GlassButton } from "@/components/gestion/ui";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { inputClass } from "@/components/ui/field";
-import { IconButton } from "@/components/ui/icon-button";
+import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
@@ -49,59 +49,68 @@ export function CategoryManager({
 
   return (
     <Modal title="Catégories" onClose={onClose}>
-      <div className="flex flex-col gap-2">
-        {categories.map((category, index) => (
-          <div
-            key={category.id}
-            className="flex items-center gap-2 rounded-2xl border border-hairline bg-background p-2"
-          >
-            <input
-              defaultValue={category.name}
-              onBlur={(event) => rename(category, event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === "Enter") event.currentTarget.blur();
-              }}
-              aria-label={`Nom de la catégorie ${category.name}`}
-              className="min-w-0 flex-1 rounded-xl border border-transparent bg-transparent px-3 py-2.5 text-base outline-none transition-colors focus:border-ember-2/50 focus:bg-surface lg:pointer-fine:text-sm"
-            />
-            <span className="w-6 shrink-0 text-center text-xs tabular-nums text-faint">
-              {category.items.length}
-            </span>
-            <IconButton
-              disabled={index === 0}
-              onClick={() => void move(index, -1)}
-              aria-label={`Monter ${category.name}`}
-            >
-              <ChevronDownIcon className="size-4 rotate-180" />
-            </IconButton>
-            <IconButton
-              disabled={index === categories.length - 1}
-              onClick={() => void move(index, 1)}
-              aria-label={`Descendre ${category.name}`}
-            >
-              <ChevronDownIcon className="size-4" />
-            </IconButton>
-            <IconButton
-              tone="danger"
-              onClick={() => setDeleting(category)}
-              aria-label={`Supprimer ${category.name}`}
-            >
-              <TrashIcon className="size-4" />
-            </IconButton>
-          </div>
-        ))}
+      <div className="flex flex-col gap-4">
+        <p className="text-g-meta text-muted">
+          Dans l&rsquo;ordre où vos clients les lisent. Tapez dans un nom pour le changer.
+        </p>
+        <ul className="m-0 flex list-none flex-col gap-2 p-0">
+          {categories.map((category, index) => (
+            <li key={category.id} className="g-plate flex items-center gap-2 p-2">
+              <input
+                defaultValue={category.name}
+                onBlur={(event) => rename(category, event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Enter") event.currentTarget.blur();
+                }}
+                aria-label={`Nom de la catégorie ${category.name}`}
+                className={`${inputClass} min-w-0 flex-1`}
+              />
+              <Chip>
+                {category.items.length} article{category.items.length > 1 ? "s" : ""}
+              </Chip>
+              <GlassButton
+                variant="icon"
+                disabled={index === 0}
+                onClick={() => void move(index, -1)}
+                aria-label={`Monter ${category.name}`}
+              >
+                <ChevronDownIcon className="rotate-180" />
+              </GlassButton>
+              <GlassButton
+                variant="icon"
+                disabled={index === categories.length - 1}
+                onClick={() => void move(index, 1)}
+                aria-label={`Descendre ${category.name}`}
+              >
+                <ChevronDownIcon />
+              </GlassButton>
+              <GlassButton
+                variant="icon"
+                onClick={() => setDeleting(category)}
+                aria-label={`Supprimer ${category.name}`}
+              >
+                <TrashIcon />
+              </GlassButton>
+            </li>
+          ))}
+        </ul>
 
-        <form onSubmit={add} className="mt-2 flex gap-2">
-          <input
-            value={newName}
-            onChange={(event) => setNewName(event.target.value)}
-            placeholder="Nouvelle catégorie"
-            className={inputClass}
-          />
+        <form onSubmit={add} className="flex items-end gap-2">
+          <div className="flex-1">
+            <Field label="Nouvelle catégorie">
+              <input
+                value={newName}
+                onChange={(event) => setNewName(event.target.value)}
+                placeholder="Entrées, pizzas, boissons…"
+                data-autofocus={categories.length === 0 ? "" : undefined}
+                className={inputClass}
+              />
+            </Field>
+          </div>
           <button
             type="submit"
             disabled={!newName.trim()}
-            className="ember-gradient shrink-0 rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
+            className="g-btn g-btn-primary g-press shrink-0"
           >
             Ajouter
           </button>

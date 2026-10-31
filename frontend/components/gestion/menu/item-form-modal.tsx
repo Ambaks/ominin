@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, type Dispatch, type SetStateAction } from "react";
+import { useRef, useState, type Dispatch, type ReactNode, type SetStateAction } from "react";
 import { PhotoField } from "@/components/gestion/photo-field";
+import { GlassButton } from "@/components/gestion/ui";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { PriceInput } from "@/components/ui/price-input";
@@ -22,6 +23,12 @@ import {
   type OptionGroupDraft,
 } from "./options-editor";
 
+/*
+ * La fiche article en deux temps (UX-SIMPLICITÉ § 3.6) : nom, prix, catégorie
+ * et photo suffisent à créer ; « Ajouter des détails » déplie le reste en
+ * groupes nommés. À la modification, les groupes qui portent une valeur sont
+ * déjà ouverts.
+ */
 export function ItemFormModal({
   item,
   initialCategoryId,
@@ -41,6 +48,7 @@ export function ItemFormModal({
   // Sans service à table, ni accord ni cuisine : des mots qui vont à toute boutique.
   const pickupShop = isPickupShop(state);
   const toast = useToast();
+  const form = useRef<HTMLFormElement>(null);
 
   const [name, setName] = useState(item?.name ?? "");
   const [printName, setPrintName] = useState(item?.printName ?? "");
@@ -53,17 +61,15 @@ export function ItemFormModal({
   const [badges, setBadges] = useState<Badge[]>(item?.badges ?? []);
   const [allergens, setAllergens] = useState<Allergen[] | null>(item?.allergens ?? null);
   const [pairing, setPairing] = useState(item?.pairing ?? "");
-  const [vatRate, setVatRate] = useState(
-    String(item?.vatRate ?? DEFAULT_VAT_RATE)
-  );
+  const [vatRate, setVatRate] = useState(String(item?.vatRate ?? DEFAULT_VAT_RATE));
   const [categoryId, setCategoryId] = useState(initialCategoryId);
   // Une boisson ne montre pas d'allergènes sur le menu : rien à saisir.
   const current = categories.find((entry) => entry.id === categoryId);
   const drink = current ? isDrinkCategory(current) : false;
-  const [options, setOptions] = useState<OptionGroupDraft[]>(
-    optionsToDraft(item?.options)
-  );
+  const [options, setOptions] = useState<OptionGroupDraft[]>(optionsToDraft(item?.options));
+  const [details, setDetails] = useState(Boolean(item));
   const [submitted, setSubmitted] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   const parsedPrice = parsePriceInput(price);
   const stockTrimmed = stock.trim();
@@ -74,12 +80,22 @@ export function ItemFormModal({
   const parsedNotice = noticeTrimmed === "" ? null : Number(noticeTrimmed);
   const noticeValid =
     parsedNotice === null || (Number.isInteger(parsedNotice) && parsedNotice > 0);
-  const noticeInvalid = submitted && !noticeValid;
+  const nameError = submitted && !name.trim() ? "Donnez un nom à l'article." : undefined;
+  const priceError =
+    submitted && parsedPrice === null ? "Indiquez un prix, par exemple 12,50." : undefined;
+  const stockError =
+    submitted && !stockValid ? "Un nombre entier, ou vide pour illimité." : undefined;
+  const noticeError =
+    submitted && !noticeValid ? "Un nombre entier d'heures, ou vide." : undefined;
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
     setSubmitted(true);
-    if (!name.trim() || parsedPrice === null || !stockValid || !noticeValid) return;
+    if (!name.trim() || parsedPrice === null || !stockValid || !noticeValid) {
+      // Une erreur dans un groupe replié ne se verrait pas : tout s'ouvre.
+      if (!stockValid || !noticeValid) setDetails(true);
+      return;
+    }
 
     const input: api.ItemInput = {
       name: name.trim(),
@@ -97,21 +113,26 @@ export function ItemFormModal({
       vatRate: Number(vatRate),
       noticeHours: parsedNotice,
     };
+    setSaving(true);
     try {
       if (item) {
         await api.updateItem(item.id, input);
-        toast.success("Article modifié.");
+        toast.success(`« ${input.name} » modifié.`);
       } else {
         await api.createItem(input);
-        toast.success("Article ajouté.");
+        toast.success(`« ${input.name} » ajouté : il rejoint votre menu dans la minute.`);
       }
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        error instanceof Error ? error.message : "Impossible d'enregistrer. Rechargez la page et réessayez."
       );
+      setSaving(false);
     }
   };
+
+  const menuOpen = Boolean(description || detail || pairing || badges.length);
+  const kitchenOpen = Boolean(printName || stock || (item && item.vatRate != null && item.vatRate !== DEFAULT_VAT_RATE));
 
   return (
     <Modal
@@ -119,199 +140,243 @@ export function ItemFormModal({
       onClose={onClose}
       footer={
         <>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton
+            variant="primary"
+            disabled={saving}
+            onClick={() => form.current?.requestSubmit()}
           >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            form="item-form"
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-          >
-            Enregistrer
-          </button>
+            {saving ? "Enregistrement…" : "Enregistrer"}
+          </GlassButton>
         </>
       }
     >
-      <form id="item-form" onSubmit={submit} className="flex flex-col gap-4">
+      <form ref={form} onSubmit={submit} noValidate className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-[1fr_8rem]">
-          <Field label="Nom" required>
+          <Field label="Nom" required error={nameError}>
             <input
               value={name}
               onChange={(event) => setName(event.target.value)}
-              placeholder="Nom de l'article"
-              className={`${inputClass} ${submitted && !name.trim() ? "border-ember-3/60" : ""}`}
+              placeholder={pickupShop ? "Tarte aux pommes" : "Burrata di Parma"}
+              aria-invalid={nameError ? true : undefined}
+              data-autofocus={item ? undefined : ""}
+              className={inputClass}
             />
           </Field>
-          <Field label="Prix" required>
-            <PriceInput
-              value={price}
-              onChange={setPrice}
-              invalid={submitted && parsedPrice === null}
-            />
+          <Field label="Prix" required error={priceError}>
+            <PriceInput value={price} onChange={setPrice} invalid={Boolean(priceError)} />
           </Field>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-[1fr_8rem_8rem]">
-          <Field label="Catégorie" required>
-            <select
-              value={categoryId}
-              onChange={(event) => setCategoryId(event.target.value)}
-              className={inputClass}
-            >
-              {categories.map((category) => (
-                <option key={category.id} value={category.id}>
-                  {category.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field label="Stock" hint="Vide = illimité">
-            <input
-              value={stock}
-              onChange={(event) => setStock(event.target.value)}
-              inputMode="numeric"
-              placeholder="∞"
-              className={`${inputClass} ${submitted && !stockValid ? "border-ember-3/60" : ""}`}
-            />
-          </Field>
-          <Field
-            label="TVA"
-            hint={pickupShop ? "Reprise sur les tickets et les paiements" : "Appliquée à cet article en caisse"}
+        <Field label="Catégorie" required>
+          <select
+            value={categoryId}
+            onChange={(event) => setCategoryId(event.target.value)}
+            className={inputClass}
           >
-            <select
-              value={vatRate}
-              onChange={(event) => setVatRate(event.target.value)}
-              className={inputClass}
-            >
-              {VAT_RATES.map((rate) => (
-                <option key={rate} value={String(rate)}>
-                  {String(rate).replace(".", ",")} %
-                </option>
-              ))}
-            </select>
-          </Field>
-        </div>
-
-        {products.collect && (
-          <Field
-            label="Délai de commande (heures)"
-            hint="Click & collect : le client choisit un retrait au plus tôt ce délai après sa commande. Vide = pour le prochain créneau."
-            error={noticeInvalid ? "Indiquez un nombre entier d'heures, ou laissez vide." : undefined}
-          >
-            <input
-              value={notice}
-              onChange={(event) => setNotice(event.target.value)}
-              inputMode="numeric"
-              placeholder="48"
-              aria-invalid={noticeInvalid || undefined}
-              className={`${inputClass} ${noticeInvalid ? "border-ember-3/60" : ""}`}
-            />
-          </Field>
-        )}
-
-        {hasFeature("terminaux") && (
-          <Field
-            label="Nom sur le ticket"
-            hint={`Ce que la ${pickupShop ? "préparation" : "cuisine"} lit sur l'imprimante. Vide : le nom de la carte.`}
-          >
-            <input
-              value={printName}
-              onChange={(event) => setPrintName(event.target.value)}
-              placeholder={name.trim() || (pickupShop ? "Tarte 6 parts" : "Entrecôte")}
-              maxLength={40}
-              className={inputClass}
-            />
-          </Field>
-        )}
-
-        <Field label="Description">
-          <textarea
-            value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            rows={2}
-            placeholder="Ingrédients, préparation…"
-            className={`${inputClass} resize-none`}
-          />
+            {categories.map((category) => (
+              <option key={category.id} value={category.id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         </Field>
-
-        {!drink && (
-          <AllergensField value={allergens} onChange={setAllergens} />
-        )}
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field
-            label="Détail"
-            hint={pickupShop ? "Format ou portions (ex. 6 parts)" : "Format ou volume (ex. 33 cl)"}
-          >
-            <input
-              value={detail}
-              onChange={(event) => setDetail(event.target.value)}
-              className={inputClass}
-            />
-          </Field>
-          {/* Masqué, l'accord déjà saisi reste enregistré tel quel. */}
-          {!pickupShop && (
-            <Field label="Accord suggéré">
-              <input
-                value={pairing}
-                onChange={(event) => setPairing(event.target.value)}
-                placeholder="Idéal avec un Chianti"
-                className={inputClass}
-              />
-            </Field>
-          )}
-        </div>
 
         <PhotoField value={image} onChange={setImage} alt="Aperçu de la photo du plat" />
 
-        <Field label="Badges">
-          <div className="flex flex-wrap gap-2">
-            {(Object.keys(BADGE_LABELS) as Badge[]).map((badge) => {
-              const active = badges.includes(badge);
-              return (
-                <button
-                  key={badge}
-                  type="button"
-                  onClick={() =>
-                    setBadges((current) =>
-                      current.includes(badge)
-                        ? current.filter((b) => b !== badge)
-                        : [...current, badge]
-                    )
-                  }
-                  aria-pressed={active}
-                  className={chip(active)}
-                >
-                  {BADGE_LABELS[badge]}
-                </button>
-              );
-            })}
+        {!details ? (
+          <div className="flex flex-col gap-1.5 self-start">
+            <GlassButton onClick={() => setDetails(true)}>Ajouter des détails</GlassButton>
+            <span className="text-g-meta text-muted">
+              Description, allergènes, options, cuisine… tout peut attendre.
+            </span>
           </div>
-        </Field>
+        ) : (
+          <div className="flex flex-col gap-2">
+            <Group title="Sur le menu" open={menuOpen || !item}>
+              <Field label="Description">
+                <textarea
+                  value={description}
+                  onChange={(event) => setDescription(event.target.value)}
+                  rows={2}
+                  placeholder="Ingrédients, préparation…"
+                  className={`${inputClass} resize-none`}
+                />
+              </Field>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field
+                  label="Format"
+                  hint={pickupShop ? "Portions (ex. 6 parts)" : "Volume ou portion (ex. 33 cl)"}
+                >
+                  <input
+                    value={detail}
+                    onChange={(event) => setDetail(event.target.value)}
+                    className={inputClass}
+                  />
+                </Field>
+                {/* Masqué, l'accord déjà saisi reste enregistré tel quel. */}
+                {!pickupShop && (
+                  <Field label="Suggestion" hint="Affichée sous le plat">
+                    <input
+                      value={pairing}
+                      onChange={(event) => setPairing(event.target.value)}
+                      placeholder="Idéal avec un Chianti"
+                      className={inputClass}
+                    />
+                  </Field>
+                )}
+              </div>
+              <ChipsField label="Mentions">
+                {(Object.keys(BADGE_LABELS) as Badge[]).map((badge) => {
+                  const active = badges.includes(badge);
+                  return (
+                    <button
+                      key={badge}
+                      type="button"
+                      onClick={() =>
+                        setBadges((current) =>
+                          current.includes(badge)
+                            ? current.filter((b) => b !== badge)
+                            : [...current, badge]
+                        )
+                      }
+                      aria-pressed={active}
+                      className={chip(active)}
+                    >
+                      {BADGE_LABELS[badge]}
+                    </button>
+                  );
+                })}
+              </ChipsField>
+            </Group>
 
-        {hasFeature("options") && (
-          <Field label="Options et variantes">
-            <OptionsEditor
-              value={options}
-              onChange={setOptions}
-              importCandidates={importCandidates}
-            />
-          </Field>
+            {!drink && (
+              <Group title="Allergènes" open={allergens !== null}>
+                <AllergensField value={allergens} onChange={setAllergens} />
+              </Group>
+            )}
+
+            {hasFeature("options") && (
+              <Group title="Options et variantes" open={options.length > 0}>
+                <OptionsEditor
+                  value={options}
+                  onChange={setOptions}
+                  importCandidates={importCandidates}
+                />
+              </Group>
+            )}
+
+            <Group title={pickupShop ? "En préparation" : "En cuisine"} open={kitchenOpen}>
+              {hasFeature("terminaux") && (
+                <Field
+                  label="Nom sur le ticket"
+                  hint={`Ce que la ${pickupShop ? "préparation" : "cuisine"} lit sur l'imprimante. Vide : le nom de la carte.`}
+                >
+                  <input
+                    value={printName}
+                    onChange={(event) => setPrintName(event.target.value)}
+                    placeholder={name.trim() || (pickupShop ? "Tarte 6 parts" : "Entrecôte")}
+                    maxLength={40}
+                    className={inputClass}
+                  />
+                </Field>
+              )}
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Stock" hint="Vide = illimité" error={stockError}>
+                  <input
+                    value={stock}
+                    onChange={(event) => setStock(event.target.value)}
+                    inputMode="numeric"
+                    placeholder="∞"
+                    aria-invalid={stockError ? true : undefined}
+                    className={inputClass}
+                  />
+                </Field>
+                <Field
+                  label="TVA"
+                  hint={pickupShop ? "Reprise sur les tickets et les paiements" : "Appliquée à cet article en caisse"}
+                >
+                  <select
+                    value={vatRate}
+                    onChange={(event) => setVatRate(event.target.value)}
+                    className={inputClass}
+                  >
+                    {VAT_RATES.map((rate) => (
+                      <option key={rate} value={String(rate)}>
+                        {String(rate).replace(".", ",")} %
+                      </option>
+                    ))}
+                  </select>
+                </Field>
+              </div>
+            </Group>
+
+            {products.collect && (
+              <Group title="À emporter" open={notice !== ""}>
+                <Field
+                  label="Délai de commande (heures)"
+                  hint="Click & collect : le client choisit un retrait au plus tôt ce délai après sa commande. Vide = pour le prochain créneau."
+                  error={noticeError}
+                >
+                  <input
+                    value={notice}
+                    onChange={(event) => setNotice(event.target.value)}
+                    inputMode="numeric"
+                    placeholder="48"
+                    aria-invalid={noticeError ? true : undefined}
+                    className={inputClass}
+                  />
+                </Field>
+              </Group>
+            )}
+          </div>
         )}
       </form>
     </Modal>
   );
 }
 
+/** Un groupe de détails, replié tant qu'il n'a rien à dire. */
+function Group({ title, open, children }: { title: string; open: boolean; children: ReactNode }) {
+  // L'état initial seulement : ensuite le gérant plie et déplie à sa guise.
+  const [initial] = useState(open);
+  return (
+    <details open={initial} className="g-plate group p-4">
+      <summary className="flex min-h-g-control cursor-pointer list-none items-center justify-between gap-3 text-g-body font-semibold [&::-webkit-details-marker]:hidden">
+        {title}
+        <svg
+          viewBox="0 0 24 24"
+          className="size-4 text-muted transition-transform group-open:rotate-180"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="m6 9 6 6 6-6" />
+        </svg>
+      </summary>
+      <div className="flex flex-col gap-4 pt-3">{children}</div>
+    </details>
+  );
+}
+
+/* Pas de Field : son <label> renverrait un clic sur l'intitulé au premier bouton. */
+function ChipsField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <fieldset className="flex flex-col gap-1.5">
+      <legend className="mb-1.5 text-g-axis font-semibold uppercase tracking-wider text-faint">
+        {label}
+      </legend>
+      <div className="flex flex-wrap gap-2">{children}</div>
+    </fieldset>
+  );
+}
+
 const chip = (active: boolean) =>
-  `inline-flex min-h-10 items-center gap-1.5 rounded-full px-3.5 text-sm font-semibold transition-all ${
-    active
-      ? "ember-gradient text-background"
-      : "border border-foreground/30 text-foreground/85 hover:border-ember-2/60 hover:text-foreground"
+  `g-press inline-flex min-h-g-control items-center gap-1.5 rounded-full px-3.5 text-g-label font-semibold ${
+    active ? "ember-gradient text-background" : "border border-hairline text-foreground"
   }`;
 
 /**
@@ -334,12 +399,8 @@ function AllergensField({
         : [...(current ?? []), allergen];
       return next.length ? next : null;
     });
-  // Pas Field : son <label> renverrait un clic sur l'intitulé au premier bouton, et cocherait le gluten.
   return (
-    <fieldset className="flex flex-col gap-1.5">
-      <legend className="mb-1.5 text-[11px] font-semibold uppercase tracking-wider text-faint">
-        Allergènes
-      </legend>
+    <div className="flex flex-col gap-2">
       <div className="flex flex-wrap gap-2">
         {(Object.keys(ALLERGEN_LABELS) as Allergen[]).map((allergen) => {
           const active = value?.includes(allergen) ?? false;
@@ -362,20 +423,20 @@ function AllergensField({
         type="button"
         onClick={() => onChange((current) => (current?.length === 0 ? null : []))}
         aria-pressed={none}
-        className={`${chip(none)} self-start ${none ? "" : "border-dashed border-foreground/45"}`}
+        className={`${chip(none)} self-start ${none ? "" : "border-dashed"}`}
       >
         <svg viewBox="0 0 16 16" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
           <path d="M3.5 8.5l3 3 6-7" />
         </svg>
         Aucun des 14
       </button>
-      <p aria-live="polite" className="text-xs text-muted">
+      <p aria-live="polite" className="text-g-meta text-muted">
         {value === null
           ? "Rien de coché : la fiche affichera « Allergènes non renseignés »."
           : none
             ? "La fiche affichera « Aucun des 14 allergènes ». Seulement si vous en êtes sûr."
             : "Affichés un par un sur la fiche du plat."}
       </p>
-    </fieldset>
+    </div>
   );
 }

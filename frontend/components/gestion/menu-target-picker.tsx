@@ -46,19 +46,19 @@ export function MenuTargetPicker({
 
   return (
     <div className="flex flex-col gap-2">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+      <span className="text-g-axis font-semibold uppercase tracking-wider text-faint">
         {label} <span className="text-ember-2">*</span>
       </span>
-      <p className="text-xs text-faint">
+      <p className="text-g-meta text-muted">
         Cochez une catégorie entière et les articles que vous y ajouterez
         plus tard suivront d&apos;eux-mêmes.
       </p>
-      <div className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4">
+      <div className="g-plate flex flex-col gap-3 p-4">
         {categories.map((category) => {
           const wholeCategory = picked({ kind: "category", id: category.id });
           return (
             <div key={category.id} className="flex flex-col">
-              <label className="flex min-h-10 items-center gap-2.5 text-sm font-medium">
+              <label className="flex min-h-g-control items-center gap-2.5 text-g-body font-medium">
                 <input
                   type="checkbox"
                   checked={wholeCategory}
@@ -76,7 +76,7 @@ export function MenuTargetPicker({
                   return (
                     <div key={item.id} className="flex flex-col">
                       <label
-                        className={`flex min-h-10 items-center gap-2.5 text-sm ${
+                        className={`flex min-h-g-control items-center gap-2.5 text-g-body ${
                           wholeCategory ? "text-faint" : "text-muted"
                         }`}
                       >
@@ -94,7 +94,7 @@ export function MenuTargetPicker({
                           {choices.map((choice) => (
                             <label
                               key={choice.id}
-                              className={`flex min-h-10 items-center gap-2 text-xs ${
+                              className={`flex min-h-g-control items-center gap-2 text-g-meta ${
                                 wholeItem ? "text-faint" : "text-muted"
                               }`}
                             >

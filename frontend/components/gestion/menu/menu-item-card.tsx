@@ -1,12 +1,14 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import {
   ChevronDownIcon,
   EditIcon,
   MenuIcon,
   TrashIcon,
 } from "@/components/gestion/icons";
-import { IconButton } from "@/components/ui/icon-button";
+import { Chip, GlassButton, Plate } from "@/components/gestion/ui";
+import { inputClass } from "@/components/ui/field";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import { Toggle } from "@/components/ui/toggle";
 import * as api from "@/lib/gestion/api";
@@ -22,6 +24,7 @@ import {
 
 export function MenuItemCard({
   item,
+  index = 0,
   drink = false,
   printers = [],
   printerId = null,
@@ -36,6 +39,8 @@ export function MenuItemCard({
   onPrinterChange,
 }: {
   item: MenuItem;
+  /** Rang dans la grille : décale son entrée. */
+  index?: number;
   /** Rangé dans une catégorie de boissons : le menu n'en montre pas les allergènes. */
   drink?: boolean;
   printers?: Printer[];
@@ -66,7 +71,7 @@ export function MenuItemCard({
     const trimmed = raw.trim();
     const stock = trimmed === "" ? null : Number.parseInt(trimmed, 10);
     if (stock !== null && (!Number.isInteger(stock) || stock < 0)) {
-      toast.error("Stock invalide.");
+      toast.error("Stock invalide : un nombre entier, ou vide pour illimité.");
       return;
     }
     if ((item.stock ?? null) === stock) return;
@@ -74,81 +79,73 @@ export function MenuItemCard({
   };
 
   return (
-    <article
-      // La première fiche de la catégorie sert d'exemple à la visite du Menu.
+    <Plate
+      // La première fiche de la catégorie sert d'exemple à la visite de la Carte.
       data-visite={first ? "menu-article" : undefined}
       // min-w-0 : un nom long tient sur deux lignes au lieu d'élargir la grille.
-      className={`flex min-w-0 gap-4 rounded-2xl border border-hairline bg-surface p-4 ${
-        available ? "" : "opacity-60"
-      }`}
+      className="g-rise flex min-w-0 gap-4 p-4"
+      style={{ "--g-i": index } as CSSProperties}
     >
       {item.image ? (
         // eslint-disable-next-line @next/next/no-img-element -- URL saisie par l'utilisateur, hors remotePatterns de next/image
-        <img
-          src={item.image}
-          alt=""
-          className="size-16 shrink-0 rounded-xl object-cover"
-        />
+        <img src={item.image} alt="" className="size-16 shrink-0 rounded-g-card object-cover" />
       ) : (
-        <div className="flex size-16 shrink-0 items-center justify-center rounded-xl bg-background text-faint">
+        <div className="flex size-16 shrink-0 items-center justify-center rounded-g-card border border-hairline text-faint">
           <MenuIcon className="size-5" />
         </div>
       )}
 
-      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-2">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             {/* Le nom ouvre la fiche, comme le crayon : la cible naturelle au doigt. */}
-            <h3 className="text-sm font-medium">
+            <h3 className="text-g-body font-semibold">
               {canEdit ? (
                 // Le crayon reste l'arrêt du clavier : le nom ne double pas la tabulation.
-                <button type="button" tabIndex={-1} onClick={onEdit} className="cursor-pointer text-left hover:underline">
+                <button type="button" tabIndex={-1} onClick={onEdit} className="cursor-pointer text-left">
                   <span className="line-clamp-2">{item.name}</span>
                 </button>
               ) : (
                 <span className="line-clamp-2">{item.name}</span>
               )}
             </h3>
-            {item.detail && (
-              <p className="font-display text-xs italic text-ember-1/85">
-                {item.detail}
-              </p>
-            )}
+            {item.detail && <p className="text-g-meta text-muted">{item.detail}</p>}
             {item.printName && (
-              <p className="text-xs text-faint">Ticket : {item.printName}</p>
+              <p className="text-g-meta text-muted">Ticket : {item.printName}</p>
             )}
           </div>
-          <span className="shrink-0 font-display text-base text-ember-1">
-            {formatPrice(item.price)}
+          <span className="flex shrink-0 flex-col items-end gap-1.5">
+            <span className="g-money text-g-label font-semibold text-g-entity tabular-nums">
+              {formatPrice(item.price)}
+            </span>
+            {!available && (
+              <Chip tone="problem">
+                {!enVente ? "Retiré" : item.stock === 0 ? "Épuisé" : "Options épuisées"}
+              </Chip>
+            )}
           </span>
         </div>
 
         {item.description && (
-          <p className="line-clamp-2 text-xs leading-relaxed text-muted">
-            {item.description}
-          </p>
+          <p className="line-clamp-2 text-g-meta text-muted">{item.description}</p>
         )}
 
         {/* Ce qui manque encore se voit : sans allergènes, le menu renvoie le client à l'équipe. */}
-        {!drink && (
-          <p className={`text-xs ${item.allergens === undefined ? "text-ember-2" : "text-faint"}`}>
-            {item.allergens === undefined
-              ? "Allergènes non renseignés"
-              : item.allergens.length === 0
-                ? "Aucun allergène"
-                : allergenLine(item.allergens)}
-          </p>
-        )}
+        {!drink &&
+          (item.allergens === undefined ? (
+            <div>
+              <Chip>Allergènes non renseignés</Chip>
+            </div>
+          ) : (
+            <p className="text-g-meta text-muted">
+              {item.allergens.length === 0 ? "Aucun allergène" : allergenLine(item.allergens)}
+            </p>
+          ))}
 
         {item.badges && item.badges.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {item.badges.map((badge) => (
-              <span
-                key={badge}
-                className="ember-text rounded-full border border-ember-2/35 bg-background/60 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider"
-              >
-                {BADGE_LABELS[badge]}
-              </span>
+              <Chip key={badge}>{BADGE_LABELS[badge]}</Chip>
             ))}
           </div>
         )}
@@ -156,9 +153,9 @@ export function MenuItemCard({
         {tarifs}
 
         {item.options && item.options.length > 0 && (
-          <div className="mt-1 flex flex-col gap-2 rounded-xl border border-hairline bg-background/60 p-3">
+          <div className="flex flex-col gap-2 rounded-g-card border border-hairline p-3">
             {/* Au doigt, pas d'infobulle : le geste est dit en clair. */}
-            <p className="text-xs text-muted">
+            <p className="text-g-meta text-muted">
               {canAvailability
                 ? "Options : touchez un choix pour le marquer épuisé, touchez-le à nouveau pour le remettre."
                 : "Options : ✓ disponible, ✕ épuisé."}
@@ -170,9 +167,7 @@ export function MenuItemCard({
                 aria-label={`${group.name} : disponibilité`}
                 className="flex flex-wrap items-center gap-1.5"
               >
-                <span className="mr-0.5 text-[11px] font-semibold uppercase tracking-wider text-faint">
-                  {group.name}
-                </span>
+                <span className="g-eyebrow mr-0.5">{group.name}</span>
                 {group.choices.map((choice) => {
                   const ok = isChoiceAvailable(choice);
                   return (
@@ -188,22 +183,22 @@ export function MenuItemCard({
                           ok ? `${choice.name} : épuisé.` : `${choice.name} : de nouveau disponible.`
                         )
                       }
-                      className={`flex min-h-9 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-colors disabled:cursor-default ${
+                      className={`g-press flex min-h-g-control items-center gap-1.5 rounded-full border px-3 text-g-meta font-semibold disabled:cursor-default ${
                         ok
-                          ? "border-status-signed/40 bg-status-signed/10 text-foreground hover:border-status-signed/70"
-                          : "border-ember-3/40 bg-ember-3/10 text-ember-3"
+                          ? "border-status-signed/40 text-foreground"
+                          : "g-chip-problem text-foreground"
                       }`}
                     >
                       <span aria-hidden>{ok ? "✓" : "✕"}</span>
                       <span className={ok ? undefined : "line-through"}>{choice.name}</span>
-                      {!ok && <span className="font-normal no-underline">épuisé</span>}
+                      {!ok && <span className="font-normal">épuisé</span>}
                     </button>
                   );
                 })}
               </div>
             ))}
             {hasBlockedRequiredGroup(item.options) && (
-              <p className="text-xs text-ember-3">
+              <p className="text-g-meta text-muted">
                 Tous les choix d&apos;un groupe obligatoire sont épuisés&nbsp;: vos
                 clients ne peuvent plus commander cet article.
               </p>
@@ -212,14 +207,13 @@ export function MenuItemCard({
         )}
 
         {closedBy && (
-          <p className="text-xs text-ember-3">
-            Fermé en ce moment ({closedBy})&nbsp;: vos clients le voient
-            «&nbsp;Plus servi&nbsp;».
-          </p>
+          <div>
+            <Chip tone="problem">Fermé en ce moment ({closedBy}) : vu « Plus servi »</Chip>
+          </div>
         )}
 
         <div className="mt-1 flex flex-wrap items-center gap-x-4 gap-y-2">
-          <label className="flex items-center gap-2 text-xs text-muted">
+          <label className="flex min-h-g-control items-center gap-2 text-g-label text-muted">
             <Toggle
               checked={enVente}
               disabled={!canAvailability}
@@ -234,7 +228,7 @@ export function MenuItemCard({
             {enVente ? (item.stock === 0 ? "Épuisé" : "En vente") : "Retiré"}
           </label>
 
-          <label className="flex items-center gap-1.5 text-xs text-muted">
+          <label className="flex items-center gap-1.5 text-g-label text-muted">
             Stock
             <input
               key={`${item.id}-${item.stock ?? ""}`}
@@ -246,20 +240,18 @@ export function MenuItemCard({
               onKeyDown={(event) => {
                 if (event.key === "Enter") event.currentTarget.blur();
               }}
-              className="w-16 rounded-lg border border-hairline bg-background px-2 py-2 text-center text-base outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 disabled:opacity-40 lg:pointer-fine:text-xs"
+              className={`${inputClass} w-16 px-2 text-center disabled:opacity-40`}
             />
           </label>
 
           {printers.length > 0 && (
-            <label className="flex items-center gap-1.5 text-xs text-muted">
+            <label className="flex items-center gap-1.5 text-g-label text-muted">
               Imprimante
               <select
                 value={printerId ?? ""}
                 disabled={!canRoute}
-                onChange={(e) =>
-                  onPrinterChange?.(e.target.value || null)
-                }
-                className="rounded-lg border border-hairline bg-background px-3 py-2 text-base outline-none transition-colors focus:border-ember-2/50 disabled:opacity-40 lg:pointer-fine:text-xs"
+                onChange={(e) => onPrinterChange?.(e.target.value || null)}
+                className={`${inputClass} w-auto disabled:opacity-40`}
               >
                 <option value="">—</option>
                 {printers.map((p) => (
@@ -275,36 +267,34 @@ export function MenuItemCard({
             <span className="ml-auto flex gap-1.5">
               {onMove && (
                 <>
-                  <IconButton
+                  <GlassButton
+                    variant="icon"
                     disabled={first}
                     onClick={() => onMove(-1)}
                     aria-label={`Monter ${item.name}`}
                   >
-                    <ChevronDownIcon className="size-4 rotate-180" />
-                  </IconButton>
-                  <IconButton
+                    <ChevronDownIcon className="rotate-180" />
+                  </GlassButton>
+                  <GlassButton
+                    variant="icon"
                     disabled={last}
                     onClick={() => onMove(1)}
                     aria-label={`Descendre ${item.name}`}
                   >
-                    <ChevronDownIcon className="size-4" />
-                  </IconButton>
+                    <ChevronDownIcon />
+                  </GlassButton>
                 </>
               )}
-              <IconButton onClick={onEdit} aria-label={`Modifier ${item.name}`}>
-                <EditIcon className="size-4" />
-              </IconButton>
-              <IconButton
-                tone="danger"
-                onClick={onDelete}
-                aria-label={`Supprimer ${item.name}`}
-              >
-                <TrashIcon className="size-4" />
-              </IconButton>
+              <GlassButton variant="icon" onClick={onEdit} aria-label={`Modifier ${item.name}`}>
+                <EditIcon />
+              </GlassButton>
+              <GlassButton variant="icon" onClick={onDelete} aria-label={`Supprimer ${item.name}`}>
+                <TrashIcon />
+              </GlassButton>
             </span>
           )}
         </div>
       </div>
-    </article>
+    </Plate>
   );
 }

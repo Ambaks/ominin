@@ -1,16 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
-import { ExternalLinkIcon } from "@/components/gestion/icons";
+import { CheckIcon, ExternalLinkIcon, ProductsIcon, TeamIcon } from "@/components/gestion/icons";
 import {
-  DiscoverLink,
-  Pill,
-  ProductCard,
-  cardClass,
-  eyebrowClass,
-  productLinkClass,
-} from "@/components/products/product-card";
+  Chip,
+  GlassButton,
+  GlassFrame,
+  Notice,
+  Plate,
+  SectionHeading,
+} from "@/components/gestion/ui";
 import { startCheckout } from "@/lib/gestion/checkout";
 import {
   ACTION_LABELS,
@@ -19,7 +19,7 @@ import {
   SUBSCRIPTION_POLL_MS,
 } from "@/lib/gestion/constants";
 import { allowedActions } from "@/lib/gestion/permissions";
-import { activeProducts, isPickupShop, roleLabels } from "@/lib/gestion/selectors";
+import { isPickupShop, roleLabels } from "@/lib/gestion/selectors";
 import { refreshSubscription, useGestion } from "@/lib/gestion/store";
 import { collectOffer, contactEmail } from "@/lib/landing-data";
 import {
@@ -27,9 +27,18 @@ import {
   collectProduct,
   currentOffreProduct,
   offreProducts,
+  type Product,
 } from "@/lib/products";
 import { collectSiteUrl } from "@/lib/site";
 
+/** Un lien externe habillé en commande du kit (GlassButton ne sait pas ouvrir un onglet). */
+const LINK_CLASS = "g-btn g-btn-secondary g-press self-start";
+
+/*
+ * Abonnement (ex-Produits) : l'offre active, le rôle de qui regarde et ce
+ * qu'il peut faire ; pour le gérant, le reste du catalogue et l'activation
+ * du click & collect (une vente : elle se signe).
+ */
 export default function ProduitsPage() {
   const state = useGestion();
   const collectActive = state?.collectSubscriptionStatus === "active";
@@ -50,10 +59,7 @@ export default function ProduitsPage() {
 
   useEffect(() => {
     if (!confirming || collectActive) return;
-    const timer = setInterval(
-      () => void refreshSubscription(),
-      SUBSCRIPTION_POLL_MS
-    );
+    const timer = setInterval(() => void refreshSubscription(), SUBSCRIPTION_POLL_MS);
     return () => clearInterval(timer);
   }, [confirming, collectActive]);
 
@@ -63,7 +69,6 @@ export default function ProduitsPage() {
   // Le catalogue ne se propose qu'à qui peut l'acheter : les membres de
   // l'équipe voient leur offre et leur rôle, pas les produits à vendre.
   const isGerant = state.role === "gerant";
-  const products = activeProducts(state);
   // Sans service à table : ni « Marquer servie », ni les offres menu & salle.
   const pickupShop = isPickupShop(state);
   const offreProduct = offre ? currentOffreProduct(offre) : undefined;
@@ -71,6 +76,9 @@ export default function ProduitsPage() {
   const changeOffreHref = `mailto:${contactEmail}?subject=${encodeURIComponent(
     `Changement d'offre — ${state.etablissement.name}`
   )}`;
+  const actions = allowedActions(state.role, state.features).filter(
+    (action) => !(pickupShop && action === "orders.setStatus:servie")
+  );
 
   const activateCollect = async () => {
     // Rien à signer tant que le contrat n'est pas chargé : le bouton est
@@ -87,97 +95,105 @@ export default function ProduitsPage() {
       }
     } catch (cause) {
       setError(
-        cause instanceof Error ? cause.message : "Une erreur est survenue."
+        cause instanceof Error
+          ? cause.message
+          : "Activation impossible pour l'instant : vérifiez le réseau, puis réessayez."
       );
       setBusy(false);
     }
   };
 
-  return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-          Produits
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          {isGerant
-            ? "Les produits Ominin actifs sur votre établissement, votre rôle, et le reste du catalogue."
-            : "Les produits Ominin actifs sur votre établissement et votre rôle."}
-        </p>
-      </div>
+  let block = 0;
+  const rise = () => ({ className: "g-rise", style: { "--g-i": block++ } as CSSProperties });
 
-      <div className="grid gap-4 lg:grid-cols-2">
+  return (
+    <div className="flex flex-col gap-g-gap">
+      <section {...rise()}>
+        <SectionHeading
+          level={1}
+          title="Abonnement"
+          sub={
+            isGerant
+              ? "Votre offre Ominin, votre rôle, et le reste du catalogue."
+              : "Votre offre Ominin et ce que votre rôle vous permet."
+          }
+        />
+      </section>
+
+      <section {...rise()} className="g-rise grid gap-g-gap lg:grid-cols-2">
         {offreProduct && (
-          <ProductCard
-            product={offreProduct}
-            badge={<Pill>Actif</Pill>}
-            visite="produits-offre"
-          />
+          <GlassFrame entity="money" eyebrow={offreProduct.eyebrow} icon={<ProductsIcon />}>
+            <Plate className="flex flex-col gap-4 p-5" data-visite="produits-offre">
+              <ProductHead product={offreProduct} badge={<Chip icon={<CheckIcon />}>Active</Chip>} />
+              <Features product={offreProduct} />
+            </Plate>
+          </GlassFrame>
         )}
 
-        <section className={cardClass}>
-          <div>
-            <p className={eyebrowClass}>Votre rôle</p>
-            <h2 className="font-display text-xl font-medium">
-              {roleLabels(state)[state.role]}
-            </h2>
-          </div>
-          <p className="text-sm text-muted">
-            {(pickupShop ? PICKUP_ROLE_TAGLINES : ROLE_TAGLINES)[state.role]}
-          </p>
-          <div>
-            <p className="mb-2 text-xs font-medium text-faint">
-              Ce que vous pouvez faire
-            </p>
-            <ul className="flex flex-wrap gap-1.5">
-              {allowedActions(state.role, state.features)
-                .filter((action) => !(pickupShop && action === "orders.setStatus:servie"))
-                .map((action) => (
-                  <li
-                    key={action}
-                    className="rounded-full border border-hairline bg-background/60 px-2.5 py-1 text-xs text-muted"
-                  >
-                    {ACTION_LABELS[action]}
+        <GlassFrame entity="orders" eyebrow="Votre rôle" icon={<TeamIcon />}>
+          <Plate className="flex flex-col gap-4 p-5">
+            <div>
+              <h2 className="font-display text-g-h2">{roleLabels(state)[state.role]}</h2>
+              <p className="mt-1 text-g-meta text-muted">
+                {(pickupShop ? PICKUP_ROLE_TAGLINES : ROLE_TAGLINES)[state.role]}
+              </p>
+            </div>
+            <div>
+              <p className="mb-2 text-g-axis font-semibold uppercase tracking-wider text-faint">
+                Ce que vous pouvez faire
+              </p>
+              <ul className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+                {actions.map((action) => (
+                  <li key={action}>
+                    <Chip>{ACTION_LABELS[action]}</Chip>
                   </li>
                 ))}
-            </ul>
-          </div>
-        </section>
+              </ul>
+            </div>
+          </Plate>
+        </GlassFrame>
 
         {collectActive && (
-          <ProductCard product={collectProduct} badge={<Pill>Actif</Pill>}>
-            <a
-              href={`${collectSiteUrl}/${slug}`}
-              target="_blank"
-              rel="noopener"
-              className={productLinkClass}
-            >
-              <ExternalLinkIcon className="size-3.5" />
-              Voir ma page de commande
-            </a>
-          </ProductCard>
+          <GlassFrame entity="money" eyebrow={collectProduct.eyebrow} icon={<ProductsIcon />}>
+            <Plate className="flex flex-col gap-4 p-5">
+              <ProductHead product={collectProduct} badge={<Chip icon={<CheckIcon />}>Actif</Chip>} />
+              <Features product={collectProduct} />
+              <a
+                href={`${collectSiteUrl}/${slug}`}
+                target="_blank"
+                rel="noopener"
+                className={LINK_CLASS}
+              >
+                <ExternalLinkIcon />
+                Voir ma page de commande
+              </a>
+            </Plate>
+          </GlassFrame>
         )}
-      </div>
+      </section>
 
       {isGerant && (
-        <section className="flex flex-col gap-4">
-          <div>
-            <h2 className="font-display text-lg font-medium">
-              Autres produits Ominin
-            </h2>
-            <p className="mt-1 text-sm text-muted">
-              Tout se pilote depuis ce même espace, sans nouvel outil à
-              apprendre.
-            </p>
-          </div>
+        <>
+          <section {...rise()}>
+            <SectionHeading
+              title="Autres produits Ominin"
+              sub="Tout se pilote depuis ce même espace, sans nouvel outil à apprendre."
+            />
+          </section>
 
-          <div className="grid gap-4 lg:grid-cols-2">
+          {(error || contractError) && (
+            <section {...rise()}>
+              <Notice title="Activation impossible" text={error ?? contractError ?? undefined} />
+            </section>
+          )}
+
+          <section {...rise()} className="g-rise grid gap-g-gap lg:grid-cols-2">
             {!collectActive && (
-              <ProductCard product={collectProduct} visite="produits-collect">
+              <Plate className="flex flex-col gap-4 p-5" data-visite="produits-collect">
+                <ProductHead product={collectProduct} />
+                <Features product={collectProduct} />
                 {confirming ? (
-                  <p className="text-sm text-muted">
-                    Paiement reçu, activation en cours…
-                  </p>
+                  <Chip>Paiement reçu, activation en cours…</Chip>
                 ) : (
                   <>
                     <AcceptTerms
@@ -188,52 +204,106 @@ export default function ProduitsPage() {
                       commitment={
                         <>
                           Je passe à{" "}
-                          <span className="font-semibold">
-                            {collectOffer.bundle.name}
-                          </span>{" "}
-                          : {collectOffer.bundle.menuCommission.percent}&nbsp;%{" "}
+                          <span className="font-semibold">{collectOffer.bundle.name}</span> :{" "}
+                          {collectOffer.bundle.menuCommission.percent}&nbsp;%{" "}
                           {collectOffer.bundle.menuCommission.basis} et{" "}
                           {collectOffer.commission.percent}&nbsp;%{" "}
-                          {collectOffer.commission.basis}, sans abonnement
-                          mensuel.
+                          {collectOffer.commission.basis}, sans abonnement mensuel.
                         </>
                       }
                     />
-                    <button
-                      type="button"
-                      onClick={() => void activateCollect()}
-                      disabled={busy || !accepted || !contract}
-                      className="ember-gradient self-start rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-                    >
-                      Activer le click &amp; collect
-                    </button>
+                    <div className="flex flex-wrap items-center gap-3">
+                      <GlassButton
+                        variant="primary"
+                        onClick={() => void activateCollect()}
+                        disabled={busy || !accepted || !contract}
+                      >
+                        {busy ? "Activation…" : "Activer le click & collect"}
+                      </GlassButton>
+                      {!accepted && contract && (
+                        <span className="text-g-meta text-muted">
+                          Cochez les conditions pour activer.
+                        </span>
+                      )}
+                    </div>
                   </>
                 )}
-                {(error || contractError) && (
-                  <p className="text-sm text-ember-3">{error ?? contractError}</p>
-                )}
-              </ProductCard>
+              </Plate>
             )}
 
             {!pickupShop &&
               otherOffres.map((product, index) => (
-                <ProductCard key={product.id} product={product}>
+                <Plate key={product.id} className="flex flex-col gap-4 p-5">
+                  <ProductHead product={product} />
+                  <Features product={product} />
                   <a
                     href={changeOffreHref}
                     data-visite={index === 0 ? "produits-autres" : undefined}
-                    className={productLinkClass}
+                    title="Ouvre un email prêt à nous envoyer"
+                    className={LINK_CLASS}
                   >
                     Passer à {product.name}
                   </a>
-                </ProductCard>
+                </Plate>
               ))}
 
-            <ProductCard product={clipProduct}>
-              <DiscoverLink product={clipProduct} />
-            </ProductCard>
-          </div>
-        </section>
+            <Plate className="flex flex-col gap-4 p-5">
+              <ProductHead product={clipProduct} />
+              <Features product={clipProduct} />
+              <a href={clipProduct.href} target="_blank" rel="noopener" className={LINK_CLASS}>
+                <ExternalLinkIcon />
+                Découvrir {clipProduct.name}
+              </a>
+            </Plate>
+          </section>
+        </>
       )}
+    </div>
+  );
+}
+
+function ProductHead({ product, badge }: { product: Product; badge?: ReactNode }) {
+  return (
+    <div className="flex flex-col gap-3">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          {!badge && (
+            <p className="text-g-axis font-semibold uppercase tracking-wider text-faint">
+              {product.eyebrow}
+            </p>
+          )}
+          <h2 className="font-display text-g-h2">{product.name}</h2>
+        </div>
+        {badge}
+      </div>
+      <p className="text-g-meta text-muted">{product.tagline}</p>
+      <div>
+        <p className="text-g-kpi tabular-nums">
+          {product.price}
+          {product.priceUnit && (
+            <span className="text-g-label font-normal text-muted">{product.priceUnit}</span>
+          )}
+        </p>
+        {product.priceNote && <p className="mt-1 text-g-meta text-muted">{product.priceNote}</p>}
+      </div>
+    </div>
+  );
+}
+
+function Features({ product }: { product: Product }) {
+  return (
+    <div className="flex flex-col gap-2">
+      {product.featuresLabel && (
+        <p className="text-g-meta font-medium text-muted">{product.featuresLabel}</p>
+      )}
+      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">
+        {product.features.map((feature) => (
+          <li key={feature} className="flex items-start gap-2 text-g-label text-muted">
+            <CheckIcon className="mt-0.5 size-4 shrink-0 text-ember-1" />
+            {feature}
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
