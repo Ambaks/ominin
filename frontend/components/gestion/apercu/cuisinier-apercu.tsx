@@ -11,12 +11,12 @@ import { serviceDate } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { CarteEnVente } from "./carte-en-vente";
-import { ServiceClock } from "./service-clock";
+import { ServiceTime } from "./service-time";
 
 /*
  * L'écran de la cuisine (UX-SIMPLICITÉ § 3.5). Les commandes sortent sur
  * l'imprimante : il reste au poste deux gestes, fermer ou rouvrir ce que la
- * cuisine sert, et marquer un plat épuisé — ici, sans passer par la Carte.
+ * cuisine sert, et marquer un plat épuisé, ici, sans passer par la Carte.
  */
 
 export function CuisinierApercu({ state }: { state: GestionState }) {
@@ -30,31 +30,35 @@ export function CuisinierApercu({ state }: { state: GestionState }) {
     day: "numeric",
     month: "long",
   });
+  // Tant qu'il n'a pas de nom, l'équipe le lit en adresse e-mail : on le
+  // demande avant la liste. Ensuite, la ligne descend sous la carte.
+  const named = Boolean(
+    state.members.find((member) => member.userId === state.userId)?.displayName
+  );
+  const block = (i: number) => ({ "--g-i": i }) as CSSProperties;
 
   return (
     <div className="grid gap-5">
-      <section className="g-rise" style={{ "--g-i": 0 } as CSSProperties}>
-        <GlassFrame
-          hero
-          entity={stopped.length > 0 ? "problem" : "orders"}
-          eyebrow="Service en direct"
-          icon={<PrinterIcon />}
-        >
-          <Plate className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3 p-5">
-            <div className="min-w-0">
-              <h1 className="font-display text-g-h1">Cuisine</h1>
-              <p className="mt-1.5 text-g-body text-muted">
-                <span className="capitalize">{today}</span> ·{" "}
-                {stopped.length > 0 ? `à l’arrêt : ${listFr(stopped)}` : "en service"}
-              </p>
-            </div>
-            <ServiceClock />
-          </Plate>
-        </GlassFrame>
-      </section>
+      <GlassFrame
+        hero
+        i={0}
+        entity={stopped.length > 0 ? "problem" : "orders"}
+        eyebrow="Service en direct"
+        icon={<PrinterIcon />}
+      >
+        <Plate className="p-4 sm:p-5">
+          <div className="flex items-center justify-between gap-4">
+            <h1 className="font-display text-g-h1">Cuisine</h1>
+            <ServiceTime />
+          </div>
+          <p className="mt-1 text-g-body text-muted first-letter:uppercase">
+            {today} · {stopped.length > 0 ? `à l’arrêt : ${listFr(stopped)}` : "en service"}
+          </p>
+        </Plate>
+      </GlassFrame>
 
       {state.closures.length > 0 && (
-        <section className="g-rise" style={{ "--g-i": 1 } as CSSProperties}>
+        <section className="g-rise" style={block(1)}>
           <FermeturesBar
             closures={state.closures}
             categories={state.categories}
@@ -63,11 +67,13 @@ export function CuisinierApercu({ state }: { state: GestionState }) {
         </section>
       )}
 
-      <section className="g-rise" style={{ "--g-i": 2 } as CSSProperties}>
+      {!named && <ProfileRow state={state} style={block(2)} />}
+
+      <section className="g-rise" style={block(3)}>
         <CarteEnVente state={state} />
       </section>
 
-      <ProfileRow state={state} style={{ "--g-i": 3 } as CSSProperties} />
+      {named && <ProfileRow state={state} style={block(4)} />}
     </div>
   );
 }
