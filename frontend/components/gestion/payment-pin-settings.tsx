@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { describeError } from "@/lib/gestion/errors";
-import { GlassButton, Plate } from "@/components/gestion/ui";
-import { Field, inputClass } from "@/components/ui/field";
+import { Field, GlassButton, Input, Plate } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { setPaymentPin } from "@/lib/gestion/api";
 
@@ -49,14 +48,14 @@ export function PaymentPinSettings({ pinSet }: { pinSet: boolean }) {
           </p>
         </div>
         <Field label="Code à 4 chiffres" hint="Il doit être différent du code Admin.">
-          <input
+          <Input
             type="password"
             inputMode="numeric"
             autoComplete="off"
             value={code}
             onChange={(event) => setCode(event.target.value.replace(/\D/g, "").slice(0, 4))}
             placeholder={pinSet ? "••••" : "Aucun code"}
-            className={`${inputClass} max-w-40`}
+            className="max-w-40"
           />
         </Field>
         <div className="flex flex-wrap items-center justify-end gap-3">
@@ -70,13 +69,13 @@ export function PaymentPinSettings({ pinSet }: { pinSet: boolean }) {
               Retirer le code
             </GlassButton>
           )}
-          <button
+          <GlassButton
+            variant="primary"
             type="submit"
             disabled={busy || incomplete}
-            className="g-btn g-btn-primary g-press"
           >
             {busy ? "Enregistrement…" : pinSet ? "Remplacer" : "Enregistrer"}
-          </button>
+          </GlassButton>
         </div>
       </form>
     </Plate>

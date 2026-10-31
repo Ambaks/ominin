@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { describeError } from "@/lib/gestion/errors";
-import { Plate } from "@/components/gestion/ui";
-import { Field, inputClass } from "@/components/ui/field";
+import { Field, GlassButton, Input, Plate } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { setCollectSlotCapacity } from "@/lib/gestion/api";
 import { formatPrice } from "@/lib/menu/format";
@@ -51,14 +50,13 @@ export function CollectSettings({
           hint="Nombre maximal de commandes que vous pouvez préparer sur un même créneau de retrait."
           error={valid ? undefined : "Indiquez au moins 1 commande par créneau."}
         >
-          <input
+          <Input
             type="number"
             min={1}
             value={capacity}
             onChange={(event) => setCapacity(Number(event.target.value))}
             required
-            aria-invalid={valid ? undefined : true}
-            className={`${inputClass} w-24`}
+            className="w-24"
           />
         </Field>
         <p className="text-g-meta text-muted">
@@ -72,13 +70,13 @@ export function CollectSettings({
           {valid && capacity === saved && !busy && (
             <span className="mr-auto text-g-meta text-muted">Rien à enregistrer.</span>
           )}
-          <button
+          <GlassButton
+            variant="primary"
             type="submit"
             disabled={busy || !valid || capacity === saved}
-            className="g-btn g-btn-primary g-press"
           >
             {busy ? "Enregistrement…" : "Enregistrer"}
-          </button>
+          </GlassButton>
         </div>
       </form>
     </Plate>

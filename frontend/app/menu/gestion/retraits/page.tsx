@@ -14,6 +14,7 @@ import {
   Chip,
   EmptyState,
   GlassButton,
+  Input,
   Notice,
   SectionHeading,
   Segmented,
@@ -106,6 +107,15 @@ export default function RetraitsPage() {
   if (!strip.includes(day)) strip.push(day);
   const dayLabel = capitalize(formatDayLong(day));
   const showSummary = role === "gerant" && summary.count > 0 && view === "commandes";
+  // Sous le titre du jour : ce qu'il reste à remettre, et pour le gérant au
+  // téléphone, où les tuiles n'ont pas leur place, la journée en une ligne.
+  const daySub = [
+    open.length > 0 ? `${open.length} à remettre` : ofDay.length > 0 ? "tout est remis" : undefined,
+    showSummary ? formatPrice(summary.total) : undefined,
+    showSummary && summary.due > 0 ? `${formatPrice(summary.due)} à encaisser` : undefined,
+  ]
+    .filter(Boolean)
+    .join(" · ") || undefined;
 
   const requestHandOver = (order: Order) => {
     if (state.etablissement.paymentPinSet) setAuthorizing(order);
@@ -131,7 +141,9 @@ export default function RetraitsPage() {
         }`
       );
     } catch (error) {
-      toast.error(describeError(error).message);
+      // « Impossible d'enregistrer » ne dit rien d'un paiement refusé.
+      const described = describeError(error);
+      toast.error(described.family === "donnee" ? `Commande non encaissée. ${described.text}` : described.message);
     }
   };
 
@@ -151,11 +163,7 @@ export default function RetraitsPage() {
         <SectionHeading
           level={1}
           title="Retraits"
-          sub={
-            role === "cuisinier"
-              ? "Ce qu'il reste à préparer, jour par jour"
-              : "Les commandes à emporter, jour par jour"
-          }
+          sub={role === "cuisinier" ? "Ce qu'il reste à préparer, jour par jour" : undefined}
           right={
             takesOrders ? (
               <GlassButton variant="primary" onClick={() => setCreating(true)}>
@@ -171,8 +179,8 @@ export default function RetraitsPage() {
           <Notice
             tone="info"
             icon={<BagIcon />}
-            title={`${plural(freshTotal, "nouvelle commande")} du site`}
-            text="à prendre en charge"
+            title={plural(freshTotal, "nouvelle commande")}
+            text="du site, à prendre en charge"
             action={
               <GlassButton variant="primary" onClick={jumpToFresh}>
                 Voir
@@ -182,13 +190,14 @@ export default function RetraitsPage() {
         </Block>
       )}
 
-      <Block i={2} className="flex flex-wrap items-center gap-3 print:hidden">
+      <Block i={2} className="flex items-center gap-3 print:hidden">
         <div
           ref={stripRef}
           role="group"
           aria-label="Jour de retrait"
-          // Le bord droit s'efface : la bande se poursuit au doigt ou à la molette.
-          className="no-scrollbar flex min-w-0 flex-1 basis-64 gap-2 overflow-x-auto scroll-pr-12 pb-1 [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)]"
+          // Le bord droit s'efface : la bande se poursuit au doigt ou à la molette ;
+          // la dernière tuile s'arrête avant le fondu.
+          className="no-scrollbar -m-1 flex min-w-0 flex-1 basis-0 gap-2 overflow-x-auto overscroll-x-contain scroll-pr-12 p-1 pr-12 [mask-image:linear-gradient(to_right,black_calc(100%-3rem),transparent)]"
         >
           {strip.map((candidate) => {
             const active = candidate === day;
@@ -222,7 +231,7 @@ export default function RetraitsPage() {
                 <span className="text-g-axis font-semibold uppercase tracking-wider">{tile.weekday}</span>
                 <span className="text-g-h2 tabular-nums">{tile.date}</span>
                 <span
-                  className={`mt-0.5 h-4 text-g-axis font-semibold tabular-nums ${
+                  className={`mt-0.5 h-4 text-g-label font-semibold tabular-nums ${
                     active ? "" : count > 0 ? "text-ember-2" : "text-muted"
                   }`}
                 >
@@ -232,16 +241,16 @@ export default function RetraitsPage() {
             );
           })}
         </div>
-        <label className="flex items-center gap-2 text-g-label text-muted">
-          Autre jour
-          <input
+        <label className="flex shrink-0 items-center gap-2 text-g-label text-muted">
+          <span className="max-sm:sr-only">Autre jour</span>
+          <Input
             type="date"
+            aria-label="Autre jour"
             value={day}
             min={today}
             onChange={(event) => {
               if (event.target.value) setChosenDay(event.target.value);
             }}
-            className="h-g-control rounded-full border border-hairline bg-transparent px-3 text-base text-foreground outline-none transition-colors focus:border-ember-2/50 lg:pointer-fine:text-g-label"
           />
         </label>
       </Block>
@@ -269,11 +278,12 @@ export default function RetraitsPage() {
         <div className="print:hidden">
           <SectionHeading
             title={dayLabel}
+            sub={daySub}
             right={
               <Segmented
                 label="Vue"
                 options={[
-                  { value: "commandes", label: open.length ? `Retraits · ${open.length}` : "Retraits" },
+                  { value: "commandes", label: "Retraits" },
                   { value: "production", label: "À produire" },
                 ]}
                 value={view}
@@ -283,10 +293,10 @@ export default function RetraitsPage() {
           />
         </div>
 
-        {/* Sur téléphone, les chiffres du gérant passent sous les cartes :
-            la première commande à traiter vient d'abord (§ 2.7). */}
+        {/* Sur téléphone, la journée du gérant tient dans le sous-titre du
+            jour : la première commande à traiter vient d'abord (§ 2.7). */}
         {showSummary && (
-          <div className="grid gap-g-gap print:hidden max-lg:order-last sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid gap-g-gap print:hidden max-sm:hidden sm:grid-cols-2 xl:grid-cols-4">
             <StatTile
               entity="money"
               icon={<CoinsIcon />}
@@ -320,6 +330,10 @@ export default function RetraitsPage() {
               baseline="au retrait"
               title="Ce que les clients régleront en passant"
             />
+            <p className="text-g-meta text-muted sm:col-span-2 xl:col-span-4">
+              Ce que valent les retraits de ce jour, quel que soit le jour du paiement ; l&apos;argent encaissé
+              chaque jour est dans Paiements.
+            </p>
           </div>
         )}
 
@@ -340,7 +354,15 @@ export default function RetraitsPage() {
           <ProductionList orders={ofDay} title={formatDayLong(day)} shopName={state.etablissement.name} />
         ) : (
           <div className="grid gap-3">
-            {open.length === 0 && <EmptyState text="Tout est remis pour ce jour-là." />}
+            {open.length === 0 && (
+              <EmptyState
+                text={
+                  closed.some((order) => order.status === "retiree")
+                    ? "Tout est remis pour ce jour-là."
+                    : "Rien à remettre : les commandes de ce jour sont annulées."
+                }
+              />
+            )}
             {open.map((order) => (
               <RetraitCard key={order.id} order={order} today={today} onHandOver={requestHandOver} />
             ))}

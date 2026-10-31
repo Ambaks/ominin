@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import { missesNotice, pickupNotice } from "@/components/collect/pickup-fields";
 import {
   OptionConfigurator,
@@ -8,11 +8,17 @@ import {
   StaffMenu,
   useStaffOrder,
 } from "@/components/gestion/commandes/order-picker";
-import { describeError } from "@/lib/gestion/errors";
-import { GlassButton } from "@/components/gestion/ui";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import {
+  ConfirmSheet,
+  Field,
+  GlassButton,
+  Input,
+  Notice,
+  Select,
+  Sheet,
+  Textarea,
+} from "@/components/gestion/ui";
+import { AlertIcon } from "@/components/gestion/icons";
 import { useToast } from "@/components/ui/toast";
 import {
   firstPickupDay,
@@ -24,6 +30,7 @@ import {
 } from "@/lib/collect/hours";
 import { CUSTOMER_NOTE_MAX_LENGTH, normalizePhone } from "@/lib/collect/shared";
 import * as api from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 import type { GestionState } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 
@@ -47,7 +54,6 @@ export function PickupOrderDialog({
   onCreated: (day: string) => void;
   onClose: () => void;
 }) {
-  const id = useId();
   const toast = useToast();
   const { openingHours, collectSlotMinutes } = state.etablissement;
   // Relue quand on ouvre la liste des heures : les créneaux ne bougent pas
@@ -86,6 +92,18 @@ export function PickupOrderDialog({
   const normalizedPhone = normalizePhone(phone);
   const complete =
     name.trim() !== "" && normalizedPhone !== null && pickupAt !== "" && order.lines.length > 0;
+  // Le bouton désactivé dit ce qui manque (§ 3.9).
+  const missing = !name.trim()
+    ? "Indiquez le nom du client pour enregistrer."
+    : !normalizedPhone
+      ? "Indiquez un numéro pour joindre le client."
+      : !pickupAt
+        ? slots.length
+          ? "Choisissez l'heure du retrait."
+          : "Choisissez un jour où la boutique est ouverte."
+        : order.lines.length === 0
+          ? "Ajoutez au moins un article."
+          : null;
 
   const submit = async () => {
     setSubmitted(true);
@@ -107,170 +125,168 @@ export function PickupOrderDialog({
     }
   };
 
-  if (order.configuring) {
-    return (
-      <Modal title="Commande à emporter" onClose={onClose}>
-        <OptionConfigurator
-          item={order.configuring}
-          onAdd={order.addLine}
-          onBack={() => order.setConfiguring(null)}
-        />
-      </Modal>
-    );
-  }
-
   const nameMissing = submitted && !name.trim();
   const phoneInvalid = submitted && !normalizedPhone;
   const timeMissing = submitted && !pickupAt;
-  const invalidBorder = (invalid: boolean) => (invalid ? "border-ember-3/60" : "");
 
   return (
     <>
-      <Modal
+      {/* Une seule feuille : le configurateur d'options y prend la place du
+          formulaire, sans la refermer. */}
+      <Sheet
         title="Commande à emporter"
+        size="wide"
         onClose={onClose}
         footer={
-          <>
-            <span className="mr-auto flex items-baseline gap-2">
-              <span className="text-g-label text-muted">À régler au retrait</span>
-              <span className="text-g-h2 tabular-nums">{formatPrice(order.total)}</span>
-            </span>
-            <GlassButton
-              variant="primary"
-              disabled={sending}
-              onClick={() => (complete && shortNotice ? setConfirmingNotice(true) : void submit())}
-            >
-              {sending ? "Envoi…" : "Enregistrer"}
-            </GlassButton>
-          </>
+          order.configuring ? undefined : (
+            <>
+              {missing && !sending && <p>{missing}</p>}
+              <span className="mr-auto flex items-baseline gap-2">
+                <span className="text-g-label text-muted">À régler au retrait</span>
+                <span className="text-g-h2 tabular-nums">{formatPrice(order.total)}</span>
+              </span>
+              <GlassButton
+                variant="primary"
+                disabled={sending}
+                onClick={() => (complete && shortNotice ? setConfirmingNotice(true) : void submit())}
+              >
+                {sending ? "Envoi…" : "Enregistrer"}
+              </GlassButton>
+            </>
+          )
         }
       >
-        <div className="flex flex-col gap-6">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field
-              label="Nom du client"
-              required
-              error={nameMissing ? "Indiquez le nom du client." : undefined}
-            >
-              <input
-                value={name}
-                onChange={(event) => setName(event.target.value)}
-                autoComplete="off"
-                aria-invalid={nameMissing || undefined}
-                className={`${inputClass} ${invalidBorder(nameMissing)}`}
-              />
-            </Field>
-            <Field
-              label="Téléphone"
-              required
-              error={
-                phoneInvalid
-                  ? phone.trim()
-                    ? "Numéro invalide : 10 chiffres, ou +indicatif."
-                    : "Indiquez un numéro pour joindre le client."
-                  : undefined
-              }
-            >
-              <input
-                type="tel"
-                value={phone}
-                onChange={(event) => setPhone(event.target.value)}
-                onBlur={() => normalizedPhone && setPhone(normalizedPhone)}
-                autoComplete="off"
-                aria-invalid={phoneInvalid || undefined}
-                className={`${inputClass} ${invalidBorder(phoneInvalid)}`}
-              />
-            </Field>
-            <Field label="Jour du retrait" required>
-              <input
-                type="date"
-                value={day}
-                min={today}
-                onChange={(event) => {
-                  if (!isCalendarDay(event.target.value)) return;
-                  setDay(event.target.value);
-                  setPickupAt("");
-                }}
-                className={inputClass}
-              />
-            </Field>
-            <Field
-              label="Heure"
-              required
-              error={timeMissing && slots.length > 0 ? "Choisissez l'heure du retrait." : undefined}
-            >
-              <select
-                value={pickupAt}
-                onChange={(event) => setPickupAt(event.target.value)}
-                onFocus={() => {
-                  // Un créneau passé depuis ne reste pas retenu en coulisse.
-                  const next = new Date();
-                  setNow(next);
-                  if (
-                    pickupAt &&
-                    !pickupSlots(openingHours, day, collectSlotMinutes, next).some(
-                      (slot) => slot.toISOString() === pickupAt
-                    )
-                  ) {
-                    setPickupAt("");
-                  }
-                }}
-                disabled={slots.length === 0}
-                aria-invalid={timeMissing || undefined}
-                aria-describedby={slots.length === 0 ? `${id}-closed` : undefined}
-                className={`${inputClass} ${invalidBorder(timeMissing)}`}
+        {order.configuring ? (
+          <OptionConfigurator
+            item={order.configuring}
+            onAdd={order.addLine}
+            onBack={() => order.setConfiguring(null)}
+          />
+        ) : (
+          <div className="flex flex-col gap-6">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <Field
+                label="Nom du client"
+                required
+                error={nameMissing ? "Indiquez le nom du client." : undefined}
               >
-                <option value="" disabled>
-                  {slots.length ? "Choisir" : "Fermé"}
-                </option>
-                {slots.map((slot) => (
-                  <option key={slot.getTime()} value={slot.toISOString()}>
-                    {formatClock(slot.toISOString())}
+                <Input
+                  data-autofocus
+                  value={name}
+                  onChange={(event) => setName(event.target.value)}
+                  autoComplete="off"
+                />
+              </Field>
+              <Field
+                label="Téléphone"
+                required
+                error={
+                  phoneInvalid
+                    ? phone.trim()
+                      ? "Numéro invalide : 10 chiffres, ou +indicatif."
+                      : "Indiquez un numéro pour joindre le client."
+                    : undefined
+                }
+              >
+                <Input
+                  type="tel"
+                  value={phone}
+                  onChange={(event) => setPhone(event.target.value)}
+                  onBlur={() => normalizedPhone && setPhone(normalizedPhone)}
+                  autoComplete="off"
+                />
+              </Field>
+              <Field label="Jour du retrait" required>
+                <Input
+                  type="date"
+                  value={day}
+                  min={today}
+                  onChange={(event) => {
+                    if (!isCalendarDay(event.target.value)) return;
+                    setDay(event.target.value);
+                    setPickupAt("");
+                  }}
+                />
+              </Field>
+              <Field
+                label="Heure"
+                required
+                error={
+                  slots.length === 0
+                    ? openingHours
+                      ? "La boutique est fermée ce jour-là, ou ses créneaux sont passés."
+                      : "Saisissez d'abord les horaires d'ouverture dans Réglages."
+                    : timeMissing
+                      ? "Choisissez l'heure du retrait."
+                      : undefined
+                }
+              >
+                <Select
+                  value={pickupAt}
+                  onChange={(event) => setPickupAt(event.target.value)}
+                  onFocus={() => {
+                    // Un créneau passé depuis ne reste pas retenu en coulisse.
+                    const next = new Date();
+                    setNow(next);
+                    if (
+                      pickupAt &&
+                      !pickupSlots(openingHours, day, collectSlotMinutes, next).some(
+                        (slot) => slot.toISOString() === pickupAt
+                      )
+                    ) {
+                      setPickupAt("");
+                    }
+                  }}
+                  disabled={slots.length === 0}
+                >
+                  <option value="" disabled>
+                    {slots.length ? "Choisir" : "Fermé"}
                   </option>
-                ))}
-              </select>
+                  {slots.map((slot) => (
+                    <option key={slot.getTime()} value={slot.toISOString()}>
+                      {formatClock(slot.toISOString())}
+                    </option>
+                  ))}
+                </Select>
+              </Field>
+            </div>
+
+            {shortNotice && (
+              <Notice
+                tone="info"
+                title="Délai court"
+                text={`${shortNotice.name} se commande d'habitude ${shortNotice.hours} h à l'avance : vérifiez que la commande pourra être prête à temps.`}
+              />
+            )}
+
+            <Field label="Inscription, précisions" hint="Facultatif : ce que la préparation doit lire.">
+              <Textarea
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+                rows={2}
+                maxLength={CUSTOMER_NOTE_MAX_LENGTH}
+                placeholder="« Joyeux anniversaire Léa », sans fruits à coque…"
+              />
             </Field>
+
+            <StaffLinesList order={order} />
+            {submitted && order.lines.length === 0 && (
+              <p role="alert" className="g-field-error -mt-3">
+                <AlertIcon />
+                <span>Ajoutez au moins un article.</span>
+              </p>
+            )}
+            <StaffMenu order={order} />
           </div>
-          {slots.length === 0 && (
-            <p id={`${id}-closed`} role="alert" className="-mt-3 text-g-meta font-medium">
-              {openingHours
-                ? "La boutique est fermée ce jour-là, ou ses créneaux sont passés."
-                : "Saisissez d'abord les horaires d'ouverture dans Établissement."}
-            </p>
-          )}
+        )}
+      </Sheet>
 
-          {shortNotice && (
-            <p role="status" className="-mt-3 rounded-g-card border border-ember-2/30 bg-ember-2/10 px-4 py-3 text-g-meta">
-              {shortNotice.name} se commande d&apos;habitude {shortNotice.hours}&nbsp;h
-              à l&apos;avance : vérifiez que la commande pourra être prête à temps.
-            </p>
-          )}
-
-          <Field label="Inscription, précisions" hint="Facultatif : ce que la préparation doit lire.">
-            <textarea
-              value={note}
-              onChange={(event) => setNote(event.target.value)}
-              rows={2}
-              maxLength={CUSTOMER_NOTE_MAX_LENGTH}
-              placeholder="« Joyeux anniversaire Léa », sans fruits à coque…"
-              className={`${inputClass} resize-none`}
-            />
-          </Field>
-
-          <StaffLinesList order={order} />
-          {submitted && order.lines.length === 0 && (
-            <p role="alert" className="-mt-3 text-g-meta font-medium">Ajoutez au moins un article.</p>
-          )}
-          <StaffMenu order={order} />
-        </div>
-      </Modal>
-
-      {/* Hors de la fenêtre : la fermeture d'un dialogue imbriqué remonterait
-          jusqu'au onClose de la commande. */}
+      {/* Hors de la feuille : la fermeture d'une confirmation imbriquée
+          remonterait jusqu'au onClose de la commande. */}
       {confirmingNotice && shortNotice && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Délai court"
-          message={`«\u00a0${shortNotice.name}\u00a0» se commande d'habitude ${shortNotice.hours}\u00a0h à l'avance. La commande pourra-t-elle être prête pour ${formatDayLong(day)} à ${formatClock(pickupAt)}\u00a0?`}
+          text={`« ${shortNotice.name} » se commande d'habitude ${shortNotice.hours} h à l'avance. La commande pourra-t-elle être prête pour ${formatDayLong(day)} à ${formatClock(pickupAt)} ?`}
           confirmLabel="Enregistrer quand même"
           cancelLabel="Changer l'heure"
           onClose={() => setConfirmingNotice(false)}

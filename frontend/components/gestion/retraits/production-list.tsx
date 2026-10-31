@@ -48,10 +48,13 @@ export function ProductionList({
           )}
           {done && <p className="text-g-meta text-muted">{done}</p>}
         </div>
-        <GlassButton onClick={() => window.print()} className="print:hidden">
-          <PrinterIcon />
-          Imprimer la feuille
-        </GlassButton>
+        {/* .g-btn pose son display hors couche : c'est l'enveloppe qui se cache à l'impression. */}
+        <div className="print:hidden">
+          <GlassButton onClick={() => window.print()}>
+            <PrinterIcon />
+            Imprimer la feuille
+          </GlassButton>
+        </div>
       </div>
 
       {lines.length === 0 ? (
@@ -66,7 +69,7 @@ export function ProductionList({
               >
                 {/* La case à cocher du papier : le laboratoire raye ce qui est sorti. */}
                 <span aria-hidden className="hidden size-5 shrink-0 rounded border print:block" />
-                <span className="w-12 shrink-0 text-right text-g-kpi tabular-nums">{line.quantity}</span>
+                <span className="min-w-12 shrink-0 text-right text-g-kpi tabular-nums">{line.quantity}</span>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium">{line.name}</p>
                   {line.choices && <p className="text-g-meta text-muted">{line.choices}</p>}

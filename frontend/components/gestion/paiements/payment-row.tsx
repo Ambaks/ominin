@@ -116,14 +116,16 @@ export function PaymentRow({
           montants restent sur une même verticale. */}
       {editable ? (
         <>
-          <GlassButton
-            variant="icon"
-            className="sm:hidden"
-            onClick={() => setMenu(true)}
-            aria-label={`Gestes sur l'encaissement de ${heading}`}
-          >
-            <MoreIcon />
-          </GlassButton>
+          {/* .g-btn pose son display hors couche : l'enveloppe porte le masquage. */}
+          <span className="sm:hidden">
+            <GlassButton
+              variant="icon"
+              onClick={() => setMenu(true)}
+              aria-label={`Gestes sur l'encaissement de ${heading}`}
+            >
+              <MoreIcon />
+            </GlassButton>
+          </span>
           <div className="hidden items-center gap-3 sm:flex">
             <GlassButton variant="icon" onClick={onEdit} title="Modifier l'encaissement" aria-label="Modifier l'encaissement">
               <EditIcon />

@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import { EtaChooser } from "@/components/gestion/commandes/eta-chooser";
 import { HubriseRef } from "@/components/gestion/commandes/hubrise-ref";
 import { LineOptions } from "@/components/gestion/commandes/order-line";
 import { describeError } from "@/lib/gestion/errors";
-import { PickupDueChip, PickupPaidChip, PickupStatusChip } from "@/components/gestion/retraits/pickup-chips";
-import { GlassButton, Plate } from "@/components/gestion/ui";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { PickupPaidChip, PickupStatusChip } from "@/components/gestion/retraits/pickup-chips";
+import { ConfirmSheet, GlassButton, Plate } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { formatDayLong } from "@/lib/collect/hours";
 import * as api from "@/lib/gestion/api";
 import { PICKUP_ACTION_LABELS } from "@/lib/gestion/constants";
-import { formatDateTime, formatTime } from "@/lib/gestion/format";
+import { formatTime } from "@/lib/gestion/format";
 import { amountDue, isPickupOpen, pickupDay } from "@/lib/gestion/retraits";
 import { isPaid, lineTotal, orderTotal, paidThroughSite } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
@@ -45,18 +44,6 @@ export function RetraitCard({
   const [handingEarly, setHandingEarly] = useState(false);
   const [choosingEta, setChoosingEta] = useState(false);
   const [busy, setBusy] = useState(false);
-  // « C'est prêt » : le moment rare de la page. La carte respire une fois
-  // quand la commande passe à prête — d'ici ou d'un autre écran — puis se tait.
-  const [celebrating, setCelebrating] = useState(false);
-  const previousStatus = useRef(order.status);
-  useEffect(() => {
-    const became = previousStatus.current !== "prete" && order.status === "prete";
-    previousStatus.current = order.status;
-    // Posé hors du rendu, au changement d'état : pas de rendu en cascade.
-    const frame = requestAnimationFrame(() => setCelebrating(became));
-    return () => cancelAnimationFrame(frame);
-  }, [order.status]);
-
   const fromSite = paidThroughSite(order);
   const due = amountDue(order);
   const open = isPickupOpen(order);
@@ -81,8 +68,7 @@ export function RetraitCard({
   // carte — l'encaissement compterait aujourd'hui une commande de samedi.
   const early = pickupDay(order) > today;
 
-  const when =
-    order.pickupAt && (showDay ? formatDateTime(order.pickupAt) : formatTime(order.pickupAt));
+  const when = order.pickupAt && formatTime(order.pickupAt);
   const phoneHref = order.customerPhone
     ? `tel:${order.customerPhone.replace(/[^\d+]/g, "")}`
     : undefined;
@@ -91,50 +77,45 @@ export function RetraitCard({
   return (
     <Plate
       data-retrait-new={isNew || undefined}
-      className={`relative flex flex-col gap-3 p-4 sm:p-5 ${isNew ? "border-ember-2/50" : ""} ${
-        open ? "" : "opacity-70"
-      } ${celebrating ? "order-pop motion-reduce:animate-none" : ""}`}
+      // La plaque pose son filet hors couche : le liseré d'une nouvelle
+      // commande s'impose. Une carte close se lit en gris, sans passer sous 4,5:1.
+      className={`flex flex-col gap-3 p-4 sm:p-5 ${isNew ? "border-ember-2/50!" : ""} ${open ? "" : "text-muted"}`}
     >
-      {celebrating && (
-        // Un anneau braise s'évase une fois depuis la carte, puis s'efface.
-        <span
-          aria-hidden
-          onAnimationIteration={() => setCelebrating(false)}
-          className="pulse-ring pointer-events-none absolute inset-0 rounded-g-card border-2 border-ember-1 motion-reduce:hidden"
-        />
-      )}
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-baseline gap-3">
-          {when ? (
+      {/* Au doigt, le nom a sa ligne entière sous l'heure : c'est lui que
+          le comptoir cherche. */}
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-x-3 gap-y-1 sm:grid-cols-[auto_minmax(0,1fr)_auto]">
+        {when ? (
+          <span className="flex flex-col gap-0.5">
+            {showDay && <span className="g-eyebrow g-orders">{formatDayLong(pickupDay(order))}</span>}
             <span className="text-g-kpi tabular-nums">{when}</span>
-          ) : (
-            // Sans heure de retrait : l'heure annoncée au client, une fois
-            // la commande prise en charge.
-            <span className="flex shrink-0 flex-col gap-0.5">
-              <span className="g-eyebrow g-orders">Dès que possible</span>
-              {order.estimatedReadyAt && (
-                <span className="text-g-label font-medium tabular-nums">
-                  Prête vers {formatTime(order.estimatedReadyAt)}
-                </span>
-              )}
-            </span>
-          )}
-          <div className="min-w-0">
-            <h3 className="truncate font-medium">{order.customerName ?? "Client"}</h3>
-            {order.customerPhone && (
-              <a
-                href={phoneHref}
-                className="-my-3 inline-block whitespace-nowrap py-3 text-g-meta text-muted tabular-nums underline-offset-2 hover:text-foreground hover:underline"
-              >
-                {order.customerPhone}
-              </a>
+          </span>
+        ) : (
+          // Sans heure de retrait : l'heure annoncée au client, une fois
+          // la commande prise en charge.
+          <span className="flex flex-col gap-0.5">
+            <span className="g-eyebrow g-orders">Dès que possible</span>
+            {order.estimatedReadyAt && (
+              <span className="text-g-label font-medium tabular-nums">
+                Prête vers {formatTime(order.estimatedReadyAt)}
+              </span>
             )}
-            <HubriseRef orders={[order]} />
-          </div>
-        </div>
-        <div className="flex shrink-0 flex-col items-end gap-1.5">
+          </span>
+        )}
+        <div className="flex shrink-0 flex-col items-end gap-1.5 sm:col-start-3">
           <PickupStatusChip status={order.status} />
           <span className="text-g-meta text-muted">{fromSite ? "Site" : "Comptoir"}</span>
+        </div>
+        <div className="col-span-2 min-w-0 sm:col-span-1 sm:col-start-2 sm:row-start-1">
+          <h3 className="font-medium [overflow-wrap:anywhere]">{order.customerName ?? "Client"}</h3>
+          {order.customerPhone && (
+            <a
+              href={phoneHref}
+              className="-my-3.5 inline-block whitespace-nowrap py-3.5 text-g-meta text-muted tabular-nums underline-offset-2 hover:text-foreground hover:underline"
+            >
+              {order.customerPhone}
+            </a>
+          )}
+          <HubriseRef orders={[order]} />
         </div>
       </div>
 
@@ -160,14 +141,18 @@ export function RetraitCard({
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-3">
-        <div className="flex flex-wrap items-center gap-2.5">
-          <span className="font-semibold tabular-nums">{formatPrice(orderTotal(order))}</span>
-          {isPaid(order) ? (
+        {isPaid(order) ? (
+          <div className="flex flex-wrap items-center gap-2.5">
+            <span className="font-semibold tabular-nums">{formatPrice(orderTotal(order))}</span>
             <PickupPaidChip order={order} />
-          ) : (
-            open && <PickupDueChip amount={formatPrice(due)} />
-          )}
-        </div>
+          </div>
+        ) : (
+          // Pas encore réglée : le montant à encaisser est le chiffre de la carte.
+          <div className="flex items-baseline gap-2">
+            <span className="text-g-kpi tabular-nums">{formatPrice(orderTotal(order))}</span>
+            {open && <span className="text-g-meta text-muted">à encaisser</span>}
+          </div>
+        )}
         {choosingEta && order.status === "en_attente" ? (
           <EtaChooser
             onChoose={(estimatedReadyAt) => {
@@ -213,7 +198,7 @@ export function RetraitCard({
                   </GlassButton>
                 )}
               {!isPaid(order) && can("orders.setStatus:annulee") && (
-                <GlassButton disabled={busy} onClick={() => setCancelling(true)}>
+                <GlassButton variant="danger" disabled={busy} onClick={() => setCancelling(true)}>
                   Annuler
                 </GlassButton>
               )}
@@ -223,9 +208,9 @@ export function RetraitCard({
       </div>
 
       {cancelling && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Annuler la commande ?"
-          message={`La commande de ${order.customerName ?? "ce client"} sera annulée. Rien n'a été réglé : il n'y a rien à rembourser.`}
+          text={`La commande de ${order.customerName ?? "ce client"} sera annulée. Rien n'a été réglé : il n'y a rien à rembourser.`}
           confirmLabel="Annuler la commande"
           cancelLabel="Garder la commande"
           destructive
@@ -237,9 +222,9 @@ export function RetraitCard({
         />
       )}
       {handingEarly && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Remettre en avance ?"
-          message={`Le retrait est prévu ${formatDayLong(pickupDay(order))}.${
+          text={`Le retrait est prévu ${formatDayLong(pickupDay(order))}.${
             due > 0 ? " L'encaissement comptera dans la caisse d'aujourd'hui." : ""
           }`}
           confirmLabel="Remettre maintenant"

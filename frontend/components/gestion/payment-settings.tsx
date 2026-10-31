@@ -2,11 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { describeError } from "@/lib/gestion/errors";
-import { GlassButton, Plate, Shimmer } from "@/components/gestion/ui";
-import { Field } from "@/components/ui/field";
-import { PriceInput } from "@/components/ui/price-input";
+import { Field, GlassButton, Input, Plate, Shimmer, Switch } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { Toggle } from "@/components/ui/toggle";
 import {
   setOnlineMinOrder,
   setOnlinePayment,
@@ -153,35 +150,35 @@ function MinOrderField({ initial }: { initial: number | null }) {
     <form
       onSubmit={onSubmit}
       data-visite="etablissement-minimum"
-      className="visite-encart flex flex-col gap-1.5"
+      className="visite-encart"
     >
       <div className="flex flex-wrap items-end gap-3">
-        <Field label="Commande minimum en ligne">
-          <PriceInput
+        <Field
+          label="Commande minimum en ligne"
+          error={invalid ? "Montant invalide\u00a0: écrivez par exemple 5 ou 7,50." : undefined}
+          hint="Sous ce montant, le client règle au comptoir\u00a0; en click & collect, il doit compléter son panier. Laissez vide pour ne fixer aucun minimum."
+          className="min-w-0 flex-1 basis-64"
+        >
+          <Input
+            numeric
+            unit="€"
             value={raw}
-            onChange={setRaw}
+            onChange={(event) => setRaw(event.target.value)}
+            onBlur={() => {
+              if (parsed !== null) setRaw(priceToInput(parsed));
+            }}
             placeholder="Aucun"
-            invalid={invalid}
-            describedBy="minimum-en-ligne-aide"
             className="w-32"
           />
         </Field>
-        <button
+        <GlassButton
+          variant="primary"
           type="submit"
           disabled={invalid || saving || unchanged}
-          className="g-btn g-btn-primary g-press"
         >
           {saving ? "Enregistrement…" : "Enregistrer"}
-        </button>
+        </GlassButton>
       </div>
-      <p
-        id="minimum-en-ligne-aide"
-        className={`text-g-meta ${invalid ? "text-foreground" : "text-muted"}`}
-      >
-        {invalid
-          ? "Montant invalide : écrivez par exemple 5 ou 7,50."
-          : "Sous ce montant, le client règle au comptoir ; en click & collect, il doit compléter son panier. Laissez vide pour ne fixer aucun minimum."}
-      </p>
     </form>
   );
 }
@@ -369,11 +366,11 @@ export function PaymentSettings({
                     : `Inactif tant qu'aucun compte ne peut encaisser : reliez votre compte ${providerLabel}.`}
               </p>
             </div>
-            <Toggle
+            <Switch
               checked={enabled}
               onChange={() => void toggle()}
               disabled={busy || switching || (!enabled && !canCharge)}
-              label="Paiement en ligne"
+              aria-label="Paiement en ligne"
             />
           </div>
 
