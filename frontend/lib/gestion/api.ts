@@ -4,7 +4,7 @@ import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
-import type { AnalysesData, AnalysesSettings } from "./analyses";
+import type { AnalysesData, AnalysesSettings, StaffingData } from "./analyses";
 import { ANALYSES, DEFAULT_VAT_RATE, ORDER_STATUS_FLOW, ORDER_STATUS_LABELS } from "./constants";
 import {
   rowToAffiche,
@@ -981,6 +981,31 @@ export async function loadAnalyses(range: AnalysesRange): Promise<AnalysesData> 
     })
   );
   return data as unknown as AnalysesData;
+}
+
+export async function loadStaffing(from: string, to: string, dayEndHour: number): Promise<StaffingData> {
+  const supabase = createClient();
+  const data = must(
+    await supabase.rpc("gestion_staffing", {
+      p_etablissement_id: etablissementId(),
+      p_from: from,
+      p_to: to,
+      p_day_end_hour: dayEndHour,
+      p_max_entry_hours: ANALYSES.staffing.maxEntryHours,
+    })
+  );
+  return data as unknown as StaffingData;
+}
+
+export async function saveServerRatio(ordersPerServerHour: number): Promise<void> {
+  const supabase = createClient();
+  check(
+    await supabase.from("analyses_settings").upsert({
+      etablissement_id: etablissementId(),
+      orders_per_server_hour: ordersPerServerHour,
+      updated_at: new Date().toISOString(),
+    })
+  );
 }
 
 export interface AnalysesCostsChange {

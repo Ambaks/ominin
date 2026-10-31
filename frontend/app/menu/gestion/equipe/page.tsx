@@ -1,6 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
 import { BadgeagesLog } from "@/components/gestion/temps/badgeages-log";
@@ -8,6 +9,7 @@ import { Badgeuse } from "@/components/gestion/temps/badgeuse";
 import { PlanningGrid, WeekNav } from "@/components/gestion/temps/planning";
 import { RoleCards } from "@/components/gestion/temps/role-cards";
 import { StaffList } from "@/components/gestion/temps/staff-list";
+import { WeekDraftSheet } from "@/components/gestion/temps/week-draft-sheet";
 import { Chip, ConfirmSheet, ErrorNotice, Field, GlassButton, Input, Notice, Plate, ReserveGerant, SectionHeading, Segmented, Sheet, Shimmer } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { describeError } from "@/lib/gestion/errors";
@@ -398,13 +400,22 @@ const PANE_TAGLINES: Record<PaneId, string> = {
   pointage: "Les arrivées et départs signés par l'équipe, et leurs heures.",
 };
 
-export default function EquipePage() {
+function EquipeScreen() {
   const state = useGestion();
   const { role, hasFeature } = useGestionAccess();
-  const [pane, setPane] = useState<PaneId>("membres");
+  // Arrivée depuis Analyses : le brouillon s'ouvre directement.
+  const fromAnalyses = useSearchParams().has("brouillon");
+  const [pane, setPane] = useState<PaneId>(fromAnalyses ? "planning" : "membres");
   // Semaine choisie aux flèches ; avant, celle en cours, qui attend l'heure
   // de bascule du restaurant (rien ne se charge tant que l'état manque).
   const [chosenStart, setStart] = useState<Date | null>(null);
+  const [drafting, setDrafting] = useState(fromAnalyses);
+  const router = useRouter();
+  // L'adresse se nettoie : recharger la page ne rouvre pas le brouillon.
+  const closeDraft = () => {
+    setDrafting(false);
+    if (fromAnalyses) router.replace("/gestion/equipe");
+  };
   const start = chosenStart ?? weekStart(
     new Date(),
     state?.dayEndHour ?? DEFAULT_DAY_END_HOUR
@@ -476,6 +487,27 @@ export default function EquipePage() {
             <TeamManager etablissementId={state.etablissement.id} />
           )
         ) : active === "planning" ? (
+          <>
+          {hasFeature("analyses") && (
+            <div className="flex justify-end">
+              <GlassButton variant="primary" onClick={() => setDrafting(true)}>
+                Générer la semaine prochaine
+              </GlassButton>
+            </div>
+          )}
+          {drafting && hasFeature("analyses") && (
+            <WeekDraftSheet
+              etablissementId={state.etablissement.id}
+              staff={state.staff}
+              dayEndHour={state.dayEndHour}
+              onClose={closeDraft}
+              onSaved={(nextWeek) => {
+                closeDraft();
+                setStart(nextWeek);
+                reload();
+              }}
+            />
+          )}
           <PlanningGrid
             etablissementId={state.etablissement.id}
             staff={state.staff}
@@ -485,6 +517,7 @@ export default function EquipePage() {
             onWeekChange={setStart}
             onChange={reload}
           />
+          </>
         ) : (
           <>
             <Badgeuse
@@ -506,5 +539,13 @@ export default function EquipePage() {
         )}
       </Block>
     </div>
+  );
+}
+
+export default function EquipePage() {
+  return (
+    <Suspense>
+      <EquipeScreen />
+    </Suspense>
   );
 }

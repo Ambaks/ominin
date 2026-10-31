@@ -4,6 +4,7 @@ import { useState, type CSSProperties, type ReactNode } from "react";
 import { CostsSheet } from "@/components/gestion/analyses/costs-sheet";
 import { SalesHeatmap } from "@/components/gestion/analyses/heatmap";
 import { MenuMatrix } from "@/components/gestion/analyses/menu-matrix";
+import { StaffingCard } from "@/components/gestion/analyses/staffing";
 import { Card, Fact, money, percentOf, RangeRows, TargetRow, WEEKDAYS } from "@/components/gestion/analyses/parts";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { BagIcon, ChartIcon, PaymentsIcon, TablesIcon } from "@/components/gestion/icons";
@@ -34,12 +35,14 @@ import {
   targetsOf,
   weekdayNorms,
   type AnalysesData,
+  type StaffingData,
   type Opportunity,
 } from "@/lib/gestion/analyses";
 import { comparison } from "@/lib/gestion/compare";
 import { ANALYSES, ANALYSES_DEFAULT_PERIOD_DAYS, ANALYSES_PERIOD_DAYS, SMALL_BASE } from "@/lib/gestion/constants";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { useAnalyses } from "@/lib/gestion/use-analyses";
+import { useStaffing } from "@/lib/gestion/use-staffing";
 
 type PeriodKey = `${(typeof ANALYSES_PERIOD_DAYS)[number]}`;
 
@@ -93,6 +96,8 @@ function Sections({
   to,
   previousFrom,
   dayEndHour,
+  staffing,
+  canDraft,
   openCosts,
 }: {
   data: AnalysesData;
@@ -101,6 +106,9 @@ function Sections({
   to: string;
   previousFrom: string;
   dayEndHour: number;
+  staffing: { from: string; to: string; data: StaffingData } | null;
+  /** Le brouillon s'ouvre dans Équipe → Planning : sans ce volet, la carte mènerait nulle part. */
+  canDraft: boolean;
   openCosts: () => void;
 }) {
   const { current, previous } = data.summary;
@@ -340,6 +348,12 @@ function Sections({
             </Card>
           )}
         </div>
+        {canDraft && staffing && staffing.data.staff.length > 0 && (
+          <StaffingCard
+            data={staffing.data}
+            to={staffing.to}
+          />
+        )}
       </Block>
 
       <Block i={block++}>
@@ -421,6 +435,7 @@ export default function AnalysesPage() {
   const [costsOpen, setCostsOpen] = useState(false);
   const allowed = state?.role === "gerant" && hasFeature("analyses");
   const { loaded, stale, error, reload } = useAnalyses(allowed, days, state?.dayEndHour ?? 0);
+  const { loaded: staffing } = useStaffing(allowed, state?.dayEndHour ?? 0);
 
   if (!state) return null;
   if (!hasFeature("analyses")) return <FeatureLocked feature="analyses" />;
@@ -492,6 +507,8 @@ export default function AnalysesPage() {
             to={loaded.to}
             previousFrom={loaded.previousFrom}
             dayEndHour={state.dayEndHour}
+            staffing={staffing}
+            canDraft={hasFeature("roles") && hasFeature("badgeage")}
             openCosts={() => setCostsOpen(true)}
           />
         </div>

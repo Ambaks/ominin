@@ -306,6 +306,22 @@ export async function updateShift(
   );
 }
 
+export async function createShifts(etablissementId: string, inputs: ShiftInput[]): Promise<void> {
+  check(
+    await createClient()
+      .from("shifts")
+      .insert(
+        inputs.map((input) => ({
+          etablissement_id: etablissementId,
+          staff_id: input.staffId,
+          starts_at: input.startsAt,
+          ends_at: input.endsAt,
+          note: input.note ?? null,
+        }))
+      )
+  );
+}
+
 export async function deleteShift(shiftId: string): Promise<void> {
   check(await createClient().from("shifts").delete().eq("id", shiftId));
 }
