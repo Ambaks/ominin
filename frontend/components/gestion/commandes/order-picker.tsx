@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { GlassButton, Input } from "@/components/gestion/ui";
 import type { StaffOrderLine } from "@/lib/gestion/api";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
@@ -217,17 +218,17 @@ export function OptionConfigurator({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex items-baseline justify-between gap-4">
-        <p className="font-display text-lg font-medium">{item.name}</p>
-        <span className="text-sm tabular-nums text-muted">
+        <p className="font-display text-g-h2">{item.name}</p>
+        <span className="text-g-body tabular-nums text-muted">
           {formatPrice(item.price)}
         </span>
       </div>
       {groups.map((group) => (
         <div key={group.id} className="flex flex-col gap-2">
-          <p className="text-sm font-medium">
+          <p className="text-g-body font-medium">
             {group.name}
             {!group.obligatoire && (
-              <span className="ml-1.5 text-xs font-normal text-faint">
+              <span className="ml-1.5 text-g-meta font-normal text-muted">
                 (facultatif)
               </span>
             )}
@@ -253,11 +254,8 @@ export function OptionConfigurator({
                         : { ...current, [group.id]: choice.id }
                     )
                   }
-                  className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:line-through disabled:opacity-40 ${
-                    selected
-                      ? "ember-gradient text-background"
-                      : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                  }`}
+                  aria-pressed={selected}
+                  className={`g-btn g-press disabled:line-through ${selected ? "g-btn-primary" : "g-btn-secondary"}`}
                 >
                   {choice.name}
                   {choice.supplement > 0 && (
@@ -272,21 +270,10 @@ export function OptionConfigurator({
         </div>
       ))}
       <div className="flex justify-end gap-3 pt-1">
-        <button
-          type="button"
-          onClick={onBack}
-          className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold transition-colors hover:border-ember-2/40"
-        >
-          Retour
-        </button>
-        <button
-          type="button"
-          disabled={!complete}
-          onClick={add}
-          className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-40"
-        >
+        <GlassButton onClick={onBack}>Retour</GlassButton>
+        <GlassButton variant="primary" disabled={!complete} onClick={add}>
           Ajouter
-        </button>
+        </GlassButton>
       </div>
     </div>
   );
@@ -297,45 +284,45 @@ export function StaffLinesList({ order }: { order: StaffOrder }) {
   if (order.lines.length === 0) return null;
   return (
     <div className="flex flex-col gap-2.5">
-      <p className="text-sm font-medium">Commande</p>
-      <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
+      <p className="text-g-body font-medium">Commande</p>
+      <ul className="g-plate flex flex-col">
         {order.lines.map((line, index) => (
           <li
             key={line.key}
-            className={`flex items-center gap-3 px-4 py-3 ${
+            className={`flex items-center gap-3 px-4 py-2 ${
               index > 0 ? "border-t border-hairline" : ""
             }`}
           >
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-medium [overflow-wrap:anywhere]">{line.name}</p>
+              <p className="text-g-body font-medium [overflow-wrap:anywhere]">{line.name}</p>
               {line.choiceSummary.length > 0 && (
-                <p className="text-xs text-faint">
+                <p className="text-g-meta text-muted">
                   {line.choiceSummary.join(" · ")}
                 </p>
               )}
             </div>
-            <div className="flex shrink-0 items-center gap-2.5 rounded-full border border-hairline px-1">
+            <div className="flex shrink-0 items-center rounded-full border border-hairline">
               <button
                 type="button"
                 onClick={() => order.bumpLine(line.key, -1)}
-                className="flex size-7 items-center justify-center text-lg text-muted"
+                className="flex size-g-control items-center justify-center rounded-full text-lg text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                 aria-label={`Retirer un ${line.name}`}
               >
                 −
               </button>
-              <span className="min-w-4 text-center text-sm font-semibold tabular-nums">
+              <span className="min-w-4 text-center text-g-body font-semibold tabular-nums">
                 {line.quantity}
               </span>
               <button
                 type="button"
                 onClick={() => order.bumpLine(line.key, 1)}
-                className="flex size-7 items-center justify-center text-lg text-muted"
+                className="flex size-g-control items-center justify-center rounded-full text-lg text-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                 aria-label={`Ajouter un ${line.name}`}
               >
                 +
               </button>
             </div>
-            <span className="shrink-0 text-sm tabular-nums text-ember-1">
+            <span className="shrink-0 text-g-body tabular-nums">
               {formatPrice(line.unitPrice * line.quantity)}
             </span>
           </li>
@@ -366,7 +353,7 @@ export function StaffMenu({ order }: { order: StaffOrder }) {
   // Le champ vient après le reste de la commande : à la frappe, il remonte en
   // haut de la fenêtre, et les résultats s'affichent dessous plutôt que sous
   // le clavier d'un téléphone.
-  const searchRef = useRef<HTMLInputElement>(null);
+  const searchRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (found) searchRef.current?.scrollIntoView({ block: "start" });
   }, [needle, found]);
@@ -374,18 +361,18 @@ export function StaffMenu({ order }: { order: StaffOrder }) {
   return (
     <>
       {!order.loading && (
-        <input
-          ref={searchRef}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Rechercher un article"
-          aria-label="Rechercher un article de la carte"
-          className="w-full rounded-xl border border-hairline bg-background px-4 py-2.5 text-base outline-none transition-colors placeholder:text-muted focus:border-ember-2/50 lg:pointer-fine:text-sm"
-        />
+        <div ref={searchRef}>
+          <Input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Rechercher un article"
+            aria-label="Rechercher un article de la carte"
+          />
+        </div>
       )}
       {order.tarifsFailed && (
-        <p className="rounded-xl border border-hairline px-4 py-3 text-xs text-muted">
+        <p className="g-plate px-4 py-3 text-g-meta text-muted">
           Les tarifs planifiés n&apos;ont pas pu être relus : les prix
           ci-dessous sont ceux de la carte. La commande, elle, sera
           enregistrée au tarif du moment.
@@ -394,44 +381,37 @@ export function StaffMenu({ order }: { order: StaffOrder }) {
 
       <div className="flex flex-col gap-4">
         {order.loading && (
-          <p className="text-xs text-faint">Chargement de la carte…</p>
+          <p className="text-g-meta text-muted">Chargement de la carte…</p>
         )}
         {needle && categories.length === 0 && (
-          <p className="text-sm text-muted">Aucun article ne correspond à « {query.trim()} ».</p>
+          <p className="text-g-body text-muted">Aucun article ne correspond à « {query.trim()} ».</p>
         )}
         {categories.map((category) => (
           <div key={category.id} className="flex flex-col gap-1.5">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-              {category.name}
-            </p>
+            <p className="g-eyebrow">{category.name}</p>
             <ul className="flex flex-col">
               {category.items.map((item) => (
                 <li
                   key={item.id}
-                  className="flex items-center gap-3 border-b border-hairline py-2.5 last:border-b-0"
+                  className="flex min-h-g-control items-center gap-3 border-b border-hairline py-1 last:border-b-0"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm">{item.name}</p>
+                    <p className="truncate text-g-body">{item.name}</p>
                     {item.options && item.options.length > 0 && (
-                      <p className="text-xs text-faint">Avec options</p>
+                      <p className="text-g-meta text-muted">Avec options</p>
                     )}
                     {order.closed.has(item.id) && (
-                      <p className="text-xs text-ember-3">
+                      <p className="text-g-meta font-medium text-ember-3">
                         Fermé · {order.closed.get(item.id)}
                       </p>
                     )}
                   </div>
-                  <span className="shrink-0 text-sm tabular-nums text-muted">
+                  <span className="shrink-0 text-g-body tabular-nums text-muted">
                     {formatPrice(item.price)}
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => order.addItem(item)}
-                    aria-label={`Ajouter ${item.name}`}
-                    className="flex size-8 shrink-0 items-center justify-center rounded-full border border-hairline text-muted transition-colors hover:border-ember-2/40 hover:text-ember-1"
-                  >
-                    <PlusIcon className="size-3.5" />
-                  </button>
+                  <GlassButton variant="icon" aria-label={`Ajouter ${item.name}`} onClick={() => order.addItem(item)}>
+                    <PlusIcon />
+                  </GlassButton>
                 </li>
               ))}
             </ul>

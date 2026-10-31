@@ -1,28 +1,20 @@
+import { Chip } from "@/components/gestion/ui";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { paidThroughSite } from "@/lib/gestion/selectors";
 import type { Order, OrderItem } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
+import { CheckIcon } from "../icons";
 
 /*
  * Briques des listes d'articles (addition, service, historique) : une ligne,
  * sa coche, et le règlement de la commande.
  */
 
+/** L'or des quantités et des articles offerts, mêlé au texte : pur, il tombait sous 3:1 en thème clair. */
+export const EMBER_INK = "text-[color-mix(in_srgb,var(--ember-1)_55%,var(--foreground))]";
+
 export function CheckMark() {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      className="size-3.5"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="3"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden
-    >
-      <path d="M5 12l5 5L20 7" />
-    </svg>
-  );
+  return <CheckIcon className="size-3.5 [stroke-width:3]" />;
 }
 
 export function LineLabel({
@@ -36,7 +28,7 @@ export function LineLabel({
   settled?: boolean;
 }) {
   return (
-    <span className={`text-sm ${settled ? "line-through" : ""}`}>
+    <span className={`min-w-0 text-g-body [overflow-wrap:anywhere] ${settled ? "text-muted" : ""}`}>
       {/* Au-delà d'un, la quantité se lit comme le plat, en gras : « 2× Menu
           Midi » ne se confond pas avec « 1× Menu Midi ». */}
       <span className={`tabular-nums ${quantity > 1 && !settled ? "font-semibold text-foreground" : "text-muted"}`}>
@@ -44,7 +36,7 @@ export function LineLabel({
       </span>{" "}
       {line.name}
       {line.loyaltyPoints && (
-        <span className="ml-1.5 whitespace-nowrap rounded-full border border-ember-2/40 px-1.5 py-px text-[10px] font-semibold text-ember-1">
+        <span className={`ml-1.5 whitespace-nowrap rounded-full border border-hairline px-1.5 py-px text-g-axis font-semibold ${EMBER_INK}`}>
           Offert · {line.loyaltyPoints * quantity} pts
         </span>
       )}
@@ -59,9 +51,9 @@ export function LineLabel({
  */
 export function LineOptions({ line, prices = true }: { line: OrderItem; prices?: boolean }) {
   return line.options?.map((option, index) => (
-    <p key={index} className="text-[13px] text-muted">
+    <p key={index} className="text-g-label text-muted">
       {option.groupName}
-      {"\u00a0: "}
+      {" : "}
       {option.choiceName}
       {prices && option.supplement > 0 && ` (+${formatPrice(option.supplement)})`}
     </p>
@@ -84,13 +76,5 @@ export function PaymentChip({ orders }: { orders: Order[] }) {
         : modes.length === 1 && modes[0]
           ? `Encaissée · ${PAYMENT_MODE_LABELS[modes[0]].toLowerCase()}`
           : "Encaissée";
-  return (
-    <span
-      className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider ${
-        online > 0 ? "bg-ember-1/15 text-ember-1" : "bg-surface-raised text-muted"
-      }`}
-    >
-      {label}
-    </span>
-  );
+  return <Chip icon={<CheckIcon />}>{label}</Chip>;
 }

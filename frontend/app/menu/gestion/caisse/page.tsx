@@ -1,11 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { EmptyState } from "@/components/ui/empty-state";
+import { useCallback, useEffect, useMemo, useState, type CSSProperties } from "react";
+import {
+  Chip,
+  EmptyState,
+  GlassButton,
+  Notice,
+  Plate,
+  ReserveGerant,
+  SectionHeading,
+  Segmented,
+  Select,
+  Shimmer,
+  StatTile,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import type { CatalogDeal, CatalogOption, CatalogSku, CatalogSnapshot } from "@/lib/hubrise/catalog";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import { describeError } from "@/lib/gestion/errors";
 
 /*
  * Carte ↔ catalogue de la caisse. Une caisse retrouve un produit par son
@@ -14,6 +26,9 @@ import { useGestion, useGestionAccess } from "@/lib/gestion/store";
  * autre produit —, chaque formule à un de ses deals. Les correspondances
  * évidentes sont déjà posées (« auto ») ; le gérant fait le reste. Ominin
  * garde ses prix, photos et textes — seuls les codes viennent de la caisse.
+ *
+ * Page d'expert, rangée sous Réglages › Caisse connectée : elle ouvre sur
+ * « N sans code », le filtre déjà posé quand il en manque (UX-SIMPLICITE § 2.16).
  */
 
 interface Ref {
@@ -54,9 +69,13 @@ const optionLabel = (option: CatalogOption) =>
 
 const dealLabel = (deal: CatalogDeal) => deal.name;
 
-const selectClass =
-  "w-full min-w-0 rounded-xl border border-hairline bg-background px-3 py-2 text-sm outline-none focus:border-ember-2/50";
+const VIEWS = [
+  { value: "missing", label: "Sans code" },
+  { value: "all", label: "Toute la carte" },
+] as const;
+type View = (typeof VIEWS)[number]["value"];
 
+/** La liste native du kit, l'auto/manuel en pastille. */
 function RefSelect({
   value,
   entry,
@@ -80,12 +99,7 @@ function RefSelect({
     ));
   return (
     <div className="flex items-center gap-2">
-      <select
-        aria-label={label}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className={selectClass}
-      >
+      <Select aria-label={label} value={value} onChange={(event) => onChange(event.target.value)} className="min-w-0 flex-1">
         <option value="">— non associé —</option>
         {/* Le code garde sa place même si la caisse l'a retiré de son catalogue. */}
         {value && !known && (
@@ -100,15 +114,31 @@ function RefSelect({
             render(options.filter((option) => !option.group))
           )
         )}
-      </select>
-      {entry && (
-        <span className="shrink-0 rounded-full border border-hairline px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-faint">
-          {entry.matchedBy === "auto" ? "auto" : "manuel"}
-        </span>
-      )}
+      </Select>
+      {entry && <Chip>{entry.matchedBy === "auto" ? "auto" : "manuel"}</Chip>}
     </div>
   );
 }
+
+function Block({ i, className = "", children }: { i: number; className?: string; children: React.ReactNode }) {
+  return (
+    <div className={`g-rise ${className}`} style={{ "--g-i": i } as CSSProperties}>
+      {children}
+    </div>
+  );
+}
+
+/** Une catégorie (ou les formules) sur une plaque, ses lignes séparées d'un filet. */
+function Group({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <section className="flex flex-col gap-2">
+      <h2 className="font-display text-g-h2">{title}</h2>
+      <Plate className="flex flex-col divide-y divide-hairline px-4">{children}</Plate>
+    </section>
+  );
+}
+
+const ROW = "grid items-center gap-x-3 gap-y-1.5 py-3 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]";
 
 export default function CaissePage() {
   const state = useGestion();
@@ -116,7 +146,7 @@ export default function CaissePage() {
   const toast = useToast();
   const [data, setData] = useState<CatalogData | null>(null);
   const [failed, setFailed] = useState(false);
-  const [onlyMissing, setOnlyMissing] = useState(false);
+  const [view, setView] = useState<View | null>(null);
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(async () => {
@@ -167,7 +197,7 @@ export default function CaissePage() {
       if (!response.ok) throw new Error(((await response.json()) as { error?: string }).error);
       await load();
     } catch (error) {
-      toast.error(error instanceof Error && error.message ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
   };
 
@@ -179,7 +209,7 @@ export default function CaissePage() {
       toast.success("Catalogue relu.");
       await load();
     } catch (error) {
-      toast.error(error instanceof Error && error.message ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
     setBusy(false);
   };
@@ -189,194 +219,217 @@ export default function CaissePage() {
   const mapped = allItems.filter((item) => refs.has(`${item.id}||`)).length;
   const formulesMapped = state.formules.filter((formule) => formuleRefs.has(formule.id)).length;
   const missing = allItems.length - mapped + state.formules.length - formulesMapped;
+  // Ouvre sur ce qui manque ; tout relié, sur toute la carte.
+  const shownView: View = view ?? (missing > 0 ? "missing" : "all");
+  const onlyMissing = shownView === "missing";
+
+  const header = (
+    <Block i={0}>
+      <SectionHeading
+        level={1}
+        title="Carte et caisse"
+        sub="Chaque article se relie à son produit dans votre caisse : c’est par ce code qu’elle reconnaît la ligne, applique sa TVA et décompte son stock."
+        right={<GlassButton href="/gestion/etablissement">← Réglages</GlassButton>}
+      />
+    </Block>
+  );
+
+  if (!can("etablissement.edit")) {
+    return (
+      <div className="flex flex-col gap-5">
+        {header}
+        <Block i={1}>
+          <ReserveGerant ask="relier la carte à la caisse" />
+        </Block>
+      </div>
+    );
+  }
+
+  if (failed) {
+    return (
+      <div className="flex flex-col gap-5">
+        {header}
+        <Block i={1}>
+          <EmptyState
+            text="HubRise n’est pas relié : connectez-le depuis Réglages, puis revenez ici."
+            action={<GlassButton variant="primary" href="/gestion/etablissement">Ouvrir Réglages</GlassButton>}
+          />
+        </Block>
+      </div>
+    );
+  }
+
+  if (data === null) {
+    return (
+      <div className="flex flex-col gap-5">
+        {header}
+        <Block i={1} className="grid gap-g-gap sm:grid-cols-2">
+          <Shimmer className="h-28" />
+          <Shimmer className="h-28" />
+        </Block>
+        <Block i={2}>
+          <Shimmer className="h-64" />
+        </Block>
+      </div>
+    );
+  }
+
+  const formules = state.formules.filter((formule) => !onlyMissing || !formuleRefs.has(formule.id));
+  const categories = state.categories
+    .map((category) => ({
+      ...category,
+      items: category.items.filter((item) => !onlyMissing || !refs.has(`${item.id}||`)),
+    }))
+    .filter((category) => category.items.length > 0);
 
   return (
-    <div className="flex flex-col gap-6">
-      <div>
-        <Link href="/gestion/etablissement" className="text-xs font-medium text-ember-2 hover:underline">
-          ← Établissement
-        </Link>
-        <h1 className="mt-2 font-display text-2xl font-medium tracking-tight lg:text-3xl">
-          Carte et caisse
-        </h1>
-        <p className="mt-1 max-w-xl text-sm text-muted">
-          Chaque article se relie à son produit dans votre caisse : c&rsquo;est par ce code qu&rsquo;elle
-          reconnaît la ligne, applique sa TVA et décompte son stock.
-        </p>
-      </div>
+    <div className="flex flex-col gap-5">
+      {header}
 
-      {!can("etablissement.edit") ? (
-        <EmptyState title="Réservé au gérant" body="Seul le gérant relie la carte à la caisse." />
-      ) : failed ? (
-        <EmptyState title="HubRise n'est pas relié" body="Connectez HubRise depuis la page Établissement." />
-      ) : data === null ? (
-        <div aria-busy className="shimmer h-40 max-w-3xl rounded-2xl" />
-      ) : (
-        <>
-          <div className="flex max-w-3xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4">
-            <div>
-              <p className="text-sm font-medium">
-                {mapped} sur {allItems.length} articles associés
-                {state.formules.length > 0 &&
-                  `, ${formulesMapped} sur ${state.formules.length} formules`}
-              </p>
-              <p className="mt-0.5 text-xs text-muted">
-                {data.snapshot.skus.length} produits dans la caisse
-                {data.syncedAt ? "" : " — catalogue pas encore lu"}.
-              </p>
-              {missing > 0 && (
-                <p className="mt-2 text-xs text-ember-2">
-                  {missing} sans code : la caisse les reçoit sans les reconnaître (TVA par défaut,
-                  hors stock et hors ventes), et certaines caisses les refusent.
-                </p>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              <label className="flex items-center gap-2 text-xs text-muted">
-                <input
-                  type="checkbox"
-                  checked={onlyMissing}
-                  onChange={(event) => setOnlyMissing(event.target.checked)}
-                  className="accent-ember-2"
-                />
-                Seulement les non associés
-              </label>
-              <button
-                type="button"
-                onClick={() => void refresh()}
-                disabled={busy}
-                className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold hover:border-ember-2 disabled:opacity-60"
-              >
-                {busy ? "Lecture…" : "Relire la caisse"}
-              </button>
-            </div>
-          </div>
+      <Block i={1} className="grid gap-g-gap sm:grid-cols-2">
+        <StatTile
+          entity={missing > 0 ? "problem" : "orders"}
+          label="Sans code"
+          value={String(missing)}
+          baseline={
+            missing > 0
+              ? "la caisse les reçoit sans les reconnaître"
+              : "toute la carte est reliée"
+          }
+          title="Articles et formules sans code de caisse"
+        />
+        <StatTile
+          entity="orders"
+          label="Reliés"
+          value={`${mapped + formulesMapped} / ${allItems.length + state.formules.length}`}
+          baseline={`${data.snapshot.skus.length} produits dans la caisse${data.syncedAt ? "" : " · catalogue pas encore lu"}`}
+          title="Articles et formules reliés à un produit de la caisse"
+        />
+      </Block>
 
-          <div className="flex max-w-3xl flex-col gap-6">
-            {state.formules.some((formule) => !onlyMissing || !formuleRefs.has(formule.id)) && (
-              <section className="flex flex-col gap-2">
-                <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-                  Formules
-                </h2>
-                <ul className="flex flex-col gap-2">
-                  {state.formules
-                    .filter((formule) => !onlyMissing || !formuleRefs.has(formule.id))
-                    .map((formule) => {
-                      const entry = formuleRefs.get(formule.id);
-                      return (
-                        <li key={formule.id} className="rounded-xl border border-hairline bg-surface p-3">
-                          <div className="grid items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-                            <p className="truncate text-sm font-medium">{formule.name}</p>
-                            <RefSelect
-                              label={`Formule de la caisse pour ${formule.name}`}
-                              value={entry?.ref ?? ""}
-                              entry={entry}
-                              options={deals}
-                              onChange={(ref) => void put({ formuleId: formule.id, ref: ref || null })}
-                            />
-                          </div>
-                        </li>
-                      );
-                    })}
-                </ul>
-              </section>
-            )}
-            {state.categories.map((category) => {
-              const items = category.items.filter(
-                (item) => !onlyMissing || !refs.has(`${item.id}||`)
-              );
-              if (!items.length) return null;
+      {missing > 0 && (
+        <Block i={2}>
+          <Notice
+            title={`${missing} sans code`}
+            text="La caisse les reçoit sans les reconnaître : TVA par défaut, hors stock et hors ventes. Certaines caisses les refusent."
+          />
+        </Block>
+      )}
+
+      <Block i={3} className="flex flex-wrap items-center justify-between gap-3">
+        <Segmented label="Afficher" options={VIEWS} value={shownView} onChange={setView} glass={false} />
+        <GlassButton onClick={() => void refresh()} disabled={busy}>
+          {busy ? "Lecture…" : "Relire la caisse"}
+        </GlassButton>
+      </Block>
+
+      <Block i={4} className="flex flex-col gap-5">
+        {formules.length === 0 && categories.length === 0 && (
+          <EmptyState
+            text={onlyMissing ? "Tout est relié : chaque article a son code de caisse." : "Aucun article sur la carte."}
+            action={onlyMissing ? <GlassButton onClick={() => setView("all")}>Voir toute la carte</GlassButton> : undefined}
+          />
+        )}
+        {formules.length > 0 && (
+          <Group title="Formules">
+            {formules.map((formule) => {
+              const entry = formuleRefs.get(formule.id);
               return (
-                <section key={category.id} className="flex flex-col gap-2">
-                  <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-                    {category.name}
-                  </h2>
-                  <ul className="flex flex-col gap-2">
-                    {items.map((item) => {
-                      const entry = refs.get(`${item.id}||`);
-                      const choices = (item.options ?? []).flatMap((group) =>
-                        group.choices.map((choice) => ({ group, choice }))
-                      );
-                      return (
-                        <li key={item.id} className="rounded-xl border border-hairline bg-surface p-3">
-                          <div className="grid items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
-                            <p className="truncate text-sm font-medium">{item.name}</p>
-                            <RefSelect
-                              label={`Produit de la caisse pour ${item.name}`}
-                              value={entry?.ref ?? ""}
-                              entry={entry}
-                              options={skus}
-                              onChange={(ref) =>
-                                void put({ itemId: item.id, groupId: null, choiceId: null, ref: ref || null })
-                              }
-                            />
-                          </div>
-                          {choices.length > 0 && (
-                            <details className="mt-2">
-                              <summary className="cursor-pointer text-xs text-muted">
-                                Options ({choices.length})
-                              </summary>
-                              <ul className="mt-2 flex flex-col gap-2 border-l border-hairline pl-3">
-                                {choices.map(({ group, choice }) => {
-                                  const choiceEntry = refs.get(`${item.id}|${group.id}|${choice.id}`);
-                                  // Les options de la liste du même nom d'abord ; une taille se
-                                  // relie à un produit de la caisse.
-                                  const sorted = [...(data.snapshot.options ?? [])].sort(
-                                    (a, b) =>
-                                      Number(b.listName === group.name) - Number(a.listName === group.name)
-                                  );
-                                  const targets: Choice[] = [
-                                    ...sorted.map((option) => ({
-                                      value: `option:${option.ref}`,
-                                      label: optionLabel(option),
-                                      group: "Options",
-                                    })),
-                                    ...skus.map((sku) => ({
-                                      value: `sku:${sku.value}`,
-                                      label: sku.label,
-                                      group: "Produits (une taille)",
-                                    })),
-                                  ];
-                                  return (
-                                    <li
-                                      key={`${group.id}-${choice.id}`}
-                                      className="grid items-center gap-2 sm:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]"
-                                    >
-                                      <p className="truncate text-xs text-muted">
-                                        {group.name} · {choice.name}
-                                      </p>
-                                      <RefSelect
-                                        label={`Option de la caisse pour ${choice.name}`}
-                                        value={choiceEntry ? `${choiceEntry.target}:${choiceEntry.ref}` : ""}
-                                        entry={choiceEntry}
-                                        options={targets}
-                                        onChange={(value) => {
-                                          const [target, ...ref] = value.split(":");
-                                          void put({
-                                            itemId: item.id,
-                                            groupId: group.id,
-                                            choiceId: choice.id,
-                                            target,
-                                            ref: ref.join(":") || null,
-                                          });
-                                        }}
-                                      />
-                                    </li>
-                                  );
-                                })}
-                              </ul>
-                            </details>
-                          )}
-                        </li>
-                      );
-                    })}
-                  </ul>
-                </section>
+                <div key={formule.id} className={ROW}>
+                  <p className="truncate text-g-body font-medium">{formule.name}</p>
+                  <RefSelect
+                    label={`Formule de la caisse pour ${formule.name}`}
+                    value={entry?.ref ?? ""}
+                    entry={entry}
+                    options={deals}
+                    onChange={(ref) => void put({ formuleId: formule.id, ref: ref || null })}
+                  />
+                </div>
               );
             })}
-          </div>
-        </>
-      )}
+          </Group>
+        )}
+        {categories.map((category) => (
+          <Group key={category.id} title={category.name}>
+            {category.items.map((item) => {
+              const entry = refs.get(`${item.id}||`);
+              const choices = (item.options ?? []).flatMap((group) =>
+                group.choices.map((choice) => ({ group, choice }))
+              );
+              return (
+                <div key={item.id} className="py-1">
+                  <div className={ROW}>
+                    <p className="truncate text-g-body font-medium">{item.name}</p>
+                    <RefSelect
+                      label={`Produit de la caisse pour ${item.name}`}
+                      value={entry?.ref ?? ""}
+                      entry={entry}
+                      options={skus}
+                      onChange={(ref) =>
+                        void put({ itemId: item.id, groupId: null, choiceId: null, ref: ref || null })
+                      }
+                    />
+                  </div>
+                  {choices.length > 0 && (
+                    <details className="group pb-2">
+                      <summary className="flex min-h-g-control cursor-pointer list-none items-center gap-2 text-g-label text-muted [&::-webkit-details-marker]:hidden">
+                        <span className="transition-transform group-open:rotate-90">›</span>
+                        Options ({choices.length})
+                      </summary>
+                      <ul className="mt-1 flex flex-col border-l border-hairline pl-3">
+                        {choices.map(({ group, choice }) => {
+                          const choiceEntry = refs.get(`${item.id}|${group.id}|${choice.id}`);
+                          // Les options de la liste du même nom d'abord ; une taille se
+                          // relie à un produit de la caisse.
+                          const sorted = [...(data.snapshot.options ?? [])].sort(
+                            (a, b) =>
+                              Number(b.listName === group.name) - Number(a.listName === group.name)
+                          );
+                          const targets: Choice[] = [
+                            ...sorted.map((option) => ({
+                              value: `option:${option.ref}`,
+                              label: optionLabel(option),
+                              group: "Options",
+                            })),
+                            ...skus.map((sku) => ({
+                              value: `sku:${sku.value}`,
+                              label: sku.label,
+                              group: "Produits (une taille)",
+                            })),
+                          ];
+                          return (
+                            <li key={`${group.id}-${choice.id}`} className={ROW}>
+                              <p className="truncate text-g-label text-muted">
+                                {group.name} · {choice.name}
+                              </p>
+                              <RefSelect
+                                label={`Option de la caisse pour ${choice.name}`}
+                                value={choiceEntry ? `${choiceEntry.target}:${choiceEntry.ref}` : ""}
+                                entry={choiceEntry}
+                                options={targets}
+                                onChange={(value) => {
+                                  const [target, ...ref] = value.split(":");
+                                  void put({
+                                    itemId: item.id,
+                                    groupId: group.id,
+                                    choiceId: choice.id,
+                                    target,
+                                    ref: ref.join(":") || null,
+                                  });
+                                }}
+                              />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </details>
+                  )}
+                </div>
+              );
+            })}
+          </Group>
+        ))}
+      </Block>
     </div>
   );
 }

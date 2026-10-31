@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/modal";
+import { Field, GlassButton, Input, Plate, Sheet } from "@/components/gestion/ui";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { amountToInput, parseAmount } from "@/lib/gestion/format";
 import type { CashDetails, EncaissementMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
+import { PaymentsIcon, type IconProps } from "../icons";
 
-function CashIcon() {
+function CashIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <rect x="2" y="6" width="20" height="12" rx="2" />
       <circle cx="12" cy="12" r="2.5" />
       <path d="M6 12h.01M18 12h.01" />
@@ -17,19 +18,10 @@ function CashIcon() {
   );
 }
 
-function CardIcon() {
-  return (
-    <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="2" y="5" width="20" height="14" rx="2" />
-      <path d="M2 10h20" />
-    </svg>
-  );
-}
-
 /** Une addition, deux moyens : la pièce à gauche de la coupure, la bande magnétique à droite. */
-function SplitIcon() {
+function SplitIcon({ className }: IconProps) {
   return (
-    <svg viewBox="0 0 24 24" className="size-6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <rect x="2" y="5" width="20" height="14" rx="2" />
       <path d="M12 5v14" />
       <circle cx="7" cy="12" r="2" />
@@ -37,9 +29,6 @@ function SplitIcon() {
     </svg>
   );
 }
-
-const FIELD_CLASS =
-  "flex items-center gap-2 rounded-xl border border-hairline bg-surface px-4 py-3 focus-within:border-ember-2/60";
 
 /**
  * Choix du mode, puis ce que le mode demande : le rendu de monnaie en espèces,
@@ -118,237 +107,165 @@ export function PaymentDialog({
   };
 
   const dueRow = (
-    <div className="flex items-baseline justify-between">
-      <span className="text-sm text-muted">
+    <div className="g-money flex items-baseline justify-between gap-3">
+      <span className="text-g-body text-muted">
         Total à régler{tip > 0 && " (pourboire inclus)"}
       </span>
-      <span className="font-display text-2xl text-ember-1">
-        {formatPrice(due)}
-      </span>
+      <span className="text-g-kpi tabular-nums text-g-entity">{formatPrice(due)}</span>
     </div>
   );
 
-  const footer = (submit: () => void, enabled: boolean) => (
+  const footer = (submit: () => void, enabled: boolean, help: string) => (
     <>
-      <button
-        type="button"
-        onClick={backToMode}
-        className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
-      >
-        Retour
-      </button>
-      <button
-        type="button"
-        disabled={!enabled}
-        onClick={submit}
-        className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-      >
+      {!enabled && <p>{help}</p>}
+      <GlassButton onClick={backToMode}>Retour</GlassButton>
+      <GlassButton variant="primary" disabled={!enabled} onClick={submit}>
         Encaisser
-      </button>
+      </GlassButton>
     </>
   );
 
+  const changeRow = (label: string, amount: number) => (
+    <div className="g-money flex items-baseline justify-between border-t border-hairline pt-2.5">
+      <span className="text-g-body font-medium">{label}</span>
+      <span className="text-g-name tabular-nums text-g-entity">{formatPrice(amount)}</span>
+    </div>
+  );
+
+  const onEnter = (submit: () => void) => (event: React.KeyboardEvent) => {
+    if (event.key === "Enter") submit();
+  };
+
   if (step === "cash") {
     return (
-      <Modal
+      <Sheet
         title="Paiement en espèces"
         onClose={onClose}
-        footer={footer(settleCash, Boolean(givenRaw) && validGiven)}
+        footer={footer(settleCash, Boolean(givenRaw) && validGiven, "Indiquez le montant reçu pour encaisser.")}
       >
         <div className="flex flex-col gap-5">
           {dueRow}
-
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">Montant reçu</span>
-            <div className={FIELD_CLASS}>
-              <input
-                type="text"
-                inputMode="decimal"
-                autoFocus
-                value={givenRaw}
-                onChange={(e) => setGivenRaw(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") settleCash();
-                }}
-                placeholder={amountToInput(due)}
-                className="flex-1 bg-transparent text-lg tabular-nums outline-none placeholder:text-faint"
-              />
-              <span className="text-sm text-muted">€</span>
-            </div>
-            {givenRaw && given != null && given < due && (
-              <span className="text-xs text-ember-3">
-                Le montant doit être supérieur ou égal au total.
-              </span>
-            )}
-          </label>
-
-          {validGiven && (
-            <div className="flex items-baseline justify-between rounded-xl border border-ember-2/25 bg-ember-2/5 px-4 py-3">
-              <span className="text-sm font-medium">Monnaie à rendre</span>
-              <span className="font-display text-xl tabular-nums text-ember-1">
-                {formatPrice(change)}
-              </span>
-            </div>
-          )}
+          <Field
+            label="Montant reçu"
+            hint="Au moins le total ; la monnaie se calcule."
+            error={givenRaw && given != null && given < due ? "Le montant doit couvrir le total à régler." : undefined}
+          >
+            <Input
+              numeric
+              unit="€"
+              data-autofocus
+              value={givenRaw}
+              onChange={(e) => setGivenRaw(e.target.value)}
+              onKeyDown={onEnter(settleCash)}
+              placeholder={amountToInput(due)}
+            />
+          </Field>
+          {validGiven && <Plate className="px-4 py-3">{changeRow("Monnaie à rendre", change)}</Plate>}
         </div>
-      </Modal>
+      </Sheet>
     );
   }
 
   if (step === "split") {
     return (
-      <Modal
+      <Sheet
         title="Paiement espèces + carte"
         onClose={onClose}
-        footer={footer(settleSplit, validSplit && validSplitGiven)}
+        footer={footer(settleSplit, validSplit && validSplitGiven, "Indiquez la part en espèces ou en carte pour encaisser.")}
       >
         <div className="flex flex-col gap-5">
           {dueRow}
-
-          <div className="flex flex-col gap-2">
+          <div className="grid gap-3 sm:grid-cols-2">
             {(
               [
                 ["Espèces", cashRaw, setCashRaw, setCardRaw],
                 ["Carte", cardRaw, setCardRaw, setCashRaw],
               ] as const
             ).map(([label, value, setSelf, setOther], index) => (
-              <label key={label} className={FIELD_CLASS}>
-                <span className="w-20 shrink-0 text-sm font-medium">{label}</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  autoFocus={index === 0}
+              <Field
+                key={label}
+                label={label}
+                hint={index === 0 ? "Saisissez une part, l’autre se complète." : undefined}
+                error={index === 0 && cashRaw && !validSplit ? "Chaque part doit être entre 0 et le total." : undefined}
+              >
+                <Input
+                  numeric
+                  unit="€"
+                  data-autofocus={index === 0 || undefined}
                   value={value}
                   onChange={(e) => {
                     setSelf(e.target.value);
                     setOther(mirror(e.target.value));
                   }}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter") settleSplit();
-                  }}
+                  onKeyDown={onEnter(settleSplit)}
                   placeholder="0,00"
-                  className="flex-1 bg-transparent text-right text-lg tabular-nums outline-none placeholder:text-faint"
                 />
-                <span className="text-sm text-muted">€</span>
-              </label>
+              </Field>
             ))}
-            <span className="text-xs text-faint">
-              {cashRaw && !validSplit
-                ? "Chaque part doit être supérieure à 0 et inférieure au total."
-                : "Saisissez une part, l'autre se complète."}
-            </span>
           </div>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="text-sm font-medium">
-              Reçu en espèces{" "}
-              <span className="font-normal text-faint">(si monnaie à rendre)</span>
-            </span>
-            <div className={FIELD_CLASS}>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={givenRaw}
-                onChange={(e) => setGivenRaw(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") settleSplit();
-                }}
-                placeholder={validSplit ? amountToInput(cashPart) : "0,00"}
-                className="flex-1 bg-transparent text-lg tabular-nums outline-none placeholder:text-faint"
-              />
-              <span className="text-sm text-muted">€</span>
-            </div>
-            {validSplit && !validSplitGiven && (
-              <span className="text-xs text-ember-3">
-                Le montant reçu doit couvrir la part en espèces.
-              </span>
-            )}
-          </label>
-
+          <Field
+            label="Reçu en espèces"
+            hint="Seulement si vous rendez la monnaie."
+            error={validSplit && !validSplitGiven ? "Le montant reçu doit couvrir la part en espèces." : undefined}
+          >
+            <Input
+              numeric
+              unit="€"
+              value={givenRaw}
+              onChange={(e) => setGivenRaw(e.target.value)}
+              onKeyDown={onEnter(settleSplit)}
+              placeholder={validSplit ? amountToInput(cashPart) : "0,00"}
+            />
+          </Field>
           {validSplit && validSplitGiven && (
-            <div className="flex flex-col gap-1.5 rounded-xl border border-ember-2/25 bg-ember-2/5 px-4 py-3">
+            <Plate className="flex flex-col gap-1.5 px-4 py-3">
               <div className="flex items-baseline justify-between">
-                <span className="text-sm text-muted">Espèces en caisse</span>
-                <span className="text-sm font-medium tabular-nums">
-                  {formatPrice(cashPart)}
-                </span>
+                <span className="text-g-body text-muted">Espèces en caisse</span>
+                <span className="text-g-body font-medium tabular-nums">{formatPrice(cashPart)}</span>
               </div>
               <div className="flex items-baseline justify-between">
-                <span className="text-sm text-muted">À passer en carte</span>
-                <span className="text-sm font-medium tabular-nums">
-                  {formatPrice(cardPart)}
-                </span>
+                <span className="text-g-body text-muted">À passer en carte</span>
+                <span className="text-g-body font-medium tabular-nums">{formatPrice(cardPart)}</span>
               </div>
-              {splitChange > 0 && (
-                <div className="flex items-baseline justify-between border-t border-ember-2/20 pt-1.5">
-                  <span className="text-sm font-medium">Monnaie à rendre</span>
-                  <span className="font-display text-xl tabular-nums text-ember-1">
-                    {formatPrice(splitChange)}
-                  </span>
-                </div>
-              )}
-            </div>
+              {splitChange > 0 && changeRow("Monnaie à rendre", splitChange)}
+            </Plate>
           )}
         </div>
-      </Modal>
+      </Sheet>
     );
   }
 
+  const modeButton = (label: string, icon: React.ReactNode, onClick: () => void, className = "") => (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`g-plate g-press flex min-h-g-control items-center justify-center gap-2.5 px-4 py-4 text-g-label font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1 ${className}`}
+    >
+      <span className="flex text-ember-1 *:size-6">{icon}</span>
+      {label}
+    </button>
+  );
+
   return (
-    <Modal title="Mode de paiement" onClose={onClose}>
-      <div className="mb-4 flex items-baseline justify-between">
-        <span className="text-sm text-muted">
+    <Sheet title="Mode de paiement" onClose={onClose}>
+      <div className="g-money mb-4 flex items-baseline justify-between gap-3">
+        <span className="text-g-body text-muted">
           À encaisser{tip > 0 && " (pourboire inclus)"}
         </span>
-        <span className="font-display text-2xl text-ember-1">
-          {formatPrice(due)}
-        </span>
+        <span className="text-g-kpi tabular-nums text-g-entity">{formatPrice(due)}</span>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        {(["especes", "carte"] as const).map((mode) => (
-          <button
-            key={mode}
-            type="button"
-            onClick={() => {
-              if (mode === "especes") setStep("cash");
-              else onSelect(mode, undefined, tip || undefined);
-            }}
-            className="flex flex-col items-center gap-2 rounded-2xl border border-hairline bg-surface px-4 py-5 text-sm font-semibold transition-colors hover:border-ember-2/40"
-          >
-            <span className="text-ember-1">
-              {mode === "especes" ? <CashIcon /> : <CardIcon />}
-            </span>
-            {PAYMENT_MODE_LABELS[mode]}
-          </button>
-        ))}
+        {modeButton(PAYMENT_MODE_LABELS.especes, <CashIcon />, () => setStep("cash"), "flex-col py-5")}
+        {modeButton(PAYMENT_MODE_LABELS.carte, <PaymentsIcon />, () => onSelect("carte", undefined, tip || undefined), "flex-col py-5")}
       </div>
-      <button
-        type="button"
-        onClick={() => setStep("split")}
-        className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-2xl border border-hairline bg-surface px-4 py-4 text-sm font-semibold transition-colors hover:border-ember-2/40"
-      >
-        <span className="text-ember-1">
-          <SplitIcon />
-        </span>
-        {PAYMENT_MODE_LABELS.mixte}
-      </button>
+      <div className="mt-3">
+        {modeButton(PAYMENT_MODE_LABELS.mixte, <SplitIcon />, () => setStep("split"), "w-full")}
+      </div>
       {tips && (
-        <label className="mt-4 flex items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3">
-          <span className="text-sm text-muted">Pourboire (optionnel)</span>
-          <div className="flex items-center gap-1.5">
-            <input
-              type="text"
-              inputMode="decimal"
-              value={tipRaw}
-              onChange={(e) => setTipRaw(e.target.value)}
-              placeholder="0"
-              aria-label="Pourboire en euros"
-              className="w-24 bg-transparent py-1 text-right text-base tabular-nums outline-none placeholder:text-faint lg:pointer-fine:text-sm"
-            />
-            <span className="text-sm text-muted">€</span>
-          </div>
-        </label>
+        <Field label="Pourboire" hint="Facultatif, s’ajoute au total." className="mt-5">
+          <Input numeric unit="€" value={tipRaw} onChange={(e) => setTipRaw(e.target.value)} placeholder="0,00" />
+        </Field>
       )}
-    </Modal>
+    </Sheet>
   );
 }
