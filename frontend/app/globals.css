@@ -14620,14 +14620,21 @@ html.light {
   height: var(--g-icon);
   flex: none;
 }
-.g-fab-label {
-  width: auto;
-  padding-inline: var(--g-input-px);
+/* Sur téléphone il reste rond : étiré, il couvrirait le reste à encaisser. */
+.g-fab-label span {
+  display: none;
 }
 @media (min-width: 1024px) {
   .g-fab {
     right: var(--g-topbar-mx);
     bottom: var(--g-topbar-mx);
+  }
+  .g-fab-label {
+    width: auto;
+    padding-inline: var(--g-input-px);
+  }
+  .g-fab-label span {
+    display: inline;
   }
 }
 .g-btn-secondary {
