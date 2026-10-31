@@ -59,6 +59,7 @@ export function AuthForm({
   destination,
   mode,
   otherHref,
+  forgotHref,
   subtitle,
   signUpData,
   authError,
@@ -75,6 +76,8 @@ export function AuthForm({
   /** Chemin de l'autre page (même host, même produit). Absent = pas
    * d'inscription publique (espace admin) : le lien n'est pas rendu. */
   otherHref?: string;
+  /** Chemin de la page « mot de passe oublié » du produit, s'il en a une. */
+  forgotHref?: string;
   subtitle: string;
   /** user_metadata posé à l'inscription (ex. { product: "clip" }). */
   signUpData?: Record<string, unknown>;
@@ -251,6 +254,14 @@ export function AuthForm({
               className={inputClass}
             />
           </Field>
+          {mode === "signin" && forgotHref && (
+            <Link
+              href={forgotHref}
+              className="-mt-2 self-end text-xs text-muted transition-colors hover:text-foreground"
+            >
+              Mot de passe oublié ?
+            </Link>
+          )}
 
           {error && <p className="text-sm text-ember-3">{error}</p>}
 

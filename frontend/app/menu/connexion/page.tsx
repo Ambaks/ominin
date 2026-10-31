@@ -22,6 +22,7 @@ export default async function ConnexionPage({
       destination={destination}
       mode="signin"
       otherHref="/inscription"
+      forgotHref="/menu/mot-de-passe-oublie"
       subtitle="Accédez à votre espace de gestion."
       authError={error === "auth"}
     />
