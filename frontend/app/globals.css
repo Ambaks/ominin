@@ -14971,7 +14971,7 @@ html.light {
 }
 
 /* Feuille « Plus » : dialogue natif de verre, posé au-dessus de la barre. */
-.g-sheet {
+dialog.g-sheet {
   /* .g-glass pose position: relative ; sur un <dialog> modal cela devient absolute
      et la feuille suit le document défilé — on la fixe à l'écran. */
   position: fixed;
@@ -15429,7 +15429,7 @@ textarea.g-input {
 /* Feuille : dialogue natif de verre, collé en bas au téléphone, centré dès
    1024 px ; le corps est une plaque (le formulaire ne pose rien sur du flou).
    Un seul élément de verre. */
-.g-dialog {
+dialog.g-dialog {
   position: fixed;
   inset: 0;
   margin: auto 0 0;
