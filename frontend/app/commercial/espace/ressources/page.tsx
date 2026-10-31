@@ -3,7 +3,6 @@ import { PageTitle, SectionTitle, cardClass, ghostButton } from "@/components/co
 import { DECKS } from "@/lib/commercial/decks";
 import { requireRunningContract } from "@/lib/commercial/session";
 import { commercialPrefix } from "@/lib/site";
-import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -16,13 +15,11 @@ const TUTOS = [
 
 /*
  * Ressources : ce que le commercial montre au gérant (le deck et la démo de
- * chaque type d'établissement, le deck PDF), son guide de vente, réglé par
- * l'admin, et les tutos pour brancher Stripe et la caisse.
+ * chaque type d'établissement, le deck PDF), et les tutos pour brancher
+ * Stripe et la caisse.
  */
 export default async function RessourcesPage() {
   await requireRunningContract();
-  const { data: guideUrl, error } = await (await createClient()).rpc("commercial_guide_url");
-  if (error) throw new Error(error.message);
 
   return (
     <div className="flex flex-col gap-7">
@@ -39,15 +36,6 @@ export default async function RessourcesPage() {
           </span>
           <span className={ghostButton}>Ouvrir</span>
         </a>
-        {guideUrl && (
-          <a href={guideUrl} target="_blank" rel="noopener" className={`${cardClass} flex items-center justify-between gap-3`}>
-            <span>
-              <span className="block font-medium">Guide de vente</span>
-              <span className="text-sm text-muted">Comment se passe une vente, les objections, ta commission</span>
-            </span>
-            <span className={ghostButton}>Ouvrir</span>
-          </a>
-        )}
       </section>
 
       <section className="flex flex-col gap-2.5">

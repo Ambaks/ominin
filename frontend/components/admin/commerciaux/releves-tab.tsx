@@ -24,7 +24,7 @@ import {
 import { downloadCsv, toCsv } from "@/lib/admin/csv";
 import { formatDate, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { euros, monthLabel } from "@/lib/commercial/labels";
-import { GHOST_BUTTON } from "./commerciaux-tab";
+import { GHOST_BUTTON } from "./commercial-sheet";
 
 const PRIMARY = "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50";
 

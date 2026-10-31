@@ -93,7 +93,7 @@ du cahier, expliqué).
 | 4.5 | Recherche limitée (`SEARCH_MAX_RESULTS`, `SEARCH_DAILY_QUOTA`), compteur jamais lisible par l'admin ; rendre une fiche Google existante compte une recherche | fait (corrigé : `commercial_create_restaurant` rendait la fiche sans compter) | `commercial_search`, `commercial_create_restaurant`, `commercial_quota_usage` (sans policy) | SQL 01 « l'admin ne lit pas les quotas » ; SQL 03 « au plus SEARCH_MAX_RESULTS », « quota du jour atteint » ; SQL 08 « §3-11. … et compte une recherche », « … dans la limite du quota » |
 | 4.5 | Tableau de visibilité (fiche publique, statut sans nom, historique, précision, interlocuteurs, journal, Léa, encaissements) | fait | `commercial_restaurant`, `commercial_state` | SQL 03 critères 6 et 7 |
 | 4.5 | Fiche retenue (listes fermées, précision limitée) portée par la déclaration | fait | `commercial_clean_retained`, `retained.tsx` | SQL 03 « n'accepte que la liste fermée », « précision limitée par le réglage » |
-| 4.6 | `commerciaux` : option, préavis, fin, motif | fait | …02 ; onglet Commerciaux (« Lever l'option », « Fin de contrat ») ; `commercial_resign` | SQL 04 « terme atteint : fin de contrat écrite » |
+| 4.6 | `commerciaux` : option, préavis, fin, motif | fait | …02 ; fiche d'un commercial (« Prolonger », « Fin de contrat ») ; `commercial_resign` | SQL 04 « terme atteint : fin de contrat écrite » |
 | 4.6 | Préavis : réservations valides, peut déclarer, rappel à l'écran | fait (texte adapté : « un restaurant qui s'inscrit après cette date ne vous ouvre plus de commission », cohérent avec 13.1) | `shell.tsx` | code |
 | 4.6 | À la fin : réservations libérées, accès réduit (Argent, relevés, contrat), brouillon et cache vidés | fait / partiel (vidage de l'appareil non essayé) — **le suivi précédent disait « fait (code) » : c'était faux**, `/espace` affichait une erreur, Kit, Clients et le deck restaient servis | `commercial_release_ended`, `commercial_me`, `requireRunningContract` (`lib/commercial/session.ts`, appelée par les 7 écrans de travail → Argent), `kit/deck/route.ts` et policy « kit read » (contrat en cours), `commercial_my_clients` en accès « travail », `SpaceShell` + `clearDeviceData` | SQL 02 critère 10, SQL 04 13.2 n° 1 ; SQL 08 « §3-5. contrat terminé : deck fermé », « … Clients fermé », « … Argent ouvert » ; ÉCRAN « fin de contrat : /espace… → /argent » (7 écrans), « deck refusé (403) », « Compte ouvert » |
 | 4.6 | Rappel de l'option `OPTION_REMINDER_DAYS` avant l'échéance | fait (échéance calculée en base, plus en TypeScript) / partiel (push admin non essayé) | `commercial_option_reminders` (une fois, `option_reminded_at`), `daily.ts` | SQL 08 « §3-13. rappel de l'option calculé en base, contrats en cours seulement », « … une fois » |
@@ -140,7 +140,7 @@ du cahier, expliqué).
 | 6.3 | Démos à faire | fait | `demos-tab.tsx` | SQL 06 |
 | 6.4 | Relevés : brouillon, régularisations, envoi PDF par e-mail, facture reçue, payé, contestations et leur réponse, demandes de détail, export CSV, détail CSV d'un relevé | fait (corrigé : aucune clôture de contestation, contester un relevé payé effaçait « payé ») | `releves-tab.tsx` (« Répondre à la contestation », « Détail CSV »), `statement.ts`, `admin_statement_resolve` | SQL 07 |
 | 6 | Vue d'ensemble par Restaurants et Carte grâce au reflet | fait | reflet | SQL 04 |
-| 13.2 n° 15 | Réglages : aucune valeur dans le code, vide = règle désactivée, signalement « à remplir avant la première invitation » | fait | `reglages-tab.tsx` | ÉCRAN 13 ; SQL 01, 02 « carence vide : désactivée », SQL 03 « sans nombre de résultats réglé… » |
+| 13.2 n° 15 | Réglages : aucune valeur dans le code, vide = règle désactivée, signalement « à remplir avant la première invitation » | fait | `reglages-communs.tsx` | ÉCRAN 13 ; SQL 01, 02 « carence vide : désactivée », SQL 03 « sans nombre de résultats réglé… » |
 
 ## Section 7 — Données et technique
 
@@ -323,7 +323,7 @@ Essais du vérificateur rejoués (`nouveaux3.sql`) : 24 conformes sur 31 ; les 7
 
 ## Ce qui reste aux fondateurs
 
-- **Réglages** (onglet Commerciaux → Réglages) : à remplir avant la première invitation — nombre de résultats de recherche, validité des liens d'inscription, rayon d'« Autour de moi » ; à décider — plafond, carence, `IN_TALKS_DAYS`, quotas (recherche, Google), délais de rappel (expiration, option, rendez-vous), seuil de « nom proche », démos du Kit, **prix Stripe éligibles (décision n° 5)**, **frais Club (décision n° 2)**.
+- **Réglages** (onglet Commerciaux, réglages communs) : à remplir avant la première invitation — nombre de résultats de recherche, validité des liens d'inscription, rayon d'« Autour de moi » ; à décider — plafond, carence, `IN_TALKS_DAYS`, quotas (recherche, Google), délais de rappel (expiration, option, rendez-vous), seuil de « nom proche », démos du Kit, **prix Stripe éligibles (décision n° 5)**, **frais Club (décision n° 2)**.
 - **Deck** à déposer (onglet Réglages → Deck du Kit).
 - **Rattachement** des clients en service et des clients du Projet (onglet Réglages → Rattachement) avant la première invitation.
 - **Version 3 du contrat** : relecture par l'avocat de `commercial-v3.ts` (déjà inscrite dans `documents/index.ts`, date d'effet du 16/11 à repousser si besoin), puis `npm run legal:publish` avant cette date, sinon les nouvelles signatures sont refusées.

@@ -4,9 +4,9 @@ import { usePathname } from "next/navigation";
 import { isProduct, type Product } from "./products";
 
 /*
- * Sur admin.ominin.com le proxy sert des chemins nus (/carte) ; en mode
- * inerte l'app vit sous ominin.com/admin/carte. Le produit affiché, lui, est
- * un segment que le proxy retire (/menu/carte sert /carte). usePathname
+ * Sur admin.ominin.com le proxy sert des chemins nus (/restaurants) ; en mode
+ * inerte l'app vit sous ominin.com/admin/restaurants. Le produit affiché, lui, est
+ * un segment que le proxy retire (/menu/restaurants sert /restaurants). usePathname
  * renvoie le chemin visible par le navigateur (la réécriture du proxy est
  * interne), donc racine et produit se déduisent du chemin lui-même —
  * déterministe côté serveur et client.
