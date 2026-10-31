@@ -741,7 +741,7 @@ export function EventEditor({
               <span className="font-medium">Un champ est à corriger</span>
             </>
           ) : !event ? (
-            <span className="text-muted">Pas encore créée</span>
+            <span className="text-muted max-sm:hidden">Pas encore créée</span>
           ) : dirty ? (
             <>
               <span className="size-2 shrink-0 rounded-full bg-ember-1" aria-hidden />

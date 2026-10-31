@@ -460,7 +460,7 @@ export default function LivePage() {
         )}
       </div>
       {gerant && stats.fees > 0 && (
-        <p className="-mt-2 text-g-meta text-muted">
+        <p className="g-rise text-g-meta text-muted" style={rise(1)}>
           Frais de service Ominin, payés par les clients en plus : <span className="tabular-nums">{formatCents(stats.fees)}</span>
         </p>
       )}
