@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { ONLINE_PAYMENT_TTL_S } from "@/lib/menu/online-payment-ttl";
-import { markPaymentRefused } from "@/lib/menu/payment-attempts";
+import { markPaymentRefused, stripeRefusedCard } from "@/lib/menu/payment-attempts";
 import {
   getMerchantToken,
   retrieveOrder,
@@ -71,7 +71,9 @@ async function settledAtStripe(
     return true;
   }
   // Le filet du webhook payment_intent.payment_failed : l'intent garde son refus.
-  if (intent.last_payment_error) await markPaymentRefused(admin, order.id);
+  if (intent.last_payment_error) {
+    await markPaymentRefused(admin, order.id, stripeRefusedCard(intent));
+  }
   if (intent.status !== "canceled") {
     await stripe.paymentIntents.cancel(intent.id, {}, stripeAccount);
   }

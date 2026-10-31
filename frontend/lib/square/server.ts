@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
+import { recordPaymentCard, squareCard } from "@/lib/menu/payment-attempts";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -203,7 +204,15 @@ export interface SquareTender {
   /** Ce que le tender a encaissé, pourboire non compris. */
   amount_money?: SquareMoney;
   tip_money?: SquareMoney;
-  card_details?: { status?: "AUTHORIZED" | "CAPTURED" | "VOIDED" | "FAILED" };
+  card_details?: {
+    status?: "AUTHORIZED" | "CAPTURED" | "VOIDED" | "FAILED";
+    card?: SquareCard;
+  };
+}
+
+interface SquareCard {
+  card_brand?: string;
+  card_type?: string;
 }
 
 export interface SquareOrder {
@@ -238,6 +247,7 @@ export interface SquarePayment {
   order_id?: string;
   amount_money?: SquareMoney;
   tip_money?: SquareMoney;
+  card_details?: { card?: SquareCard };
 }
 
 export function createPayment(
@@ -428,12 +438,17 @@ export async function settleFromOrder(
   squareOrder: SquareOrder
 ): Promise<boolean> {
   const tender = capturedTender(squareOrder);
-  if (!tender) return false;
+  if (!tender) {
+    const refused = squareOrder.tenders?.findLast((candidate) => candidate.card_details?.card);
+    if (refused) await recordPaymentCard(admin, orderId, squareCard(refused.card_details));
+    return false;
+  }
   const { error } = await admin
     .from("orders")
     .update({ square_payment_id: tender.payment_id })
     .eq("id", orderId);
   if (error) throw new Error(error.message);
+  await recordPaymentCard(admin, orderId, squareCard(tender.card_details));
   await settlePayment(admin, orderId, tender.tip_money);
   return true;
 }
