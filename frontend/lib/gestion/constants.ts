@@ -37,6 +37,8 @@ export const CART_LINES_SHOWN = 3;
 export const REWARD_ITEMS_SHOWN = 3;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
+/** Équipe, volet Planning, brouillon de la semaine prochaine ouvert. */
+export const WEEK_DRAFT_HREF = "/gestion/equipe?brouillon=1";
 /** Les périodes de l'onglet Analyses, en jours de service complets. */
 export const ANALYSES_PERIOD_DAYS = [7, 30, 90] as const;
 export const ANALYSES_DEFAULT_PERIOD_DAYS = 30;
@@ -66,6 +68,27 @@ export const ANALYSES = {
   foodCostTarget: 30,
   laborCostTarget: 30,
   primeCostTarget: 60,
+  /** Le brouillon de planning, décidé avec Ambaka (2026-10-31). */
+  staffing: {
+    /** Au moins une personne par équipe, sur chaque heure qui vend. */
+    minPerTeam: { cuisine: 1, salle: 1 },
+    /** Un jour de la semaine, ou une attente, a besoin d'au moins autant d'observations. */
+    minSamples: 3,
+    /** Pointage plus long : départ oublié, écarté. */
+    maxEntryHours: 12,
+    /** Pour ramener l'économie d'une semaine à un mois et à une année. */
+    weeksPerYear: 52,
+    /** Un brouillon de planning ne pose pas de créneau plus court : il l'allonge. */
+    minShiftHours: 3,
+    /** Au-delà, le créneau passe à quelqu'un d'autre : sous les 11 h quotidiennes de la convention HCR. */
+    maxShiftHours: 10,
+    /** Toutes commandes confondues : ce que 3 serveurs ont tenu sous 6 min aux heures chargées du BOHO (oct. 2026). */
+    ordersPerServerHour: 20,
+    /** On prévoit un peu au-dessus de la médiane : manquer de monde coûte plus cher qu'une heure de trop. */
+    forecastQuantile: 0.75,
+    /** Une pause plus courte n'en est pas une : la personne reste, et le retrait saute. */
+    minBreakHours: 3,
+  },
   /** Un mois, pour ramener une estimation à une base mensuelle. */
   monthDays: 30,
 } as const;

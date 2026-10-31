@@ -542,3 +542,234 @@ export function revenuePerStaffHour(
     return { dow, value: ratio(revenue, hours) };
   });
 }
+
+export type StaffTeam = "cuisine" | "salle";
+
+/** Ce que chaque personne a pointé, par jour de la semaine, sur la période lue. */
+export interface StaffHabit {
+  staff_id: string;
+  team: StaffTeam;
+  dow: number;
+  days: number;
+  hours: number;
+}
+
+export interface StaffingData {
+  volumes: { day: string; dow: number; hour: number; orders: number }[];
+  waits: { dow: number; hour: number; orders: number; median_seconds: number }[];
+  staff: { day: string; dow: number; hour: number; team: StaffTeam; hours: number }[];
+  habits: StaffHabit[];
+  settings: { hourly_labor_cost: number | null; orders_per_server_hour: number | null } | null;
+}
+
+export interface DraftShift {
+  day: string;
+  team: StaffTeam;
+  startHour: number;
+  endHour: number;
+  /** Nul : personne de disponible, à pourvoir par le gérant. */
+  staffId: string | null;
+}
+
+export interface WeekDraft {
+  shifts: DraftShift[];
+  /** Les heures d'une semaine habituelle, sur les jours que couvre le brouillon. */
+  usualHours: number;
+}
+
+export interface DayNeed {
+  day: string;
+  dow: number;
+  /** Serveurs nécessaires par heure d'ouverture. */
+  servers: Map<number, number>;
+}
+
+const medianOf = (values: readonly number[]) => quantile(ascending(values), 0.5);
+
+export const shiftHours = (run: { startHour: number; endHour: number }) => run.endHour - run.startHour;
+
+/**
+ * Des effectifs heure par heure, en créneaux : chaque personne en plus est une couche.
+ * Un trou trop court se comble, un créneau trop court s'allonge, dans l'ouverture.
+ */
+function runsOf(headcount: ReadonlyMap<number, number>): { startHour: number; endHour: number }[] {
+  const { minShiftHours, maxShiftHours, minBreakHours } = ANALYSES.staffing;
+  const open = [...headcount.entries()].filter(([, count]) => count > 0).map(([hour]) => hour);
+  if (open.length === 0) return [];
+  const opening = Math.min(...open);
+  const closing = Math.max(...open) + 1;
+  const runs: { startHour: number; endHour: number }[] = [];
+  for (let layer = 1; layer <= Math.max(...headcount.values()); layer += 1) {
+    const layerRuns: { startHour: number; endHour: number }[] = [];
+    for (let hour = opening; hour < closing; hour += 1) {
+      if ((headcount.get(hour) ?? 0) < layer) continue;
+      const last = layerRuns.at(-1);
+      if (last && hour - last.endHour < minBreakHours) last.endHour = hour + 1;
+      else layerRuns.push({ startHour: hour, endHour: hour + 1 });
+    }
+    for (const run of layerRuns) {
+      const endHour = Math.min(closing, Math.max(run.endHour, run.startHour + minShiftHours));
+      const startHour = Math.max(opening, Math.min(run.startHour, endHour - minShiftHours));
+      // Trop long pour une seule personne : deux créneaux égaux, qui se passent le relais.
+      const pieces = Math.ceil((endHour - startHour) / maxShiftHours);
+      for (let piece = 0; piece < pieces; piece += 1) {
+        runs.push({
+          startHour: startHour + Math.round(((endHour - startHour) * piece) / pieces),
+          endHour: startHour + Math.round(((endHour - startHour) * (piece + 1)) / pieces),
+        });
+      }
+    }
+  }
+  return runs;
+}
+
+/** Le lundi de la semaine qui suit le jour de service `to`. */
+export const nextMondayAfter = (to: string) => addDays(to, 8 - isoWeekday(to));
+
+/**
+ * Prévision, charge, effectif. Les commandes attendues heure par heure donnent le nombre
+ * de serveurs. Une heure où l'attente dépasse déjà la limite ne descend jamais sous son
+ * effectif habituel : on ne retire personne là où les clients attendent déjà trop.
+ */
+export function dayNeeds(
+  data: StaffingData,
+  to: string,
+  ordersPerServerHour: number,
+  maxWaitMinutes: number
+): DayNeed[] {
+  const { forecastQuantile, minPerTeam, minSamples } = ANALYSES.staffing;
+  const nextMonday = nextMondayAfter(to);
+  const salesDays = [...new Set(data.volumes.map((row) => row.day))];
+  const volumes = new Map(data.volumes.map((row) => [`${row.day}/${row.hour}`, row.orders]));
+  const present = new Map(
+    data.staff.filter((row) => row.team === "salle").map((row) => [`${row.day}/${row.hour}`, row.hours])
+  );
+  const slowHours = new Set(
+    data.waits
+      .filter((row) => row.orders >= minSamples && row.median_seconds / 60 >= maxWaitMinutes)
+      .map((row) => `${row.dow}/${row.hour}`)
+  );
+  return [1, 2, 3, 4, 5, 6, 7].flatMap((dow) => {
+    const days = salesDays.filter((sample) => isoWeekday(sample) === dow);
+    if (days.length < minSamples) return [];
+    const clocked = days.filter((sample) => data.staff.some((row) => row.team === "salle" && row.day === sample));
+    // Toutes les commandes payées comptent, quel que soit le mode de paiement.
+    const orders = new Map<number, number>();
+    const usual = new Map<number, number>();
+    const open: number[] = [];
+    for (let hour = 0; hour < 24; hour += 1) {
+      const forecast = quantile(ascending(days.map((sample) => volumes.get(`${sample}/${hour}`) ?? 0)), forecastQuantile);
+      orders.set(hour, forecast);
+      const median = clocked.length > 0 ? medianOf(clocked.map((sample) => present.get(`${sample}/${hour}`) ?? 0)) : 0;
+      usual.set(hour, Math.round(median));
+      if (forecast > 0 || median >= 0.5) open.push(hour);
+    }
+    if (open.length === 0) return [];
+    const servers = new Map<number, number>();
+    for (let hour = Math.min(...open); hour <= Math.max(...open); hour += 1) {
+      const fromOrders = Math.max(minPerTeam.salle, Math.ceil((orders.get(hour) ?? 0) / ordersPerServerHour));
+      servers.set(hour, slowHours.has(`${dow}/${hour}`) ? Math.max(fromOrders, usual.get(hour) ?? 0) : fromOrders);
+    }
+    return [{ day: addDays(nextMonday, dow - 1), dow, servers }];
+  });
+}
+
+/**
+ * Le brouillon de la semaine prochaine, construit depuis la demande et non depuis les
+ * habitudes : les serveurs suivent les commandes prévues, un cuisinier couvre toute
+ * l'ouverture si le restaurant en a. Les journées chargées se pourvoient d'abord. Chaque
+ * créneau va à qui vient d'habitude ce jour-là, puis au reste de l'équipe, sans chevauchement
+ * ni dépassement de ses heures habituelles. Rien ne connaît les contrats, les congés ni les
+ * pauses : le gérant relit tout.
+ */
+export function draftWeek(
+  data: StaffingData,
+  to: string,
+  ordersPerServerHour: number,
+  maxWaitMinutes: number
+): WeekDraft {
+  const { habits } = data;
+  const present = new Map(data.staff.map((row) => [`${row.day}/${row.hour}/${row.team}`, row.hours]));
+  const salesDays = [...new Set(data.volumes.map((row) => row.day))];
+  const hasCooks = data.staff.some((row) => row.team === "cuisine") || habits.some((row) => row.team === "cuisine");
+  const weekly = new Map<string, number>();
+  for (const habit of habits) {
+    weekly.set(habit.staff_id, (weekly.get(habit.staff_id) ?? 0) + habit.hours / ANALYSES.forecastWeeks);
+  }
+  let usualHours = 0;
+  const plans: { day: string; dow: number; team: StaffTeam; runs: ReturnType<typeof runsOf> }[] = [];
+  for (const need of dayNeeds(data, to, ordersPerServerHour, maxWaitMinutes)) {
+    const samples = salesDays.filter((day) => isoWeekday(day) === need.dow);
+    for (const team of ["cuisine", "salle"] as const) {
+      const clocked = samples.filter((day) => data.staff.some((row) => row.team === team && row.day === day));
+      // Les heures telles qu'elles sont pointées : arrondir une demi-heure gonflerait l'économie.
+      for (let hour = 0; hour < 24 && clocked.length > 0; hour += 1) {
+        usualHours += medianOf(clocked.map((day) => present.get(`${day}/${hour}/${team}`) ?? 0));
+      }
+    }
+    plans.push({ day: need.day, dow: need.dow, team: "salle", runs: runsOf(need.servers) });
+    if (hasCooks) {
+      const cook = new Map([...need.servers.keys()].map((hour) => [hour, ANALYSES.staffing.minPerTeam.cuisine]));
+      plans.push({ day: need.day, dow: need.dow, team: "cuisine", runs: runsOf(cook) });
+    }
+  }
+  const loadOf = (day: string) =>
+    plans.filter((plan) => plan.day === day).flatMap((plan) => plan.runs).reduce((sum, run) => sum + shiftHours(run), 0);
+  plans.sort((a, b) => loadOf(b.day) - loadOf(a.day) || a.day.localeCompare(b.day));
+
+  type Plan = (typeof plans)[number];
+  type Run = Plan["runs"][number];
+  const assigned = new Map<string, number>();
+  const shifts: DraftShift[] = [];
+  const habitOn = (id: string, dow: number) =>
+    habits.find((habit) => habit.staff_id === id && habit.dow === dow)?.days ?? 0;
+  const place = (plan: Plan, run: Run, people: string[]) => {
+    const free = people.find((id) => {
+      const ofDay = shifts.filter((shift) => shift.staffId === id && shift.day === plan.day);
+      return (
+        !ofDay.some((shift) => shift.startHour < run.endHour && run.startHour < shift.endHour) &&
+        ofDay.reduce((sum, shift) => sum + shiftHours(shift), shiftHours(run)) <= ANALYSES.staffing.maxShiftHours &&
+        (assigned.get(id) ?? 0) + shiftHours(run) <= (weekly.get(id) ?? 0)
+      );
+    });
+    if (!free) return false;
+    assigned.set(free, (assigned.get(free) ?? 0) + shiftHours(run));
+    shifts.push({ day: plan.day, team: plan.team, ...run, staffId: free });
+    return true;
+  };
+  // D'abord les jours où chacun vient d'habitude (au moins une semaine sur deux), puis le reste.
+  const leftover: { plan: Plan; run: Run; people: string[] }[] = [];
+  for (const plan of plans) {
+    const people = [...new Set(habits.filter((habit) => habit.team === plan.team).map((habit) => habit.staff_id))].sort(
+      (a, b) => habitOn(b, plan.dow) - habitOn(a, plan.dow) || (weekly.get(b) ?? 0) - (weekly.get(a) ?? 0)
+    );
+    const regular = people.filter((id) => habitOn(id, plan.dow) * 2 >= ANALYSES.forecastWeeks);
+    for (const run of [...plan.runs].sort((a, b) => shiftHours(b) - shiftHours(a))) {
+      if (!place(plan, run, regular)) leftover.push({ plan, run, people });
+    }
+  }
+  for (const { plan, run, people } of leftover) {
+    if (!place(plan, run, people)) shifts.push({ day: plan.day, team: plan.team, ...run, staffId: null });
+  }
+  shifts.sort((a, b) => a.day.localeCompare(b.day) || a.team.localeCompare(b.team) || a.startHour - b.startHour);
+  return { shifts, usualHours };
+}
+
+/** Heures en moins sur une semaine, un mois et une année qui ressembleraient à celle-ci. */
+export function weekSavings(usualHours: number, draftHours: number) {
+  const week = usualHours - draftHours;
+  const year = week * ANALYSES.staffing.weeksPerYear;
+  return { week, month: year / 12, year };
+}
+
+/** Les heures pointées la dernière semaine complète, du lundi au dimanche. Nul : aucune. */
+export function lastWeekHours(data: StaffingData, to: string): number | null {
+  const monday = addDays(nextMondayAfter(to), -14);
+  const end = addDays(monday, 7);
+  const rows = data.staff.filter((row) => row.day >= monday && row.day < end);
+  return rows.length > 0 ? rows.reduce((sum, row) => sum + row.hours, 0) : null;
+}
+
+/** Le ratio du restaurant, ou la valeur par défaut de l'application. */
+export const serverRatio = (data: StaffingData) =>
+  data.settings?.orders_per_server_hour ?? ANALYSES.staffing.ordersPerServerHour;

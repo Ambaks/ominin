@@ -45,6 +45,7 @@ export type Database = {
           food_cost_target: number | null
           hourly_labor_cost: number | null
           labor_cost_target: number | null
+          orders_per_server_hour: number | null
           prime_cost_target: number | null
           updated_at: string
         }
@@ -53,6 +54,7 @@ export type Database = {
           food_cost_target?: number | null
           hourly_labor_cost?: number | null
           labor_cost_target?: number | null
+          orders_per_server_hour?: number | null
           prime_cost_target?: number | null
           updated_at?: string
         }
@@ -61,6 +63,7 @@ export type Database = {
           food_cost_target?: number | null
           hourly_labor_cost?: number | null
           labor_cost_target?: number | null
+          orders_per_server_hour?: number | null
           prime_cost_target?: number | null
           updated_at?: string
         }
@@ -7466,6 +7469,16 @@ export type Database = {
           p_replaced_minutes: number
           p_to: string
           p_visit_gap_hours: number
+        }
+        Returns: Json
+      }
+      gestion_staffing: {
+        Args: {
+          p_day_end_hour: number
+          p_etablissement_id: string
+          p_from: string
+          p_max_entry_hours: number
+          p_to: string
         }
         Returns: Json
       }
