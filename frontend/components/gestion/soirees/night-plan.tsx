@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useMemo, useRef } from "react";
 import { FloorPlan, tableSize, tablesBounds, type TableState } from "@/components/club/floor-plan";
 import { PLAN_FIT, PLAN_POINTER } from "@/components/club/timing";
 import { usePlanCamera, type FitRect, type PlanCamera } from "@/components/club/use-plan-camera";
+import { GlassButton, Plate } from "@/components/gestion/ui";
 import { TABLE_STATE_LABELS } from "@/lib/gestion/club-selectors";
 import type { ClubTable, ClubZone } from "@/lib/club/types";
 
@@ -97,41 +98,24 @@ export function NightPlan({
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-xs text-muted">
+        <p className="text-g-meta text-muted">
           {zoomed ? "Glissez pour vous déplacer." : "Pincez ou utilisez − / + pour agrandir."}
         </p>
-        <div className="flex shrink-0 items-center gap-2">
-          {zoomed && (
-            <button
-              type="button"
-              onClick={recenter}
-              className="min-h-11 rounded-full border border-hairline bg-background/80 px-4 text-sm font-medium text-muted backdrop-blur-md hover:text-foreground lg:pointer-fine:min-h-9"
-            >
-              Recentrer
-            </button>
-          )}
-          <div role="group" aria-label="Zoom du plan" className="flex rounded-full border border-hairline bg-background/80 backdrop-blur-md">
-            <button
-              type="button"
-              onClick={() => zoomBy(1 / ZOOM_STEP)}
-              disabled={!zoomed}
-              aria-label="Réduire le plan"
-              className="flex size-11 items-center justify-center rounded-full text-lg text-muted hover:text-foreground disabled:opacity-40 lg:pointer-fine:size-9"
-            >
+        <div role="group" aria-label="Zoom du plan" className="flex shrink-0 items-center gap-2">
+          {zoomed && <GlassButton onClick={recenter}>Recentrer</GlassButton>}
+          <GlassButton variant="icon" aria-label="Réduire le plan" disabled={!zoomed} onClick={() => zoomBy(1 / ZOOM_STEP)}>
+            <span className="text-lg" aria-hidden>
               −
-            </button>
-            <button
-              type="button"
-              onClick={() => zoomBy(ZOOM_STEP)}
-              aria-label="Agrandir le plan"
-              className="flex size-11 items-center justify-center rounded-full text-lg text-muted hover:text-foreground lg:pointer-fine:size-9"
-            >
+            </span>
+          </GlassButton>
+          <GlassButton variant="icon" aria-label="Agrandir le plan" onClick={() => zoomBy(ZOOM_STEP)}>
+            <span className="text-lg" aria-hidden>
               +
-            </button>
-          </div>
+            </span>
+          </GlassButton>
         </div>
       </div>
-      <div className="relative rounded-2xl border border-hairline bg-surface p-2 sm:p-3">
+      <Plate className="relative p-2 sm:p-3">
         <div
           ref={viewport}
           className="plan-cadre"
@@ -185,14 +169,14 @@ export function NightPlan({
             </svg>
           </div>
         </div>
-      </div>
+      </Plate>
     </div>
   );
 }
 
 export function PlanLegend({ states }: { states: TableState[] }) {
   return (
-    <ul className="flex flex-wrap gap-x-4 gap-y-2 text-xs text-muted">
+    <ul className="flex flex-wrap gap-x-4 gap-y-2 text-g-meta text-muted">
       {states.map((state) => (
         <li key={state} className="flex items-center gap-1.5">
           <span className="plan-legende" data-state={state} aria-hidden />

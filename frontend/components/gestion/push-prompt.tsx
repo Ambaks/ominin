@@ -5,12 +5,13 @@ import { useEffect, useState } from "react";
 import { PUSH_PROMPT_DISMISSED_KEY } from "@/lib/gestion/constants";
 import { getPushStatus } from "@/lib/push/client";
 import { BellIcon } from "./icons";
+import { GlassButton, Notice } from "./ui";
 
 /*
- * Invite unique vers la page Notifications, sur la page Commandes : tant que
- * l'appareil peut s'abonner (ou doit d'abord installer l'app sous iOS) et que
- * l'invite n'a pas été écartée, on la propose — c'est là que le push a le
- * plus de valeur.
+ * Invite unique vers Alertes, sur la page Commandes : tant que l'appareil
+ * peut s'abonner (ou doit d'abord installer l'app sous iOS) et que l'invite
+ * n'a pas été écartée, on la propose — c'est là que le push a le plus de
+ * valeur. Un bandeau de verre : il compte dans le budget de la page.
  */
 
 export function PushPrompt() {
@@ -31,37 +32,27 @@ export function PushPrompt() {
   };
 
   return (
-    <div
-      data-visite="notifications-push"
-      className="flex flex-wrap items-center gap-x-4 gap-y-3 rounded-2xl border border-hairline bg-surface px-4 py-3.5"
-    >
-      <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-surface-raised">
-        <BellIcon className="size-4.5 text-ember-1" />
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium">
-          Soyez prévenu des nouvelles commandes
-        </p>
-        <p className="text-xs leading-relaxed text-faint">
-          Activez les notifications : cet appareil sonnera même en veille.
-        </p>
-      </div>
-      <div className="flex shrink-0 items-center gap-3">
-        <button
-          type="button"
-          onClick={dismiss}
-          className="text-xs text-muted underline-offset-2 hover:underline"
-        >
-          Plus tard
-        </button>
-        <Link
-          href="/gestion/notifications"
-          data-visite="notifications-activer"
-          className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background"
-        >
-          Activer
-        </Link>
-      </div>
+    <div data-visite="notifications-push">
+      <Notice
+        tone="info"
+        icon={<BellIcon />}
+        title="Soyez prévenu des nouvelles commandes"
+        text="Activez les alertes : cet appareil sonnera même en veille."
+        action={
+          <span className="flex items-center gap-2">
+            <GlassButton onClick={dismiss}>Plus tard</GlassButton>
+            {/* Lien habillé par le kit : la visite cible ce repère, que
+                GlassButton href ne transmet pas (demande faite à la tête). */}
+            <Link
+              href="/gestion/notifications"
+              data-visite="notifications-activer"
+              className="g-btn g-btn-primary g-press"
+            >
+              Activer
+            </Link>
+          </span>
+        }
+      />
     </div>
   );
 }

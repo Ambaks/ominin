@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
-import { Modal } from "@/components/ui/modal";
+import { GlassButton, GlassFrame, Input, Plate, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import { SERVICE_CLOCK_TICK_MS, STAFF_CODE_LENGTH } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import { isPickupShop, visibleStaff } from "@/lib/gestion/selectors";
@@ -36,6 +38,15 @@ const ACTION_LABELS: Record<Action, string> = {
   out: "Départ",
 };
 
+function ClockIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 7.5V12l3 2" />
+    </svg>
+  );
+}
+
 export function Badgeuse({
   staff,
   entries,
@@ -65,6 +76,7 @@ export function Badgeuse({
   const eligible = action === "out" ? present : absent;
   const needsCode = chosen?.codeSet ?? false;
   const codeReady = !needsCode || code.length === STAFF_CODE_LENGTH;
+  const time = now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
 
   const close = () => {
     setAction(null);
@@ -97,7 +109,7 @@ export function Badgeuse({
       onChange();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
       // La signature reste ; seul le code se retape.
       setCode("");
@@ -107,90 +119,89 @@ export function Badgeuse({
   };
 
   return (
-    <section className="flex flex-col gap-5">
-      <div className="rise relative overflow-hidden rounded-3xl border border-hairline bg-surface">
-        <div className="ember-flow h-1 w-full" aria-hidden />
-        <div className="flex flex-wrap items-center justify-between gap-4 p-6">
+    <section className="flex flex-col gap-g-gap">
+      <GlassFrame hero entity="orders" eyebrow="Badgeuse" icon={<ClockIcon />}>
+        <Plate className="flex flex-wrap items-end justify-between gap-4 p-5">
           <div>
-            <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-              Badgeuse
-            </p>
-            <p className="mt-1 text-sm text-muted">
+            <p className="text-g-day tabular-nums">{time}</p>
+            <p className="mt-2.5 text-g-label text-muted">
               {present.length > 0
                 ? `${present.length} personne${present.length > 1 ? "s" : ""} en service`
                 : "Personne en service"}
             </p>
           </div>
-          <p className="font-display text-3xl tabular-nums lg:text-4xl">
-            {now.toLocaleTimeString("fr-FR", {
-              hour: "2-digit",
-              minute: "2-digit",
-            })}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid gap-3 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={() => setAction("in")}
-          disabled={absent.length === 0}
-          className="ember-gradient rounded-2xl px-6 py-6 font-display text-xl font-medium text-background transition-transform hover:scale-[1.01] active:scale-[0.99] disabled:opacity-40"
-        >
-          Arrivée
-        </button>
-        <button
-          type="button"
-          onClick={() => setAction("out")}
-          disabled={present.length === 0}
-          className="rounded-2xl border border-hairline bg-surface px-6 py-6 font-display text-xl font-medium transition-colors hover:border-ember-2/40 disabled:opacity-40"
-        >
-          Départ
-        </button>
-      </div>
+          <div className="grid w-full gap-3 sm:w-auto sm:min-w-80">
+          <div className="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              onClick={() => setAction("in")}
+              disabled={absent.length === 0}
+              className="g-press ember-gradient rounded-g-card px-6 py-5 font-display text-g-h2 text-background disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
+            >
+              Arrivée
+            </button>
+            <button
+              type="button"
+              onClick={() => setAction("out")}
+              disabled={present.length === 0}
+              className="g-press rounded-g-card border border-hairline bg-surface px-6 py-5 font-display text-g-h2 disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
+            >
+              Départ
+            </button>
+          </div>
+          {team.length > 0 && present.length === 0 && (
+            <p className="text-g-meta text-muted">Le départ attend une arrivée.</p>
+          )}
+          {team.length > 0 && absent.length === 0 && (
+            <p className="text-g-meta text-muted">Toute l’équipe a pointé son arrivée.</p>
+          )}
+          </div>
+        </Plate>
+      </GlassFrame>
 
       {team.length === 0 && (
-        <p className="text-sm text-muted">
-          Aucun {isPickupShop(state) ? "employé" : "serveur"}{" "}
-          dans l&rsquo;équipe. Le gérant les ajoute depuis Équipe, onglet
-          Planning.
+        <p className="text-g-label text-muted">
+          Aucun {isPickupShop(state) ? "employé" : "serveur"} dans l&rsquo;équipe. Le gérant les{" "}
+          {state?.features.equipe_sans_comptes ? "ajoute" : "invite"} depuis{" "}
+          {state?.role === "gerant" ? (
+            <Link href="/gestion/equipe" className="font-semibold text-foreground underline decoration-hairline underline-offset-2">
+              Équipe
+            </Link>
+          ) : (
+            "Équipe"
+          )}
+          .
         </p>
       )}
 
       {present.length > 0 && (
-        <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
-          {present.map((member, index) => {
+        <Plate role="group" className="divide-y divide-hairline px-4" aria-label="En service">
+          {present.map((member) => {
             const open = openEntry(entries, member.id)!;
             return (
-              <li
+              <div
                 key={member.id}
-                className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
-                  index > 0 ? "border-t border-hairline" : ""
-                }`}
+                className="flex min-h-g-control items-center justify-between gap-4 py-2.5"
               >
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-medium">{member.name}</p>
-                  <p className="text-xs text-faint">
-                    Depuis {formatTime(open.startedAt)}
-                  </p>
+                  <p className="truncate text-g-label font-semibold">{member.name}</p>
+                  <p className="text-g-meta text-muted">Depuis {formatTime(open.startedAt)}</p>
                 </div>
                 {showHours && (
-                  <span className="shrink-0 text-sm tabular-nums text-ember-1">
-                    {formatDuration(
-                      minutesBetween(open.startedAt, now.toISOString())
-                    )}
+                  <span className="shrink-0 text-g-label font-semibold tabular-nums text-ember-1">
+                    {formatDuration(minutesBetween(open.startedAt, now.toISOString()))}
                   </span>
                 )}
-              </li>
+              </div>
             );
           })}
-        </ul>
+        </Plate>
       )}
 
       {action && !chosen && (
-        <Modal title={`${ACTION_LABELS[action]} — qui êtes-vous ?`} onClose={close}>
+        <Sheet title={`${ACTION_LABELS[action]} — qui êtes-vous ?`} onClose={close}>
           {eligible.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p className="text-g-label text-muted">
               {action === "in"
                 ? "Toute l'équipe a déjà badgé son arrivée."
                 : "Personne n'est en service."}
@@ -202,13 +213,11 @@ export function Badgeuse({
                   <button
                     type="button"
                     onClick={() => setChosen(member)}
-                    className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-hairline bg-surface px-4 py-3 text-left transition-colors hover:border-ember-2/40"
+                    className="g-press flex min-h-14 w-full items-center justify-between gap-3 rounded-g-card border border-hairline bg-surface px-4 py-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                   >
-                    <span className="truncate text-base font-medium">
-                      {member.name}
-                    </span>
+                    <span className="truncate text-g-body font-semibold">{member.name}</span>
                     {action === "out" && (
-                      <span className="shrink-0 text-xs tabular-nums text-faint">
+                      <span className="shrink-0 text-g-meta tabular-nums text-muted">
                         Depuis {formatTime(openEntry(entries, member.id)!.startedAt)}
                       </span>
                     )}
@@ -217,54 +226,51 @@ export function Badgeuse({
               ))}
             </ul>
           )}
-        </Modal>
+        </Sheet>
       )}
 
       {action && chosen && (
-        <Modal
+        <Sheet
           title={`${ACTION_LABELS[action]} de ${chosen.name}`}
           onClose={close}
           footer={
             <>
-              <button
-                type="button"
+              {!codeReady ? (
+                <p role="status">Tapez votre code pour valider.</p>
+              ) : (
+                !signature && <p role="status">Signez pour valider.</p>
+              )}
+              <GlassButton
                 onClick={() => {
                   setChosen(null);
                   setCode("");
                   setSignature(null);
                 }}
-                className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
               >
                 Retour
-              </button>
-              <button
-                type="button"
+              </GlassButton>
+              <GlassButton
+                variant="primary"
                 disabled={!signature || !codeReady || busy}
                 onClick={() => void submit()}
-                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
               >
                 Valider
-              </button>
+              </GlassButton>
             </>
           }
         >
           <div className="flex flex-col gap-4">
-            <p className="text-sm text-muted">
+            <p className="text-g-label text-muted">
               {ACTION_LABELS[action]} à{" "}
-              <span className="tabular-nums text-foreground">
-                {now.toLocaleTimeString("fr-FR", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </span>
+              <span className="tabular-nums text-foreground">{time}</span>
               . {needsCode ? "Tapez votre code, puis signez." : "Signez pour confirmer."}
             </p>
             {needsCode && (
-              <input
+              <Input
                 type="password"
                 inputMode="numeric"
                 autoComplete="off"
-                autoFocus
+                data-autofocus
                 value={code}
                 onChange={(event) =>
                   setCode(
@@ -273,12 +279,12 @@ export function Badgeuse({
                 }
                 aria-label="Code de badgeage"
                 placeholder="••••"
-                className="w-full rounded-xl border border-hairline bg-background px-4 py-3 text-center font-display text-2xl tracking-[0.5em] outline-none transition-colors placeholder:tracking-[0.5em] focus:border-ember-2/50"
+                className="text-center tracking-widest placeholder:tracking-widest"
               />
             )}
             <SignaturePad onChange={setSignature} />
           </div>
-        </Modal>
+        </Sheet>
       )}
     </section>
   );

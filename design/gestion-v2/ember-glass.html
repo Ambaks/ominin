@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Aperçu — Le Bistrot d'Olga · Ominin Connect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT,WONK@9..144,500..600,100,0&family=Instrument+Sans:wght@400..700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --background:#0c0a08;--foreground:#f3ece1;--surface:#15110d;--surface-raised:#1c1712;
+  --hairline:rgba(243,236,225,.09);--muted:#a1937f;--faint:#6f6355;
+  --ember-1:#f0b35b;--ember-2:#e2764b;--ember-3:#c94f5e;
+  --shimmer-highlight:rgba(240,179,91,.14);--glow-inner:rgba(240,179,91,.08);--glow-outer:rgba(226,118,75,.04);
+  --status-signed:#6cbf6c;--status-lost:#d95f5f;
+  --ember-gradient:linear-gradient(100deg,var(--ember-1),var(--ember-2) 55%,var(--ember-3));
+  --sans:"Instrument Sans",system-ui,sans-serif;--serif:"Fraunces",Georgia,serif;
+  --rail:232px;--gap:16px;--scrim:64%;--ease:cubic-bezier(.22,1,.36,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--background)}
+body{min-height:100dvh;font:400 14px/1.45 var(--sans);color:var(--foreground);background:var(--background);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+.ic{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.serif{font-family:var(--serif);font-variation-settings:"SOFT" 100,"WONK" 0;font-optical-sizing:auto;font-weight:600}
+.ember-gradient{background:var(--ember-gradient);color:var(--background)}
+.ember-text{background:var(--ember-gradient);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nw{white-space:nowrap}
+:focus-visible{outline:2px solid var(--ember-1);outline-offset:2px}
+
+/* Aura: three ember radials the glass has something to refract */
+.mesh{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none}
+.mesh i{position:absolute;border-radius:50%;will-change:transform}
+.mesh i:nth-child(1){left:28%;top:-34%;width:92vmin;height:92vmin;background:radial-gradient(closest-side,color-mix(in oklab,var(--ember-2) 32%,transparent),transparent);animation:drift-a 62s ease-in-out infinite alternate}
+.mesh i:nth-child(2){left:-24%;top:42%;width:84vmin;height:84vmin;background:radial-gradient(closest-side,color-mix(in oklab,var(--ember-3) 22%,transparent),transparent);animation:drift-b 70s ease-in-out infinite alternate}
+.mesh i:nth-child(3){left:56%;top:38%;width:76vmin;height:76vmin;background:radial-gradient(closest-side,color-mix(in oklab,var(--ember-1) 18%,transparent),transparent);animation:drift-c 54s ease-in-out infinite alternate}
+@keyframes drift-a{to{transform:translate(-14%,18%) scale(1.08)}}
+@keyframes drift-b{to{transform:translate(22%,-16%) scale(.94)}}
+@keyframes drift-c{to{transform:translate(-18%,-22%) scale(1.1)}}
+
+/* Liquid glass: blurred, saturated backdrop under a dark scrim and an entity tint; specular top-left edge,
+   hairline ring, shaded bottom-right edge, amber bloom, soft outer glow. Content never sits blurred. */
+.glass{position:relative;isolation:isolate;border-radius:var(--r,24px);
+  background:
+    radial-gradient(140% 110% at 0% 0%,var(--glow-inner),transparent 58%),
+    linear-gradient(135deg,color-mix(in srgb,var(--foreground) 4%,transparent),transparent 46%),
+    linear-gradient(color-mix(in srgb,var(--tint,var(--surface)) var(--tint-a,0%),transparent),color-mix(in srgb,var(--tint,var(--surface)) var(--tint-a,0%),transparent)),
+    color-mix(in srgb,var(--surface) var(--scrim),transparent);
+  -webkit-backdrop-filter:blur(20px) saturate(1.4);backdrop-filter:blur(20px) saturate(1.4);
+  box-shadow:
+    inset 1px 1px 0 var(--shimmer-highlight),
+    inset 0 0 0 1px var(--ring,var(--hairline)),
+    inset -1px -1px 0 color-mix(in srgb,var(--background) 55%,transparent),
+    0 0 0 1px color-mix(in srgb,var(--background) 40%,transparent),
+    0 24px 48px -28px color-mix(in srgb,var(--background) 80%,transparent),
+    0 0 44px -6px var(--glow-outer);
+  transition:box-shadow .2s}
+.glass::after{content:"";position:absolute;inset:0;border-radius:inherit;padding:1px;pointer-events:none;
+  background:linear-gradient(135deg,var(--shimmer-highlight),transparent 36%,transparent 64%,color-mix(in srgb,var(--ember-2) 14%,transparent));
+  -webkit-mask:linear-gradient(var(--background),var(--background)) content-box,linear-gradient(var(--background),var(--background));-webkit-mask-composite:xor;
+  mask:linear-gradient(var(--background),var(--background)) content-box,linear-gradient(var(--background),var(--background));mask-composite:exclude}
+.money{--tint:var(--ember-1);--tint-a:10%}
+.orders{--tint:var(--ember-2);--tint-a:10%}
+.problem{--tint:var(--ember-3);--tint-a:12%}
+.plate{background:color-mix(in srgb,var(--surface) 70%,transparent);border:1px solid var(--hairline);border-radius:18px}
+.card{background:color-mix(in srgb,var(--surface) 70%,transparent);border:1px solid var(--hairline);border-radius:16px;padding:18px 20px 16px;min-width:0}
+
+/* Shell */
+.shell{position:relative;z-index:1;display:grid;grid-template-columns:var(--rail) minmax(0,1fr);column-gap:12px;min-height:100dvh}
+.rail{align-self:start;position:sticky;top:12px;height:calc(100dvh - 24px);margin:12px 0 12px 12px;padding:22px 12px 16px;display:flex;flex-direction:column;--r:24px}
+.brand{display:flex;align-items:baseline;gap:6px;padding:0 12px;font-size:20px;letter-spacing:-.01em;text-decoration:none}
+.brand .prod{font-family:var(--sans);font-weight:500;font-size:14px;color:var(--foreground)}
+.nav{display:grid;gap:2px;margin-top:26px}
+.nav a{display:flex;align-items:center;gap:12px;height:42px;padding:0 12px;border-radius:999px;color:var(--muted);font-weight:500;text-decoration:none;transition:color .15s,background-color .15s}
+.nav a:hover{color:var(--foreground);background:color-mix(in srgb,var(--surface-raised) 72%,transparent)}
+.nav a[aria-current=page]{background:var(--ember-gradient);color:var(--background);font-weight:600;box-shadow:0 10px 24px -12px color-mix(in srgb,var(--ember-2) 60%,transparent)}
+.nav a[aria-current=page]:focus-visible,.tabbar a[aria-current=page]:focus-visible{outline-color:var(--foreground)}
+.col{min-width:0;max-width:1440px;display:flex;flex-direction:column}
+.topbar{position:sticky;top:12px;z-index:5;margin:12px 24px 0;height:60px;display:flex;align-items:center;gap:10px;padding:0 10px 0 18px;--r:20px}
+.who{display:flex;align-items:center;gap:10px;min-width:0;margin-right:auto}
+.who b{font-size:18px;letter-spacing:-.01em;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.role{font-size:12px;color:var(--muted);border:1px solid var(--hairline);border-radius:999px;padding:3px 9px;line-height:1.3;white-space:nowrap}
+.ib{position:relative;width:38px;height:38px;border-radius:999px;border:1px solid var(--hairline);color:var(--muted);display:grid;place-items:center;transition:border-color .15s,color .15s}
+.ib:hover,.btn:hover,.menu-link:hover{border-color:color-mix(in srgb,var(--ember-2) 40%,transparent);color:var(--foreground)}
+.badge{position:absolute;top:-4px;right:-4px;min-width:18px;height:18px;padding:0 5px;border-radius:999px;background:color-mix(in srgb,var(--ember-3) 88%,var(--foreground));color:var(--background);font:700 11px/18px var(--sans);text-align:center;box-shadow:0 0 0 2px var(--surface)}
+.menu-link{display:inline-flex;align-items:center;gap:6px;height:38px;padding:0 14px;border:1px solid var(--hairline);border-radius:999px;font-size:13px;font-weight:600;text-decoration:none;white-space:nowrap;transition:border-color .15s}
+.brand-sm{display:none;font-size:15px;padding:0 8px 0 4px}
+.btn{display:inline-flex;align-items:center;height:34px;padding:0 14px;border:1px solid var(--hairline);border-radius:999px;font-size:13px;font-weight:600;white-space:nowrap;transition:border-color .15s}
+
+main{width:100%;padding:24px 24px 56px;display:grid;gap:20px;align-content:start}
+
+/* 1 · Title */
+.title h1{font-size:36px;line-height:1.05;letter-spacing:-.02em}
+.title p{color:var(--muted);margin-top:6px}
+
+/* 2 · Day tiles */
+.today{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap)}
+.tile{display:block;padding:6px;text-decoration:none;color:inherit;--r:24px}
+.tile:hover{--ring:color-mix(in srgb,var(--ember-2) 40%,transparent)}
+.cap{display:flex;align-items:center;gap:8px;height:34px;padding:0 14px;font-size:10px;letter-spacing:.28em;text-transform:uppercase;font-weight:600;white-space:nowrap;overflow:hidden}
+.cap .ic{width:16px;height:16px;letter-spacing:0}
+.money .cap{color:var(--ember-1)}
+.orders .cap{color:var(--ember-2)}
+.tile .plate{padding:18px 20px 20px}
+.num{font-weight:600;letter-spacing:-.03em;line-height:1;white-space:nowrap}
+.tile .num{font-size:40px}
+.ref{margin-top:10px;font-size:13px;color:var(--muted)}
+.up{color:var(--status-signed);font-weight:600}
+.down{color:var(--status-lost);font-weight:600}
+
+/* 3 · Closure banner */
+.notice{display:flex;align-items:center;gap:14px;padding:11px 11px 11px 18px;--r:20px}
+.notice .ic{width:22px;height:22px;color:var(--ember-3)}
+.notice b{font-weight:600;white-space:nowrap}
+.notice span{color:var(--muted);flex:1;min-width:0}
+
+/* 4 + 5 · Lists */
+.duo{display:grid;grid-template-columns:7fr 5fr;gap:var(--gap)}
+.duo.even{grid-template-columns:1fr 1fr}
+.head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:10px}
+.head h2,.ahead h2{font-size:20px;line-height:1.15;letter-spacing:-.015em}
+.head small,.legend{color:var(--muted);font-size:12px;white-space:nowrap}
+.legend{display:flex;gap:14px;align-items:center}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.rank{list-style:none;counter-reset:r}
+.rank li{counter-increment:r;position:relative;display:grid;grid-template-columns:18px minmax(0,1fr) auto;align-items:center;gap:10px;height:44px;padding-bottom:6px}
+.rank li::before{content:counter(r);color:var(--muted);font-size:12px}
+.rank .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rank .v{font-weight:600;white-space:nowrap}
+.rank li::after{content:"";position:absolute;left:28px;right:0;bottom:0;height:3px;border-radius:2px;background:linear-gradient(var(--c),var(--c)) 0 0/calc(var(--v) / var(--max) * 100%) 100% no-repeat var(--surface-raised)}
+.rank.orders-list{--c:color-mix(in srgb,var(--ember-2) 75%,transparent)}
+.restock{list-style:none;display:grid;gap:4px}
+.restock li{display:flex;align-items:center;justify-content:space-between;gap:12px;height:52px;border-top:1px solid var(--hairline)}
+.restock li:first-child{border-top:0}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px 0 7px;border-radius:999px;font-size:12px;font-weight:500;color:var(--foreground);white-space:nowrap;background:color-mix(in srgb,var(--ember-3) 18%,var(--surface));border:1px solid color-mix(in srgb,var(--ember-3) 35%,transparent)}
+.chip .ic{width:14px;height:14px;color:var(--ember-3)}
+.card-foot{display:flex;justify-content:flex-end;margin-top:8px}
+
+/* 6 · Analytics */
+.analytics{display:grid;gap:var(--gap)}
+.ahead{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.ahead p{color:var(--muted);margin-top:4px}
+.seg{display:inline-grid;grid-auto-flow:column;grid-auto-columns:1fr;position:relative;padding:4px;border:0;min-inline-size:0;--r:999px}
+.seg input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.seg label{position:relative;z-index:1;height:32px;padding:0 16px;display:grid;place-items:center;border-radius:999px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;transition:color .25s}
+.seg input:checked+label{color:var(--background)}
+.seg input:focus-visible+label{outline:2px solid var(--ember-1);outline-offset:2px}
+.seg .thumb{position:absolute;z-index:0;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:999px;background:var(--ember-gradient);transition:translate .35s var(--ease)}
+.seg:has(#p30:checked) .thumb{translate:100% 0}
+.range-7{display:grid;gap:var(--gap)}
+.range-30{display:none}
+.analytics:has(#p30:checked) .range-7{display:none}
+.analytics:has(#p30:checked) .range-30{display:grid;gap:8px;justify-items:start;padding:28px 24px}
+.range-30 b{font-size:16px}
+.range-30 p{color:var(--muted);max-width:52ch}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--gap)}
+.kpi{padding:6px;--r:20px}
+.kpi .cap{height:30px}
+.kpi .plate{border-radius:14px;padding:14px 16px 16px}
+.kpi .num{font-size:28px}
+.kpi .ref{margin-top:8px;font-size:12px}
+
+/* 7 · Bars by day */
+.chart{position:relative;height:236px;margin-top:6px;--gut:40px}
+.grid{position:absolute;inset:0 var(--gut) 44px 0}
+.grid i{position:absolute;left:0;right:0;bottom:calc(var(--y) / var(--top) * 100%);height:1px;background:var(--hairline)}
+.grid i span{position:absolute;right:calc(-1 * var(--gut));width:calc(var(--gut) - 6px);bottom:-5px;text-align:right;font-size:11px;color:var(--muted);line-height:1}
+.grid i:first-child{background:var(--faint)}
+.bars{position:absolute;inset:0 var(--gut) 44px 0;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));align-items:end;padding:0 6px}
+.bar{position:relative;height:calc(var(--v) / var(--top) * 100%);width:min(46px,62%);margin:0 auto;border-radius:7px 7px 2px 2px;background:color-mix(in srgb,var(--c) 28%,var(--surface))}
+.bar::before{content:"";position:absolute;top:0;left:0;right:0;height:6px;border-radius:7px 7px 0 0;background:var(--c)}
+.bar b{position:absolute;left:50%;bottom:calc(100% + 7px);translate:-50% 0;font-size:12px;font-weight:600;white-space:nowrap;line-height:1}
+.money-bars{--c:var(--ember-1)}
+.orders-bars{--c:var(--ember-2)}
+.x{position:absolute;left:0;right:var(--gut);bottom:0;height:40px;display:grid;grid-template-columns:repeat(7,minmax(0,1fr));padding:6px 6px 0;text-align:center;font-size:12px;color:var(--muted);line-height:1.35}
+.x small{display:block;font-size:12px;color:var(--foreground);font-weight:500}
+.x small::before{content:"";display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--ember-2);margin:0 5px 1px 0}
+
+/* 8 · Hours */
+.hours .chart{height:176px;--gut:26px}
+.hours .grid,.hours .bars{inset:0 var(--gut) 24px 0}
+.hours .bars{grid-template-columns:repeat(24,minmax(0,1fr));gap:3px;padding:0}
+.hours .bar{width:100%;border-radius:3px 3px 1px 1px}
+.hours .bar::before{height:3px;border-radius:3px 3px 0 0}
+.hours .x{height:20px;grid-template-columns:repeat(24,minmax(0,1fr));padding:4px 0 0;text-align:left;font-size:11px;white-space:nowrap}
+.hbars{list-style:none;display:grid;gap:2px}
+.hbars li{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(64px,auto);gap:12px;align-items:center;height:42px;position:relative;padding-bottom:12px}
+.hbars .n{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hbars .v{font-weight:600;white-space:nowrap}
+.hbars .m{color:var(--muted);text-align:right;white-space:nowrap}
+.hbars li::after{content:"";position:absolute;left:0;right:0;bottom:0;height:8px;border-radius:4px;
+  background:linear-gradient(90deg,color-mix(in srgb,var(--c) 28%,var(--surface)) calc(var(--v) / var(--max) * 100% - 6px),var(--c) calc(var(--v) / var(--max) * 100% - 6px),var(--c) calc(var(--v) / var(--max) * 100%),var(--surface-raised) calc(var(--v) / var(--max) * 100%))}
+.hbars.by-orders{--c:var(--ember-2)}
+.hbars.by-money{--c:var(--ember-1)}
+
+/* 9 · Combo */
+.trio{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--gap)}
+.stat .l{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted)}
+.stat .l::before{content:"";width:8px;height:8px;border-radius:999px;background:var(--dot)}
+.stat.money{--dot:var(--ember-1)}
+.stat.orders{--dot:var(--ember-2)}
+.stat .num{font-size:26px;margin-top:12px}
+.stat .ref{margin-top:8px;font-size:12px}
+
+/* 10 · Details */
+.details summary{cursor:pointer;list-style:none;display:flex;justify-content:space-between;align-items:center;font-weight:600}
+.details summary::-webkit-details-marker{display:none}
+.details summary::after{content:"";width:8px;height:8px;margin:0 6px 4px 0;border-right:1.75px solid var(--muted);border-bottom:1.75px solid var(--muted);rotate:45deg;transition:rotate .2s}
+.details[open] summary::after{rotate:-135deg;margin-bottom:-2px}
+table{width:100%;border-collapse:collapse;margin-top:14px;font-size:13px}
+th{text-align:right;color:var(--muted);font-weight:500;font-size:12px;padding:8px 10px;border-bottom:1px solid var(--hairline);white-space:nowrap}
+td{text-align:right;padding:9px 10px;border-bottom:1px solid var(--hairline);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+td:first-child{color:var(--muted)}
+tfoot td{font-weight:600;border-bottom:0}
+
+/* Phone tab bar */
+.tabbar{display:none;position:fixed;left:6px;right:6px;bottom:max(12px,env(safe-area-inset-bottom));z-index:20}
+.tabs{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:1px;padding:5px 4px;--r:28px}
+.tabs a,.tabs summary{display:grid;place-items:center;align-content:center;gap:4px;height:54px;padding:0 1px;overflow:hidden;border-radius:22px;color:var(--muted);font-size:9.5px;letter-spacing:-.03em;font-weight:600;text-decoration:none;cursor:pointer;list-style:none;line-height:1}
+.tabs summary::-webkit-details-marker{display:none}
+.tabs a[aria-current=page]{background:var(--ember-gradient);color:var(--background)}
+.tabs .ic{width:20px;height:20px}
+.more[open] summary{background:color-mix(in srgb,var(--surface-raised) 80%,transparent);color:var(--foreground)}
+.sheet{display:none;position:absolute;right:0;bottom:calc(100% + 12px);width:246px;padding:8px;grid-template-columns:repeat(3,1fr);gap:4px;--r:22px}
+.tabbar:has(.more[open]) .sheet{display:grid}
+.sheet a{height:66px;border-radius:16px}
+
+@media (max-width:1200px){:root{--rail:200px}.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:1023px){
+  .shell{grid-template-columns:minmax(0,1fr)}
+  .rail{display:none}
+  .tabbar{display:block}
+  .brand-sm{display:inline-flex}
+  .topbar{margin:12px 16px 0}
+  main{padding:20px 16px 110px}
+}
+@media (max-width:720px){
+  .today,.duo,.duo.even,.kpis,.trio{grid-template-columns:minmax(0,1fr)}
+  .title h1{font-size:32px}
+  .tile .num{font-size:36px}
+  .notice{flex-wrap:wrap;padding:14px 14px 12px 18px}
+  .notice span{flex-basis:100%;order:3}
+  .notice .btn{margin-left:auto}
+  .ahead{align-items:flex-start}
+  .grid i span{font-size:10px}
+  .hours .bars{gap:2px}
+  .x{font-size:11px}
+}
+@media (max-width:480px){
+  .topbar{height:56px;gap:6px;padding:0 8px 0 14px}
+  .who b{font-size:15px}
+  .role{display:none}
+  .ib{width:36px;height:36px}
+  .menu-link{width:36px;height:36px;padding:0;justify-content:center}
+  .menu-link span{display:none}
+  .brand-sm{font-size:13px;padding:0 6px 0 2px}
+  .brand-sm .prod{display:none}
+  th,td{padding:8px 6px}
+}
+
+/* Settings and fallbacks */
+@media (prefers-reduced-transparency:reduce){
+  .glass{-webkit-backdrop-filter:none;backdrop-filter:none;background:var(--surface)}
+  .rail,.topbar,.seg,.tabbar,.sheet{background:var(--surface-raised)}
+  .plate,.card{background:var(--surface)}
+  .mesh{display:none}
+}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .glass{background:var(--surface)}
+  .rail,.topbar,.seg,.tabbar,.sheet{background:var(--surface-raised)}
+  .plate,.card{background:var(--surface)}
+}
+@media (prefers-reduced-motion:reduce){
+  .mesh i{animation:none}
+  .seg .thumb,.seg label,.details summary::after,.nav a,.ib,.btn,.menu-link{transition:none}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-grid" viewBox="0 0 24 24"><path d="M4 4h6v9H4zM14 4h6v4h-6zM14 12h6v8h-6zM4 17h6v3H4z"/></symbol>
+  <symbol id="i-receipt" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M4 5h16v11h-9l-4 3v-3H4z"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18M7 14h3"/></symbol>
+  <symbol id="i-table" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 4h7v16H4zM13 4h7v16h-7z"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 8l9-4 9 4v8l-9 4-9-4zM3 8l9 4 9-4M12 12v8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5M16 5a3 3 0 010 6M21 20c0-2.5-2-4.5-4.5-5"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6M9 11h6M9 15h3"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16v-5a6 6 0 0112 0v5l2 2H4zM10 20a2 2 0 004 0"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1110 4a6.5 6.5 0 0010 10.5z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-empty" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M8 12h8"/></symbol>
+  <symbol id="i-hidden" viewBox="0 0 24 24"><path d="M3 3l18 18M10.6 10.6a2 2 0 002.8 2.8M9.9 5.1A10 10 0 0121 12a10.5 10.5 0 01-2.3 3.2M6.6 6.6A10.5 10.5 0 003 12a10 10 0 0014.4 5.4"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></symbol>
+  <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="12" cy="7" rx="7" ry="3"/><path d="M5 7v5c0 1.7 3.1 3 7 3s7-1.3 7-3V7M5 12v5c0 1.7 3.1 3 7 3s7-1.3 7-3v-5"/></symbol>
+  <symbol id="i-pulse" viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></symbol>
+  <symbol id="i-basket" viewBox="0 0 24 24"><path d="M4 10h16l-1.5 9h-13zM8 10l4-6 4 6"/></symbol>
+  <symbol id="i-tip" viewBox="0 0 24 24"><path d="M12 3l2 4 4.5.6-3.3 3.1.9 4.5L12 13l-4.1 2.2.9-4.5L5.5 7.6 10 7zM12 15v6"/></symbol>
+</svg>
+
+<div class="mesh" aria-hidden="true"><i></i><i></i><i></i></div>
+
+<div class="shell">
+  <aside class="rail glass">
+    <a class="brand serif" href="#"><span class="ember-text serif">Ominin</span><span class="prod">Connect</span></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#" aria-current="page"><svg class="ic"><use href="#i-grid"/></svg>Aperçu</a>
+      <a href="#"><svg class="ic"><use href="#i-receipt"/></svg>Commandes</a>
+      <a href="#"><svg class="ic"><use href="#i-chat"/></svg>Bulles</a>
+      <a href="#"><svg class="ic"><use href="#i-card"/></svg>Paiements</a>
+      <a href="#"><svg class="ic"><use href="#i-table"/></svg>Tables</a>
+      <a href="#"><svg class="ic"><use href="#i-book"/></svg>Menu</a>
+      <a href="#"><svg class="ic"><use href="#i-box"/></svg>Produits</a>
+      <a href="#"><svg class="ic"><use href="#i-users"/></svg>Équipe</a>
+      <a href="#"><svg class="ic"><use href="#i-terminal"/></svg>Terminaux</a>
+      <a href="#"><svg class="ic"><use href="#i-star"/></svg>Fidélité</a>
+    </nav>
+  </aside>
+
+  <div class="col">
+    <header class="topbar glass">
+      <div class="who">
+        <b class="serif">Le Bistrot d'Olga</b>
+        <span class="role">Gérant</span>
+      </div>
+      <button class="ib" type="button" aria-pressed="false" title="Mode clair"><svg class="ic"><use href="#i-moon"/></svg></button>
+      <a class="ib" href="#" title="Notifications, 1 non lue"><svg class="ic"><use href="#i-bell"/></svg><span class="badge" aria-label="1 non lue">1</span></a>
+      <a class="menu-link" href="#" title="Voir le menu"><span>Voir le menu</span> ↗</a>
+      <a class="brand brand-sm serif" href="#"><span class="ember-text serif">Ominin</span><span class="prod">Connect</span></a>
+    </header>
+
+    <main id="main">
+      <div class="title">
+        <h1 class="serif">Aperçu</h1>
+        <p>vendredi 31 octobre</p>
+      </div>
+
+      <section class="today" aria-label="Aujourd'hui">
+        <a class="tile glass orders" href="#" title="Commandes ouvertes en ce moment">
+          <div class="cap"><svg class="ic"><use href="#i-receipt"/></svg>Commandes en cours</div>
+          <div class="plate">
+            <div class="num">7</div>
+            <div class="ref">3 à encaisser · 4 à servir</div>
+          </div>
+        </a>
+        <a class="tile glass money" href="#" title="Chiffre d'affaires encaissé aujourd'hui, TTC">
+          <div class="cap"><svg class="ic"><use href="#i-coins"/></svg>CA du jour</div>
+          <div class="plate">
+            <div class="num">2 580 €</div>
+            <div class="ref"><b class="up">+12 %</b> vs vendredi dernier</div>
+          </div>
+        </a>
+      </section>
+
+      <section class="notice glass problem" role="status">
+        <svg class="ic"><use href="#i-clock"/></svg>
+        <b>Fermeture en cours</b>
+        <span>Cuisine fermée jusqu'à 19:00 — les boissons restent en vente</span>
+        <button class="btn" type="button">Rouvrir</button>
+      </section>
+
+      <div class="duo">
+        <section class="card" aria-labelledby="h-top">
+          <div class="head"><h2 class="serif" id="h-top">Top ventes du jour</h2><small>quantités</small></div>
+          <ol class="rank orders-list" style="--max:14">
+            <li style="--v:14"><span class="n">Burrata di Parma</span><span class="v">×14</span></li>
+            <li style="--v:11"><span class="n">Pizza Diavola</span><span class="v">×11</span></li>
+            <li style="--v:9"><span class="n">Tiramisù</span><span class="v">×9</span></li>
+            <li style="--v:8"><span class="n">Spritz Aperol</span><span class="v">×8</span></li>
+            <li style="--v:7"><span class="n">Linguine vongole</span><span class="v">×7</span></li>
+          </ol>
+        </section>
+        <section class="card" aria-labelledby="h-restock">
+          <div class="head"><h2 class="serif" id="h-restock">À remettre en vente</h2></div>
+          <ul class="restock">
+            <li><span class="n">Tartare de thon</span><span class="chip"><svg class="ic"><use href="#i-empty"/></svg>Stock épuisé</span></li>
+            <li><span class="n">Panna cotta</span><span class="chip"><svg class="ic"><use href="#i-hidden"/></svg>Retiré de la vente</span></li>
+          </ul>
+          <div class="card-foot"><button class="btn" type="button">Gérer</button></div>
+        </section>
+      </div>
+
+      <section class="analytics" aria-labelledby="h-ana">
+        <div class="ahead">
+          <div>
+            <h2 class="serif" id="h-ana">Analytique</h2>
+            <p>Vos ventes sur la période, mises à jour en direct</p>
+          </div>
+          <fieldset class="seg glass" aria-label="Période">
+            <input type="radio" name="period" id="p7" checked><label for="p7">7 jours</label>
+            <input type="radio" name="period" id="p30"><label for="p30">30 jours</label>
+            <span class="thumb" aria-hidden="true"></span>
+          </fieldset>
+        </div>
+
+        <div class="range-7">
+          <div class="kpis">
+            <article class="kpi glass money" title="CA encaissé sur 7 jours, TTC · écart vs les 7 jours précédents">
+              <div class="cap"><svg class="ic"><use href="#i-coins"/></svg>CA encaissé</div>
+              <div class="plate"><div class="num">11 480 €</div><div class="ref"><b class="up">+6 %</b> vs période préc.</div></div>
+            </article>
+            <article class="kpi glass orders" title="Commandes payées sur 7 jours · écart vs les 7 jours précédents">
+              <div class="cap"><svg class="ic"><use href="#i-pulse"/></svg>Commandes payées</div>
+              <div class="plate"><div class="num">412</div><div class="ref"><b class="up">+3 %</b> vs période préc.</div></div>
+            </article>
+            <article class="kpi glass money" title="CA encaissé ÷ commandes payées · écart vs les 7 jours précédents">
+              <div class="cap"><svg class="ic"><use href="#i-basket"/></svg>Panier moyen</div>
+              <div class="plate"><div class="num">27,86 €</div><div class="ref"><b class="up">+2,9 %</b> vs période préc.</div></div>
+            </article>
+            <article class="kpi glass money" title="Pourboires encaissés sur 7 jours · écart vs les 7 jours précédents">
+              <div class="cap"><svg class="ic"><use href="#i-tip"/></svg>Pourboires</div>
+              <div class="plate"><div class="num">318 €</div><div class="ref"><b class="up">+9 %</b> vs période préc.</div></div>
+            </article>
+          </div>
+
+          <section class="card" aria-labelledby="h-days">
+            <div class="head">
+              <h2 class="serif" id="h-days">CA par jour</h2>
+              <div class="legend"><span><i style="background:var(--ember-1)"></i>CA</span><span><i style="background:var(--ember-2);border-radius:50%"></i>commandes</span></div>
+            </div>
+            <div class="chart" style="--top:3000" role="img" aria-label="CA par jour sur 7 jours, du samedi 25 au vendredi 31 : 2 310, 1 420, 980, 1 160, 1 340, 1 690 et 2 580 euros ; maximum vendredi 31">
+              <div class="grid"><i style="--y:0"></i><i style="--y:1000"><span>1 000</span></i><i style="--y:2000"><span>2 000</span></i><i style="--y:3000"><span>3 000</span></i></div>
+              <div class="bars money-bars">
+                <i class="bar" style="--v:2310" title="sam 25 · 2 310 € · 83 commandes"></i>
+                <i class="bar" style="--v:1420" title="dim 26 · 1 420 € · 51 commandes"></i>
+                <i class="bar" style="--v:980" title="lun 27 · 980 € · 35 commandes"></i>
+                <i class="bar" style="--v:1160" title="mar 28 · 1 160 € · 42 commandes"></i>
+                <i class="bar" style="--v:1340" title="mer 29 · 1 340 € · 48 commandes"></i>
+                <i class="bar" style="--v:1690" title="jeu 30 · 1 690 € · 61 commandes"></i>
+                <i class="bar" style="--v:2580" title="ven 31 · 2 580 € · 92 commandes"><b>2 580 €</b></i>
+              </div>
+              <div class="x">
+                <span>sam 25 <small>83</small></span><span>dim 26 <small>51</small></span><span>lun 27 <small>35</small></span><span>mar 28 <small>42</small></span><span>mer 29 <small>48</small></span><span>jeu 30 <small>61</small></span><span>ven 31 <small>92</small></span>
+              </div>
+            </div>
+          </section>
+
+          <div class="duo even">
+            <section class="card" aria-labelledby="h-top7">
+              <div class="head"><h2 class="serif" id="h-top7">Top ventes</h2><small>7 jours · quantités</small></div>
+              <ol class="hbars by-orders" style="--max:96">
+                <li style="--v:96"><span class="n">Pizza Diavola</span><span class="v">×96</span><span class="m">1 440 €</span></li>
+                <li style="--v:88"><span class="n">Burrata di Parma</span><span class="v">×88</span><span class="m">1 232 €</span></li>
+                <li style="--v:81"><span class="n">Spritz Aperol</span><span class="v">×81</span><span class="m">648 €</span></li>
+                <li style="--v:64"><span class="n">Tiramisù</span><span class="v">×64</span><span class="m">512 €</span></li>
+                <li style="--v:52"><span class="n">Linguine vongole</span><span class="v">×52</span><span class="m">936 €</span></li>
+              </ol>
+            </section>
+            <section class="card hours" aria-labelledby="h-hours">
+              <div class="head"><h2 class="serif" id="h-hours">Heures de pointe</h2><small>commandes par heure · 7 jours</small></div>
+              <div class="chart" style="--top:100" role="img" aria-label="Commandes par heure sur 7 jours : rien avant 11 h, 6 à 11 h, 48 à 12 h, 61 à 13 h, 22 à 14 h, 5 à 15 h, 3 à 16 h, 4 à 17 h, 19 à 18 h, 57 à 19 h, 74 à 20 h, 66 à 21 h, 31 à 22 h, 16 à 23 h ; total 412">
+                <div class="grid"><i style="--y:0"></i><i style="--y:50"><span>50</span></i><i style="--y:100"><span>100</span></i></div>
+                <div class="bars orders-bars">
+                  <i class="bar" style="--v:0" title="0 h · 0"></i><i class="bar" style="--v:0" title="1 h · 0"></i><i class="bar" style="--v:0" title="2 h · 0"></i><i class="bar" style="--v:0" title="3 h · 0"></i><i class="bar" style="--v:0" title="4 h · 0"></i><i class="bar" style="--v:0" title="5 h · 0"></i><i class="bar" style="--v:0" title="6 h · 0"></i><i class="bar" style="--v:0" title="7 h · 0"></i><i class="bar" style="--v:0" title="8 h · 0"></i><i class="bar" style="--v:0" title="9 h · 0"></i><i class="bar" style="--v:0" title="10 h · 0"></i>
+                  <i class="bar" style="--v:6" title="11 h · 6"></i><i class="bar" style="--v:48" title="12 h · 48"></i><i class="bar" style="--v:61" title="13 h · 61"></i><i class="bar" style="--v:22" title="14 h · 22"></i><i class="bar" style="--v:5" title="15 h · 5"></i><i class="bar" style="--v:3" title="16 h · 3"></i><i class="bar" style="--v:4" title="17 h · 4"></i><i class="bar" style="--v:19" title="18 h · 19"></i><i class="bar" style="--v:57" title="19 h · 57"></i><i class="bar" style="--v:74" title="20 h · 74"><b>74</b></i><i class="bar" style="--v:66" title="21 h · 66"></i><i class="bar" style="--v:31" title="22 h · 31"></i><i class="bar" style="--v:16" title="23 h · 16"></i>
+                </div>
+                <div class="x"><span style="grid-column:1">0 h</span><span style="grid-column:7">6 h</span><span style="grid-column:13">12 h</span><span style="grid-column:19">18 h</span><span style="grid-column:23/25;text-align:right">23 h</span></div>
+              </div>
+            </section>
+          </div>
+
+          <section class="combo" aria-labelledby="h-combo">
+            <div class="ahead" style="margin-bottom:16px">
+              <div>
+                <h2 class="serif" id="h-combo">Le combo parfait</h2>
+                <p>Ce que les suggestions du menu ont fait commander, annulations exclues</p>
+              </div>
+            </div>
+            <div class="trio">
+              <article class="card stat money"><div class="l">CA des suggestions</div><div class="num">1 236 €</div><div class="ref">sur 7 jours</div></article>
+              <article class="card stat orders"><div class="l">Lignes suggérées</div><div class="num">97</div><div class="ref">sur 7 jours</div></article>
+              <article class="card stat money"><div class="l">Part du CA</div><div class="num">10,8 %</div><div class="ref">sur 7 jours</div></article>
+            </div>
+            <div class="duo even" style="margin-top:var(--gap)">
+              <section class="card" aria-labelledby="h-origin">
+                <div class="head"><h2 class="serif" id="h-origin">Par origine</h2><small>lignes · CA</small></div>
+                <ul class="hbars by-money" style="--max:702">
+                  <li style="--v:702"><span class="n">Suggestion sous le plat</span><span class="v nw">54 lignes · 702 €</span></li>
+                  <li style="--v:534"><span class="n">Fin de commande</span><span class="v nw">43 lignes · 534 €</span></li>
+                </ul>
+              </section>
+              <section class="card" aria-labelledby="h-sugg">
+                <div class="head"><h2 class="serif" id="h-sugg">Plats suggérés les plus vendus</h2><small>quantités · CA</small></div>
+                <ol class="hbars by-orders" style="--max:31">
+                  <li style="--v:31"><span class="n">Tiramisù</span><span class="v nw">×31 · 248 €</span></li>
+                  <li style="--v:29"><span class="n">Spritz Aperol</span><span class="v nw">×29 · 232 €</span></li>
+                  <li style="--v:22"><span class="n">Burrata di Parma</span><span class="v nw">×22 · 308 €</span></li>
+                </ol>
+              </section>
+            </div>
+          </section>
+
+          <details class="card details">
+            <summary>Données détaillées (tableau)</summary>
+            <table>
+              <thead><tr><th>Jour</th><th>CA</th><th>Commandes</th><th>Panier</th></tr></thead>
+              <tbody>
+                <tr><td>sam 25</td><td>2 310 €</td><td>83</td><td>27,83 €</td></tr>
+                <tr><td>dim 26</td><td>1 420 €</td><td>51</td><td>27,84 €</td></tr>
+                <tr><td>lun 27</td><td>980 €</td><td>35</td><td>28,00 €</td></tr>
+                <tr><td>mar 28</td><td>1 160 €</td><td>42</td><td>27,62 €</td></tr>
+                <tr><td>mer 29</td><td>1 340 €</td><td>48</td><td>27,92 €</td></tr>
+                <tr><td>jeu 30</td><td>1 690 €</td><td>61</td><td>27,70 €</td></tr>
+                <tr><td>ven 31</td><td>2 580 €</td><td>92</td><td>28,04 €</td></tr>
+              </tbody>
+              <tfoot><tr><td>7 jours</td><td>11 480 €</td><td>412</td><td>27,86 €</td></tr></tfoot>
+            </table>
+          </details>
+        </div>
+
+        <div class="range-30 card">
+          <b>Pas encore 30 jours de données</b>
+          <p>Premières ventes le samedi 25 octobre ; la vue 30 jours s'ouvre le 24 novembre.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<nav class="tabbar" aria-label="Sections">
+  <div class="sheet glass" id="more-sheet">
+    <a href="#"><svg class="ic"><use href="#i-book"/></svg>Menu</a>
+    <a href="#"><svg class="ic"><use href="#i-box"/></svg>Produits</a>
+    <a href="#"><svg class="ic"><use href="#i-users"/></svg>Équipe</a>
+    <a href="#"><svg class="ic"><use href="#i-terminal"/></svg>Terminaux</a>
+    <a href="#"><svg class="ic"><use href="#i-star"/></svg>Fidélité</a>
+  </div>
+  <div class="tabs glass">
+    <a href="#" aria-current="page"><svg class="ic"><use href="#i-grid"/></svg>Aperçu</a>
+    <a href="#"><svg class="ic"><use href="#i-receipt"/></svg>Commandes</a>
+    <a href="#"><svg class="ic"><use href="#i-chat"/></svg>Bulles</a>
+    <a href="#"><svg class="ic"><use href="#i-card"/></svg>Paiements</a>
+    <a href="#"><svg class="ic"><use href="#i-table"/></svg>Tables</a>
+    <details class="more"><summary aria-controls="more-sheet"><svg class="ic"><use href="#i-more"/></svg>Plus</summary></details>
+  </div>
+</nav>
+</body>
+</html>

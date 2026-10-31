@@ -160,8 +160,6 @@ export interface OrderItem {
   servedAt?: string;
   /** Points payés par unité : la ligne est offerte par la fidélité. */
   loyaltyPoints?: number;
-  /** Ajoutée sur une suggestion de l'accord du chef ; absente, commandée depuis la carte. */
-  accord?: AccordSource;
 }
 
 /**
@@ -285,6 +283,8 @@ export interface Etape {
   exclus?: string[];
   /** Supplément d'un article de la catégorie, par son id ; absent ⇒ 0. */
   supplements?: Record<string, number>;
+  /** Article proposé d'office (coché à l'ouverture de l'étape), par son id. */
+  defaut?: string;
   articles: Article[];
 }
 

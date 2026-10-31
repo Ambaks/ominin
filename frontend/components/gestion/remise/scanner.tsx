@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
-import { FOCUS_RING, RemiseView } from "@/components/gestion/remise/remise-view";
+import { RemiseView } from "@/components/gestion/remise/remise-view";
+import { GlassButton } from "@/components/gestion/ui";
 import { isMenuLink, orderIdOf } from "@/lib/gestion/remise-link";
 
 /*
@@ -16,6 +17,10 @@ import { isMenuLink, orderIdOf } from "@/lib/gestion/remise-link";
  * Un dialogue natif (showModal) : au-dessus de tout, l'espace derrière inerte.
  * « Retour » le ferme au lieu de changer la page dessous.
  */
+
+/** L'anneau de focus sur le noir de la caméra, où les boutons du kit ne vont pas. */
+const FOCUS_RING =
+  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1";
 
 export function Scanner({
   venueId,
@@ -103,20 +108,24 @@ export function Scanner({
         >
           Scanner un code
         </p>
-        <button
-          type="button"
-          onClick={onClose}
-          className={`min-h-11 rounded-full border px-4 text-sm font-semibold ${FOCUS_RING} ${
-            orderId ? "border-hairline" : "border-white/40"
-          }`}
-        >
-          Fermer
-        </button>
+        {orderId ? (
+          <GlassButton onClick={onClose}>Fermer</GlassButton>
+        ) : (
+          <button
+            type="button"
+            onClick={onClose}
+            className={`g-press min-h-11 rounded-full border border-white/40 px-4 text-sm font-semibold ${FOCUS_RING}`}
+          >
+            Fermer
+          </button>
+        )}
       </div>
       <Camera active={orderId === null} onCode={onCode} />
       {orderId && (
         <div className="flex-1 overflow-y-auto">
-          <div className="mx-auto flex w-full max-w-md flex-col gap-4 px-5 pt-6">
+          {/* Sans entrée : le serveur scanne des dizaines de codes par service
+              et attend le verdict, pas un fondu. */}
+          <div data-entrance="off" className="mx-auto flex min-h-full w-full max-w-md flex-col gap-4 px-5 pt-5">
             <RemiseView
               key={orderId}
               orderId={orderId}
@@ -126,19 +135,15 @@ export function Scanner({
               actions={(manual) => (
                 // Collé au bas de l'écran, la remise à faire comprise : rien ne
                 // se cache sous une longue commande ni sur un petit téléphone.
-                <div className="sticky bottom-0 -mx-5 mt-auto flex flex-col gap-2 bg-background px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
+                <div className="sticky bottom-0 -mx-5 mt-auto flex flex-col gap-3 border-t border-hairline bg-background px-5 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3">
                   {manual?.action}
-                  <button
-                    type="button"
+                  <GlassButton
+                    variant={manual?.primary ? "secondary" : "primary"}
+                    className="w-full"
                     onClick={next}
-                    className={`flex min-h-14 w-full items-center justify-center rounded-full px-5 text-base font-semibold ${FOCUS_RING} ${
-                      manual?.primary
-                        ? "border border-hairline"
-                        : "bg-foreground text-background"
-                    }`}
                   >
                     Scanner le suivant
-                  </button>
+                  </GlassButton>
                 </div>
               )}
             />
@@ -318,7 +323,7 @@ function Camera({
             setProblem(null);
             setSession((current) => current + 1);
           }}
-          className={`mt-2 min-h-12 rounded-full bg-white px-5 text-sm font-semibold text-black ${FOCUS_RING}`}
+          className={`g-press mt-2 min-h-12 rounded-full bg-white px-5 text-sm font-semibold text-black ${FOCUS_RING}`}
         >
           Réessayer
         </button>

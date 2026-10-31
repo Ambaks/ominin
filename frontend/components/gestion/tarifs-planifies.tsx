@@ -2,15 +2,24 @@
 
 import { useState } from "react";
 import { DayPicker } from "@/components/gestion/day-picker";
+import { ClockIcon } from "@/components/gestion/icons";
 import { HoursField } from "@/components/gestion/hours-field";
 import { MenuTargetPicker } from "@/components/gestion/menu-target-picker";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
-import { PriceInput } from "@/components/ui/price-input";
-import { Toggle } from "@/components/ui/toggle";
+import { PrixInput } from "@/components/gestion/menu/prix-input";
+import {
+  Chip,
+  ConfirmSheet,
+  Field,
+  GlassButton,
+  Input,
+  Segmented,
+  Sheet,
+  Switch,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
+import { useGestion } from "@/lib/gestion/store";
 import {
   formatDays,
   parsePriceInput,
@@ -90,6 +99,8 @@ export function RuleForm({
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  // `rule` est une photo prise à l'ouverture ; l'état actif se lit dans le store.
+  const liveRule = useGestion()?.priceRules.find((candidate) => candidate.id === rule?.id);
 
   const value = parsePriceInput(valueRaw);
   const valid =
@@ -100,6 +111,21 @@ export function RuleForm({
     days.length > 0 &&
     targets.length > 0 &&
     (allDay || (startsAt !== "" && endsAt !== "" && startsAt !== endsAt));
+
+  // Un bouton désactivé dit pourquoi (UX-SIMPLICITÉ § 3.9).
+  const missing = !name.trim()
+    ? "Donnez un nom au tarif pour enregistrer."
+    : value === null || value <= 0
+      ? "Indiquez l'écart de prix pour enregistrer."
+      : unit === "pourcentage" && direction === "remise" && value > 100
+        ? "Une remise ne peut pas dépasser 100 %."
+        : days.length === 0
+          ? "Cochez au moins un jour pour enregistrer."
+          : !allDay && (startsAt === "" || endsAt === "" || startsAt === endsAt)
+            ? "Indiquez les heures de début et de fin."
+            : targets.length === 0
+              ? "Cochez au moins un article ou une catégorie."
+              : "";
 
   const submit = async () => {
     if (!valid || value === null) return;
@@ -120,51 +146,18 @@ export function RuleForm({
       toast.success("Tarif enregistré.");
       onClose();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
+      toast.error(describeError(error).message);
       setSaving(false);
     }
   };
 
-  return (
-    <Modal
-      title={rule ? "Modifier le tarif" : "Nouveau tarif"}
-      onClose={onClose}
-      footer={
-        <>
-          {rule && (
-            <button
-              type="button"
-              onClick={() => setDeleting(true)}
-              className="mr-auto rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-ember-3 transition-colors hover:border-ember-3/40"
-            >
-              Supprimer
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-          >
-            Annuler
-          </button>
-          <button
-            type="button"
-            disabled={!valid || saving}
-            onClick={() => void submit()}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-          >
-            {saving ? "Enregistrement…" : "Enregistrer"}
-          </button>
-        </>
-      }
-    >
-      {deleting && rule && (
-        <ConfirmDialog
-          title="Supprimer ce tarif ?"
-          message={`« ${rule.name} » ne s'appliquera plus. Les prix de votre carte, eux, ne changent pas.`}
-          confirmLabel="Supprimer"
+  // La confirmation remplace la feuille : imbriquée, Échap fermerait les deux.
+  if (deleting && rule) {
+    return (
+        <ConfirmSheet
+          title={`Supprimer « ${rule.name} » ?`}
+          text="Ce tarif ne s'appliquera plus. Les prix de votre carte, eux, ne changent pas."
+          confirmLabel="Supprimer le tarif"
           destructive
           onConfirm={() => {
             setDeleting(false);
@@ -174,108 +167,106 @@ export function RuleForm({
                 toast.success("Tarif supprimé.");
                 onClose();
               })
-              .catch((error: unknown) =>
-                toast.error(
-                  error instanceof Error ? error.message : "Une erreur est survenue."
-                )
-              );
+              .catch((error: unknown) => toast.error(describeError(error).message));
           }}
           onClose={() => setDeleting(false)}
         />
-      )}
+    );
+  }
+
+  return (
+    <Sheet
+      title={rule ? `Modifier « ${rule.name} »` : "Nouveau tarif"}
+      onClose={onClose}
+      footer={
+        <>
+          {(saving || !valid) && <p>{saving ? "Un instant…" : missing}</p>}
+          {rule && (
+            <GlassButton variant="danger" className="mr-auto" onClick={() => setDeleting(true)}>
+              Supprimer
+            </GlassButton>
+          )}
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" disabled={!valid || saving} onClick={() => void submit()}>
+            Enregistrer
+          </GlassButton>
+        </>
+      }
+    >
       <div className="flex flex-col gap-5">
         {rule && (
-          <label className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-background px-4 py-3 text-sm">
-            <span className="font-medium">
-              Tarif actif
-              <span className="mt-0.5 block text-xs font-normal text-muted">
-                Suspendu, il cesse de s&apos;appliquer sans être supprimé.
-              </span>
-            </span>
-            <Toggle
-              checked={rule.actif}
-              onChange={(actif) =>
-                void api
-                  .setPriceRuleActive(rule.id, actif)
-                  .then(() =>
-                    toast.success(actif ? "Tarif activé." : "Tarif suspendu.")
-                  )
-                  .catch((error: unknown) =>
-                    toast.error(
-                      error instanceof Error
-                        ? error.message
-                        : "Une erreur est survenue."
-                    )
-                  )
-              }
-              label={`Activer ${rule.name}`}
-            />
-          </label>
+          <Switch
+            checked={liveRule?.actif ?? rule.actif}
+            onChange={(actif) =>
+              void api
+                .setPriceRuleActive(rule.id, actif)
+                .then(() => toast.success(actif ? "Tarif activé." : "Tarif suspendu."))
+                .catch((error: unknown) => toast.error(describeError(error).message))
+            }
+            label="Tarif actif"
+            hint="Suspendu, il cesse de s'appliquer sans être supprimé."
+          />
         )}
         <Field
           label="Nom"
           required
           hint="Affiché à vos clients sous le prix, pour qu'ils sachent pourquoi il change."
         >
-          <input
+          <Input
             value={name}
             onChange={(event) => setName(event.target.value)}
             maxLength={60}
             placeholder="Tarif week-end"
-            className={inputClass}
+            data-autofocus={rule ? undefined : ""}
           />
         </Field>
 
-        <div className="flex flex-col gap-2">
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-            Écart <span className="text-ember-2">*</span>
+        <div className="g-field">
+          <span className="g-field-label">
+            Écart<b aria-hidden>*</b>
           </span>
           <div className="flex flex-wrap items-center gap-2">
-            <Segmented
+            <Segmented<PriceRuleDirection>
+              glass={false}
+              label="Sens de l'écart"
               options={[
                 { value: "majoration", label: "Majoration" },
                 { value: "remise", label: "Remise" },
               ]}
               value={direction}
-              onChange={(next) => setDirection(next as PriceRuleDirection)}
+              onChange={setDirection}
             />
             {unit === "montant" ? (
-              <PriceInput
+              <PrixInput value={valueRaw} onChange={setValueRaw} aria-label="Écart en euros" className="w-28" />
+            ) : (
+              <Input
+                numeric
+                unit="%"
                 value={valueRaw}
-                onChange={setValueRaw}
+                onChange={(event) => setValueRaw(event.target.value)}
+                placeholder="10"
+                aria-label="Écart en pourcentage"
                 className="w-28"
               />
-            ) : (
-              <div className="relative w-28">
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={valueRaw}
-                  onChange={(event) => setValueRaw(event.target.value)}
-                  placeholder="10"
-                  className={`${inputClass} pr-8`}
-                />
-                <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-faint">
-                  %
-                </span>
-              </div>
             )}
-            <Segmented
+            <Segmented<PriceRuleUnit>
+              glass={false}
+              label="Unité de l'écart"
               options={[
                 { value: "montant", label: "€" },
                 { value: "pourcentage", label: "%" },
               ]}
               value={unit}
-              onChange={(next) => setUnit(next as PriceRuleUnit)}
+              onChange={setUnit}
             />
           </div>
           {unit === "pourcentage" &&
             direction === "remise" &&
             value !== null &&
             value > 100 && (
-              <span className="text-xs text-ember-3">
-                Une remise ne peut pas dépasser 100 %.
-              </span>
+              <p role="alert" className="g-field-error">
+                <span>Une remise ne peut pas dépasser 100 %.</span>
+              </p>
             )}
         </div>
 
@@ -298,36 +289,7 @@ export function RuleForm({
           formats
         />
       </div>
-    </Modal>
-  );
-}
-
-function Segmented({
-  options,
-  value,
-  onChange,
-}: {
-  options: { value: string; label: string }[];
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div className="flex rounded-full border border-hairline p-0.5">
-      {options.map((option) => (
-        <button
-          key={option.value}
-          type="button"
-          onClick={() => onChange(option.value)}
-          className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-            value === option.value
-              ? "ember-gradient text-background"
-              : "text-muted hover:text-foreground"
-          }`}
-        >
-          {option.label}
-        </button>
-      ))}
-    </div>
+    </Sheet>
   );
 }
 
@@ -388,32 +350,25 @@ export function TarifsInline({
     return null;
   }
 
-  const chipClass = (actif: boolean) =>
-    `rounded-full border px-2 py-0.5 text-[10px] font-semibold ${
-      actif
-        ? "border-ember-2/35 text-ember-1"
-        : "border-hairline text-faint line-through"
-    }`;
-
   return (
-    <div className="flex flex-wrap items-center gap-1.5">
+    <div className="g-money flex flex-wrap items-center gap-1.5">
       {effective && (
-        <span
-          title={`Tarif en vigueur : ${effective.ruleName}`}
-          className="rounded-full bg-ember-2/15 px-2 py-0.5 text-[10px] font-semibold text-ember-1"
-        >
-          En ce moment {effective.format && `${effective.format} `}
-          {formatPrice(effective.price)}
+        <span title={`Tarif en vigueur : ${effective.ruleName}`}>
+          <Chip icon={<ClockIcon />}>
+            En ce moment {effective.format && `${effective.format} `}
+            {formatPrice(effective.price)}
+          </Chip>
         </span>
       )}
       {owned.map((rule) => (
+        // Une pastille qu'on peut ouvrir : la classe du kit sur un bouton.
         <button
           key={rule.id}
           type="button"
           disabled={!canEdit}
           onClick={() => setEditing(rule)}
           title={`${formatDays(rule.days)} · ${formatWindow(rule)}`}
-          className={`${chipClass(rule.actif)} transition-colors enabled:hover:border-ember-2/60`}
+          className={`g-chip g-press max-w-full truncate relative after:absolute after:-inset-y-2.5 after:inset-x-0 after:content-[''] ${rule.actif ? "" : "text-muted line-through"}`}
         >
           {rule.name} {formatAdjustment(rule)}
           {formatsOf(rule)}
@@ -423,7 +378,7 @@ export function TarifsInline({
         <span
           key={rule.id}
           title={`Posé sur la catégorie · ${formatDays(rule.days)} · ${formatWindow(rule)}`}
-          className={chipClass(rule.actif)}
+          className={`g-chip max-w-full truncate ${rule.actif ? "" : "text-muted line-through"}`}
         >
           {rule.name} {formatAdjustment(rule)} · catégorie
         </span>
@@ -432,7 +387,7 @@ export function TarifsInline({
         <button
           type="button"
           onClick={() => setCreating(true)}
-          className="rounded-full border border-dashed border-hairline px-2 py-0.5 text-[10px] font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+          className="g-chip g-press border-dashed text-muted relative after:absolute after:-inset-y-2.5 after:inset-x-0 after:content-['']"
         >
           + Tarif planifié
         </button>

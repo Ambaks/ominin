@@ -2,9 +2,10 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { CounterLines } from "@/components/gestion/commandes/counter-lines";
-import { CheckIcon } from "@/components/gestion/icons";
-import { EmptyState } from "@/components/ui/empty-state";
+import { AlertIcon, CheckIcon } from "@/components/gestion/icons";
+import { GlassButton, GlassFrame, Plate, Shimmer, type Entity } from "@/components/gestion/ui";
 import { HANDOVER_STATUSES } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { formatTime } from "@/lib/gestion/format";
 import { can } from "@/lib/gestion/permissions";
 import { fetchRemise, handOver, type Remise } from "@/lib/gestion/remise";
@@ -34,21 +35,19 @@ type Attempt =
 
 const handable = (status: OrderStatus) => HANDOVER_STATUSES.includes(status);
 
-/** L'anneau de focus clavier de la remise et du scanner, comme ailleurs dans l'espace. */
-export const FOCUS_RING =
-  "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1";
-
 export interface ManualAction {
   action: React.ReactNode;
   primary: boolean;
 }
 
-const messageOf = (error: unknown) =>
-  error instanceof TypeError
-    ? "Le réseau a coupé : vérifiez la connexion, puis réessayez."
-    : error instanceof Error
-      ? error.message
-      : "Une erreur est survenue.";
+/** La phrase de l'échec, sans son titre : le verdict de l'écran le porte déjà. */
+const messageOf = (error: unknown) => describeError(error).text;
+/** Le réseau a coupé : la requête a pu passer et sa réponse se perdre. */
+const isLost = (error: unknown) => describeError(error).family === "reseau";
+
+/** Le verdict : fait (inversé, lisible de loin), à surveiller (grenat), ou posé. */
+type Tone = "done" | "warn" | "plain";
+const TONE_ENTITY: Record<Tone, Entity> = { done: "orders", warn: "problem", plain: "none" };
 
 export function RemiseView({
   orderId,
@@ -146,11 +145,11 @@ export function RemiseView({
         await load(() => true);
       }
     } catch (error) {
-      if (error instanceof TypeError) lost.current = true;
+      if (isLost(error)) lost.current = true;
       setAttempt({
         state: "error",
         message: messageOf(error),
-        lost: error instanceof TypeError,
+        lost: isLost(error),
       });
     }
   }, [orderId, load]);
@@ -188,29 +187,48 @@ export function RemiseView({
   if (remise === undefined) {
     return (
       <div ref={resultRef} className="contents">
-        <Kicker />
         {loadError ? (
-          <EmptyState
-            heading
+          <Outcome
+            tone="warn"
+            eyebrow={kicker()}
             title="La commande ne s'est pas chargée"
             body={loadError}
-            action={<ActionButton onClick={() => void load(() => true)} label="Réessayer" />}
+            action={
+              <GlassButton variant="primary" className="w-full" onClick={() => void load(() => true)}>
+                Réessayer
+              </GlassButton>
+            }
           />
         ) : (
-          <p className="py-12 text-center text-sm text-muted">Un instant…</p>
+          <GlassFrame entity="orders" eyebrow={kicker()} className="g-rise" title="Lecture du code…">
+            <Shimmer className="h-80" />
+          </GlassFrame>
         )}
         {actions(null)}
       </div>
     );
   }
-  if (!remise || !order || !numbered) {
+  if (!remise || !order) {
     return (
       <div ref={resultRef} className="contents">
-        <Kicker />
-        <EmptyState
-          heading
+        <Outcome
+          tone="warn"
+          eyebrow={kicker()}
           title="Code inconnu"
           body="Ce code n'est pas une commande à retirer dans vos établissements. Vérifiez que ce téléphone est connecté au bon compte."
+        />
+        {actions(null)}
+      </div>
+    );
+  }
+  if (!numbered) {
+    return (
+      <div ref={resultRef} className="contents">
+        <Outcome
+          tone="warn"
+          eyebrow={kicker(remise.etablissementName)}
+          title="Pas un retrait au bar"
+          body="Cette commande n'a pas de numéro de retrait : elle se suit depuis Commandes."
         />
         {actions(null)}
       </div>
@@ -219,11 +237,11 @@ export function RemiseView({
   if (!allowed) {
     return (
       <div ref={resultRef} className="contents">
-        <Kicker etablissementName={remise.etablissementName} />
-        <EmptyState
-          heading
+        <Outcome
+          tone="warn"
+          eyebrow={kicker(remise.etablissementName)}
           title="Réservé à la salle"
-          body="Votre rôle ne remet pas les commandes : un serveur ou le gérant scanne ce code."
+          body="Votre rôle ne remet pas les commandes : un serveur ou le gérant scanne ce code."
         />
         {actions(null)}
       </div>
@@ -237,7 +255,7 @@ export function RemiseView({
   // Remettable, mais rien n'est en cours : on la remet à la main.
   const manual = handable(order.status) && attempt?.state !== "pending";
 
-  const head: { kicker: string; body: string; tone: "done" | "warn" | "plain" } =
+  const head: { kicker: string; body: string; tone: Tone } =
     order.status === "servie"
       ? ours
         ? {
@@ -248,8 +266,8 @@ export function RemiseView({
         : {
             kicker: "Déjà remise",
             body: handedAt
-              ? `Ce code a servi à ${handedAt} : la commande a été remise.`
-              : "Ce code a déjà servi : la commande a été remise.",
+              ? `Ce code a servi à ${handedAt} : la commande a été remise.`
+              : "Ce code a déjà servi : la commande a été remise.",
             tone: "warn",
           }
       : order.status === "annulee"
@@ -259,7 +277,7 @@ export function RemiseView({
           : order.status === "en_attente"
             ? {
                 kicker: "À encaisser d'abord",
-                body: `${formatPrice(due)} à régler : encaissée, elle part en préparation.`,
+                body: `${formatPrice(due)} à régler : encaissée, elle part en préparation.`,
                 tone: "warn",
               }
             : attempt?.state === "pending"
@@ -267,138 +285,132 @@ export function RemiseView({
               : elsewhere
                 ? {
                     kicker: "Autre établissement",
-                    body: `Commande de ${remise.etablissementName}\u00a0: remettez-la seulement si le client y a commandé.`,
+                    body: `Commande de ${remise.etablissementName} : remettez-la seulement si le client y a commandé.`,
                     tone: "warn",
                   }
-                : {
-                  kicker: order.status === "prete" ? "Prête" : "En préparation",
-                  body: "Réglée : remettez-la quand le client est là.",
-                  tone: "plain",
-                };
+                : order.status === "prete"
+                  ? { kicker: "Prête", body: "Remettez-la quand le client est là.", tone: "plain" }
+                  : {
+                      kicker: "En préparation",
+                      body: "Encore en cuisine : remettez-la quand elle sort et que le client est là.",
+                      tone: "plain",
+                    };
+  const done = head.tone === "done";
+  // Elle ne se remet plus : le numéro s'efface derrière le verdict.
+  const closed = order.status === "servie" || order.status === "annulee";
 
   return (
     <div ref={resultRef} className="contents">
-      {/* Un scan à l'appareil photo ouvre un onglet : son titre dit lequel. */}
-      <title>{`N° ${order.orderNumber} · Retrait au bar`}</title>
-      <Kicker etablissementName={remise.etablissementName} />
-      <article
-        className={`flex flex-col overflow-hidden rounded-2xl border bg-surface ${
-          head.tone === "done"
-            ? "border-foreground"
-            : head.tone === "warn"
-              ? "border-ember-3"
-              : "border-hairline"
-        }`}
-      >
-        {/* Remise : l'inverse du fond, lisible de loin dans les deux thèmes
-            (le dégradé clair tombait à 3:1 en thème clair). */}
-        <div
-          className={`flex flex-col gap-1 px-5 pb-5 pt-4 ${
-            head.tone === "done"
-              ? "bg-foreground text-background"
-              : head.tone === "warn"
-                ? "bg-ember-3/20"
-                : ""
-          }`}
-        >
-          <h1
-            ref={titleRef}
-            tabIndex={-1}
-            // Le lecteur d'écran dit le verdict, puis le numéro et la phrase.
-            aria-describedby={`${numberId} ${bodyId}`}
-            className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.16em] outline-none"
-          >
-            {head.tone === "done" && <CheckIcon className="size-4 shrink-0 stroke-[2.6]" />}
-            {head.kicker}
-          </h1>
-          <p id={numberId} className="flex items-baseline gap-1.5 font-semibold leading-none tabular-nums">
-            <span className="text-3xl opacity-60">N°</span>
-            <span className="text-7xl tracking-tight">{order.orderNumber}</span>
-          </p>
-          {remise.table !== null && (
-            <p
-              className={`text-sm font-semibold tabular-nums ${
-                head.tone === "done" ? "text-background/75" : "text-foreground/75"
-              }`}
-            >
-              Table {remise.table}
-            </p>
-          )}
-          <p
-            id={bodyId}
-            className={`mt-2 text-base leading-snug ${
-              head.tone === "done" ? "text-background" : "text-foreground"
+      <GlassFrame entity={TONE_ENTITY[head.tone]} hero eyebrow={kicker(remise.etablissementName)} className="g-rise">
+        <Plate className="overflow-hidden">
+          {/* Remise : l'inverse du fond, lisible de loin dans les deux thèmes
+              (le dégradé clair tombait à 3:1 en thème clair). */}
+          <article
+            className={`flex flex-col gap-1 px-5 pb-5 pt-4 ${
+              done ? "bg-foreground text-background" : ""
             }`}
           >
-            {head.body}
+            <h1
+              ref={titleRef}
+              tabIndex={-1}
+              // Le lecteur d'écran dit le verdict, puis le numéro et la phrase.
+              aria-describedby={`${numberId} ${bodyId}`}
+              className="flex items-center gap-2 font-display text-g-h2 outline-none"
+            >
+              {done && <CheckIcon className="size-(--g-icon) shrink-0" />}
+              {head.tone === "warn" && <AlertIcon className="g-problem size-(--g-icon) shrink-0 text-g-entity" />}
+              {head.kicker}
+            </h1>
+            <p
+              id={numberId}
+              className={`mt-1 flex items-baseline gap-1.5 font-semibold leading-none tabular-nums ${closed ? "text-muted" : ""}`}
+            >
+              <span className={`text-g-kpi ${done ? "text-background/60" : "text-muted"}`}>N°</span>
+              <span className="text-g-counter">{order.orderNumber}</span>
+            </p>
+            {remise.table !== null && (
+              <p className={`text-g-label font-semibold tabular-nums ${done ? "text-background/75" : "text-muted"}`}>
+                Table {remise.table}
+              </p>
+            )}
+            <p id={bodyId} role={attempt?.state === "pending" ? "status" : undefined} className="mt-2 text-base leading-snug">
+              {head.body}
+            </p>
+          </article>
+          <CounterLines items={order.items} className="py-4" />
+          <p className="flex items-baseline justify-between gap-3 border-t border-hairline px-5 py-3 text-g-body">
+            {order.status === "annulee" ? (
+              <>
+                <span className="text-muted">Annulée</span>
+                <span className="tabular-nums text-muted line-through">{formatPrice(orderTotal(order))}</span>
+              </>
+            ) : (
+              <>
+                <span className="text-muted">{due > 0 ? "À régler" : "Réglée"}</span>
+                <span className="font-semibold tabular-nums">
+                  {formatPrice(due > 0 ? due : orderTotal(order))}
+                </span>
+              </>
+            )}
           </p>
-        </div>
-        <CounterLines items={order.items} className="py-4" />
-        <p className="flex items-baseline justify-between gap-3 border-t border-hairline px-5 py-3 text-sm">
-          {order.status === "annulee" ? (
-            <>
-              <span className="text-foreground/75">Annulée</span>
-              <span className="tabular-nums text-foreground/75 line-through">
-                {formatPrice(orderTotal(order))}
-              </span>
-            </>
-          ) : (
-            <>
-              <span className="text-foreground/75">{due > 0 ? "À régler" : "Réglée"}</span>
-              <span className="font-semibold tabular-nums">
-                {formatPrice(due > 0 ? due : orderTotal(order))}
-              </span>
-            </>
-          )}
-        </p>
-      </article>
+        </Plate>
+      </GlassFrame>
 
       {actions(
         manual
           ? {
               // D'un autre établissement : la remise reste possible, pas mise en avant.
               action: (
-                <ActionButton
+                <GlassButton
+                  variant={elsewhere ? "secondary" : "primary"}
+                  // Le geste irréversible, à une main : la grande hauteur du kit.
+                  className="w-full [--g-control:var(--g-fab)]"
                   onClick={() => void handOverNow()}
-                  label={attempt ? "Réessayer" : `Remettre N° ${order.orderNumber}`}
-                  secondary={elsewhere}
-                />
+                >
+                  {attempt ? "Réessayer" : `Remettre N° ${order.orderNumber}`}
+                </GlassButton>
               ),
               primary: !elsewhere,
             }
           : null
       )}
+      {/* Un scan à l'appareil photo ouvre un onglet : son titre dit lequel. En
+          dernier : les enfants gardent leur place d'un état à l'autre, le
+          cadre n'est pas remonté et son entrée ne rejoue pas. */}
+      <title>{`N° ${order.orderNumber} · Retrait au bar`}</title>
     </div>
   );
 }
 
-function Kicker({ etablissementName }: { etablissementName?: string }) {
-  return (
-    <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-foreground/75">
-      Retrait au bar{etablissementName && ` · ${etablissementName}`}
-    </p>
-  );
-}
+/** Le surtitre de l'écran : le geste, et l'établissement quand on le connaît. */
+const kicker = (etablissementName?: string) =>
+  `Retrait au bar${etablissementName ? ` · ${etablissementName}` : ""}`;
 
-/** L'inverse du fond, comme la remise faite : le dégradé clair tombait sous 3:1. */
-function ActionButton({
-  onClick,
-  label,
-  secondary = false,
+/** Un verdict sans commande à montrer : le titre de la page, sa phrase, une suite. */
+function Outcome({
+  tone,
+  eyebrow,
+  title,
+  body,
+  action,
 }: {
-  onClick: () => void;
-  label: string;
-  secondary?: boolean;
+  tone: Tone;
+  eyebrow: string;
+  title: string;
+  body: string;
+  action?: React.ReactNode;
 }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`min-h-12 w-full rounded-full px-5 text-sm font-semibold ${FOCUS_RING} ${
-        secondary ? "border border-hairline" : "bg-foreground text-background"
-      }`}
-    >
-      {label}
-    </button>
+    <GlassFrame entity={TONE_ENTITY[tone]} hero eyebrow={eyebrow} className="g-rise">
+      <Plate className="flex flex-col gap-3 px-5 py-6">
+        {/* Titre de la page : il peut recevoir le focus (le résultat d'un scan). */}
+        <h1 tabIndex={-1} className="flex items-center gap-2 font-display text-g-h2 outline-none">
+          {tone === "warn" && <AlertIcon className="g-problem size-(--g-icon) shrink-0 text-g-entity" />}
+          {title}
+        </h1>
+        <p className="text-g-body text-muted">{body}</p>
+        {action}
+      </Plate>
+    </GlassFrame>
   );
 }

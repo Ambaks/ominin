@@ -1,15 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
+import { SoireesIcon } from "@/components/gestion/icons";
 import {
   ClubLoadError,
   ClubLocked,
   ClubSkeleton,
 } from "@/components/gestion/soirees/club-states";
 import { ZonesSettings } from "@/components/gestion/soirees/zones-settings";
-import { EmptyState } from "@/components/ui/empty-state";
-import { UnderlineTabs } from "@/components/gestion/soirees/underline-tabs";
+import {
+  Chip,
+  EmptyState,
+  GlassButton,
+  GlassFrame,
+  Plate,
+  SectionHeading,
+  Segmented,
+  Shimmer,
+} from "@/components/gestion/ui";
 import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
 import type { ClubEvent } from "@/lib/club/types";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
@@ -21,26 +30,29 @@ import { useNow } from "@/lib/gestion/use-now";
 /*
  * Les soirées du club : celles à venir, ce qu'elles ont vendu en direct, et
  * l'accès au plan du soir. Le gérant y prépare ses soirées, ses prix et ses
- * conditions d'entrée ; l'équipe y trouve le plan de la porte.
+ * conditions d'entrée ; l'équipe y trouve le plan de la porte. La prochaine
+ * soirée (ou celle en cours) est la seule à vivre dans un cadre de verre :
+ * c'est là que l'œil se pose.
  */
 
 type Tab = "a_venir" | "passees" | "salle";
 
-const CHIP = "rounded-full border px-2 py-0.5 text-xs font-semibold uppercase tracking-wider";
+/** Au-delà de ce rang, les cartes entrent ensemble : trente soirées passées n'attendent pas. */
+const MAX_RISE = 6;
 
 function StatusChips({ event, now }: { event: ClubEvent; now: number }) {
-  if (event.cancelledAt) {
-    return <span className={`${CHIP} border-ember-3/40 bg-ember-3/10 text-ember-3`}>Annulée</span>;
-  }
+  if (event.cancelledAt) return <Chip tone="problem">Annulée</Chip>;
   return (
     <>
       {isTonight(event, now) && (
-        <span className={`${CHIP} border-ember-2/40 bg-ember-2/10 text-ember-2`}>En cours</span>
+        <span className="g-orders">
+          <Chip icon={<span className="pouls" aria-hidden />}>En cours</Chip>
+        </span>
       )}
       {event.published ? (
-        <span className={`${CHIP} border-ember-1/40 bg-ember-1/10 text-ember-1`}>Publiée</span>
+        <Chip icon={<SoireesIcon />}>Publiée</Chip>
       ) : (
-        <span className={`${CHIP} border-hairline text-muted`}>Brouillon</span>
+        <Chip>Brouillon</Chip>
       )}
     </>
   );
@@ -54,7 +66,7 @@ function Thumb({ event }: { event: ClubEvent }) {
       <img
         src={event.posterUrl}
         alt=""
-        className="h-20 w-16 shrink-0 rounded-xl border border-hairline object-cover"
+        className="h-20 w-16 shrink-0 rounded-g-card border border-hairline object-cover"
       />
     );
   }
@@ -62,11 +74,11 @@ function Thumb({ event }: { event: ClubEvent }) {
   return (
     <span
       aria-hidden
-      className="flex h-20 w-16 shrink-0 flex-col items-center justify-center rounded-xl border border-hairline bg-surface-raised"
+      className="flex h-20 w-16 shrink-0 flex-col items-center justify-center gap-0.5 rounded-g-card border border-hairline bg-surface-raised"
     >
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted">{weekday}</span>
-      <span className="ember-text font-display text-2xl font-medium leading-tight tabular-nums">{day}</span>
-      <span className="text-xs font-semibold uppercase tracking-wider text-muted">{month}</span>
+      <span className="g-eyebrow">{weekday}</span>
+      <span className="font-display text-g-name text-ember-1 tabular-nums">{day}</span>
+      <span className="g-eyebrow">{month}</span>
     </span>
   );
 }
@@ -74,25 +86,28 @@ function Thumb({ event }: { event: ClubEvent }) {
 function Counter({ label, value }: { label: string; value: string }) {
   return (
     <div className="min-w-0">
-      <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{label}</dt>
-      <dd className="truncate font-display text-base font-medium tabular-nums">{value}</dd>
+      <dt className="text-g-meta text-muted">{label}</dt>
+      <dd className="mt-0.5 truncate text-g-label font-semibold tabular-nums">{value}</dd>
     </div>
   );
 }
 
-function EventRow({
+function EventCard({
   club,
   event,
   now,
   gerant,
   next,
+  index,
 }: {
   club: ClubState;
   event: ClubEvent;
   now: number;
   gerant: boolean;
-  /** La prochaine soirée (ou celle en cours) : cerclée de corail. */
+  /** La prochaine soirée (ou celle en cours) : la seule en cadre de verre. */
   next: boolean;
+  /** Rang d'entrée, à l'arrivée sur la page seulement ; absent, pas d'entrée. */
+  index?: number;
 }) {
   const loaded = Boolean(club.nights[event.id]);
   const stats = nightStats(club, event.id);
@@ -100,62 +115,79 @@ function EventRow({
   const guestList = event.guestListOpen || stats.guests > 0;
   // Une seule destination par carte : le plan si la soirée a commencé (ou
   // pour l'équipe), sa préparation sinon.
-  const href =
-    tonight || !gerant ? `/gestion/soirees/${event.id}/live` : `/gestion/soirees/${event.id}`;
-  return (
-    <li className="soirees-entree">
-      <Link
-        href={href}
-        className={`group flex flex-col gap-4 rounded-2xl border bg-surface p-4 hover:border-ember-2/60 sm:p-5 ${
-          next ? "border-[var(--soirees-coral)]" : "border-hairline"
-        }`}
-      >
-        <span className="flex items-center gap-4">
-          <Thumb event={event} />
-          <span className="flex min-w-0 flex-1 flex-col gap-1">
-            <span className="flex flex-wrap gap-x-1.5 text-xs font-medium text-muted">
-              <span className="whitespace-nowrap first-letter:uppercase">{formatNightShort(event.startsAt)}</span>
-              <span aria-hidden>·</span>
-              <span className="whitespace-nowrap">{formatHours(event.startsAt, event.endsAt)}</span>
-            </span>
-            <span className="line-clamp-2 font-display text-lg font-medium leading-snug">{event.title}</span>
-            <span className="flex flex-wrap gap-1.5">
-              {event.tag && <span className={`${CHIP} border-hairline text-muted`}>{event.tag}</span>}
-              <StatusChips event={event} now={now} />
-            </span>
+  const href = tonight || !gerant ? `/gestion/soirees/${event.id}/live` : `/gestion/soirees/${event.id}`;
+  const action = href.endsWith("/live") ? "Plan du soir" : isPast(event, now) ? "Revoir" : "Préparer";
+
+  const body = (
+    <>
+      <span className="flex items-center gap-4">
+        <Thumb event={event} />
+        <span className="flex min-w-0 flex-1 flex-col gap-1.5">
+          <span className="flex flex-wrap gap-x-1.5 text-g-meta text-muted">
+            <span className="whitespace-nowrap first-letter:uppercase">{formatNightShort(event.startsAt)}</span>
+            <span aria-hidden>·</span>
+            <span className="whitespace-nowrap tabular-nums">{formatHours(event.startsAt, event.endsAt)}</span>
+            {event.tag && (
+              <>
+                <span aria-hidden>·</span>
+                <span>{event.tag}</span>
+              </>
+            )}
           </span>
-          <span className="flex shrink-0 items-center gap-1 text-sm font-medium text-muted group-hover:text-foreground">
-            <span className="hidden sm:inline">{href.endsWith("/live") ? "Plan du soir" : "Préparer"}</span>
-            <svg viewBox="0 0 24 24" className="size-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="m9 6 6 6-6 6" />
-            </svg>
+          <span className="line-clamp-2 font-display text-g-h2">{event.title}</span>
+          <span className="flex flex-wrap gap-1.5">
+            <StatusChips event={event} now={now} />
           </span>
         </span>
+        <span className="flex shrink-0 items-center gap-1 text-g-label font-medium text-muted">
+          <span className="max-sm:sr-only">{action}</span>
+          <svg viewBox="0 0 24 24" className="size-5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <path d="m9 6 6 6-6 6" />
+          </svg>
+        </span>
+      </span>
 
-        {loaded ? (
-          <dl
-            className={`grid gap-x-5 gap-y-3 border-t border-hairline pt-4 ${
-              gerant ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"
-            }`}
-          >
-            <Counter label="Tables réservées" value={`${stats.sold} / ${stats.capacity}`} />
-            <Counter label="Personnes" value={String(stats.people)} />
-            {gerant && <Counter label="Encaissé" value={formatCents(stats.online + stats.onSite)} />}
-            <Counter
-              label="Invités"
-              value={
-                !guestList
-                  ? "Liste fermée"
-                  : event.guestListCapacity
-                    ? `${stats.guests} / ${event.guestListCapacity}`
-                    : String(stats.guests)
-              }
-            />
-          </dl>
-        ) : (
-          <span aria-busy className="shimmer block h-12 rounded-xl" />
-        )}
-      </Link>
+      {loaded ? (
+        <dl className={`grid gap-x-5 gap-y-3 border-t border-hairline pt-4 ${gerant ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-3"}`}>
+          <Counter label="Tables réservées" value={`${stats.sold} / ${stats.capacity}`} />
+          <Counter label="Personnes" value={String(stats.people)} />
+          {gerant && <Counter label="Encaissé" value={formatCents(stats.online + stats.onSite)} />}
+          <Counter
+            label="Invités"
+            value={
+              !guestList
+                ? "Liste fermée"
+                : event.guestListCapacity
+                  ? `${stats.guests} / ${event.guestListCapacity}`
+                  : String(stats.guests)
+            }
+          />
+        </dl>
+      ) : (
+        <Shimmer className="h-12" />
+      )}
+    </>
+  );
+
+  return (
+    <li className={next || index === undefined ? undefined : "g-rise"} style={index === undefined ? undefined : ({ "--g-i": index } as CSSProperties)}>
+      {next ? (
+        <GlassFrame
+          i={index}
+          entity="orders"
+          hero
+          icon={<SoireesIcon />}
+          eyebrow={tonight ? "Ce soir" : "Prochaine soirée"}
+          href={href}
+          title={action}
+        >
+          <Plate className="flex flex-col gap-4 p-4 sm:p-5">{body}</Plate>
+        </GlassFrame>
+      ) : (
+        <Link href={href} title={action} className="soiree-carte g-plate g-press flex flex-col gap-4 p-4 sm:p-5">
+          {body}
+        </Link>
+      )}
     </li>
   );
 }
@@ -167,6 +199,8 @@ export default function SoireesPage() {
   const error = useClubLoadError();
   const now = useNow(WAIT_TICK_MS).getTime();
   const [tab, setTab] = useState<Tab>("a_venir");
+  // Une seule orchestration, à l'arrivée : changer d'onglet ne la rejoue pas.
+  const [tabTouched, setTabTouched] = useState(false);
 
   const events = club?.events ?? [];
   const upcoming = events.filter((event) => !isPast(event, now));
@@ -181,9 +215,9 @@ export default function SoireesPage() {
 
   const gerant = can("soirees.edit");
   const tabs = [
-    { id: "a_venir", label: "À venir", count: upcoming.length },
-    { id: "passees", label: "Passées" },
-    ...(gerant ? [{ id: "salle", label: "Salle et conditions" }] : []),
+    { value: "a_venir" as const, label: upcoming.length > 0 ? `À venir · ${upcoming.length}` : "À venir" },
+    { value: "passees" as const, label: "Passées" },
+    ...(gerant ? [{ value: "salle" as const, label: "Salle et prix" }] : []),
   ];
   const tableCounts = new Map<string, number>();
   for (const table of club.tables) {
@@ -191,68 +225,81 @@ export default function SoireesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">Soirées</h1>
-          <p className="mt-1 text-sm text-muted">
-            {gerant
+    <div className="soirees-page flex flex-col gap-6">
+      <div className="g-rise" style={{ "--g-i": 0 } as CSSProperties}>
+        <SectionHeading
+          level={1}
+          title="Soirées"
+          sub={
+            gerant
               ? "Vos soirées, leurs tables vendues en direct et le plan du soir."
-              : "Les soirées du club. Ouvrez le plan du soir pour accueillir les tables."}
-          </p>
-        </div>
-        {gerant && (
-          <Link
-            href="/gestion/soirees/nouvelle"
-            className="ember-gradient flex min-h-11 shrink-0 items-center rounded-full px-5 text-sm font-semibold text-background lg:pointer-fine:min-h-9"
-          >
-            Nouvelle soirée
-          </Link>
-        )}
+              : "Les soirées du club. Ouvrez le plan du soir pour accueillir les tables."
+          }
+          right={
+            gerant ? (
+              <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
+                Nouvelle soirée
+              </GlassButton>
+            ) : undefined
+          }
+        />
       </div>
 
       {error && <ClubLoadError message={error} />}
 
-      <UnderlineTabs label="Soirées" tabs={tabs} activeId={tab} onSelect={(id) => setTab(id as Tab)} />
+      <div className="seg-defile">
+        <Segmented
+          i={1}
+          label="Soirées"
+          options={tabs}
+          value={tab}
+          onChange={(next) => {
+            setTab(next);
+            setTabTouched(true);
+          }}
+        />
+      </div>
 
       {tab === "salle" ? (
-        <ZonesSettings
-          zones={club.zones}
-          tableCounts={tableCounts}
-          conditions={club.conditions}
-          depositPercent={club.depositPercent}
-        />
+        <div>
+          <ZonesSettings
+            key={JSON.stringify([club.zones.map((zone) => zone.id), club.conditions])}
+            zones={club.zones}
+            tableCounts={tableCounts}
+            conditions={club.conditions}
+            depositPercent={club.depositPercent}
+          />
+        </div>
       ) : shown.length === 0 ? (
-        <EmptyState
-          title={tab === "passees" ? "Aucune soirée passée" : "Aucune soirée à venir"}
-          body={
-            tab === "passees"
-              ? "Les soirées terminées s'affichent ici avec ce qu'elles ont vendu."
-              : gerant
-                ? "Créez votre prochaine soirée : ses zones, ses prix, et la page où vos clients réservent leur offre de table."
-                : "Le gérant n'a pas encore programmé de soirée."
-          }
-          action={
-            gerant && tab === "a_venir" ? (
-              <Link
-                href="/gestion/soirees/nouvelle"
-                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-              >
-                Nouvelle soirée
-              </Link>
-            ) : undefined
-          }
-        />
+        <div>
+          <EmptyState
+            text={
+              tab === "passees"
+                ? "Aucune soirée passée : les soirées terminées s'affichent ici avec ce qu'elles ont vendu."
+                : gerant
+                  ? "Aucune soirée à venir. Créez la prochaine : ses zones, ses prix, et la page où vos clients réservent leur table."
+                  : "Aucune soirée à venir : le gérant n'en a pas encore programmé."
+            }
+            action={
+              gerant && tab === "a_venir" ? (
+                <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
+                  Nouvelle soirée
+                </GlassButton>
+              ) : undefined
+            }
+          />
+        </div>
       ) : (
-        <ul className="flex flex-col gap-3">
-          {shown.map((event) => (
-            <EventRow
+        <ul className="flex flex-col gap-g-gap">
+          {shown.map((event, index) => (
+            <EventCard
               key={event.id}
               club={club}
               event={event}
               now={now}
               gerant={gerant}
               next={tab === "a_venir" && event.id === nextId}
+              index={tabTouched ? undefined : Math.min(index + 2, MAX_RISE)}
             />
           ))}
         </ul>

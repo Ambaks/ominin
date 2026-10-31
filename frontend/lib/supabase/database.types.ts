@@ -7360,6 +7360,15 @@ export type Database = {
           restaurant_name: string
         }[]
       }
+      admin_combo_parfait: {
+        Args: {
+          p_etab: string | null
+          p_from: string
+          p_to: string
+          p_top: number
+        }
+        Returns: Json
+      }
       admin_clip_overview: {
         Args: { p_from: string; p_to: string }
         Returns: {

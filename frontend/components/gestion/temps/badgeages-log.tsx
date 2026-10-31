@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { ConfirmSheet, EmptyState, Field, GlassButton, Input, Plate, Sheet, Shimmer } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import { formatTime } from "@/lib/gestion/format";
 import {
   correctEntry,
@@ -61,56 +60,54 @@ function CorrectionModal({
         new Date(from).toISOString(),
         to ? new Date(to).toISOString() : null
       );
-      toast.success("Badgeage corrigé.");
+      toast.success("Pointage corrigé.");
       onSaved();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
       setBusy(false);
     }
   };
 
   return (
-    <Modal
+    <Sheet
       title={`Corriger — ${entry.memberName}`}
       onClose={onClose}
       footer={
-        <button
-          type="submit"
-          form="correction-form"
-          disabled={busy}
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-        >
-          Enregistrer
-        </button>
+        <>
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" type="submit" form="correction-form" disabled={busy}>
+            Enregistrer
+          </GlassButton>
+        </>
       }
     >
       <form id="correction-form" onSubmit={save} className="flex flex-col gap-4">
-        <p className="text-sm leading-relaxed text-muted">
-          Les signatures restent celles du badgeage : la correction est
+        <p className="text-g-label text-muted">
+          Les signatures restent celles du pointage : la correction est
           enregistrée à votre nom, à côté d&rsquo;elles.
         </p>
         <Field label="Arrivée" required>
-          <input
+          <Input
             type="datetime-local"
             value={from}
             onChange={(event) => setFrom(event.target.value)}
             required
-            className={inputClass}
+            className="tabular-nums"
           />
         </Field>
         <Field label="Départ" hint="Vide : la personne est encore en service.">
-          <input
+          <Input
             type="datetime-local"
             value={to}
             min={from}
             onChange={(event) => setTo(event.target.value)}
-            className={inputClass}
+            className="tabular-nums"
           />
         </Field>
       </form>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -119,12 +116,18 @@ export function BadgeagesLog({
   shifts,
   entries,
   start,
+  loading = false,
+  weekNav,
   onChange,
 }: {
   staff: Staff[];
   shifts: Shift[];
   entries: TimeEntry[];
   start: Date;
+  /** La semaine se relit : le journal attend avant de se dire vide. */
+  loading?: boolean;
+  /** Les flèches de semaine, à droite du titre : elles ne gouvernent que ce journal. */
+  weekNav?: React.ReactNode;
   onChange: () => void;
 }) {
   const toast = useToast();
@@ -136,24 +139,28 @@ export function BadgeagesLog({
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
-        <h3 className="font-display text-lg font-medium">Heures de la semaine</h3>
-        <div className="rounded-2xl border border-hairline bg-surface">
-          {staff.map((member, index) => {
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-g-h2">Heures de la semaine</h2>
+          {weekNav}
+        </div>
+        {loading ? (
+          <Shimmer className="h-24" />
+        ) : entries.length === 0 ? (
+          <EmptyState text="Aucun pointage cette semaine : les arrivées et les départs signés apparaîtront ici." />
+        ) : (
+        <Plate role="group" className="divide-y divide-hairline px-4" aria-label="Heures badgées par membre">
+          {staff.map((member) => {
             const worked = workedMinutes(entriesOf(entries, member.id), now);
             const planned = plannedMinutes(shiftsOf(shifts, member.id));
             return (
               <div
                 key={member.id}
-                className={`flex items-center justify-between gap-4 px-5 py-3.5 ${
-                  index > 0 ? "border-t border-hairline" : ""
-                }`}
+                className="flex min-h-g-control items-center justify-between gap-4 py-2.5"
               >
-                <p className="truncate text-sm font-medium">
-                  {member.name}
-                </p>
-                <p className="shrink-0 text-sm tabular-nums">
-                  <span className="text-ember-1">{formatDuration(worked)}</span>
-                  <span className="text-faint">
+                <p className="truncate text-g-label font-semibold">{member.name}</p>
+                <p className="shrink-0 text-g-label tabular-nums">
+                  <span className="font-semibold text-ember-1">{worked ? formatDuration(worked) : "—"}</span>
+                  <span className="text-muted">
                     {" "}
                     / {planned ? formatDuration(planned) : "sans planning"}
                   </span>
@@ -162,9 +169,10 @@ export function BadgeagesLog({
             );
           })}
           {staff.length === 0 && (
-            <p className="px-5 py-4 text-sm text-muted">Aucun membre.</p>
+            <p className="py-3 text-g-label text-muted">Aucun membre.</p>
           )}
-        </div>
+        </Plate>
+        )}
       </section>
 
       {days.map((day) => {
@@ -174,24 +182,22 @@ export function BadgeagesLog({
         if (dayEntries.length === 0) return null;
         return (
           <section key={day.toDateString()} className="flex flex-col gap-2.5">
-            <h3 className="font-display text-base font-medium capitalize">
+            <h2 className="text-g-body font-semibold capitalize">
               {day.toLocaleDateString("fr-FR", {
                 weekday: "long",
                 day: "numeric",
                 month: "long",
               })}
-            </h3>
-            <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+            </h2>
+            <Plate className="divide-y divide-hairline px-4">
               {dayEntries.map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-3 px-5 py-3.5"
+                  className="flex flex-wrap items-center gap-x-4 gap-y-3 py-3"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">
-                      {entry.memberName}
-                    </p>
-                    <p className="text-xs tabular-nums text-faint">
+                    <p className="truncate text-g-label font-semibold">{entry.memberName}</p>
+                    <p className="text-g-meta tabular-nums text-muted">
                       {formatTime(entry.startedAt)} –{" "}
                       {entry.endedAt ? formatTime(entry.endedAt) : "en cours"}
                       {" · "}
@@ -216,35 +222,18 @@ export function BadgeagesLog({
                       />
                     )}
                   </div>
-                  <div className="flex shrink-0 items-center gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setCorrecting(entry)}
-                      className="rounded-full border border-hairline px-3.5 py-2 text-sm font-semibold text-ember-1 transition-colors hover:border-ember-2/40"
-                    >
-                      Corriger
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setRemoving(entry)}
-                      className="rounded-full px-3.5 py-2 text-sm font-semibold text-muted transition-colors hover:text-ember-3"
-                    >
+                  <div className="flex shrink-0 items-center gap-2">
+                    <GlassButton onClick={() => setCorrecting(entry)}>Corriger</GlassButton>
+                    <GlassButton variant="danger" onClick={() => setRemoving(entry)}>
                       Supprimer
-                    </button>
+                    </GlassButton>
                   </div>
                 </div>
               ))}
-            </div>
+            </Plate>
           </section>
         );
       })}
-
-      {entries.length === 0 && (
-        <p className="text-sm text-muted">
-          Aucun badgeage cette semaine. L&rsquo;équipe badge depuis
-          l&rsquo;onglet Badgeage.
-        </p>
-      )}
 
       {correcting && (
         <CorrectionModal
@@ -257,9 +246,9 @@ export function BadgeagesLog({
         />
       )}
       {removing && (
-        <ConfirmDialog
-          title="Supprimer ce badgeage ?"
-          message={`Le badgeage de ${removing.memberName} et sa signature seront effacés définitivement.`}
+        <ConfirmSheet
+          title="Supprimer ce pointage ?"
+          text={`Le pointage de ${removing.memberName} et sa signature seront effacés définitivement.`}
           confirmLabel="Supprimer"
           destructive
           onClose={() => setRemoving(null)}
@@ -268,13 +257,11 @@ export function BadgeagesLog({
             setRemoving(null);
             try {
               await deleteEntry(entry.id);
-              toast.success("Badgeage supprimé.");
+              toast.success("Pointage supprimé.");
               onChange();
             } catch (error) {
               toast.error(
-                error instanceof Error
-                  ? error.message
-                  : "Une erreur est survenue."
+                describeError(error).message
               );
             }
           }}

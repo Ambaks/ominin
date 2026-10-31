@@ -1,8 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type KeyboardEvent } from "react";
+import { SettingsCard } from "@/app/menu/gestion/etablissement/settings-card";
+import { Chip, Switch } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { Toggle } from "@/components/ui/toggle";
+import { describeError } from "@/lib/gestion/errors";
 import { setBarPickup, setServiceMode, setShowTableNumber } from "@/lib/gestion/api";
 import type { ServiceMode } from "@/lib/gestion/types";
 import { menuSiteUrl } from "@/lib/site";
@@ -23,14 +25,12 @@ import { menuSiteUrl } from "@/lib/site";
 const MODES: {
   id: ServiceMode;
   label: string;
-  tagline: string;
   body: string;
   icon: React.ReactNode;
 }[] = [
   {
     id: "restaurant",
     label: "Restaurant",
-    tagline: "Service à table",
     body: "Un QR code par table. La commande arrive avec son numéro de table, la salle l'apporte.",
     icon: (
       <path d="M4 10h16M6 10v9M18 10v9M8 6h8M12 6v4" />
@@ -39,7 +39,6 @@ const MODES: {
   {
     id: "fast_food",
     label: "Fast food",
-    tagline: "Commande au comptoir",
     body: "Un QR code au comptoir, ou ceux des tables. Le client reçoit un numéro et suit sa commande sur son téléphone jusqu'à « Prête ».",
     icon: (
       <path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3zM9 8h6M9 12h6" />
@@ -76,13 +75,13 @@ export function ServiceModeSettings({
       await setServiceMode(next);
       toast.success(
         next === "fast_food"
-          ? "Fast food activé\u00a0: chaque commande reçoit un numéro."
-          : "Restaurant activé\u00a0: la commande se fait depuis la table."
+          ? "Fast food activé : chaque commande reçoit un numéro."
+          : "Restaurant activé : la commande se fait depuis la table."
       );
     } catch (error) {
       setMode(previous);
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
     } finally {
       setBusy(false);
@@ -102,7 +101,7 @@ export function ServiceModeSettings({
     } catch (error) {
       setShowTable(!next);
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
     } finally {
       setBusy(false);
@@ -116,34 +115,42 @@ export function ServiceModeSettings({
       await setBarPickup(next);
       toast.success(
         next
-          ? "Retrait au bar activé\u00a0: le client montre son code au bar."
-          : "Retrait au comptoir\u00a0: le client vient sur son numéro."
+          ? "Retrait au bar activé : le client montre son code au bar."
+          : "Retrait au comptoir : le client vient sur son numéro."
       );
     } catch (error) {
       setBar(!next);
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
     } finally {
       setBusy(false);
     }
   };
 
+  // Un groupe de radios se parcourt aux flèches, une seule carte dans l'ordre de tabulation.
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 0;
+    if (!step || busy) return;
+    event.preventDefault();
+    const index = MODES.findIndex((option) => option.id === mode);
+    const next = MODES[(index + step + MODES.length) % MODES.length];
+    void choose(next.id);
+    event.currentTarget.querySelector<HTMLElement>(`[data-mode="${next.id}"]`)?.focus();
+  };
+
   return (
-    <section className="flex max-w-xl flex-col gap-5 rounded-2xl border border-hairline bg-surface p-5 lg:p-6">
-      <div>
-        <h2 className="font-display text-lg font-medium">Type de service</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">
-          Comment vos clients commandent depuis le menu en ligne. Le menu suit
-          votre choix en une minute&nbsp;; un client qui l&rsquo;avait déjà
-          ouvert le recharge.
-        </p>
-      </div>
+    <SettingsCard
+      title="Type de service"
+      text="Le menu suit votre choix en une minute ; un client qui l'avait déjà ouvert le recharge."
+      right={busy ? <Chip>Mise à jour…</Chip> : undefined}
+    >
       <div
         role="radiogroup"
         aria-label="Type de service"
         data-visite="etablissement-service"
-        className="grid gap-3 rounded-2xl sm:grid-cols-2"
+        onKeyDown={onKeyDown}
+        className="grid gap-3 rounded-g-card sm:grid-cols-2"
       >
         {MODES.map((option) => {
           const selected = mode === option.id;
@@ -152,13 +159,15 @@ export function ServiceModeSettings({
               key={option.id}
               type="button"
               role="radio"
+              data-mode={option.id}
               aria-checked={selected}
-              disabled={busy}
+              aria-disabled={busy || undefined}
+              tabIndex={selected ? 0 : -1}
               onClick={() => void choose(option.id)}
-              className={`flex flex-col gap-2 rounded-2xl border p-4 text-left transition-colors disabled:cursor-wait ${
+              className={`g-press flex flex-col gap-2 rounded-g-card border p-4 text-left aria-disabled:cursor-wait focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1 ${
                 selected
-                  ? "border-ember-2/60 bg-surface-raised"
-                  : "border-hairline hover:border-ember-2/30"
+                  ? "border-(--g-ring-hover) bg-surface-raised"
+                  : "border-hairline bg-surface"
               }`}
             >
               <span className="flex items-center justify-between gap-3">
@@ -175,9 +184,7 @@ export function ServiceModeSettings({
                   >
                     {option.icon}
                   </svg>
-                  <span className="font-display text-base font-medium">
-                    {option.label}
-                  </span>
+                  <span className="text-g-body font-semibold">{option.label}</span>
                 </span>
                 <span
                   aria-hidden
@@ -188,18 +195,15 @@ export function ServiceModeSettings({
                   {selected && <span className="ember-gradient size-2.5 rounded-full" />}
                 </span>
               </span>
-              <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
-                {option.tagline}
-              </span>
-              <span className="text-xs leading-relaxed text-muted">{option.body}</span>
+              <span className="text-g-meta text-muted">{option.body}</span>
             </button>
           );
         })}
       </div>
       {mode === "fast_food" && (
-        <div className="flex flex-col gap-1.5 rounded-xl border border-hairline px-4 py-3 text-xs leading-relaxed text-muted">
-          <p>
-            Un QR code sans table ({barPickup ? "au bar" : "au comptoir"}, une affiche) pointe vers{" "}
+        <div className="flex flex-col gap-3">
+          <p className="text-g-meta text-muted">
+            L’affiche du {barPickup ? "bar" : "comptoir"} pointe vers{" "}
             <a
               href={`${menuSiteUrl}/m/${slug}`}
               target="_blank"
@@ -208,51 +212,28 @@ export function ServiceModeSettings({
             >
               {`${menuSiteUrl.replace(/^https?:\/\//, "")}/m/${slug}`}
             </a>
-            , sans numéro de table.
+            {resetHour !== null
+              ? ` ; les numéros repartent de 1 chaque jour à ${resetHour} h.`
+              : "."}
           </p>
-          <p>
-            Les commandes payées arrivent dans «&nbsp;À servir&nbsp;» par
-            numéro&nbsp;: «&nbsp;Prête&nbsp;» prévient le client, «&nbsp;Remettre&nbsp;»
-            {barPickup && ", ou le scan de son code,"} la clôt.
-            {resetHour !== null &&
-              ` Les numéros repartent de 1 chaque jour à ${resetHour} h.`}
-          </p>
-          <div className="mt-1.5 flex items-center justify-between gap-3 border-t border-hairline pt-3">
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Afficher le numéro de table
-              </p>
-              <p className="mt-0.5">
-                Les QR de table restent valables&nbsp;: la table s&rsquo;affiche
-                à côté du numéro, au comptoir et sur le ticket cuisine.
-              </p>
-            </div>
-            <Toggle
-              checked={showTable}
-              onChange={(next) => void toggleShowTable(next)}
-              disabled={busy}
-              label="Afficher le numéro de table"
-            />
-          </div>
-          <div className="mt-1.5 flex items-center justify-between gap-3 border-t border-hairline pt-3">
-            <div>
-              <p className="text-sm font-medium text-foreground">Retrait au bar</p>
-              <p className="mt-0.5">
-                Prête, la commande montre au client un code. Scannez-le avec
-                «&nbsp;Scanner&nbsp;», dans la barre du bas de l&rsquo;espace (ou
-                l&rsquo;appareil photo du téléphone)&nbsp;: elle est remise, et
-                le client le voit. Les QR des tables restent valables.
-              </p>
-            </div>
-            <Toggle
-              checked={barPickup}
-              onChange={(next) => void toggleBarPickup(next)}
-              disabled={busy}
-              label="Retrait au bar"
-            />
-          </div>
+          <Switch
+            label="Table affichée à côté du numéro"
+            hint="Au comptoir et sur le ticket cuisine, quand le client a scanné le QR d'une table."
+            checked={showTable}
+            onChange={(next) => {
+              if (!busy) void toggleShowTable(next);
+            }}
+          />
+          <Switch
+            label="Retrait au bar"
+            hint="Prête, la commande montre un code au client ; le scanner (barre du bas) la remet."
+            checked={barPickup}
+            onChange={(next) => {
+              if (!busy) void toggleBarPickup(next);
+            }}
+          />
         </div>
       )}
-    </section>
+    </SettingsCard>
   );
 }

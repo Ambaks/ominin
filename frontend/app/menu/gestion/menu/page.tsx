@@ -1,20 +1,29 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { AfficheCard } from "@/components/gestion/formules/affiche-card";
-import { AfficheFormModal } from "@/components/gestion/formules/affiche-form-modal";
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { FormuleBuilder } from "@/components/gestion/formules/formule-builder";
+import { ChevronDownIcon, PaymentsIcon } from "@/components/gestion/icons";
 import { FormuleCard } from "@/components/gestion/formules/formule-card";
-import { FormuleFormModal } from "@/components/gestion/formules/formule-form-modal";
+import { Presentation } from "@/components/gestion/formules/presentation";
 import { CategoryManager } from "@/components/gestion/menu/category-manager";
 import { ItemFormModal } from "@/components/gestion/menu/item-form-modal";
 import { MenuItemCard } from "@/components/gestion/menu/menu-item-card";
 import { TarifsInline } from "@/components/gestion/tarifs-planifies";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
-import { PillTabs } from "@/components/ui/pill-tabs";
+import {
+  Chip,
+  ConfirmSheet,
+  EmptyState,
+  Field,
+  GlassButton,
+  Input,
+  SectionHeading,
+  Segmented,
+  Select,
+} from "@/components/gestion/ui";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
@@ -24,7 +33,7 @@ import {
   setItemPrinter,
   type Printer,
 } from "@/lib/gestion/terminaux";
-import type { Affiche, Formule } from "@/lib/gestion/types";
+import type { Formule } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { isDrinkCategory } from "@/lib/menu/category-icons";
 import { effectiveTarif, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
@@ -34,6 +43,21 @@ import { createClient } from "@/lib/supabase/client";
 
 type View = "menu" | "formules";
 
+const VIEWS: { value: View; label: string }[] = [
+  { value: "menu", label: "Carte" },
+  { value: "formules", label: "Formules" },
+];
+
+/** Ouvert à l'arrivée seulement : effacer la note ne replie pas le champ sous la main. */
+function SettingsFold({ initiallyOpen, children }: { initiallyOpen: boolean; children: ReactNode }) {
+  const [open] = useState(initiallyOpen);
+  return (
+    <details open={open} className="group">
+      {children}
+    </details>
+  );
+}
+
 export default function MenuPage() {
   const state = useGestion();
   const { can, role, hasFeature } = useGestionAccess();
@@ -41,17 +65,24 @@ export default function MenuPage() {
   const toast = useToast();
   const [view, setView] = useState<View>("menu");
   const [activeCatId, setActiveCatId] = useState<string | null>(null);
+  // Les fiches montent en fondu à l'arrivée seulement : pas à chaque
+  // catégorie touchée, ni à chaque flèche (l'animation repartirait).
+  const [settled, setSettled] = useState(false);
+  const pick = (id: string) => {
+    setSettled(true);
+    setActiveCatId(id);
+  };
+  const switchView = (next: View) => {
+    setSettled(true);
+    setView(next);
+  };
   const [creatingItem, setCreatingItem] = useState(false);
   const [editingItem, setEditingItem] = useState<MenuItem | null>(null);
   const [deletingItem, setDeletingItem] = useState<MenuItem | null>(null);
   const [managingCats, setManagingCats] = useState(false);
   const [creatingFormule, setCreatingFormule] = useState(false);
-  const [formuleSlot, setFormuleSlot] = useState<Formule["affiche"]>();
   const [editingFormule, setEditingFormule] = useState<Formule | null>(null);
   const [deletingFormule, setDeletingFormule] = useState<Formule | null>(null);
-  const [creatingAffiche, setCreatingAffiche] = useState(false);
-  const [editingAffiche, setEditingAffiche] = useState<Affiche | null>(null);
-  const [deletingAffiche, setDeletingAffiche] = useState<Affiche | null>(null);
   const [printers, setPrinters] = useState<Printer[]>([]);
   const [routing, setRouting] = useState<Map<string, string>>(new Map());
   // Les prix que les tarifs planifiés donnent à cet instant, relus en base :
@@ -95,10 +126,7 @@ export default function MenuPage() {
     };
   }, [etablissementId, priceRules]);
 
-  const handlePrinterChange = async (
-    itemId: string,
-    printerId: string | null
-  ) => {
+  const handlePrinterChange = async (itemId: string, printerId: string | null) => {
     setRouting((prev) => {
       const next = new Map(prev);
       if (printerId) next.set(itemId, printerId);
@@ -107,8 +135,8 @@ export default function MenuPage() {
     });
     try {
       await setItemPrinter(itemId, printerId);
-    } catch {
-      toast.error("Erreur lors de l'enregistrement.");
+    } catch (error) {
+      toast.error(describeError(error).message);
       await refreshRouting();
     }
   };
@@ -117,10 +145,8 @@ export default function MenuPage() {
 
   const canEditMenu = can("menu.edit");
   const canEditFormules = can("formules.edit");
-  const unplacedFormules = state.formules.filter((formule) => !formule.affiche);
   const categories = state.categories;
-  const category =
-    categories.find((c) => c.id === activeCatId) ?? categories[0];
+  const category = categories.find((c) => c.id === activeCatId) ?? categories[0];
   const importCandidates = categories
     .flatMap((c) => c.items)
     .filter((item) => item.options?.length);
@@ -144,9 +170,16 @@ export default function MenuPage() {
     serviceClock(now, state.dayEndHour),
     state.dayEndHour
   );
+  const itemCount = categories.reduce((sum, c) => sum + c.items.length, 0);
+  const sansAllergenes = categories
+    .filter((c) => !isDrinkCategory(c))
+    .flatMap((c) => c.items)
+    .filter((item) => item.allergens === undefined).length;
+  const categoryRules = category ? rulesOn("category", category.id) : [];
 
   const moveItem = (index: number, delta: -1 | 1) => {
     if (!category) return;
+    setSettled(true);
     const ids = moved(
       category.items.map((item) => item.id),
       index,
@@ -155,150 +188,189 @@ export default function MenuPage() {
     void run(() => api.reorderItems(category.id, ids));
   };
 
-  const viewTab = (id: View, label: string) => (
-    <button
-      type="button"
-      onClick={() => setView(id)}
-      className={`rounded-full px-4 py-2 text-sm font-semibold transition-colors ${
-        view === id
-          ? "ember-gradient text-background"
-          : "text-muted hover:text-foreground"
-      }`}
-    >
-      {label}
-    </button>
-  );
+  const addItemButton = (visite?: boolean) =>
+    canEditMenu &&
+    category && (
+      <GlassButton
+        variant="primary"
+        data-visite={visite ? "menu-ajouter" : undefined}
+        onClick={() => setCreatingItem(true)}
+      >
+        + Ajouter un article
+      </GlassButton>
+    );
 
   return (
-    <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-3">
-          <div
-            data-visite="menu-vues"
-            className="flex rounded-full border border-hairline p-1"
-          >
-            {viewTab("menu", "Menu")}
-            {viewTab("formules", "Formules")}
-          </div>
-        </div>
-
-        {view === "menu" && canEditMenu && (
-          <div className="flex gap-2">
-            <button
-              type="button"
-              data-visite="menu-categories"
-              onClick={() => setManagingCats(true)}
-              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-            >
-              Catégories
-            </button>
-            {category && (
-              <button
-                type="button"
-                data-visite="menu-ajouter"
-                onClick={() => setCreatingItem(true)}
-                className="ember-gradient rounded-full px-4 py-2.5 text-sm font-semibold text-background"
-              >
-                + Ajouter un article
-              </button>
-            )}
-          </div>
+    <div className="flex flex-col gap-g-gap">
+      <section className="g-rise flex flex-col gap-3" style={{ "--g-i": 0 } as CSSProperties}>
+        <SectionHeading
+          level={1}
+          title={view === "menu" ? "Carte" : "Formules"}
+          sub={
+            view === "menu"
+              ? itemCount === 0
+                ? "Ce que vos clients lisent en scannant le QR code."
+                : `${itemCount} article${itemCount > 1 ? "s" : ""} dans ${categories.length} catégorie${categories.length > 1 ? "s" : ""} · un changement apparaît sur le menu dans la minute.`
+              : "Entrée + plat, menu du midi… en tête du menu client."
+          }
+          right={
+            <div className="flex flex-wrap items-center gap-2">
+              <div data-visite="menu-vues" className="rounded-full">
+                <Segmented<View> glass={false} label="Vue" options={VIEWS} value={view} onChange={switchView} />
+              </div>
+              {view === "menu" && addItemButton(true)}
+              {view === "formules" && canEditFormules && state.formules.length > 0 && (
+                <GlassButton variant="primary" onClick={() => setCreatingFormule(true)}>
+                  + Nouvelle formule
+                </GlassButton>
+              )}
+            </div>
+          }
+        />
+        {/* Relié à une caisse : la carte y est rapprochée par les noms (lib/hubrise/catalog.ts). */}
+        {state.etablissement.hubriseConnected && (
+          <p className="flex flex-wrap items-center gap-2 text-g-meta text-muted">
+            <Chip icon={<PaymentsIcon />}>Caisse reliée · HubRise</Chip>
+            Articles et formules sont rapprochés de la caisse par leur nom : un nouveau plat renommé ici doit porter le même nom en caisse.
+          </p>
         )}
-
-        {view === "formules" && canEditFormules && (
-          <div className="flex shrink-0 flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => setCreatingAffiche(true)}
-              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-            >
-              + Nouvelle affiche
-            </button>
-            <button
-              type="button"
-              onClick={() => setCreatingFormule(true)}
-              className="ember-gradient rounded-full px-4 py-2.5 text-sm font-semibold text-background"
-            >
-              + Nouvelle formule
-            </button>
-          </div>
+        {view === "menu" && sansAllergenes > 0 && (
+          <p className="text-g-meta text-muted">
+            {sansAllergenes} article{sansAllergenes > 1 ? "s" : ""} sans allergènes renseignés : le menu renvoie le client à l&rsquo;équipe.
+          </p>
         )}
-      </div>
+      </section>
 
       {view === "menu" && (
         <>
           {!category ? (
-            <EmptyState
-              title="Aucune catégorie"
-              body="Créez une première catégorie pour organiser votre menu."
-              action={
-                canEditMenu && (
-                  <button
-                    type="button"
-                    data-visite="menu-premiere-categorie"
-                    onClick={() => setManagingCats(true)}
-                    className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-                  >
-                    Créer une catégorie
-                  </button>
-                )
-              }
-            />
+            <section className="g-rise" style={{ "--g-i": 1 } as CSSProperties}>
+              <EmptyState
+                text="Aucune catégorie : créez-en une (entrées, pizzas, boissons…), le bouton « + Ajouter un article » apparaît alors."
+                action={
+                  canEditMenu && (
+                    <GlassButton
+                      variant="primary"
+                      data-visite="menu-premiere-categorie"
+                      onClick={() => setManagingCats(true)}
+                    >
+                      Créer une catégorie
+                    </GlassButton>
+                  )
+                }
+              />
+            </section>
           ) : (
             <>
-              <PillTabs
-                tabs={categories.map((c) => ({
-                  id: c.id,
-                  label: c.name,
-                  count: c.items.length,
-                }))}
-                activeId={category.id}
-                onSelect={setActiveCatId}
-              />
-
-              {canEditMenu ? (
-                <input
-                  key={category.id}
-                  defaultValue={category.tagline ?? ""}
-                  placeholder="Note de catégorie affichée sur le menu client…"
-                  aria-label="Note de catégorie"
-                  onBlur={(event) => {
-                    const value = event.target.value;
-                    if (value.trim() === (category.tagline ?? "")) return;
-                    void run(
-                      () => api.updateCategoryTagline(category.id, value),
-                      "Note enregistrée."
+              <section
+                className="g-rise flex items-center gap-2 sm:items-start"
+                style={{ "--g-i": 1 } as CSSProperties}
+              >
+                {/* Au téléphone, une liste ; dès sm, les catégories en pilules. */}
+                <div className="min-w-0 flex-1 sm:hidden">
+                  <Select
+                    value={category.id}
+                    aria-label="Catégorie"
+                    onChange={(event) => pick(event.target.value)}
+                  >
+                    {categories.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name} ({c.items.length})
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+                <div
+                  role="tablist"
+                  aria-label="Catégories"
+                  className="flex min-w-0 flex-1 flex-wrap gap-2 py-1 max-sm:hidden"
+                >
+                  {categories.map((c) => {
+                    const active = c.id === category.id;
+                    return (
+                      <GlassButton
+                        key={c.id}
+                        role="tab"
+                        aria-selected={active}
+                        variant={active ? "primary" : "secondary"}
+                        onClick={() => pick(c.id)}
+                      >
+                        {c.name}
+                        <span className={`text-g-meta tabular-nums ${active ? "" : "text-muted"}`}>
+                          {c.items.length}
+                        </span>
+                      </GlassButton>
                     );
-                  }}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter") event.currentTarget.blur();
-                  }}
-                  className="border-b border-hairline bg-transparent py-2 font-display text-base italic text-muted outline-none transition-colors placeholder:text-faint focus:border-ember-2/50 lg:pointer-fine:text-sm"
-                />
-              ) : (
-                category.tagline && (
-                  <p className="font-display text-sm italic text-muted">
-                    {category.tagline}
-                  </p>
-                )
-              )}
+                  })}
+                </div>
+                {canEditMenu && (
+                  <GlassButton data-visite="menu-categories" onClick={() => setManagingCats(true)}>
+                    Catégories
+                  </GlassButton>
+                )}
+              </section>
 
-              {/* Un tarif posé ici vaut pour toute la catégorie, articles
-                  ajoutés plus tard compris. */}
-              <TarifsInline
-                target={{ kind: "category", id: category.id }}
-                owned={rulesOn("category", category.id)}
-                categories={categories}
-                canEdit={canTarif}
-              />
+              <section
+                className="g-rise"
+                style={{ "--g-i": 2 } as CSSProperties}
+              >
+                {canEditMenu ? (
+                  <SettingsFold key={category.id} initiallyOpen={Boolean(category.tagline) || categoryRules.length > 0}>
+                    <summary className="flex min-h-g-control cursor-pointer list-none flex-wrap items-center gap-x-2 gap-y-0.5 [&::-webkit-details-marker]:hidden">
+                      <ChevronDownIcon className="size-4 shrink-0 -rotate-90 text-muted transition-transform group-open:rotate-0 motion-reduce:transition-none" />
+                      <span className="text-g-body font-semibold">Réglages de « {category.name} »</span>
+                      <span className="text-g-meta text-muted">
+                        {[
+                          category.tagline && "une note",
+                          categoryRules.length > 0 &&
+                            `${categoryRules.length} tarif${categoryRules.length > 1 ? "s" : ""} planifié${categoryRules.length > 1 ? "s" : ""}`,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ") || "note, tarifs planifiés"}
+                      </span>
+                    </summary>
+                    <div className="flex flex-col gap-3 pt-3">
+                      <Field label="Note de catégorie" hint="Affichée sous son nom sur le menu client." className="max-w-xl">
+                        <Input
+                          defaultValue={category.tagline ?? ""}
+                          placeholder="Servies avec leur pain maison"
+                          onBlur={(event) => {
+                            const value = event.target.value;
+                            if (value.trim() === (category.tagline ?? "")) return;
+                            void run(
+                              () => api.updateCategoryTagline(category.id, value),
+                              "Note enregistrée."
+                            );
+                          }}
+                          onKeyDown={(event) => {
+                            if (event.key === "Enter") event.currentTarget.blur();
+                          }}
+                        />
+                      </Field>
+                      {/* Un tarif posé ici vaut pour toute la catégorie, articles
+                          ajoutés plus tard compris. */}
+                      <TarifsInline
+                        target={{ kind: "category", id: category.id }}
+                        owned={categoryRules}
+                        categories={categories}
+                        canEdit={canTarif}
+                      />
+                    </div>
+                  </SettingsFold>
+                ) : (
+                  category.tagline && <p className="text-g-meta text-muted">{category.tagline}</p>
+                )}
+              </section>
 
               {category.items.length === 0 ? (
-                <EmptyState
-                  title="Catégorie vide"
-                  body="Ajoutez un premier article à cette catégorie."
-                />
+                <section className="g-rise" style={{ "--g-i": 3 } as CSSProperties}>
+                  <EmptyState
+                    text={`« ${category.name} » est vide : ajoutez un premier article.`}
+                    action={addItemButton()}
+                  />
+                </section>
               ) : (
-                <div className="grid gap-4 lg:grid-cols-2">
+                <div className={`grid gap-g-gap lg:grid-cols-2 xl:grid-cols-3 ${settled ? "" : "g-rise"}`} style={{ "--g-i": 3 } as CSSProperties}>
                   {category.items.map((item, index) => (
                     <MenuItemCard
                       key={item.id}
@@ -324,9 +396,7 @@ export default function MenuPage() {
                       onMove={canEditMenu ? (delta) => moveItem(index, delta) : undefined}
                       onEdit={() => setEditingItem(item)}
                       onDelete={() => setDeletingItem(item)}
-                      onPrinterChange={(pid) =>
-                        void handlePrinterChange(item.id, pid)
-                      }
+                      onPrinterChange={(pid) => void handlePrinterChange(item.id, pid)}
                     />
                   ))}
                 </div>
@@ -338,73 +408,40 @@ export default function MenuPage() {
 
       {view === "formules" && (
         <>
-          <p className="text-sm text-muted">
-            Les formules s&rsquo;affichent au-dessus des catégories sur le menu
-            client — inutile de créer une catégorie pour elles. Une affiche
-            présente vos offres en visuel : elle défile en haut du menu, avec
-            un bouton par formule placée dessus.
-          </p>
-
-          {state.affiches.map((affiche) => (
-            <AfficheCard
-              key={affiche.id}
-              affiche={affiche}
-              formules={state.formules}
-              canEdit={canEditFormules}
-              onEdit={() => setEditingAffiche(affiche)}
-              onDelete={() => setDeletingAffiche(affiche)}
-              onCreateFormule={setFormuleSlot}
-              onEditFormule={setEditingFormule}
-              onDeleteFormule={setDeletingFormule}
-            />
-          ))}
-
-          {state.affiches.length > 0 && unplacedFormules.length > 0 && (
-            <h3 className="mt-2 font-display text-lg font-medium">
-              Formules sans affiche{" "}
-              <span className="text-sm font-normal text-muted">
-                · en tuiles sur le menu
-              </span>
-            </h3>
-          )}
-
-          {state.formules.length === 0 && state.affiches.length === 0 ? (
-            <EmptyState
-              title="Aucune formule"
-              body="Créez une formule pour proposer un menu à étapes (entrée + plat + dessert…), ou commencez par l'affiche qui présente vos offres."
-              action={
-                canEditFormules && (
-                  <div className="flex flex-wrap justify-center gap-2">
-                    <button
-                      type="button"
-                      onClick={() => setCreatingAffiche(true)}
-                      className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-                    >
-                      Créer une affiche
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setCreatingFormule(true)}
-                      className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-                    >
+          {state.formules.length === 0 ? (
+            <section className="g-rise" style={{ "--g-i": 1 } as CSSProperties}>
+              <EmptyState
+                text="Aucune formule : proposez un menu à étapes (entrée + plat + dessert…) à un prix unique."
+                action={
+                  canEditFormules && (
+                    <GlassButton variant="primary" onClick={() => setCreatingFormule(true)}>
                       Créer une formule
-                    </button>
-                  </div>
-                )
-              }
-            />
+                    </GlassButton>
+                  )
+                }
+              />
+            </section>
           ) : (
-            <div className="grid gap-4 lg:grid-cols-2">
-              {unplacedFormules.map((formule) => (
+            <div className="g-rise grid gap-g-gap lg:grid-cols-2 xl:grid-cols-3" style={{ "--g-i": 1 } as CSSProperties}>
+              {state.formules.map((formule) => (
                 <FormuleCard
                   key={formule.id}
                   formule={formule}
+                  placed={Boolean(formule.affiche)}
                   onEdit={() => setEditingFormule(formule)}
                   onDelete={() => setDeletingFormule(formule)}
                 />
               ))}
             </div>
           )}
+
+          <section className="g-rise" style={{ "--g-i": 2 } as CSSProperties}>
+            <Presentation
+              affiches={state.affiches}
+              formules={state.formules}
+              canEdit={canEditFormules}
+            />
+          </section>
         </>
       )}
 
@@ -413,9 +450,7 @@ export default function MenuPage() {
           item={editingItem ?? undefined}
           initialCategoryId={editingCategoryId ?? category.id}
           categories={categories}
-          importCandidates={importCandidates.filter(
-            (item) => item.id !== editingItem?.id
-          )}
+          importCandidates={importCandidates.filter((item) => item.id !== editingItem?.id)}
           onClose={() => {
             setCreatingItem(false);
             setEditingItem(null);
@@ -424,10 +459,10 @@ export default function MenuPage() {
       )}
 
       {deletingItem && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Supprimer « ${deletingItem.name} » ?`}
-          message="L'article sera retiré définitivement du menu."
-          confirmLabel="Supprimer"
+          text="L'article disparaît définitivement du menu. Pour une rupture passagère, éteignez plutôt « En vente »."
+          confirmLabel="Supprimer l'article"
           destructive
           onClose={() => setDeletingItem(null)}
           onConfirm={() =>
@@ -443,50 +478,22 @@ export default function MenuPage() {
         <CategoryManager categories={categories} onClose={() => setManagingCats(false)} />
       )}
 
-      {(creatingFormule || editingFormule || formuleSlot) && (
-        <FormuleFormModal
+      {(creatingFormule || editingFormule) && (
+        <FormuleBuilder
           formule={editingFormule ?? undefined}
-          slot={formuleSlot}
           categories={categories}
           onClose={() => {
             setCreatingFormule(false);
             setEditingFormule(null);
-            setFormuleSlot(undefined);
           }}
-        />
-      )}
-
-      {(creatingAffiche || editingAffiche) && (
-        <AfficheFormModal
-          affiche={editingAffiche ?? undefined}
-          onClose={() => {
-            setCreatingAffiche(false);
-            setEditingAffiche(null);
-          }}
-        />
-      )}
-
-      {deletingAffiche && (
-        <ConfirmDialog
-          title="Supprimer cette affiche ?"
-          message="Ses formules restent en vente, en tuiles sur le menu."
-          confirmLabel="Supprimer"
-          destructive
-          onClose={() => setDeletingAffiche(null)}
-          onConfirm={() =>
-            void run(async () => {
-              await api.deleteAffiche(deletingAffiche.id);
-              setDeletingAffiche(null);
-            }, "Affiche supprimée.")
-          }
         />
       )}
 
       {deletingFormule && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Supprimer « ${deletingFormule.name} » ?`}
-          message="La formule sera retirée définitivement du menu."
-          confirmLabel="Supprimer"
+          text="La formule disparaît définitivement du menu. Pour une pause, éteignez plutôt « En vente »."
+          confirmLabel="Supprimer la formule"
           destructive
           onClose={() => setDeletingFormule(null)}
           onConfirm={() =>

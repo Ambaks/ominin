@@ -36,6 +36,8 @@ export const CART_LINES_SHOWN = 3;
 export const REWARD_ITEMS_SHOWN = 3;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
+/** Petite base : sous ce nombre d'éléments, l'écart s'écrit en brut (« était 1 »), jamais en pourcentage. */
+export const SMALL_BASE = 5;
 /** Bascule de la journée de service. Miroir du défaut SQL de
  * etablissement_settings.day_end_hour. */
 export const DEFAULT_DAY_END_HOUR = 0;
@@ -117,11 +119,26 @@ export const COUNTER_WAIT_WARN_MINUTES = 8;
 export const COUNTER_WAIT_LATE_MINUTES = 15;
 /** Salle : minutes d'attente au-delà desquelles une table à servir se signale. */
 export const SERVICE_LATE_MINUTES = 20;
+/** « Le midi en semaine » sans horaires d'ouverture : la plage de repli (même forme qu'une plage d'OpeningHours). */
+export const LUNCH_FALLBACK: [string, string] = ["11:30", "14:30"];
+/** L'heure qu'une plage d'ouverture doit couvrir pour compter comme le midi. */
+export const LUNCH_PIVOT = "12:30";
 
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
+/** Thème de l'espace : préférence par appareil (DESIGN.md § 15). */
+export const GESTION_THEME_STORAGE_KEY = "ominin-gestion-theme";
+/** Le premier est le défaut : il ne pose aucun attribut `data-g-theme`. */
+export const GESTION_THEMES = [
+  { value: "glass", label: "Ember glass" },
+  { value: "neon", label: "Néon braise" },
+  { value: "teal", label: "Ember teal" },
+] as const;
+export type GestionTheme = (typeof GESTION_THEMES)[number]["value"];
 /** Invite aux notifications push écartée sur cet appareil (page Commandes). */
 export const PUSH_PROMPT_DISMISSED_KEY = "ominin-push-prompt-dismissed";
+/** Une commande a été saisie sur cet appareil : le bouton « Nouvelle commande » se replie en rond. */
+export const STAFF_ORDER_ENTERED_KEY = "ominin-staff-order-entered";
 
 /**
  * Délais proposés à l'acceptation d'une commande collect « dès que

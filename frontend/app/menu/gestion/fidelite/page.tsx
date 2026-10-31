@@ -1,16 +1,27 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type CSSProperties } from "react";
 import { AdjustPointsModal } from "@/components/gestion/fidelite/adjust-points-modal";
 import { LoyaltyResults } from "@/components/gestion/fidelite/loyalty-results";
 import { TierFormModal } from "@/components/gestion/fidelite/tier-form-modal";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
-import { EditIcon, TrashIcon } from "@/components/gestion/icons";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { EmptyState } from "@/components/ui/empty-state";
-import { inputClass } from "@/components/ui/field";
+import { ChevronDownIcon } from "@/components/gestion/icons";
+import {
+  Chip,
+  ConfirmSheet,
+  EmptyState,
+  ErrorNotice,
+  Field,
+  GlassButton,
+  Input,
+  Plate,
+  ReserveGerant,
+  SectionHeading,
+  Shimmer,
+  Switch,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { Toggle } from "@/components/ui/toggle";
+import { describeError } from "@/lib/gestion/errors";
 import {
   adjustPoints,
   createTier,
@@ -33,22 +44,22 @@ import type { MenuCategory } from "@/lib/menu-data";
 
 /*
  * Le gérant règle ici son programme de fidélité : l'allumer, le taux de
- * points par euro, les paliers qu'offre le menu QR — et il suit ses clients,
- * solde par solde, avec la main pour un geste commercial. En tête, ce que le
- * programme rapporte (LoyaltyResults) ; illisibles, ces chiffres s'effacent
- * sans gêner les réglages.
+ * points par euro, les récompenses qu'offre le menu QR — et il suit ses
+ * clients, solde par solde, avec la main pour un geste commercial. Ce que le
+ * programme rapporte (LoyaltyResults) ouvre la page dès la première carte ;
+ * avant, le premier geste — allumer, puis une récompense — vient en tête.
  */
 
-const cardClass = "rounded-2xl border border-hairline bg-surface px-4 py-3";
-const iconButtonClass =
-  "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground";
-const deleteButtonClass =
-  "rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-3/50 hover:text-ember-3";
-const addButtonClass =
-  "ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background";
+const count = (n: number) => n.toLocaleString("fr-FR");
+const plural = (n: number, one: string, many: string) => `${count(n)} ${n > 1 ? many : one}`;
+const rise = (i: number) => ({ "--g-i": i }) as CSSProperties;
+/** L'exemple du taux : ce que rapporte un ticket de ce montant. */
+const EXAMPLE_EUROS = 10;
+const ROW_CLASS =
+  "flex min-h-(--g-row-h) w-full items-center gap-4 px-5 py-3 text-left transition-colors active:bg-surface-raised focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ember-1 hover:bg-surface-raised/60";
 
 type TierEditing = { tier: LoyaltyTier | null } | null;
-type Adjusting = { contact: string | null } | null;
+type Adjusting = { customer: LoyaltyCustomer | null } | null;
 
 function LoyaltyManager({
   etablissementId,
@@ -62,39 +73,58 @@ function LoyaltyManager({
   const toast = useToast();
   const [data, setData] = useState<LoyaltyData | null>(null);
   const [stats, setStats] = useState<LoyaltyStats | null>(null);
+  const [statsError, setStatsError] = useState<unknown>(null);
+  const [loadError, setLoadError] = useState<unknown>(null);
   const [rate, setRate] = useState("");
+  const [rateError, setRateError] = useState<string | null>(null);
+  const [switching, setSwitching] = useState(false);
   const [editing, setEditing] = useState<TierEditing>(null);
   const [tierToDelete, setTierToDelete] = useState<LoyaltyTier | null>(null);
   const [adjusting, setAdjusting] = useState<Adjusting>(null);
   const [customerToErase, setCustomerToErase] = useState<LoyaltyCustomer | null>(null);
   const [search, setSearch] = useState("");
 
-  const report = useCallback(
-    (error: unknown) =>
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue."),
-    [toast]
-  );
+  const report = useCallback((error: unknown) => toast.error(describeError(error).message), [toast]);
 
   const refresh = useCallback(async () => {
-    const [next, results] = await Promise.all([
-      loadLoyalty(etablissementId),
-      loadLoyaltyStats(etablissementId).catch(() => null),
-    ]);
-    setData(next);
-    setStats(results);
-    setRate(String(next.settings.pointsPerEuro));
+    try {
+      const [next, results] = await Promise.all([
+        loadLoyalty(etablissementId),
+        loadLoyaltyStats(etablissementId).then(
+          (loaded) => ({ loaded, error: null as unknown }),
+          (error: unknown) => ({ loaded: null, error })
+        ),
+      ]);
+      setData(next);
+      setStats(results.loaded);
+      setStatsError(results.error);
+      setRate(String(next.settings.pointsPerEuro));
+      setLoadError(null);
+    } catch (error) {
+      setLoadError(error);
+    }
   }, [etablissementId]);
 
   useEffect(() => {
-    const load = () => refresh().catch(report);
-    load();
-  }, [refresh, report]);
+    const load = () => refresh();
+    void load();
+  }, [refresh]);
 
   if (!data) {
-    return (
-      <div aria-busy className="flex flex-col gap-3">
-        <div className="shimmer h-16 rounded-2xl" />
-        <div className="shimmer h-16 rounded-2xl" />
+    return loadError ? (
+      <ErrorNotice error={loadError} onRetry={() => void refresh()} />
+    ) : (
+      <div aria-busy className="grid gap-6 lg:grid-cols-[5fr_7fr]">
+        <div className="grid gap-6">
+          <Shimmer className="h-(--g-control) max-w-48" />
+          <Shimmer className="h-[calc(var(--g-row-h)*4)]" />
+          <Shimmer className="h-(--g-control) max-w-48" />
+          <Shimmer className="h-[calc(var(--g-row-h)*3)]" />
+        </div>
+        <div className="grid gap-6">
+          <Shimmer className="h-(--g-control) max-w-48" />
+          <Shimmer className="h-[calc(var(--g-row-h)*4)]" />
+        </div>
       </div>
     );
   }
@@ -104,6 +134,7 @@ function LoyaltyManager({
   );
 
   const setEnabled = async (enabled: boolean) => {
+    setSwitching(true);
     try {
       await saveLoyaltySettings(etablissementId, { ...data.settings, enabled });
       await refresh();
@@ -114,20 +145,31 @@ function LoyaltyManager({
       );
     } catch (error) {
       report(error);
+    } finally {
+      setSwitching(false);
     }
   };
 
+  const rateValue = Number(rate.replace(",", "."));
+  const rateValid = rate.trim() !== "" && Number.isFinite(rateValue) && rateValue > 0;
+  const rateChanged = rateValid && rateValue !== data.settings.pointsPerEuro;
+  const examplePoints = Math.floor(EXAMPLE_EUROS * rateValue);
+  const rateHint = !rateValid
+    ? undefined
+    : examplePoints > 0
+      ? `${EXAMPLE_EUROS} € dépensés rapportent ${plural(examplePoints, "point", "points")}.`
+      : `Le premier point tombe à partir de ${count(Math.ceil(1 / rateValue))} € dépensés.`;
+
   const saveRate = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (!rateChanged) return;
     try {
-      await saveLoyaltySettings(etablissementId, {
-        ...data.settings,
-        pointsPerEuro: Number(rate.replace(",", ".")),
-      });
+      await saveLoyaltySettings(etablissementId, { ...data.settings, pointsPerEuro: rateValue });
       await refresh();
-      toast.success("Taux enregistré.");
+      setRateError(null);
+      toast.success(`Taux enregistré : ${plural(rateValue, "point", "points")} par euro.`);
     } catch (error) {
-      report(error);
+      setRateError(describeError(error).message);
     }
   };
 
@@ -135,7 +177,7 @@ function LoyaltyManager({
     try {
       if (editing?.tier) await updateTier(editing.tier.id, input);
       else await createTier(etablissementId, input);
-      toast.success(`Palier « ${input.label} » enregistré.`);
+      toast.success(`Récompense « ${input.label} » enregistrée.`);
       setEditing(null);
       await refresh();
     } catch (error) {
@@ -145,9 +187,10 @@ function LoyaltyManager({
 
   const removeTier = async (tier: LoyaltyTier) => {
     setTierToDelete(null);
+    setEditing(null);
     try {
       await deleteTier(tier.id);
-      toast.success(`Palier « ${tier.label} » retiré.`);
+      toast.success(`Récompense « ${tier.label} » retirée.`);
       await refresh();
     } catch (error) {
       report(error);
@@ -157,9 +200,7 @@ function LoyaltyManager({
   const adjust = async (contact: string, points: number) => {
     try {
       await adjustPoints(etablissementId, contact, points);
-      toast.success(
-        `${points > 0 ? "+" : ""}${points} points pour ${contact}.`
-      );
+      toast.success(`${points > 0 ? "+" : ""}${count(points)} points pour ${contact}.`);
       setAdjusting(null);
       await refresh();
     } catch (error) {
@@ -169,6 +210,7 @@ function LoyaltyManager({
 
   const erase = async (customer: LoyaltyCustomer) => {
     setCustomerToErase(null);
+    setAdjusting(null);
     try {
       await eraseCustomer(etablissementId, customer.id);
       syncTill(hubriseConnected);
@@ -181,202 +223,234 @@ function LoyaltyManager({
 
   const query = search.trim().toLowerCase().replace(/\s/g, "");
   const customers = query
-    ? data.customers.filter((customer) => customer.contact.includes(query))
+    ? data.customers.filter((customer) => customer.contact.toLowerCase().includes(query))
     : data.customers;
+  const hasResults = stats !== null && stats.weeks.length > 0;
+  const enabled = data.settings.enabled;
+  let block = 0;
 
   return (
-    <div className="flex max-w-xl flex-col gap-8">
-      {stats && (
-        <section className="flex flex-col gap-3">
-          <h2 className="font-display text-lg font-medium">Résultats</h2>
-          <LoyaltyResults stats={stats} />
+    <div className="grid gap-6">
+      {loadError != null && <ErrorNotice error={loadError} onRetry={() => void refresh()} />}
+
+      {(hasResults || statsError != null) && (
+        <section className="g-rise grid gap-4" style={rise(block++)} aria-labelledby="fidelite-resultats">
+          <SectionHeading
+            id="fidelite-resultats"
+            title="Résultats"
+            sub={hasResults ? `${plural(stats.weeks.length, "semaine", "semaines")} de programme` : undefined}
+          />
+          {hasResults ? (
+            <LoyaltyResults stats={stats} />
+          ) : (
+            <ErrorNotice error={statsError} onRetry={() => void refresh()} />
+          )}
         </section>
       )}
 
-      <section data-visite="fidelite-programme" className="flex flex-col gap-3">
-        <h2 className="font-display text-lg font-medium">Programme</h2>
-        <div className={`${cardClass} flex items-center justify-between gap-3`}>
-          <div>
-            <p className="text-sm font-medium">Fidélité sur le menu QR</p>
-            <p className="text-xs text-faint">
-              Le client laisse son numéro ou son email en commandant, et voit
-              ses points et ses récompenses.
-            </p>
-          </div>
-          <Toggle
-            checked={data.settings.enabled}
-            onChange={(enabled) => void setEnabled(enabled)}
-            label="Programme de fidélité"
-          />
-        </div>
-        <form onSubmit={saveRate} className={`${cardClass} flex items-end gap-3`}>
-          <label className="flex flex-1 flex-col gap-1.5">
-            <span className="text-sm font-medium">Points par euro dépensé</span>
-            <span className="text-xs text-faint">
-              Hors pourboire et articles offerts, arrondi à l&rsquo;entier
-              inférieur par commande.
-            </span>
-            <input
-              type="number"
-              min={0.01}
-              step={0.01}
-              inputMode="decimal"
-              value={rate}
-              onChange={(event) => setRate(event.target.value)}
-              required
-              className={inputClass}
+      <div className="grid gap-6 lg:grid-cols-[5fr_7fr] lg:items-start">
+        <div className="grid gap-6">
+          <section
+            data-visite="fidelite-programme"
+            className="g-rise grid gap-4"
+            style={rise(block++)}
+            aria-labelledby="fidelite-programme-titre"
+          >
+            <SectionHeading
+              id="fidelite-programme-titre"
+              title="Programme"
+              sub={enabled ? "allumé sur le menu QR" : "éteint"}
             />
-          </label>
-          <button
-            type="submit"
-            disabled={Number(rate) === data.settings.pointsPerEuro}
-            className={`${addButtonClass} disabled:opacity-50`}
-          >
-            Enregistrer
-          </button>
-        </form>
-      </section>
-
-      <section data-visite="fidelite-paliers" className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-lg font-medium">Paliers</h2>
-          <button
-            type="button"
-            onClick={() => setEditing({ tier: null })}
-            className={addButtonClass}
-          >
-            Ajouter un palier
-          </button>
-        </div>
-        {data.tiers.length ? (
-          data.tiers.map((tier) => (
-            <div key={tier.id} className={`${cardClass} flex items-start justify-between gap-3`}>
-              <div className="min-w-0">
-                <p className="text-sm font-medium">
-                  <span className="ember-text font-semibold">{tier.points}&nbsp;pts</span>{" "}
-                  · {tier.label}
-                </p>
-                <p className="text-xs text-faint">
-                  {tier.itemIds.map((id) => itemNames.get(id)).filter(Boolean).join(", ") ||
-                    "Aucun article : le palier n'apparaît pas sur le menu."}
-                </p>
+            <Plate className="flex items-center gap-3 px-5 py-3">
+              <div className="min-w-0 flex-1">
+                <Switch
+                  checked={enabled}
+                  disabled={switching}
+                  onChange={(next) => void setEnabled(next)}
+                  label="Fidélité sur le menu QR"
+                  hint="Le client laisse son numéro ou son email en commandant."
+                />
               </div>
-              <div className="flex shrink-0 items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setEditing({ tier })}
-                  aria-label="Modifier"
-                  className={iconButtonClass}
+              {switching && <Chip>Mise à jour…</Chip>}
+            </Plate>
+            <Plate>
+              <form onSubmit={saveRate} className="grid gap-4 px-5 py-4">
+                <Field
+                  label="Points par euro dépensé"
+                  required
+                  hint={rateHint ?? "Hors pourboire et articles offerts, arrondi à l'entier inférieur par commande."}
+                  error={rateError ?? (rateValid ? undefined : "Indiquez un taux au-dessus de zéro, 1 point par euro par exemple.")}
                 >
-                  <EditIcon className="size-3.5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setTierToDelete(tier)}
-                  aria-label="Retirer"
-                  className={deleteButtonClass}
-                >
-                  <TrashIcon className="size-3.5" />
-                </button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <p className="text-sm text-muted">
-            Aucun palier : le client cumule des points sans rien pouvoir
-            s&rsquo;offrir.
-          </p>
-        )}
-      </section>
+                  <Input
+                    numeric
+                    unit="pt"
+                    value={rate}
+                    onChange={(event) => {
+                      setRate(event.target.value);
+                      setRateError(null);
+                    }}
+                    autoComplete="off"
+                    className="max-w-48"
+                  />
+                </Field>
+                <div className="flex flex-wrap items-center justify-end gap-3">
+                  <p className="text-g-meta text-muted">
+                    {rateChanged ? "Non enregistré." : rateValid ? "Rien à enregistrer." : "Corrigez le taux pour enregistrer."}
+                  </p>
+                  <GlassButton variant="primary" type="submit" disabled={!rateChanged}>
+                    Enregistrer
+                  </GlassButton>
+                </div>
+              </form>
+            </Plate>
+          </section>
 
-      <section className="flex flex-col gap-3">
-        <div className="flex items-center justify-between gap-3">
-          <h2 className="font-display text-lg font-medium">
-            Clients{" "}
-            <span className="text-sm text-faint">({data.customers.length})</span>
-          </h2>
-          <button
-            type="button"
-            onClick={() => setAdjusting({ contact: null })}
-            className={addButtonClass}
+          <section
+            data-visite="fidelite-paliers"
+            className="g-rise grid gap-4"
+            style={rise(block++)}
+            aria-labelledby="fidelite-recompenses"
           >
-            Offrir des points
-          </button>
+            <SectionHeading
+              id="fidelite-recompenses"
+              title="Récompenses"
+              sub={data.tiers.length ? `${count(data.tiers.length)} sur le menu` : undefined}
+              right={
+                data.tiers.length > 0 ? (
+                  <GlassButton onClick={() => setEditing({ tier: null })}>Ajouter</GlassButton>
+                ) : undefined
+              }
+            />
+            {data.tiers.length ? (
+              <Plate>
+                <ul className="m-0 list-none p-0" aria-label="Récompenses du menu">
+                  {data.tiers.map((tier) => {
+                    const items = tier.itemIds.map((id) => itemNames.get(id)).filter(Boolean);
+                    return (
+                      <li key={tier.id} className="border-t border-hairline first:border-t-0">
+                        <button
+                          type="button"
+                          onClick={() => setEditing({ tier })}
+                          aria-label={`Modifier la récompense ${tier.label}`}
+                          className={`${ROW_CLASS} items-start`}
+                        >
+                          <span className="w-20 shrink-0 pt-0.5 text-right text-g-label font-semibold tabular-nums">
+                            {count(tier.points)}&nbsp;{tier.points > 1 ? "pts" : "pt"}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block break-words font-medium">{tier.label}</span>
+                            {items.length ? (
+                              <span className="block truncate text-g-meta text-muted">
+                                {plural(items.length, "article", "articles")} · {items.join(", ")}
+                              </span>
+                            ) : (
+                              <span className="mt-1 inline-flex">
+                                <Chip tone="problem">Aucun article : absente du menu</Chip>
+                              </span>
+                            )}
+                          </span>
+                          <ChevronDownIcon className="mt-1 size-(--g-icon-sm) shrink-0 -rotate-90 text-muted" />
+                        </button>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </Plate>
+            ) : (
+              <EmptyState
+                text="Aucune récompense : le client cumule des points sans rien pouvoir s'offrir."
+                action={
+                  <GlassButton variant="primary" onClick={() => setEditing({ tier: null })}>
+                    Ajouter une récompense
+                  </GlassButton>
+                }
+              />
+            )}
+          </section>
         </div>
-        {data.customers.length > 0 && (
-          <input
-            type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Rechercher un numéro ou un email"
-            aria-label="Rechercher un client"
-            className={inputClass}
+
+        <section className="g-rise grid gap-4" style={rise(block++)} aria-labelledby="fidelite-clients">
+          <SectionHeading
+            id="fidelite-clients"
+            title="Clients"
+            sub={data.customers.length ? `${count(data.customers.length)} avec une carte` : undefined}
+            right={<GlassButton onClick={() => setAdjusting({ customer: null })}>Offrir des points</GlassButton>}
           />
-        )}
-        {customers.map((customer) => (
-          <div
-            key={customer.id}
-            className={`${cardClass} flex items-center justify-between gap-3`}
-          >
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium">{customer.contact}</p>
-              <p className="text-xs text-faint">
-                Dernière activité {formatDateTime(customer.lastActivity)}
-                {customer.hubriseCustomerId && ` · HubRise · ${customer.hubriseCustomerId}`}
-              </p>
-            </div>
-            <div className="flex shrink-0 items-center gap-3">
-              <span className="text-sm font-semibold">{customer.points}&nbsp;pts</span>
-              <button
-                type="button"
-                onClick={() => setAdjusting({ contact: customer.contact })}
-                aria-label={`Ajuster les points de ${customer.contact}`}
-                className={iconButtonClass}
-              >
-                <EditIcon className="size-3.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setCustomerToErase(customer)}
-                aria-label={`Effacer ${customer.contact}`}
-                className={deleteButtonClass}
-              >
-                <TrashIcon className="size-3.5" />
-              </button>
-            </div>
-          </div>
-        ))}
-        {data.customers.length === 0 && (
-          <p className="text-sm text-muted">
-            Pas encore de client : ils apparaissent à leur première commande
-            avec leur numéro ou leur email.
-          </p>
-        )}
-      </section>
+          {data.customers.length === 0 ? (
+            <EmptyState text="Pas encore de client : ils apparaissent à leur première commande avec leur numéro ou leur email." />
+          ) : (
+            <Plate>
+              <div className="px-4 pt-4">
+                <Input
+                  type="search"
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="06 12 34 56 78"
+                  aria-label="Rechercher un client par numéro ou email"
+                  enterKeyHint="search"
+                  autoComplete="off"
+                />
+              </div>
+              {customers.length === 0 ? (
+                <p role="status" className="px-5 py-6 text-center text-muted">
+                  Aucun client ne correspond.
+                </p>
+              ) : (
+                <ul className="m-0 mt-2 list-none p-0" aria-label="Clients du programme">
+                  {customers.map((customer) => (
+                    <li key={customer.id} className="border-t border-hairline">
+                      <button
+                        type="button"
+                        onClick={() => setAdjusting({ customer })}
+                        aria-label={`Ajuster les points de ${customer.contact}`}
+                        className={ROW_CLASS}
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="block truncate font-medium">{customer.contact}</span>
+                          <span className="block truncate text-g-meta text-muted tabular-nums">
+                            {formatDateTime(customer.lastActivity)}
+                            {customer.hubriseCustomerId && ` · HubRise · ${customer.hubriseCustomerId}`}
+                          </span>
+                        </span>
+                        <span className="whitespace-nowrap text-right font-semibold tabular-nums">
+                          {count(customer.points)}&nbsp;
+                          <span className="text-g-meta font-medium text-muted">{customer.points > 1 ? "pts" : "pt"}</span>
+                        </span>
+                        <ChevronDownIcon className="size-(--g-icon-sm) shrink-0 -rotate-90 text-muted" />
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Plate>
+          )}
+        </section>
+      </div>
 
       {editing && (
         <TierFormModal
           tier={editing.tier}
           categories={categories}
           onSubmit={saveTier}
+          onDelete={editing.tier ? () => setTierToDelete(editing.tier) : undefined}
           onClose={() => setEditing(null)}
         />
       )}
       {tierToDelete && (
-        <ConfirmDialog
-          title="Retirer ce palier ?"
-          message={`« ${tierToDelete.label} » disparaît du menu. Les points de vos clients ne bougent pas.`}
-          confirmLabel="Retirer"
+        <ConfirmSheet
+          title={`Retirer « ${tierToDelete.label} » ?`}
+          text="La récompense disparaît du menu. Les points de vos clients ne bougent pas."
+          confirmLabel="Retirer la récompense"
           destructive
           onConfirm={() => void removeTier(tierToDelete)}
           onClose={() => setTierToDelete(null)}
         />
       )}
       {customerToErase && (
-        <ConfirmDialog
-          title="Effacer ce client ?"
-          message={`${customerToErase.contact} perd sa carte et ses ${customerToErase.points} points ; ses commandes passées perdent nom, téléphone et note, leurs montants restent pour votre comptabilité.${hubriseConnected ? " Sa fiche est aussi anonymisée dans votre caisse." : ""} C'est définitif : à faire quand le client le demande.`}
-          confirmLabel="Effacer"
+        <ConfirmSheet
+          title={`Effacer ${customerToErase.contact} ?`}
+          text={`Le client perd sa carte et ses ${plural(customerToErase.points, "point", "points")} ; ses commandes passées perdent nom, téléphone et note, leurs montants restent pour votre comptabilité.${hubriseConnected ? " Sa fiche est aussi anonymisée dans votre caisse." : ""} C'est définitif : à faire quand le client le demande.`}
+          confirmLabel="Effacer le client"
           destructive
           onConfirm={() => void erase(customerToErase)}
           onClose={() => setCustomerToErase(null)}
@@ -384,8 +458,9 @@ function LoyaltyManager({
       )}
       {adjusting && (
         <AdjustPointsModal
-          contact={adjusting.contact}
+          customer={adjusting.customer}
           onSubmit={adjust}
+          onErase={adjusting.customer ? () => setCustomerToErase(adjusting.customer) : undefined}
           onClose={() => setAdjusting(null)}
         />
       )}
@@ -401,17 +476,8 @@ export default function FidelitePage() {
   if (!hasFeature("fidelite")) return <FeatureLocked feature="fidelite" />;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-          Fidélité
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Vos clients cumulent des points à chaque commande du menu QR et
-          s&rsquo;offrent les récompenses que vous choisissez.
-        </p>
-      </div>
-
+    <div className="grid gap-6">
+      <SectionHeading level={1} title="Fidélité" sub="Des points à chaque commande du menu QR" />
       {role === "gerant" ? (
         <LoyaltyManager
           etablissementId={state.etablissement.id}
@@ -419,10 +485,7 @@ export default function FidelitePage() {
           hubriseConnected={state.etablissement.hubriseConnected}
         />
       ) : (
-        <EmptyState
-          title="Réservé au gérant"
-          body="Le programme de fidélité se règle depuis le compte du gérant."
-        />
+        <ReserveGerant ask="régler le programme de fidélité" />
       )}
     </div>
   );

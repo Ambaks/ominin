@@ -1,10 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { SettingsCard } from "@/app/menu/gestion/etablissement/settings-card";
+import { AlertIcon } from "@/components/gestion/icons";
+import { Chip, ConfirmSheet, Field, GlassButton, Input, Shimmer } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import { sinceLabel } from "@/lib/gestion/format";
 
 /*
@@ -55,6 +56,11 @@ export async function fetchHubriseStatus(): Promise<HubriseStatus> {
   }
 }
 
+/** Commandes que la caisse n'a pas reçues : ce qui mérite un bandeau en tête de page. */
+export function hubriseProblems(status: HubriseStatus | null): number {
+  return status?.outbox ? status.outbox.blocked + status.outbox.dead : 0;
+}
+
 function errorMessage(code: string | null): string {
   if (code === "autorisation_refusee") return "l'autorisation a été refusée dans HubRise.";
   if (code === "session_invalide") return "la session a expiré, réessayez.";
@@ -65,13 +71,22 @@ function errorMessage(code: string | null): string {
 
 function Identity({ label, name, id }: { label: string; name?: string | null; id?: string | null }) {
   return (
-    <div className="flex flex-col gap-0.5">
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-faint">{label}</dt>
-      <dd className="text-sm">
+    <div className="min-w-0">
+      <dt className="text-g-meta text-muted">{label}</dt>
+      <dd className="text-g-label">
         {name ?? "—"}
-        {id && <span className="ml-2 font-mono text-xs text-faint">{id}</span>}
+        {id && <span className="block break-all font-mono text-g-meta text-muted">{id}</span>}
       </dd>
     </div>
+  );
+}
+
+/** Point d'état d'une pastille (connectée, refusée). */
+export function StatusDot() {
+  return (
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <circle cx="12" cy="12" r="5" />
+    </svg>
   );
 }
 
@@ -101,29 +116,29 @@ function TillSettings({
       toast.success("Réglages de la caisse enregistrés.");
       onSaved();
     } catch (error) {
-      toast.error(error instanceof Error && error.message ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
     setSaving(false);
   };
 
   return (
-    <details className="group rounded-xl border border-hairline">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-sm font-medium">
+    <details className="group rounded-g-card border border-hairline [interpolate-size:allow-keywords] [&::details-content]:h-0 [&::details-content]:overflow-hidden [&::details-content]:transition-[height,content-visibility] [&::details-content]:duration-(--g-morph-dur) [&::details-content]:ease-(--g-ease-move) [&::details-content]:[transition-behavior:allow-discrete] open:[&::details-content]:h-auto motion-reduce:[&::details-content]:transition-none">
+      <summary className="flex min-h-g-control cursor-pointer list-none items-center justify-between gap-3 px-4 text-g-label font-semibold touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1">
         Codes de votre caisse
-        <span className="text-xs font-normal text-faint group-open:hidden">Facultatif</span>
+        <span className="text-g-meta font-normal text-muted group-open:hidden">Facultatif</span>
       </summary>
       <form onSubmit={save} className="flex flex-col gap-4 border-t border-hairline p-4">
-        <p className="text-xs leading-relaxed text-muted">
+        <p className="text-g-meta text-muted">
           Certaines caisses exigent un code pour le mode de paiement ou le type de commande ; vous
           le trouvez dans leur arrière-boutique. Laissé vide, la caisse applique ses valeurs par
           défaut.
         </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="Mode de paiement : nom">
-            <input value={values.paymentName ?? ""} onChange={set("paymentName")} placeholder="Carte (Ominin)" className={inputClass} />
+            <Input value={values.paymentName ?? ""} onChange={set("paymentName")} placeholder="Carte (Ominin)" />
           </Field>
           <Field label="Mode de paiement : code">
-            <input value={values.paymentRef ?? ""} onChange={set("paymentRef")} className={inputClass} />
+            <Input value={values.paymentRef ?? ""} onChange={set("paymentRef")} />
           </Field>
           {/* Encaissé au comptoir dans Ominin : la caisse le range dans ses
               propres modes, et reconnaît les espèces qu'elle encaisse. */}
@@ -131,42 +146,55 @@ function TillSettings({
             label="Espèces au comptoir : code"
             hint="Sans lui, les espèces prises à la caisse comptent comme carte dans Ominin."
           >
-            <input value={values.paymentRefCash ?? ""} onChange={set("paymentRefCash")} className={inputClass} />
+            <Input value={values.paymentRefCash ?? ""} onChange={set("paymentRefCash")} />
           </Field>
           <Field label="Carte au comptoir : code">
-            <input value={values.paymentRefCard ?? ""} onChange={set("paymentRefCard")} className={inputClass} />
+            <Input value={values.paymentRefCard ?? ""} onChange={set("paymentRefCard")} />
           </Field>
           <Field label="Sur place : code">
-            <input value={values.serviceTypeRefEatIn ?? ""} onChange={set("serviceTypeRefEatIn")} className={inputClass} />
+            <Input value={values.serviceTypeRefEatIn ?? ""} onChange={set("serviceTypeRefEatIn")} />
           </Field>
           <Field label="À emporter : code">
-            <input value={values.serviceTypeRefCollection ?? ""} onChange={set("serviceTypeRefCollection")} className={inputClass} />
+            <Input value={values.serviceTypeRefCollection ?? ""} onChange={set("serviceTypeRefCollection")} />
           </Field>
           <Field label="Pourboire : code">
-            <input value={values.tipChargeRef ?? ""} onChange={set("tipChargeRef")} className={inputClass} />
+            <Input value={values.tipChargeRef ?? ""} onChange={set("tipChargeRef")} />
           </Field>
         </div>
         <div className="flex justify-end">
-          <button
-            type="submit"
-            disabled={saving}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-          >
-            {saving ? "Enregistrement…" : "Enregistrer"}
-          </button>
+          <GlassButton variant="primary" type="submit" disabled={saving}>
+            {saving ? "Enregistrement…" : "Enregistrer les codes"}
+          </GlassButton>
         </div>
       </form>
     </details>
   );
 }
 
-export function HubriseSettings() {
+export function HubriseSettings({
+  onStatus,
+  onReturn,
+}: {
+  /** La page lit le statut aussi : horaires tenus par la caisse, bandeau d'alerte. */
+  onStatus?: (status: HubriseStatus) => void;
+  /** Retour de l'autorisation HubRise : la page montre la carte, repliée sinon. */
+  onReturn?: () => void;
+}) {
   const toast = useToast();
   const [status, setStatus] = useState<HubriseStatus | null>(null);
   const [busy, setBusy] = useState(false);
   const [confirmDisconnect, setConfirmDisconnect] = useState(false);
+  // Les rappels de la page changent à chaque rendu : la relecture ne les suit pas.
+  const callbacks = useRef({ onStatus, onReturn });
+  useEffect(() => {
+    callbacks.current = { onStatus, onReturn };
+  });
 
-  const load = useCallback(async () => setStatus(await fetchHubriseStatus()), []);
+  const load = useCallback(async () => {
+    const next = await fetchHubriseStatus();
+    setStatus(next);
+    callbacks.current.onStatus?.(next);
+  }, []);
 
   useEffect(() => {
     const url = new URL(window.location.href);
@@ -178,6 +206,7 @@ export function HubriseSettings() {
       window.history.replaceState(null, "", url);
       if (outcome === "retour") toast.success("HubRise est relié.");
       else toast.error(`Connexion à HubRise impossible : ${errorMessage(error)}`);
+      callbacks.current.onReturn?.();
     }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     void load();
@@ -192,7 +221,7 @@ export function HubriseSettings() {
       if (!body.url) throw new Error(body.error);
       window.location.assign(body.url);
     } catch (error) {
-      toast.error(error instanceof Error && error.message ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
       setBusy(false);
     }
   };
@@ -205,7 +234,7 @@ export function HubriseSettings() {
       toast.success("Catalogue, stocks et horaires relus.");
       await load();
     } catch (error) {
-      toast.error(error instanceof Error && error.message ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
     setBusy(false);
   };
@@ -219,89 +248,73 @@ export function HubriseSettings() {
       toast.success("HubRise est délié.");
       await load();
     } catch (error) {
-      toast.error(error instanceof Error && error.message ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
     setBusy(false);
   };
 
   const connected = status?.connected;
-  const problems = status?.outbox ? status.outbox.blocked + status.outbox.dead : 0;
+  const problems = hubriseProblems(status);
+  const mapped = status?.mapping?.mapped ?? 0;
+  const total = status?.mapping?.total ?? 0;
 
   return (
-    <section className="flex max-w-xl flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5 lg:p-6">
-      <div>
-        <h2 className="font-display text-lg font-medium">Caisse (HubRise)</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">
-          Les commandes de votre menu arrivent directement dans votre caisse (Popina, Zelty, Clyo…),
-          sans ressaisie. Votre caisse nous rend aussi ses stocks, ses horaires et l&rsquo;état de
-          chaque commande.
-        </p>
-      </div>
-
+    <SettingsCard
+      id="caisse"
+      className="scroll-mt-28"
+      title="Caisse connectée (HubRise)"
+      text="Les commandes de votre menu arrivent directement dans votre caisse (Popina, Zelty, Clyo…), sans ressaisie. Votre caisse nous rend aussi ses stocks, ses horaires et l'état de chaque commande."
+      right={
+        connected ? (
+          status.blocked ? (
+            <Chip tone="problem" icon={<StatusDot />}>Connexion à renouveler</Chip>
+          ) : (
+            <span className="[--g-entity:var(--status-signed)]">
+              <Chip icon={<StatusDot />}>Connectée</Chip>
+            </span>
+          )
+        ) : undefined
+      }
+    >
       {status === null ? (
-        <div aria-busy className="shimmer h-10 rounded-xl" />
+        <Shimmer className="h-g-control" />
       ) : !connected ? (
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <p className="text-sm text-muted">
+          <p className="text-g-label text-muted">
             Votre caisse doit d&rsquo;abord être reliée à HubRise depuis son arrière-boutique.
           </p>
-          <button
-            type="button"
-            onClick={() => void connect()}
-            disabled={busy}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-          >
+          <GlassButton variant="primary" onClick={() => void connect()} disabled={busy}>
             {busy ? "Redirection…" : "Connecter HubRise"}
-          </button>
+          </GlassButton>
         </div>
       ) : (
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-wrap items-center justify-between gap-3">
-            <p className="flex items-center gap-2 text-sm font-medium">
-              <span
-                aria-hidden
-                className={`size-2.5 rounded-full ${status.blocked ? "bg-status-lost" : "bg-status-signed"}`}
-              />
-              {status.blocked ? "Connexion à renouveler" : "Connectée"}
-            </p>
-            {status.blocked && (
-              <button
-                type="button"
-                onClick={() => void connect()}
-                disabled={busy}
-                className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background disabled:opacity-60"
-              >
-                Reconnecter
-              </button>
-            )}
-          </div>
-
+        <div className="flex flex-col gap-4">
           {status.blocked && (
-            <p className="rounded-xl border border-hairline bg-background px-4 py-3 text-sm leading-relaxed text-muted">
-              HubRise a refusé notre accès (abonnement impayé, accès révoqué ou bloqué). Vos clients
-              commandent normalement ; les commandes attendent dans Ominin et partent dès la
-              reconnexion.
-            </p>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="min-w-0 flex-1 text-g-label text-muted">
+                HubRise a refusé notre accès (abonnement impayé, accès révoqué ou bloqué). Vos clients
+                commandent normalement ; les commandes attendent dans Ominin et partent dès la
+                reconnexion.
+              </p>
+              <GlassButton variant="primary" onClick={() => void connect()} disabled={busy}>
+                Reconnecter
+              </GlassButton>
+            </div>
           )}
 
-          <dl className="grid gap-4 sm:grid-cols-2">
+          <dl className="grid grid-cols-2 gap-3">
             <Identity label="Compte" name={status.accountName} />
             <Identity label="Point de vente" name={status.locationName} id={status.locationId} />
             <Identity label="Catalogue" name={status.catalogName} id={status.catalogId} />
             <Identity label="Liste de clients" name={status.customerListName} id={status.customerListId} />
           </dl>
 
-          <div className="flex flex-col gap-2 rounded-xl border border-hairline p-4">
+          <div className="flex flex-col gap-3 border-t border-hairline pt-4">
             <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-medium">Synchronisation</p>
-              <button
-                type="button"
-                onClick={() => void refresh()}
-                disabled={busy || status.blocked}
-                className="text-xs font-medium text-ember-2 hover:underline disabled:opacity-60"
-              >
+              <p className="text-g-label font-semibold">Synchronisation</p>
+              <GlassButton onClick={() => void refresh()} disabled={busy || status.blocked}>
                 {busy ? "Lecture…" : "Tout relire"}
-              </button>
+              </GlassButton>
             </div>
             <dl className="grid gap-3 sm:grid-cols-3">
               {(
@@ -311,68 +324,64 @@ export function HubriseSettings() {
                   ["Horaires", status.syncedAt?.hours],
                 ] as const
               ).map(([label, at]) => (
-                <div key={label} className="flex flex-col gap-0.5">
-                  <dt className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-                    {label}
-                  </dt>
-                  <dd className="text-sm text-muted">{sinceLabel(at)}</dd>
+                <div key={label}>
+                  <dt className="text-g-meta text-muted">{label}</dt>
+                  <dd className="text-g-label">{sinceLabel(at)}</dd>
                 </div>
               ))}
             </dl>
-            {status.hoursNote && <p className="text-xs text-muted">{status.hoursNote}</p>}
+            {status.hoursNote && <p className="text-g-meta text-muted">{status.hoursNote}</p>}
           </div>
 
-          <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline p-4">
-            <div>
-              <p className="text-sm font-medium">Carte associée à la caisse</p>
-              <p
-                className={`mt-0.5 text-xs ${
-                  (status.mapping?.mapped ?? 0) < (status.mapping?.total ?? 0) ? "text-ember-2" : "text-muted"
-                }`}
-              >
-                {status.mapping?.mapped ?? 0} sur {status.mapping?.total ?? 0} articles ont leur code.
-                Sans code, la caisse reçoit la ligne sans la reconnaître, et certaines la refusent.
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-4">
+            <div className="min-w-0 flex-1">
+              <p className="flex flex-wrap items-center gap-2 text-g-label font-semibold">
+                Carte ↔ caisse
+                {mapped < total && (
+                  <Chip tone="problem" icon={<StatusDot />}>
+                    {total - mapped} sans code
+                  </Chip>
+                )}
+              </p>
+              <p className="mt-0.5 text-g-meta text-muted">
+                {mapped} sur {total} articles ont leur code. Sans code, la caisse reçoit la ligne sans
+                la reconnaître, et certaines la refusent.
               </p>
             </div>
-            <Link
-              href="/gestion/caisse"
-              className="rounded-full border border-hairline px-4 py-2 text-xs font-semibold hover:border-ember-2"
-            >
-              Associer la carte
-            </Link>
+            <GlassButton href="/gestion/caisse">Associer la carte</GlassButton>
           </div>
 
-          <p className={`text-sm ${problems ? "text-status-lost" : "text-muted"}`}>
-            {problems
-              ? `${problems} commande${problems > 1 ? "s" : ""} non transmise${problems > 1 ? "s" : ""} à la caisse.`
-              : status.outbox?.pending
+          {problems > 0 ? (
+            <p className="flex items-start gap-1.5 text-g-label font-medium">
+              <AlertIcon className="mt-px size-4 shrink-0 text-ember-3" />
+              {`${problems} commande${problems > 1 ? "s" : ""} non transmise${problems > 1 ? "s" : ""} à la caisse.`}
+            </p>
+          ) : (
+            <p className="text-g-label text-muted">
+              {status.outbox?.pending
                 ? `${status.outbox.pending} commande${status.outbox.pending > 1 ? "s" : ""} en cours d'envoi.`
                 : "Toutes les commandes sont transmises à la caisse."}
-          </p>
+            </p>
+          )}
 
           {status.till && <TillSettings till={status.till} onSaved={() => void load()} />}
 
-          <button
-            type="button"
-            onClick={() => setConfirmDisconnect(true)}
-            disabled={busy}
-            className="self-start text-xs font-medium text-muted hover:underline disabled:opacity-60"
-          >
+          <GlassButton onClick={() => setConfirmDisconnect(true)} disabled={busy} className="self-start">
             Déconnecter HubRise
-          </button>
+          </GlassButton>
         </div>
       )}
 
       {confirmDisconnect && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Déconnecter HubRise ?"
-          message="Les commandes ne partiront plus vers votre caisse et ses horaires ne seront plus repris. Les correspondances de votre carte sont conservées."
+          text="Les commandes ne partiront plus vers votre caisse et ses horaires ne seront plus repris. Les correspondances de votre carte sont conservées."
           confirmLabel="Déconnecter"
           destructive
           onConfirm={() => void disconnect()}
           onClose={() => setConfirmDisconnect(false)}
         />
       )}
-    </section>
+    </SettingsCard>
   );
 }

@@ -196,7 +196,6 @@ export function rowToOrder(row: OrderRow): Order {
         paidMode: line.paid_mode ?? undefined,
         servedAt: line.served_at ?? undefined,
         loyaltyPoints: line.loyalty_points ?? undefined,
-        accord: line.accord ?? undefined,
       };
     }),
   };

@@ -1,9 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties } from "react";
 import type { TableState } from "@/components/club/floor-plan";
+import { XIcon } from "@/components/gestion/icons";
 import { BookingSheet, type MoveTarget } from "@/components/gestion/soirees/booking-sheet";
 import {
   BackToSoirees,
@@ -17,9 +17,16 @@ import { GuestList } from "@/components/gestion/soirees/guest-list";
 import { Money } from "@/components/gestion/soirees/money";
 import { NightPlan, PlanLegend } from "@/components/gestion/soirees/night-plan";
 import { useWide } from "@/components/gestion/soirees/use-wide";
-import { EmptyState } from "@/components/ui/empty-state";
-import { IconButton } from "@/components/ui/icon-button";
-import { UnderlineTabs } from "@/components/gestion/soirees/underline-tabs";
+import {
+  Chip,
+  EmptyState,
+  ENTITY,
+  GlassButton,
+  Notice,
+  Plate,
+  SectionHeading,
+  Segmented,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { formatCents, formatHours, formatNightShort, tableName } from "@/lib/club/format";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
@@ -47,6 +54,7 @@ import {
   useClubRealtime,
 } from "@/lib/gestion/club-store";
 import { SERVICE_CLOCK_TICK_MS, WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { useNow } from "@/lib/gestion/use-now";
 
@@ -62,6 +70,8 @@ type View = "plan" | "porte" | "invites";
 
 const LEGEND: TableState[] = ["libre", "payee", "attente", "arrivee", "prise", "gardee"];
 
+const rise = (index: number) => ({ "--g-i": index }) as CSSProperties;
+
 /** « il y a 3 s », « il y a 2 min » : depuis quand l'écran est à jour. */
 function Freshness({ live, syncedAt }: { live: boolean | null; syncedAt: number }) {
   const now = useNow(SERVICE_CLOCK_TICK_MS).getTime();
@@ -69,36 +79,39 @@ function Freshness({ live, syncedAt }: { live: boolean | null; syncedAt: number 
   const seconds = Math.max(0, Math.round((now - syncedAt) / 1000));
   const [count, unit] = seconds < 60 ? [seconds, "s"] : [Math.floor(seconds / 60), "min"];
   return (
-    <span
-      aria-live="off"
-      className={`flex items-center gap-1.5 text-xs font-medium ${live ? "text-muted" : "text-ember-3"}`}
-    >
-      <span className="pouls" data-coupe={!live || undefined} aria-hidden />
-      {live ? "En direct" : "Reconnexion…"} · il y a <span className="tabular-nums">{count}</span> {unit}
+    <span aria-live="off">
+      <Chip tone={live ? "neutral" : "problem"} icon={<span className="pouls" data-coupe={!live || undefined} aria-hidden />}>
+        {live ? "En direct" : "Reconnexion…"} · il y a <span className="tabular-nums">{count}</span> {unit}
+      </Chip>
     </span>
   );
 }
 
-/** Une case du bandeau : un chiffre (un montant défile jusqu'à sa valeur), son libellé, sa précision. */
+/**
+ * Un chiffre du bandeau, sur plaque : quatre libellés en capitales ne tiennent
+ * pas dans un cadre de verre au téléphone, et un montant y défile jusqu'à sa
+ * valeur, euros en grand, centimes en petit.
+ */
 function Figure({
+  entity,
   label,
-  value,
-  cents,
-  detail,
+  baseline,
+  children,
 }: {
+  entity: "money" | "orders";
   label: string;
-  value?: string;
-  cents?: number;
-  detail?: React.ReactNode;
+  baseline: string;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="min-w-0 bg-surface px-3.5 py-2.5 sm:px-4 sm:py-3">
-      <dt className="text-xs font-medium text-muted">{label}</dt>
-      <dd className="mt-0.5 text-xl font-semibold tabular-nums sm:text-2xl">
-        {cents === undefined ? value : <Money cents={cents} />}
-      </dd>
-      {detail && <dd className="text-xs text-muted">{detail}</dd>}
-    </div>
+    <Plate className={`${ENTITY[entity]} min-w-0 p-3.5 sm:p-5`}>
+      <p className="flex items-center gap-2 text-g-label text-muted">
+        <span className="size-2 shrink-0 rounded-full bg-g-entity" aria-hidden />
+        {label}
+      </p>
+      <p className="mt-2 whitespace-nowrap text-g-h2 tabular-nums xl:mt-3 xl:text-g-kpi">{children}</p>
+      <p className="mt-2 text-g-meta text-muted">{baseline}</p>
+    </Plate>
   );
 }
 
@@ -123,32 +136,32 @@ function RefundRetries({ night, tableName: nameOf }: { night: ClubNight; tableNa
       await clubApi.refundBooking(booking);
       toast.success(`${nameOf(booking.tableId)} : remboursement relancé.`);
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     } finally {
       setBusy(null);
     }
   };
   return (
-    <section role="alert" className="flex flex-col gap-3 rounded-2xl border border-ember-3/40 bg-ember-3/10 p-4">
-      <p className="text-sm font-semibold">Remboursement à relancer</p>
-      <ul className="flex flex-col gap-2">
-        {pending.map((booking) => (
-          <li key={booking.id} className="flex flex-wrap items-center justify-between gap-3 text-sm">
-            <span>
-              {nameOf(booking.tableId)} · {booking.name}
-            </span>
-            <button
-              type="button"
-              disabled={busy === booking.id}
-              onClick={() => void retry(booking)}
-              className="min-h-11 rounded-full border border-hairline px-4 text-sm font-semibold hover:border-ember-2/50 disabled:opacity-50"
-            >
-              {busy === booking.id ? "Remboursement…" : "Relancer"}
-            </button>
-          </li>
-        ))}
-      </ul>
-    </section>
+    <div className="flex flex-col gap-2">
+      <Notice
+        title="Remboursement à relancer"
+        text={`${pending.length} table${pending.length > 1 ? "s" : ""} rendue${pending.length > 1 ? "s" : ""} sans que l'argent soit reparti. Relancer ne rembourse jamais deux fois.`}
+      />
+      <Plate>
+        <ul className="divide-y divide-hairline">
+          {pending.map((booking) => (
+            <li key={booking.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-2 text-g-body">
+              <span>
+                {nameOf(booking.tableId)} · {booking.name}
+              </span>
+              <GlassButton disabled={busy === booking.id} onClick={() => void retry(booking)}>
+                {busy === booking.id ? "Remboursement…" : "Relancer"}
+              </GlassButton>
+            </li>
+          ))}
+        </ul>
+      </Plate>
+    </div>
   );
 }
 
@@ -178,14 +191,12 @@ function ZoneTables({
               onClick={() => onSelect(table.id)}
               aria-label={`${tableName(zoneName, table.label)}, ${TABLE_STATE_LABELS[state]?.toLowerCase()}${booking ? `, ${booking.name}` : ""}`}
               data-state={state}
-              className="tuile flex min-h-14 w-full items-center gap-2 rounded-xl border px-3 py-2 text-left"
+              className="tuile g-press"
             >
               <span className="plan-legende" data-state={state} aria-hidden />
               <span className="min-w-0">
-                <span className="block text-sm font-semibold tabular-nums">{table.label}</span>
-                <span className="block truncate text-xs text-muted">
-                  {booking ? booking.name : TABLE_STATE_LABELS[state]}
-                </span>
+                <span className="block text-g-body font-semibold tabular-nums">{table.label}</span>
+                <span className="block truncate text-g-meta text-muted">{booking ? booking.name : TABLE_STATE_LABELS[state]}</span>
               </span>
             </button>
           </li>
@@ -206,7 +217,8 @@ export default function LivePage() {
   const wide = useWide();
   const now = useNow(WAIT_TICK_MS).getTime();
   useClubNights([id]);
-  const [view, setView] = useState<View>("plan");
+  // Tant que personne n'a choisi : le soir même on ouvre sur la porte, sinon sur le plan.
+  const [chosenView, setView] = useState<View | null>(null);
   const [side, setSide] = useState<"porte" | "invites">("porte");
   const [zoneId, setZoneId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -244,6 +256,7 @@ export default function LivePage() {
 
   const gerant = can("soirees.edit");
   const tonight = isTonight(event, now);
+  const view: View = chosenView ?? (tonight && !event.cancelledAt ? "porte" : "plan");
   const stats = nightStats(club, event.id);
   const byTable = bookingsByTable(night, now);
   const onSale = onSaleTableIds(club, event.id);
@@ -293,6 +306,7 @@ export default function LivePage() {
   const expected = held.filter(({ booking }) => booking.status !== "arrivee" && isSold(booking)).length;
   const toReturn = event.cancelledAt ? held.filter(({ booking }) => isSold(booking)).length : 0;
   const guestList = event.guestListOpen || night.guests.length > 0;
+  const peopleExpected = stats.people - stats.peopleArrived;
 
   const nameOfTable = (tableId: string) => {
     const table = tableById.get(tableId);
@@ -318,30 +332,21 @@ export default function LivePage() {
   const plan = zone ? (
     <div className="flex flex-col gap-3">
       {zones.length > 1 && (
-        <div role="tablist" aria-label="Zones" className="defile no-scrollbar -mx-5 flex gap-2 overflow-x-auto lg:mx-0">
-          {zones.map((candidate) => {
-            const active = candidate.id === zone.id;
-            const held = club.tables.filter((table) => table.zoneId === candidate.id && byTable.has(table.id)).length;
-            return (
-              <button
-                key={candidate.id}
-                type="button"
-                role="tab"
-                aria-selected={active}
-                onClick={() => setZoneId(candidate.id)}
-                className={`flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border px-4 text-sm font-medium lg:pointer-fine:min-h-9 ${
-                  active ? "border-[var(--soirees-gold)] text-foreground" : "border-hairline text-muted hover:text-foreground"
-                }`}
-              >
-                {candidate.name}
-                {held > 0 && <span className="text-xs tabular-nums text-muted">{held}</span>}
-              </button>
-            );
-          })}
+        <div className="seg-defile -mx-[var(--g-topbar-mx-sm)] px-[var(--g-topbar-mx-sm)] lg:mx-0 lg:px-0">
+          <Segmented
+            label="Zones"
+            glass={false}
+            options={zones.map((candidate) => {
+              const count = club.tables.filter((table) => table.zoneId === candidate.id && byTable.has(table.id)).length;
+              return { value: candidate.id, label: count > 0 ? `${candidate.name} · ${count}` : candidate.name };
+            })}
+            value={zone.id}
+            onChange={setZoneId}
+          />
         </div>
       )}
       {!wide && <ZoneTables zoneName={zone.name} tables={zoneTables} states={states} byTable={byTable} onSelect={setSelectedId} />}
-      {!wide && <h2 className="mt-2 text-xs font-semibold uppercase tracking-wider text-muted">Vue d&rsquo;ensemble</h2>}
+      {!wide && <h2 className="g-eyebrow mt-2">Vue d&rsquo;ensemble</h2>}
       <NightPlan
         key={zone.id}
         zone={zone}
@@ -357,176 +362,169 @@ export default function LivePage() {
     </div>
   ) : (
     <EmptyState
-      title="Aucune zone en vente"
-      body={gerant ? "Ouvrez au moins une zone dans la soirée pour vendre ses tables." : "Aucune table n'est en vente ce soir."}
+      text={
+        gerant
+          ? "Aucune zone en vente : ouvrez au moins une zone dans la soirée pour vendre ses tables."
+          : "Aucune table n'est en vente ce soir."
+      }
+      action={gerant ? <GlassButton href={`/gestion/soirees/${event.id}`}>Préparer la soirée</GlassButton> : undefined}
     />
   );
 
   const guests = <GuestList event={event} guests={night.guests} />;
+  const viewTabs = [
+    { value: "plan" as View, label: "Plan" },
+    { value: "porte" as View, label: expected > 0 ? `Porte · ${expected}` : "Porte" },
+    ...(guestList ? [{ value: "invites" as View, label: stats.guests > 0 ? `Invités · ${stats.guests}` : "Invités" }] : []),
+  ];
+  const door = <DoorList held={held} onOpen={setSelectedId} />;
 
   return (
-    <div className="flex flex-col gap-4 lg:gap-5">
-      <div className="flex flex-col gap-1">
+    <div className="soirees-page flex flex-col gap-4 lg:gap-5">
+      <div className="g-rise flex flex-col gap-2" style={rise(0)}>
         <BackToSoirees />
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3">
-            <h1 className="truncate font-display text-2xl font-medium">{event.title}</h1>
-            <p className="text-sm text-muted first-letter:uppercase">
-              {formatNightShort(event.startsAt)} · {formatHours(event.startsAt, event.endsAt)}
-            </p>
-          </div>
-          <div className="flex items-center gap-3">
-            <Freshness live={live} syncedAt={club.syncedAt} />
-            {gerant && (
-              <Link
-                href={`/gestion/soirees/${event.id}`}
-                className="flex min-h-11 items-center rounded-full border border-hairline px-4 text-sm font-medium text-muted hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:min-h-9"
-              >
-                Modifier
-              </Link>
-            )}
-          </div>
-        </div>
+        <SectionHeading
+          level={1}
+          title={event.title}
+          sub={`${formatNightShort(event.startsAt)} · ${formatHours(event.startsAt, event.endsAt)}`}
+          right={
+            <div className="flex flex-wrap items-center gap-3">
+              <Freshness live={live} syncedAt={club.syncedAt} />
+              {gerant && <GlassButton href={`/gestion/soirees/${event.id}`}>Modifier</GlassButton>}
+            </div>
+          }
+        />
       </div>
 
       {event.cancelledAt && (
-        <p role="status" className="rounded-2xl border border-ember-3/40 bg-ember-3/10 px-4 py-3 text-sm">
-          Soirée annulée.{" "}
-          {toReturn > 0 ? (
-            <>
-              {toReturn} table{toReturn > 1 ? "s" : ""} encore à rendre
-              {gerant && (
-                <>
-                  {" "}
-                  :{" "}
-                  <Link href={`/gestion/soirees/${event.id}`} className="font-semibold text-ember-3 underline underline-offset-4">
-                    relancer les remboursements
-                  </Link>
-                </>
-              )}
-              .
-            </>
-          ) : (
-            "Chaque table a été remboursée ou annulée, et son client prévenu."
-          )}
-        </p>
+        <Notice
+          title="Soirée annulée"
+          text={
+            toReturn > 0
+              ? `${toReturn} table${toReturn > 1 ? "s" : ""} encore à rendre.`
+              : "Chaque table a été remboursée ou annulée, et son client prévenu."
+          }
+          action={
+            toReturn > 0 && gerant ? (
+              <GlassButton href={`/gestion/soirees/${event.id}`}>Relancer les remboursements</GlassButton>
+            ) : undefined
+          }
+        />
       )}
       {gerant && <RefundRetries night={night} tableName={nameOfTable} />}
       {!event.published && !event.cancelledAt && (
-        <p className="rounded-2xl border border-hairline bg-surface px-4 py-3 text-sm text-muted">
-          Brouillon : les clients ne voient pas encore cette soirée.
-        </p>
+        <Notice
+          tone="info"
+          title="Brouillon"
+          text="Les clients ne voient pas encore cette soirée."
+          action={gerant ? <GlassButton href={`/gestion/soirees/${event.id}`}>Préparer</GlassButton> : undefined}
+        />
       )}
 
       {/* Au téléphone, les vues d'abord : la porte se rejoint d'un geste, sans passer les chiffres. */}
       {!wide && (
-        <div className="sticky top-[var(--gestion-entete,0px)] z-20 -mx-5 bg-background/90 px-5 py-2 backdrop-blur-md">
-          <UnderlineTabs
-            label="Le plan du soir"
-            tabs={[
-              { id: "plan", label: "Plan" },
-              { id: "porte", label: "Porte", count: expected },
-              ...(guestList ? [{ id: "invites", label: "Invités", count: stats.guests }] : []),
-            ]}
-            activeId={view}
-            onSelect={(next) => setView(next as View)}
-          />
+        <div className="seg-defile sticky top-[calc(var(--gestion-entete,0px)+var(--g-frame-margin))] z-20">
+          <Segmented label="Le plan du soir" options={viewTabs} value={view} onChange={setView} />
         </div>
       )}
 
       {/* Un seul bandeau, les mêmes mots partout : des tables (réservées, attendues, arrivées), des personnes, de l'argent. */}
-      <dl
-        className={`grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-hairline bg-hairline lg:sticky lg:top-[calc(var(--gestion-entete,0px)+0.5rem)] lg:z-20 lg:shadow-lg lg:shadow-background/60 ${
-          gerant ? "lg:grid-cols-4" : ""
-        }`}
-      >
+      <div className={`g-rise grid grid-cols-2 gap-3 sm:gap-g-gap ${gerant ? "xl:grid-cols-4" : ""}`} style={rise(1)}>
         <Figure
+          entity="orders"
           label="Tables arrivées"
-          value={`${stats.arrived} / ${stats.sold}`}
-          detail={`${stats.sold} réservée${stats.sold > 1 ? "s" : ""} · ${expected} attendue${expected > 1 ? "s" : ""}`}
-        />
+          baseline={`${expected} attendue${expected > 1 ? "s" : ""}`}
+        >
+          {stats.arrived} / {stats.sold}
+        </Figure>
         <Figure
+          entity="orders"
           label="Personnes entrées"
-          value={`${stats.peopleArrived} / ${stats.people}`}
-          detail={`${stats.people - stats.peopleArrived} encore attendue${stats.people - stats.peopleArrived > 1 ? "s" : ""}`}
-        />
+          baseline={`${peopleExpected} encore attendue${peopleExpected > 1 ? "s" : ""}`}
+        >
+          {stats.peopleArrived} / {stats.people}
+        </Figure>
         {gerant && (
           <>
-            <Figure label="À encaisser" cents={stats.toCollect} detail="à la porte" />
+            <Figure entity="money" label="À encaisser" baseline="à la porte">
+              <Money cents={stats.toCollect} />
+            </Figure>
             <Figure
+              entity="money"
               label="Encaissé"
-              cents={stats.online + stats.onSite}
-              detail={
-                <>
-                  <span className="tabular-nums">{formatCents(stats.online)}</span> en ligne ·{" "}
-                  <span className="tabular-nums">{formatCents(stats.onSite)}</span> sur place
-                </>
-              }
-            />
+              baseline={`${formatCents(stats.online)} en ligne · ${formatCents(stats.onSite)} sur place`}
+            >
+              <Money cents={stats.online + stats.onSite} />
+            </Figure>
           </>
         )}
-      </dl>
+      </div>
       {gerant && stats.fees > 0 && (
-        <p className="-mt-2 text-xs text-muted">
+        <p className="g-rise text-g-meta text-muted" style={rise(1)}>
           Frais de service Ominin, payés par les clients en plus : <span className="tabular-nums">{formatCents(stats.fees)}</span>
         </p>
       )}
 
       {wide ? (
-        <div className="grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-start gap-6">
+        <div className="g-rise grid grid-cols-[minmax(0,3fr)_minmax(0,2fr)] items-start gap-6" style={rise(2)}>
           {plan}
-          <div className="sticky top-[calc(var(--gestion-entete,0px)+9rem)] flex h-[calc(100dvh-var(--gestion-entete,0px)-10rem)] flex-col gap-3">
+          <div className="sticky top-[calc(var(--gestion-entete,0px)+var(--g-frame-margin))] flex h-[calc(100dvh-var(--gestion-entete,0px)-2*var(--g-frame-margin))] flex-col gap-3">
             {guestList && (
-              <UnderlineTabs
-                label="Porte et invités"
-                tabs={[
-                  { id: "porte", label: "Porte", count: expected },
-                  { id: "invites", label: "Invités", count: stats.guests },
-                ]}
-                activeId={side}
-                onSelect={(next) => setSide(next as "porte" | "invites")}
-              />
+              <div className="seg-defile">
+                <Segmented
+                  label="Porte et invités"
+                  options={[
+                    { value: "porte" as const, label: expected > 0 ? `Porte · ${expected}` : "Porte" },
+                    { value: "invites" as const, label: stats.guests > 0 ? `Invités · ${stats.guests}` : "Invités" },
+                  ]}
+                  value={side}
+                  onChange={setSide}
+                />
+              </div>
             )}
             {/* Les onglets restent en place ; seule la liste défile, sa recherche collée en haut. */}
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-2xl">
-              {side === "porte" || !guestList ? <DoorList held={held} onOpen={setSelectedId} /> : guests}
+            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain rounded-g-card">
+              {side === "porte" || !guestList ? door : guests}
             </div>
           </div>
         </div>
       ) : (
-        <>
+        <div className="g-rise" style={rise(2)}>
           {view === "plan" && plan}
           {view === "invites" && guests}
-          {view === "porte" && (
-            <div
-              role="dialog"
-              aria-modal="true"
-              aria-label={`Porte · ${event.title}`}
-              onKeyDown={(e) => {
-                if (e.key === "Escape" && !e.defaultPrevented) setView("plan");
-              }}
-              className="soirees-entree fixed inset-0 z-50 flex flex-col bg-background"
-            >
-              <div className="flex items-center justify-between gap-3 border-b border-hairline px-5 py-3">
-                <div className="min-w-0">
-                  <p className="truncate text-lg font-semibold">Porte · {event.title}</p>
-                  <p className="text-xs text-muted">
-                    <span className="tabular-nums">{expected}</span> attendue{expected > 1 ? "s" : ""} ·{" "}
-                    <span className="tabular-nums">{stats.arrived}</span> arrivée{stats.arrived > 1 ? "s" : ""}
-                  </p>
-                </div>
-                <IconButton aria-label="Fermer la porte" onClick={() => setView("plan")} autoFocus>
-                  <svg viewBox="0 0 24 24" className="size-4.5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
-                    <path d="M6 6l12 12M18 6L6 18" />
-                  </svg>
-                </IconButton>
-              </div>
-              <div className="flex-1 overflow-y-auto overscroll-contain px-5 pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3">
-                <DoorList held={held} onOpen={setSelectedId} />
-              </div>
+        </div>
+      )}
+
+      {/* Hors du bloc qui monte : une transformation en cours décalerait ce plein écran. */}
+      {!wide && view === "porte" && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label={`Porte · ${event.title}`}
+          onKeyDown={(e) => {
+            if (e.key === "Escape" && !e.defaultPrevented) setView("plan");
+          }}
+          className="porte-ecran fixed inset-0 z-50 flex flex-col bg-background"
+        >
+          <div className="porte-ecran-tete flex items-center justify-between gap-3 border-b border-hairline px-[var(--g-topbar-mx-sm)] pb-3">
+            <div className="min-w-0">
+              <p className="truncate font-display text-g-h2">Porte · {event.title}</p>
+              <p className="mt-0.5 text-g-meta text-muted">
+                <span className="tabular-nums">{expected}</span> attendue{expected > 1 ? "s" : ""} ·{" "}
+                <span className="tabular-nums">{stats.arrived}</span> arrivée{stats.arrived > 1 ? "s" : ""}
+              </p>
             </div>
-          )}
-        </>
+            <GlassButton variant="icon" aria-label="Fermer la porte" onClick={() => setView("plan")} autoFocus>
+              <XIcon />
+            </GlassButton>
+          </div>
+          <div className="seg-defile px-[var(--g-topbar-mx-sm)] pt-3">
+            <Segmented label="Le plan du soir" glass={false} options={viewTabs} value={view} onChange={setView} />
+          </div>
+          <div className="flex-1 overflow-y-auto overscroll-contain px-[var(--g-topbar-mx-sm)] pb-[calc(env(safe-area-inset-bottom)+1.5rem)] pt-3">
+            {door}
+          </div>
+        </div>
       )}
 
       {selected && selectedZone && (

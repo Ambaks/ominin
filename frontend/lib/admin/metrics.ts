@@ -4,6 +4,7 @@ import {
   PILOTAGE_READY_BATCH_SECONDS,
   PILOTAGE_RETURN_DAYS,
 } from "@/lib/admin/constants";
+import type { AccordSource } from "@/lib/menu/cart";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
@@ -141,6 +142,32 @@ export async function fetchItemRanking(
       p_to: period.to,
     })
     .then(must);
+}
+
+export interface ComboStats {
+  revenue: number;
+  lines: number;
+  /** Chiffre de toutes les commandes de la période, suggestions comprises. */
+  total: number;
+  by_source: { source: AccordSource; lines: number; revenue: number }[];
+  top: { name: string; quantity: number; revenue: number }[];
+  /** Proposées et retenues par sorte, suite du repas comprise. */
+  suggestions: Pilotage["suggestions"];
+}
+
+/** Sans établissement : toute la flotte, démos exclues. */
+export async function fetchCombo(
+  etablissementId: string | null,
+  period: Period
+): Promise<ComboStats> {
+  const { data, error } = await createClient().rpc("admin_combo_parfait", {
+    p_etab: etablissementId,
+    p_from: period.from,
+    p_to: period.to,
+    p_top: ITEM_RANKING_COUNT,
+  });
+  if (error) throw new Error(error.message);
+  return data as unknown as ComboStats;
 }
 
 /** Le document que renvoie admin_menu_pilotage. */

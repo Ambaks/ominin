@@ -1,7 +1,9 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { Badgeuse } from "@/components/gestion/temps/badgeuse";
+import { SectionHeading } from "@/components/gestion/ui";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { useOpenEntries } from "@/lib/gestion/use-week";
 
@@ -20,22 +22,22 @@ export default function BadgeagePage() {
   if (!hasFeature("badgeage")) return <FeatureLocked feature="badgeage" />;
 
   return (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h1 className="font-display text-2xl font-medium tracking-tight lg:text-3xl">
-          Badgeage
-        </h1>
-        <p className="mt-1 text-sm text-muted">
-          Pointez votre arrivée et votre départ, d&rsquo;une signature.
-        </p>
+    <div className="flex max-w-4xl flex-col gap-6">
+      <div className="g-rise" style={{ "--g-i": 0 } as CSSProperties}>
+        <SectionHeading
+          level={1}
+          title="Pointage"
+          sub="Pointez votre arrivée et votre départ, d'une signature."
+        />
       </div>
-
-      <Badgeuse
-        staff={state.staff}
-        entries={open.entries}
-        showHours={false}
-        onChange={open.reload}
-      />
+      <div className="g-rise" style={{ "--g-i": 1 } as CSSProperties}>
+        <Badgeuse
+          staff={state.staff}
+          entries={open.entries}
+          showHours={false}
+          onChange={open.reload}
+        />
+      </div>
     </div>
   );
 }

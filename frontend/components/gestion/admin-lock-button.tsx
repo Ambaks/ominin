@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { IconButton } from "@/components/ui/icon-button";
-import { Modal } from "@/components/ui/modal";
+import { GlassButton, Input, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 import { lockAdmin, unlockAdmin } from "@/lib/gestion/admin-lock";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useRealRole, useTabletLocked } from "@/lib/gestion/store";
@@ -15,7 +15,7 @@ import { LockIcon } from "./icons";
  * celui de l'établissement : l'espace y démarre en vue salle (vue comptoir
  * dans une boutique à emporter seule), ce bouton
  * l'ouvre au code, et le referme d'un geste quand la tablette retourne au
- * comptoir. Il ne paraît que si un code est posé (page Établissement).
+ * comptoir. Il ne paraît que si un code est posé (page Réglages).
  */
 export function AdminLockButton() {
   const state = useGestion();
@@ -44,7 +44,7 @@ export function AdminLockButton() {
       }
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
     } finally {
       setBusy(false);
@@ -56,62 +56,50 @@ export function AdminLockButton() {
       ? "Revenir à la vue comptoir"
       : "Revenir à la vue salle";
     return (
-      <IconButton
-        onClick={() => lockAdmin()}
-        title={retour}
-        aria-label={retour}
-      >
-        <LockIcon className="size-4" />
-      </IconButton>
+      <GlassButton variant="icon" onClick={() => lockAdmin()} title={retour} aria-label={retour}>
+        <LockIcon />
+      </GlassButton>
     );
   }
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setAsking(true)}
-        className="min-h-11 rounded-full border border-hairline px-4 text-[10px] font-semibold uppercase tracking-wider text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:min-h-9"
-      >
-        Admin
-      </button>
+      <GlassButton onClick={() => setAsking(true)}>Admin</GlassButton>
       {asking && (
-        <Modal
+        <Sheet
           title="Mode gérant"
           onClose={() => {
             setAsking(false);
             setCode("");
           }}
           footer={
-            <button
-              type="submit"
-              form="admin-code"
-              disabled={busy || code.length < 4}
-              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-            >
-              Ouvrir
-            </button>
+            <>
+              {code.length < 4 && <p>Tapez le code pour ouvrir.</p>}
+              <GlassButton variant="primary" type="submit" form="admin-code" disabled={busy || code.length < 4}>
+                Ouvrir
+              </GlassButton>
+            </>
           }
         >
           <form id="admin-code" onSubmit={submit} className="flex flex-col gap-4">
-            <p className="text-sm leading-relaxed text-muted">
+            <p className="text-g-label text-muted">
               Entrez le code de l&rsquo;établissement pour ouvrir les écrans du
               gérant sur cette tablette.
             </p>
-            <input
+            <Input
               type="password"
               inputMode="numeric"
               autoComplete="off"
-              autoFocus
+              data-autofocus
               value={code}
               onChange={(event) =>
                 setCode(event.target.value.replace(/\D/g, "").slice(0, 8))
               }
               aria-label="Code d'accès"
-              className="w-full rounded-xl border border-hairline bg-background px-4 py-3 text-center font-display text-2xl tracking-[0.5em] outline-none transition-colors focus:border-ember-2/50"
+              className="text-center tracking-widest"
             />
           </form>
-        </Modal>
+        </Sheet>
       )}
     </>
   );

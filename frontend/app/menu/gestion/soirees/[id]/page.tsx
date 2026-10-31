@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useParams } from "next/navigation";
 import {
   ClubLoadError,
@@ -9,7 +8,7 @@ import {
   NightNotFound,
 } from "@/components/gestion/soirees/club-states";
 import { EventEditor } from "@/components/gestion/soirees/event-editor";
-import { EmptyState } from "@/components/ui/empty-state";
+import { GlassButton, ReserveGerant } from "@/components/gestion/ui";
 import { useClub, useClubLoadError, useClubNights } from "@/lib/gestion/club-store";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 
@@ -27,20 +26,14 @@ export default function SoireePage() {
   if (!hasFeature("soirees")) return <ClubLocked />;
   if (!can("soirees.edit")) {
     return (
-      <EmptyState
-        title="Réservé au gérant"
-        body="Le gérant prépare les soirées. Le plan du soir, lui, est ouvert à toute l'équipe."
-        action={
-          isNew ? undefined : (
-            <Link
-              href={`/gestion/soirees/${id}/live`}
-              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-            >
-              Plan du soir
-            </Link>
-          )
-        }
-      />
+      <div className="flex flex-col gap-g-gap">
+        <ReserveGerant ask="préparer les soirées" />
+        {!isNew && (
+          <GlassButton variant="primary" className="self-start" href={`/gestion/soirees/${id}/live`}>
+            Plan du soir
+          </GlassButton>
+        )}
+      </div>
     );
   }
   if (!club) return error ? <ClubLoadError message={error} /> : <ClubSkeleton />;

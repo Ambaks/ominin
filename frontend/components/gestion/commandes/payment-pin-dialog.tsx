@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/modal";
+import { Field, GlassButton, Input, Sheet } from "@/components/gestion/ui";
 import { verifyPaymentPin } from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 
 export function PaymentPinDialog({
   onAuthorized,
@@ -22,74 +23,50 @@ export function PaymentPinDialog({
     setError(null);
     try {
       if (!(await verifyPaymentPin(code))) {
-        setError("Code incorrect.");
+        setError("Code incorrect : réessayez, ou demandez-le au gérant.");
         setCode("");
         return;
       }
       onAuthorized(code);
     } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "Vérification impossible."
-      );
+      setError(describeError(reason).message);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <Modal
-      title="Code d'encaissement"
+    <Sheet
+      title="Code d’encaissement"
+      description="Le gérant l’a défini dans Réglages › Encaissement."
       onClose={onClose}
       footer={
         <>
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-          >
-            Annuler
-          </button>
-          <button
-            type="submit"
-            form="payment-pin-form"
-            disabled={code.length !== 4 || busy}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-          >
+          {code.length !== 4 && <p>Saisissez les 4 chiffres pour continuer.</p>}
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" type="submit" form="payment-pin-form" disabled={code.length !== 4 || busy}>
             {busy ? "Vérification…" : "Continuer"}
-          </button>
+          </GlassButton>
         </>
       }
     >
-      <form
-        id="payment-pin-form"
-        onSubmit={(event) => void submit(event)}
-        className="flex flex-col gap-3"
-      >
-        <p className="text-sm leading-relaxed text-muted">
-          Saisissez le code à 4 chiffres que le gérant a défini dans
-          Établissement.
-        </p>
-        <input
-          type="password"
-          inputMode="numeric"
-          autoComplete="off"
-          data-autofocus
-          value={code}
-          onChange={(event) => {
-            setCode(event.target.value.replace(/\D/g, "").slice(0, 4));
-            setError(null);
-          }}
-          aria-label="Code d'encaissement"
-          aria-invalid={Boolean(error)}
-          placeholder="••••"
-          className="rounded-xl border border-hairline bg-surface px-4 py-3 text-center text-2xl tracking-[0.5em] outline-none transition-colors placeholder:text-faint focus:border-ember-2/60"
-        />
-        {error && (
-          <p role="alert" className="text-sm text-ember-3">
-            {error}
-          </p>
-        )}
+      <form id="payment-pin-form" onSubmit={(event) => void submit(event)}>
+        <Field label="Code" hint="4 chiffres" error={error ?? undefined}>
+          <Input
+            type="password"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            data-autofocus
+            value={code}
+            onChange={(event) => {
+              setCode(event.target.value.replace(/\D/g, "").slice(0, 4));
+              setError(null);
+            }}
+            placeholder="••••"
+            className="text-center tracking-[0.5em]"
+          />
+        </Field>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

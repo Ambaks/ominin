@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { CounterLines } from "@/components/gestion/commandes/counter-lines";
+import { Chip, GlassButton, Plate } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import {
@@ -14,7 +15,9 @@ import { earlierNumberingDay } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Order, OrderStatus } from "@/lib/gestion/types";
 import { formatWait, minutesSince } from "@/lib/gestion/use-now";
+import { ClockIcon } from "../icons";
 import { HubriseRef } from "./hubrise-ref";
+import { describeError } from "@/lib/gestion/errors";
 
 /*
  * Une commande fast food dans l'onglet À servir : son numéro, en grand — c'est
@@ -37,6 +40,8 @@ export function CounterCard({
   table,
   readOnly = false,
   setStatus = api.updateOrderStatus,
+  i,
+  ready: arrived = false,
 }: {
   order: Order;
   /** L'heure de la page : une seule horloge pour toutes les cartes (et le
@@ -51,28 +56,23 @@ export function CounterCard({
   readOnly?: boolean;
   /** Démonstration : le geste reste dans l'onglet au lieu d'écrire en base. */
   setStatus?: (orderId: string, status: OrderStatus) => Promise<unknown>;
+  /** Rang d'entrée dans la page. */
+  i?: number;
+  /** Arrivée en temps réel : l'onde de braise, une fois. */
+  ready?: boolean;
 }) {
   const { role } = useGestionAccess();
   const toast = useToast();
   const [busy, setBusy] = useState(false);
+  // Rang d'entrée figé au montage : un changement d'onglet ne rejoue rien.
+  const [rise] = useState(i);
   const ready = order.status === "prete";
   const waited = minutesSince(order.createdAt, now);
   // En préparation seulement : une commande prête n'a pas l'heure où elle l'est devenue.
   const late = !ready && waited >= COUNTER_WAIT_LATE_MINUTES;
+  const warn = !ready && !late && waited >= COUNTER_WAIT_WARN_MINUTES;
   // Arrivée dans la minute (« à l'instant ») : elle se signale parmi les autres.
   const fresh = !ready && waited < 1;
-  // Plus l'attente est longue, plus elle se voit : discrète d'abord, puis
-  // pastille pleine, ambre puis rouge (crème à l'arrivée). Les pastilles
-  // débordent dans la marge : le texte reste aligné sur l'heure en dessous.
-  const waitTone = ready
-    ? ""
-    : late
-      ? "-mr-2 px-2 bg-ember-3 text-background"
-      : waited >= COUNTER_WAIT_WARN_MINUTES
-        ? "-mr-2 px-2 bg-ember-1 text-background"
-        : fresh
-          ? "-mr-2 px-2 bg-foreground text-background"
-          : "text-muted";
   const earlierDay = earlierNumberingDay(order, resetHour);
 
   const move = async (target: OrderStatus, message: string) => {
@@ -81,9 +81,7 @@ export function CounterCard({
       await setStatus(order.id, target);
       toast.success(message);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
+      toast.error(describeError(error).message);
     } finally {
       setBusy(false);
     }
@@ -94,114 +92,82 @@ export function CounterCard({
       { target: "servie", label: `Remettre N° ${order.orderNumber}`, done: `N° ${order.orderNumber} remise au client.` }
     : { target: "prete", label: "Marquer prête", done: `N° ${order.orderNumber} prête.` };
   const actionable = !readOnly && can(role, `orders.setStatus:${next.target}`);
+  const stateWord = ready ? "Prête · à remettre" : late ? "En retard" : fresh ? "Nouvelle commande" : "En préparation";
 
   return (
-    <article
+    <Plate
       data-ready={ready || undefined}
       data-late={late || undefined}
       data-fresh={fresh || undefined}
-      className="counter-card flex flex-col overflow-hidden rounded-2xl border border-hairline bg-surface pb-4 data-fresh:border-foreground/25 data-late:border-ember-3 data-late:ring-1 data-late:ring-ember-3 data-ready:border-ember-2/60"
+      className={`${late ? "g-problem" : "g-orders"} ${rise === undefined ? "" : "g-rise"} ${arrived ? "g-ready" : ""} flex flex-col pb-4 data-fresh:ring-1 data-fresh:ring-ember-2 data-late:ring-1 data-late:ring-ember-3 data-ready:ring-1 data-ready:ring-ember-2`}
+      style={rise === undefined ? undefined : ({ "--g-i": rise } as CSSProperties)}
     >
       <div
-        className={`flex items-start justify-between gap-3 px-5 pb-2.5 pt-3 ${
-          ready ? "ember-gradient text-background" : late ? "bg-ember-3/30" : ""
+        className={`flex items-start justify-between gap-3 rounded-t-g-card px-5 pb-2.5 pt-3.5 ${
+          ready ? "ember-gradient text-background" : late ? "bg-[color-mix(in_srgb,var(--ember-3)_var(--g-chip-tint),transparent)]" : ""
         }`}
       >
-        <h3 className="flex flex-col gap-0.5">
+        <h3 className="flex flex-col gap-1">
           {/* L'état en toutes lettres : le retard ne tient pas qu'à une couleur. */}
-          {/* Même hauteur de ligne que la pastille d'attente : les deux se
-              lisent sur une seule ligne. */}
-          <span
-            className={`text-sm font-semibold uppercase leading-6 tracking-[0.16em] ${
-              ready
-                ? "text-background/75"
-                : late
-                  ? // Éclairci : le mot le plus urgent reste lisible sur la bande sombre.
-                    "text-[color-mix(in_srgb,var(--ember-3)_70%,var(--foreground))]"
-                  : fresh
-                    ? "text-foreground"
-                    : "text-muted"
-            }`}
-          >
-            {ready
-              ? "Prête · à remettre"
-              : late
-                ? "En retard"
-                : fresh
-                  ? "Nouvelle commande"
-                  : "En préparation"}
+          {/* Jamais de grenat seul en petit texte : en retard, le mot est en clair sur la bande teintée. */}
+          <span className={`g-eyebrow ${ready ? "[--g-entity:var(--background)] opacity-75" : late || fresh ? "[--g-entity:var(--foreground)]" : ""}`}>
+            {stateWord}
           </span>
           <span className="flex items-baseline gap-1.5 font-semibold leading-none tabular-nums">
-            <span className="text-2xl opacity-60">N°</span>
-            <span className="counter-number text-6xl tracking-tight">
-              {order.orderNumber}
-            </span>
+            <span className="text-g-h2 opacity-60">N°</span>
+            <span className="text-g-counter tracking-tight">{order.orderNumber}</span>
           </span>
           {/* Le numéro reste ce qu'on appelle : la table se lit en second. */}
           {table !== undefined && (
-            <span
-              className={`mt-1 text-sm font-semibold tabular-nums ${
-                ready ? "text-background/75" : "text-muted"
-              }`}
-            >
+            <span className={`mt-1 text-g-label font-semibold tabular-nums ${ready ? "text-background/75" : "text-muted"}`}>
               Table {table}
             </span>
           )}
         </h3>
         {/* Attente en haut, heure calée sur le bas du numéro. */}
-        <p className="flex flex-col items-end justify-between gap-1.5 self-stretch text-right tabular-nums">
-          {/* Pastille : l'attente qui s'allonge se voit de loin. */}
-          <span
-            className={`rounded-full py-0.5 text-base font-semibold leading-5 ${waitTone}`}
-          >
-            {formatWait(waited)}
-          </span>
-          <span
-            className={`text-[13px] ${ready ? "text-background/85" : "text-muted"}`}
-          >
+        <div className="flex flex-col items-end justify-between gap-1.5 self-stretch text-right tabular-nums">
+          {/* L'attente qui s'allonge se voit de loin : pastille neutre, puis grenat. */}
+          {ready ? (
+            <span className="text-g-label text-background/85">{formatWait(waited)}</span>
+          ) : late || warn ? (
+            <Chip tone="problem" icon={<ClockIcon />}>
+              {formatWait(waited)}
+            </Chip>
+          ) : (
+            <Chip>{formatWait(waited)}</Chip>
+          )}
+          <span className={`text-g-label ${ready ? "text-background/85" : "text-muted"}`}>
             {earlierDay && (
-              <span className={`font-semibold ${ready ? "" : "text-ember-3"}`}>
-                {earlierDay} ·{" "}
-              </span>
+              <span className={`font-semibold ${ready ? "" : "text-foreground"}`}>{earlierDay} · </span>
             )}
             {formatTime(order.createdAt)}
           </span>
-        </p>
+        </div>
       </div>
-      <HubriseRef orders={[order]} className="px-5" />
-
       <CounterLines items={order.items} className="flex-1 pt-3" />
+      {/* L'identifiant caisse après le contenu du sac : on vérifie le sac d'abord, la caisse ensuite. */}
+      <HubriseRef orders={[order]} className="mt-2 px-5" sendState />
 
       {actionable && (
-        <div className="mt-3 flex items-center gap-5 px-5">
+        <div className="mt-3 flex items-center gap-3 px-5">
           {ready && can(role, "orders.setStatus:payee") && (
-            <button
-              type="button"
+            <GlassButton
               disabled={busy}
-              onClick={() =>
-                void move("payee", `N° ${order.orderNumber} repasse en préparation.`)
-              }
-              className="min-h-11 rounded-full border border-foreground/15 px-3 text-[13px] font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-60"
+              onClick={() => void move("payee", `N° ${order.orderNumber} repasse en préparation.`)}
             >
               Pas encore prête
-            </button>
+            </GlassButton>
           )}
-          <button
-            type="button"
+          <GlassButton
+            variant="primary"
+            className="flex-1"
             disabled={busy}
             onClick={() => void move(next.target, next.done)}
-            className={`min-h-11 flex-1 rounded-full px-5 py-2.5 text-sm font-semibold disabled:opacity-60 ${
-              ready
-                ? "ember-gradient text-background"
-                : `border text-foreground transition-colors hover:bg-ember-2/10 ${
-                    late ? "border-ember-3" : "border-ember-2/50"
-                  }`
-            }`}
           >
             {next.label}
-          </button>
+          </GlassButton>
         </div>
       )}
-    </article>
+    </Plate>
   );
 }
