@@ -870,8 +870,8 @@ const boho: Restaurant = {
   // l'encaissement, le plat arrive ensuite.
   afterMeal: {
     live: { delayMinutes: 45 },
-    desserts: ["Tiramisu au café", "Fondant au chocolat", "Gaufre liégeoise"],
-    coffees: ["Espresso", "Lungo", "Cappuccino"],
+    desserts: ["Tiramisu au café", "Fondant au chocolat", "Crème brûlée Vanille"],
+    coffees: ["Espresso", "Cappuccino"],
     snacks: ["Nems poulet (x4)", "Assortiment BOHO"],
     drinkCategories: ["Cocktails", "Smoothies", "Milkshakes", "Boissons", "Boissons chaudes", "Chichas"],
     reviewUrl: "https://search.google.com/local/writereview?placeid=ChIJMfJl6rClrhIRPIs1uamYegE",
