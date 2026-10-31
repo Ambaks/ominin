@@ -13,6 +13,7 @@ import { formatPrice } from "@/lib/menu/format";
 import { collectProduct, offreProducts } from "@/lib/products";
 import { quotePlan } from "@/lib/quote";
 import { createClient } from "@/lib/supabase/client";
+import { ErrorNotice, GlassButton, Plate, Shimmer } from "./ui";
 
 /*
  * Écran affiché à la place de l'espace de gestion tant qu'aucun produit
@@ -43,7 +44,7 @@ export function SubscriptionGate({
     window.location.search.includes("checkout=succes")
   );
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<unknown>(null);
   // Le second chemin d'activation (sans devis) fait signer lui aussi : c'est
   // le même engagement, il ne peut pas tenir à l'écran par lequel on passe.
   const { contract, contractError } = useContract();
@@ -82,33 +83,29 @@ export function SubscriptionGate({
 
   if (inCreation) {
     return (
-      <div className="mx-auto flex w-full max-w-xl flex-col items-center gap-4 py-16 text-center">
-        <span className="pop ember-gradient flex size-14 items-center justify-center rounded-full text-2xl text-background" aria-hidden>
+      <Plate className="g-rise mx-auto flex w-full max-w-xl flex-col items-center gap-4 px-6 py-12 text-center">
+        <span className="pop ember-gradient flex size-14 items-center justify-center rounded-full text-g-h2 text-background" aria-hidden>
           ✦
         </span>
-        <h1 className="font-display text-3xl font-medium tracking-tight">Votre menu est en création</h1>
-        <p className="max-w-md text-sm leading-relaxed text-muted">
-          Notre équipe prépare votre menu à partir de vos réponses. Votre espace s’ouvre dès qu’il est prêt.
+        <h1 className="font-display text-g-h1">Votre carte est en création</h1>
+        <p className="max-w-md text-g-body text-muted">
+          Notre équipe prépare votre carte à partir de vos réponses. Votre espace s’ouvre dès qu’elle est prête.
         </p>
-      </div>
+      </Plate>
     );
   }
   if (!confirming && !feeDue && offre && quotePlan(offre)) {
     return (
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-8">
-        <div className="flex flex-col gap-2 text-center">
-          <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-            {quotePage.gateEyebrow}
-          </p>
-          <h1 className="font-display text-2xl font-medium tracking-tight">
-            {quotePage.gateTitle}
-          </h1>
-          <p className="mx-auto max-w-lg text-sm leading-relaxed text-muted">
+      <div className="g-rise mx-auto flex w-full max-w-4xl flex-col gap-8">
+        <div className="g-orders flex flex-col items-center gap-2 text-center">
+          <p className="g-eyebrow">{quotePage.gateEyebrow}</p>
+          <h1 className="font-display text-g-h1">{quotePage.gateTitle}</h1>
+          <p className="mx-auto max-w-lg text-g-body text-muted">
             {role === "gerant" ? quotePage.gateSubtitle : quotePage.staffOnly}
           </p>
         </div>
         {role === "gerant" && setup === undefined && (
-          <div aria-busy className="shimmer h-96 rounded-3xl" />
+          <Shimmer className="h-96 rounded-g-hero" />
         )}
         {role === "gerant" && setup !== undefined && (
           <QuoteBuilder
@@ -166,33 +163,31 @@ export function SubscriptionGate({
         await refreshSubscription();
       }
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Une erreur est survenue."
-      );
+      setError(cause);
       setBusy(false);
     }
   };
 
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center gap-5 rounded-2xl border border-hairline bg-surface p-8 text-center">
-      <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
+    <Plate className="g-rise g-orders mx-auto flex w-full max-w-md flex-col items-center gap-5 px-6 py-8 text-center">
+      <p className="g-eyebrow">
         {confirming
           ? "Paiement reçu"
           : feeDue
             ? quotePage.trialEnded.eyebrow
             : "Dernière étape"}
       </p>
-      <h1 className="font-display text-2xl font-medium tracking-tight">
+      <h1 className="font-display text-g-h2">
         {confirming ? "Activation en cours…" : "Activez votre abonnement"}
       </h1>
       {confirming ? (
-        <p className="text-sm leading-relaxed text-muted">
+        <p className="text-g-body text-muted">
           Merci ! Votre paiement est confirmé, votre espace s’ouvre dans
           quelques secondes.
         </p>
       ) : (
         <>
-          <p className="text-sm leading-relaxed text-muted">
+          <p className="text-g-body text-muted">
             {feeDue ? quotePage.trialEnded.lead : "Votre établissement est prêt."}{" "}
             Il ne reste qu’à activer{" "}
             {product && (
@@ -231,25 +226,31 @@ export function SubscriptionGate({
                   )
                 }
               />
-              <button
-                type="button"
+              {!accepted && !busy && (
+                <p className="text-g-meta text-muted">
+                  Acceptez les conditions pour activer.
+                </p>
+              )}
+              <GlassButton
+                variant="primary"
                 onClick={() => void activate()}
                 disabled={busy || !accepted}
-                className="ember-gradient rounded-full px-6 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
               >
-                Activer mon abonnement
-              </button>
+                {busy ? "Un instant…" : "Activer mon abonnement"}
+              </GlassButton>
             </>
           ) : (
-            <p className="text-sm text-faint">
+            <p className="text-g-meta text-muted">
               Seul le gérant peut activer l’abonnement.
             </p>
           )}
-          {(error || contractError) && (
-            <p className="text-sm text-ember-3">{error ?? contractError}</p>
-          )}
+          {error != null || contractError ? (
+            <div className="w-full text-left">
+              <ErrorNotice error={error ?? contractError} />
+            </div>
+          ) : null}
         </>
       )}
-    </div>
+    </Plate>
   );
 }
