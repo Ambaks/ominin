@@ -5,10 +5,11 @@ import type { MenuItem, Restaurant } from "@/lib/menu-data";
 
 /*
  * La suite du repas : ce qu'un serveur demanderait en repassant à table. La
- * minuterie part du scan du retrait au bar et se relit à chaque retour sur la
- * page : son heure est gardée dans le navigateur, la page peut se fermer
- * entre-temps. Une nouvelle commande l'arrête, son retrait la relance, et la
- * suite se décide alors sur elle seule.
+ * minuterie part du scan du retrait au bar (aperçu) ou de l'heure où la commande
+ * passe servie (production) et se relit à chaque retour sur la page : son heure
+ * est gardée dans le navigateur, la page peut se fermer entre-temps. Une nouvelle
+ * commande l'arrête, son service la relance, et la suite se décide alors sur elle
+ * seule.
  */
 
 export interface AfterMealOffer {
@@ -21,6 +22,10 @@ export interface AfterMealOffer {
   drinkNames: string[];
   /** Le lien « laisser un avis Google », le même pour tous les clients. */
   reviewUrl?: string;
+  /** Le temps laissé au client avant de proposer la suite. */
+  delayMs: number;
+  /** Le petit mot au-dessus des titres, dans la langue de la maison. */
+  kickers?: { finir: string; encore: string; merci: string };
 }
 
 /** La dernière commande servie sur ce téléphone, et où en est la proposition. */
@@ -52,26 +57,33 @@ const oneTap = (item: MenuItem) => !item.options?.length;
 export function resolveAfterMeal(restaurant: Restaurant): AfterMealOffer {
   const config = restaurant.afterMeal;
   const items = restaurant.categories.flatMap((category) => category.items);
-  const pick = (ids: string[] = []) =>
-    ids.flatMap((id) => {
-      const item = items.find((candidate) => candidate.id === id);
+  // Par id dans l'aperçu ; par nom en production, où les ids sont ceux de la base.
+  const pick = (refs: string[] = []) =>
+    refs.flatMap((ref) => {
+      const item = items.find((candidate) => candidate.id === ref || candidate.name === ref);
       return item && oneTap(item) ? [withPhoto(item)] : [];
     });
   const withPhoto = (item: MenuItem): MenuItem => {
     const image = config?.images?.[item.id];
     return image ? { ...item, image } : item;
   };
-  const coffees = config?.coffees ?? [];
+  const coffees = pick(config?.coffees);
   const drinks = restaurant.categories
-    .filter((category) => category.boissons)
+    .filter((category) =>
+      config?.drinkCategories ? config.drinkCategories.includes(category.name) : category.boissons
+    )
     .flatMap((category) => category.items);
   return {
     desserts: pick(config?.desserts),
-    coffees: pick(coffees),
+    coffees,
     snacks: pick(config?.snacks),
-    drinks: drinks.filter((item) => oneTap(item) && !coffees.includes(item.id)).map(withPhoto),
+    drinks: drinks
+      .filter((item) => oneTap(item) && !coffees.some((coffee) => coffee.id === item.id))
+      .map(withPhoto),
     drinkNames: drinks.map(lineName),
-    reviewUrl: restaurant.googleReviewUrl,
+    reviewUrl: config?.reviewUrl ?? restaurant.googleReviewUrl,
+    delayMs: config?.live ? config.live.delayMinutes * 60_000 : AFTER_MEAL_DELAY_MS,
+    kickers: config?.kickers,
   };
 }
 
@@ -111,12 +123,17 @@ export function nextStep(
 }
 
 /** Dans combien de ms proposer la suite ; null si la visite n'attend plus rien. */
-export function afterMealWait(visit: AfterMealVisit | null, now: number): number | null {
+export function afterMealWait(
+  visit: AfterMealVisit | null,
+  now: number,
+  delayMs: number
+): number | null {
   if (!visit || visit.shown || now >= visit.servedAt + AFTER_MEAL_EXPIRY_MS) return null;
-  return Math.max(0, visit.servedAt + AFTER_MEAL_DELAY_MS - now);
+  return Math.max(0, visit.servedAt + delayMs - now);
 }
 
 const storageKey = (slug: string) => `ominin-apres-repas:${slug}`;
+const ordersKey = (slug: string) => `ominin-apres-repas:commandes:${slug}`;
 
 const listeners = new Set<() => void>();
 
@@ -157,4 +174,68 @@ export function saveVisit(slug: string, visit: AfterMealVisit | null) {
     // Stockage refusé : la suite ne se proposera pas, le reste de la carte tient.
   }
   for (const listener of listeners) listener();
+}
+
+/** Les commandes de ce téléphone pas encore servies (production). */
+export function readOrdersText(slug: string): string | null {
+  try {
+    return localStorage.getItem(ordersKey(slug));
+  } catch {
+    return null;
+  }
+}
+
+export function parseOrders(text: string | null): string[] {
+  try {
+    const orders: unknown = text ? JSON.parse(text) : [];
+    return Array.isArray(orders) ? orders.filter((id) => typeof id === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveOrders(slug: string, orders: string[]) {
+  try {
+    if (orders.length > 0) localStorage.setItem(ordersKey(slug), JSON.stringify(orders));
+    else localStorage.removeItem(ordersKey(slug));
+  } catch {
+    // Stockage refusé : la suite ne se proposera pas, le reste de la carte tient.
+  }
+  for (const listener of listeners) listener();
+}
+
+export function rememberOrder(slug: string, orderId: string) {
+  const orders = parseOrders(readOrdersText(slug));
+  if (!orders.includes(orderId)) saveOrders(slug, [...orders, orderId]);
+}
+
+export function forgetOrder(slug: string, orderId: string) {
+  saveOrders(
+    slug,
+    parseOrders(readOrdersText(slug)).filter((id) => id !== orderId)
+  );
+}
+
+/** L'apparition d'où vient un ajout au panier : le temps de l'onglet, comme le panier. */
+const appearanceKey = (slug: string) => `ominin-apres-repas:apparition:${slug}`;
+
+export function keepAppearance(slug: string, appearance: string, shownAt: number) {
+  try {
+    sessionStorage.setItem(appearanceKey(slug), JSON.stringify({ appearance, shownAt }));
+  } catch {
+    // Stockage refusé : la commande qui suit ne se rattachera pas à la feuille.
+  }
+}
+
+/** Une commande passée : l'apparition qui l'a précédée, une seule fois. */
+export function takeAppearance(slug: string): { appearance: string; ms: number } | null {
+  try {
+    const saved = sessionStorage.getItem(appearanceKey(slug));
+    sessionStorage.removeItem(appearanceKey(slug));
+    if (!saved) return null;
+    const { appearance, shownAt } = JSON.parse(saved);
+    return { appearance, ms: Date.now() - shownAt };
+  } catch {
+    return null;
+  }
 }

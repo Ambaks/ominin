@@ -15,6 +15,8 @@ import { HappyHourPill } from "@/components/menu/happy-hour-pill";
 import { Hero } from "@/components/menu/hero";
 import { LoyaltyWelcome } from "@/components/menu/loyalty-welcome";
 import { MenuFooter } from "@/components/menu/menu-footer";
+import { LiveAfterMeal } from "@/components/menu/after-meal";
+import { resolveAfterMeal } from "@/lib/menu/after-meal";
 import { MenuHighlights } from "@/components/menu/menu-highlights";
 import { MenuSection } from "@/components/menu/menu-section";
 import { MenuTicker } from "@/components/menu/menu-ticker";
@@ -272,6 +274,7 @@ export default async function MenuPage({
             />
             {callServer && <CallServerButton />}
             {happyHour && <HappyHourPill happyHour={happyHour} />}
+            {cartConfig.afterMealLive && <LiveAfterMeal offer={resolveAfterMeal(restaurant)} />}
             {inPill && (affiches.length > 0 || tiles.length > 0) && (
               <FormulesPill affiches={affiches} formules={tiles} />
             )}

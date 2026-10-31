@@ -23,6 +23,7 @@ export interface TrackOptions {
 }
 
 export type SuggestionKind = Database["public"]["Enums"]["menu_suggestion_kind"];
+export type AfterMealEvent = Database["public"]["Enums"]["after_meal_event"];
 
 export interface MenuTracker {
   track: (stage: MenuStage, options?: TrackOptions) => void;
@@ -88,6 +89,36 @@ function post(
   }).catch(() => {
     // Un mouchard ne casse jamais la page qu'il mesure.
   });
+}
+
+/** Un geste sur la feuille de la suite du repas : sans la visite, voir after_meal_events. */
+export function trackAfterMeal(
+  slug: string,
+  appearance: string,
+  event: AfterMealEvent,
+  details: {
+    moment?: string;
+    shownItems?: string[];
+    item?: string;
+    order?: string;
+    ms?: number;
+  } = {},
+  keepalive = false
+): void {
+  post(
+    {
+      p_slug: slug,
+      p_appearance: appearance,
+      p_event: event,
+      p_moment: details.moment,
+      p_shown_items: details.shownItems,
+      p_item: details.item,
+      p_order: details.order,
+      p_ms: details.ms,
+    },
+    keepalive,
+    "after_meal_track"
+  );
 }
 
 export function createTracker(
