@@ -7,7 +7,6 @@ import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import {
   ACCESS_KIND_LABELS,
-  FEE_FIELDS,
   ROLE_OPTIONS,
   accessSummary,
   accountLabel,
@@ -20,7 +19,6 @@ import {
   type Account,
   type AccountAction,
   type AccountEvent,
-  type FeeField,
   type RoleAccess,
   type RoleKind,
   type Scope,
@@ -36,46 +34,6 @@ interface Pending {
   confirmLabel: string;
   destructive?: boolean;
   action: AccountAction;
-}
-
-/** Un taux : l'application attend le bouton, puis une confirmation. */
-function FeeInput({
-  label,
-  value,
-  disabled,
-  onApply,
-}: {
-  label: string;
-  value: number;
-  disabled: boolean;
-  onApply: (percent: number) => void;
-}) {
-  const [draft, setDraft] = useState(String(value));
-  const percent = Number(draft.replace(",", "."));
-  const dirty = draft.trim() !== "" && Number.isFinite(percent) && percent !== value;
-  return (
-    <label className="flex items-center gap-2 text-xs text-muted">
-      {label}
-      <input
-        inputMode="decimal"
-        value={draft}
-        disabled={disabled}
-        onChange={(event) => setDraft(event.target.value)}
-        className={`${inputClass} w-20`}
-      />
-      %
-      {dirty && (
-        <button
-          type="button"
-          disabled={disabled}
-          onClick={() => onApply(percent)}
-          className="font-semibold text-foreground"
-        >
-          Appliquer
-        </button>
-      )}
-    </label>
-  );
 }
 
 /** Une action sensible attend confirmation ; toutes finissent par recharger la fiche. */
@@ -156,17 +114,6 @@ export function AccountPanel({
     setNewRole("");
   };
 
-  const askCommission = (access: RoleAccess, field: FeeField, label: string, percent: number) =>
-    setPending({
-      title: "Changer la commission ?",
-      message: `${access.name}, ${label} : ${access.fees[field] ?? 0} % → ${percent} %. Seuls les prochains paiements changent.`,
-      confirmLabel: "Changer",
-      action: { type: "commission", userId: account.user_id, kind: access.kind, scopeId: access.id, field, percent },
-    });
-
-  const ownerRole = (access: RoleAccess) =>
-    access.role === (access.kind === "menu" ? "gerant" : "proprietaire");
-
   return (
     <>
       <Modal title={label} onClose={onClose}>
@@ -223,22 +170,6 @@ export function AccountPanel({
                 >
                   Retirer
                 </button>
-                {ownerRole(access) && (
-                  <div className="flex w-full flex-wrap gap-x-4 gap-y-2 border-t border-hairline pt-2">
-                    <span className="w-full text-xs font-semibold">Commission Ominin</span>
-                    {FEE_FIELDS[access.kind]
-                      .filter(({ key }) => access.fees[key] != null)
-                      .map(({ key, label: feeLabel }) => (
-                        <FeeInput
-                          key={`${key}:${access.fees[key]}`}
-                          label={feeLabel}
-                          value={Number(access.fees[key])}
-                          disabled={busy || isSelf}
-                          onApply={(percent) => askCommission(access, key, feeLabel, percent)}
-                        />
-                      ))}
-                  </div>
-                )}
               </div>
             ))}
           </section>

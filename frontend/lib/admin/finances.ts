@@ -105,7 +105,7 @@ export const revenueTotal = (month: RevenueMonth): number =>
 const SOURCE_LABELS: Record<RevenueLine["source"], string> = {
   menu: "Commission Menu",
   collect: "Commission Collect",
-  bulles: "Commission Bulles",
+  bulles: "Commission Réservations",
   shop: "Commission Shop",
   club: "Frais Club",
   manual: "Encaissements hors Stripe",

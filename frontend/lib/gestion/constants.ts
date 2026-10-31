@@ -313,6 +313,11 @@ export const VIEWS: ViewSpec[] = [
         label: "Appeler un serveur",
         hint: "Le bouton du menu QR qui sonne sur les téléphones de l'équipe.",
       },
+      {
+        id: "site",
+        label: "Site web",
+        hint: "Le site de l'établissement, géré par Ominin, sous menu.ominin.com/w/. Hors offre : Ominin l'ouvre une fois son site créé.",
+      },
     ],
   },
   {
@@ -418,8 +423,8 @@ export const VIEWS: ViewSpec[] = [
   },
   {
     id: "bulles",
-    label: "Bulles",
-    hint: "Les bulles du jardin réservées en ligne : créneaux, prix par personne, réservations du soir et arrivées. Hors offre : Ominin l'ouvre pour un établissement qui en a.",
+    label: "Réservations",
+    hint: "La réservation en ligne depuis le site (les bulles du Boho) : créneaux, prix par personne, réservations du soir et arrivées. Hors offre : Ominin l'ouvre une fois le site de l'établissement créé.",
     features: [],
   },
   {

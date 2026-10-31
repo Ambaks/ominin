@@ -1,7 +1,7 @@
-import BulleReservationPage from "@/app/menu/m/[slug]/bulle/[token]/page";
+import BulleReservationPage from "@/app/menu/w/[slug]/bulle/[token]/page";
 import { demoParams } from "@/lib/bulles/demo-params";
 
-export { metadata } from "@/app/menu/m/[slug]/bulle/[token]/page";
+export { metadata } from "@/app/menu/w/[slug]/bulle/[token]/page";
 
 /* Le statut change sans l'organisateur : relu à chaque visite, comme hors démo. */
 export const dynamic = "force-dynamic";

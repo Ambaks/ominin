@@ -1,7 +1,8 @@
 import type { Viewport } from "next";
 import { KilimMark } from "@/components/sites/boho/marks";
 import { bohoFontVariables } from "@/lib/menu/brand-fonts";
-import { BOHO_SITE_SLUG, BOHO_THEME_COLOR } from "@/lib/sites/boho";
+import { BOHO_THEME_COLOR } from "@/lib/sites/boho";
+import { isSiteOpen } from "@/lib/sites/public";
 import { carteUrl, siteUrlOf } from "@/lib/bulles/links";
 import "@/components/sites/boho/boho.css";
 import "@/components/sites/boho/bulles.css";
@@ -16,9 +17,9 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default async function BulleLayout({ children, params }: LayoutProps<"/menu/m/[slug]/bulle">) {
+export default async function BulleLayout({ children, params }: LayoutProps<"/menu/w/[slug]/bulle">) {
   const { slug } = await params;
-  const home = slug === BOHO_SITE_SLUG ? siteUrlOf(slug) : carteUrl(slug);
+  const home = (await isSiteOpen(slug)) ? siteUrlOf(slug) : carteUrl(slug);
   return (
     <div className={`bo-site bo-bulle-site ${bohoFontVariables}`}>
       <header className="bo-header bo-header--plain">

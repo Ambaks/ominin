@@ -16,8 +16,6 @@ export type Scope =
 
 export type RoleKind = "menu" | "shop";
 
-export type FeeField = "platform_fee_percent" | "collect_fee_percent" | "table_fee_percent";
-
 export interface RoleAccess {
   kind: RoleKind;
   id: string;
@@ -26,25 +24,13 @@ export interface RoleAccess {
   demo: boolean;
   offre?: string | null;
   subscriptions?: Record<string, string | null> | null;
-  fees: Partial<Record<FeeField, number | null>>;
 }
-
-/** Les taux réglables de chaque type d'accès. */
-export const FEE_FIELDS: Record<RoleKind, { key: FeeField; label: string }[]> = {
-  menu: [
-    { key: "platform_fee_percent", label: "Menu et Bulles" },
-    { key: "collect_fee_percent", label: "Collect" },
-    { key: "table_fee_percent", label: "Club" },
-  ],
-  shop: [{ key: "platform_fee_percent", label: "Shop" }],
-};
 
 /** Une action de l'écran Comptes, jouée par /api/admin/comptes. */
 export type AccountAction = { userId: string } & (
   | { type: "admin"; admin: boolean }
   | { type: "access"; kind: RoleKind; scopeId: string; role: string | null }
   | { type: "suspend"; suspended: boolean }
-  | { type: "commission"; kind: RoleKind; scopeId: string; field: FeeField; percent: number }
 );
 
 /** Accès posés par leurs propres parcours (contrat, activation) : lus ici. */
@@ -103,13 +89,11 @@ export function accessSummary(access: Access): string {
     .map(([product, status]) =>
       product === "collect" ? `Collect : ${status}` : `abonnement : ${status}`
     );
-  const commission = access.fees?.platform_fee_percent;
   return [
     kind,
     access.name,
     offre,
     roleLabel(access),
-    commission != null ? `commission ${commission} %` : null,
     ...billing,
   ]
     .filter(Boolean)
@@ -120,7 +104,6 @@ export function eventLabel(event: AccountEvent): string {
   const detail = (event.detail ?? {}) as {
     kind?: RoleKind;
     name?: string;
-    field?: FeeField;
     from?: string | number | null;
     to?: string | number | null;
   };
@@ -141,10 +124,9 @@ export function eventLabel(event: AccountEvent): string {
       if (!detail.from) return `Ajouté à ${detail.name} : ${role(detail.to)}`;
       if (!detail.to) return `Retiré de ${detail.name}`;
       return `${detail.name} : ${role(detail.from)} → ${role(detail.to)}`;
-    case "commission": {
-      const field = detail.kind && FEE_FIELDS[detail.kind].find((candidate) => candidate.key === detail.field);
-      return `${detail.name} : commission ${field?.label ?? ""} ${detail.from ?? 0} % → ${detail.to} %`;
-    }
+    // Les changements faits avant que le taux quitte cet écran restent au journal.
+    case "commission":
+      return `${detail.name} : commission ${detail.from ?? 0} % → ${detail.to} %`;
     default:
       return event.action;
   }
