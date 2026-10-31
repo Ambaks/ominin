@@ -3,7 +3,7 @@ import type { createAdminClient } from "@/lib/supabase/admin";
 /**
  * Note qu'un encaisseur a refusé le paiement de la tentative en cours : une
  * tentative écartée ensuite se lit « échouée », pas « expirée » (voir le
- * journal, 20261031000200). Une mesure ne fait jamais échouer un paiement :
+ * journal, 20261031000500). Une mesure ne fait jamais échouer un paiement :
  * l'erreur est journalisée, pas levée.
  */
 export async function markPaymentRefused(

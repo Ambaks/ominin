@@ -15,10 +15,12 @@ import {
 } from "@/lib/admin/format";
 import {
   conversionRate,
+  fetchMeasures,
   fetchPilotage,
   periodOf,
   savePilotageFrom,
   type ClientOverview,
+  type Measures,
   type Pilotage,
 } from "@/lib/admin/metrics";
 import { SESSION_RETENTION_DAYS } from "@/lib/menu/analytics/constants";
@@ -74,7 +76,11 @@ function printedTables(reach: Pilotage["reach"]): Pilotage["reach"]["tables"] {
   return zoned.length > 0 ? zoned : reach.tables;
 }
 
-function buildRows(data: Pilotage): Row[] {
+function closedAttempts(measures: Measures): number {
+  return measures.succeeded + measures.expired + measures.failed + measures.counter;
+}
+
+function buildRows(data: Pilotage, measures: Measures | null): Row[] {
   const { bar, basket, conversion, loyalty, menu, payment, reach, suggestions, till } = data;
   const visits = reach.visits;
   const converted = conversion.hours.reduce((sum, hour) => sum + hour.converted, 0);
@@ -168,9 +174,13 @@ function buildRows(data: Pilotage): Row[] {
       goal: "Carte",
       metric: "Plats vus contre plats vendus",
       decision: "Photos, prix, position à changer",
-      availability: "indisponible",
-      value: "—",
-      note: `Aucun événement « plat vu » : les clics enregistrés sont des ajouts au panier. ${menu.sold} plats vendus sur ${menu.items}.`,
+      availability: measures?.views_since ? "mesure" : "partiel",
+      value: measures?.views_since
+        ? `${measures.views} ${measures.views > 1 ? "fiches ouvertes" : "fiche ouverte"}, ${menu.sold}/${menu.items} plats vendus`
+        : `${menu.sold}/${menu.items} plats vendus`,
+      note: measures?.views_since
+        ? "Le détail plat par plat est dans l'onglet Analytique."
+        : "Les fiches ouvertes ne se comptent que depuis ce déploiement.",
     },
     {
       goal: "Suggestions",
@@ -214,11 +224,17 @@ function buildRows(data: Pilotage): Row[] {
       goal: "Paiement",
       metric: "En ligne contre au bar ; paiements échoués",
       decision: "Commission et ventes perdues",
-      availability: "partiel",
+      availability: measures?.attempts_since ? "mesure" : "partiel",
       value: payment.online + payment.at_bar
-        ? `${share(payment.online, payment.online + payment.at_bar)} en ligne`
+        ? `${share(payment.online, payment.online + payment.at_bar)} en ligne${
+            measures?.attempts_since
+              ? ` ; ${measures.succeeded}/${closedAttempts(measures)} tentatives réussies`
+              : ""
+          }`
         : NO_DATA,
-      note: "Échecs indisponibles : une tentative expirée supprime sa commande, il faudrait un journal des tentatives.",
+      note: measures?.attempts_since
+        ? `${count(measures.failed, "refusée")}, ${count(measures.expired, "expirée")}, ${count(measures.counter, "passée")} au bar.`
+        : "Les tentatives en ligne ne se comptent que depuis ce déploiement.",
     },
   ];
 }
@@ -365,13 +381,23 @@ export function ClientPilotage({
 }) {
   const toast = useToast();
   const [data, setData] = useState<Pilotage | null>(null);
+  const [measures, setMeasures] = useState<Measures | null>(null);
   const [reload, setReload] = useState(0);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- la période a changé, l'écran repart en chargement.
     setData(null);
-    fetchPilotage(client.etablissement_id, periodOf(days))
-      .then(setData)
+    const period = periodOf(days);
+    fetchPilotage(client.etablissement_id, period)
+      .then(async (next) => {
+        // Même début de décompte que le reste de l'onglet.
+        const nextMeasures = await fetchMeasures(client.etablissement_id, {
+          from: next.venue.from_at,
+          to: period.to,
+        });
+        setMeasures(nextMeasures);
+        setData(next);
+      })
       .catch((error) =>
         toast.error(error instanceof Error ? error.message : "Une erreur est survenue.")
       );
@@ -382,7 +408,7 @@ export function ClientPilotage({
     return <div aria-busy className="shimmer h-96 rounded-2xl" />;
   }
 
-  const rows = buildRows(data);
+  const rows = buildRows(data, measures);
   const { bar, bar_hours, bar_people, basket, conversion, loyalty, payment, reach, saturation, sold_out, suggestions } = data;
 
   const zones = new Map<string, { visits: number; orders: number; tables: number; silent: number }>();
@@ -669,6 +695,13 @@ export function ClientPilotage({
               hint={count(payment.refunded, "remboursée")}
             />
             <StatTile label="Pourboires" value={formatEuros(payment.tips)} />
+            {measures?.attempts_since && (
+              <StatTile
+                label="Tentatives réussies"
+                value={`${measures.succeeded}/${closedAttempts(measures)}`}
+                hint={`${count(measures.failed, "refusée")}, ${count(measures.expired, "expirée")}, ${count(measures.counter, "passée")} au bar, ${measures.attempts_open} en cours`}
+              />
+            )}
           </div>
         </Section>
       </div>
