@@ -1,4 +1,4 @@
-import { ANALYSES, SMALL_BASE } from "./constants";
+import { ANALYSES, SMALL_BASE, WEEK_DRAFT_HREF } from "./constants";
 
 /*
  * Ce que l'onglet Analyses déduit de la réponse de `gestion_analyses`. Aucune
@@ -373,8 +373,7 @@ const namesOf = (names: readonly string[]) =>
 export function opportunities(
   data: AnalysesData,
   periodDays: number,
-  from: string,
-  to: string,
+  proposal: WeekProposal | null,
   formatMoney: (value: number) => string
 ): Opportunity[] {
   const perMonth = ANALYSES.monthDays / periodDays;
@@ -464,27 +463,20 @@ export function opportunities(
     });
   }
 
-  const rate = data.settings?.hourly_labor_cost;
-  if (rate != null && current.revenue > 0) {
-    // Seules les heures qui vendent : la mise en place n'est pas du temps en trop.
-    const excess = heatGrid(data, from, to).flatMap((cell) => {
-      const allowed = ((targets.labor / 100) * cell.revenue * htShare) / rate;
-      const hours = (cell.staffHours - allowed) * cell.coveredDays;
-      return hours > 0 ? [{ cell, hours }] : [];
+  // Le même calcul que le planning proposé : la piste et la semaine générée ne peuvent pas se contredire.
+  if (proposal && proposal.savings.week >= 1) {
+    const rate = data.settings?.hourly_labor_cost;
+    const monthlyHours = Math.round(proposal.savings.month).toLocaleString("fr-FR");
+    found.push({
+      id: "labor",
+      title: "Ajuster les heures creuses",
+      fact: `≈ ${monthlyHours} h par mois · ${Math.round(proposal.hours)} h proposées la semaine prochaine, ${Math.round(proposal.usualHours)} h d’habitude`,
+      monthly: rate != null ? proposal.savings.month * rate : null,
+      basis: "marge",
+      ceiling: false,
+      action: "Voir le planning proposé",
+      href: WEEK_DRAFT_HREF,
     });
-    if (excess.length > 0) {
-      const hours = excess.reduce((sum, row) => sum + row.hours, 0) * perMonth;
-      found.push({
-        id: "labor",
-        title: "Ajuster les heures creuses",
-        fact: `≈ ${Math.round(hours)} h par mois au-dessus de ${targets.labor} % d’équipe, sur ${excess.length} créneaux · sans compter l’effectif minimum`,
-        monthly: hours * rate,
-        basis: "marge",
-        ceiling: true,
-        action: "Voir le planning",
-        href: "/gestion/equipe",
-      });
-    }
   }
 
   if (data.payments.failed >= SMALL_BASE && current.orders > 0) {
@@ -760,6 +752,20 @@ export function weekSavings(usualHours: number, draftHours: number) {
   const week = usualHours - draftHours;
   const year = week * ANALYSES.staffing.weeksPerYear;
   return { week, month: year / 12, year };
+}
+
+export interface WeekProposal {
+  usualHours: number;
+  hours: number;
+  savings: ReturnType<typeof weekSavings>;
+}
+
+/** Le planning proposé en chiffres : ce que lisent la carte et la piste d'Analyses. */
+export function weekProposal(data: StaffingData, to: string, maxWaitMinutes: number): WeekProposal | null {
+  const draft = draftWeek(data, to, serverRatio(data), maxWaitMinutes);
+  if (draft.shifts.length === 0 || draft.usualHours === 0) return null;
+  const hours = draft.shifts.reduce((sum, shift) => sum + shiftHours(shift), 0);
+  return { usualHours: draft.usualHours, hours, savings: weekSavings(draft.usualHours, hours) };
 }
 
 /** Les heures pointées la dernière semaine complète, du lundi au dimanche. Nul : aucune. */
