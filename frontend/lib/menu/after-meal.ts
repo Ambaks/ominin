@@ -52,7 +52,9 @@ export interface AfterMealStep {
   items: MenuItem[];
 }
 
-const oneTap = (item: MenuItem) => !item.options?.length;
+/** Se prend d'un toucher : rien à choisir d'obligatoire, les suppléments restent facultatifs. */
+const oneTap = (item: MenuItem) =>
+  !item.options?.some((group) => group.obligatoire || group.formats);
 
 export function resolveAfterMeal(restaurant: Restaurant): AfterMealOffer {
   const config = restaurant.afterMeal;
