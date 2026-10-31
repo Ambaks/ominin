@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { CostsSheet } from "@/components/gestion/analyses/costs-sheet";
 import { SalesHeatmap } from "@/components/gestion/analyses/heatmap";
 import { MenuMatrix } from "@/components/gestion/analyses/menu-matrix";
@@ -34,12 +34,19 @@ import {
   revenuePerStaffHour,
   targetsOf,
   weekdayNorms,
+  weekProposal,
   type AnalysesData,
   type StaffingData,
   type Opportunity,
 } from "@/lib/gestion/analyses";
 import { comparison } from "@/lib/gestion/compare";
-import { ANALYSES, ANALYSES_DEFAULT_PERIOD_DAYS, ANALYSES_PERIOD_DAYS, SMALL_BASE } from "@/lib/gestion/constants";
+import {
+  ANALYSES,
+  ANALYSES_DEFAULT_PERIOD_DAYS,
+  ANALYSES_PERIOD_DAYS,
+  ENCAISSER_WAIT_WARN_MINUTES,
+  SMALL_BASE,
+} from "@/lib/gestion/constants";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { useAnalyses } from "@/lib/gestion/use-analyses";
 import { useStaffing } from "@/lib/gestion/use-staffing";
@@ -127,7 +134,12 @@ function Sections({
   const primePercent =
     foodPercent != null && labor.current.percent != null ? foodPercent + labor.current.percent : null;
 
-  const found = opportunities(data, days, from, to, money);
+  // La page se redessine à chaque commande reçue : le brouillon ne se refait que si les données changent.
+  const proposal = useMemo(
+    () => (canDraft && staffing ? weekProposal(staffing.data, staffing.to, ENCAISSER_WAIT_WARN_MINUTES) : null),
+    [canDraft, staffing]
+  );
+  const found = opportunities(data, days, proposal, money);
   const split = decompose(current, previous);
   const norms = weekdayNorms(data.days, NORM_DAYS, to);
   const ahead = forecast(data.days, to);
@@ -352,6 +364,7 @@ function Sections({
           <StaffingCard
             data={staffing.data}
             to={staffing.to}
+            proposal={proposal}
           />
         )}
       </Block>
