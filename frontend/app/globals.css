@@ -13131,6 +13131,45 @@ html:has([data-menu-root].theme-rosemarie) body {
   --color-ember-3: var(--ember-3);
   --color-chart-mark: var(--chart-mark);
 
+  /* Gestion v2 — ember glass : jetons --g-* exposés aux utilitaires. */
+  --color-g-entity: var(--g-entity);
+  --radius-g-card: var(--g-radius-card);
+  --radius-g-frame: var(--g-radius-frame);
+  --radius-g-hero: var(--g-radius-hero);
+  --spacing-g-pad: var(--g-pad);
+  --spacing-g-gap: var(--g-gap);
+  --spacing-g-control: var(--g-control);
+  --spacing-g-chip: var(--g-chip-h);
+  --spacing-g-rail: var(--g-rail);
+  --text-g-day: var(--g-text-day);
+  --text-g-day--line-height: 1;
+  --text-g-day--letter-spacing: -0.03em;
+  --text-g-day--font-weight: 600;
+  --text-g-kpi: var(--g-text-kpi);
+  --text-g-kpi--line-height: 1;
+  --text-g-kpi--letter-spacing: -0.03em;
+  --text-g-kpi--font-weight: 600;
+  --text-g-h1: var(--g-text-h1);
+  --text-g-h1--line-height: 1.05;
+  --text-g-h1--letter-spacing: -0.02em;
+  --text-g-h1--font-weight: 600;
+  --text-g-h2: var(--g-text-h2);
+  --text-g-h2--line-height: 1.15;
+  --text-g-h2--letter-spacing: -0.015em;
+  --text-g-h2--font-weight: 600;
+  --text-g-name: var(--g-text-name);
+  --text-g-name--line-height: 1;
+  --text-g-name--letter-spacing: -0.01em;
+  --text-g-name--font-weight: 600;
+  --text-g-body: var(--g-text-body);
+  --text-g-body--line-height: 1.45;
+  --text-g-label: var(--g-text-label);
+  --text-g-label--line-height: 1.4;
+  --text-g-meta: var(--g-text-meta);
+  --text-g-meta--line-height: 1.35;
+  --text-g-axis: var(--g-text-axis);
+  --text-g-axis--line-height: 1;
+
   --color-status-new: var(--status-new);
   --color-status-to-contact: var(--status-to-contact);
   --color-status-contacted: var(--status-contacted);
@@ -13807,6 +13846,725 @@ body {
 
 .fab-breathe {
   animation: fab-breathe 2.6s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Gestion v2 — ember glass
+   Matière du back-office refait : verre dépoli sur une aura de braises, et
+   des « plaques » claires pour tout ce qui porte des chiffres. Jetons --g-*
+   seuls (tout nombre nouveau vit ici), utilitaires .g-*, replis quand la
+   transparence, le backdrop-filter ou le mouvement sont refusés. Contrat :
+   components/gestion/DESIGN.md. Aucune teinte hors des jetons du haut du
+   fichier : les mélanges passent par color-mix.
+   ========================================================================== */
+
+:root {
+  /* Verre */
+  --g-blur: 20px;
+  --g-saturate: 1.4;
+  --g-scrim: 64%;
+  --g-tint-a: 10%;
+  --g-tint-a-problem: 12%;
+  --g-specular: var(--shimmer-highlight);
+  --g-ring: var(--hairline);
+  --g-ring-hover: color-mix(in srgb, var(--ember-2) 40%, transparent);
+  --g-bloom: var(--glow-inner);
+  --g-shadow: var(--glow-outer);
+  --g-shade: color-mix(in srgb, var(--background) 55%, transparent);
+  --g-edge: color-mix(in srgb, var(--background) 40%, transparent);
+  --g-drop: color-mix(in srgb, var(--background) 80%, transparent);
+  --g-sheen: color-mix(in srgb, var(--foreground) 4%, transparent);
+  --g-rim: color-mix(in srgb, var(--ember-2) 14%, transparent);
+  --g-glass-max: 12;
+
+  /* Plaque (données) */
+  --g-plate: 70%;
+
+  /* Aura : trois radiales de braise, dérive 54–70 s, transform seul */
+  --g-mesh-1: color-mix(in oklab, var(--ember-2) 32%, transparent);
+  --g-mesh-2: color-mix(in oklab, var(--ember-3) 22%, transparent);
+  --g-mesh-3: color-mix(in oklab, var(--ember-1) 18%, transparent);
+  --g-mesh-dur-1: 62s;
+  --g-mesh-dur-2: 70s;
+  --g-mesh-dur-3: 54s;
+
+  /* Rayons et espaces */
+  --g-radius-card: 16px;
+  --g-radius-frame: 20px;
+  --g-radius-hero: 24px;
+  --g-radius-tabbar: 28px;
+  --g-pad: 6px;
+  --g-gap: 16px;
+  --g-rail: 232px;
+  --g-rail-narrow: 200px;
+  --g-cap-h: 30px;
+  --g-cap-h-hero: 34px;
+  --g-control: 44px;
+  --g-chip-h: 24px;
+  --g-row-h: 44px;
+  --g-share-slim: 3px;
+  --g-share-bar: 8px;
+  --g-chart-h: 236px;
+  --g-chart-h-dense: 176px;
+  --g-gutter: 40px;
+  --g-gutter-dense: 26px;
+  --g-axis-h: 40px;
+  --g-axis-h-dense: 20px;
+  --g-bar-w: min(46px, 62%);
+  --g-bar-r: 7px;
+  --g-bar-r-dense: 3px;
+  --g-bar-cap: 6px;
+  --g-bar-cap-dense: 3px;
+  --g-bar-gap-dense: 3px;
+  --g-bar-body: 28%;
+  --g-seg-h: 36px;
+  --g-seg-pad: 4px;
+  --g-chip-tint: 18%;
+  --g-chip-ring: 35%;
+  --g-badge: 18px;
+  --g-icon: 20px;
+  --g-icon-sm: 16px;
+  --g-icon-chip: 14px;
+
+  /* Typographie */
+  --g-text-day: 40px;
+  --g-text-kpi: 28px;
+  --g-text-h1: 36px;
+  --g-text-h2: 20px;
+  --g-text-name: 18px;
+  --g-text-body: 14px;
+  --g-text-label: 13px;
+  --g-text-meta: 12px;
+  --g-text-axis: 11px;
+  --g-text-eyebrow: 10px;
+
+  /* Mouvement */
+  --g-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --g-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
+  --g-rise-dur: 0.6s;
+  --g-stagger: 70ms;
+  --g-press-dur: 200ms;
+  --g-press-scale: 0.96;
+  --g-morph-dur: 200ms;
+  --g-hover-dur: 150ms;
+  --g-shimmer-dur: 1.8s;
+
+  --g-entity: var(--muted);
+}
+
+html.light {
+  --g-shade: color-mix(in srgb, var(--foreground) 8%, transparent);
+  --g-edge: color-mix(in srgb, var(--foreground) 6%, transparent);
+  --g-drop: color-mix(in srgb, var(--foreground) 18%, transparent);
+  --g-sheen: color-mix(in srgb, var(--surface-raised) 60%, transparent);
+  --g-mesh-1: color-mix(in oklab, var(--ember-2) 18%, transparent);
+  --g-mesh-2: color-mix(in oklab, var(--ember-3) 12%, transparent);
+  --g-mesh-3: color-mix(in oklab, var(--ember-1) 14%, transparent);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --g-control: 36px;
+    --g-seg-h: 32px;
+  }
+}
+
+@media (max-width: 1200px) {
+  :root {
+    --g-rail: var(--g-rail-narrow);
+  }
+}
+
+/* Entité : la couleur suit ce que le bloc mesure. */
+.g-money {
+  --g-entity: var(--ember-1);
+}
+.g-orders {
+  --g-entity: var(--ember-2);
+}
+.g-problem {
+  --g-entity: var(--ember-3);
+}
+
+/* Aura fixe sous tout l'espace : trois disques flous qui dérivent. */
+.g-mesh {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.g-mesh i {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.g-mesh i:nth-child(1) {
+  left: 28%;
+  top: -34%;
+  width: 92vmin;
+  height: 92vmin;
+  background: radial-gradient(closest-side, var(--g-mesh-1), transparent);
+  animation: g-drift-a var(--g-mesh-dur-1) ease-in-out infinite alternate;
+}
+.g-mesh i:nth-child(2) {
+  left: -24%;
+  top: 42%;
+  width: 84vmin;
+  height: 84vmin;
+  background: radial-gradient(closest-side, var(--g-mesh-2), transparent);
+  animation: g-drift-b var(--g-mesh-dur-2) ease-in-out infinite alternate;
+}
+.g-mesh i:nth-child(3) {
+  left: 56%;
+  top: 38%;
+  width: 76vmin;
+  height: 76vmin;
+  background: radial-gradient(closest-side, var(--g-mesh-3), transparent);
+  animation: g-drift-c var(--g-mesh-dur-3) ease-in-out infinite alternate;
+}
+@keyframes g-drift-a {
+  to {
+    transform: translate(-14%, 18%) scale(1.08);
+  }
+}
+@keyframes g-drift-b {
+  to {
+    transform: translate(22%, -16%) scale(0.94);
+  }
+}
+@keyframes g-drift-c {
+  to {
+    transform: translate(-18%, -22%) scale(1.1);
+  }
+}
+
+/* Verre : fond flouté et saturé sous un voile de surface et une teinte
+   d'entité ; reflet en haut à gauche, anneau filet, ombre en bas à droite,
+   bloom ambre, halo. Le contenu n'est jamais flouté : il vit sur une plaque. */
+.g-glass {
+  position: relative;
+  isolation: isolate;
+  --g-r: var(--g-radius-frame);
+  border-radius: var(--g-r);
+  background:
+    radial-gradient(140% 110% at 0% 0%, var(--g-bloom), transparent 58%),
+    linear-gradient(135deg, var(--g-sheen), transparent 46%),
+    linear-gradient(
+      color-mix(in srgb, var(--g-tint, var(--surface)) var(--g-tint-on, 0%), transparent),
+      color-mix(in srgb, var(--g-tint, var(--surface)) var(--g-tint-on, 0%), transparent)
+    ),
+    color-mix(in srgb, var(--surface) var(--g-scrim), transparent);
+  -webkit-backdrop-filter: blur(var(--g-blur)) saturate(var(--g-saturate));
+  backdrop-filter: blur(var(--g-blur)) saturate(var(--g-saturate));
+  box-shadow:
+    inset 1px 1px 0 var(--g-specular),
+    inset 0 0 0 1px var(--g-ring),
+    inset -1px -1px 0 var(--g-shade),
+    0 0 0 1px var(--g-edge),
+    0 24px 48px -28px var(--g-drop),
+    0 0 44px -6px var(--g-shadow);
+  transition: box-shadow var(--g-hover-dur);
+}
+.g-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    135deg,
+    var(--g-specular),
+    transparent 36%,
+    transparent 64%,
+    var(--g-rim)
+  );
+  -webkit-mask:
+    linear-gradient(var(--background), var(--background)) content-box,
+    linear-gradient(var(--background), var(--background));
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(var(--background), var(--background)) content-box,
+    linear-gradient(var(--background), var(--background));
+  mask-composite: exclude;
+}
+.g-glass-hero {
+  --g-r: var(--g-radius-hero);
+  --g-cap-h: var(--g-cap-h-hero);
+}
+.g-glass-pill {
+  --g-r: 9999px;
+}
+.g-glass-money {
+  --g-tint: var(--ember-1);
+  --g-tint-on: var(--g-tint-a);
+  --g-entity: var(--ember-1);
+}
+.g-glass-orders {
+  --g-tint: var(--ember-2);
+  --g-tint-on: var(--g-tint-a);
+  --g-entity: var(--ember-2);
+}
+.g-glass-problem {
+  --g-tint: var(--ember-3);
+  --g-tint-on: var(--g-tint-a-problem);
+  --g-entity: var(--ember-3);
+}
+@media (hover: hover) and (pointer: fine) {
+  a.g-glass:hover,
+  button.g-glass:hover {
+    --g-ring: var(--g-ring-hover);
+  }
+}
+
+/* Surtitre d'un cadre : rangée d'en-tête à la couleur de l'entité. */
+.g-cap {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: var(--g-cap-h);
+  padding: 0 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.g-eyebrow {
+  font-size: var(--g-text-eyebrow);
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--g-entity);
+}
+
+/* Plaque : la surface des données, jamais floutée. Dans un cadre de verre,
+   son rayon est celui du cadre moins la marge (rayons concentriques). */
+.g-plate {
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
+  border: 1px solid var(--hairline);
+  border-radius: var(--g-radius-card);
+  min-width: 0;
+}
+.g-glass > .g-plate {
+  border-radius: calc(var(--g-r) - var(--g-pad));
+}
+
+/* Entrée : montée en fondu, décalée par --g-i (index du bloc). */
+.g-rise {
+  animation: rise var(--g-rise-dur) var(--g-ease-out) backwards;
+  animation-delay: calc(var(--g-i, 0) * var(--g-stagger));
+}
+
+/* Appui : la commande se tasse sous le doigt, jamais désactivée. */
+.g-press {
+  transition:
+    transform var(--g-press-dur) var(--g-ease-out),
+    border-color var(--g-hover-dur),
+    color var(--g-hover-dur);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-press:active:not(:disabled) {
+  transform: scale(var(--g-press-scale));
+}
+
+/* Segmenté : radios natifs, pouce qui glisse en dégradé de marque. */
+.g-seg {
+  display: inline-grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  position: relative;
+  padding: var(--g-seg-pad);
+  border: 0;
+  margin: 0;
+  min-inline-size: 0;
+}
+.g-seg.g-plate {
+  border-radius: 9999px;
+}
+.g-seg input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+.g-seg label {
+  position: relative;
+  z-index: 1;
+  height: var(--g-seg-h);
+  padding: 0 1rem;
+  display: grid;
+  place-items: center;
+  border-radius: 9999px;
+  font-size: var(--g-text-label);
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color var(--g-morph-dur);
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  user-select: none;
+}
+.g-seg input:checked + label {
+  color: var(--background);
+}
+.g-seg input:focus-visible + label {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-seg-thumb {
+  position: absolute;
+  z-index: 0;
+  top: var(--g-seg-pad);
+  bottom: var(--g-seg-pad);
+  left: var(--g-seg-pad);
+  width: calc((100% - 2 * var(--g-seg-pad)) / var(--g-seg-n));
+  border-radius: 9999px;
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  transform: translateX(calc(var(--g-seg-i) * 100%));
+  transition: transform var(--g-morph-dur) var(--g-ease-move);
+}
+
+/* Liste classée : part en barre fine ou en barre pleine à bouchon, le long
+   du bord bas de la ligne. */
+.g-rank li {
+  position: relative;
+  display: grid;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--g-row-h);
+  padding-bottom: calc(var(--g-share) + 0.25rem);
+}
+.g-rank li::after {
+  content: "";
+  position: absolute;
+  left: var(--g-share-x, 0);
+  right: 0;
+  bottom: 0;
+  height: var(--g-share);
+  border-radius: calc(var(--g-share) / 2);
+  background:
+    linear-gradient(90deg, var(--g-entity), var(--g-entity)) 0 0 /
+      calc(var(--g-v) / var(--g-max) * 100%) 100% no-repeat,
+    var(--surface-raised);
+}
+.g-rank-slim {
+  --g-share: var(--g-share-slim);
+}
+.g-rank-slim li {
+  grid-template-columns: 1.125rem minmax(0, 1fr) auto;
+  --g-share-x: 1.75rem;
+}
+.g-rank-slim li::after {
+  background-image: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--g-entity) 75%, transparent),
+    color-mix(in srgb, var(--g-entity) 75%, transparent)
+  );
+}
+.g-rank-bar {
+  --g-share: var(--g-share-bar);
+}
+.g-rank-bar li {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding-bottom: calc(var(--g-share) + 0.5rem);
+}
+.g-rank-bar li[data-meta] {
+  grid-template-columns: minmax(0, 1fr) auto minmax(4rem, auto);
+}
+.g-rank-bar li::after {
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--g-entity) var(--g-bar-body), var(--surface))
+        calc(var(--g-v) / var(--g-max) * 100% - var(--g-bar-cap)),
+      var(--g-entity) calc(var(--g-v) / var(--g-max) * 100% - var(--g-bar-cap)),
+      var(--g-entity) calc(var(--g-v) / var(--g-max) * 100%),
+      var(--surface-raised) calc(var(--g-v) / var(--g-max) * 100%)
+    );
+}
+
+/* Barres : grille, barres à bouchon, axe tabulaire à droite, maximum
+   étiqueté. Hauteurs en pourcentage de --g-top (le plafond de l'axe). */
+.g-bars {
+  position: relative;
+  height: var(--g-chart-h);
+  --g-gut: var(--g-gutter);
+  --g-ax: var(--g-axis-h);
+  --g-r-bar: var(--g-bar-r);
+  --g-cap: var(--g-bar-cap);
+  --g-w: var(--g-bar-w);
+  --g-bgap: 0px;
+}
+.g-bars-dense {
+  height: var(--g-chart-h-dense);
+  --g-gut: var(--g-gutter-dense);
+  --g-ax: var(--g-axis-h-dense);
+  --g-r-bar: var(--g-bar-r-dense);
+  --g-cap: var(--g-bar-cap-dense);
+  --g-w: 100%;
+  --g-bgap: var(--g-bar-gap-dense);
+}
+.g-bars-grid,
+.g-bars-plot {
+  position: absolute;
+  inset: 0 var(--g-gut) var(--g-ax) 0;
+}
+.g-bars-grid i {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--g-y) / var(--g-top) * 100%);
+  height: 1px;
+  background: var(--hairline);
+}
+.g-bars-grid i:first-child {
+  background: var(--faint);
+}
+.g-bars-grid i span {
+  position: absolute;
+  right: calc(-1 * var(--g-gut));
+  width: calc(var(--g-gut) - 0.375rem);
+  bottom: -0.3125rem;
+  text-align: right;
+  font-size: var(--g-text-axis);
+  line-height: 1;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.g-bars-plot {
+  display: grid;
+  grid-template-columns: repeat(var(--g-n), minmax(0, 1fr));
+  align-items: end;
+  gap: var(--g-bgap);
+  padding: 0 var(--g-pad);
+}
+.g-bars-dense .g-bars-plot {
+  padding: 0;
+}
+.g-bar {
+  position: relative;
+  height: calc(var(--g-v) / var(--g-top) * 100%);
+  width: var(--g-w);
+  margin: 0 auto;
+  border-radius: var(--g-r-bar) var(--g-r-bar) 2px 2px;
+  background: color-mix(in srgb, var(--g-entity) var(--g-bar-body), var(--surface));
+}
+.g-bar::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--g-cap);
+  border-radius: var(--g-r-bar) var(--g-r-bar) 0 0;
+  background: var(--g-entity);
+}
+.g-bar b {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 0.4375rem);
+  translate: -50% 0;
+  font-size: var(--g-text-meta);
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.g-bars-axis {
+  position: absolute;
+  left: 0;
+  right: var(--g-gut);
+  bottom: 0;
+  height: var(--g-ax);
+  display: grid;
+  grid-template-columns: repeat(var(--g-n), minmax(0, 1fr));
+  padding: 0.375rem var(--g-pad) 0;
+  text-align: center;
+  font-size: var(--g-text-meta);
+  line-height: 1.35;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.g-bars-dense .g-bars-axis {
+  padding: 0.25rem 0 0;
+  text-align: left;
+  font-size: var(--g-text-axis);
+  white-space: nowrap;
+}
+.g-bars-axis small {
+  display: block;
+  font-size: var(--g-text-meta);
+  font-weight: 500;
+  color: var(--foreground);
+}
+
+/* Chargement : la plaque elle-même scintille. */
+.g-shimmer {
+  border-radius: var(--g-radius-card);
+  background-image: linear-gradient(
+    100deg,
+    color-mix(in srgb, var(--surface) var(--g-plate), transparent) 40%,
+    var(--g-specular) 50%,
+    color-mix(in srgb, var(--surface) var(--g-plate), transparent) 60%
+  );
+  background-size: 200% 100%;
+  animation: shimmer var(--g-shimmer-dur) linear infinite;
+}
+
+/* Données en attente : l'ancien état reste, estompé, le temps du rechargement. */
+.g-stale {
+  opacity: 0.4;
+  pointer-events: none;
+  transition: opacity var(--g-hover-dur);
+}
+
+/* Pastille d'état : filet neutre, ou teintée grenat pour un problème. */
+.g-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  height: var(--g-chip-h);
+  padding: 0 0.5625rem 0 0.4375rem;
+  border-radius: 9999px;
+  font-size: var(--g-text-meta);
+  font-weight: 500;
+  white-space: nowrap;
+  color: var(--foreground);
+  border: 1px solid var(--hairline);
+  background: color-mix(in srgb, var(--surface) var(--g-plate), transparent);
+}
+.g-chip svg {
+  width: var(--g-icon-chip);
+  height: var(--g-icon-chip);
+  color: var(--g-entity);
+}
+.g-chip-problem {
+  --g-entity: var(--ember-3);
+  background: color-mix(in srgb, var(--ember-3) var(--g-chip-tint), var(--surface));
+  border-color: color-mix(in srgb, var(--ember-3) var(--g-chip-ring), transparent);
+}
+
+/* Commandes : pilule pleine (dégradé de marque), pilule filet, bouton icône. */
+.g-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  height: var(--g-control);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  font-size: var(--g-text-label);
+  font-weight: 600;
+  white-space: nowrap;
+  color: var(--foreground);
+  text-decoration: none;
+  cursor: pointer;
+}
+.g-btn:disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+.g-btn svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+}
+.g-btn-primary {
+  padding: 0 1.125rem;
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  color: var(--background);
+  box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--ember-2) 60%, transparent);
+}
+.g-btn-secondary {
+  padding: 0 0.875rem;
+  border-color: var(--hairline);
+}
+.g-btn-icon {
+  width: var(--g-control);
+  padding: 0;
+  border-color: var(--hairline);
+  color: var(--muted);
+}
+@media (hover: hover) and (pointer: fine) {
+  .g-btn-secondary:hover,
+  .g-btn-icon:hover {
+    border-color: var(--g-ring-hover);
+    color: var(--foreground);
+  }
+}
+.g-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: var(--g-badge);
+  height: var(--g-badge);
+  padding: 0 0.3125rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--ember-3) 88%, var(--foreground));
+  color: var(--background);
+  font-size: var(--g-text-axis);
+  font-weight: 700;
+  line-height: var(--g-badge);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+
+:is(.g-btn, a.g-glass, button.g-glass):focus-visible {
+  outline: 2px solid var(--ember-1);
+  outline-offset: 2px;
+}
+.g-bars-dense .g-bars-axis span:last-child {
+  text-align: right;
+}
+
+/* Replis : sans transparence ni backdrop-filter, le verre devient surface
+   opaque et l'aura disparaît ; sans mouvement, rien ne bouge. */
+@media (prefers-reduced-transparency: reduce) {
+  .g-glass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--surface-raised);
+  }
+  .g-plate,
+  .g-shimmer {
+    background: var(--surface);
+  }
+  .g-mesh {
+    display: none;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .g-glass {
+    background: var(--surface-raised);
+  }
+  .g-plate,
+  .g-shimmer {
+    background: var(--surface);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .g-mesh i,
+  .g-rise,
+  .g-shimmer {
+    animation: none;
+  }
+  .g-glass,
+  .g-press,
+  .g-seg label,
+  .g-seg-thumb,
+  .g-stale {
+    transition: none;
+  }
+  .g-press:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 /* Visite guidée de l'espace de gestion : tout s'assombrit sauf la cible,
