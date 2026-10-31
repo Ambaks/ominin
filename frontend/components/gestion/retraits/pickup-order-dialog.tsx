@@ -8,6 +8,8 @@ import {
   StaffMenu,
   useStaffOrder,
 } from "@/components/gestion/commandes/order-picker";
+import { describeError } from "@/components/gestion/paiements/describe-error";
+import { GlassButton } from "@/components/gestion/ui";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
@@ -100,9 +102,7 @@ export function PickupOrderDialog({
       onCreated(day);
       onClose();
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
+      toast.error(describeError(error).message);
       setSending(false);
     }
   };
@@ -132,19 +132,16 @@ export function PickupOrderDialog({
         footer={
           <>
             <span className="mr-auto flex items-baseline gap-2">
-              <span className="text-sm text-muted">À régler au retrait</span>
-              <span className="font-display text-xl text-ember-1">
-                {formatPrice(order.total)}
-              </span>
+              <span className="text-g-label text-muted">À régler au retrait</span>
+              <span className="text-g-h2 tabular-nums">{formatPrice(order.total)}</span>
             </span>
-            <button
-              type="button"
+            <GlassButton
+              variant="primary"
               disabled={sending}
               onClick={() => (complete && shortNotice ? setConfirmingNotice(true) : void submit())}
-              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
             >
               {sending ? "Envoi…" : "Enregistrer"}
-            </button>
+            </GlassButton>
           </>
         }
       >
@@ -235,7 +232,7 @@ export function PickupOrderDialog({
             </Field>
           </div>
           {slots.length === 0 && (
-            <p id={`${id}-closed`} className="-mt-3 text-xs text-ember-3">
+            <p id={`${id}-closed`} role="alert" className="-mt-3 text-g-meta font-medium">
               {openingHours
                 ? "La boutique est fermée ce jour-là, ou ses créneaux sont passés."
                 : "Saisissez d'abord les horaires d'ouverture dans Établissement."}
@@ -243,7 +240,7 @@ export function PickupOrderDialog({
           )}
 
           {shortNotice && (
-            <p role="status" className="-mt-3 rounded-xl border border-ember-2/30 bg-ember-2/10 px-4 py-3 text-xs leading-relaxed">
+            <p role="status" className="-mt-3 rounded-g-card border border-ember-2/30 bg-ember-2/10 px-4 py-3 text-g-meta">
               {shortNotice.name} se commande d&apos;habitude {shortNotice.hours}&nbsp;h
               à l&apos;avance : vérifiez que la commande pourra être prête à temps.
             </p>
@@ -262,7 +259,7 @@ export function PickupOrderDialog({
 
           <StaffLinesList order={order} />
           {submitted && order.lines.length === 0 && (
-            <p className="-mt-3 text-xs text-ember-3">Ajoutez au moins un article.</p>
+            <p role="alert" className="-mt-3 text-g-meta font-medium">Ajoutez au moins un article.</p>
           )}
           <StaffMenu order={order} />
         </div>

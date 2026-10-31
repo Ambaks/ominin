@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ExternalLinkIcon } from "@/components/gestion/icons";
+import { GlassButton } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "./describe-error";
 
 /*
  * « Mon espace Stripe » : l'espace Express où le restaurant voit ce que ses
@@ -31,28 +34,26 @@ export function StripeDashboardButton() {
       const response = await fetch("/api/stripe/dashboard", { method: "POST" });
       const body = (await response.json()) as { url?: string; error?: string };
       if (!response.ok || !body.url) {
-        throw new Error(body.error ?? "Une erreur est survenue.");
+        throw new Error(body.error ?? "Lien Stripe indisponible.");
       }
       if (tab) tab.location.href = body.url;
       else window.location.assign(body.url);
     } catch (error) {
       tab?.close();
-      toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
-      );
+      toast.error(describeError(error).message);
     }
     setBusy(false);
   };
 
   return (
-    <button
-      type="button"
+    <GlassButton
       data-visite="stripe-espace"
       onClick={() => void open()}
       disabled={busy}
-      className="min-h-11 shrink-0 rounded-full border border-hairline px-4 text-sm font-medium transition-colors hover:border-ember-2/40 disabled:opacity-60 lg:pointer-fine:min-h-9"
+      title="Votre solde, vos virements et le détail de chaque paiement en ligne, chez Stripe"
     >
       {busy ? "Ouverture…" : "Mon espace Stripe"}
-    </button>
+      <ExternalLinkIcon />
+    </GlassButton>
   );
 }

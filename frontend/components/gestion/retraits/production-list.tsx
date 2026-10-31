@@ -1,3 +1,5 @@
+import { PrinterIcon } from "@/components/gestion/icons";
+import { EmptyState, GlassButton, Plate } from "@/components/gestion/ui";
 import { formatTime } from "@/lib/gestion/format";
 import { productionLines, toProduce } from "@/lib/gestion/retraits";
 import type { Order } from "@/lib/gestion/types";
@@ -33,73 +35,65 @@ export function ProductionList({
 
   return (
     <section aria-label={`À produire, ${title}`} className="production-sheet flex flex-col gap-4">
-      <h2 className="hidden font-display text-2xl print:block">
+      <h2 className="hidden font-display text-g-h2 print:block">
         À produire — {title}
-        <span className="block text-sm font-normal">{shopName}</span>
+        <span className="block text-g-body font-normal">{shopName}</span>
       </h2>
-      <div className="flex flex-wrap items-baseline justify-between gap-3">
-        <div className="flex flex-col gap-0.5 text-sm">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-col gap-0.5">
           {pending.length > 0 && (
             <p className="font-medium">
               {`${pieces} pièce${pieces > 1 ? "s" : ""} à préparer pour ${pending.length} commande${pending.length > 1 ? "s" : ""}`}
             </p>
           )}
-          {done && <p className="text-muted">{done}</p>}
+          {done && <p className="text-g-meta text-muted">{done}</p>}
         </div>
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground print:hidden lg:pointer-fine:py-2 lg:pointer-fine:text-xs"
-        >
+        <GlassButton onClick={() => window.print()} className="print:hidden">
+          <PrinterIcon />
           Imprimer la feuille
-        </button>
+        </GlassButton>
       </div>
 
       {lines.length === 0 ? (
-        <p className="rounded-2xl border border-dashed border-hairline px-5 py-6 text-center text-sm text-muted">
-          Plus rien à produire pour ce jour-là.
-        </p>
+        <EmptyState text="Plus rien à produire pour ce jour-là." />
       ) : (
-        <ul className="flex flex-col rounded-2xl border border-hairline bg-surface">
-          {lines.map((line, index) => (
-            <li
-              key={line.key}
-              className={`flex items-center gap-4 px-5 py-3.5 ${index > 0 ? "border-t border-hairline" : ""}`}
-            >
-              {/* La case à cocher du papier : le laboratoire raye ce qui est sorti. */}
-              <span aria-hidden className="hidden size-5 shrink-0 rounded border print:block" />
-              <span className="w-12 shrink-0 text-right font-display text-2xl tabular-nums text-ember-1">
-                {line.quantity}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium">{line.name}</p>
-                {line.choices && <p className="text-sm text-muted">{line.choices}</p>}
-              </div>
-              <span className="shrink-0 text-sm tabular-nums text-muted">
-                {line.asap || !line.firstPickup ? "dès que possible" : `pour ${formatTime(line.firstPickup)}`}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <Plate>
+          <ul className="m-0 flex list-none flex-col p-0">
+            {lines.map((line) => (
+              <li
+                key={line.key}
+                className="flex min-h-g-control items-center gap-4 border-t border-hairline px-4 py-3 first:border-t-0"
+              >
+                {/* La case à cocher du papier : le laboratoire raye ce qui est sorti. */}
+                <span aria-hidden className="hidden size-5 shrink-0 rounded border print:block" />
+                <span className="w-12 shrink-0 text-right text-g-kpi tabular-nums">{line.quantity}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium">{line.name}</p>
+                  {line.choices && <p className="text-g-meta text-muted">{line.choices}</p>}
+                </div>
+                <span className="shrink-0 text-g-meta text-muted tabular-nums">
+                  {line.asap || !line.firstPickup ? "dès que possible" : `pour ${formatTime(line.firstPickup)}`}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Plate>
       )}
 
       {notes.length > 0 && (
         <div className="flex flex-col gap-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-            Mots des clients
-          </p>
-          <ul className="flex flex-col gap-2">
+          <h3 className="font-display text-g-h2">Mots des clients</h3>
+          <ul className="m-0 flex list-none flex-col gap-2 p-0">
             {notes.map((order) => (
-              <li
-                key={order.id}
-                className="rounded-2xl border border-hairline bg-surface px-5 py-3.5 text-sm leading-relaxed"
-              >
-                <p className="whitespace-pre-line font-medium">« {order.customerNote} »</p>
-                <p className="mt-0.5 text-xs text-muted">
-                  {order.customerName}
-                  {order.pickupAt && ` · retrait ${formatTime(order.pickupAt)}`} ·{" "}
-                  {order.items.map((item) => `${item.quantity}× ${item.name}`).join(", ")}
-                </p>
+              <li key={order.id}>
+                <Plate className="px-4 py-3">
+                  <p className="whitespace-pre-line font-medium">« {order.customerNote} »</p>
+                  <p className="mt-0.5 text-g-meta text-muted">
+                    {order.customerName}
+                    {order.pickupAt && ` · retrait ${formatTime(order.pickupAt)}`} ·{" "}
+                    {order.items.map((item) => `${item.quantity}× ${item.name}`).join(", ")}
+                  </p>
+                </Plate>
               </li>
             ))}
           </ul>
