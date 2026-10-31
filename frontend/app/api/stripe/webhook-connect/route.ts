@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { settleClubIntent, syncRefundedCharge } from "@/lib/club/settle";
+import { markPaymentRefused } from "@/lib/menu/payment-attempts";
 import {
   getStripe,
   settleCheckoutSession,
@@ -55,6 +56,12 @@ export async function POST(request: Request) {
           ? settleClubIntent(admin, stripe, intent, event.account)
           : settlePaymentIntent(admin, stripe, intent, event.account));
       }
+      break;
+    }
+    // Carte refusée : la commande attend toujours, le refus est noté au journal.
+    case "payment_intent.payment_failed": {
+      const orderId = event.data.object.metadata?.order_id;
+      if (orderId) await markPaymentRefused(admin, orderId);
       break;
     }
     // Les sessions Checkout ouvertes avant le passage au paiement dans la

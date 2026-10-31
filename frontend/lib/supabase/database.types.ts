@@ -2965,6 +2965,7 @@ export type Database = {
             | Database["public"]["Enums"]["payment_provider"]
             | null
           phone: string
+          pilotage_from: string | null
           platform_fee_percent: number
           service_mode: Database["public"]["Enums"]["service_mode"]
           show_table_number: boolean
@@ -3005,6 +3006,7 @@ export type Database = {
             | Database["public"]["Enums"]["payment_provider"]
             | null
           phone?: string
+          pilotage_from?: string | null
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
           show_table_number?: boolean
@@ -3045,6 +3047,7 @@ export type Database = {
             | Database["public"]["Enums"]["payment_provider"]
             | null
           phone?: string
+          pilotage_from?: string | null
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
           show_table_number?: boolean
@@ -3472,6 +3475,30 @@ export type Database = {
           },
         ]
       }
+      item_availability_log: {
+        Row: {
+          changed_at: string
+          disponible: boolean
+          etablissement_id: string
+          id: number
+          item_id: string
+        }
+        Insert: {
+          changed_at?: string
+          disponible: boolean
+          etablissement_id: string
+          id?: never
+          item_id: string
+        }
+        Update: {
+          changed_at?: string
+          disponible?: boolean
+          etablissement_id?: string
+          id?: never
+          item_id?: string
+        }
+        Relationships: []
+      }
       items: {
         Row: {
           allergens: Database["public"]["Enums"]["allergen"][] | null
@@ -3897,6 +3924,42 @@ export type Database = {
           },
         ]
       }
+      menu_item_views: {
+        Row: {
+          day: string
+          etablissement_id: string
+          item_id: string
+          views: number
+        }
+        Insert: {
+          day: string
+          etablissement_id: string
+          item_id: string
+          views?: number
+        }
+        Update: {
+          day?: string
+          etablissement_id?: string
+          item_id?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_item_views_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_item_views_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_sessions: {
         Row: {
           etablissement_id: string
@@ -3982,6 +4045,35 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "menu_stats_daily_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_suggestion_stats: {
+        Row: {
+          day: string
+          etablissement_id: string
+          kind: Database["public"]["Enums"]["menu_suggestion_kind"]
+          shown: number
+        }
+        Insert: {
+          day: string
+          etablissement_id: string
+          kind: Database["public"]["Enums"]["menu_suggestion_kind"]
+          shown?: number
+        }
+        Update: {
+          day?: string
+          etablissement_id?: string
+          kind?: Database["public"]["Enums"]["menu_suggestion_kind"]
+          shown?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_suggestion_stats_etablissement_id_fkey"
             columns: ["etablissement_id"]
             isOneToOne: false
             referencedRelation: "etablissements"
@@ -4397,6 +4489,51 @@ export type Database = {
           },
         ]
       }
+      online_payment_attempts: {
+        Row: {
+          ended_at: string | null
+          etablissement_id: string
+          id: string
+          order_id: string | null
+          outcome: Database["public"]["Enums"]["online_payment_outcome"]
+          refused: boolean
+          started_at: string
+        }
+        Insert: {
+          ended_at?: string | null
+          etablissement_id: string
+          id?: string
+          order_id?: string | null
+          outcome?: Database["public"]["Enums"]["online_payment_outcome"]
+          refused?: boolean
+          started_at?: string
+        }
+        Update: {
+          ended_at?: string | null
+          etablissement_id?: string
+          id?: string
+          order_id?: string | null
+          outcome?: Database["public"]["Enums"]["online_payment_outcome"]
+          refused?: boolean
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "online_payment_attempts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_payment_attempts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_payments: {
         Row: {
           amount: number
@@ -4449,6 +4586,7 @@ export type Database = {
           estimated_ready_at: string | null
           etablissement_id: string
           handed_over_at: string | null
+          handed_over_by: string | null
           hubrise_order_id: string | null
           hubrise_status: string | null
           id: string
@@ -4460,6 +4598,8 @@ export type Database = {
           pickup_at: string | null
           platform_fee_cents: number | null
           popina_order_id: string | null
+          ready_at: string | null
+          ready_by: string | null
           refund_id: string | null
           refunded_at: string | null
           source: string | null
@@ -4485,6 +4625,7 @@ export type Database = {
           estimated_ready_at?: string | null
           etablissement_id: string
           handed_over_at?: string | null
+          handed_over_by?: string | null
           hubrise_order_id?: string | null
           hubrise_status?: string | null
           id?: string
@@ -4496,6 +4637,8 @@ export type Database = {
           pickup_at?: string | null
           platform_fee_cents?: number | null
           popina_order_id?: string | null
+          ready_at?: string | null
+          ready_by?: string | null
           refund_id?: string | null
           refunded_at?: string | null
           source?: string | null
@@ -4521,6 +4664,7 @@ export type Database = {
           estimated_ready_at?: string | null
           etablissement_id?: string
           handed_over_at?: string | null
+          handed_over_by?: string | null
           hubrise_order_id?: string | null
           hubrise_status?: string | null
           id?: string
@@ -4532,6 +4676,8 @@ export type Database = {
           pickup_at?: string | null
           platform_fee_cents?: number | null
           popina_order_id?: string | null
+          ready_at?: string | null
+          ready_by?: string | null
           refund_id?: string | null
           refunded_at?: string | null
           source?: string | null
@@ -6993,6 +7139,7 @@ export type Database = {
           id: string
           number: number
           staff_id: string | null
+          zone: string | null
         }
         Insert: {
           etablissement_id: string
@@ -7000,6 +7147,7 @@ export type Database = {
           id?: string
           number: number
           staff_id?: string | null
+          zone?: string | null
         }
         Update: {
           etablissement_id?: string
@@ -7007,6 +7155,7 @@ export type Database = {
           id?: string
           number?: number
           staff_id?: string | null
+          zone?: string | null
         }
         Relationships: [
           {
@@ -7267,6 +7416,7 @@ export type Database = {
           name: string
           revenue: number
           sold: number
+          views: number
         }[]
       }
       admin_menu_live: {
@@ -7278,6 +7428,20 @@ export type Database = {
           name: string
           open_orders: number
           slug: string
+        }[]
+      }
+      admin_menu_measures: {
+        Args: { p_etab: string; p_from: string; p_to: string }
+        Returns: {
+          attempts_open: number
+          attempts_since: string | null
+          counter: number
+          expired: number
+          failed: number
+          refused: number
+          succeeded: number
+          views: number
+          views_since: string | null
         }[]
       }
       admin_menu_overview: {
@@ -7297,6 +7461,17 @@ export type Database = {
           slug: string
           tips: number
         }[]
+      }
+      admin_menu_pilotage: {
+        Args: {
+          p_etab: string
+          p_from: string
+          p_limit: number
+          p_ready_batch_seconds: number
+          p_return_days: number
+          p_to: string
+        }
+        Returns: Json
       }
       admin_menu_series: {
         Args: { p_etab: string; p_from: string; p_to: string }
@@ -7345,6 +7520,10 @@ export type Database = {
       }
       admin_set_commission_percent: {
         Args: { p_commercial: string; p_percent: number }
+        Returns: undefined
+      }
+      admin_set_pilotage_from: {
+        Args: { p_etab: string; p_from: string | null }
         Returns: undefined
       }
       admin_shop_overview: {
@@ -8281,10 +8460,15 @@ export type Database = {
           p_items?: string[]
           p_order?: string
           p_session: string
+          p_shown?: Database["public"]["Enums"]["menu_suggestion_kind"][]
           p_slug: string
           p_stage: Database["public"]["Enums"]["menu_stage"]
           p_table?: number
         }
+        Returns: undefined
+      }
+      menu_track_views: {
+        Args: { p_items: string[]; p_slug: string }
         Returns: undefined
       }
       offre_trial_revenue: {
@@ -8644,6 +8828,7 @@ export type Database = {
       legal_scope: "etablissement" | "shop" | "commercial"
       loyalty_entry_kind: "gain" | "depense" | "ajustement" | "roue"
       member_role: "gerant" | "cuisinier" | "serveur"
+      menu_suggestion_kind: "panier" | "fiche" | "formule" | "apres_repas"
       menu_stage:
         | "vue"
         | "categorie"
@@ -8659,6 +8844,12 @@ export type Database = {
         | "clip"
         | "agents"
         | "sur-mesure"
+      online_payment_outcome:
+        | "en_cours"
+        | "reussi"
+        | "expire"
+        | "echoue"
+        | "comptoir"
       order_status:
         | "en_attente"
         | "en_preparation"
@@ -8934,6 +9125,7 @@ export const Constants = {
       legal_scope: ["etablissement", "shop", "commercial"],
       loyalty_entry_kind: ["gain", "depense", "ajustement", "roue"],
       member_role: ["gerant", "cuisinier", "serveur"],
+      menu_suggestion_kind: ["panier", "fiche", "formule", "apres_repas"],
       menu_stage: [
         "vue",
         "categorie",
@@ -8950,6 +9142,13 @@ export const Constants = {
         "clip",
         "agents",
         "sur-mesure",
+      ],
+      online_payment_outcome: [
+        "en_cours",
+        "reussi",
+        "expire",
+        "echoue",
+        "comptoir",
       ],
       order_status: [
         "en_attente",

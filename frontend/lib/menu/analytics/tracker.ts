@@ -1,3 +1,4 @@
+import type { Database } from "@/lib/supabase/database.types";
 import {
   CLICK_FLUSH_MS,
   HEARTBEAT_MS,
@@ -21,8 +22,14 @@ export interface TrackOptions {
   orderId?: string;
 }
 
+export type SuggestionKind = Database["public"]["Enums"]["menu_suggestion_kind"];
+
 export interface MenuTracker {
   track: (stage: MenuStage, options?: TrackOptions) => void;
+  /** Une sorte de suggestion s'est affichée : comptée une fois par visite. */
+  markShown: (kind: SuggestionKind) => void;
+  /** La fiche d'un plat s'ouvre : un compteur par plat et par jour, sans la visite. */
+  markViewed: (itemId: string) => void;
   start: () => void;
   stop: () => void;
 }
@@ -43,11 +50,33 @@ function readSession(slug: string): string | null {
   }
 }
 
-function post(body: Record<string, unknown>, keepalive: boolean): void {
+/** Ce que la visite a déjà compté : un rechargement n'est pas un nouvel affichage. */
+function readShown(slug: string): Set<SuggestionKind> {
+  try {
+    const saved = sessionStorage.getItem(`ominin-menu-shown:${slug}`);
+    return new Set(saved ? (JSON.parse(saved) as SuggestionKind[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writeShown(slug: string, shown: Set<SuggestionKind>): void {
+  try {
+    sessionStorage.setItem(`ominin-menu-shown:${slug}`, JSON.stringify([...shown]));
+  } catch {
+    // Stockage bloqué : au pire, un rechargement compte une fois de plus.
+  }
+}
+
+function post(
+  body: Record<string, unknown>,
+  keepalive: boolean,
+  rpc = "menu_track"
+): void {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return;
-  void fetch(`${url}/rest/v1/rpc/menu_track`, {
+  void fetch(`${url}/rest/v1/rpc/${rpc}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -69,8 +98,22 @@ export function createTracker(
   let stage: MenuStage = "vue";
   let items: string[] = [];
   let orderId: string | null = null;
+  const shown = readShown(slug);
+  let unsentShown: SuggestionKind[] = [];
   let pending: number | null = null;
   let heartbeat: number | null = null;
+  let viewed: string[] = [];
+  let pendingViews: number | null = null;
+
+  // Son propre envoi, sans l'identifiant de visite : ouvrir une fiche ne doit
+  // ni réveiller menu_track, ni se rattacher à la visite.
+  const flushViews = (keepalive = false) => {
+    if (pendingViews !== null) window.clearTimeout(pendingViews);
+    pendingViews = null;
+    if (!viewed.length) return;
+    post({ p_slug: slug, p_items: viewed }, keepalive, "menu_track_views");
+    viewed = [];
+  };
 
   const clearPending = () => {
     if (pending !== null) window.clearTimeout(pending);
@@ -88,15 +131,21 @@ export function createTracker(
         p_table: tableNumber,
         p_items: items.length ? items : null,
         p_order: orderId,
+        // Absent plutôt que null : la base d'avant ce paramètre refuserait l'appel.
+        ...(unsentShown.length ? { p_shown: unsentShown } : {}),
       },
       keepalive
     );
     items = [];
     orderId = null;
+    unsentShown = [];
   };
 
   const onVisibility = () => {
-    if (document.visibilityState === "hidden") flush(true);
+    if (document.visibilityState === "hidden") {
+      flush(true);
+      flushViews(true);
+    }
   };
 
   return {
@@ -110,6 +159,19 @@ export function createTracker(
       if (advanced || options?.orderId) flush();
       else if (pending === null) pending = window.setTimeout(flush, CLICK_FLUSH_MS);
     },
+    markShown(kind) {
+      if (shown.has(kind)) return;
+      shown.add(kind);
+      writeShown(slug, shown);
+      unsentShown.push(kind);
+      if (pending === null) pending = window.setTimeout(flush, CLICK_FLUSH_MS);
+    },
+    markViewed(itemId) {
+      viewed.push(itemId);
+      if (pendingViews === null) {
+        pendingViews = window.setTimeout(flushViews, CLICK_FLUSH_MS);
+      }
+    },
     start() {
       flush();
       heartbeat = window.setInterval(() => {
@@ -119,6 +181,7 @@ export function createTracker(
     },
     stop() {
       clearPending();
+      flushViews(true);
       if (heartbeat !== null) window.clearInterval(heartbeat);
       heartbeat = null;
       document.removeEventListener("visibilitychange", onVisibility);

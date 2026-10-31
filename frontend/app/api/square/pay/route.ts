@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { raiseAlert } from "@/lib/admin/alerts";
 import { onlineMinimumError } from "@/lib/menu/online-minimum";
+import { markPaymentRefused } from "@/lib/menu/payment-attempts";
 import {
   createOrder,
   createPayment,
@@ -282,6 +283,7 @@ export async function POST(request: Request) {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[square] paiement impossible", { orderId, message });
+    await markPaymentRefused(admin, orderId);
     // Des refus en série (3 en 30 min) disent une carte, un TPE ou un
     // réglage 3-D Secure en panne chez le client : l'équipe est prévenue.
     await raiseAlert("paiement", order.etablissement_id, {

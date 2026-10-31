@@ -17,6 +17,7 @@ import {
   type AfterMealOffer,
   type AfterMealStep,
 } from "@/lib/menu/after-meal";
+import { ShownMark } from "@/components/menu/chef-pairings";
 import { plainLine, useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
 import { isActiveTicket, useTickets } from "@/lib/menu/tickets";
@@ -207,6 +208,7 @@ function AfterMealSheet({
     >
       {(close) => (
         <div className="after-meal" data-count={step.items.length}>
+          <ShownMark kind="apres_repas" />
           <Satin />
           <button type="button" onClick={close} aria-label="Fermer" className="after-meal-close">
             ×

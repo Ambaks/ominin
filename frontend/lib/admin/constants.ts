@@ -284,10 +284,17 @@ export const ACTIVITY_FEED_LIMIT = 30;
 /** Longueur du palmarès des plats (vus contre vendus). */
 export const ITEM_RANKING_COUNT = 10;
 
+/** Pilotage : délai dans lequel un membre revenu compte comme fidélisé. */
+export const PILOTAGE_RETURN_DAYS = 30;
+
+/** Pilotage : deux « prête » aussi proches viennent d'un rattrapage à l'écran. */
+export const PILOTAGE_READY_BATCH_SECONDS = 8;
+
 /** Sous-onglets de la fiche client, portés par ?vue= pour rester liables. */
 export const CLIENT_VIEWS = [
   { id: "revenus", label: "Revenus" },
   { id: "analytique", label: "Analytique" },
+  { id: "pilotage", label: "Pilotage" },
   { id: "activite", label: "Activité" },
   { id: "demarrage", label: "Démarrage" },
   { id: "materiel", label: "Matériel" },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ChefTag, chefCard, suggestionButton, SuggestionRow } from "@/components/menu/chef-pairings";
+import { ChefTag, chefCard, ShownMark, suggestionButton, SuggestionRow } from "@/components/menu/chef-pairings";
 import { FormuleModal, openFormule, type Picks } from "@/components/menu/formules";
 import { CART_PAIRINGS_COUNT } from "@/lib/gestion/constants";
 import { plainLine, useCart } from "@/lib/menu/cart";
@@ -45,6 +45,8 @@ export function CartPairings() {
     <>
       {(match || suggested.length > 0) && (
         <section aria-label="Le combo parfait" className={`mt-5 ${chefCard} p-3.5`}>
+          {match && <ShownMark kind="formule" />}
+          {suggested.length > 0 && <ShownMark kind="panier" />}
           <ChefTag />
           <ul className="flex flex-col gap-3">
             {match && (

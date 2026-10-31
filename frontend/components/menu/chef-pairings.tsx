@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import type { SuggestionKind } from "@/lib/menu/analytics/tracker";
 import { useCart } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
 import { canSuggest, type Pairing } from "@/lib/menu/pairings";
@@ -23,6 +25,13 @@ export function ChefTag() {
 }
 
 export const chefCard = "flex flex-col gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/10";
+
+/** Compte l'affichage d'une suggestion : sans lui, un accord retenu n'a pas de dénominateur. */
+export function ShownMark({ kind }: { kind: SuggestionKind }) {
+  const { markShown } = useCart();
+  useEffect(() => markShown(kind), [kind, markShown]);
+  return null;
+}
 
 /**
  * Le bouton d'un accord, le même au panier et sur la feuille d'un plat :
@@ -82,6 +91,7 @@ export function SheetPairings({
 }) {
   return (
     <section aria-label="Le combo parfait" className={`sheet-pairings ${chefCard} p-3`}>
+      <ShownMark kind="fiche" />
       <ChefTag />
       <ul className="flex flex-col gap-2.5">
         {pairings.map(({ item, why }) => {

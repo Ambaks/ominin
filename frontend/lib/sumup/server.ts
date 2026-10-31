@@ -1,3 +1,4 @@
+import { markPaymentRefused } from "@/lib/menu/payment-attempts";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireGerant as requireEtablissementGerant } from "@/lib/supabase/gerant";
@@ -242,6 +243,7 @@ export async function confirmOrderPaid(
     }
   }
 
+  if (checkout.status === "FAILED") await markPaymentRefused(admin, order.id);
   if (checkout.status !== "PAID" || checkout.checkout_reference !== order.id) {
     return false;
   }
