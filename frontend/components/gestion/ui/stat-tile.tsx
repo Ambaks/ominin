@@ -17,6 +17,8 @@ export function StatTile({
   baseline,
   delta,
   href,
+  onClick,
+  chart,
   entity = "none",
   icon,
   hero = false,
@@ -30,6 +32,10 @@ export function StatTile({
   /** Écart signé devant le repère, coloré par le sens. */
   delta?: { text: string; tone: DeltaTone };
   href?: string;
+  /** La tuile ouvre le détail de son chiffre. */
+  onClick?: () => void;
+  /** Un graphique sous le chiffre. */
+  chart?: ReactNode;
   entity?: Entity;
   icon?: ReactNode;
   /** Tuile du jour : chiffre 40 px dans un cadre héros. */
@@ -60,12 +66,13 @@ export function StatTile({
   }
 
   return (
-    <GlassFrame entity={entity} eyebrow={label} icon={icon} href={href} hero={hero} title={title}>
+    <GlassFrame entity={entity} eyebrow={label} icon={icon} href={href} onClick={onClick} hero={hero} title={title}>
       <Plate className={hero ? "p-5" : "p-4"}>
         <p className={`${hero ? "text-g-day" : "text-g-kpi"} tabular-nums whitespace-nowrap`}>
           {value}
         </p>
         {ref}
+        {chart}
       </Plate>
     </GlassFrame>
   );

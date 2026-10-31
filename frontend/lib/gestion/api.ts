@@ -945,6 +945,19 @@ export async function setAdminPin(code: string): Promise<void> {
   });
 }
 
+/** Les ventes jour par jour d'une période hors de la fenêtre chargée ; `to` exclu. */
+export async function loadDailySales(from: string, to: string, dayEndHour: number) {
+  const supabase = createClient();
+  return must(
+    await supabase.rpc("gestion_daily_sales", {
+      p_etablissement_id: etablissementId(),
+      p_from: from,
+      p_to: to,
+      p_day_end_hour: dayEndHour,
+    })
+  );
+}
+
 export async function verifyAdminPin(code: string): Promise<boolean> {
   const supabase = createClient();
   return must(
