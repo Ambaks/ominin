@@ -350,6 +350,23 @@ export default function ApercuPage() {
 
       {hasCommandes && (
         <Block i={block++} data-visite="apercu-jour" className="grid gap-g-gap rounded-g-hero sm:grid-cols-2">
+          <StatTile
+            hero
+            entity="money"
+            icon={<PaymentsIcon />}
+            label="CA du jour"
+            value={formatPrice(caJour)}
+            {...comparison(
+              caJour,
+              { value: lastWeek.total, count: lastWeek.payments },
+              `${weekday} dernier à cette heure`,
+              `rien d’encaissé ${weekday} dernier à cette heure`,
+              formatPrice
+            )}
+            href={hasFeature("paiements") ? "/gestion/paiements" : "/gestion/commandes"}
+            title="Chiffre d’affaires encaissé sur la journée de service, TTC"
+            chart={<DayCurve state={state} weekday={weekday} />}
+          />
           {ENCAISSER_WAIT_ALERT_SLUGS.includes(state.etablissement.slug) ? (
             <div className="grid grid-rows-[auto_1fr] gap-g-gap">
               <StatTile
@@ -376,23 +393,6 @@ export default function ApercuPage() {
               chart={<OpenOrdersSplit toPay={toPay} toServe={toServe} />}
             />
           )}
-          <StatTile
-            hero
-            entity="money"
-            icon={<PaymentsIcon />}
-            label="CA du jour"
-            value={formatPrice(caJour)}
-            {...comparison(
-              caJour,
-              { value: lastWeek.total, count: lastWeek.payments },
-              `${weekday} dernier à cette heure`,
-              `rien d’encaissé ${weekday} dernier à cette heure`,
-              formatPrice
-            )}
-            href={hasFeature("paiements") ? "/gestion/paiements" : "/gestion/commandes"}
-            title="Chiffre d’affaires encaissé sur la journée de service, TTC"
-            chart={<DayCurve state={state} weekday={weekday} />}
-          />
         </Block>
       )}
 
