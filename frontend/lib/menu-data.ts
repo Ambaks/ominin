@@ -229,6 +229,12 @@ export interface DemoLoyalty {
   };
 }
 
+/** Pastille de l'en-tête de l'espace de gestion ; `background` : logo détouré, posé en retrait sur cette couleur. */
+export interface GestionLogo {
+  src: string;
+  background?: string;
+}
+
 export interface Restaurant {
   slug: string;
   /** Le nom des écrans du personnel et des tickets de cuisine. */
@@ -258,6 +264,8 @@ export interface Restaurant {
    * au favicon.ico d'Ominin), et le raccourci d'écran d'accueil d'iOS.
    */
   icons?: { tab: string; homeScreen: string };
+  /** Pastille de l'espace de gestion, quand ni l'icône ni le logo ne s'y prêtent seuls. */
+  gestionLogo?: GestionLogo;
   /**
    * Couleur de la barre du navigateur sur la version aux couleurs de
    * l'établissement (/menu/demo et /menu/m).
@@ -807,6 +815,7 @@ const boho: Restaurant = {
   name: "BOHO",
   tagline: "L'Âme de Marrakech à Toulouse",
   logo: "/boho/logo.svg",
+  gestionLogo: { src: "/boho/logo.svg", background: "#251b20" },
   poster: { src: "/boho/poster.webp", width: 716, height: 1024 },
   posterWide:
     "/boho/poster-wide-1600.webp 1600w, /boho/poster-wide-2400.webp 2400w, /boho/poster-wide-3040.webp 3040w",
@@ -1406,6 +1415,7 @@ const lzPizza = (
 const lzFood: Restaurant = {
   slug: "lz-food",
   name: "LZ.FOOD",
+  gestionLogo: { src: "/lz-food/monogramme.svg" },
   tagline: "Snack · Pizzeria · Montpellier",
   address: "394 Chemin de Moularès, 34070 Montpellier",
   phone: "+33 6 65 39 62 29",
@@ -1812,6 +1822,7 @@ const oCroustiPoulet: Restaurant = {
   name: "O’Crousti Poulet",
   tagline: "Original",
   logo: "/o-crousti-poulet/coq.webp",
+  gestionLogo: { src: "/o-crousti-poulet/coq.webp", background: "#131416" },
   whiteLogo: true,
   address: "230 rue Vendémiaire, 34000 Montpellier",
   phone: "+33 7 49 20 64 34",
@@ -6352,6 +6363,7 @@ const boulangerieCyprien: Restaurant = {
   slug: "boulangerie-cyprien",
   name: "Boulangerie Cyprien",
   tagline: "Boulangerie · Pâtisserie · 100 % artisanale",
+  gestionLogo: { src: "/sites/boulangerie-cyprien/logo-c.png", background: "#ffffff" },
   address: "55 rue de la République, 31300 Toulouse",
   phone: "05 34 51 06 60",
   hours:
@@ -10652,6 +10664,20 @@ export function etoileSceneCategories(categories: MenuCategory[]): MenuCategory[
 
 export function getRestaurant(slug: string): Restaurant | undefined {
   return restaurants[slug];
+}
+
+/** Par slug : passé à l'espace de gestion, qui n'embarque pas ce registre dans son bundle. */
+export function gestionLogos(): Record<string, GestionLogo> {
+  const logos: Record<string, GestionLogo> = {};
+  for (const [slug, restaurant] of Object.entries(restaurants)) {
+    const logo =
+      restaurant.gestionLogo ??
+      (restaurant.icons
+        ? { src: restaurant.icons.homeScreen }
+        : restaurant.logo && { src: restaurant.logo, background: restaurant.themeColor });
+    if (logo) logos[slug] = logo;
+  }
+  return logos;
 }
 
 /**

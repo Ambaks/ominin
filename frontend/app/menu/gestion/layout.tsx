@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { GestionShell } from "@/components/gestion/shell";
+import { gestionLogos } from "@/lib/menu-data";
 
 export const metadata: Metadata = {
   title: "Espace de gestion — Ominin",
@@ -9,5 +10,5 @@ export const metadata: Metadata = {
 export default function GestionLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  return <GestionShell>{children}</GestionShell>;
+  return <GestionShell logos={gestionLogos()}>{children}</GestionShell>;
 }

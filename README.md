@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Logo du restaurant dans l'en-tête de la gestion (2026-10-31, branche `gestion-logo`, aucune migration) :** une pastille ronde de 32 px s'affiche à gauche du nom. `gestionLogos()` (`lib/menu-data.ts`) la déduit du registre et la layout la passe au shell : le champ `gestionLogo` s'il existe, sinon l'icône d'écran d'accueil, sinon le logo sur `themeColor`, et à défaut l'initiale du nom. LZ.FOOD utilise le monogramme proposé (`public/lz-food/monogramme.svg`), jamais validé par le gérant : à lui montrer. Vérifié sur build de production et base locale, vrais comptes BOHO, Panis, LZ.FOOD, Trattoria Lucia et Cyprien (LZ.FOOD et Cyprien aussi sur téléphone) ; les autres logos sur une planche au même style. Non vérifié : mode clair, production.
+
 > **Thèmes dans Réglages (2026-10-31, branche `gestion-themes-reglages`, aucune migration) :** le sélecteur quitte le rail et la feuille « Plus » pour une carte « Thèmes » dans Réglages › Appareils, avec un aperçu de chaque thème (`public/gestion-themes/`). Le choix reste par appareil. Le personnel sans accès aux Réglages n'en change plus.
 
 > **Codes admin et d'encaissement centrés (2026-10-31, branche `gestion-code-centre`, aucune migration) :** sur tablette et téléphone, ces deux dialogues n'étaient plus collés en bas, sous le clavier : `Sheet` prend `centered` et se centre dans la zone que le clavier laisse visible.
