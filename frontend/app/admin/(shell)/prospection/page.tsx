@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ComponentProps } from "react";
 import { useRouter } from "next/navigation";
 import { BotIcon } from "@/components/admin/icons";
 import { StatCard } from "@/components/admin/stat-card";
 import { EmptyState } from "@/components/ui/empty-state";
 import { inputClass } from "@/components/ui/field";
+import { ListPager } from "@/components/ui/list-pager";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
@@ -15,7 +16,6 @@ import {
   DISQUALIFY_REASON_LABELS,
   OUTREACH_JOB_LABELS,
   OUTREACH_STATUS_LABELS,
-  POSITIVE_CLASSIFICATIONS,
   QUALIFICATION_LABELS,
   VARIANT_STATUS_LABELS,
 } from "@/lib/admin/constants";
@@ -26,6 +26,7 @@ import {
   VARIANT_STATUS_BADGE_CLASSES,
 } from "@/lib/admin/status";
 import { refreshPendingDrafts, useAdmin } from "@/lib/admin/store";
+import { usePagedList } from "@/lib/use-paged-list";
 import type {
   OutreachEmail,
   OutreachProspect,
@@ -58,6 +59,47 @@ type TabId =
   | "research"
   | "runs";
 
+/** Réponses positives sur la vue d'ensemble. */
+const POSITIVE_REPLIES_SHOWN = 5;
+
+const emailId = (email: OutreachEmail) => email.id;
+const prospectId = (prospect: OutreachProspect) => prospect.restaurantId;
+const runId = (run: OutreachRun) => run.id;
+
+/** La page d'une boîte d'e-mails : stable, son identité déclenche le chargement. */
+const boxPage = (box: api.OutreachBox) => (_search: string, limit: number, offset: number) =>
+  api.fetchOutreachEmailsPage(box, limit, offset);
+const pendingPage = boxPage("pending");
+const sentPage = boxPage("sent");
+const receivedPage = boxPage("received");
+const runsPage = (_search: string, limit: number, offset: number) =>
+  api.fetchOutreachRunsPage(limit, offset);
+
+/** Le pied d'une liste paginée, lu depuis son hook. */
+function Pager({
+  list,
+}: {
+  list: {
+    rows: unknown[];
+    total: number | null;
+    pageSize: number;
+    loading: boolean;
+    setPageSize: ComponentProps<typeof ListPager>["onPageSize"];
+    showMore: () => Promise<void>;
+  };
+}) {
+  return (
+    <ListPager
+      shown={list.rows.length}
+      total={list.total ?? 0}
+      pageSize={list.pageSize}
+      loading={list.loading}
+      onPageSize={list.setPageSize}
+      onMore={() => void list.showMore()}
+    />
+  );
+}
+
 const VARIANT_ORDER: Record<VariantStatus, number> = {
   candidate: 0,
   baseline: 1,
@@ -80,14 +122,15 @@ export default function ProspectionPage() {
   const { basePath, localPath } = useAdminBasePath();
 
   const [tab, setTab] = useState<TabId>("overview");
-  const [emails, setEmails] = useState<OutreachEmail[] | null>(null);
+  const [boxCounts, setBoxCounts] = useState<{ sent: number; received: number } | null>(null);
+  const [positiveReplies, setPositiveReplies] = useState<OutreachEmail[]>([]);
+  const [inbound, setInbound] = useState<OutreachEmail[]>([]);
   const [stats, setStats] = useState<OutreachStats | null>(null);
-  const [prospects, setProspects] = useState<OutreachProspect[] | null>(null);
   const [prospectFilter, setProspectFilter] = useState<ProspectFilter>("all");
   const [prospectCounts, setProspectCounts] = useState<ProspectCounts | null>(
     null
   );
-  const [runs, setRuns] = useState<OutreachRun[] | null>(null);
+  const [qualifiedScore, setQualifiedScore] = useState<{ average: number | null; scored: number } | null>(null);
   const [variants, setVariants] = useState<OutreachVariant[] | null>(null);
   // undefined = pas encore chargé ; null = aucune analyse aboutie.
   const [research, setResearch] = useState<ResearchRun | null | undefined>(
@@ -106,12 +149,37 @@ export default function ProspectionPage() {
     [toast]
   );
 
+  const pending = usePagedList({ fetchPage: pendingPage, rowId: emailId, enabled: tab === "pending" });
+  const sent = usePagedList({ fetchPage: sentPage, rowId: emailId, enabled: tab === "sent" });
+  const received = usePagedList({ fetchPage: receivedPage, rowId: emailId, enabled: tab === "received" });
+  const runs = usePagedList({ fetchPage: runsPage, rowId: runId, enabled: tab === "runs" });
+  const fetchProspects = useCallback(
+    (_search: string, limit: number, offset: number) =>
+      api.fetchOutreachProspectsPage(prospectFilter, limit, offset),
+    [prospectFilter]
+  );
+  const prospects = usePagedList({
+    fetchPage: fetchProspects,
+    rowId: prospectId,
+    enabled: tab === "prospects",
+  });
+
   const reload = useCallback(() => {
     // Recale aussi le badge de nav (compteur store) sur la réalité.
     void refreshPendingDrafts();
-    api.fetchOutreachEmails().then(setEmails).catch(fail);
+    api.fetchOutreachBoxCounts().then(setBoxCounts).catch(fail);
+    api.fetchPositiveReplies(POSITIVE_REPLIES_SHOWN).then(setPositiveReplies).catch(fail);
     api.fetchOutreachStats().then(setStats).catch(fail);
   }, [fail]);
+
+  // Le message auquel répond chaque brouillon de la page affichée.
+  const replyIds = pending.rows.flatMap((email) => email.inReplyTo ?? []).join(",");
+  useEffect(() => {
+    api
+      .fetchOutreachEmailsByIds(replyIds ? replyIds.split(",") : [])
+      .then(setInbound)
+      .catch(fail);
+  }, [replyIds, fail]);
 
   const reloadVariants = useCallback(() => {
     api.fetchOutreachVariants().then(setVariants).catch(fail);
@@ -123,14 +191,11 @@ export default function ProspectionPage() {
 
   useEffect(() => {
     const research_needed = tab === "overview" || tab === "research";
-    if (tab === "runs" && runs === null) {
-      api.fetchOutreachRuns().then(setRuns).catch(fail);
-    }
-    if (tab === "prospects" && prospects === null) {
-      api.fetchOutreachProspects(prospectFilter).then(setProspects).catch(fail);
-    }
     if (tab === "prospects" && prospectCounts === null) {
       api.fetchProspectCounts().then(setProspectCounts).catch(fail);
+    }
+    if (tab === "prospects" && qualifiedScore === null) {
+      api.fetchQualifiedScore().then(setQualifiedScore).catch(fail);
     }
     if (research_needed && variants === null) reloadVariants();
     if (research_needed && research === undefined) {
@@ -138,31 +203,17 @@ export default function ProspectionPage() {
     }
   }, [
     tab,
-    runs,
-    prospects,
-    prospectFilter,
     prospectCounts,
+    qualifiedScore,
     variants,
     research,
     fail,
     reloadVariants,
   ]);
 
-  const changeProspectFilter = useCallback((filter: ProspectFilter) => {
-    setProspectFilter(filter);
-    setProspects(null);
-  }, []);
-
-  const nameById = useMemo(
-    () =>
-      new Map(
-        (state?.leads ?? []).map((lead) => [lead.restaurantId, lead.name])
-      ),
-    [state?.leads]
-  );
   const byId = useMemo(
-    () => new Map((emails ?? []).map((email) => [email.id, email])),
-    [emails]
+    () => new Map(inbound.map((email) => [email.id, email])),
+    [inbound]
   );
   const sortedVariants = useMemo(
     () =>
@@ -172,15 +223,6 @@ export default function ProspectionPage() {
     [variants]
   );
 
-  const all = emails ?? [];
-  const pending = all.filter((e) => e.status === "pending_approval");
-  const sent = all.filter(
-    (e) => e.direction === "outbound" && e.status !== "pending_approval"
-  );
-  const received = all.filter((e) => e.direction === "inbound");
-  const positiveReplies = received.filter(
-    (e) => e.classification && POSITIVE_CLASSIFICATIONS.includes(e.classification)
-  );
   const activeVariants = sortedVariants.filter((v) => v.status === "active");
   const candidateVariants = sortedVariants.filter(
     (v) => v.status === "candidate"
@@ -209,6 +251,7 @@ export default function ProspectionPage() {
       if (changed) await api.updateOutreachDraft(email.id, edited);
       await api.approveOutreachEmail(email.id);
       reload();
+      await pending.reload();
     }, "Brouillon approuvé — envoi au prochain passage de l'agent.");
   };
 
@@ -216,6 +259,7 @@ export default function ProspectionPage() {
     void run(async () => {
       await api.rejectOutreachEmail(email.id);
       reload();
+      await pending.reload();
     }, "Brouillon rejeté.");
 
   const setVariantStatus = (
@@ -344,9 +388,9 @@ export default function ProspectionPage() {
       <PillTabs
         tabs={[
           { id: "overview", label: "Vue d'ensemble" },
-          { id: "pending", label: "À approuver", count: pending.length },
-          { id: "sent", label: "Envoyés", count: sent.length },
-          { id: "received", label: "Réponses", count: received.length },
+          { id: "pending", label: "À approuver", count: state?.pendingDrafts },
+          { id: "sent", label: "Envoyés", count: boxCounts?.sent },
+          { id: "received", label: "Réponses", count: boxCounts?.received },
           { id: "prospects", label: "Prospects" },
           {
             id: "research",
@@ -421,7 +465,7 @@ export default function ProspectionPage() {
             <div className="flex flex-col gap-3">
               <p className={SECTION_TITLE}>Réponses positives récentes</p>
               <div className="flex flex-col gap-2">
-                {positiveReplies.slice(0, 5).map((email) => (
+                {positiveReplies.map((email) => (
                   <button
                     key={email.id}
                     type="button"
@@ -430,7 +474,7 @@ export default function ProspectionPage() {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-medium">
-                        {nameById.get(email.restaurantId) ??
+                        {email.restaurantName ??
                           email.fromEmail ??
                           "—"}
                       </span>
@@ -454,14 +498,14 @@ export default function ProspectionPage() {
       )}
 
       {tab === "pending" &&
-        (pending.length === 0 ? (
+        (pending.total === 0 ? (
           <EmptyState
             title="Rien à approuver"
             body="Quand un restaurateur répond, l'agent classe la réponse et prépare un brouillon qui apparaît ici."
           />
         ) : (
           <div className="flex flex-col gap-4">
-            {pending.map((email) => {
+            {pending.rows.map((email) => {
               const inbound = email.inReplyTo
                 ? (byId.get(email.inReplyTo) ?? null)
                 : null;
@@ -477,7 +521,7 @@ export default function ProspectionPage() {
                       onClick={() => openLead(email.restaurantId)}
                       className="font-medium hover:underline"
                     >
-                      {nameById.get(email.restaurantId) ?? email.toEmail}
+                      {email.restaurantName ?? email.toEmail}
                     </button>
                     {inbound?.classification && (
                       <span
@@ -541,44 +585,50 @@ export default function ProspectionPage() {
         ))}
 
       {tab === "sent" &&
-        (sent.length === 0 ? (
+        (sent.total === 0 ? (
           <EmptyState
             title="Aucun e-mail envoyé"
             body="Les e-mails de prospection de l'agent apparaîtront ici après le premier run."
           />
         ) : (
           <EmailTable
-            emails={sent}
-            nameById={nameById}
+            emails={sent.rows}
             onOpen={openLead}
             dateOf={(email) => email.sentAt ?? email.createdAt}
           />
         ))}
 
       {tab === "received" &&
-        (received.length === 0 ? (
+        (received.total === 0 ? (
           <EmptyState
             title="Aucune réponse reçue"
             body="Les réponses des restaurateurs, classées par l'agent, apparaîtront ici."
           />
         ) : (
           <EmailTable
-            emails={received}
-            nameById={nameById}
+            emails={received.rows}
             onOpen={openLead}
             dateOf={(email) => email.receivedAt ?? email.createdAt}
           />
         ))}
 
+      {tab === "sent" && <Pager list={sent} />}
+      {tab === "received" && <Pager list={received} />}
+      {tab === "pending" && <Pager list={pending} />}
+
       {tab === "prospects" && (
-        <ProspectsPanel
-          prospects={prospects}
-          counts={prospectCounts}
-          filter={prospectFilter}
-          onFilter={changeProspectFilter}
-          nameById={nameById}
-          onOpen={openLead}
-        />
+        <>
+          <ProspectsPanel
+            prospects={prospects.total === null ? null : prospects.rows}
+            total={prospects.total}
+            counts={prospectCounts}
+            score={qualifiedScore}
+            filter={prospectFilter}
+            onFilter={setProspectFilter}
+            onOpen={openLead}
+          />
+          <Pager list={prospects} />
+        </>
       )}
 
       {tab === "research" && (
@@ -654,7 +704,7 @@ export default function ProspectionPage() {
               </tr>
             </thead>
             <tbody>
-              {(runs ?? []).map((row) => (
+              {runs.rows.map((row) => (
                 <tr key={row.id} className="border-t border-hairline">
                   <td className="px-4 py-3 font-medium">
                     {OUTREACH_JOB_LABELS[row.job] ?? row.job}
@@ -680,6 +730,7 @@ export default function ProspectionPage() {
           </table>
         </div>
       )}
+      {tab === "runs" && <Pager list={runs} />}
     </div>
   );
 }
@@ -823,29 +874,21 @@ function hostOf(url: string): string {
 
 function ProspectsPanel({
   prospects,
+  total,
   counts,
+  score,
   filter,
   onFilter,
-  nameById,
   onOpen,
 }: {
   prospects: OutreachProspect[] | null;
+  total: number | null;
   counts: ProspectCounts | null;
+  score: { average: number | null; scored: number } | null;
   filter: ProspectFilter;
   onFilter: (filter: ProspectFilter) => void;
-  nameById: Map<string, string>;
   onOpen: (restaurantId: string) => void;
 }) {
-  const scored = (prospects ?? []).filter(
-    (p) => p.qualification === "qualified" && p.priorityScore != null
-  );
-  const averageScore =
-    scored.length > 0
-      ? Math.round(
-          scored.reduce((sum, p) => sum + (p.priorityScore ?? 0), 0) /
-            scored.length
-        )
-      : null;
   const activeLabel = PROSPECT_TILES.find((t) => t.id === filter)?.label;
   const stop = (event: React.MouseEvent) => event.stopPropagation();
 
@@ -877,14 +920,14 @@ function ProspectsPanel({
         })}
         <StatCard
           label="Score moyen"
-          value={averageScore != null ? `${averageScore}/100` : "—"}
-          hint={`${scored.length} qualifié${scored.length > 1 ? "s" : ""} scoré${scored.length > 1 ? "s" : ""}`}
+          value={score?.average != null ? `${score.average}/100` : "—"}
+          hint={`${score?.scored ?? 0} qualifié${(score?.scored ?? 0) > 1 ? "s" : ""} scoré${(score?.scored ?? 0) > 1 ? "s" : ""}`}
         />
       </div>
 
       <p className="text-xs text-muted">
         {activeLabel
-          ? `${prospects ? prospects.length : "…"} · ${activeLabel} — cliquer à nouveau la tuile pour revenir aux prospects récents.`
+          ? `${total ?? "…"} · ${activeLabel} — cliquer à nouveau la tuile pour revenir aux prospects récents.`
           : "Prospects les plus récents — cliquer une tuile pour lister tout un verdict."}
       </p>
 
@@ -918,7 +961,7 @@ function ProspectsPanel({
                 className="cursor-pointer border-t border-hairline transition-colors hover:bg-surface-raised"
               >
                 <td className="px-4 py-3 font-medium">
-                  {prospect.name ?? nameById.get(prospect.restaurantId) ?? "—"}
+                  {prospect.name ?? "—"}
                 </td>
                 <td className="px-4 py-3 text-xs text-muted">
                   {prospect.city ?? "—"}
@@ -988,12 +1031,10 @@ function ProspectsPanel({
 
 function EmailTable({
   emails,
-  nameById,
   onOpen,
   dateOf,
 }: {
   emails: OutreachEmail[];
-  nameById: Map<string, string>;
   onOpen: (restaurantId: string) => void;
   dateOf: (email: OutreachEmail) => string;
 }) {
@@ -1016,7 +1057,7 @@ function EmailTable({
               className="cursor-pointer border-t border-hairline transition-colors hover:bg-surface-raised"
             >
               <td className="px-4 py-3 font-medium">
-                {nameById.get(email.restaurantId) ??
+                {email.restaurantName ??
                   email.toEmail ??
                   email.fromEmail}
               </td>

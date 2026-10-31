@@ -1,11 +1,9 @@
 import { createClient } from "@/lib/supabase/client";
-import { check, must } from "@/lib/supabase/result";
+import { check, must, mustPage, type ListPage } from "@/lib/supabase/result";
+import type { Tables } from "@/lib/supabase/database.types";
 import {
   CONTACT_ACTIVITY_TYPES,
   CSV_IMPORT_CHUNK_SIZE,
-  OUTREACH_EMAILS_FETCH_LIMIT,
-  OUTREACH_PROSPECTS_FETCH_LIMIT,
-  OUTREACH_RUNS_FETCH_LIMIT,
   OUTREACH_VARIANTS_FETCH_LIMIT,
   POSITIVE_CLASSIFICATIONS,
 } from "./constants";
@@ -767,15 +765,69 @@ async function fetchAllSlugs(): Promise<string[]> {
 // Même logique pour les variantes de prompt : le statut change sous RLS et
 // le prochain run /agent/outreach relit la rotation.
 
-export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
-  const supabase = createClient();
-  const rows = must(
-    await supabase
-      .from("outreach_emails")
-      .select("*")
+const OUTREACH_EMAIL_SELECT = "*, crm_restaurants(name)" as const;
+
+export type OutreachBox = "pending" | "sent" | "received";
+
+const withRestaurantName = (
+  row: Tables<"outreach_emails"> & { crm_restaurants: { name: string } | null }
+): OutreachEmail => ({
+  ...rowToOutreachEmail(row),
+  restaurantName: row.crm_restaurants?.name ?? null,
+});
+
+export async function fetchOutreachEmailsPage(
+  box: OutreachBox,
+  limit: number,
+  offset: number
+): Promise<ListPage<OutreachEmail>> {
+  const select = () =>
+    createClient().from("outreach_emails").select(OUTREACH_EMAIL_SELECT, { count: "exact" });
+  const query =
+    box === "pending"
+      ? select().eq("status", "pending_approval")
+      : box === "received"
+        ? select().eq("direction", "inbound")
+        : select().eq("direction", "outbound").neq("status", "pending_approval");
+  const page = mustPage(
+    await query
       .order("created_at", { ascending: false })
-      .limit(OUTREACH_EMAILS_FETCH_LIMIT)
+      .order("id")
+      .range(offset, offset + limit - 1)
   );
+  return { rows: page.rows.map(withRestaurantName), total: page.total };
+}
+
+/** Les compteurs des onglets, sans une ligne. */
+export async function fetchOutreachBoxCounts(): Promise<{ sent: number; received: number }> {
+  const count = () =>
+    createClient().from("outreach_emails").select("id", { count: "exact", head: true });
+  const [sent, received] = await Promise.all([
+    count().eq("direction", "outbound").neq("status", "pending_approval"),
+    count().eq("direction", "inbound"),
+  ]);
+  check(sent);
+  check(received);
+  return { sent: sent.count ?? 0, received: received.count ?? 0 };
+}
+
+export async function fetchPositiveReplies(limit: number): Promise<OutreachEmail[]> {
+  const rows = must(
+    await createClient()
+      .from("outreach_emails")
+      .select(OUTREACH_EMAIL_SELECT)
+      .eq("direction", "inbound")
+      .in("classification", POSITIVE_CLASSIFICATIONS)
+      .order("created_at", { ascending: false })
+      .limit(limit)
+  );
+  return rows.map(withRestaurantName);
+}
+
+/** Les messages auxquels répondent les brouillons affichés. */
+export async function fetchOutreachEmailsByIds(ids: string[]): Promise<OutreachEmail[]> {
+  if (ids.length === 0) return [];
+  const rows = must(await createClient().from("outreach_emails").select("*").in("id", ids));
   return rows.map(rowToOutreachEmail);
 }
 
@@ -783,42 +835,33 @@ export async function fetchOutreachEmails(): Promise<OutreachEmail[]> {
 const PROSPECT_COLUMNS =
   "restaurant_id, qualification, disqualify_reason, has_digital_menu, email_source, ai_notes, priority_score, enriched_at, created_at, updated_at, crm_restaurants(name, city, phone, website)";
 
-/** Sans filtre : la fenêtre des lignes les plus récentes. Avec un verdict :
- * toutes ses lignes, paginées au-delà du plafond PostgREST (un verdict
- * comme « pas d'e-mail » en compte des centaines). */
-export async function fetchOutreachProspects(
-  filter: ProspectFilter = "all"
-): Promise<OutreachProspect[]> {
-  const supabase = createClient();
-  const select = () =>
-    supabase.from("outreach_prospects").select(PROSPECT_COLUMNS);
-  if (filter === "all") {
-    const rows = must(
-      await select()
-        .order("enriched_at", { ascending: false, nullsFirst: false })
-        .limit(OUTREACH_PROSPECTS_FETCH_LIMIT)
+/** Sans filtre : tous, du plus récemment enrichi au plus ancien. */
+export async function fetchOutreachProspectsPage(
+  filter: ProspectFilter,
+  limit: number,
+  offset: number
+): Promise<ListPage<OutreachProspect>> {
+  let query = createClient()
+    .from("outreach_prospects")
+    .select(PROSPECT_COLUMNS, { count: "exact" });
+  if (filter !== "all") {
+    query = query.eq(
+      filter === "qualified" || filter === "pending" ? "qualification" : "disqualify_reason",
+      filter
     );
-    return rows.map(rowToOutreachProspect);
   }
-  const column =
-    filter === "qualified" || filter === "pending"
-      ? "qualification"
-      : "disqualify_reason";
-  const PAGE = 1000;
-  const prospects: OutreachProspect[] = [];
-  for (let from = 0; ; from += PAGE) {
-    const batch = must(
-      await select()
-        .eq(column, filter)
-        // Ordre stable obligatoire : sans lui, des pages .range() successives
-        // peuvent se chevaucher.
-        .order("enriched_at", { ascending: false, nullsFirst: false })
-        .order("restaurant_id")
-        .range(from, from + PAGE - 1)
-    );
-    prospects.push(...batch.map(rowToOutreachProspect));
-    if (batch.length < PAGE) return prospects;
-  }
+  const page = mustPage(
+    await query
+      .order("enriched_at", { ascending: false, nullsFirst: false })
+      .order("restaurant_id")
+      .range(offset, offset + limit - 1)
+  );
+  return { rows: page.rows.map(rowToOutreachProspect), total: page.total };
+}
+
+export async function fetchQualifiedScore(): Promise<{ average: number | null; scored: number }> {
+  const rows = must(await createClient().rpc("outreach_qualified_score"));
+  return { average: rows[0]?.average ?? null, scored: rows[0]?.scored ?? 0 };
 }
 
 export async function fetchProspectCounts(): Promise<ProspectCounts> {
@@ -846,16 +889,19 @@ export async function fetchProspectCounts(): Promise<ProspectCounts> {
   return { qualified, pending, no_email, contact_form, has_digital_menu, not_worth };
 }
 
-export async function fetchOutreachRuns(): Promise<OutreachRun[]> {
-  const supabase = createClient();
-  const rows = must(
-    await supabase
+export async function fetchOutreachRunsPage(
+  limit: number,
+  offset: number
+): Promise<ListPage<OutreachRun>> {
+  const page = mustPage(
+    await createClient()
       .from("outreach_runs")
-      .select("*")
+      .select("*", { count: "exact" })
       .order("started_at", { ascending: false })
-      .limit(OUTREACH_RUNS_FETCH_LIMIT)
+      .order("id")
+      .range(offset, offset + limit - 1)
   );
-  return rows.map(rowToOutreachRun);
+  return { rows: page.rows.map(rowToOutreachRun), total: page.total };
 }
 
 /** Édite un brouillon encore en attente. Garde .eq("status") : si le run
@@ -896,8 +942,7 @@ export async function rejectOutreachEmail(id: string): Promise<void> {
   );
 }
 
-/** Compteurs de campagne sur toute la table, pas seulement la fenêtre
- * OUTREACH_EMAILS_FETCH_LIMIT. Les réponses sont comptées par restaurant
+/** Compteurs de campagne sur toute la table. Les réponses sont comptées par restaurant
  * (un restaurateur peut écrire plusieurs fois) ; les rebonds n'en sont pas. */
 export async function fetchOutreachStats(): Promise<OutreachStats> {
   const supabase = createClient();

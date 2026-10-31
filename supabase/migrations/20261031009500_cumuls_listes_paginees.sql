@@ -13,3 +13,18 @@ $$;
 
 revoke execute on function public.shop_customer_totals(uuid) from public, anon;
 grant execute on function public.shop_customer_totals(uuid) to authenticated;
+
+-- Le score moyen des prospects qualifiés, sur tous et non sur la page affichée.
+-- Invoker : la RLS d'outreach_prospects réserve la lecture aux admins.
+create function public.outreach_qualified_score()
+returns table (average int, scored int)
+language sql stable
+set search_path = public
+as $$
+  select round(avg(priority_score))::int, count(priority_score)::int
+  from outreach_prospects
+  where qualification = 'qualified';
+$$;
+
+revoke execute on function public.outreach_qualified_score() from public, anon;
+grant execute on function public.outreach_qualified_score() to authenticated;

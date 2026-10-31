@@ -185,6 +185,8 @@ export type OutreachClassification =
 export interface OutreachEmail {
   id: string;
   restaurantId: string;
+  /** Lu avec la ligne : l'écran n'a pas tout le CRM sous la main. */
+  restaurantName?: string | null;
   leadId: string | null;
   direction: OutreachDirection;
   kind: "cold" | "reply";

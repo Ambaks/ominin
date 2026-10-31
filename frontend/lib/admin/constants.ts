@@ -243,9 +243,6 @@ export const DISQUALIFY_REASON_LABELS: Record<string, string> = {
 };
 
 /** Fenêtre de chargement de la page Prospection (lignes les plus récentes). */
-export const OUTREACH_EMAILS_FETCH_LIMIT = 200;
-export const OUTREACH_RUNS_FETCH_LIMIT = 50;
-export const OUTREACH_PROSPECTS_FETCH_LIMIT = 500;
 export const OUTREACH_VARIANTS_FETCH_LIMIT = 50;
 
 // ---------------------------------------------------------------------------
