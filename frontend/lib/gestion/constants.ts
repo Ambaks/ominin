@@ -14,6 +14,8 @@ export const SEED_TABLE_COUNT = 12;
 export const TOAST_DURATION_MS = 3000;
 /** Relecture du statut d'abonnement au retour de Stripe Checkout. */
 export const SUBSCRIPTION_POLL_MS = 3000;
+/** Au-delà de cette attente, l'écran d'activation dit que le webhook tarde ; la relecture continue. */
+export const SUBSCRIPTION_WAIT_WARN_MS = 60_000;
 export const TOP_VENTES_COUNT = 5;
 /**
  * Modèles proposés à la création d'une formule : ses étapes, chacune prenant

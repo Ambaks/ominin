@@ -5,10 +5,13 @@ import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
 import { QuoteBuilder } from "@/components/quote/quote-builder";
 import { compose, parseAnswers, starterExtras, type Answers } from "@/lib/composer";
 import { startCheckout } from "@/lib/gestion/checkout";
-import { SUBSCRIPTION_POLL_MS } from "@/lib/gestion/constants";
+import {
+  SUBSCRIPTION_POLL_MS,
+  SUBSCRIPTION_WAIT_WARN_MS,
+} from "@/lib/gestion/constants";
 import { refreshSubscription } from "@/lib/gestion/store";
 import type { Offre, Role } from "@/lib/gestion/types";
-import { pricingSection, quotePage } from "@/lib/landing-data";
+import { contactEmail, pricingSection, quotePage } from "@/lib/landing-data";
 import { formatPrice } from "@/lib/menu/format";
 import { collectProduct, offreProducts } from "@/lib/products";
 import { quotePlan } from "@/lib/quote";
@@ -21,7 +24,9 @@ import { createClient } from "@/lib/supabase/client";
  * branchements) et règle. Au retour de Stripe Checkout (?checkout=succes),
  * le webhook peut mettre quelques secondes à écrire en base : on relit le
  * statut périodiquement — dès qu'il passe actif, le shell réaffiche l'espace
- * et ce composant est démonté (l'intervalle est nettoyé).
+ * et ce composant est démonté (l'intervalle est nettoyé). S'il tarde au-delà
+ * du raisonnable, l'écran le dit et offre de relire à la main, sans cesser
+ * de relire tout seul.
  */
 export function SubscriptionGate({
   etablissementId,
@@ -44,6 +49,7 @@ export function SubscriptionGate({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [slow, setSlow] = useState(false);
   // Le second chemin d'activation (sans devis) fait signer lui aussi : c'est
   // le même engagement, il ne peut pas tenir à l'écran par lequel on passe.
   const { contract, contractError } = useContract();
@@ -77,8 +83,18 @@ export function SubscriptionGate({
       () => void refreshSubscription(),
       SUBSCRIPTION_POLL_MS
     );
-    return () => clearInterval(timer);
+    const warn = setTimeout(() => setSlow(true), SUBSCRIPTION_WAIT_WARN_MS);
+    return () => {
+      clearInterval(timer);
+      clearTimeout(warn);
+    };
   }, [confirming]);
+
+  const refresh = async () => {
+    setBusy(true);
+    await refreshSubscription();
+    setBusy(false);
+  };
 
   if (inCreation) {
     return (
@@ -185,7 +201,29 @@ export function SubscriptionGate({
       <h1 className="font-display text-2xl font-medium tracking-tight">
         {confirming ? "Activation en cours…" : "Activez votre abonnement"}
       </h1>
-      {confirming ? (
+      {confirming && slow ? (
+        <>
+          <p className="text-sm leading-relaxed text-muted">
+            Votre paiement est bien reçu. L’activation prend plus de temps que
+            prévu : actualisez dans une minute, ou écrivez-nous à{" "}
+            <a
+              href={`mailto:${contactEmail}`}
+              className="font-medium text-foreground underline-offset-2 hover:underline"
+            >
+              {contactEmail}
+            </a>
+            .
+          </p>
+          <button
+            type="button"
+            onClick={() => void refresh()}
+            disabled={busy}
+            className="ember-gradient rounded-full px-6 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+          >
+            Actualiser
+          </button>
+        </>
+      ) : confirming ? (
         <p className="text-sm leading-relaxed text-muted">
           Merci ! Votre paiement est confirmé, votre espace s’ouvre dans
           quelques secondes.
