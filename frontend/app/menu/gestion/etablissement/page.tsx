@@ -23,9 +23,11 @@ import { useToast } from "@/components/ui/toast";
 import { DAY_NAMES, formatOpeningHours, type OpeningHours } from "@/lib/collect/hours";
 import * as api from "@/lib/gestion/api";
 import { describeError } from "@/lib/gestion/errors";
+import { isClub } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Etablissement } from "@/lib/gestion/types";
 import { SettingsCard } from "./settings-card";
+import { ThemeSettings } from "./theme-settings";
 
 /*
  * Réglages (gérant) : tout ce qui n'est ni la carte ni le service du jour,
@@ -575,6 +577,7 @@ export default function EtablissementPage() {
               )}
             </div>
             )}
+            {!isClub(state) && <ThemeSettings />}
             <TabletSettings pinSet={etablissement.adminPinSet} />
           </Section>
 
