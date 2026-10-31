@@ -320,7 +320,6 @@ function Sections({
                 <GlassButton onClick={openCosts}>Mes coûts</GlassButton>
               </div>
             ) : null}
-            {current.platform_fees > 0 && <Fact label="Frais Ominin" value={money(current.platform_fees)} />}
             {current.free_units > 0 && <Fact label="Articles offerts" value={String(current.free_units)} />}
           </Card>
           {hasLabor && perHourMax > 0 && (

@@ -12,7 +12,6 @@ export interface PeriodSummary {
   visits: number;
   table_visits: number;
   repeat_visits: number;
-  platform_fees: number;
   revenue: number;
   revenue_ht: number;
   cost: number;
