@@ -20,7 +20,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { clubFonts } from "@/lib/club/fonts";
 import { collectBrand } from "@/lib/collect-landing-data";
 import * as api from "@/lib/gestion/api";
-import { bullesTabName, GESTION_THEMES, OFFRE_LABELS } from "@/lib/gestion/constants";
+import { bullesTabName, OFFRE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
 import {
   activeProducts,
@@ -73,7 +73,7 @@ import { AdminLockButton } from "./admin-lock-button";
 import { hasProviderReturn } from "./payment-settings";
 import { ReacceptanceGate } from "@/components/legal/reacceptance-gate";
 import { SubscriptionGate } from "./subscription-gate";
-import { Chip, GlassButton, Mesh, Notice, Segmented, Shimmer } from "./ui";
+import { Chip, GlassButton, Mesh, Notice, Shimmer } from "./ui";
 import { VisiteGuidee } from "./visite-guidee";
 
 interface NavItem {
@@ -284,17 +284,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
   // Ominin se paie sur ses tables vendues, l'espace s'ouvre avec ses soirées.
   const club = isClub(state);
   const clubOnly = isClubOnly(state);
-  const { theme, themeAttribute, setTheme } = useGestionTheme();
-  // Un club garde l'allure de ses soirées : ni attribut ni sélecteur.
-  const themeControl = !club && (
-    <Segmented
-      glass={false}
-      label="Thème"
-      options={GESTION_THEMES}
-      value={theme}
-      onChange={setTheme}
-    />
-  );
+  const { themeAttribute } = useGestionTheme();
   const subscribed = products.offre != null || products.collect || clubOnly;
   const pickupShop = isPickupShop(state);
   const items = NAV_ITEMS.filter(
@@ -480,6 +470,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
         // jetons, leurs polices et leur allure (.soirees), en-tête compris.
         className={`g-shell ${club ? `club-tokens club-espace soirees ${clubFonts}` : ""}`}
         data-entrance={entrance ? undefined : "off"}
+        // Un club garde l'allure de ses soirées : pas de thème.
         data-g-theme={club ? undefined : themeAttribute}
         style={
           {
@@ -515,7 +506,6 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
             </nav>
             {state && (
               <div className="mt-auto grid gap-2 pt-3">
-                {themeControl}
                 <button type="button" onClick={askSignOut} className="g-nav-item">
                   <LogoutIcon />
                   Se déconnecter
@@ -706,7 +696,6 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
                 ))}
               </div>
             )}
-            {themeControl}
             <div className="grid">
               <a
                 href={clientUrl}

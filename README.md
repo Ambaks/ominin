@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Thèmes dans Réglages (2026-10-31, branche `gestion-themes-reglages`, aucune migration) :** le sélecteur quitte le rail et la feuille « Plus » pour une carte « Thèmes » dans Réglages › Appareils, avec un aperçu de chaque thème (`public/gestion-themes/`). Le choix reste par appareil. Le personnel sans accès aux Réglages n'en change plus.
+
 > **Codes admin et d'encaissement centrés (2026-10-31, branche `gestion-code-centre`, aucune migration) :** sur tablette et téléphone, ces deux dialogues n'étaient plus collés en bas, sous le clavier : `Sheet` prend `centered` et se centre dans la zone que le clavier laisse visible.
 
 > **« Nouvelle commande » reste rond sur téléphone (2026-10-31, branche `gestion-fab-telephone`, aucune migration) :** sous 1024 px, le bouton flottant de Commandes et Tables ne s'étire plus avec son libellé, qui couvrait le reste à encaisser et le bouton d'encaissement. Le libellé reste sur ordinateur.

@@ -292,8 +292,8 @@ entité sur un élément maison.
 ## 15. Thèmes de l'espace
 
 Trois thèmes au choix de chaque appareil (`useGestionTheme`, `lib/gestion/use-gestion-theme.ts` ; clé et liste dans
-`lib/gestion/constants.ts`). Le sélecteur `Segmented` « Thème » vit en bas du rail et dans la feuille « Plus », hors
-budget de verre (`glass={false}`), et sur `/menu/kit` pour juger sans se connecter.
+`lib/gestion/constants.ts`). Le sélecteur vit dans Réglages › Appareils, carte « Thèmes » (`theme-settings.tsx`), un aperçu par thème ; un
+`Segmented` hors budget de verre le remplace sur `/menu/kit` pour juger sans se connecter.
 
 | Thème | Attribut | Ce qui change |
 |---|---|---|
@@ -308,7 +308,7 @@ transparence et de mouvement du § 3 restent valables ; un thème n'y ajoute que
 Une couleur d'entité écrite en dur (`text-ember-2` pour dire « commandes ») ne suit pas le thème : passez par
 `g-orders` et `text-g-entity`.
 
-**Ajouter un thème** : une entrée dans `GESTION_THEMES`, puis un bloc `[data-g-theme="…"]` qui surcharge des jetons
+**Ajouter un thème** : une entrée dans `GESTION_THEMES` avec son aperçu dans `public/gestion-themes/`, puis un bloc `[data-g-theme="…"]` qui surcharge des jetons
 `--g-*` d'abord, la matière ensuite, jamais la mise en page. Un jeton dérivé (`--g-mesh-1`, `--g-ring-hover`) est
 résolu sur `:root` : on le redéclare, changer `--ember-2` ne suffit pas. L'aura est sœur de `.g-shell` : ses
 sélecteurs prennent les deux chemins (`[data-g-theme="…"] > .g-mesh`, `.g-mesh:has(+ [data-g-theme="…"])`). Calculez

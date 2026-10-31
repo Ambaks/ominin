@@ -145,9 +145,9 @@ export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
 export const GESTION_THEME_STORAGE_KEY = "ominin-gestion-theme";
 /** Le premier est le défaut : il ne pose aucun attribut `data-g-theme`. */
 export const GESTION_THEMES = [
-  { value: "glass", label: "Ember glass" },
-  { value: "neon", label: "Néon braise" },
-  { value: "teal", label: "Ember teal" },
+  { value: "glass", label: "Ember glass", preview: "/gestion-themes/glass.webp" },
+  { value: "neon", label: "Néon braise", preview: "/gestion-themes/neon.webp" },
+  { value: "teal", label: "Ember teal", preview: "/gestion-themes/teal.webp" },
 ] as const;
 export type GestionTheme = (typeof GESTION_THEMES)[number]["value"];
 /** Invite aux notifications push écartée sur cet appareil (page Commandes). */
