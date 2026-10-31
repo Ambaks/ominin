@@ -20,7 +20,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { clubFonts } from "@/lib/club/fonts";
 import { collectBrand } from "@/lib/collect-landing-data";
 import * as api from "@/lib/gestion/api";
-import { GESTION_THEMES, OFFRE_LABELS } from "@/lib/gestion/constants";
+import { bullesTabName, GESTION_THEMES, OFFRE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
 import {
   activeProducts,
@@ -176,8 +176,9 @@ function primaryHrefs(state: GestionState, pickupShop: boolean, clubOnly: boolea
 }
 
 /** L'accueil du cuisinier est l'écran de la cuisine : épuisés et fermetures. */
-function navLabel(item: NavItem, role: Role): string {
-  return item.href === "/gestion" && role === "cuisinier" ? "Cuisine" : item.label;
+function navLabel(item: NavItem, state: GestionState): string {
+  if (item.href === "/gestion/bulles") return bullesTabName(state.etablissement.slug);
+  return item.href === "/gestion" && state.role === "cuisinier" ? "Cuisine" : item.label;
 }
 
 /** Repère de visite d'une entrée : la carte et les réglages sont ciblés. */
@@ -466,7 +467,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
       style={{ "--g-i": index } as CSSProperties}
     >
       <item.icon />
-      {state ? navLabel(item, state.role) : item.label}
+      {state ? navLabel(item, state) : item.label}
       <Count value={badges[item.href] ?? 0} hint={badgeHints[item.href]} />
     </Link>
   );
@@ -645,7 +646,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
                 className="g-tab"
               >
                 <item.icon />
-                <span>{navLabel(item, state.role)}</span>
+                <span>{navLabel(item, state)}</span>
                 <Count value={badges[item.href] ?? 0} hint={badgeHints[item.href]} />
               </Link>
             ))}
@@ -699,7 +700,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
                     className="g-sheet-item"
                   >
                     <item.icon />
-                    <span>{navLabel(item, state.role)}</span>
+                    <span>{navLabel(item, state)}</span>
                     <Count value={badges[item.href] ?? 0} hint={badgeHints[item.href]} />
                   </Link>
                 ))}

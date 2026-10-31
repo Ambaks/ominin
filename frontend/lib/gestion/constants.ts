@@ -1,3 +1,4 @@
+import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
 import type {
   AccordSource,
   Action,
@@ -72,6 +73,20 @@ export const ORDER_TABS: OrderTab[] = [
   "a_servir",
   "historique",
 ];
+
+/**
+ * Le nom de l'onglet des bulles. Un restaurant peut garder le sien : c'est le
+ * mot que son équipe emploie (demande du BOHO), pas une règle du produit.
+ */
+const BULLES_TAB_NAME = "Réservations";
+const BULLES_TAB_NAME_BY_SLUG: Record<string, string> = {
+  boho: "Bulles",
+  [BOHO_DEMO_SLUG]: "Bulles",
+};
+
+export function bullesTabName(slug: string): string {
+  return BULLES_TAB_NAME_BY_SLUG[slug] ?? BULLES_TAB_NAME;
+}
 
 export const ORDER_TAB_LABELS: Record<OrderTab, string> = {
   a_encaisser: "À encaisser",

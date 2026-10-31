@@ -402,6 +402,7 @@ function BulleRow({
 }
 
 export function BullesSettings({
+  tabName,
   etablissementId,
   setup,
   tables,
@@ -409,6 +410,7 @@ export function BullesSettings({
   onClose,
   onSaved,
 }: {
+  tabName: string;
   etablissementId: string;
   setup: BulleSetup;
   /** Les tables de la salle : celle posée dans une bulle n'y commande qu'une fois les places payées. */
@@ -437,7 +439,7 @@ export function BullesSettings({
     onSaved();
   };
   return (
-    <Sheet title="Réglages des réservations" onClose={onClose}>
+    <Sheet title={`Réglages des ${tabName.toLowerCase()}`} onClose={onClose}>
       <div className="flex flex-col gap-6">
         <ReglagesForm etablissementId={etablissementId} setup={setup} onSaved={onSaved} />
         <CreneauxEditor etablissementId={etablissementId} setup={setup} dayEndHour={dayEndHour} onSaved={onSaved} />

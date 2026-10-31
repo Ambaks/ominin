@@ -2,6 +2,7 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { BullesSettings } from "@/components/gestion/bulles/settings";
+import { bullesTabName } from "@/lib/gestion/constants";
 import { NewReservationSheet, ReservationSheet, STATUS_LABELS } from "@/components/gestion/bulles/reservation-sheet";
 import { CheckIcon, ExternalLinkIcon, GearIcon } from "@/components/gestion/icons";
 import { Chip, EmptyState, ErrorNotice, GlassButton, Input, Plate, SectionHeading, Shimmer } from "@/components/gestion/ui";
@@ -52,6 +53,7 @@ export function BullesBoard({
   /** Les réglages (prix, créneaux, bulles) ; absents, le bouton n'est pas proposé. */
   settings?: { etablissementId: string; onSaved: () => void };
 }) {
+  const tabName = bullesTabName(slug);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [opened, setOpened] = useState<string | null>(null);
   const [creating, setCreating] = useState<{ bulleId: string; slot: Slot } | null>(null);
@@ -93,7 +95,7 @@ export function BullesBoard({
       <div className="g-rise" style={rise(0)}>
         <SectionHeading
           level={1}
-          title="Réservations"
+          title={tabName}
           sub={
             reservations && setup.reglages
               ? `${night} · ${open.length} ${open.length > 1 ? "réservations" : "réservation"}${arrived ? ` · ${arrived} ${arrived > 1 ? "arrivées" : "arrivée"}` : ""}`
@@ -112,7 +114,7 @@ export function BullesBoard({
                 <ExternalLinkIcon />
               </a>
               {openSettings && (
-                <GlassButton variant="icon" aria-label="Réglages des réservations" title="Prix, créneaux et bulles" onClick={openSettings}>
+                <GlassButton variant="icon" aria-label={`Réglages des ${tabName.toLowerCase()}`} title="Prix, créneaux et bulles" onClick={openSettings}>
                   <GearIcon />
                 </GlassButton>
               )}
@@ -290,6 +292,7 @@ export function BullesBoard({
       )}
       {settingsOpen && settings && (
         <BullesSettings
+          tabName={tabName}
           etablissementId={settings.etablissementId}
           setup={setup}
           tables={[...tables].sort((a, b) => a.number - b.number)}
