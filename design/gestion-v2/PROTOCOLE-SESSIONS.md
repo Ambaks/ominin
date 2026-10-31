@@ -11,10 +11,13 @@ pas entre elles : tout passe par la tête.
   `node_modules` est un lien vers l'installation principale).
 - Compte de test : le gérant de `trattoria-lucia` (`test@ominin.com`), établissement de démo en base de
   production. On y lit, on y clique, on peut y créer des commandes de test ; on n'y règle rien de
-  Stripe/HubRise/Popina/imprimantes réelles. Chaque session a son propre navigateur intégré, sans cookie :
-  à l'arrivée sur `/connexion`, lire `frontend/.env.test.local` (`TEST_GERANT_EMAIL`, `TEST_GERANT_PASSWORD`,
-  fichier local ignoré par git, à ne jamais recopier dans un message ou un compte rendu) et se connecter
-  soi-même dans le volet avec `form_input`. Ne jamais inventer d'identifiants.
+  Stripe/HubRise/Popina/imprimantes réelles. **Le profil du navigateur intégré est partagé par toutes les
+  sessions** (constaté 2026-10-31) : un seul compte connecté à la fois pour toute la flotte, et changer de
+  compte dans un volet change le compte de tous. Les changements de compte (cuisinier, trattoria-lucia,
+  L'Étoile) sont des **fenêtres ouvertes par la tête**, une à la fois, pendant lesquelles seules les sessions
+  concernées capturent ; hors fenêtre, personne ne se connecte ni ne se déconnecte. Les identifiants vivent
+  dans `frontend/.env.test.local` (ignoré par git, à ne jamais recopier dans un message ou un compte rendu).
+  Ne jamais inventer d'identifiants.
 - Fichiers à soi : chaque session ne modifie que les fichiers de son périmètre (liste ci-dessous). Les
   fichiers partagés — `frontend/app/globals.css`, `frontend/components/gestion/ui/**`,
   `frontend/components/gestion/shell.tsx`, `frontend/components/gestion/visite-guidee.tsx`,
@@ -26,7 +29,7 @@ pas entre elles : tout passe par la tête.
   session. Le build doit rester vert pour tout le monde : `npx tsc --noEmit` et `npm run lint` **une seule
   fois par tour, juste avant le commit, jamais en cours de construction**, et toujours derrière le verrou
   partagé (un seul contrôle à la fois pour toute la flotte, chaque `tsc` coûte 800 Mo et un cœur) :
-  `until mkdir /tmp/gestion-check.lock 2>/dev/null; do sleep 5; done; npx tsc --noEmit; npm run lint; rmdir /tmp/gestion-check.lock`
+  `until mkdir /tmp/gestion-check.lock 2>/dev/null; do sleep 5; done; npx tsc --noEmit --incremental --tsBuildInfoFile /tmp/gestion-tsc.tsbuildinfo; npm run lint; rmdir /tmp/gestion-check.lock`
   (le `rmdir` doit s'exécuter même en cas d'échec). Un type cassé se répare dans la minute.
 
 ## Le contrat visuel
@@ -43,7 +46,7 @@ réel Supabase, carillon, impression, PIN, raccourcis, attributs `data-visite`, 
 l'interface, pas le produit — sauf décision écrite de la tête (les propositions de simplification de la
 session UX arrivent par elle).
 
-## La boucle : trois tours maximum, objectif 10/10
+## La boucle : UN SEUL tour par page (Ambaka, 2026-10-31)
 
 Pour **chaque page** du périmètre, dans l'ordre d'importance :
 
@@ -60,7 +63,15 @@ Pour **chaque page** du périmètre, dans l'ordre d'importance :
    session, peuvent relire la page dans le même navigateur intégré, un à la fois.
    **Mémoire :** le Mac est à la limite. Fermez l'onglet du navigateur intégré (`tabs_close`) **dès qu'une
    capture ou une relecture est finie** — un volet ouvert sans capture en cours est une faute ; n'ouvrez pas
-   plus d'un onglet ; les relecteurs lisent les captures plutôt que la page. **Un seul navigateur headless à la fois par session,
+   plus d'un onglet ; les relecteurs lisent les captures plutôt que la page.
+   **Trois captures à la fois pour toute la flotte (Ambaka via le gestionnaire de ressources) :** avant d'ouvrir
+   un onglet, prendre un créneau et **garder son numéro dans une variable** :
+   `slot=""; until [ -n "$slot" ]; do for i in 1 2 3; do mkdir /tmp/gestion-capture-$i 2>/dev/null && slot=$i && break; done; [ -n "$slot" ] || sleep 10; done; echo "créneau $slot"`
+   — et le rendre dès l'onglet fermé : `rmdir /tmp/gestion-capture-$slot` (jamais celui d'une autre session). Le
+   plafond de six volets reste un garde-fou.
+   **Feu du gestionnaire de ressources :** quand la tête annonce « HOLD captures », aucun onglet ne s'ouvre
+   et aucune capture ne se lance jusqu'au « OK captures » ; le code, la lecture et les relectures sur
+   captures existantes continuent. **Un seul navigateur headless à la fois par session,
    fermé dès la capture finie** (le Mac a 8 Go : le gestionnaire de ressources tue tout Chromium inactif
    plus de 30 min ; six au plus pour toute la flotte). Les relecteurs jugent sur les images, ils ne
    lancent pas de navigateur. Le serveur de dev compile à la demande : laisser `networkidle` et un
@@ -82,12 +93,11 @@ Pour **chaque page** du périmètre, dans l'ordre d'importance :
    *guider* est un défaut à signaler à la tête (texte dans `frontend/lib/gestion/visites.ts`, gelé).
 5. **Corriger** les défauts remontés, dans l'ordre des notes les plus basses. Un relecteur qui note 10 au
    tour N n'est pas relancé au tour N+1 sur la même page (on ne relit que ce qui est sous la cible).
-6. **Pause obligatoire après le tour 1** (Ambaka, 2026-10-31) : une fois le premier tour fini (construction,
-   captures, trois relectures, corrections, commit), envoyer à la tête le compte rendu du tour avec les
-   chemins des captures téléphone + bureau, puis **attendre son « go »** avant d'entamer les tours 2 et 3.
-   Pendant l'attente, passer au tour 1 de la page suivante du périmètre. Ambaka regarde les rendus entre
-   les deux.
-7. S'arrêter quand les trois notes sont à 10, ou après le tour 3. Puis page suivante.
+6. **Un seul tour** (Ambaka, 2026-10-31) : une fois le tour 1 fini (construction, captures, trois relectures,
+   corrections, commit), envoyer à la tête le compte rendu avec les chemins des captures téléphone + bureau
+   et les notes, puis **passer à la page suivante du périmètre**. Pas de tour 2 ni 3 : Ambaka juge sur le rendu
+   et décidera plus tard d'une seconde passe.
+7. Quand toutes les pages du périmètre ont eu leur tour : compte rendu final et fin de session.
 
 ## Compte rendu à la tête (SendMessage à « Dashboard design research »)
 

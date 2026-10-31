@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Funnel, StatTile, VolumeBar } from "@/components/admin/charts";
+import { ComboParfait } from "@/components/admin/clients/combo";
 import { useToast } from "@/components/ui/toast";
 import { ITEM_RANKING_COUNT } from "@/lib/admin/constants";
 import { formatEuros, formatPercent } from "@/lib/admin/format";
@@ -148,6 +149,8 @@ export function ClientAnalytique({
           </table>
         )}
       </section>
+
+      <ComboParfait etablissementId={client.etablissement_id} period={period} />
     </div>
   );
 }

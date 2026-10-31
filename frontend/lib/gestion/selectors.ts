@@ -1,14 +1,12 @@
 import { parisDate } from "@/lib/collect/hours";
 import { hasBlockedRequiredGroup, type MenuItem } from "@/lib/menu-data";
 import {
-  ACCORD_SOURCE_LABELS,
   ORDER_TAB_LABELS,
   PICKUP_ROLE_LABELS,
   ROLE_LABELS,
   TOP_VENTES_COUNT,
 } from "./constants";
 import type {
-  AccordSource,
   ActiveProducts,
   GestionState,
   Order,
@@ -480,50 +478,6 @@ export function topVentes(state: GestionState, days: number): VenteEntry[] {
 }
 
 export const topVentesToday = (state: GestionState) => topVentes(state, 1);
-
-/** L'établissement vend par l'accord du chef : au moins une ligne chargée en vient. */
-export function hasAccordSales(state: GestionState): boolean {
-  return state.orders.some((order) => order.items.some((line) => line.accord));
-}
-
-export interface AccordStats {
-  revenue: number;
-  lines: number;
-  /** Part des suggestions dans le chiffre des mêmes commandes, entre 0 et 1. */
-  share: number;
-  bySource: { source: AccordSource; lines: number; revenue: number }[];
-  top: VenteEntry[];
-}
-
-/**
- * Ce que l'accord du chef a vendu sur la période, sur les mêmes commandes que
- * le Top ventes (annulées exclues). Une ligne fusionnée compte en entier.
- */
-export function accordStats(state: GestionState, days: number): AccordStats {
-  const lines = ordersInPeriod(state, days).flatMap((order) => order.items);
-  const bySource = (Object.keys(ACCORD_SOURCE_LABELS) as AccordSource[]).map(
-    (source) => ({ source, lines: 0, revenue: 0 })
-  );
-  const suggested: OrderItem[] = [];
-  let total = 0;
-  for (const line of lines) {
-    const revenue = lineTotal(line);
-    total += revenue;
-    if (!line.accord) continue;
-    suggested.push(line);
-    const entry = bySource.find((item) => item.source === line.accord)!;
-    entry.lines += 1;
-    entry.revenue += revenue;
-  }
-  const revenue = bySource.reduce((sum, entry) => sum + entry.revenue, 0);
-  return {
-    revenue,
-    lines: suggested.length,
-    share: total > 0 ? revenue / total : 0,
-    bySource,
-    top: rankDishes(suggested),
-  };
-}
 
 export interface DayPoint {
   /** Libellé court d'axe ("lun. 8"). */

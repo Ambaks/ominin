@@ -6,6 +6,7 @@ import { StatTile } from "@/components/admin/charts";
 import { AgentsClients } from "@/components/admin/clients/agents";
 import { broughtByLabel, useBroughtBy } from "@/components/admin/clients/brought-by";
 import { ClipClients } from "@/components/admin/clients/clip";
+import { ComboParfait } from "@/components/admin/clients/combo";
 import {
   ClientsSkeleton,
   PeriodHeader,
@@ -20,6 +21,7 @@ import { formatEuros, formatPercent } from "@/lib/admin/format";
 import {
   conversionRate,
   fetchOverview,
+  periodOf,
   theoreticalCommission,
 } from "@/lib/admin/metrics";
 
@@ -46,6 +48,7 @@ function MenuClients() {
   const { days, setDays, data } = usePeriodPair(fetchOverview);
   const broughtBy = useBroughtBy();
   const rows = data?.rows ?? null;
+  const period = useMemo(() => periodOf(days), [days]);
 
   const totals = useMemo(() => {
     const active = (rows ?? []).filter(
@@ -147,6 +150,8 @@ function MenuClients() {
               </ul>
             </section>
           )}
+
+          <ComboParfait etablissementId={null} period={period} />
 
           <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
             <table className="w-full min-w-184 text-sm">

@@ -27,12 +27,10 @@ import {
   type DeltaTone,
 } from "@/components/gestion/ui";
 import { formatPercent } from "@/lib/admin/format";
-import { ACCORD_SOURCE_LABELS, ANALYTICS_PERIOD_DAYS, SMALL_BASE } from "@/lib/gestion/constants";
+import { ANALYTICS_PERIOD_DAYS, SMALL_BASE } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu/format";
 import {
-  accordStats,
   awaitsPayment,
-  hasAccordSales,
   isPaid,
   isPickupShop,
   openOrders,
@@ -282,7 +280,6 @@ export default function ApercuPage() {
   const ventesTop = hasCommandes ? topVentes(state, period) : [];
   const hours = hasCommandes ? ordersByHour(state, period) : [];
   const tips = hasCommandes ? tipsTotal(state, period) : 0;
-  const accord = hasCommandes && hasAccordSales(state) ? accordStats(state, period) : null;
   const hasAnalyticsData = stats ? stats.orders > 0 || ventesTop.length > 0 : false;
   // La période précédente n'est comparable que si l'espace l'a chargée : la
   // fenêtre de commandes couvre la plus longue période d'analytique.
@@ -463,70 +460,6 @@ export default function ApercuPage() {
                 </Card>
                 <PeakHours buckets={hours} period={period} />
               </div>
-
-              {accord && (
-                <>
-                  <SectionHeading
-                    title="Le combo parfait"
-                    sub="Ce que les suggestions du menu ont fait commander, annulations exclues"
-                  />
-                  <div className="grid gap-g-gap sm:grid-cols-3">
-                    <StatTile
-                      plain
-                      entity="money"
-                      label="CA des suggestions"
-                      value={formatPrice(accord.revenue)}
-                      baseline={`sur ${period} jours`}
-                    />
-                    <StatTile
-                      plain
-                      entity="orders"
-                      label="Lignes suggérées"
-                      value={String(accord.lines)}
-                      baseline="une ligne fusionnée compte en entier"
-                    />
-                    <StatTile
-                      plain
-                      entity="money"
-                      label="Part du CA"
-                      value={formatPercent(accord.share)}
-                      baseline="du chiffre des commandes de la période"
-                    />
-                  </div>
-                  <div className="grid gap-g-gap lg:grid-cols-2">
-                    <Card title="Par origine" sub="lignes · CA">
-                      <RankedList
-                        entity="money"
-                        size="bar"
-                        label="Ventes suggérées par origine"
-                        items={accord.bySource.map((entry) => ({
-                          label: ACCORD_SOURCE_LABELS[entry.source],
-                          value: `${plural(entry.lines, "ligne")} · ${formatPrice(entry.revenue)}`,
-                          amount: entry.revenue,
-                        }))}
-                      />
-                    </Card>
-                    <Card title="Plats suggérés les plus vendus" sub="quantités · CA">
-                      {accord.top.length > 0 ? (
-                        <RankedList
-                          entity="orders"
-                          size="bar"
-                          label="Plats suggérés les plus vendus"
-                          items={accord.top.map((entry) => ({
-                            label: entry.name,
-                            value: `×${entry.quantity} · ${formatPrice(entry.revenue)}`,
-                            amount: entry.quantity,
-                          }))}
-                        />
-                      ) : (
-                        <p className="text-g-body text-muted">
-                          Aucune suggestion vendue sur la période.
-                        </p>
-                      )}
-                    </Card>
-                  </div>
-                </>
-              )}
 
               <Plate>
                 <details>

@@ -160,8 +160,6 @@ export interface OrderItem {
   servedAt?: string;
   /** Points payés par unité : la ligne est offerte par la fidélité. */
   loyaltyPoints?: number;
-  /** Ajoutée sur une suggestion de l'accord du chef ; absente, commandée depuis la carte. */
-  accord?: AccordSource;
 }
 
 /**
