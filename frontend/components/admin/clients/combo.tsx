@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { StatTile, VolumeBar } from "@/components/admin/charts";
+import { SUGGESTION_LABELS } from "@/components/admin/clients/pilotage";
 import { useToast } from "@/components/ui/toast";
 import { formatEuros, formatPercent } from "@/lib/admin/format";
 import { fetchCombo, type ComboStats, type Period } from "@/lib/admin/metrics";
@@ -117,6 +118,41 @@ export function ComboParfait({
             </div>
           </div>
         </>
+      )}
+      {stats !== null && (
+        <div className="min-w-0">
+          <h3 className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">
+            Proposées puis retenues
+          </h3>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-hairline text-left text-[10px] uppercase tracking-[0.18em] text-faint">
+                  <th className="py-2 font-semibold">Où</th>
+                  <th className="py-2 text-right font-semibold">Proposées</th>
+                  <th className="py-2 text-right font-semibold">Retenues</th>
+                  <th className="py-2 text-right font-semibold">Taux</th>
+                  <th className="py-2 text-right font-semibold">Recette</th>
+                </tr>
+              </thead>
+              <tbody>
+                {stats.suggestions.map((row) => (
+                  <tr key={row.kind} className="border-b border-hairline last:border-0">
+                    <td className="py-2.5 pr-3">{SUGGESTION_LABELS[row.kind]}</td>
+                    <td className="py-2.5 text-right tabular-nums">{row.shown}</td>
+                    <td className="py-2.5 text-right tabular-nums">{row.orders}</td>
+                    <td className="py-2.5 text-right tabular-nums">
+                      {row.shown > 0 ? formatPercent(row.orders / row.shown) : "—"}
+                    </td>
+                    <td className="py-2.5 text-right tabular-nums text-muted">
+                      {formatEuros(row.revenue)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       )}
     </section>
   );

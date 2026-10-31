@@ -2,8 +2,8 @@
  * Mesure d'audience du menu QR. Réglages du mouchard, côté navigateur.
  *
  * Les plafonds de sécurité (débit par restaurant, délai anti-rejeu, purge) ne
- * sont pas ici : ils vivent en littéraux dans menu_track, parce qu'un
- * paramètre exposé à anon serait un plafond choisi par l'appelant.
+ * sont pas ici : ils vivent en littéraux dans menu_track et menu_track_views,
+ * parce qu'un paramètre exposé à anon serait un plafond choisi par l'appelant.
  */
 
 export type MenuStage =

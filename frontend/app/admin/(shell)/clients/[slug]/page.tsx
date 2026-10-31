@@ -8,6 +8,7 @@ import { ClientActivity } from "@/components/admin/clients/activity";
 import { broughtByLabel, useBroughtBy } from "@/components/admin/clients/brought-by";
 import { ClientAnalytique } from "@/components/admin/clients/analytique";
 import { ClientDemarrage } from "@/components/admin/clients/demarrage";
+import { ClientPilotage } from "@/components/admin/clients/pilotage";
 import { ClientReglages } from "@/components/admin/clients/reglages";
 import { ClientRevenus } from "@/components/admin/clients/revenus";
 import { ClientMaterielParEtablissement } from "@/components/admin/projet/materiel";
@@ -146,6 +147,9 @@ function ClientDetail() {
       {view === "revenus" && <ClientRevenus client={client} period={period} />}
       {view === "analytique" && (
         <ClientAnalytique client={client} period={period} />
+      )}
+      {view === "pilotage" && (
+        <ClientPilotage client={client} days={days} />
       )}
       {view === "activite" && (
         <ClientActivity etablissementId={client.etablissement_id} />

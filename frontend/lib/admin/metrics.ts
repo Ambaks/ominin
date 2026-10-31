@@ -1,8 +1,13 @@
-import { ITEM_RANKING_COUNT, LIVE_SESSION_WINDOW_S } from "@/lib/admin/constants";
+import {
+  ITEM_RANKING_COUNT,
+  LIVE_SESSION_WINDOW_S,
+  PILOTAGE_READY_BATCH_SECONDS,
+  PILOTAGE_RETURN_DAYS,
+} from "@/lib/admin/constants";
 import type { AccordSource } from "@/lib/menu/cart";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
-import { must } from "@/lib/supabase/result";
+import { check, must } from "@/lib/supabase/result";
 
 /*
  * Chiffres de l'onglet Clients. Tout passe par des fonctions SECURITY DEFINER
@@ -18,6 +23,7 @@ export type ClientOverview = Fn["admin_menu_overview"]["Returns"][number];
 export type SeriesPoint = Fn["admin_menu_series"]["Returns"][number];
 export type Funnel = Fn["admin_menu_funnel"]["Returns"][number];
 export type ItemRanking = Fn["admin_menu_items"]["Returns"][number];
+export type Measures = Fn["admin_menu_measures"]["Returns"][number];
 export type LiveRow = Fn["admin_menu_live"]["Returns"][number];
 export type FeedRow = Fn["admin_menu_feed"]["Returns"][number];
 
@@ -145,6 +151,8 @@ export interface ComboStats {
   total: number;
   by_source: { source: AccordSource; lines: number; revenue: number }[];
   top: { name: string; quantity: number; revenue: number }[];
+  /** Proposées et retenues par sorte, suite du repas comprise. */
+  suggestions: Pilotage["suggestions"];
 }
 
 /** Sans établissement : toute la flotte, démos exclues. */
@@ -160,6 +168,151 @@ export async function fetchCombo(
   });
   if (error) throw new Error(error.message);
   return data as unknown as ComboStats;
+}
+
+/** Le document que renvoie admin_menu_pilotage. */
+export interface Pilotage {
+  venue: {
+    bar_pickup: boolean;
+    pilotage_from: string | null;
+    from_at: string;
+    first_visit_at: string | null;
+  };
+  till: { connected: boolean; sales: number; revenue: number; qr_revenue: number };
+  reach: {
+    visits: number;
+    without_table: number;
+    tables: { number: number; zone: string | null; visits: number; orders: number }[];
+  };
+  conversion: {
+    median_to_order_s: number | null;
+    hours: {
+      hour: number;
+      visits: number;
+      baskets: number;
+      converted: number;
+      orders: number;
+      revenue: number;
+      basket: number | null;
+    }[];
+  };
+  bar: {
+    orders: number;
+    with_ready: number;
+    paid_to_ready_median_s: number | null;
+    paid_to_ready_max_s: number | null;
+    ready_to_handed_median_s: number | null;
+    ready_to_handed_max_s: number | null;
+    paid_to_handed_median_s: number | null;
+    paid_to_handed_max_s: number | null;
+    promised: number;
+    promise_kept: number;
+    closed_days_orders: number;
+    never_handed: number;
+    handed_without_ready: number;
+    ready_batched: number;
+    waiting_now: number;
+    waiting_median_s: number | null;
+    ready_never_collected: number;
+  };
+  bar_hours: {
+    hour: number;
+    orders: number;
+    paid_to_ready_s: number | null;
+    ready_to_handed_s: number | null;
+    paid_to_handed_s: number | null;
+  }[];
+  bar_people: {
+    name: string;
+    marked_ready: number;
+    paid_to_ready_s: number | null;
+    handed_over: number;
+    ready_to_handed_s: number | null;
+  }[];
+  sold_out: {
+    name: string;
+    times: number;
+    seconds: number;
+    still_out: boolean;
+  }[];
+  saturation: {
+    open_orders: number;
+    orders: number;
+    paid_to_ready_s: number | null;
+    paid_to_handed_s: number | null;
+  }[];
+  basket: {
+    orders: number;
+    average: number | null;
+    quantity_average: number | null;
+    several_lines: number;
+    pairs: { first: string; second: string; orders: number }[];
+  };
+  menu: { items: number; sold: number };
+  suggestions: {
+    kind: Database["public"]["Enums"]["menu_suggestion_kind"];
+    shown: number;
+    orders: number;
+    revenue: number;
+  }[];
+  loyalty: {
+    signups: number;
+    orders_with_member: number;
+    cohort: number;
+    returned: number;
+    wheel_spins: number;
+    redemptions: number;
+  };
+  payment: {
+    online: number;
+    at_bar: number;
+    unpaid: number;
+    online_revenue: number;
+    at_bar_revenue: number;
+    cancelled: number;
+    refunded: number;
+    tips: number;
+  };
+}
+
+export async function fetchPilotage(
+  etablissementId: string,
+  period: Period
+): Promise<Pilotage> {
+  const data = await createClient()
+    .rpc("admin_menu_pilotage", {
+      p_etab: etablissementId,
+      p_from: period.from,
+      p_to: period.to,
+      p_return_days: PILOTAGE_RETURN_DAYS,
+      p_limit: ITEM_RANKING_COUNT,
+      p_ready_batch_seconds: PILOTAGE_READY_BATCH_SECONDS,
+    })
+    .then(must);
+  return data as unknown as Pilotage;
+}
+
+export async function savePilotageFrom(
+  etablissementId: string,
+  from: string | null
+): Promise<void> {
+  await createClient()
+    .rpc("admin_set_pilotage_from", { p_etab: etablissementId, p_from: from })
+    .then(check);
+}
+
+export async function fetchMeasures(
+  etablissementId: string,
+  period: Period
+): Promise<Measures | null> {
+  const rows = await createClient()
+    .rpc("admin_menu_measures", {
+      p_etab: etablissementId,
+      p_from: period.from,
+      p_to: period.to,
+    })
+    .then(must);
+  return rows[0] ?? null;
 }
 
 export async function fetchLive(): Promise<LiveRow[]> {
@@ -188,4 +341,14 @@ export function theoreticalCommission(row: ClientOverview): number {
 
 export function conversionRate(sessions: number, converted: number): number {
   return sessions === 0 ? 0 : converted / sessions;
+}
+
+/**
+ * Tentatives terminées sans paiement ni retour au comptoir. Une tentative en
+ * cours n'a pas encore d'issue : elle n'entre pas dans le calcul.
+ */
+export function paymentFailure(measures: Measures): { failures: number; closed: number; rate: number } {
+  const failures = measures.expired + measures.failed;
+  const closed = measures.succeeded + measures.counter + failures;
+  return { failures, closed, rate: closed === 0 ? 0 : failures / closed };
 }
