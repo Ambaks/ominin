@@ -288,3 +288,28 @@ entité sur un élément maison.
 6. Comptez vos éléments de verre : rail + barre haute compris, ≤ 12.
 7. Vérifiez à 1440, 1024 et 375 px, en sombre et en clair, sous `prefers-reduced-motion` et
    `prefers-reduced-transparency`.
+
+## 15. Thèmes de l'espace
+
+Trois thèmes au choix de chaque appareil (`useGestionTheme`, `lib/gestion/use-gestion-theme.ts` ; clé et liste dans
+`lib/gestion/constants.ts`). Le sélecteur `Segmented` « Thème » vit en bas du rail et dans la feuille « Plus », hors
+budget de verre (`glass={false}`), et sur `/menu/kit` pour juger sans se connecter.
+
+| Thème | Attribut | Ce qui change |
+|---|---|---|
+| Ember glass, défaut | aucun | rien : le kit tel que décrit ci-dessus |
+| Néon braise | `neon` | verre à plat (`--surface-raised`, `--surface` pour le rail et les barres), filet et liseré de braise, aucun `backdrop-filter` ; plaques opaques ; lueur sur les bouchons de barres non denses, la navigation active et les chiffres des tuiles du jour, colorés par entité ; lueur haute et grille de 56 px à la place de l'aura. En clair : aucune lueur sur le texte, chiffres du jour sur `--surface-raised` |
+| Ember teal | `teal` | le verre intact ; commandes en `--g-teal` (`#7fc6d6`, en clair mêlé à `--foreground` : 5,2:1 sur `--surface`) ; radiale froide à la place de la braise de l'aura. Argent, problème et dégradé de marque inchangés |
+
+`data-g-theme` se pose sur `.g-shell`, jamais sur un club (les `.soirees` remappent déjà les embers, le sélecteur y
+est masqué). Tout vit dans le bloc « Gestion v2 — thèmes » de `globals.css`, juste après le kit. Les replis de
+transparence et de mouvement du § 3 restent valables ; un thème n'y ajoute que ce qu'il anime lui-même.
+
+Une couleur d'entité écrite en dur (`text-ember-2` pour dire « commandes ») ne suit pas le thème : passez par
+`g-orders` et `text-g-entity`.
+
+**Ajouter un thème** : une entrée dans `GESTION_THEMES`, puis un bloc `[data-g-theme="…"]` qui surcharge des jetons
+`--g-*` d'abord, la matière ensuite, jamais la mise en page. Un jeton dérivé (`--g-mesh-1`, `--g-ring-hover`) est
+résolu sur `:root` : on le redéclare, changer `--ember-2` ne suffit pas. L'aura est sœur de `.g-shell` : ses
+sélecteurs prennent les deux chemins (`[data-g-theme="…"] > .g-mesh`, `.g-mesh:has(+ [data-g-theme="…"])`). Calculez
+le contraste du texte en sombre et en clair, vérifiez sur `/menu/kit`.

@@ -126,6 +126,15 @@ export const LUNCH_PIVOT = "12:30";
 
 /** Carillon des nouvelles commandes : préférence par appareil (défaut : activé). */
 export const CHIME_STORAGE_KEY = "ominin-gestion-chime";
+/** Thème de l'espace : préférence par appareil (DESIGN.md § 15). */
+export const GESTION_THEME_STORAGE_KEY = "ominin-gestion-theme";
+/** Le premier est le défaut : il ne pose aucun attribut `data-g-theme`. */
+export const GESTION_THEMES = [
+  { value: "glass", label: "Ember glass" },
+  { value: "neon", label: "Néon braise" },
+  { value: "teal", label: "Ember teal" },
+] as const;
+export type GestionTheme = (typeof GESTION_THEMES)[number]["value"];
 /** Invite aux notifications push écartée sur cet appareil (page Commandes). */
 export const PUSH_PROMPT_DISMISSED_KEY = "ominin-push-prompt-dismissed";
 /** Une commande a été saisie sur cet appareil : le bouton « Nouvelle commande » se replie en rond. */

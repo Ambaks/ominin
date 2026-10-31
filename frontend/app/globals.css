@@ -15616,6 +15616,165 @@ html:has(dialog.g-dialog[open]) {
   }
 }
 
+/* ==========================================================================
+   Gestion v2 — thèmes de l'espace (data-g-theme)
+   Par appareil, posés sur .g-shell (et l'enveloppe de /menu/kit). Sans
+   attribut : Ember glass, le kit ci-dessus tel quel. L'attribut surcharge
+   jetons et matière, jamais la mise en page. La seule teinte hors des jetons
+   du haut du fichier est --g-teal-base. Jamais sur un club : ses .soirees
+   remappent déjà les embers. L'aura est sœur de .g-shell dans l'espace et
+   enfant de l'enveloppe dans le kit, d'où les deux chemins de ses sélecteurs.
+   Contrat : components/gestion/DESIGN.md § 15.
+   ========================================================================== */
+
+:root {
+  /* Ember teal */
+  --g-teal-base: #7fc6d6;
+  --g-teal: var(--g-teal-base);
+  --g-mesh-teal: color-mix(in oklab, var(--g-teal-base) 32%, transparent);
+
+  /* Néon braise */
+  --g-neon-edge: color-mix(in srgb, var(--ember-2) 22%, transparent);
+  --g-neon-halo: color-mix(in srgb, var(--ember-2) 12%, transparent);
+  --g-neon-nav-halo: color-mix(in srgb, var(--ember-2) 38%, transparent);
+  --g-neon-nav-halo-r: 26px;
+  --g-neon-cap-glow-r: 12px;
+  --g-neon-cap-glow-a: 55%;
+  --g-neon-num-glow-r: 14px;
+  --g-neon-num-glow-a: 35%;
+  --g-neon-aura-1: color-mix(in oklab, var(--ember-2) 46%, transparent);
+  --g-neon-aura-2: color-mix(in oklab, var(--ember-3) 30%, transparent);
+  --g-neon-aura-h: 420px;
+  --g-neon-breathe-dur: 9s;
+  --g-neon-grid: 56px;
+  --g-neon-grid-h: 640px;
+
+  /* Sélecteur de thème dans le rail : deux lignes, le rail est étroit */
+  --g-seg-h-rail: 40px;
+}
+
+html.light {
+  /* 44 % : 5,2:1 sur --surface, 4,3 à 4,7:1 sur le verre teinté du surtitre. */
+  --g-teal: color-mix(in srgb, var(--g-teal-base) 44%, var(--foreground));
+  --g-mesh-teal: color-mix(in oklab, var(--g-teal-base) 18%, transparent);
+  --g-neon-cap-glow-a: 30%;
+  --g-neon-aura-1: color-mix(in oklab, var(--ember-2) 24%, transparent);
+  --g-neon-aura-2: color-mix(in oklab, var(--ember-3) 14%, transparent);
+}
+
+.g-rail .g-seg {
+  display: grid;
+  --g-seg-h: var(--g-seg-h-rail);
+}
+.g-rail .g-seg label {
+  padding: 0 var(--g-seg-pad);
+  font-size: var(--g-text-axis);
+  line-height: 1.15;
+  text-align: center;
+  white-space: normal;
+}
+.g-sheet .g-seg label {
+  padding: 0 var(--g-seg-pad);
+}
+
+/* Ember teal : la matière du verre, les commandes en teal, la braise de
+   l'aura en radiale froide. Le dégradé de marque ne bouge pas. */
+[data-g-theme="teal"] :is(.g-orders, .g-glass-orders) {
+  --g-entity: var(--g-teal);
+  --g-rim: color-mix(in srgb, var(--g-teal) 14%, transparent);
+}
+[data-g-theme="teal"] .g-glass-orders {
+  --g-tint: var(--g-teal);
+}
+:is([data-g-theme="teal"] > .g-mesh, .g-mesh:has(+ [data-g-theme="teal"])) {
+  --g-mesh-1: var(--g-mesh-teal);
+}
+
+/* Néon braise : plus de flou. Le verre devient une carte à plat, filet et
+   liseré de braise ; la lumière se concentre sur les barres, la navigation
+   active et les chiffres du jour. Les données denses restent à plat. */
+[data-g-theme="neon"] {
+  --g-plate: 100%;
+  --g-rim: var(--g-neon-edge);
+  --g-shade: transparent;
+  --g-shadow: var(--g-neon-halo);
+}
+[data-g-theme="neon"] .g-glass {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: var(--surface-raised);
+}
+[data-g-theme="neon"] :is(.g-rail, .g-topbar, .g-tabbar) {
+  background: var(--surface);
+}
+[data-g-theme="neon"] dialog::backdrop {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+[data-g-theme="neon"] :is(.g-nav-pill, .g-tab[aria-current="page"]) {
+  box-shadow: 0 0 var(--g-neon-nav-halo-r) var(--g-neon-nav-halo);
+}
+[data-g-theme="neon"] .g-bars:not(.g-bars-dense) .g-bar::before {
+  box-shadow: 0 0 var(--g-neon-cap-glow-r)
+    color-mix(in srgb, var(--g-entity) var(--g-neon-cap-glow-a), transparent);
+}
+[data-g-theme="neon"] :is(.g-glass-money, .g-glass-orders, .g-glass-problem).g-glass-hero .text-g-day {
+  color: var(--g-entity);
+  text-shadow: 0 0 var(--g-neon-num-glow-r)
+    color-mix(in srgb, var(--g-entity) var(--g-neon-num-glow-a), transparent);
+}
+/* Clair : pas de lueur sur du texte, et le chiffre sur --surface-raised : le
+   --ember-1 clair n'atteint 3:1 (grand texte) que là. */
+html.light [data-g-theme="neon"] .g-glass-hero .text-g-day {
+  text-shadow: none;
+}
+html.light [data-g-theme="neon"] .g-glass-hero > .g-plate {
+  background: var(--surface-raised);
+}
+
+/* L'aura du néon : une lueur en haut de page et la grille fondue vers le bas,
+   sur les disques de .g-mesh. Sans transparence, .g-mesh disparaît toujours. */
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i {
+  animation: none;
+  inset: 0 0 auto;
+  width: auto;
+  border-radius: 0;
+}
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(1) {
+  height: var(--g-neon-aura-h);
+  transform-origin: 72% 0;
+  background:
+    radial-gradient(60% 100% at 72% -10%, var(--g-neon-aura-1), transparent 70%),
+    radial-gradient(40% 80% at 8% -20%, var(--g-neon-aura-2), transparent 70%);
+}
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(2) {
+  height: var(--g-neon-grid-h);
+  background:
+    linear-gradient(var(--hairline) 1px, transparent 1px) 0 0 / 100% var(--g-neon-grid),
+    linear-gradient(90deg, var(--hairline) 1px, transparent 1px) 0 0 / var(--g-neon-grid) 100%;
+  -webkit-mask-image: linear-gradient(to bottom, var(--foreground) 5%, transparent 80%);
+  mask-image: linear-gradient(to bottom, var(--foreground) 5%, transparent 80%);
+}
+:is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(3) {
+  display: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  :is([data-g-theme="neon"] > .g-mesh, .g-mesh:has(+ [data-g-theme="neon"])) i:nth-child(1) {
+    animation: g-neon-breathe var(--g-neon-breathe-dur) ease-in-out infinite;
+  }
+}
+@keyframes g-neon-breathe {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+}
+
 /* Visite guidée de l'espace de gestion : tout s'assombrit sauf la cible,
    cernée de braise. L'ombre porte le voile — un seul élément, que la visite
    fait glisser d'une cible à l'autre. Le cerne est intérieur : rentré dans

@@ -28,6 +28,8 @@ import {
   Textarea,
 } from "@/components/gestion/ui";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { GESTION_THEMES } from "@/lib/gestion/constants";
+import { useGestionTheme } from "@/lib/gestion/use-gestion-theme";
 
 const euros = new Intl.NumberFormat("fr-FR", {
   style: "currency",
@@ -159,9 +161,10 @@ export function KitPreview() {
   const [visible, setVisible] = useState(true);
   const [agreed, setAgreed] = useState(false);
   const [fabLabel, setFabLabel] = useState(true);
+  const { theme, themeAttribute, setTheme } = useGestionTheme();
   const close = () => setOpen(null);
   return (
-    <>
+    <div data-g-theme={themeAttribute}>
       <Mesh />
       <main className="relative z-1 mx-auto grid w-full max-w-7xl gap-5 px-4 pb-14 pt-6 sm:px-6">
         <Block i={0}>
@@ -179,6 +182,9 @@ export function KitPreview() {
               </div>
             }
           />
+          <div className="mt-3">
+            <Segmented glass={false} label="Thème" options={GESTION_THEMES} value={theme} onChange={setTheme} />
+          </div>
         </Block>
 
         <Block i={1} className="grid gap-g-gap sm:grid-cols-2">
@@ -488,6 +494,6 @@ export function KitPreview() {
           {fabLabel && "Nouvelle commande"}
         </button>
       </main>
-    </>
+    </div>
   );
 }
