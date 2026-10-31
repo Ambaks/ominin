@@ -967,6 +967,7 @@ Le suivi vit dans la section **Projet** de l'admin (admin.ominin.com/projet),
 plus dans GitHub : les milestones et issues du plan d'octobre ont été retirées
 le 2026-10-14.
 
+- **Gestion v2 (31 oct. 2026)** : espace de gestion refait sur le kit « ember glass » (`components/gestion/ui`, contrat `components/gestion/DESIGN.md`), navigation par rôle à 4 onglets + « Plus », vocabulaire de `design/gestion-v2/UX-SIMPLICITE.md`, trois thèmes par appareil (Ember glass, Néon braise, Ember teal). Le combo parfait et les suggestions quittent l'Aperçu du gérant : admin seulement, par client et flotte (`admin_combo_parfait`). Non vérifié : encaissements réels, Retraits jamais rendu, Soirées sur données d'échantillon.
 - **Clients** : un rectangle par client à interfacer (en service ou deal en
   cours), avec l'étape où il en est et, une fois relié à son établissement ou
   à sa boutique, son CA total, ce qui est reversé à Ominin et ses tickets. Un
