@@ -7,7 +7,7 @@ export interface RankedItem {
   value: string;
   /** Valeur mesurée, pour la part de la barre. */
   amount: number;
-  /** Colonne de droite en retrait (« 1 440 € »), variante bar seulement. */
+  /** Colonne de droite en retrait (« 1 440 € »), variante bar seulement ; largeur `--g-rank-meta-w`, montants alignés. */
   meta?: string;
 }
 
@@ -32,7 +32,7 @@ export function RankedList({
     >
       {items.map((item, index) => (
         <li
-          key={item.label}
+          key={`${index}-${item.label}`}
           data-meta={item.meta ? "" : undefined}
           style={{ "--g-v": item.amount } as CSSProperties}
         >

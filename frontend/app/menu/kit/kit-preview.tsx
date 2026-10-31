@@ -84,6 +84,7 @@ const ERRORS = {
   reseau: new TypeError("Failed to fetch"),
   droit: { code: "42501", message: "permission denied for table items" },
   donnee: { code: "23505", message: "duplicate key value violates unique constraint", details: "Key (name)=(Tiramisù) already exists." },
+  metier: { message: "HubRise a refusé la commande : le plat « Tiramisù » n'existe plus dans sa carte." },
 };
 
 function Svg({ className, children }: IconProps & { children: ReactNode }) {
@@ -112,6 +113,11 @@ const BasketIcon = (p: IconProps) => (
 const TipIcon = (p: IconProps) => (
   <Svg {...p}>
     <path d="M12 3l2 4 4.5.6-3.3 3.1.9 4.5L12 13l-4.1 2.2.9-4.5L5.5 7.6 10 7zM12 15v6" />
+  </Svg>
+);
+const PlusIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M12 5v14M5 12h14" />
   </Svg>
 );
 const EmptyIcon = (p: IconProps) => (
@@ -152,6 +158,7 @@ export function KitPreview() {
   const [price, setPrice] = useState("");
   const [visible, setVisible] = useState(true);
   const [agreed, setAgreed] = useState(false);
+  const [fabLabel, setFabLabel] = useState(true);
   const close = () => setOpen(null);
   return (
     <>
@@ -339,7 +346,10 @@ export function KitPreview() {
         </Block>
 
         <Block i={6} className="grid gap-g-gap">
-          <SectionHeading title="Commandes et pastilles" sub="pleine, filet, icône · neutre, problème" />
+          <SectionHeading
+            title="Commandes et pastilles"
+            sub="pleine, filet, icône · neutre, problème · flottant en bas à droite (clic : étiré ↔ rond)"
+          />
           <Plate className="flex flex-wrap items-center gap-3 p-5">
             <GlassButton variant="primary">Encaisser</GlassButton>
             <GlassButton>Gérer</GlassButton>
@@ -461,12 +471,22 @@ export function KitPreview() {
         </Block>
 
         <Block i={8} className="grid gap-g-gap">
-          <SectionHeading title="Erreurs" sub="réseau, droit, donnée · ce qui a cassé, quoi faire" />
+          <SectionHeading title="Erreurs" sub="réseau, droit, donnée, message métier · ce qui a cassé, quoi faire" />
           <ErrorNotice error={ERRORS.reseau} onRetry={() => {}} />
           <ErrorNotice error={ERRORS.droit} />
           <ErrorNotice error={ERRORS.donnee} />
+          <ErrorNotice error={ERRORS.metier} />
           <ReserveGerant ask="modifier la carte" name="Marie" />
         </Block>
+        <button
+          type="button"
+          className={`g-fab g-press${fabLabel ? " g-fab-label" : ""}`}
+          aria-label={fabLabel ? undefined : "Nouvelle commande"}
+          onClick={() => setFabLabel((v) => !v)}
+        >
+          <PlusIcon />
+          {fabLabel && "Nouvelle commande"}
+        </button>
       </main>
     </>
   );

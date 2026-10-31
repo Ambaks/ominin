@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import { GLASS_ENTITY, type Entity } from "./entity";
 
 export function GlassFrame({
@@ -10,6 +10,7 @@ export function GlassFrame({
   hero = false,
   title,
   className = "",
+  i,
   children,
 }: {
   entity?: Entity;
@@ -22,9 +23,12 @@ export function GlassFrame({
   hero?: boolean;
   title?: string;
   className?: string;
+  /** Rang d'entrée : le verre lui-même monte (`g-rise`, `--g-i`). Absent, pas d'entrée. */
+  i?: number;
   children: ReactNode;
 }) {
-  const classes = `g-glass block p-g-pad ${hero ? "g-glass-hero" : ""} ${GLASS_ENTITY[entity]} ${href ? "g-press" : ""} ${className}`;
+  const classes = `g-glass block p-g-pad ${hero ? "g-glass-hero" : ""} ${GLASS_ENTITY[entity]} ${href ? "g-press" : ""} ${i == null ? "" : "g-rise"} ${className}`;
+  const style = i == null ? undefined : ({ "--g-i": i } as CSSProperties);
   const body = (
     <>
       {eyebrow && (
@@ -37,11 +41,11 @@ export function GlassFrame({
     </>
   );
   return href ? (
-    <Link href={href} title={title} className={classes}>
+    <Link href={href} title={title} className={classes} style={style}>
       {body}
     </Link>
   ) : (
-    <div title={title} className={classes}>
+    <div title={title} className={classes} style={style}>
       {body}
     </div>
   );

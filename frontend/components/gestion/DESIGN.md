@@ -28,11 +28,11 @@ Les jetons du kit, préfixés `--g-*`, vivent sur `:root` (surcharges `html.ligh
 | `--g-blur` / `--g-saturate` | `20px` / `1.4` | backdrop-filter du verre |
 | `--g-scrim` | `64%` | part de `--surface` sous le verre |
 | `--g-tint-a` / `--g-tint-a-problem` | `10%` / `12%` | teinte d'entité du verre |
-| `--g-specular` | `var(--shimmer-highlight)` | reflet intérieur haut-gauche et bord du ring |
+| `--g-specular` | `var(--shimmer-highlight)` | reflet intérieur haut-gauche (filet de 1 px, haut et gauche) |
 | `--g-ring` / `--g-ring-hover` | `var(--hairline)` / ember-2 40 % | anneau filet, survol d'un cadre cliquable |
 | `--g-bloom` / `--g-shadow` | `var(--glow-inner)` / `var(--glow-outer)` | bloom ambre dans le cadre, halo extérieur |
 | `--g-shade` / `--g-edge` / `--g-drop` | background 55 % / 40 % / 80 % (clair : foreground 8 / 6 / 18 %) | ombre intérieure bas-droite, liseré, ombre portée |
-| `--g-sheen` / `--g-rim` | foreground 4 % (clair : surface-raised 60 %) / ember-2 14 % | voile diagonal, bas du ring dégradé |
+| `--g-sheen` / `--g-rim` | foreground 4 % (clair : surface-raised 60 %) / ember-2 14 % | voile diagonal, liseré de braise bas-droit du ring |
 | `--g-glass-max` | `12` | plafond d'éléments `backdrop-filter` par écran |
 | `--g-plate` | `70%` | part de `--surface` d'une plaque |
 | `--g-mesh-1/2/3` | ember-2 32 %, ember-3 22 %, ember-1 18 % en oklab (clair : 18 / 12 / 14 %) | les trois braises de l'aura |
@@ -43,11 +43,13 @@ Les jetons du kit, préfixés `--g-*`, vivent sur `:root` (surcharges `html.ligh
 | `--g-rail` / `--g-rail-narrow` | `232px` / `200px` (≤ 1200 px) | largeur du rail |
 | `--g-cap-h` / `--g-cap-h-hero` | `30px` / `34px` | rangée du surtitre d'un cadre |
 | `--g-control` | `44px` (souris fine : `36px`) | hauteur des boutons, pilules, boutons icône |
+| `--g-fab` | `56px` | bouton d'action flottant `.g-fab` (rond) ; `.g-fab-label` l'étire, marge `--g-input-px` |
 | `--g-seg-h` / `--g-seg-pad` | `36px` (souris fine : `32px`) / `4px` | segment et marge du segmenté (44 px au doigt) |
 | `--g-chip-h` / `--g-chip-tint` / `--g-chip-ring` | `24px` / `18%` / `35%` | pastille ; teinte et filet de la pastille problème |
 | `--g-badge` | `18px` | compteur sur un bouton icône |
 | `--g-icon` / `--g-icon-sm` / `--g-icon-chip` | `20px` / `16px` / `14px` | icônes : commandes, surtitres, pastilles |
 | `--g-row-h` | `44px` | ligne d'une liste classée |
+| `--g-rank-meta-w` | `7ch` | colonne `meta` d'une liste classée `bar` : largeur plancher fixe, montants alignés d'une ligne à l'autre |
 | `--g-share-slim` / `--g-share-bar` | `3px` / `8px` | barre de part fine / pleine |
 | `--g-chart-h` / `--g-chart-h-dense` | `236px` / `176px` | hauteur des barres (7 colonnes / 24 colonnes) |
 | `--g-gutter` / `--g-gutter-dense` | `40px` / `26px` | gouttière de l'axe des valeurs (à droite) |
@@ -61,6 +63,7 @@ Les jetons du kit, préfixés `--g-*`, vivent sur `:root` (surcharges `html.ligh
 | `--g-ease-move` | `cubic-bezier(.77, 0, .175, 1)` | déplacement à l'écran (pouce du segmenté) |
 | `--g-rise-dur` / `--g-stagger` | `0.6s` / `70ms` | montée en fondu, décalage par bloc |
 | `--g-press-dur` / `--g-press-scale` | `200ms` / `0.96` | appui d'une commande |
+| `--g-ready-dur` / `--g-ready-spread` | `700ms` / `18px` | « c'est prêt » : onde de braise qui part du bord et s'éteint |
 | `--g-morph-dur` / `--g-hover-dur` / `--g-shimmer-dur` | `200ms` / `150ms` / `1.8s` | pouce du segmenté, survols, squelettes |
 | `--g-field-gap` / `--g-text-field` / `--g-field-tracking` | `6px` / `11px` / `0.14em` | champ : écart étiquette–contrôle, étiquette en capitales |
 | `--g-input-r` / `--g-input-px` / `--g-input-pr` | `12px` / `14px` / `44px` | saisie : rayon, marge, marge droite sous une unité ou un chevron |
@@ -85,7 +88,9 @@ fixent.
 **Verre** (`.g-glass`, un `backdrop-filter`, teinté par `.g-glass-money` / `-orders` / `-problem`) :
 le rail, la barre haute, la barre d'onglets et sa feuille « Plus », les segmentés, les cadres KPI et tuiles du
 jour, les bandeaux (Notice). Le verre n'héberge que des surtitres, des icônes et des commandes ; **jamais de texte
-qui porte un chiffre directement sur du flou**.
+qui porte un chiffre directement sur du flou**. Son ring (reflet haut-gauche, filet, liseré de braise bas-droit)
+tient entièrement dans `box-shadow` : **aucun masque** (`mask-composite` n'est pas appliqué par certains Chromium
+mobiles, et un anneau masqué voilait alors tout le cadre), aucun pseudo-élément au-dessus du contenu.
 
 **Plaque** (`.g-plate`, `--surface` à 70 % + filet) : listes, graphiques, tableaux, formulaires, cartes de
 section, et la surface des chiffres à l'intérieur d'un cadre de verre. Une plaque directement enfant d'un
@@ -118,7 +123,8 @@ couleur chaude ne décore jamais. Les séries secondaires et les pistes sont `--
 
 - **Fraunces 600** (`font-display`) : H1 `text-g-h1` 36 px, sections `text-g-h2` 20 px, nom du restaurant
   `text-g-name` 18 px, mot-symbole « Ominin » en `.ember-text`.
-- **Instrument Sans**, `tabular-nums` pour tout chiffre : chiffres du jour `text-g-day` 40 px 600, KPI
+- **Instrument Sans**, `tabular-nums` pour tout chiffre : numéro du comptoir fast food `text-g-counter` 56 px
+  600 (48 px ≤ 720), chiffres du jour `text-g-day` 40 px 600, KPI
   `text-g-kpi` 28 px 600, corps `text-g-body` 14, étiquettes `text-g-label` 13, repères `text-g-meta` 12, axes
   `text-g-axis` 11, surtitre `.g-eyebrow` 10 px capitales `.28em` 600 à la couleur de l'entité.
 - Chiffres alignés à droite dans les tableaux ; « — » pour une donnée absente, jamais un faux zéro ; pas de phrase
@@ -134,12 +140,20 @@ Cartes et plaques 16 px, cadres 20 px, héros 24 px, barre d'onglets 28 px, pilu
 
 - **Entrée** : `.g-rise` (translateY 14 px → 0 + opacité, `--g-rise-dur` 0.6 s, `--g-ease-out`), décalée de
   `--g-stagger` 70 ms par bloc via `style={{ "--g-i": n }}`. Une seule orchestration par page, à l'arrivée.
+  `i?` sur `Notice`, `Segmented` et `GlassFrame` pose `g-rise` et `--g-i` sur le verre lui-même : le flou
+  échantillonne l'aura pendant la montée ; sans `i`, pas d'entrée, balisage inchangé.
 - **Appui** : `.g-press` (scale `--g-press-scale` 0.96, `--g-press-dur` 200 ms, jamais sur un désactivé), posé
-  d'office par `GlassButton` et par un `GlassFrame` cliquable.
+  d'office par `GlassButton` et par un `GlassFrame` cliquable. Au doigt, seul `transform` transite ; bordure et
+  couleur ne fondent que sous `(hover: hover) and (pointer: fine)` — une pilule filet qui devient pleine change
+  d'un coup, sans texte qui fond sur un fond instantané.
 - **Segmenté** : le pouce glisse en `transform` sur `--g-morph-dur` 200 ms, `--g-ease-move`.
 - **Survols** : bordure et couleur sur `--g-hover-dur` 150 ms, uniquement sous `(hover: hover) and
   (pointer: fine)`.
 - **Aura** : transform seul, 54–70 s, `will-change: transform` sur les trois disques.
+- **« C'est prêt »** : `.g-ready` joue une fois `g-ready` (`--g-ready-dur` 700 ms, `--g-ease-out`) sur un
+  `::after` : une onde `box-shadow` de `--ember-1` qui s'étale de 0 à `--g-ready-spread` et s'éteint — ni opacité ni
+  transform, une carte déjà visible ne cligne jamais, l'ombre du verre reste intacte. Réservé à l'arrivée en temps
+  réel (commande, « c'est prêt »), **jamais pour l'appareil qui a appuyé** ; pour rejouer, reposer la classe.
 - Jamais d'animation sur une action répétée (raccourcis, frappe, survol de ligne). Le **délice** est réservé aux
   moments rares : arrivée d'une commande, « c'est prêt » — à décider avec la session de tête, pas par page.
 - Tout s'éteint sous `prefers-reduced-motion: reduce`.
@@ -153,13 +167,14 @@ Cartes et plaques 16 px, cadres 20 px, héros 24 px, barre d'onglets 28 px, pilu
 | Vide | `<EmptyState text action />` : une phrase, une action ; jamais un « tout va bien » sur un compte sans données |
 | Erreur | `<ErrorNotice error onRetry />` grenat, une fois par page, les derniers chiffres connus restant affichés ; la famille (réseau, droit, donnée) vient de `describeError` (§ 12) |
 | Réservé au gérant | `<ReserveGerant ask />` à la place de l'écran : qui peut le faire, quoi lui demander |
-| Petite base | repère en gris (« était 1 »), pas de pourcentage sous ~5 |
+| Petite base | repère en gris (« était 1 »), pas de pourcentage sous `SMALL_BASE` (5, `lib/gestion/constants.ts`) |
 
 ## 9. Accessibilité (plancher)
 
 Texte ≥ 4,5:1 sur sa surface réelle (`--muted` sur `--surface` : 5,9:1 sombre, 5,0:1 clair) ; focus visible
 `outline: 2px solid var(--ember-1)` à 2 px (posé sur `.g-btn`, les cadres cliquables, les radios du segmenté) ;
-cibles ≥ 44 px au doigt (`--g-control`, `--g-seg-h`, `--g-row-h`) ; `--ember-3` jamais seul en petit texte : une
+cibles ≥ 44 px au doigt (`--g-control`, `--g-seg-h`, `--g-row-h`) — le segmenté garde son segment visible à
+`--g-seg-h` mais chaque étiquette porte un `::before` étendu à `--g-control` ; `--ember-3` jamais seul en petit texte : une
 pastille problème garde son texte en `--foreground` avec une icône. Les graphiques portent `role="img"` et une
 description complète ; les listes classées un `aria-label`. Les commandes ont `touch-action: manipulation`, pas de
 sélection au maintien, pas de flash de tap.
@@ -172,6 +187,9 @@ sélection au maintien, pas de flash de tap.
   `env(safe-area-inset-bottom)`), **cinq entrées + « Plus »** qui ouvre une feuille de verre au-dessus.
 - **≤ 720 px** : une colonne partout (tuiles, KPI, duos), H1 32 px, chiffres du jour 36 px, bandeau sur deux
   lignes (texte en pleine largeur, action à droite).
+- **Bouton d'action flottant** `.g-fab` (+ `g-press`) : fixe, `z-index` 30, à `--g-topbar-mx-sm` du bord droit,
+  posé au-dessus de la barre d'onglets (même formule que la feuille « Plus », `safe-area-inset-bottom` compris) ;
+  ≥ 1024 px, à `--g-topbar-mx` de l'angle bas-droit. `.g-fab-label` l'étire pour porter un mot.
 - Les grilles passent par les variantes Tailwind (`sm:`, `lg:`, `xl:`), les largeurs par les jetons.
 
 ## 11. Formulaires
@@ -217,7 +235,7 @@ retry, message }` ; les pages ne composent plus de phrase d'erreur. `message` (t
 | `donnee` | `23503` / clé étrangère | « Encore utilisé ailleurs » → « Retirez-le d'abord de ce qui s'en sert, puis réessayez. » | non |
 | `donnee` | `23514`, `22xxx`, syntaxe | « Valeur refusée » → « Vérifiez le prix, puis enregistrez. » | non |
 | `donnee` | `PGRST116`, 404, « introuvable » | « Introuvable » → « Il a peut-être été supprimé entre-temps : rechargez la page. » | oui |
-| `donnee` | message métier d'une RPC, phrase française lisible | « Impossible d'enregistrer » → le message tel quel | non |
+| `donnee` | message métier (RPC, HubRise, Popina) : phrase française lisible — majuscule, un espace, ponctuation finale ou > 25 caractères, sans jeton de code | le message devient le **titre**, sans préfixe (point final retiré) → le `hint` s'il est lui aussi lisible, sinon rien | non |
 | `donnee` | tout le reste | « Impossible d'enregistrer » → « Rechargez la page et réessayez. » | oui |
 
 Règles : une erreur de page s'affiche **une fois**, en `<ErrorNotice>` sous le titre, les derniers chiffres connus
@@ -231,14 +249,14 @@ point d'exclamation.
 | Primitive | Props | Rend |
 |---|---|---|
 | `Mesh` | — | l'aura fixe, `aria-hidden`, une par écran |
-| `GlassFrame` | `entity?`, `eyebrow?`, `icon?`, `href?`, `hero?`, `title?`, `className?`, `children` | un cadre de verre teinté, surtitre + icône à la couleur de l'entité, puis la ou les plaques enfants ; `href` en fait un lien entier avec appui et anneau de survol |
+| `GlassFrame` | `entity?`, `eyebrow?`, `icon?`, `href?`, `hero?`, `title?`, `className?`, `i?`, `children` | un cadre de verre teinté, surtitre + icône à la couleur de l'entité, puis la ou les plaques enfants ; `href` en fait un lien entier avec appui et anneau de survol ; `i` fait monter le verre lui-même |
 | `Plate` | attributs d'un `div` | la plaque claire |
 | `StatTile` | `label`, `value`, `baseline?`, `delta?: { text, tone: better · worse · neutral }`, `href?`, `entity?`, `icon?`, `hero?`, `plain?`, `title?` | cadre + plaque avec le chiffre (40 px héros / 28 px KPI) et son repère unique ; `plain` = plaque seule avec un point d'entité, hors budget de verre |
-| `Segmented<T>` | `label`, `options: { value, label }[]`, `value`, `onChange`, `glass?` | groupe de radios natifs, pouce en dégradé de marque qui glisse ; `glass={false}` sur une plaque |
-| `Notice` | `tone?: problem · info`, `icon?`, `title`, `text?`, `action?` | bandeau `role="status"` de verre (grenat si problème), titre gras, texte en `--muted`, action à droite |
+| `Segmented<T>` | `label`, `options: { value, label }[]`, `value`, `onChange`, `glass?`, `i?` | groupe de radios natifs, pouce en dégradé de marque qui glisse ; `glass={false}` sur une plaque ; `i` fait monter le verre lui-même ; cible tactile `--g-control` par étiquette |
+| `Notice` | `tone?: problem · info`, `icon?`, `title`, `text?`, `action?`, `i?` | bandeau `role="status"` de verre (grenat si problème), titre gras qui se replie (`overflow-wrap: anywhere`, noms longs admis), texte en `--muted`, action à droite ; `i` fait monter le verre lui-même |
 | `Chip` | `tone?: neutral · problem`, `icon?`, `children` | pastille 24 px, filet neutre ou teinte grenat |
 | `GlassButton` | `variant?: primary · secondary · danger · icon` (icon exige `aria-label`), `type?: button · submit`, `href?`, `badge?`, attributs d'un `button` | pilule dégradé de marque / pilule filet / filet grenat (destructeur, toujours avec un mot) / bouton rond avec compteur ; appui d'office, désactivé à 30 % |
-| `RankedList` | `items: { label, value, amount, meta? }[]`, `entity?`, `size?: slim · bar`, `label?` | liste classée ; `slim` = rang + filet de 3 px, `bar` = barre de 8 px à bouchon, colonne `meta` à droite |
+| `RankedList` | `items: { label, value, amount, meta? }[]`, `entity?`, `size?: slim · bar`, `label?` | liste classée ; `slim` = rang + filet de 3 px, `bar` = barre de 8 px à bouchon, colonne `meta` à droite de largeur `--g-rank-meta-w` (montants alignés) ; lignes clés par rang + libellé, deux homonymes s'affichent tous deux |
 | `Bars` | `data: { label, value, sub? }[]`, `ticks: number[]`, `format`, `label`, `entity?`, `dense?` | barres à bouchon sur grille, axe tabulaire à droite, maximum étiqueté, infobulles `title` ; `dense` pour 24 colonnes (étiquette vide = colonne muette) |
 | `SectionHeading` | `title`, `sub?`, `right?`, `id?`, `level?: 1 · 2` | titre Fraunces 36 / 20 px, sous-titre `--muted`, emplacement à droite pour un contrôle ou une légende |
 | `Shimmer` | `className?` | squelette scintillant à la taille donnée |

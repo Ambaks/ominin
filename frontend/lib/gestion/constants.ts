@@ -36,6 +36,8 @@ export const CART_LINES_SHOWN = 3;
 export const REWARD_ITEMS_SHOWN = 3;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
+/** Petite base : sous ce nombre d'éléments, l'écart s'écrit en brut (« était 1 »), jamais en pourcentage. */
+export const SMALL_BASE = 5;
 /** Bascule de la journée de service. Miroir du défaut SQL de
  * etablissement_settings.day_end_hour. */
 export const DEFAULT_DAY_END_HOUR = 0;

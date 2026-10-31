@@ -13149,6 +13149,10 @@ html:has([data-menu-root].theme-rosemarie) body {
   --text-g-kpi--line-height: 1;
   --text-g-kpi--letter-spacing: -0.03em;
   --text-g-kpi--font-weight: 600;
+  --text-g-counter: var(--g-text-counter);
+  --text-g-counter--line-height: 1;
+  --text-g-counter--letter-spacing: -0.03em;
+  --text-g-counter--font-weight: 600;
   --text-g-h1: var(--g-text-h1);
   --text-g-h1--line-height: 1.05;
   --text-g-h1--letter-spacing: -0.02em;
@@ -13900,8 +13904,10 @@ body {
   --g-cap-h: 30px;
   --g-cap-h-hero: 34px;
   --g-control: 44px;
+  --g-fab: 56px;
   --g-chip-h: 24px;
   --g-row-h: 44px;
+  --g-rank-meta-w: 7ch;
   --g-share-slim: 3px;
   --g-share-bar: 8px;
   --g-chart-h: 236px;
@@ -13984,6 +13990,7 @@ body {
   /* Typographie */
   --g-text-day: 40px;
   --g-text-kpi: 28px;
+  --g-text-counter: 56px;
   --g-text-h1: 36px;
   --g-text-h2: 20px;
   --g-text-name: 18px;
@@ -14001,6 +14008,8 @@ body {
   --g-stagger: 70ms;
   --g-press-dur: 200ms;
   --g-press-scale: 0.96;
+  --g-ready-dur: 700ms;
+  --g-ready-spread: 18px;
   --g-morph-dur: 200ms;
   --g-hover-dur: 150ms;
   --g-shimmer-dur: 1.8s;
@@ -14030,6 +14039,11 @@ html.light {
 @media (max-width: 1200px) {
   :root {
     --g-rail: var(--g-rail-narrow);
+  }
+}
+@media (max-width: 720px) {
+  :root {
+    --g-text-counter: 48px;
   }
 }
 
@@ -14098,8 +14112,11 @@ html.light {
 }
 
 /* Verre : fond flouté et saturé sous un voile de surface et une teinte
-   d'entité ; reflet en haut à gauche, anneau filet, ombre en bas à droite,
-   bloom ambre, halo. Le contenu n'est jamais flouté : il vit sur une plaque. */
+   d'entité ; reflet en haut à gauche, anneau filet, liseré de braise et ombre
+   en bas à droite, bloom ambre, halo. Tout le ring tient dans box-shadow :
+   aucun masque (mask-composite n'est pas appliqué par certains Chromium
+   mobiles, et l'anneau voilait alors tout le cadre). Le contenu n'est jamais
+   flouté : il vit sur une plaque. */
 .g-glass {
   position: relative;
   isolation: isolate;
@@ -14117,35 +14134,13 @@ html.light {
   backdrop-filter: blur(var(--g-blur)) saturate(var(--g-saturate));
   box-shadow:
     inset 1px 1px 0 var(--g-specular),
+    inset -1px -1px 0 var(--g-rim),
     inset 0 0 0 1px var(--g-ring),
     inset -1px -1px 0 var(--g-shade),
     0 0 0 1px var(--g-edge),
     0 24px 48px -28px var(--g-drop),
     0 0 44px -6px var(--g-shadow);
   transition: box-shadow var(--g-hover-dur);
-}
-.g-glass::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  padding: 1px;
-  pointer-events: none;
-  background: linear-gradient(
-    135deg,
-    var(--g-specular),
-    transparent 36%,
-    transparent 64%,
-    var(--g-rim)
-  );
-  -webkit-mask:
-    linear-gradient(var(--background), var(--background)) content-box,
-    linear-gradient(var(--background), var(--background));
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(var(--background), var(--background)) content-box,
-    linear-gradient(var(--background), var(--background));
-  mask-composite: exclude;
 }
 .g-glass-hero {
   --g-r: var(--g-radius-hero);
@@ -14230,12 +14225,12 @@ html.light {
   transition: none;
 }
 
-/* Appui : la commande se tasse sous le doigt, jamais désactivée. */
+/* Appui : la commande se tasse sous le doigt, jamais désactivée. Au doigt,
+   seul le transform transite : une pilule qui change d'habit (filet → pleine)
+   le fait d'un coup, sans texte qui fond sur un fond instantané ; les fondus
+   de bordure et de couleur sont réservés à la souris (bloc survol, plus bas). */
 .g-press {
-  transition:
-    transform var(--g-press-dur) var(--g-ease-out),
-    border-color var(--g-hover-dur),
-    color var(--g-hover-dur);
+  transition: transform var(--g-press-dur) var(--g-ease-out);
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
@@ -14243,6 +14238,31 @@ html.light {
 }
 .g-press:active:not(:disabled) {
   transform: scale(var(--g-press-scale));
+}
+
+/* « C'est prêt » : une onde de braise part du bord et s'éteint, une fois.
+   Sur un pseudo-élément, pour ne pas toucher au box-shadow de l'hôte (tout
+   le verre y tient) ; box-shadow seul — ni opacité ni transform : une carte
+   déjà visible ne cligne jamais. Réservé à l'arrivée en temps réel, jamais à
+   l'appareil qui a appuyé. */
+:where(.g-ready) {
+  position: relative;
+}
+.g-ready::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  animation: g-ready var(--g-ready-dur) var(--g-ease-out) forwards;
+}
+@keyframes g-ready {
+  from {
+    box-shadow: 0 0 0 0 var(--ember-1);
+  }
+  to {
+    box-shadow: 0 0 0 var(--g-ready-spread) transparent;
+  }
 }
 
 /* Segmenté : radios natifs, pouce qui glisse en dégradé de marque. */
@@ -14283,6 +14303,15 @@ html.light {
   touch-action: manipulation;
   -webkit-user-select: none;
   user-select: none;
+}
+/* Cible tactile : un calque invisible porte la hauteur --g-control, le
+   segment visible garde --g-seg-h ; l'étiquette (z-index 1) reste au-dessus
+   du pouce (z-index 0). */
+.g-seg label::before {
+  content: "";
+  position: absolute;
+  inset-block: calc((var(--g-seg-h) - var(--g-control)) / 2);
+  inset-inline: 0;
 }
 .g-seg input:checked + label {
   color: var(--background);
@@ -14349,7 +14378,7 @@ html.light {
   padding-bottom: calc(var(--g-share) + 0.5rem);
 }
 .g-rank-bar li[data-meta] {
-  grid-template-columns: minmax(0, 1fr) auto minmax(4rem, auto);
+  grid-template-columns: minmax(0, 1fr) auto minmax(var(--g-rank-meta-w), auto);
 }
 .g-rank-bar li::after {
   background:
@@ -14552,9 +14581,54 @@ html.light {
 }
 .g-btn-primary {
   padding: 0 1.125rem;
+}
+.g-btn-primary,
+.g-fab {
   background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
   color: var(--background);
   box-shadow: 0 10px 24px -12px color-mix(in srgb, var(--ember-2) 60%, transparent);
+}
+/* Bouton d'action flottant : rond, posé au-dessus de la barre d'onglets à
+   droite (même formule que la feuille « Plus ») ; sur ordinateur, dans
+   l'angle bas-droit. .g-fab-label l'étire quand il porte un mot. L'appui
+   vient de .g-press, posé dans le balisage comme sur toute commande. */
+.g-fab {
+  position: fixed;
+  z-index: 30;
+  right: var(--g-topbar-mx-sm);
+  bottom: calc(
+    var(--g-tab-h) + 2 * var(--g-tabbar-pad-y) + var(--g-frame-margin) +
+      max(var(--g-tabbar-bottom), env(safe-area-inset-bottom, 0px))
+  );
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  width: var(--g-fab);
+  height: var(--g-fab);
+  padding: 0;
+  border: 0;
+  border-radius: 9999px;
+  font-size: var(--g-text-label);
+  font-weight: 600;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+.g-fab svg {
+  width: var(--g-icon);
+  height: var(--g-icon);
+  flex: none;
+}
+.g-fab-label {
+  width: auto;
+  padding-inline: var(--g-input-px);
+}
+@media (min-width: 1024px) {
+  .g-fab {
+    right: var(--g-topbar-mx);
+    bottom: var(--g-topbar-mx);
+  }
 }
 .g-btn-secondary {
   padding: 0 0.875rem;
@@ -14567,6 +14641,12 @@ html.light {
   color: var(--muted);
 }
 @media (hover: hover) and (pointer: fine) {
+  .g-press {
+    transition:
+      transform var(--g-press-dur) var(--g-ease-out),
+      border-color var(--g-hover-dur),
+      color var(--g-hover-dur);
+  }
   .g-btn-secondary:hover,
   .g-btn-icon:hover {
     border-color: var(--g-ring-hover);
@@ -14591,7 +14671,7 @@ html.light {
   box-shadow: 0 0 0 2px var(--surface);
 }
 
-:is(.g-btn, a.g-glass, button.g-glass):focus-visible {
+:is(.g-btn, .g-fab, a.g-glass, button.g-glass):focus-visible {
   outline: 2px solid var(--ember-1);
   outline-offset: 2px;
 }
@@ -15502,7 +15582,8 @@ html:has(dialog.g-dialog[open]) {
   .g-mesh i,
   .g-shimmer,
   .g-sheet[open],
-  .g-dialog[open] {
+  .g-dialog[open],
+  .g-ready::after {
     animation: none;
   }
   .g-glass,

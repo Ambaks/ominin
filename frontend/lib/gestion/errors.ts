@@ -40,10 +40,23 @@ const CHECK = /check constraint|violates check/i;
 const FOREIGN = /foreign key|still referenced|encore utilisé/i;
 const SYNTAX = /invalid input syntax|value too long|out of range|numeric field overflow|malformed/i;
 const NOT_FOUND = /introuvable|not found|no rows|0 rows/i;
-/* Une phrase française lisible, écrite pour l'écran : commence par une
-   majuscule, finit par une ponctuation, sans jargon SQL ni identifiant. */
-const READABLE = /^[A-ZÀ-Ý«][^_{}<>]{8,180}[.!?»]$/;
+/* Une phrase française lisible, écrite pour l'écran par un métier (RPC,
+   HubRise, Popina) : commence par une majuscule, contient un espace, finit
+   par une ponctuation ou dépasse READABLE_MIN_LENGTH ; sans jargon SQL,
+   identifiant ni jeton de code. Elle devient le titre, telle quelle. */
+const SENTENCE_START = /^[A-ZÀ-Ý«]/;
+const SENTENCE_END = /[.!?»]$/;
+const CODE_LIKE = /[_{}<>[\]`=\\]|\w\.\w/;
 const TECHNICAL = /violates|constraint|syntax|column|relation|null value|duplicate key|pgrst|jwt|\bsql\b|exception|undefined|null$|\[object/i;
+/** Sans ponctuation finale, une phrase se reconnaît à sa longueur ; au-delà du plafond, c'est un journal, pas un titre. */
+const READABLE_MIN_LENGTH = 25;
+const READABLE_MAX_LENGTH = 180;
+
+function readable(text: string): boolean {
+  if (text.length > READABLE_MAX_LENGTH || !SENTENCE_START.test(text) || !/\s/.test(text)) return false;
+  if (TECHNICAL.test(text) || CODE_LIKE.test(text)) return false;
+  return SENTENCE_END.test(text) || text.length > READABLE_MIN_LENGTH;
+}
 
 /** Colonnes qu'un détail Postgres nomme (« Key (name)=(x) »), dans les mots du gérant. */
 const COLUMN_LABELS: Record<string, string> = {
@@ -105,7 +118,7 @@ const describe = (family: ErrorFamily, title: string, text: string, retry: boole
   title,
   text,
   retry,
-  message: `${title}. ${text}`,
+  message: text ? `${title}${SENTENCE_END.test(title) ? " " : ". "}${text}` : title,
 });
 
 export function describeError(error: unknown): ErrorDescription {
@@ -141,9 +154,11 @@ export function describeError(error: unknown): ErrorDescription {
   if (code === "PGRST116" || status === 404 || NOT_FOUND.test(message)) {
     return describe("donnee", "Introuvable", "Il a peut-être été supprimé entre-temps : rechargez la page.", true);
   }
-  // Le message métier de la RPC, quand il est écrit pour l'écran.
-  if (READABLE.test(message.trim()) && !TECHNICAL.test(message)) {
-    return describe("donnee", "Impossible d'enregistrer", message.trim(), false);
+  // Le message métier (RPC, HubRise, Popina), quand il est écrit pour l'écran : c'est le titre, sans préfixe.
+  const sentence = message.trim();
+  if (readable(sentence)) {
+    const hint = shape.hint.trim();
+    return describe("donnee", sentence.replace(/\.$/, ""), readable(hint) ? hint : "", false);
   }
   return describe("donnee", "Impossible d'enregistrer", "Rechargez la page et réessayez.", true);
 }
