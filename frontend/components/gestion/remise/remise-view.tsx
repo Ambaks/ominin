@@ -326,7 +326,7 @@ export function RemiseView({
               className={`mt-1 flex items-baseline gap-1.5 font-semibold leading-none tabular-nums ${closed ? "text-muted" : ""}`}
             >
               <span className={`text-g-kpi ${done ? "text-background/60" : "text-muted"}`}>N°</span>
-              <span className="text-7xl tracking-tight">{order.orderNumber}</span>
+              <span className="text-g-counter">{order.orderNumber}</span>
             </p>
             {remise.table !== null && (
               <p className={`text-g-label font-semibold tabular-nums ${done ? "text-background/75" : "text-muted"}`}>
@@ -363,7 +363,8 @@ export function RemiseView({
               action: (
                 <GlassButton
                   variant={elsewhere ? "secondary" : "primary"}
-                  className="w-full"
+                  // Le geste irréversible, à une main : la grande hauteur du kit.
+                  className="w-full [--g-control:var(--g-fab)]"
                   onClick={() => void handOverNow()}
                 >
                   {attempt ? "Réessayer" : `Remettre N° ${order.orderNumber}`}
