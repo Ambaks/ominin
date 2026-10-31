@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { describeError } from "@/components/gestion/paiements/describe-error";
+import { describeError } from "@/lib/gestion/errors";
 import { GlassButton, Plate, Shimmer } from "@/components/gestion/ui";
 import { Field } from "@/components/ui/field";
 import { PriceInput } from "@/components/ui/price-input";

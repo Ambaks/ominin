@@ -5,7 +5,7 @@ import { PaymentDialog } from "@/components/gestion/commandes/payment-dialog";
 import { PaymentPinDialog } from "@/components/gestion/commandes/payment-pin-dialog";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { BagIcon, ClockIcon } from "@/components/gestion/icons";
-import { describeError } from "@/components/gestion/paiements/describe-error";
+import { describeError } from "@/lib/gestion/errors";
 import { CashIcon, CoinsIcon, OnlineIcon } from "@/components/gestion/paiements/icons";
 import { PickupOrderDialog } from "@/components/gestion/retraits/pickup-order-dialog";
 import { ProductionList } from "@/components/gestion/retraits/production-list";

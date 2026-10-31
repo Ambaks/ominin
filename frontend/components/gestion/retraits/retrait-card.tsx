@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { EtaChooser } from "@/components/gestion/commandes/eta-chooser";
 import { HubriseRef } from "@/components/gestion/commandes/hubrise-ref";
 import { LineOptions } from "@/components/gestion/commandes/order-line";
-import { describeError } from "@/components/gestion/paiements/describe-error";
+import { describeError } from "@/lib/gestion/errors";
 import { PickupDueChip, PickupPaidChip, PickupStatusChip } from "@/components/gestion/retraits/pickup-chips";
 import { GlassButton, Plate } from "@/components/gestion/ui";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";

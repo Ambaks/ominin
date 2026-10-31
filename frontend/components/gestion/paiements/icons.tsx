@@ -40,16 +40,6 @@ export function CashIcon(props: IconProps) {
   );
 }
 
-/** Carte bancaire : le terminal du comptoir. */
-export function CardIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <rect x="2" y="5" width="20" height="14" rx="2" />
-      <path d="M2 10h20M6 15h4" />
-    </Svg>
-  );
-}
-
 /** Téléphone : le client a payé depuis le menu. */
 export function OnlineIcon(props: IconProps) {
   return (
@@ -70,31 +60,21 @@ export function TillIcon(props: IconProps) {
   );
 }
 
-/** Étoile : les pourboires. */
-export function TipIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <path d="M12 3l2 4 4.5.6-3.3 3.1.9 4.5L12 13l-4.1 2.2.9-4.5L5.5 7.6 10 7z" />
-    </Svg>
-  );
-}
-
-/** Point d'exclamation : un remboursement à faire. */
-export function AlertIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="12" cy="12" r="8.5" />
-      <path d="M12 8v5M12 16h.01" />
-    </Svg>
-  );
-}
-
 /** Flèche de retour : l'argent rendu au client. */
 export function RefundIcon(props: IconProps) {
   return (
     <Svg {...props}>
       <path d="M9 14l-4-4 4-4" />
       <path d="M5 10h9a5 5 0 010 10h-3" />
+    </Svg>
+  );
+}
+
+/** Trois points : les gestes d'une ligne, sur téléphone. */
+export function MoreIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M6 12h.01M12 12h.01M18 12h.01" strokeWidth="2.5" />
     </Svg>
   );
 }

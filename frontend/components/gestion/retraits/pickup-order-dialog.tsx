@@ -8,7 +8,7 @@ import {
   StaffMenu,
   useStaffOrder,
 } from "@/components/gestion/commandes/order-picker";
-import { describeError } from "@/components/gestion/paiements/describe-error";
+import { describeError } from "@/lib/gestion/errors";
 import { GlassButton } from "@/components/gestion/ui";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { Field, inputClass } from "@/components/ui/field";

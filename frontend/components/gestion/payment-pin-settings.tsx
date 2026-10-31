@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { describeError } from "@/components/gestion/paiements/describe-error";
+import { describeError } from "@/lib/gestion/errors";
 import { GlassButton, Plate } from "@/components/gestion/ui";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";

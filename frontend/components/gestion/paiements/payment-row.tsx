@@ -1,6 +1,9 @@
+"use client";
+
+import { useState } from "react";
 import { HubriseRef } from "@/components/gestion/commandes/hubrise-ref";
-import { BagIcon, EditIcon, TrashIcon } from "@/components/gestion/icons";
-import { Chip, GlassButton } from "@/components/gestion/ui";
+import { AlertIcon, BagIcon, EditIcon, TrashIcon } from "@/components/gestion/icons";
+import { Chip, GlassButton, Sheet } from "@/components/gestion/ui";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import {
@@ -12,11 +15,18 @@ import {
 } from "@/lib/gestion/selectors";
 import type { GestionState, Order, PaymentMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
-import { AlertIcon, RefundIcon, TillIcon } from "./icons";
+import { MoreIcon, RefundIcon, TillIcon } from "./icons";
 
 /** Mode affiché : un règlement en ligne (Stripe/SumUp) prime sur la colonne. */
 export function displayMode(order: Order): PaymentMode | undefined {
   return order.paidOnline ? "en_ligne" : order.paymentMode;
+}
+
+/** Qui a payé : le client d'un retrait, sinon la table ou le numéro. */
+export function paymentHeading(order: Order, state: GestionState): string {
+  return order.type === "collect"
+    ? order.customerName ?? "Client"
+    : placeLabel(order, state.tables, state.etablissement.showTableNumber);
 }
 
 /**
@@ -38,10 +48,9 @@ export function PaymentRow({
   onEdit: () => void;
   onVoid: () => void;
 }) {
-  const isCollect = order.type === "collect";
-  const heading = isCollect
-    ? order.customerName ?? "Client"
-    : placeLabel(order, state.tables, state.etablissement.showTableNumber);
+  // Au doigt, les deux gestes vivent dans une feuille libellée (§ 3.14).
+  const [menu, setMenu] = useState(false);
+  const heading = paymentHeading(order, state);
   const mode = displayMode(order);
   const articleCount = order.items.reduce((sum, line) => sum + line.quantity, 0);
   const editable =
@@ -62,23 +71,22 @@ export function PaymentRow({
     split && `espèces ${formatPrice(split.especes)} · carte ${formatPrice(split.carte)}`,
     received != null && `reçu ${formatPrice(received)}`,
     returned ? `rendu ${formatPrice(returned)}` : null,
+    // Refusée par la caisse : la consigne se lit, elle ne se survole pas.
+    cancelled && (order.refundedAt ? "remboursée par la caisse" : "remboursement à faire chez le prestataire"),
   ]
     .filter(Boolean)
     .join(" · ");
+  const amount = formatPrice(orderTotal(order));
 
   return (
-    <li className="flex flex-wrap items-center gap-x-4 gap-y-1.5 border-t border-hairline px-4 py-3 first:border-t-0">
-      <span className="w-11 shrink-0 text-g-meta text-muted tabular-nums">
+    <li className="grid grid-cols-[var(--g-control)_minmax(0,1fr)_auto_auto] items-center gap-x-3 border-t border-hairline px-4 py-3 first:border-t-0">
+      <span className="self-start pt-0.5 text-g-meta text-muted tabular-nums sm:self-center sm:pt-0">
         {formatTime(paidAt(order))}
       </span>
-      {/* Le nom d'abord : sur un téléphone, mode, total et gestes passent à
-          la ligne plutôt que de le réduire à une lettre. */}
-      <div className="min-w-36 flex-1">
+      <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <p className="font-medium [overflow-wrap:anywhere]">{heading}</p>
-          {isCollect && (
-            <Chip icon={<BagIcon />}>Emporter</Chip>
-          )}
+          {order.type === "collect" && <Chip icon={<BagIcon />}>Emporter</Chip>}
           {order.fromTill && (
             <span title="Saisie sur la caisse : elle se modifie sur la caisse.">
               <Chip icon={<TillIcon />}>Caisse</Chip>
@@ -100,33 +108,59 @@ export function PaymentRow({
         <p className="text-g-meta text-muted">{details}</p>
         <HubriseRef orders={[order]} />
       </div>
-      {mode && (
-        <span className="shrink-0 text-g-meta text-muted">{PAYMENT_MODE_LABELS[mode]}</span>
+      <div className="text-right">
+        <p className={`font-semibold tabular-nums ${cancelled ? "text-muted line-through" : ""}`}>{amount}</p>
+        {mode && !order.fromTill && <p className="text-g-meta text-muted">{PAYMENT_MODE_LABELS[mode]}</p>}
+      </div>
+      {/* La colonne des gestes garde sa largeur sur chaque ligne : les
+          montants restent sur une même verticale. */}
+      {editable ? (
+        <>
+          <GlassButton
+            variant="icon"
+            className="sm:hidden"
+            onClick={() => setMenu(true)}
+            aria-label={`Gestes sur l'encaissement de ${heading}`}
+          >
+            <MoreIcon />
+          </GlassButton>
+          <div className="hidden items-center gap-3 sm:flex">
+            <GlassButton variant="icon" onClick={onEdit} title="Modifier l'encaissement" aria-label="Modifier l'encaissement">
+              <EditIcon />
+            </GlassButton>
+            <GlassButton variant="icon" onClick={onVoid} title="Annuler l'encaissement" aria-label="Annuler l'encaissement">
+              <TrashIcon />
+            </GlassButton>
+          </div>
+        </>
+      ) : (
+        <span aria-hidden className="w-g-control sm:w-[calc(2*var(--g-control)+0.75rem)]" />
       )}
-      <span
-        className={`shrink-0 font-semibold tabular-nums ${cancelled ? "text-muted line-through" : ""}`}
-      >
-        {formatPrice(orderTotal(order))}
-      </span>
-      {editable && (
-        <div className="flex shrink-0 items-center gap-1.5">
-          <GlassButton
-            variant="icon"
-            onClick={onEdit}
-            title="Modifier l'encaissement"
-            aria-label="Modifier l'encaissement"
-          >
-            <EditIcon />
-          </GlassButton>
-          <GlassButton
-            variant="icon"
-            onClick={onVoid}
-            title="Annuler l'encaissement"
-            aria-label="Annuler l'encaissement"
-          >
-            <TrashIcon />
-          </GlassButton>
-        </div>
+      {menu && (
+        <Sheet title={`${heading} · ${amount}`} description={details} onClose={() => setMenu(false)}>
+          <div className="grid gap-2">
+            <GlassButton
+              data-autofocus
+              onClick={() => {
+                setMenu(false);
+                onEdit();
+              }}
+            >
+              <EditIcon />
+              Modifier l&rsquo;encaissement
+            </GlassButton>
+            <GlassButton
+              variant="danger"
+              onClick={() => {
+                setMenu(false);
+                onVoid();
+              }}
+            >
+              <TrashIcon />
+              Annuler l&rsquo;encaissement
+            </GlassButton>
+          </div>
+        </Sheet>
       )}
     </li>
   );

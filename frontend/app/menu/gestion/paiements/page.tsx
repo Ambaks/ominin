@@ -2,31 +2,24 @@
 
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
-import { describeError, type DescribedError } from "@/components/gestion/paiements/describe-error";
+import { describeError } from "@/lib/gestion/errors";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
-import {
-  CardIcon,
-  CashIcon,
-  CoinsIcon,
-  OnlineIcon,
-  TillIcon,
-  TipIcon,
-} from "@/components/gestion/paiements/icons";
-import { PaymentRow } from "@/components/gestion/paiements/payment-row";
+import { CoinsIcon } from "@/components/gestion/paiements/icons";
+import { PaymentRow, paymentHeading } from "@/components/gestion/paiements/payment-row";
 import { StripeDashboardButton } from "@/components/gestion/paiements/stripe-dashboard-button";
 import {
-  Chip,
+  ConfirmSheet,
   EmptyState,
+  ErrorNotice,
   GlassButton,
-  Notice,
   Plate,
   RankedList,
+  ReserveGerant,
   SectionHeading,
   Segmented,
   StatTile,
   type DeltaTone,
 } from "@/components/gestion/ui";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS, PAYMENTS_PAGE_SIZE } from "@/lib/gestion/constants";
@@ -111,26 +104,41 @@ function groupByDay(orders: Order[], dayEndHour: number): DayGroup[] {
 const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
 
 /**
- * Le repère du chiffre du jour : le même jour de la semaine dernière, en
- * écart signé quand il y a de quoi comparer ; sous une petite base, le
- * montant d'alors en gris ; sans base, le nombre de paiements du jour.
+ * Sous cette base, un pourcentage ment (DESIGN § 8, « ~5 ») : le repère est
+ * alors le montant d'alors, en gris. À faire monter dans lib/gestion/constants.
+ */
+const SMALL_BASE_PAYMENTS = 5;
+
+/**
+ * Le repère du chiffre du jour : le même jour de la semaine dernière, à la
+ * même heure, en écart signé quand la base le permet ; sous une petite base,
+ * le montant d'alors ; sans base, rien de plus que ce qu'on sait.
  */
 function todayBaseline(
   today: number,
-  lastWeek: number,
-  payments: number,
+  lastWeek: { total: number; payments: number },
   weekday: string
 ): { delta?: { text: string; tone: DeltaTone }; baseline: string } {
-  if (lastWeek === 0) return { baseline: plural(payments, "paiement") };
-  const ratio = Math.round(((today - lastWeek) / lastWeek) * 100);
+  const when = `${weekday} dernier à cette heure`;
+  if (lastWeek.payments === 0) return { baseline: `rien d'encaissé ${when}` };
+  if (lastWeek.payments < SMALL_BASE_PAYMENTS) {
+    return { baseline: `était ${formatPrice(lastWeek.total)} ${when}` };
+  }
+  const ratio = Math.round(((today - lastWeek.total) / lastWeek.total) * 100);
   return {
     delta: {
-      text: `${ratio < 0 ? "−" : "+"}${Math.abs(ratio)} %`,
+      text: `${ratio < 0 ? "−" : "+"}${Math.abs(ratio).toLocaleString("fr-FR")}\u202f%`,
       tone: ratio > 0 ? "better" : ratio < 0 ? "worse" : "neutral",
     },
-    baseline: `vs ${weekday} dernier`,
+    baseline: `vs ${when}`,
   };
 }
+
+const EMPTY_BY_FILTER: Record<Exclude<ModeFilter, "tous">, string> = {
+  especes: "en espèces",
+  carte: "par carte",
+  en_ligne: "en ligne",
+};
 
 function Block({ i, className = "", children }: { i: number; className?: string; children: React.ReactNode }) {
   return (
@@ -149,14 +157,12 @@ export default function PaiementsPage() {
   // qu'il faut s'adresser. La sortie mène à l'accueil de l'équipe.
   if (state.role !== "gerant") {
     return (
-      <EmptyState
-        text="Réservé au gérant : les encaissements se consultent depuis son compte."
-        action={
-          <GlassButton variant="primary" href={pickupShop ? "/gestion/retraits" : "/gestion"}>
-            {pickupShop ? "Aller aux retraits" : "Retour à l'accueil"}
-          </GlassButton>
-        }
-      />
+      <div className="grid justify-items-start gap-4">
+        <ReserveGerant ask="consulter les encaissements" />
+        <GlassButton href={pickupShop ? "/gestion/retraits" : "/gestion"}>
+          {pickupShop ? "Aller aux retraits" : "Retour à l'accueil"}
+        </GlassButton>
+      </div>
     );
   }
   if (!hasFeature("paiements")) return <FeatureLocked feature="paiements" />;
@@ -182,7 +188,7 @@ function PaiementsContent({
   const [history, setHistory] = useState<Order[]>([]);
   const [cursor, setCursor] = useState<string | null | undefined>(undefined);
   const [loadingHistory, setLoadingHistory] = useState(false);
-  const [historyError, setHistoryError] = useState<DescribedError | null>(null);
+  const [historyError, setHistoryError] = useState<unknown>(null);
   const [editing, setEditing] = useState<Order | null>(null);
   const [voiding, setVoiding] = useState<Order | null>(null);
   const sentinel = useRef<HTMLDivElement>(null);
@@ -195,7 +201,7 @@ function PaiementsContent({
       setHistory((current) => [...current, ...page.orders]);
       setCursor(page.nextCursor);
     } catch (error) {
-      setHistoryError(describeError(error));
+      setHistoryError(error);
     } finally {
       setLoadingHistory(false);
     }
@@ -224,21 +230,26 @@ function PaiementsContent({
   const visibleCount = visible.length;
   const showMore = useCallback(async () => {
     if (loadingHistory) return;
+    // La fenêtre s'élargit avant l'appel : un filtre changé pendant le
+    // chargement garde son retour à la première page.
     const next = shown + PAYMENTS_PAGE_SIZE;
-    if (next > visibleCount && cursor !== null) await loadHistory(cursor ?? null);
     setShown(next);
+    if (next > visibleCount && cursor !== null) await loadHistory(cursor ?? null);
   }, [loadingHistory, shown, visibleCount, cursor, loadHistory]);
   // Le bas de la liste charge la suite de lui-même (§ 3.14) ; le bouton
-  // reste pour le clavier et les lecteurs d'écran.
+  // reste pour le clavier et les lecteurs d'écran. Sous un filtre, seul le
+  // bouton va chercher plus loin sur le serveur : un mode rare ne doit pas
+  // télécharger tout l'historique à lui seul.
+  const autoLoads = filter === "tous" || shown < visibleCount;
   useEffect(() => {
     const element = sentinel.current;
-    if (!element) return;
+    if (!element || !autoLoads) return;
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) void showMore();
     });
     observer.observe(element);
     return () => observer.disconnect();
-  }, [showMore, hasMore, historyError]);
+  }, [showMore, hasMore, historyError, autoLoads]);
 
   const todayPaid = listed.filter(
     (order) => isPaid(order) && isServiceToday(paidAt(order), state.dayEndHour)
@@ -256,20 +267,42 @@ function PaiementsContent({
     },
     { especes: 0, carte: 0, en_ligne: 0, caisse: 0 }
   );
-  // Le même jour de service, il y a sept jours : la fenêtre chargée au
-  // démarrage le contient.
-  const serviceNow = serviceDate(new Date(), state.dayEndHour);
-  const lastWeekKey = new Date(serviceNow.getTime() - 7 * 24 * 3_600_000).toDateString();
-  const lastWeekTotal = state.orders
-    .filter((order) => isPaid(order) && serviceDayKey(paidAt(order), state.dayEndHour) === lastWeekKey)
-    .reduce((sum, order) => sum + orderTotal(order), 0);
-  const weekday = serviceNow.toLocaleDateString("fr-FR", { weekday: "long" });
-  const todayRef = todayBaseline(todayTotal, lastWeekTotal, todayPaid.length, weekday);
+  // Le même jour de service, il y a sept jours, jusqu'à la même heure : la
+  // fenêtre chargée au démarrage (ANALYTICS_PERIOD_DAYS) le contient.
+  const now = new Date();
+  const lastWeekAt = new Date(now);
+  lastWeekAt.setDate(lastWeekAt.getDate() - 7);
+  const lastWeekKey = serviceDayKey(lastWeekAt.toISOString(), state.dayEndHour);
+  const lastWeekUntil = lastWeekAt.toISOString();
+  const lastWeekPaid = state.orders.filter(
+    (order) =>
+      isPaid(order) &&
+      paidAt(order) <= lastWeekUntil &&
+      serviceDayKey(paidAt(order), state.dayEndHour) === lastWeekKey
+  );
+  const lastWeek = {
+    total: lastWeekPaid.reduce((sum, order) => sum + orderTotal(order), 0),
+    payments: lastWeekPaid.length,
+  };
+  const weekday = serviceDate(now, state.dayEndHour).toLocaleDateString("fr-FR", { weekday: "long" });
+  const todayRef = todayBaseline(todayTotal, lastWeek, weekday);
   const todayTips = todayPaid.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
   const tipShares = tipsByStaff(todayPaid, state.staff);
+  // Deux « Marie » : la liste classée se repère par libellé.
+  const tipItems = tipShares.map(({ staff, tip }, index) => {
+    const twins = tipShares.filter((share) => share.staff.name === staff.name).length;
+    const rank = tipShares.slice(0, index).filter((share) => share.staff.name === staff.name).length + 1;
+    return { label: twins > 1 ? `${staff.name} · ${rank}` : staff.name, value: formatPrice(tip), amount: tip };
+  });
+  const unattributedTips = todayTips - tipShares.reduce((sum, share) => sum + share.tip, 0);
   const showTips = hasFeature("pourboires") && tipShares.length > 0;
-  const showTill = todayByMode.caisse > 0;
-  const filterLabel = MODE_FILTERS.find((option) => option.value === filter)?.label ?? "";
+  const modeShares = [
+    { label: "Espèces", amount: todayByMode.especes },
+    { label: "Carte", amount: todayByMode.carte },
+    { label: "En ligne", amount: todayByMode.en_ligne },
+    // Réglé à la caisse sans mode connu : ni espèces ni carte.
+    ...(todayByMode.caisse > 0 ? [{ label: "Caisse", amount: todayByMode.caisse }] : []),
+  ].map(({ label, amount }) => ({ label, value: formatPrice(amount), amount }));
 
   return (
     <div className="grid gap-5">
@@ -292,7 +325,7 @@ function PaiementsContent({
         />
       </Block>
 
-      <Block i={1} className="grid gap-g-gap">
+      <Block i={1} className="grid gap-g-gap lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
         <div data-visite="paiements-jour" className="grid rounded-g-hero">
           <StatTile
             hero
@@ -302,47 +335,26 @@ function PaiementsContent({
             value={formatPrice(todayTotal)}
             delta={todayRef.delta}
             baseline={todayRef.baseline}
-            title={`${plural(todayPaid.length, "paiement")} aujourd'hui, pourboires exclus${
-              lastWeekTotal > 0 ? ` · ${formatPrice(lastWeekTotal)} ${weekday} dernier` : ""
-            }`}
+            title="Encaissé aujourd'hui, pourboires exclus, comparé au même jour de la semaine dernière à la même heure"
           />
         </div>
-        <div className={`grid gap-g-gap ${showTill ? "sm:grid-cols-2 xl:grid-cols-4" : "sm:grid-cols-3"}`}>
-          <StatTile
+        <Plate
+          className="px-5 pb-4 pt-4.5"
+          title="Ce qui est entré aujourd'hui, par moyen de règlement : espèces en caisse, carte au terminal, en ligne depuis le menu ou le site"
+        >
+          <div className="mb-2.5 flex items-baseline justify-between gap-3">
+            <h2 className="font-display text-g-h2">Par mode</h2>
+            <small className="whitespace-nowrap text-g-meta text-muted tabular-nums">
+              {todayPaid.length ? plural(todayPaid.length, "paiement") : "aucun paiement"}
+            </small>
+          </div>
+          <RankedList
             entity="money"
-            icon={<CashIcon />}
-            label="Espèces"
-            value={formatPrice(todayByMode.especes)}
-            baseline="en caisse"
-            title="Espèces reçues aujourd'hui, monnaie rendue déduite"
+            size="bar"
+            label="Encaissé aujourd'hui par mode de règlement"
+            items={modeShares}
           />
-          <StatTile
-            entity="money"
-            icon={<CardIcon />}
-            label="Carte"
-            value={formatPrice(todayByMode.carte)}
-            baseline="au comptoir"
-            title="Carte au terminal du comptoir, aujourd'hui"
-          />
-          <StatTile
-            entity="money"
-            icon={<OnlineIcon />}
-            label="En ligne"
-            value={formatPrice(todayByMode.en_ligne)}
-            baseline="payées par le client"
-            title="Payées depuis le menu ou le site, aujourd'hui"
-          />
-          {showTill && (
-            <StatTile
-              entity="money"
-              icon={<TillIcon />}
-              label="Caisse"
-              value={formatPrice(todayByMode.caisse)}
-              baseline="réglées sur la caisse"
-              title="Ventes réglées sur la caisse du restaurant, sans mode connu"
-            />
-          )}
-        </div>
+        </Plate>
       </Block>
 
       {showTips && (
@@ -352,23 +364,17 @@ function PaiementsContent({
             title="Chaque part suit la table encaissée. Une table sans serveur affecté ne compte pour personne."
           >
             <div className="mb-2.5 flex items-baseline justify-between gap-3">
-              <h2 className="flex items-center gap-2 font-display text-g-h2">
-                <TipIcon className="size-4 text-ember-1" />
-                Pourboires du jour
-              </h2>
+              <h2 className="font-display text-g-h2">Pourboires du jour</h2>
               <small className="whitespace-nowrap text-g-meta text-muted tabular-nums">
                 {formatPrice(todayTips)}
               </small>
             </div>
-            <RankedList
-              entity="money"
-              label="Pourboires par serveur, aujourd'hui"
-              items={tipShares.map(({ staff, tip }) => ({
-                label: staff.name,
-                value: formatPrice(tip),
-                amount: tip,
-              }))}
-            />
+            <RankedList entity="money" label="Pourboires par serveur, aujourd'hui" items={tipItems} />
+            {unattributedTips > 0 && (
+              <p className="mt-2 text-g-meta text-muted">
+                dont {formatPrice(unattributedTips)} sur des tables sans serveur affecté
+              </p>
+            )}
           </Plate>
         </Block>
       )}
@@ -398,7 +404,7 @@ function PaiementsContent({
             />
           ) : (
             <EmptyState
-              text={`Aucun paiement en ${filterLabel.toLowerCase()} pour l'instant.`}
+              text={`Aucun paiement ${EMPTY_BY_FILTER[filter]} ${hasMore ? "parmi ceux déjà chargés" : "pour l'instant"}.`}
               action={<GlassButton onClick={() => setFilter("tous")}>Tout afficher</GlassButton>}
             />
           )
@@ -409,12 +415,14 @@ function PaiementsContent({
                 title={day.label}
                 right={
                   <span className="shrink-0 text-g-meta text-muted tabular-nums">
-                    {plural(day.whole.count, "paiement")} · {formatPrice(day.whole.total)}
+                    {day.whole.count > 0
+                      ? `${plural(day.whole.count, "paiement")} · ${formatPrice(day.whole.total)}`
+                      : plural(day.whole.orders.length, "remboursée")}
                   </span>
                 }
               />
               <Plate>
-                <ul className="m-0 list-none p-0">
+                <ul role="list" className="m-0 list-none p-0">
                   {day.orders.map((order) => (
                     <PaymentRow
                       key={order.id}
@@ -430,29 +438,14 @@ function PaiementsContent({
           ))
         )}
 
-        {historyError && (
-          <Notice
-            title={historyError.title}
-            text={`${historyError.text} Les paiements déjà chargés restent affichés.`}
-            action={
-              <GlassButton
-                onClick={() => {
-                  if (historyError.retry) void loadHistory(cursor ?? null);
-                  else window.location.reload();
-                }}
-              >
-                {historyError.retry ? "Réessayer" : "Recharger"}
-              </GlassButton>
-            }
-          />
+        {historyError != null && (
+          <ErrorNotice error={historyError} onRetry={() => void loadHistory(cursor ?? null)} />
         )}
-        {hasMore && !historyError && (
-          <div ref={sentinel} className="flex justify-center">
-            {loadingHistory ? (
-              <Chip>Chargement…</Chip>
-            ) : (
-              <GlassButton onClick={() => void showMore()}>Voir plus</GlassButton>
-            )}
+        {hasMore && historyError == null && (
+          <div ref={sentinel} className="flex min-h-g-control items-center justify-center">
+            <GlassButton onClick={() => void showMore()} aria-busy={loadingHistory || undefined}>
+              {loadingHistory ? "Chargement…" : "Voir plus"}
+            </GlassButton>
           </div>
         )}
       </Block>
@@ -475,11 +468,11 @@ function PaiementsContent({
         />
       )}
       {voiding && (
-        <ConfirmDialog
-          title="Annuler l'encaissement ?"
-          message={`Le règlement ${
-            voiding.paymentMode ? `en ${PAYMENT_MODE_LABELS[voiding.paymentMode].toLowerCase()} ` : ""
-          }sera effacé et la commande passera en annulée. Cette action est définitive.`}
+        <ConfirmSheet
+          title={`Annuler l'encaissement de ${paymentHeading(voiding, state)} · ${formatPrice(orderTotal(voiding))} ?`}
+          text={`Le règlement${
+            voiding.paymentMode ? ` en ${PAYMENT_MODE_LABELS[voiding.paymentMode].toLowerCase()}` : ""
+          } est effacé et la commande passe en annulée. Cette action est définitive.`}
           confirmLabel="Annuler l'encaissement"
           cancelLabel="Garder l'encaissement"
           destructive

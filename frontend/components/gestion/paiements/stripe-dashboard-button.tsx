@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ExternalLinkIcon } from "@/components/gestion/icons";
 import { GlassButton } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { describeError } from "./describe-error";
+import { describeError } from "@/lib/gestion/errors";
 
 /*
  * « Mon espace Stripe » : l'espace Express où le restaurant voit ce que ses
@@ -28,6 +28,7 @@ export function StripeDashboardButton() {
   if (!connected) return null;
 
   const open = async () => {
+    if (busy) return;
     setBusy(true);
     const tab = window.open("", "_blank");
     try {
@@ -49,7 +50,7 @@ export function StripeDashboardButton() {
     <GlassButton
       data-visite="stripe-espace"
       onClick={() => void open()}
-      disabled={busy}
+      aria-busy={busy || undefined}
       title="Votre solde, vos virements et le détail de chaque paiement en ligne, chez Stripe"
     >
       {busy ? "Ouverture…" : "Mon espace Stripe"}

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { GlassButton, Plate } from "@/components/gestion/ui";
-import { Modal } from "@/components/ui/modal";
+import { Field, GlassButton, Input, Plate, Segmented, Sheet } from "@/components/gestion/ui";
 import type { PaymentCorrection } from "@/lib/gestion/api";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { amountToInput, parseAmount } from "@/lib/gestion/format";
@@ -17,10 +16,12 @@ import { formatPrice } from "@/lib/menu/format";
  * marchandise ; le pourboire, posé à l'encaissement, ne se retouche pas ici.
  */
 
-const MODES: EncaissementMode[] = ["especes", "carte", "mixte"];
-
-const FIELD_CLASS =
-  "flex items-center gap-2 rounded-g-card border border-hairline bg-surface px-4 py-3 focus-within:border-ember-2/60";
+// « Les deux » : « Espèces + carte » ne tient pas dans un tiers de segmenté au doigt.
+const MODES: { value: EncaissementMode; label: string }[] = [
+  { value: "especes", label: PAYMENT_MODE_LABELS.especes },
+  { value: "carte", label: PAYMENT_MODE_LABELS.carte },
+  { value: "mixte", label: "Les deux" },
+];
 
 export function EditPaymentDialog({
   order,
@@ -34,9 +35,7 @@ export function EditPaymentDialog({
   const total = orderTotal(order);
   const cashLeg = order.payments.find((leg) => leg.mode === "especes");
   const [mode, setMode] = useState<EncaissementMode>(
-    order.paymentMode === "carte" || order.paymentMode === "mixte"
-      ? order.paymentMode
-      : "especes"
+    order.paymentMode === "carte" || order.paymentMode === "mixte" ? order.paymentMode : "especes"
   );
   const [cashRaw, setCashRaw] = useState(
     order.paymentMode === "mixte" ? amountToInput(paidInMode(order, "especes")) : ""
@@ -50,19 +49,14 @@ export function EditPaymentDialog({
   );
 
   const cashPart = parseAmount(cashRaw);
-  const validSplit =
-    mode !== "mixte" || (cashPart != null && cashPart > 0 && cashPart < total);
+  const validSplit = mode !== "mixte" || (cashPart != null && cashPart > 0 && cashPart < total);
   // Part réglée en espèces : tout, rien, ou ce que le gérant a saisi.
-  const cash =
-    mode === "especes" ? total : mode === "mixte" && validSplit ? cashPart! : 0;
+  const cash = mode === "especes" ? total : mode === "mixte" && validSplit ? cashPart! : 0;
   const given = parseAmount(givenRaw);
   // Montant reçu facultatif : sans saisie, le client a tendu sa part au centime.
   const hasGiven = mode !== "carte" && givenRaw.trim() !== "";
   const validGiven = !hasGiven || (given != null && given >= cash);
-  const change =
-    hasGiven && validGiven && given != null
-      ? Math.round((given - cash) * 100) / 100
-      : 0;
+  const change = hasGiven && validGiven && given != null ? Math.round((given - cash) * 100) / 100 : 0;
   const valid = validSplit && validGiven;
   // Le bouton désactivé dit pourquoi (§ 3.9).
   const blocker = !validSplit
@@ -82,14 +76,12 @@ export function EditPaymentDialog({
   };
 
   return (
-    <Modal
+    <Sheet
       title="Modifier l'encaissement"
       onClose={onClose}
       footer={
         <>
-          {blocker && (
-            <span className="mr-auto text-g-meta text-muted">{blocker}</span>
-          )}
+          {blocker && <p>{blocker}</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
           <GlassButton variant="primary" disabled={!valid} onClick={save}>
             Enregistrer
@@ -97,77 +89,57 @@ export function EditPaymentDialog({
         </>
       }
     >
-      <div className="flex flex-col gap-5">
-        <div className="flex items-baseline justify-between">
+      <form
+        className="flex flex-col gap-5"
+        onSubmit={(event) => {
+          event.preventDefault();
+          save();
+        }}
+      >
+        <div className="flex items-baseline justify-between gap-4">
           <span className="text-muted">Total de la commande</span>
           <span className="text-g-kpi tabular-nums">{formatPrice(total)}</span>
         </div>
 
-        <div role="group" aria-label="Mode de paiement" className="grid grid-cols-3 gap-2">
-          {MODES.map((candidate) => (
-            <button
-              key={candidate}
-              type="button"
-              onClick={() => setMode(candidate)}
-              aria-pressed={mode === candidate}
-              className={`g-press min-h-g-control rounded-g-card border px-3 py-2.5 text-g-label font-semibold transition-colors ${
-                mode === candidate
-                  ? "border-ember-2 bg-ember-2/10 text-foreground"
-                  : "border-hairline bg-surface text-muted"
-              }`}
-            >
-              {PAYMENT_MODE_LABELS[candidate]}
-            </button>
-          ))}
-        </div>
+        <Segmented glass={false} label="Mode de paiement" options={MODES} value={mode} onChange={setMode} />
 
         {mode === "mixte" && (
-          <label className="flex flex-col gap-1.5">
-            <span className="text-g-label font-medium">Part en espèces</span>
-            <div className={FIELD_CLASS}>
-              <input
-                type="text"
-                inputMode="decimal"
-                autoFocus
-                value={cashRaw}
-                onChange={(event) => setCashRaw(event.target.value)}
-                placeholder="0,00"
-                className="flex-1 bg-transparent text-lg tabular-nums outline-none placeholder:text-faint"
-              />
-              <span className="text-muted">€</span>
-            </div>
-            <span className={`text-g-meta ${cashRaw && !validSplit ? "text-foreground" : "text-muted"}`}>
-              {cashRaw && !validSplit
-                ? "La part doit être supérieure à 0 et inférieure au total."
-                : validSplit && cashPart != null
-                  ? `La carte prend le reste : ${formatPrice(Math.round((total - cashPart) * 100) / 100)}.`
-                  : "La carte prend le reste."}
-            </span>
-          </label>
+          <Field
+            label="Part en espèces"
+            required
+            error={cashRaw && !validSplit ? "Entre 0 et le total, exclus." : undefined}
+            hint={
+              validSplit && cashPart != null
+                ? `La carte prend le reste : ${formatPrice(Math.round((total - cashPart) * 100) / 100)}.`
+                : "La carte prend le reste."
+            }
+          >
+            <Input
+              numeric
+              unit="€"
+              data-autofocus
+              value={cashRaw}
+              onChange={(event) => setCashRaw(event.target.value)}
+              placeholder="0,00"
+            />
+          </Field>
         )}
 
         {mode !== "carte" && (
-          <label className="flex flex-col gap-1.5">
-            <span className="text-g-label font-medium">
-              Montant reçu en espèces{" "}
-              <span className="font-normal text-muted">(si monnaie rendue)</span>
-            </span>
-            <div className={FIELD_CLASS}>
-              <input
-                type="text"
-                inputMode="decimal"
-                autoFocus={mode === "especes"}
-                value={givenRaw}
-                onChange={(event) => setGivenRaw(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter") save();
-                }}
-                placeholder={amountToInput(cash)}
-                className="flex-1 bg-transparent text-lg tabular-nums outline-none placeholder:text-faint"
-              />
-              <span className="text-muted">€</span>
-            </div>
-          </label>
+          <Field
+            label="Montant reçu en espèces"
+            hint="Seulement s'il y a eu de la monnaie à rendre."
+            error={hasGiven && !validGiven ? "Le montant reçu doit couvrir la part en espèces." : undefined}
+          >
+            <Input
+              numeric
+              unit="€"
+              data-autofocus={mode === "especes" || undefined}
+              value={givenRaw}
+              onChange={(event) => setGivenRaw(event.target.value)}
+              placeholder={amountToInput(cash)}
+            />
+          </Field>
         )}
 
         {hasGiven && validGiven && (
@@ -178,11 +150,10 @@ export function EditPaymentDialog({
         )}
 
         {order.tipAmount ? (
-          <p className="text-g-meta text-muted">
-            Pourboire de {formatPrice(order.tipAmount)} inchangé.
-          </p>
+          <p className="text-g-meta text-muted">Pourboire de {formatPrice(order.tipAmount)} inchangé.</p>
         ) : null}
-      </div>
-    </Modal>
+        <button type="submit" hidden aria-hidden tabIndex={-1} />
+      </form>
+    </Sheet>
   );
 }
