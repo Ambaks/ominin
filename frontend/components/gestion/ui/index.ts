@@ -10,6 +10,7 @@ export { Field, useField } from "./field";
 export { GlassButton } from "./glass-button";
 export { GlassFrame } from "./glass-frame";
 export { Input, Textarea } from "./input";
+export { ListPager } from "./list-pager";
 export { Mesh } from "./mesh";
 export { Notice } from "./notice";
 export { Plate } from "./plate";

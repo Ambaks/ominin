@@ -8370,14 +8370,20 @@ export type Database = {
         Returns: undefined
       }
       loyalty_contact: { Args: { p_raw: string }; Returns: string }
-      loyalty_customers_summary: {
-        Args: { p_etablissement_id: string }
+      loyalty_customers_page: {
+        Args: {
+          p_etablissement_id: string
+          p_limit: number
+          p_offset: number
+          p_search: string
+        }
         Returns: {
           contact: string
           hubrise_customer_id: string | null
           id: string
           last_activity: string
           points: number
+          total: number
         }[]
       }
       loyalty_device_history: {
@@ -8421,14 +8427,18 @@ export type Database = {
           returning_members: number
         }[]
       }
-      loyalty_stats_weeks: {
-        Args: { p_etablissement_id: string }
+      loyalty_stats_series: {
+        Args: { p_days: number | null; p_etablissement_id: string }
         Returns: {
+          active: boolean
+          bucket: string
           card_orders: number
+          members: number
           new_members: number
+          new_phones: number
           paid_orders: number
+          phones: number
           rewards_used: number
-          week: string
         }[]
       }
       loyalty_wheel_customer: {
