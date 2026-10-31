@@ -1,9 +1,14 @@
+import type { EmailOtpType } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { linkGoogleCommercial } from "@/lib/commercial/access";
 import { commercialPrefix } from "@/lib/site";
 import { createClient } from "@/lib/supabase/server";
 
-/** Échange le code OAuth/PKCE (Google, liens email) contre une session. */
+/**
+ * Échange le code OAuth/PKCE (Google, liens email) contre une session. Les
+ * liens email (invitation, mot de passe oublié) passent aussi par ici : le
+ * jeton prouve l'accès à la boîte, la page `next` fait le reste.
+ */
 export async function GET(request: Request) {
   const { searchParams, origin, protocol } = new URL(request.url);
   // Host public réel : ce callback sert aussi les sous-domaines, or
@@ -29,7 +34,7 @@ export async function GET(request: Request) {
   if (tokenHash && type) {
     const { error } = await supabase.auth.verifyOtp({
       token_hash: tokenHash,
-      type: type as "invite" | "email",
+      type: type as EmailOtpType,
     });
     if (!error) return NextResponse.redirect(`${base}${next}`);
   }

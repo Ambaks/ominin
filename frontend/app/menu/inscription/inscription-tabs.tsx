@@ -48,10 +48,14 @@ export function InscriptionTabs({
 }) {
   const [profile, setProfile] = useState<Profile>("owner");
 
+  // Google ne transporte pas de user_metadata : l'onglet choisi suit dans
+  // l'URL, et /onboarding le pose sur le compte à l'arrivée.
   const destination =
-    profile === "owner" && quoteQuery
-      ? `/onboarding?${quoteQuery}`
-      : "/onboarding";
+    profile === "staff"
+      ? "/onboarding?profile=staff"
+      : quoteQuery
+        ? `/onboarding?${quoteQuery}`
+        : "/onboarding";
 
   return (
     <AuthForm

@@ -30,13 +30,16 @@ export default async function OnboardingPage({
 
   if (membership) redirect("/gestion");
 
-  if (user.user_metadata?.profile === "staff") {
-    return <StaffPending />;
+  const params = await searchParams;
+  const staff = user.user_metadata?.profile === "staff";
+  // Inscrit par Google sous l'onglet « Membre d'équipe » : l'OAuth n'a pas
+  // porté le profil, l'URL le dit, le compte le retient maintenant.
+  if (staff || params.profile === "staff") {
+    return <StaffPending claimProfile={!staff} />;
   }
 
   // parseQuote ne retient qu'une offre publiée sur la landing : son id est
   // donc une valeur d'Offre.
-  const params = await searchParams;
   const quote = parseQuote(params);
 
   return (

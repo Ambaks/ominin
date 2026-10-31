@@ -2,14 +2,24 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Wordmark } from "@/components/brand/wordmark";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
-export function StaffPending() {
+export function StaffPending({
+  claimProfile = false,
+}: {
+  /** Le compte ne porte pas encore le profil équipe : on l'écrit. */
+  claimProfile?: boolean;
+}) {
   const router = useRouter();
   const [checking, setChecking] = useState(false);
+
+  useEffect(() => {
+    if (!claimProfile) return;
+    void createClient().auth.updateUser({ data: { profile: "staff" } });
+  }, [claimProfile]);
 
   const checkMembership = async () => {
     setChecking(true);
