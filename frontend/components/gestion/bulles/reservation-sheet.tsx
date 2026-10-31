@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { GlassButton, Segmented } from "@/components/gestion/ui";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
@@ -11,13 +12,6 @@ import {
   type BulleReservation,
   type BulleSource,
 } from "@/lib/gestion/bulles-api";
-
-const PRIMARY =
-  "ember-gradient min-h-11 w-full rounded-full px-5 text-sm font-semibold text-background disabled:opacity-50";
-const SECONDARY =
-  "min-h-11 w-full rounded-full border border-hairline px-5 text-sm font-semibold text-foreground transition-colors hover:border-ember-2/40 disabled:opacity-50";
-const DANGER =
-  "min-h-11 w-full rounded-full border border-ember-3/60 px-5 text-sm font-semibold text-foreground transition-colors hover:bg-ember-3/15 disabled:opacity-50";
 
 export const STATUS_LABELS: Record<BulleReservation["status"], string> = {
   en_attente: "En attente",
@@ -33,11 +27,16 @@ const SOURCE_LABELS: Record<BulleSource, string> = {
   sur_place: "Sur place",
 };
 
+const SOURCES = [
+  { value: "telephone", label: SOURCE_LABELS.telephone },
+  { value: "sur_place", label: SOURCE_LABELS.sur_place },
+] as const;
+
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-hairline py-2.5 text-sm last:border-b-0">
+    <div className="flex items-baseline justify-between gap-4 border-b border-hairline py-2.5 text-g-body last:border-b-0">
       <span className="text-muted">{label}</span>
-      <span className="text-right font-medium">{children}</span>
+      <span className="text-right font-medium tabular-nums">{children}</span>
     </div>
   );
 }
@@ -64,6 +63,7 @@ export function ReservationSheet({
   const pending = reservation.status === "en_attente";
   const paidOnline = reservation.bulle_parts.some((part) => part.method === "en_ligne" && part.status === "payee");
   const payers = reservation.bulle_parts.filter((part) => part.status === "payee");
+  const canCancel = gerant && !paidOnline && (confirmed || pending);
 
   // Refusé (plus de bulle libre, réservation close) : la fiche reste ouverte
   // sur le message, rien n'a changé.
@@ -81,7 +81,22 @@ export function ReservationSheet({
   };
 
   return (
-    <Modal title={`${bulle?.name ?? "Bulle"} · ${reservation.name}`} onClose={onClose}>
+    <Modal
+      title={`${bulle?.name ?? "Bulle"} · ${reservation.name}`}
+      onClose={onClose}
+      footer={
+        canCancel ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => void act(() => cancelReservation(reservation.id), "Réservation annulée.")}
+            className="mr-auto text-g-label font-semibold text-muted underline-offset-4 hover:text-foreground hover:underline disabled:opacity-50"
+          >
+            Annuler la réservation
+          </button>
+        ) : undefined
+      }
+    >
       <div className="flex flex-col gap-5">
         <div>
           <Row label="Statut">{STATUS_LABELS[reservation.status]}</Row>
@@ -93,7 +108,7 @@ export function ReservationSheet({
           </Row>
           {reservation.phone && (
             <Row label="Téléphone">
-              <a href={`tel:${reservation.phone.replace(/[^\d+]/g, "")}`} className="text-ember-1 underline">
+              <a href={`tel:${reservation.phone.replace(/[^\d+]/g, "")}`} className="text-ember-1 underline underline-offset-4">
                 {reservation.phone}
               </a>
             </Row>
@@ -105,7 +120,7 @@ export function ReservationSheet({
         {payers.length > 0 && (
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">Payé</span>
-            <ul className="flex flex-col gap-1 text-sm">
+            <ul className="m-0 flex list-none flex-col gap-1 p-0 text-g-body">
               {payers.map((part) => (
                 <li key={part.id} className="flex justify-between gap-3">
                   <span>
@@ -123,59 +138,48 @@ export function ReservationSheet({
 
         <div className="flex flex-col gap-2.5">
           {pending && left > 0 && (
-            <button
-              type="button"
-              className={PRIMARY}
+            <GlassButton
+              variant="primary"
+              className="w-full"
               disabled={busy}
               onClick={() =>
                 void act(() => markArrival(reservation.id, true, true), "Bulle confirmée, reste encaissé.")
               }
             >
               Confirmer · encaisser {formatCents(left * reservation.place_cents)} ({left} pl.)
-            </button>
+            </GlassButton>
           )}
           {confirmed && left > 0 && (
-            <button
-              type="button"
-              className={PRIMARY}
+            <GlassButton
+              variant="primary"
+              className="w-full"
               disabled={busy}
               onClick={() => void act(() => markArrival(reservation.id, true, true), "Arrivée enregistrée, reste encaissé.")}
             >
               Arrivée · encaisser {formatCents(left * reservation.place_cents)} ({left} pl.)
-            </button>
+            </GlassButton>
           )}
           {confirmed && (
-            <button
-              type="button"
-              className={left > 0 ? SECONDARY : PRIMARY}
+            <GlassButton
+              variant={left > 0 ? "secondary" : "primary"}
+              className="w-full"
               disabled={busy}
               onClick={() => void act(() => markArrival(reservation.id, true, false), "Arrivée enregistrée.")}
             >
               {left > 0 ? "Arrivée sans encaisser" : "Marquer l'arrivée"}
-            </button>
+            </GlassButton>
           )}
           {reservation.status === "arrivee" && (
-            <button
-              type="button"
-              className={SECONDARY}
+            <GlassButton
+              className="w-full"
               disabled={busy}
               onClick={() => void act(() => markArrival(reservation.id, false, false), "Arrivée annulée.")}
             >
               Annuler l&rsquo;arrivée
-            </button>
-          )}
-          {gerant && !paidOnline && (confirmed || reservation.status === "en_attente") && (
-            <button
-              type="button"
-              className={DANGER}
-              disabled={busy}
-              onClick={() => void act(() => cancelReservation(reservation.id), "Réservation annulée.")}
-            >
-              Annuler la réservation
-            </button>
+            </GlassButton>
           )}
           {pending && (
-            <p className="text-xs leading-relaxed text-faint">
+            <p className="text-g-body leading-relaxed text-muted">
               Confirmée dès que le minimum de places est payé, en ligne ou ici. Le groupe peut payer le reste par
               son lien jusqu&rsquo;à la fin du créneau ; rien n&rsquo;est remboursé, sauf si toutes les bulles
               partent avant.
@@ -208,6 +212,7 @@ export function NewReservationSheet({
 }) {
   const toast = useToast();
   const { createReservation } = useBulleActions();
+  const form = useRef<HTMLFormElement>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [party, setParty] = useState("");
@@ -244,13 +249,16 @@ export function NewReservationSheet({
       title={`${bulle.name} · ${formatHours(startsAt, endsAt)}`}
       onClose={onClose}
       footer={
-        <button type="submit" form="bulle-reservation" className={`${PRIMARY} lg:w-auto`} disabled={busy}>
-          Réserver la bulle
-        </button>
+        <>
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" disabled={busy} onClick={() => form.current?.requestSubmit()}>
+            Réserver la bulle
+          </GlassButton>
+        </>
       }
     >
       <form
-        id="bulle-reservation"
+        ref={form}
         noValidate
         className="flex flex-col gap-4"
         onSubmit={(event) => {
@@ -258,49 +266,37 @@ export function NewReservationSheet({
           void submit();
         }}
       >
-        <div role="radiogroup" aria-label="Prise" className="flex gap-2">
-          {(["telephone", "sur_place"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              role="radio"
-              aria-checked={source === value}
-              onClick={() => setSource(value)}
-              className={`min-h-11 flex-1 rounded-full text-sm font-semibold transition-colors ${
-                source === value ? "ember-gradient text-background" : "border border-hairline text-muted"
-              }`}
-            >
-              {SOURCE_LABELS[value]}
-            </button>
-          ))}
-        </div>
+        <Segmented glass={false} label="Prise" options={SOURCES} value={source} onChange={setSource} />
         <Field label="Nom" required error={showErrors ? errors.name : undefined}>
           <input
             data-autofocus
             className={inputClass}
             value={name}
+            autoComplete="off"
             onChange={(event) => setName(event.target.value)}
             aria-invalid={showErrors && errors.name ? true : undefined}
           />
         </Field>
-        <Field label="Téléphone">
-          <input type="tel" inputMode="tel" className={inputClass} value={phone} onChange={(event) => setPhone(event.target.value)} />
-        </Field>
-        <Field label="Personnes" required error={showErrors ? errors.party : undefined}>
-          <input
-            inputMode="numeric"
-            className={inputClass}
-            value={party}
-            onChange={(event) => setParty(event.target.value.replace(/\D/g, ""))}
-            aria-invalid={showErrors && errors.party ? true : undefined}
-          />
-        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Téléphone">
+            <input type="tel" inputMode="tel" autoComplete="off" className={inputClass} value={phone} onChange={(event) => setPhone(event.target.value)} />
+          </Field>
+          <Field label="Personnes" required hint={`De 1 à ${maxParty}.`} error={showErrors ? errors.party : undefined}>
+            <input
+              inputMode="numeric"
+              className={`${inputClass} tabular-nums`}
+              value={party}
+              onChange={(event) => setParty(event.target.value.replace(/\D/g, ""))}
+              aria-invalid={showErrors && errors.party ? true : undefined}
+            />
+          </Field>
+        </div>
         <Field label="Note">
           <input className={inputClass} value={note} maxLength={300} onChange={(event) => setNote(event.target.value)} />
         </Field>
-        <p className="text-xs text-faint">Tout se règle sur place, à l&rsquo;arrivée.</p>
+        <p className="text-g-meta text-muted">Tout se règle sur place, à l&rsquo;arrivée.</p>
         {pendingGroups > 0 && (
-          <p role="status" className="text-xs leading-relaxed text-ember-2">
+          <p role="status" className="text-g-meta leading-relaxed text-ember-2">
             {pendingGroups === 1 ? "Un groupe paie" : `${pendingGroups} groupes paient`} encore cette bulle en
             ligne : {pendingGroups === 1 ? "il passera" : "ils passeront"} sur une autre bulle libre du créneau, ou
             {pendingGroups === 1 ? " sera remboursé" : " seront remboursés"} s&rsquo;il n&rsquo;en reste plus.
