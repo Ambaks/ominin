@@ -121,16 +121,6 @@ export function PlusIcon(props: IconProps) {
   );
 }
 
-export function CrosshairIcon(props: IconProps) {
-  return (
-    <Svg {...props}>
-      <circle cx="12" cy="12" r="7" />
-      <path d="M12 2.5V6M12 18v3.5M2.5 12H6M18 12h3.5" />
-      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
-    </Svg>
-  );
-}
-
 export function ChevronLeftIcon(props: IconProps) {
   return (
     <Svg {...props}>

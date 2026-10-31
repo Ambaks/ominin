@@ -18,7 +18,7 @@ export async function generateStaticParams() {
 
 const getOffer = cache(fetchBulleOffer);
 
-export async function generateMetadata({ params }: PageProps<"/menu/m/[slug]/bulle">): Promise<Metadata> {
+export async function generateMetadata({ params }: PageProps<"/menu/w/[slug]/bulle">): Promise<Metadata> {
   const { slug } = await params;
   const offer = await getOffer(slug);
   if (!offer) notFound();
@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: PageProps<"/menu/m/[slug]/bul
   };
 }
 
-export default async function BullePage({ params }: PageProps<"/menu/m/[slug]/bulle">) {
+export default async function BullePage({ params }: PageProps<"/menu/w/[slug]/bulle">) {
   const { slug } = await params;
   const offer = await getOffer(slug);
   if (!offer) notFound();

@@ -8,29 +8,18 @@ import { useToast } from "@/components/ui/toast";
 import {
   CONTRACT_END_LABELS,
   endContract,
-  exerciseOption,
   fetchCommerciaux,
+  fetchSettings,
   inviteCommercial,
   monthCommission,
-  removeCommercial,
   type CommercialRow,
+  type CommercialSettings,
   type EndReason,
 } from "@/lib/admin/commerciaux";
-import { formatDate, formatEuros, formatTime, fromDatetimeLocalValue } from "@/lib/admin/format";
+import { formatEuros, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { commercialSiteUrl } from "@/lib/site";
-
-export const GHOST_BUTTON =
-  "rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-60";
-
-function contractLine(row: CommercialRow): string {
-  if (!row.signed) return `Invité le ${formatDate(row.invitedAt)} · pas encore signé`;
-  const signed = `Signé le ${formatDate(row.signed.at)} à ${formatTime(row.signed.at)} · version ${row.signed.version}`;
-  if (row.endedAt) {
-    const past = row.endedAt <= new Date().toISOString();
-    return `${signed} · ${past ? "terminé" : "prend fin"} le ${formatDate(row.endedAt)}${row.endReason ? ` (${CONTRACT_END_LABELS[row.endReason]})` : ""}`;
-  }
-  return `${signed}${row.optionExercisedAt ? " · option levée" : ""}`;
-}
+import { CommercialSheet, contractLine } from "./commercial-sheet";
+import { CommonSettings } from "./reglages-communs";
 
 /** Commission estimée du mois en cours (même calcul que le relevé). */
 function MonthCommission({ commercialId }: { commercialId: string }) {
@@ -99,22 +88,25 @@ function EndContractModal({
 }
 
 /*
- * Commerciaux invités : contrat, restaurants inscrits, fin de contrat et
- * option. L'invitation envoie le lien d'accès à l'espace, où le commercial
- * lit et signe son contrat.
+ * Commerciaux invités, ouverts chacun sur sa fiche, et les réglages communs.
+ * L'invitation envoie le lien d'accès à l'espace, où le commercial lit et
+ * signe son contrat.
  */
 export function CommerciauxTab() {
   const toast = useToast();
   const [rows, setRows] = useState<CommercialRow[] | null>(null);
+  const [settings, setSettings] = useState<CommercialSettings | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null);
   const [ending, setEnding] = useState<CommercialRow | null>(null);
 
   const load = () =>
-    fetchCommerciaux().then(
-      (loaded) => {
+    Promise.all([fetchCommerciaux(), fetchSettings()]).then(
+      ([loaded, loadedSettings]) => {
         setRows(loaded);
+        setSettings(loadedSettings);
         setError(null);
       },
       (reason: unknown) => setError(reason instanceof Error ? reason.message : "Une erreur est survenue.")
@@ -144,6 +136,8 @@ export function CommerciauxTab() {
       setEmail("");
     }
   };
+
+  const open = rows?.find((row) => row.id === openId);
 
   return (
     <div className="flex flex-col gap-6">
@@ -179,87 +173,59 @@ export function CommerciauxTab() {
 
       {error ? (
         <EmptyState title="Chargement impossible" body={error} />
-      ) : !rows ? (
+      ) : !rows || !settings ? (
         <div aria-busy className="flex flex-col gap-3">
           <div className="shimmer h-20 rounded-2xl" />
           <div className="shimmer h-20 rounded-2xl" />
         </div>
-      ) : rows.length === 0 ? (
-        <EmptyState title="Aucun commercial" body="Les commerciaux invités apparaissent ici, avec l'état de leur contrat." />
       ) : (
-        <ul className="flex flex-col gap-3">
-          {rows.map((row) => (
-            <li
-              key={row.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4"
-            >
-              <div className="min-w-0">
-                <p className="truncate font-medium">{row.name ?? row.email}</p>
-                {row.name && <p className="truncate text-sm text-muted">{row.email}</p>}
-                <p
-                  className={`mt-1 text-[10px] font-semibold uppercase tracking-wider ${
-                    row.signed ? "text-ember-1" : "text-faint"
-                  }`}
-                >
-                  {contractLine(row)}
-                </p>
-                {row.signed && (
-                  <p className="mt-1 text-xs text-muted">
-                    {row.signedRestaurants} restaurant{row.signedRestaurants > 1 ? "s" : ""} inscrit
-                    {row.signedRestaurants > 1 ? "s" : ""}
-                    {row.signedRestaurants > 0 && <MonthCommission commercialId={row.id} />}
-                  </p>
-                )}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {row.signed && (
-                  <a href={`/api/admin/commerciaux/contrat?id=${row.id}`} className={GHOST_BUTTON}>
-                    Contrat (PDF)
-                  </a>
-                )}
-                <button
-                  type="button"
-                  onClick={() => void run(row.id, () => inviteCommercial(row.email), `Lien renvoyé à ${row.email}.`)}
-                  disabled={busy === row.id}
-                  className={GHOST_BUTTON}
-                >
-                  {row.signed ? "Envoyer un lien de connexion" : "Renvoyer l’invitation"}
-                </button>
-                {row.signed && !row.endedAt && !row.optionExercisedAt && (
+        <>
+          {rows.length === 0 ? (
+            <EmptyState title="Aucun commercial" body="Les commerciaux invités apparaissent ici, avec l'état de leur contrat." />
+          ) : (
+            <ul className="flex flex-col gap-3">
+              {rows.map((row) => (
+                <li key={row.id}>
                   <button
                     type="button"
-                    disabled={busy === row.id}
-                    onClick={() => {
-                      if (!window.confirm(`Lever l’option de prolongation pour ${row.name ?? row.email} (article 3.3) ? Prévenez-le par écrit.`)) return;
-                      void run(row.id, () => exerciseOption(row.id), "Option levée.");
-                    }}
-                    className={GHOST_BUTTON}
+                    onClick={() => setOpenId(row.id)}
+                    className="w-full rounded-2xl border border-hairline bg-surface p-4 text-left transition-colors hover:border-ember-2/40"
                   >
-                    Lever l’option
+                    <p className="truncate font-medium">{row.name ?? row.email}</p>
+                    {row.name && <p className="truncate text-sm text-muted">{row.email}</p>}
+                    <p className={`mt-1 text-[10px] font-semibold uppercase tracking-wider ${row.signed ? "text-ember-1" : "text-faint"}`}>
+                      {contractLine(row)}
+                    </p>
+                    <p className="mt-1 text-xs text-muted">
+                      {(row.commissionPercent ?? settings.commission_percent).toLocaleString("fr-FR")} %
+                      {row.signed && (
+                        <>
+                          {" · "}
+                          {row.signedRestaurants} restaurant{row.signedRestaurants > 1 ? "s" : ""} inscrit
+                          {row.signedRestaurants > 1 ? "s" : ""}
+                          {row.signedRestaurants > 0 && <MonthCommission commercialId={row.id} />}
+                        </>
+                      )}
+                      {!row.discordUserId && " · Discord pas relié"}
+                    </p>
                   </button>
-                )}
-                {row.signed && !row.endedAt && (
-                  <button type="button" onClick={() => setEnding(row)} className={GHOST_BUTTON}>
-                    Fin de contrat
-                  </button>
-                )}
-                {!row.signed && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (!window.confirm(`Retirer l’invitation de ${row.email} ? Son lien ne mènera plus à rien.`)) return;
-                      void run(row.id, () => removeCommercial(row.id), `Invitation de ${row.email} retirée.`);
-                    }}
-                    disabled={busy === row.id}
-                    className={GHOST_BUTTON}
-                  >
-                    Retirer
-                  </button>
-                )}
-              </div>
-            </li>
-          ))}
-        </ul>
+                </li>
+              ))}
+            </ul>
+          )}
+          <CommonSettings settings={settings} onSaved={load} />
+        </>
+      )}
+      {open && settings && rows && (
+        <CommercialSheet
+          row={open}
+          rows={rows}
+          settings={settings}
+          busy={busy === open.id}
+          run={run}
+          onClose={() => setOpenId(null)}
+          onEnd={() => setEnding(open)}
+        />
       )}
       {ending && (
         <EndContractModal

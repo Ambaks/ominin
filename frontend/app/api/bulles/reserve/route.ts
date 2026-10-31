@@ -38,6 +38,14 @@ export async function POST(request: Request) {
   if (!bulle) {
     return NextResponse.json({ error: "Bulle introuvable." }, { status: 404 });
   }
+  const { data: settings } = await admin
+    .from("etablissement_settings")
+    .select("features")
+    .eq("etablissement_id", bulle.etablissement_id)
+    .maybeSingle();
+  if ((settings?.features as { bulles?: boolean } | null)?.bulles !== true) {
+    return NextResponse.json({ error: "Les réservations ne sont pas ouvertes." }, { status: 409 });
+  }
   const checkout = await bulleCheckout(admin, bulle.etablissement_id);
   if (!checkout) {
     return NextResponse.json(

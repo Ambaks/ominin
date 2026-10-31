@@ -1,4 +1,4 @@
-import { commercialName, displayName } from "@/lib/commercial/record";
+import { displayName } from "@/lib/commercial/record";
 import type { DiscordMember } from "@/lib/discord";
 import { createClient } from "@/lib/supabase/client";
 import type { Database, Tables } from "@/lib/supabase/database.types";
@@ -87,10 +87,7 @@ export async function fetchCommerciaux(): Promise<CommercialRow[]> {
     return {
       id: row.id,
       email: row.email,
-      name:
-        row.first_name && row.last_name
-          ? commercialName({ firstName: row.first_name, lastName: row.last_name })
-          : null,
+      name: row.first_name && row.last_name ? `${row.first_name} ${row.last_name}` : null,
       invitedAt: row.invited_at,
       signed: latest
         ? { at: latest.accepted_at, version: latest.legal_versions.version }
@@ -104,6 +101,76 @@ export async function fetchCommerciaux(): Promise<CommercialRow[]> {
       commissionPercent: row.commission_percent,
     };
   });
+}
+
+export type CommercialPlaceStatus = "signed" | "waiting" | "not_interested" | "absent";
+
+export interface CommercialPlace {
+  id: string;
+  name: string;
+  at: string;
+  status: CommercialPlaceStatus;
+  clientSince: string | null;
+  clientEnded: string | null;
+}
+
+/**
+ * Les restaurants d'un commercial, comme son tableau de bord : visités ou
+ * inscrits, sauf ceux qu'il a retirés depuis son dernier passage. Le client
+ * l'emporte sur l'inscription en cours, qui l'emporte sur la dernière visite.
+ */
+export async function fetchCommercialPlaces(commercialId: string): Promise<CommercialPlace[]> {
+  const supabase = createClient();
+  const [visits, signups, clients, removed] = await Promise.all([
+    supabase
+      .from("commercial_visits")
+      .select("restaurant_id, created_at, outcome")
+      .eq("commercial_id", commercialId)
+      .order("created_at", { ascending: true })
+      .then(must),
+    supabase
+      .from("commercial_signups")
+      .select("restaurant_id, created_at")
+      .eq("commercial_id", commercialId)
+      .then(must),
+    supabase
+      .from("commercial_clients")
+      .select("restaurant_id, created_at, commission_from, ended_at")
+      .eq("commercial_id", commercialId)
+      .not("validated_at", "is", null)
+      .order("commission_from", { ascending: true })
+      .then(must),
+    supabase.from("commercial_removed").select("restaurant_id, at").eq("commercial_id", commercialId).then(must),
+  ]);
+
+  const ids = [...new Set([...visits, ...signups, ...clients].map((row) => row.restaurant_id))];
+  const restaurants = await supabase.from("crm_restaurants").select("id, name").in("id", ids).then(must);
+  const names = new Map(restaurants.map((row) => [row.id, row.name]));
+
+  const places = new Map<string, CommercialPlace>();
+  const add = (
+    row: { restaurant_id: string; created_at: string },
+    status: CommercialPlaceStatus,
+    client?: { commission_from: string | null; ended_at: string | null }
+  ) => {
+    const seen = places.get(row.restaurant_id)?.at;
+    places.set(row.restaurant_id, {
+      id: row.restaurant_id,
+      name: names.get(row.restaurant_id) ?? "Restaurant supprimé",
+      at: seen && Date.parse(seen) > Date.parse(row.created_at) ? seen : row.created_at,
+      status,
+      clientSince: client?.commission_from ?? null,
+      clientEnded: client?.ended_at ?? null,
+    });
+  };
+  for (const visit of visits) add(visit, visit.outcome as CommercialPlaceStatus);
+  for (const signup of signups) add(signup, "waiting");
+  for (const client of clients) add(client, "signed", client);
+
+  const removedAt = new Map(removed.map((row) => [row.restaurant_id, Date.parse(row.at)]));
+  return [...places.values()]
+    .filter((place) => Date.parse(place.at) > (removedAt.get(place.id) ?? -Infinity))
+    .sort((a, b) => Date.parse(b.at) - Date.parse(a.at));
 }
 
 /**
@@ -161,7 +228,7 @@ export async function setCommissionPercent(id: string, percent: number): Promise
   check(await createClient().rpc("admin_set_commission_percent", { p_commercial: id, p_percent: percent }));
 }
 
-/** Option de prolongation levée (art. 3.3). */
+/** Le contrat est prolongé : l'option de l'article 3.3 est levée. */
 export async function exerciseOption(id: string): Promise<void> {
   check(
     await createClient()

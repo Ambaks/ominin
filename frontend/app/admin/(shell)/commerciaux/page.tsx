@@ -3,18 +3,16 @@
 import { useEffect, useState } from "react";
 import { CommerciauxTab } from "@/components/admin/commerciaux/commerciaux-tab";
 import { RelevesTab } from "@/components/admin/commerciaux/releves-tab";
-import { ReglagesTab } from "@/components/admin/commerciaux/reglages-tab";
 import { PillTabs } from "@/components/ui/pill-tabs";
 
 /*
- * Les commerciaux indépendants : qui est invité et sous contrat, leurs
- * relevés, et les trois réglages de leur espace.
+ * Les commerciaux indépendants : qui est invité et sous contrat, leur fiche,
+ * les réglages communs et leurs relevés.
  */
 
 const TABS = [
   { id: "commerciaux", label: "Commerciaux" },
   { id: "releves", label: "Relevés" },
-  { id: "reglages", label: "Réglages" },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
@@ -34,12 +32,11 @@ export default function CommerciauxPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="font-display text-2xl font-medium">Commerciaux</h1>
-        <p className="mt-1 text-sm text-muted">Apporteurs d’affaires indépendants : contrats, relevés, réglages de leur espace.</p>
+        <p className="mt-1 text-sm text-muted">Apporteurs d’affaires indépendants : contrats, restaurants, relevés.</p>
       </div>
       <PillTabs tabs={[...TABS]} activeId={tab} onSelect={(id) => setTab(id as TabId)} />
       {tab === "commerciaux" && <CommerciauxTab />}
       {tab === "releves" && <RelevesTab />}
-      {tab === "reglages" && <ReglagesTab />}
     </div>
   );
 }

@@ -63,8 +63,8 @@ function directionsHref(detail: LeadDetail): string | null {
 }
 
 /*
- * La fiche lead : le panneau central du CRM. Desktop, tiroir à droite
- * au-dessus de la carte ; mobile, plein écran. Ouvert par ?lead=<id> depuis
+ * La fiche lead : le panneau central du CRM. Desktop, tiroir à droite ;
+ * mobile, plein écran. Ouvert par ?lead=<id> depuis
  * n'importe quelle page (le shell l'héberge), le bouton retour le ferme.
  */
 export function LeadPanel({

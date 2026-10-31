@@ -41,7 +41,7 @@ type ProductConfig = {
   rewriteOverrides?: readonly { path: string; prefix: string }[];
   /**
    * Premier segment d'URL que l'arborescence ignore. L'admin se lit par
-   * produit (/menu/carte) mais sert la même page qu'à /carte : le segment
+   * produit (/menu/restaurants) mais sert la même page qu'à /restaurants : le segment
    * est retiré à la réécriture et relu côté client (useAdminBasePath).
    */
   isViewSegment?: (segment: string) => boolean;
@@ -148,6 +148,7 @@ const PRODUCTS: readonly ProductConfig[] = [
     afterLogin: "/gestion",
     legacyPaths: [
       "/m",
+      "/w",
       "/gestion",
       "/login",
       "/connexion",

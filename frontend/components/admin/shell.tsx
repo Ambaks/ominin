@@ -30,7 +30,6 @@ import {
   CalendarIcon,
   ChartIcon,
   FlagIcon,
-  MapPinIcon,
   NoteIcon,
   PulseIcon,
   ShareIcon,
@@ -79,7 +78,6 @@ const SECTIONS: Section[] = [
     label: "Marketing",
     items: [
       { href: "/", label: "Aperçu", icon: ApercuIcon },
-      { href: "/carte", label: "Carte", icon: MapPinIcon },
       {
         href: "/restaurants",
         label: prospectsLabel,
@@ -190,9 +188,6 @@ function landingOf(section: Section, product: Product | null): NavItem {
   );
 }
 
-/** La carte occupe tout l'espace restant, sans conteneur ni marges. */
-const FULL_BLEED_PATHS = new Set(["/carte"]);
-
 async function signOut() {
   await createClient().auth.signOut();
   // Navigation complète : purge le store et repasse par le proxy.
@@ -238,8 +233,8 @@ function LoadError({ message }: { message: string }) {
 const subscribeNever = () => () => {};
 
 /*
- * Les pages de l'admin sont prérendues : servies par réécriture (/carte,
- * /menu/carte), leur HTML a été produit pour /admin/carte. Tout ce que le
+ * Les pages de l'admin sont prérendues : servies par réécriture (/restaurants,
+ * /menu/restaurants), leur HTML a été produit pour /admin/restaurants. Tout ce que le
  * shell déduit du chemin — liens, onglet et produit actifs, écrans proposés —
  * attend donc la fin de l'hydratation, sans quoi React garderait les
  * attributs du serveur. Le contenu, lui, attend déjà le store.
@@ -263,7 +258,6 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const section = sectionOf(localPath);
   const current = section.items.find((item) => isActive(localPath, item));
   const items = section.items.filter((item) => availableIn(item, product));
-  const fullBleed = state != null && FULL_BLEED_PATHS.has(localPath);
   const pendingDrafts = state?.pendingDrafts ?? 0;
 
   /** Changer de produit garde l'écran courant s'il le concerne. */
@@ -336,11 +330,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     <ToastProvider>
       <div className="flex min-h-dvh w-full flex-col">
         <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md">
-          <div
-            className={`w-full px-5 ${
-              fullBleed ? "lg:px-6" : "mx-auto max-w-2xl lg:max-w-6xl lg:px-10"
-            }`}
-          >
+          <div className="mx-auto w-full max-w-2xl px-5 lg:max-w-6xl lg:px-10">
             <div className="flex items-center justify-between gap-4 py-3">
               <div className="flex min-w-0 flex-col gap-1.5">
                 <p className="truncate font-display text-lg font-medium leading-none">
@@ -413,18 +403,8 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </div>
         </header>
 
-        <div
-          className={
-            fullBleed
-              ? "flex w-full flex-1 items-stretch"
-              : "mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-6xl lg:px-10"
-          }
-        >
-          <aside
-            className={`sticky top-28 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex ${
-              fullBleed ? "ml-6" : ""
-            }`}
-          >
+        <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-6xl lg:px-10">
+          <aside className="sticky top-28 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex">
             {hydrated &&
               items.map((item) => {
                 const active = item === current;
@@ -448,17 +428,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
               })}
           </aside>
 
-          {fullBleed ? (
-            <main className="relative min-w-0 flex-1">
-              <div className="absolute inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] top-0 lg:bottom-0">
-                {content}
-              </div>
-            </main>
-          ) : (
-            <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
-              {content}
-            </main>
-          )}
+          <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
+            {content}
+          </main>
         </div>
 
         {state && (

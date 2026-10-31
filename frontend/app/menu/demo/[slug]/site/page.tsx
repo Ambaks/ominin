@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
-import BohoSitePage, { generateMetadata as siteMetadata } from "@/app/menu/m/[slug]/site/page";
+import BohoSitePage, { generateMetadata as siteMetadata } from "@/app/menu/w/[slug]/page";
 import { demoParams } from "@/lib/bulles/demo-params";
 import { BOHO_THEME_COLOR } from "@/lib/sites/boho";
 
-/* Le site du Boho sur sa démonstration (lib/bulles/demo) : la page /m/<slug>/site, sur boho-demo. */
+/* Le site du Boho sur sa démonstration (lib/bulles/demo) : la page /w/<slug>, sur boho-demo. */
 export const revalidate = 60;
 
 export async function generateStaticParams() {

@@ -66,7 +66,8 @@ export type Feature =
   | "lien_heures"
   | "fidelite"
   | "soirees"
-  | "bulles";
+  | "bulles"
+  | "site";
 
 /**
  * Étapes de l'onglet Commandes. Lesquelles s'affichent, et dans quel ordre,

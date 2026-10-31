@@ -14,7 +14,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default async function BulleReservationPage({ params }: PageProps<"/menu/m/[slug]/bulle/[token]">) {
+export default async function BulleReservationPage({ params }: PageProps<"/menu/w/[slug]/bulle/[token]">) {
   const { slug, token } = await params;
   if (!isReservationToken(token)) notFound();
   const ticket = await fetchBulleTicket({ token });

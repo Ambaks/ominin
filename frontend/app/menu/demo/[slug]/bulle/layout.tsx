@@ -1,4 +1,4 @@
-import BulleLayout from "@/app/menu/m/[slug]/bulle/layout";
+import BulleLayout from "@/app/menu/w/[slug]/bulle/layout";
 import { demoParams } from "@/lib/bulles/demo-params";
 import { BOHO_THEME_COLOR } from "@/lib/sites/boho";
 
