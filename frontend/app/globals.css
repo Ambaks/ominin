@@ -15733,8 +15733,10 @@ dialog.g-dialog-center {
   letter-spacing: -0.015em;
   font-weight: 600;
 }
+/* La base suit le contenu : à base nulle, Safari donne au dialogue, dont la
+   hauteur vient de son contenu, un corps réduit à son padding. */
 .g-dialog-body {
-  flex: 1;
+  flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
