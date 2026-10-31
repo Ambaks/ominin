@@ -1,7 +1,6 @@
 "use client";
 
-import { inputClass } from "@/components/ui/field";
-import { Toggle } from "@/components/ui/toggle";
+import { Input, Switch } from "@/components/gestion/ui";
 
 /**
  * Toute la journée, ou un créneau (« 09:00 » → « 10:30 ») qui peut passer
@@ -24,34 +23,31 @@ export function HoursField({
 }) {
   return (
     <div className="flex flex-col gap-2.5">
-      <label className="flex items-center gap-3">
-        <Toggle checked={allDay} onChange={onAllDayChange} label="Toute la journée" />
-        <span className="text-sm">Toute la journée</span>
-      </label>
+      <Switch checked={allDay} onChange={onAllDayChange} label="Toute la journée" />
       {!allDay && (
         <div className="flex flex-wrap items-center gap-2">
-          {/* inputClass prend toute la largeur : la case la tient à la mesure d'une heure. */}
+          {/* La saisie prend toute la largeur : la case la tient à la mesure d'une heure. */}
           <span className="w-32">
-            <input
+            <Input
               type="time"
               value={startsAt}
               onChange={(event) => onStartsAtChange(event.target.value)}
               aria-label="Heure de début"
-              className={inputClass}
+              className="tabular-nums"
             />
           </span>
-          <span className="text-sm text-faint">→</span>
+          <span className="text-g-label text-faint" aria-hidden>→</span>
           <span className="w-32">
-            <input
+            <Input
               type="time"
               value={endsAt}
               onChange={(event) => onEndsAtChange(event.target.value)}
               aria-label="Heure de fin"
-              className={inputClass}
+              className="tabular-nums"
             />
           </span>
           {startsAt !== "" && endsAt !== "" && startsAt >= endsAt && (
-            <span className="w-full text-xs text-faint">
+            <span className="w-full text-g-meta text-muted">
               Le créneau passe minuit : il se rattache au jour où il commence.
             </span>
           )}

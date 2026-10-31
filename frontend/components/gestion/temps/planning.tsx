@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { IconButton } from "@/components/ui/icon-button";
+import { EmptyState, GlassButton, Plate } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import { formatTime } from "@/lib/gestion/format";
 import { isPickupShop, visibleStaff } from "@/lib/gestion/selectors";
 import { useGestion } from "@/lib/gestion/store";
@@ -36,6 +37,14 @@ function isToday(day: Date): boolean {
   return day.toDateString() === new Date().toDateString();
 }
 
+function Arrow({ left = false }: { left?: boolean }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d={left ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} />
+    </svg>
+  );
+}
+
 export function WeekNav({
   start,
   onChange,
@@ -50,13 +59,10 @@ export function WeekNav({
   return (
     <div className="flex flex-wrap items-center justify-between gap-3">
       <div className="flex items-center gap-2">
-        <IconButton
-          onClick={() => onChange(addDays(start, -7))}
-          aria-label="Semaine précédente"
-        >
-          <span className="text-xl leading-none">‹</span>
-        </IconButton>
-        <p className="text-sm font-medium">
+        <GlassButton variant="icon" onClick={() => onChange(addDays(start, -7))} aria-label="Semaine précédente">
+          <Arrow left />
+        </GlassButton>
+        <p className="min-w-32 text-center text-g-label font-semibold tabular-nums">
           {start.toLocaleDateString("fr-FR", {
             day: "numeric",
             ...(sameMonth ? {} : { month: "short" }),
@@ -64,12 +70,9 @@ export function WeekNav({
           {" – "}
           {end.toLocaleDateString("fr-FR", { day: "numeric", month: "long" })}
         </p>
-        <IconButton
-          onClick={() => onChange(addDays(start, 7))}
-          aria-label="Semaine suivante"
-        >
-          <span className="text-xl leading-none">›</span>
-        </IconButton>
+        <GlassButton variant="icon" onClick={() => onChange(addDays(start, 7))} aria-label="Semaine suivante">
+          <Arrow />
+        </GlassButton>
       </div>
       {children}
     </div>
@@ -121,7 +124,7 @@ export function PlanningGrid({
       onChange();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
     } finally {
       setCopying(false);
@@ -129,13 +132,9 @@ export function PlanningGrid({
   };
 
   const addStaff = (
-    <button
-      type="button"
-      onClick={() => setEditingStaff(null)}
-      className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-    >
+    <GlassButton onClick={() => setEditingStaff(null)}>
       {pickupShop ? "+ Ajouter un employé" : "+ Ajouter un serveur"}
-    </button>
+    </GlassButton>
   );
 
   const staffModal = editingStaff !== undefined && (
@@ -151,15 +150,13 @@ export function PlanningGrid({
 
   if (team.length === 0) {
     return (
-      <div className="flex flex-col items-start gap-3">
-        <p className="text-sm text-muted">
-          Personne dans l&rsquo;équipe pour l&rsquo;instant. Ajoutez vos{" "}
-          {pickupShop ? "employés" : "serveurs"} : ils n&rsquo;ont pas besoin
-          de compte pour figurer au planning ni pour badger.
-        </p>
-        {addStaff}
+      <>
+        <EmptyState
+          text={`Personne dans l'équipe pour l'instant. Ajoutez vos ${pickupShop ? "employés" : "serveurs"} : ils n'ont pas besoin de compte pour figurer au planning ni pour badger.`}
+          action={addStaff}
+        />
         {staffModal}
-      </div>
+      </>
     );
   }
 
@@ -168,32 +165,31 @@ export function PlanningGrid({
       <WeekNav start={start} onChange={onWeekChange}>
         <div className="flex flex-wrap gap-2">
           {addStaff}
-          <button
-            type="button"
-            onClick={() => void copyToNext()}
-            disabled={copying || shifts.length === 0}
-            className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
-          >
+          <GlassButton onClick={() => void copyToNext()} disabled={copying || shifts.length === 0}>
             Recopier sur la semaine suivante
-          </button>
+          </GlassButton>
         </div>
       </WeekNav>
 
-      <div className="-mx-5 overflow-x-auto px-5 lg:mx-0 lg:px-0">
-        <div className="min-w-[52rem]">
-          <div className="grid grid-cols-[9rem_repeat(7,1fr)_5rem] gap-px rounded-2xl border border-hairline bg-hairline">
-            <div className="bg-surface-raised px-3 py-2.5" />
+      <div className="-mx-4 overflow-x-auto px-4 lg:mx-0 lg:px-0">
+        <Plate className="min-w-3xl overflow-hidden">
+          <div
+            role="table"
+            aria-label="Planning de la semaine"
+            className="grid grid-cols-[9rem_repeat(7,1fr)_5rem] gap-px bg-hairline"
+          >
+            <div className="bg-surface px-3 py-2.5" />
             {days.map((day) => (
               <div
                 key={day.toDateString()}
-                className={`bg-surface-raised px-2 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider ${
-                  isToday(day) ? "text-ember-1" : "text-faint"
+                className={`bg-surface px-2 py-2.5 text-center text-g-meta font-semibold capitalize ${
+                  isToday(day) ? "text-ember-1" : "text-muted"
                 }`}
               >
                 {dayLabel(day)}
               </div>
             ))}
-            <div className="bg-surface-raised px-2 py-2.5 text-center text-[11px] font-semibold uppercase tracking-wider text-faint">
+            <div className="bg-surface px-2 py-2.5 text-center text-g-meta font-semibold text-muted">
               Total
             </div>
 
@@ -205,16 +201,16 @@ export function PlanningGrid({
                     type="button"
                     onClick={() => setEditingStaff(member)}
                     title={`Fiche de ${member.name}`}
-                    className="flex items-center bg-surface px-3 py-2 text-left transition-colors hover:bg-surface-raised"
+                    className="g-press flex items-center bg-surface px-3 py-2 text-left"
                   >
-                    <p className="truncate text-sm font-medium">{member.name}</p>
+                    <span className="truncate text-g-label font-semibold">{member.name}</span>
                   </button>
                   {days.map((day) => {
                     const cell = shiftsOf(shifts, member.id, day);
                     return (
                       <div
                         key={day.toDateString()}
-                        className="flex min-h-16 flex-col gap-1 bg-surface p-1.5"
+                        className={`flex min-h-16 flex-col gap-1 p-1.5 ${isToday(day) ? "bg-surface-raised" : "bg-surface"}`}
                       >
                         {cell.map((shift) => (
                           <button
@@ -222,7 +218,7 @@ export function PlanningGrid({
                             type="button"
                             onClick={() => setEditing({ day, shift })}
                             title={shift.note}
-                            className="rounded-lg border border-ember-2/30 bg-ember-2/10 px-1.5 py-2 text-xs font-semibold tabular-nums text-ember-2 transition-colors hover:border-ember-2/60"
+                            className="g-press g-orders rounded-lg border border-ember-2/30 bg-ember-2/10 px-1.5 py-2 text-g-meta font-semibold tabular-nums text-foreground"
                           >
                             {formatTime(shift.startsAt)}–{formatTime(shift.endsAt)}
                           </button>
@@ -231,21 +227,21 @@ export function PlanningGrid({
                           type="button"
                           onClick={() => setEditing({ day, member })}
                           aria-label={`Ajouter un créneau pour ${member.name}`}
-                          className="flex min-h-9 items-center justify-center rounded-lg border border-dashed border-hairline text-base text-faint transition-colors hover:border-ember-2/40 hover:text-ember-1"
+                          className="g-press flex min-h-9 items-center justify-center rounded-lg border border-dashed border-hairline text-g-body text-faint"
                         >
                           +
                         </button>
                       </div>
                     );
                   })}
-                  <div className="flex items-center justify-center bg-surface px-2 py-2 text-xs tabular-nums text-muted">
+                  <div className="flex items-center justify-center bg-surface px-2 py-2 text-g-meta tabular-nums text-muted">
                     {mine.length ? formatDuration(plannedMinutes(mine)) : "—"}
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
+        </Plate>
       </div>
 
       {editing && (

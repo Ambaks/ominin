@@ -1,10 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field, GlassButton, Input, Plate, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 import { memberName } from "@/lib/gestion/selectors";
 import type { GestionState } from "@/lib/gestion/types";
 
@@ -35,7 +35,7 @@ export function ProfileRow({
       setEditing(false);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
     } finally {
       setBusy(false);
@@ -43,52 +43,48 @@ export function ProfileRow({
   };
 
   return (
-    <div
-      className="rise flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface px-5 py-4"
-      style={style}
-    >
+    <Plate className="g-rise flex items-center justify-between gap-4 px-5 py-4" style={style}>
       <div className="min-w-0">
-        <p className="truncate text-sm font-medium">{currentName}</p>
-        <p className="text-xs text-faint">Votre nom, visible par l&rsquo;équipe</p>
+        <p className="truncate text-g-label font-semibold">{currentName}</p>
+        <p className="text-g-meta text-muted">Votre nom, visible par l&rsquo;équipe</p>
       </div>
-      <button
-        type="button"
+      <GlassButton
         onClick={() => {
           const self = state.members.find((m) => m.userId === state.userId);
           setName(self?.displayName ?? "");
           setEditing(true);
         }}
-        className="shrink-0 text-xs font-semibold text-ember-1 transition-opacity hover:opacity-80"
       >
         Modifier
-      </button>
+      </GlassButton>
       {editing && (
-        <Modal title="Votre nom" onClose={() => setEditing(false)}>
-          <form onSubmit={save} className="flex flex-col gap-4">
+        <Sheet
+          title="Votre nom"
+          onClose={() => setEditing(false)}
+          footer={
+            <>
+              <GlassButton onClick={() => setEditing(false)}>Annuler</GlassButton>
+              <GlassButton variant="primary" type="submit" form="profile-form" disabled={busy || !name.trim()}>
+                Enregistrer
+              </GlassButton>
+            </>
+          }
+        >
+          <form id="profile-form" onSubmit={save} className="flex flex-col gap-4">
             <Field label="Nom d'affichage" required>
-              <input
+              <Input
                 type="text"
                 value={name}
                 onChange={(event) => setName(event.target.value)}
                 required
                 maxLength={80}
                 autoComplete="name"
-                autoFocus
-                className={inputClass}
+                data-autofocus
               />
             </Field>
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={busy || !name.trim()}
-                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
-              >
-                Enregistrer
-              </button>
-            </div>
           </form>
-        </Modal>
+        </Sheet>
       )}
-    </div>
+    </Plate>
   );
 }

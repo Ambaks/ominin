@@ -1,15 +1,15 @@
 "use client";
 
 import { useState } from "react";
+import { AlertIcon } from "@/components/gestion/icons";
+import { SettingsCard } from "@/app/menu/gestion/etablissement/settings-card";
 import { DayPicker } from "@/components/gestion/day-picker";
 import { MenuTargetPicker } from "@/components/gestion/menu-target-picker";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
-import { Toggle } from "@/components/ui/toggle";
+import { Chip, ConfirmSheet, EmptyState, Field, GlassButton, Input, Segmented, Sheet, Switch } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { toMinutes } from "@/lib/collect/hours";
 import * as api from "@/lib/gestion/api";
+import { describeError } from "@/lib/gestion/errors";
 import { WAIT_TICK_MS, WEEK_DAYS } from "@/lib/gestion/constants";
 import {
   byWindowOrder,
@@ -38,12 +38,27 @@ import type { MenuCategory } from "@/lib/menu-data";
 /** Une plage en cours de saisie : heure de fin vide ⇒ jusqu'à la bascule. */
 type WindowDraft = Omit<ClosureWindow, "endsAt"> & { endsAt: string };
 
+/** Ce que la feuille propose d'avance : l'exemple de l'état vide, prêt à enregistrer. */
+interface Preset {
+  name: string;
+  targets: MenuTarget[];
+  windows: WindowDraft[];
+}
+
 const ALL_DAYS = WEEK_DAYS.map((day) => day.iso);
 
 const MODES = [
-  { open: false, label: "Coupé pendant ces plages" },
-  { open: true, label: "Servi pendant ces plages seulement" },
-];
+  { value: "closed", label: "Coupé" },
+  { value: "open", label: "Servi seulement" },
+] as const;
+
+/** L'exemple : « Cuisine » coupe les entrées et les plats chaque soir, dès que la carte les nomme. */
+function examplePreset(categories: MenuCategory[]): Preset {
+  const targets = categories
+    .filter((category) => /entr[ée]e|plat/i.test(category.name))
+    .map((category): MenuTarget => ({ kind: "category", id: category.id }));
+  return { name: "Cuisine", targets, windows: [{ days: ALL_DAYS, startsAt: "22:00", endsAt: "" }] };
+}
 
 /** Ce que la plage saisie donnera, ou ce qui l'empêche d'être enregistrée. */
 function windowHint(
@@ -59,7 +74,7 @@ function windowHint(
       text:
         startsAt === endsAt
           ? "La fin doit être après le début."
-          : `La fin tombe avant le début\u00a0: votre journée de service bascule à ${dayEndLabel(dayEndHour)}.`,
+          : `La fin tombe avant le début : votre journée de service bascule à ${dayEndLabel(dayEndHour)}.`,
       valid: false,
       error: true,
     };
@@ -72,7 +87,7 @@ function windowHint(
   }
   if (toMinutes(endsAt) < toMinutes(startsAt)) {
     return {
-      text: "La plage passe minuit\u00a0: elle se rattache au jour où elle commence.",
+      text: "La plage passe minuit : elle se rattache au jour où elle commence.",
       valid: true,
     };
   }
@@ -84,6 +99,7 @@ function windowHint(
 
 function ClosureForm({
   closure,
+  preset,
   active,
   takenNames,
   categories,
@@ -91,6 +107,7 @@ function ClosureForm({
   onClose,
 }: {
   closure: Closure | null;
+  preset?: Preset;
   /** En cours : la supprimer remet tout de suite ses articles en vente. */
   active: boolean;
   /** Noms des autres fermetures : deux boutons « Cuisine » ne se distinguent pas. */
@@ -100,14 +117,14 @@ function ClosureForm({
   onClose: () => void;
 }) {
   const toast = useToast();
-  const [name, setName] = useState(closure?.name ?? "");
-  const [targets, setTargets] = useState<MenuTarget[]>(closure?.targets ?? []);
+  const [name, setName] = useState(closure?.name ?? preset?.name ?? "");
+  const [targets, setTargets] = useState<MenuTarget[]>(closure?.targets ?? preset?.targets ?? []);
   const [scheduled, setScheduled] = useState(closure ? closure.windows.length > 0 : true);
   const [openWindows, setOpenWindows] = useState(closure?.openWindows ?? false);
   const [windows, setWindows] = useState<WindowDraft[]>(
     closure?.windows.length
       ? closure.windows.map((window) => ({ ...window, endsAt: window.endsAt ?? "" }))
-      : [{ days: ALL_DAYS, startsAt: "", endsAt: "" }]
+      : (preset?.windows ?? [{ days: ALL_DAYS, startsAt: "", endsAt: "" }])
   );
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -125,6 +142,17 @@ function ClosureForm({
     !nameTaken &&
     targets.length > 0 &&
     (!scheduled || hints.every((hint) => hint.valid));
+  // Le bouton désactivé dit pourquoi, à côté de lui.
+  const missing =
+    name.trim().length === 0
+      ? "Donnez-lui un nom pour enregistrer."
+      : nameTaken
+        ? "Changez le nom pour enregistrer."
+        : targets.length === 0
+          ? "Choisissez ce qu'elle coupe pour enregistrer."
+          : scheduled && !hints.every((hint) => hint.valid)
+            ? "Complétez les plages pour enregistrer."
+            : null;
 
   const submit = async () => {
     if (!valid) return;
@@ -146,52 +174,38 @@ function ClosureForm({
       onClose();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
       setSaving(false);
     }
   };
 
   return (
-    <Modal
+    <Sheet
       title={closure ? "Modifier la fermeture" : "Nouvelle fermeture"}
       onClose={onClose}
       footer={
         <>
           {closure && (
-            <button
-              type="button"
-              onClick={() => setDeleting(true)}
-              className="mr-auto rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-ember-3 transition-colors hover:border-ember-3/40"
-            >
+            <GlassButton variant="danger" onClick={() => setDeleting(true)} className="mr-auto">
               Supprimer
-            </button>
+            </GlassButton>
           )}
-          <button
-            type="button"
-            onClick={onClose}
-            className="rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-          >
-            Annuler
-          </button>
-          <button
-            type="button"
-            disabled={!valid || saving}
-            onClick={() => void submit()}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-          >
+          {missing && <p>{missing}</p>}
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" disabled={!valid || saving} onClick={() => void submit()}>
             {saving ? "Enregistrement…" : "Enregistrer"}
-          </button>
+          </GlassButton>
         </>
       }
     >
       {deleting && closure && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Supprimer cette fermeture ?"
-          message={
+          text={
             active
-              ? `«\u00a0${closure.name}\u00a0» ne coupera plus rien\u00a0: vos clients pourront de nouveau commander ${describeTargets(closure, categories)} dès maintenant, et son bouton disparaît de Commandes.`
-              : `«\u00a0${closure.name}\u00a0» ne coupera plus rien, et son bouton disparaît de Commandes.`
+              ? `« ${closure.name} » ne coupera plus rien : vos clients pourront de nouveau commander ${describeTargets(closure, categories)} dès maintenant, et son bouton disparaît de Commandes.`
+              : `« ${closure.name} » ne coupera plus rien, et son bouton disparaît de Commandes.`
           }
           confirmLabel="Supprimer"
           destructive
@@ -205,7 +219,7 @@ function ClosureForm({
               })
               .catch((error: unknown) =>
                 toast.error(
-                  error instanceof Error ? error.message : "Une erreur est survenue."
+                  describeError(error).message
                 )
               );
           }}
@@ -216,20 +230,16 @@ function ClosureForm({
         <Field
           label="Nom"
           required
-          hint={
-            nameTaken
-              ? "Une fermeture porte déjà ce nom."
-              : "Le nom du bouton dans Commandes."
-          }
+          hint="Le nom du bouton dans Commandes."
+          error={nameTaken ? "Une fermeture porte déjà ce nom." : undefined}
         >
-          <input
+          <Input
             value={name}
             onChange={(event) => setName(event.target.value)}
             maxLength={60}
-            autoFocus={!closure}
-            placeholder="Ex. : Cuisine, Bar, Terrasse"
+            data-autofocus={!closure || undefined}
+            placeholder="Ex. : Cuisine, Bar, Terrasse"
             aria-invalid={nameTaken || undefined}
-            className={inputClass}
           />
         </Field>
 
@@ -241,32 +251,26 @@ function ClosureForm({
         />
 
         <div className="flex flex-col gap-3">
-          <label className="flex items-center gap-3">
-            <Toggle checked={scheduled} onChange={setScheduled} label="À heure fixe" />
-            <span className="text-sm">À heure fixe</span>
-          </label>
+          <Switch
+            checked={scheduled}
+            onChange={setScheduled}
+            label="À heure fixe"
+            hint={scheduled ? undefined : `Ne se déclenche qu'à la main, depuis Commandes, et rouvre d'elle-même à la fin de la journée de service (${dayEndLabel(dayEndHour)}).`}
+          />
           {scheduled ? (
             <>
-              <div role="radiogroup" aria-label="Les plages indiquent" className="flex flex-wrap gap-2">
-                {MODES.map((mode) => (
-                  <button
-                    key={mode.label}
-                    type="button"
-                    role="radio"
-                    aria-checked={openWindows === mode.open}
-                    onClick={() => setOpenWindows(mode.open)}
-                    className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                      openWindows === mode.open
-                        ? "ember-gradient text-background"
-                        : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                    }`}
-                  >
-                    {mode.label}
-                  </button>
-                ))}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-g-meta text-muted">Pendant ces plages, c’est</span>
+                <Segmented
+                  label="Pendant ces plages"
+                  glass={false}
+                  options={MODES}
+                  value={openWindows ? "open" : "closed"}
+                  onChange={(value) => setOpenWindows(value === "open")}
+                />
               </div>
               {openWindows && (
-                <p className="text-xs leading-relaxed text-faint">
+                <p className="text-g-meta text-muted">
                   En dehors de ces plages, vos clients voient «&nbsp;Plus
                   servi&nbsp;». Un jour sans plage, rien n’est servi.
                 </p>
@@ -275,7 +279,7 @@ function ClosureForm({
                 {windows.map((window, index) => (
                   <li
                     key={index}
-                    className="flex flex-col gap-3 rounded-xl border border-hairline p-3"
+                    className="flex flex-col gap-3 rounded-g-card border border-hairline p-3"
                   >
                     <DayPicker
                       value={window.days}
@@ -283,38 +287,38 @@ function ClosureForm({
                     />
                     <div className="flex flex-wrap items-end gap-3">
                       <Field label="De" required>
-                        <input
+                        <Input
                           type="time"
                           value={window.startsAt}
                           aria-label={`Plage ${index + 1}, début`}
                           onChange={(event) => updateWindow(index, { startsAt: event.target.value })}
-                          className={`${inputClass} w-32`}
+                          className="w-32"
                         />
                       </Field>
                       <Field label="Jusqu’à">
-                        <input
+                        <Input
                           type="time"
                           value={window.endsAt}
                           aria-label={`Plage ${index + 1}, fin`}
                           onChange={(event) => updateWindow(index, { endsAt: event.target.value })}
-                          className={`${inputClass} w-32`}
+                          className="w-32"
                         />
                       </Field>
                       {windows.length > 1 && (
-                        <button
-                          type="button"
+                        <GlassButton
                           onClick={() => setWindows((current) => current.filter((_, i) => i !== index))}
-                          className="ml-auto py-2.5 text-sm font-semibold text-muted transition-colors hover:text-ember-3"
+                          className="ml-auto"
                         >
                           Retirer
-                        </button>
+                        </GlassButton>
                       )}
                     </div>
-                    <p className={`text-xs leading-relaxed ${hints[index].error ? "text-ember-3" : "text-faint"}`}>
+                    <p className={`flex items-start gap-1.5 text-g-meta ${hints[index].error ? "font-medium" : "text-muted"}`}>
+                      {hints[index].error && <AlertIcon className="mt-px size-4 shrink-0 text-ember-3" />}
                       {hints[index].text}
                     </p>
                     {window.startsAt !== "" && toMinutes(window.startsAt) < dayEndHour * 60 && (
-                      <p className="text-xs leading-relaxed text-faint">
+                      <p className="text-g-meta text-muted">
                         Avant {dayEndLabel(dayEndHour)}, c’est encore la nuit de la
                         veille&nbsp;: «&nbsp;lundi à {formatHeure(window.startsAt)}&nbsp;»
                         tombe dans la nuit de lundi à mardi.
@@ -323,29 +327,22 @@ function ClosureForm({
                   </li>
                 ))}
               </ul>
-              <button
-                type="button"
+              <GlassButton
                 onClick={() =>
                   setWindows((current) => [
                     ...current,
                     { days: current[current.length - 1]?.days ?? ALL_DAYS, startsAt: "", endsAt: "" },
                   ])
                 }
-                className="self-start rounded-full border border-dashed border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+                className="self-start"
               >
                 + Plage
-              </button>
+              </GlassButton>
             </>
-          ) : (
-            <p className="text-xs leading-relaxed text-faint">
-              Elle ne se déclenche qu’à la main, depuis Commandes, et rouvre
-              d’elle-même à la fin de la journée de service (
-              {dayEndLabel(dayEndHour)}).
-            </p>
-          )}
+          ) : null}
         </div>
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -360,31 +357,43 @@ export function FermeturesSettings({
 }) {
   const now = useNow(WAIT_TICK_MS);
   const [editing, setEditing] = useState<Closure | null>(null);
-  const [creating, setCreating] = useState(false);
+  // null : fermée ; sans préréglage : vierge ; avec : l'exemple pré-rempli.
+  const [creating, setCreating] = useState<{ preset?: Preset } | null>(null);
   const clock = serviceClock(now, dayEndHour);
+  const example = examplePreset(categories);
 
   return (
-    <section
+    <SettingsCard
       data-visite="etablissement-fermetures"
-      className="flex max-w-xl flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5 lg:p-6"
+      title="Fermeture de la cuisine"
+      text="Ce qui n'est plus servi passé une heure, ou d'un geste depuis Commandes ; vos clients voient « Plus servi »."
+      right={
+        closures.length > 0 ? (
+          <GlassButton onClick={() => setCreating({})}>+ Fermeture</GlassButton>
+        ) : undefined
+      }
     >
-      <div>
-        <h2 className="font-display text-lg font-medium">Fermeture de la cuisine</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">
-          Arrêtez une partie de la carte à heure fixe, ne la servez qu’à ses
-          heures, ou coupez-la d’un geste pendant le service depuis Commandes.
-          Vos clients voient «&nbsp;Plus servi&nbsp;» sur les plats
-          concernés.
-        </p>
-      </div>
-
-      {closures.length === 0 && (
-        <p className="text-xs leading-relaxed text-faint">
-          Ex. : « Cuisine » coupe Entrées et Plats chaque soir à 22 h.
-        </p>
-      )}
-      {closures.length > 0 && (
-        <ul className="flex flex-col gap-2">
+      {closures.length === 0 ? (
+        example.targets.length > 0 ? (
+          <EmptyState
+            text="Par exemple : « Cuisine » coupe les entrées et les plats chaque soir à 22 h."
+            action={
+              <span className="flex flex-wrap gap-2">
+                <GlassButton variant="primary" onClick={() => setCreating({ preset: example })}>
+                  Créer cette fermeture
+                </GlassButton>
+                <GlassButton onClick={() => setCreating({})}>Autre</GlassButton>
+              </span>
+            }
+          />
+        ) : (
+          <EmptyState
+            text="Aucune fermeture : tout est servi tant que le service est ouvert."
+            action={<GlassButton variant="primary" onClick={() => setCreating({})}>+ Fermeture</GlassButton>}
+          />
+        )
+      ) : (
+        <ul className="flex flex-col divide-y divide-hairline">
           {closures.map((closure) => {
             const active = closureActive(closure, clock, dayEndHour);
             const suspended = liftedUntil(closure, clock, dayEndHour);
@@ -393,33 +402,25 @@ export function FermeturesSettings({
                 <button
                   type="button"
                   onClick={() => setEditing(closure)}
-                  className="flex w-full items-center justify-between gap-3 rounded-xl border border-hairline px-4 py-3 text-left transition-colors hover:border-ember-2/40"
+                  className="g-press flex min-h-g-control w-full items-center justify-between gap-3 py-2.5 text-left"
                 >
                   <span className="min-w-0">
-                    <span className="block text-sm font-medium">{closure.name}</span>
-                    <span className="block text-xs text-muted">
+                    <span className="block break-words text-g-label font-semibold">{closure.name}</span>
+                    <span className="block text-g-meta text-muted">
                       {describeSchedule(closure) ?? "À la main seulement"}
                     </span>
-                    <span className="line-clamp-2 block text-xs text-faint">
+                    <span className="line-clamp-2 block text-g-meta text-faint">
                       {describeTargets(closure, categories) ||
-                        "Ne coupe plus rien\u00a0: ses articles ont été supprimés."}
+                        "Ne coupe plus rien : ses articles ont été supprimés."}
                     </span>
                   </span>
                   <span className="flex shrink-0 items-center gap-2">
                     {active ? (
-                      <span className="rounded-full border border-ember-3/50 px-2 py-0.5 text-[11px] font-semibold text-foreground">
-                        À l’arrêt
-                      </span>
+                      <Chip tone="problem">À l’arrêt</Chip>
                     ) : (
-                      suspended && (
-                        <span className="rounded-full border border-hairline px-2 py-0.5 text-[11px] font-semibold text-muted">
-                          Horaire suspendu jusqu’à {suspended}
-                        </span>
-                      )
+                      suspended && <Chip>Suspendu jusqu’à {suspended}</Chip>
                     )}
-                    <span className="text-xs font-semibold text-muted">
-                      Modifier&nbsp;›
-                    </span>
+                    <span className="text-g-meta font-semibold text-muted">Modifier&nbsp;›</span>
                   </span>
                 </button>
               </li>
@@ -428,17 +429,10 @@ export function FermeturesSettings({
         </ul>
       )}
 
-      <button
-        type="button"
-        onClick={() => setCreating(true)}
-        className="self-start rounded-full border border-dashed border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-      >
-        + Fermeture
-      </button>
-
       {(creating || editing) && (
         <ClosureForm
           closure={editing}
+          preset={creating?.preset}
           active={editing !== null && closureActive(editing, clock, dayEndHour)}
           takenNames={closures
             .filter((closure) => closure.id !== editing?.id)
@@ -446,11 +440,11 @@ export function FermeturesSettings({
           categories={categories}
           dayEndHour={dayEndHour}
           onClose={() => {
-            setCreating(false);
+            setCreating(null);
             setEditing(null);
           }}
         />
       )}
-    </section>
+    </SettingsCard>
   );
 }

@@ -1,9 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field, GlassButton, Input, Select, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import {
   createShift,
   deleteShift,
@@ -80,7 +80,7 @@ export function ShiftModal({
       onSaved();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
       setBusy(false);
     }
@@ -95,41 +95,32 @@ export function ShiftModal({
       onSaved();
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Une erreur est survenue."
+        describeError(error).message
       );
       setBusy(false);
     }
   };
 
   return (
-    <Modal
+    <Sheet
       title={shift ? "Modifier le créneau" : "Nouveau créneau"}
       onClose={onClose}
       footer={
         <>
           {shift && (
-            <button
-              type="button"
-              onClick={() => void remove()}
-              disabled={busy}
-              className="mr-auto text-sm font-semibold text-ember-3 transition-opacity hover:opacity-80 disabled:opacity-60"
-            >
+            <GlassButton variant="danger" onClick={() => void remove()} disabled={busy} className="mr-auto">
               Supprimer
-            </button>
+            </GlassButton>
           )}
-          <button
-            type="submit"
-            form="shift-form"
-            disabled={busy || !staffId}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-40"
-          >
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" type="submit" form="shift-form" disabled={busy || !staffId}>
             Enregistrer
-          </button>
+          </GlassButton>
         </>
       }
     >
       <form id="shift-form" onSubmit={save} className="flex flex-col gap-4">
-        <p className="text-sm capitalize text-muted">
+        <p className="text-g-label capitalize text-muted">
           {base.toLocaleDateString("fr-FR", {
             weekday: "long",
             day: "numeric",
@@ -137,47 +128,45 @@ export function ShiftModal({
           })}
         </p>
         <Field label="Membre" required>
-          <select
+          <Select
             value={staffId}
             onChange={(event) => setStaffId(event.target.value)}
-            className={inputClass}
           >
             {staff.map((candidate) => (
               <option key={candidate.id} value={candidate.id}>
                 {candidate.name}
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Début" required>
-            <input
+            <Input
               type="time"
               value={from}
               onChange={(event) => setFrom(event.target.value)}
               required
-              className={inputClass}
+              className="tabular-nums"
             />
           </Field>
           <Field label="Fin" required hint="Après minuit ⇒ le lendemain.">
-            <input
+            <Input
               type="time"
               value={to}
               onChange={(event) => setTo(event.target.value)}
               required
-              className={inputClass}
+              className="tabular-nums"
             />
           </Field>
         </div>
         <Field label="Note" hint="Visible par le membre concerné.">
-          <input
+          <Input
             value={note}
             onChange={(event) => setNote(event.target.value)}
             maxLength={120}
-            className={inputClass}
           />
         </Field>
       </form>
-    </Modal>
+    </Sheet>
   );
 }

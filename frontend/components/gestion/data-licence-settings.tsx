@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { SettingsCard } from "@/app/menu/gestion/etablissement/settings-card";
+import { Switch } from "@/components/gestion/ui";
+import { AlertIcon } from "@/components/gestion/icons";
 import { useToast } from "@/components/ui/toast";
+import { describeError } from "@/lib/gestion/errors";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
 import { createClient } from "@/lib/supabase/client";
 
@@ -58,7 +62,7 @@ export function DataLicenceSettings({
     setBusy(false);
     if (error) {
       setOptOut(previous);
-      toast.error(error.message);
+      toast.error(describeError(error).message);
       return;
     }
     toast.success(
@@ -69,42 +73,35 @@ export function DataLicenceSettings({
   };
 
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-6">
-      <div>
-        <h2 className="font-display text-lg font-medium">Données et modèles</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">
-          Les données personnelles de vos clients peuvent être anonymisées,
-          puis servir à améliorer et entraîner nos modèles — prévisions,
-          comparatifs, suggestions. Vos données d’exploitation (carte, ventes,
-          horaires) restent couvertes par le contrat et ne sont pas concernées
-          par ce réglage.{" "}
+    <SettingsCard
+      title="Données et modèles"
+      text={
+        <>
+          Les données personnelles de vos clients, anonymisées, peuvent servir à améliorer nos
+          modèles ; vos données d’exploitation ne sont pas concernées.{" "}
           <Link
             href={LEGAL_PATHS.dpa}
             target="_blank"
             rel="noreferrer"
-            className="underline decoration-hairline underline-offset-2 transition-colors hover:text-foreground"
+            className="underline decoration-hairline underline-offset-2"
           >
             Accord de sous-traitance
           </Link>
-        </p>
-      </div>
-      <label className="flex cursor-pointer items-start gap-2.5 text-sm text-muted">
-        <input
-          type="checkbox"
-          checked={optOut ?? false}
-          disabled={optOut === null || busy}
-          onChange={(event) => void save(event.target.checked)}
-          className="mt-0.5 size-4 shrink-0 accent-[var(--ember-2)]"
-        />
-        <span>
-          Je m’oppose à la réutilisation des données anonymisées de mes clients.
-        </span>
-      </label>
+        </>
+      }
+    >
+      <Switch
+        checked={optOut ?? false}
+        disabled={optOut === null || busy}
+        onChange={(next) => void save(next)}
+        label="Je m’oppose à la réutilisation des données anonymisées de mes clients"
+      />
       {loadError && (
-        <p className="text-sm text-ember-3">
+        <p role="alert" className="flex items-start gap-1.5 text-g-meta font-medium">
+          <AlertIcon className="mt-px size-4 shrink-0 text-ember-3" />
           Votre choix n’a pas pu être lu. Rechargez la page avant de le modifier.
         </p>
       )}
-    </section>
+    </SettingsCard>
   );
 }
