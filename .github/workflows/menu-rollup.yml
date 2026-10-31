@@ -1,0 +1,31 @@
+# Analytique du menu : les visites des jours révolus passent dans
+# menu_stats_daily avant que la purge ne les retire (voir menu_rollup). Idempotent :
+# une nuit sautée se rattrape à la suivante, tant que la rétention n'est pas
+# dépassée. La nuit, une fois les services terminés.
+#
+# L'échec du workflow EST le canal d'alerte.
+name: menu-rollup
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+
+jobs:
+  rollup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Consolider les visites des jours révolus
+        run: |
+          curl -sf --max-time 120 --retry 3 --retry-delay 20 --retry-all-errors \
+            -X POST -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" \
+            "${{ secrets.MENU_URL }}/api/menu/rollup"
+      # Échec du workflow : notification à Marwan et Ambaka (une par 6 h au
+      # plus, voir lib/admin/alerts.ts). Jamais bloquant.
+      - name: Prévenir l'admin
+        if: failure()
+        run: |
+          curl -s --max-time 30 -X POST \
+            -H "X-Cron-Secret: ${{ secrets.CRON_SECRET }}" -H "Content-Type: application/json" \
+            -d "{\"title\":\"Cron en échec : ${{ github.workflow }}\",\"body\":\"Run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\",\"key\":\"${{ github.workflow }}\"}" \
+            "${{ secrets.MENU_URL }}/api/admin/push/alert" || true
