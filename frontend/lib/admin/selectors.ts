@@ -1,7 +1,6 @@
-import { CATEGORY_LABELS, CLOSED_STATUSES, STATUS_ORDER } from "./constants";
-import { addDays, dayStart } from "./format";
+import { CLOSED_STATUSES, STATUS_ORDER } from "./constants";
 import type { Product } from "./products";
-import type { AdminState, LeadLite, LeadStatus, TaskRow } from "./types";
+import type { AdminState, LeadStatus, TaskRow } from "./types";
 
 /*
  * Dérivations pures sur le snapshot (convention lib/gestion/selectors.ts) :
@@ -18,35 +17,37 @@ export function selectForProduct(
   product: Product | null
 ): AdminState {
   if (!product) return state;
-  const leads = state.leads.filter((lead) =>
-    lead.targetProducts.includes(product)
-  );
-  const ids = new Set(leads.map((lead) => lead.restaurantId));
   return {
     ...state,
-    leads,
-    tasks: state.tasks.filter(
-      (task) => task.restaurantId !== null && ids.has(task.restaurantId)
-    ),
-    appointments: state.appointments.filter((rdv) =>
-      ids.has(rdv.restaurantId)
-    ),
+    tasks: state.tasks.filter((task) => task.targetProducts?.includes(product)),
+    appointments: state.appointments.filter((rdv) => rdv.targetProducts?.includes(product)),
   };
 }
 
+/** Les chiffres de l'aperçu, par statut, comptés par la base. */
+export type LeadSummary = {
+  status: LeadStatus;
+  leads: number;
+  overdue: number;
+  dueToday: number;
+  upcoming: number;
+}[];
+
 export function selectStatusCounts(
-  leads: LeadLite[]
+  summary: LeadSummary
 ): Record<LeadStatus, number> {
   const counts = Object.fromEntries(
     STATUS_ORDER.map((status) => [status, 0])
   ) as Record<LeadStatus, number>;
-  for (const lead of leads) counts[lead.status] += 1;
+  for (const row of summary) counts[row.status] = row.leads;
   return counts;
 }
 
 /** Leads encore en jeu (ni signés, ni perdus, ni pas intéressés). */
-export function selectActiveLeadCount(leads: LeadLite[]): number {
-  return leads.filter((lead) => !CLOSED_STATUSES.includes(lead.status)).length;
+export function selectActiveLeadCount(summary: LeadSummary): number {
+  return summary
+    .filter((row) => !CLOSED_STATUSES.includes(row.status))
+    .reduce((sum, row) => sum + row.leads, 0);
 }
 
 export interface FunnelStage {
@@ -62,7 +63,7 @@ export interface FunnelStage {
  * assumée : les lignes légères ne portent pas l'historique, donc un lead
  * passé « perdu » ou « pas intéressé » ne compte plus les étapes franchies.
  */
-export function selectFunnel(leads: LeadLite[]): FunnelStage[] {
+export function selectFunnel(summary: LeadSummary): FunnelStage[] {
   const stages: { label: string; threshold: LeadStatus }[] = [
     { label: "Leads", threshold: "new" },
     { label: "Contactés", threshold: "contacted" },
@@ -74,11 +75,13 @@ export function selectFunnel(leads: LeadLite[]): FunnelStage[] {
   const abandoned: LeadStatus[] = ["lost", "not_interested"];
   const counts = stages.map(({ label, threshold }) => ({
     label,
-    count: leads.filter(
-      (lead) =>
-        !abandoned.includes(lead.status) &&
-        indexOf(lead.status) >= indexOf(threshold)
-    ).length,
+    count: summary
+      .filter(
+        (row) =>
+          !abandoned.includes(row.status) &&
+          indexOf(row.status) >= indexOf(threshold)
+      )
+      .reduce((sum, row) => sum + row.leads, 0),
   }));
   const base = Math.max(counts[0].count, 1);
   return counts.map(({ label, count }) => ({
@@ -88,35 +91,15 @@ export function selectFunnel(leads: LeadLite[]): FunnelStage[] {
   }));
 }
 
-export interface FollowUpBuckets {
-  overdue: LeadLite[];
-  today: LeadLite[];
-  upcoming7: LeadLite[];
-}
-
-export function selectFollowUpBuckets(
-  leads: LeadLite[],
-  now = new Date()
-): FollowUpBuckets {
-  const todayStart = dayStart(now).toISOString();
-  const tomorrowStart = addDays(dayStart(now), 1).toISOString();
-  const weekEnd = addDays(dayStart(now), 8).toISOString();
-  const withFollowUp = leads.filter((lead) => lead.nextFollowUpAt !== null);
-  return {
-    overdue: withFollowUp.filter(
-      (lead) => (lead.nextFollowUpAt as string) < todayStart
-    ),
-    today: withFollowUp.filter(
-      (lead) =>
-        (lead.nextFollowUpAt as string) >= todayStart &&
-        (lead.nextFollowUpAt as string) < tomorrowStart
-    ),
-    upcoming7: withFollowUp.filter(
-      (lead) =>
-        (lead.nextFollowUpAt as string) >= tomorrowStart &&
-        (lead.nextFollowUpAt as string) < weekEnd
-    ),
-  };
+export function selectFollowUps(summary: LeadSummary) {
+  return summary.reduce(
+    (sums, row) => ({
+      overdue: sums.overdue + row.overdue,
+      today: sums.today + row.dueToday,
+      upcoming7: sums.upcoming7 + row.upcoming,
+    }),
+    { overdue: 0, today: 0, upcoming7: 0 }
+  );
 }
 
 /** Prochaine tâche ouverte par restaurant (cartes du pipeline). */
@@ -137,29 +120,3 @@ export type LeadSortKey =
   | "status"
   | "lastContactAt"
   | "nextFollowUpAt";
-
-export function sortLeads(
-  leads: LeadLite[],
-  key: LeadSortKey,
-  dir: 1 | -1
-): LeadLite[] {
-  const value = (lead: LeadLite): string => {
-    switch (key) {
-      case "status":
-        // Ordre du pipeline, pas alphabétique.
-        return String(STATUS_ORDER.indexOf(lead.status)).padStart(2, "0");
-      case "category":
-        // Trier ce que l'écran affiche, pas la clé interne de l'enum.
-        return CATEGORY_LABELS[lead.category];
-      case "lastContactAt":
-        return lead.lastContactAt ?? "";
-      case "nextFollowUpAt":
-        return lead.nextFollowUpAt ?? "9999";
-      default:
-        return lead[key] ?? "";
-    }
-  };
-  return [...leads].sort(
-    (a, b) => value(a).localeCompare(value(b), "fr") * dir
-  );
-}

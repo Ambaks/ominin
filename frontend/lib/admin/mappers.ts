@@ -1,5 +1,4 @@
 import type { Json, Tables } from "@/lib/supabase/database.types";
-import { normalizeText } from "./format";
 import type { Product } from "./products";
 import type {
   Activity,
@@ -78,11 +77,6 @@ export function rowToLeadLite(row: LeadLiteJoinRow): LeadLite | null {
     nextFollowUpAt: row.lead.next_follow_up_at,
     targetProducts: row.lead.target_products,
     createdAt: row.created_at,
-    searchKey: normalizeText(
-      [row.name, row.city, row.address, row.phone, row.email, row.owner_name]
-        .filter(Boolean)
-        .join(" ")
-    ),
   };
 }
 

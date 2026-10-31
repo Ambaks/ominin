@@ -29,35 +29,26 @@ export function CashOutWait({ state, weekday }: { state: GestionState; weekday: 
   at.setDate(at.getDate() - 7);
   const lastWeek = cashOutWaits(state, at);
 
-  const todayReady = today.length >= ENCAISSER_WAIT_MIN_ORDERS;
-  const lastWeekReady = lastWeek.length >= ENCAISSER_WAIT_MIN_ORDERS;
-  if (!todayReady && !lastWeekReady) return null;
-
-  const title = "Temps typique entre la commande et l’encaissement sur place, sur les commandes déjà encaissées";
-  const when = `${weekday} dernier à cette heure`;
-  if (!todayReady) {
+  const tile = {
+    icon: <ClockIcon />,
+    label: "Attente à l’encaissement",
+    title: "Temps typique entre la commande et l’encaissement sur place, sur les commandes déjà encaissées",
+  };
+  if (today.length < ENCAISSER_WAIT_MIN_ORDERS) {
     return (
-      <StatTile
-        entity="money"
-        icon={<ClockIcon />}
-        label="Attente à l’encaissement"
-        value="—"
-        baseline={`était ${formatWait(medianMinutes(lastWeek))} ${when}`}
-        title={title}
-      />
+      <StatTile {...tile} entity="money" value="—" baseline="Pas assez de commandes aujourd’hui pour comparer" />
     );
   }
 
   const current = medianMinutes(today);
-  if (!lastWeekReady) {
+  const when = `${weekday} dernier à cette heure`;
+  if (lastWeek.length < ENCAISSER_WAIT_MIN_ORDERS) {
     return (
       <StatTile
+        {...tile}
         entity="money"
-        icon={<ClockIcon />}
-        label="Attente à l’encaissement"
         value={formatWait(current)}
         baseline={`${today.length} commandes · pas de repère ${when}`}
-        title={title}
       />
     );
   }
@@ -67,13 +58,11 @@ export function CashOutWait({ state, weekday }: { state: GestionState; weekday: 
   const tone: DeltaTone = slower ? "worse" : gap <= -ENCAISSER_WAIT_NOTABLE_MINUTES ? "better" : "neutral";
   return (
     <StatTile
+      {...tile}
       entity={slower ? "problem" : "money"}
-      icon={<ClockIcon />}
-      label="Attente à l’encaissement"
       value={formatWait(current)}
       delta={{ text: `${gap > 0 ? "+" : gap < 0 ? "−" : ""}${Math.abs(gap)} min`, tone }}
       baseline={`${slower ? "plus lent que" : "vs"} ${when} · ${today.length} commandes contre ${lastWeek.length}`}
-      title={title}
     />
   );
 }

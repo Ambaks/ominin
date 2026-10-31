@@ -350,16 +350,32 @@ export default function ApercuPage() {
 
       {hasCommandes && (
         <Block i={block++} data-visite="apercu-jour" className="grid gap-g-gap rounded-g-hero sm:grid-cols-2">
-          <StatTile
-            hero
-            entity="orders"
-            icon={<CommandesIcon />}
-            label="Commandes en cours"
-            value={String(open.length)}
-            href="/gestion/commandes"
-            title="Commandes ouvertes en ce moment : à encaisser ou à servir"
-            chart={<OpenOrdersSplit toPay={toPay} toServe={toServe} />}
-          />
+          {ENCAISSER_WAIT_ALERT_SLUGS.includes(state.etablissement.slug) ? (
+            <div className="grid grid-rows-[auto_1fr] gap-g-gap">
+              <StatTile
+                hero
+                entity="orders"
+                icon={<CommandesIcon />}
+                label="Commandes en cours"
+                value={String(open.length)}
+                baseline={`${toPay} à encaisser · ${toServe} à servir`}
+                href="/gestion/commandes"
+                title="Commandes ouvertes en ce moment : à encaisser ou à servir"
+              />
+              <CashOutWait state={state} weekday={weekday} />
+            </div>
+          ) : (
+            <StatTile
+              hero
+              entity="orders"
+              icon={<CommandesIcon />}
+              label="Commandes en cours"
+              value={String(open.length)}
+              href="/gestion/commandes"
+              title="Commandes ouvertes en ce moment : à encaisser ou à servir"
+              chart={<OpenOrdersSplit toPay={toPay} toServe={toServe} />}
+            />
+          )}
           <StatTile
             hero
             entity="money"
@@ -377,12 +393,6 @@ export default function ApercuPage() {
             title="Chiffre d’affaires encaissé sur la journée de service, TTC"
             chart={<DayCurve state={state} weekday={weekday} />}
           />
-        </Block>
-      )}
-
-      {hasCommandes && ENCAISSER_WAIT_ALERT_SLUGS.includes(state.etablissement.slug) && (
-        <Block i={block++} className="grid gap-g-gap empty:hidden sm:grid-cols-2">
-          <CashOutWait state={state} weekday={weekday} />
         </Block>
       )}
 

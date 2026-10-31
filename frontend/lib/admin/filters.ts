@@ -1,11 +1,12 @@
 "use client";
 
-import { useMemo, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { useAdminBasePath } from "./base-path";
-import { normalizeText } from "./format";
+import { LIST_SEARCH_DEBOUNCE_MS } from "@/lib/gestion/constants";
+import { fetchLeadCities } from "./leads-page";
 import { selectForProduct } from "./selectors";
 import { useAdmin } from "./store";
-import type { AdminState, Filters, LeadLite } from "./types";
+import type { AdminState, Filters } from "./types";
 
 /*
  * État des filtres : singleton en mémoire partagé entre la carte et la liste
@@ -78,45 +79,6 @@ export function countActiveFilters(f: Filters): number {
   );
 }
 
-/** Prédicat pur — la carte et la liste consomment le même sous-ensemble. */
-export function filterLeads(
-  leads: LeadLite[],
-  f: Filters,
-  appointmentRestaurantIds: Set<string>
-): LeadLite[] {
-  const tokens = normalizeText(f.q.trim()).split(/\s+/).filter(Boolean);
-  const contactCutoff =
-    f.noContactDays !== null
-      ? new Date(Date.now() - f.noContactDays * 86_400_000).toISOString()
-      : null;
-  return leads.filter((lead) => {
-    if (f.statuses.size > 0 && !f.statuses.has(lead.status)) return false;
-    if (f.categories.size > 0 && !f.categories.has(lead.category)) return false;
-    if (f.cities.size > 0 && (!lead.city || !f.cities.has(lead.city))) {
-      return false;
-    }
-    if (f.hasEmail && !lead.email) return false;
-    if (f.hasPhone && !lead.phone) return false;
-    if (f.hasWebsite && !lead.hasWebsite) return false;
-    if (f.hasAppointment && !appointmentRestaurantIds.has(lead.restaurantId)) {
-      return false;
-    }
-    if (f.hasFollowUp && !lead.nextFollowUpAt) return false;
-    if (
-      contactCutoff !== null &&
-      lead.lastContactAt !== null &&
-      lead.lastContactAt >= contactCutoff
-    ) {
-      return false;
-    }
-    return tokens.every((token) => lead.searchKey.includes(token));
-  });
-}
-
-function appointmentIds(state: AdminState | null): Set<string> {
-  return new Set(state?.appointments.map((a) => a.restaurantId) ?? []);
-}
-
 /** Le snapshot vu depuis le produit affiché (l'URL), ou entier en vue
  * d'ensemble. Les mutations, elles, passent toujours par le store complet. */
 export function useProductAdmin(): AdminState | null {
@@ -128,25 +90,23 @@ export function useProductAdmin(): AdminState | null {
   );
 }
 
-/** Sous-ensemble filtré courant — carte, liste et export lisent ici. */
-export function useFilteredLeads(): LeadLite[] {
-  const state = useProductAdmin();
+/** Les filtres une fois la frappe retombée : ce que la base doit recevoir. */
+export function useSettledFilters(): Filters {
   const current = useFilters();
-  return useMemo(
-    () =>
-      state ? filterLeads(state.leads, current, appointmentIds(state)) : [],
-    [state, current]
-  );
+  const [settled, setSettled] = useState(current);
+  useEffect(() => {
+    const timer = setTimeout(() => setSettled(current), LIST_SEARCH_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [current]);
+  return settled;
 }
 
 /** Valeurs distinctes pour les sélecteurs du volet Filtres. */
 export function useFilterOptions(): { cities: string[] } {
-  const state = useProductAdmin();
-  return useMemo(() => {
-    const cities = new Set<string>();
-    for (const lead of state?.leads ?? []) {
-      if (lead.city) cities.add(lead.city);
-    }
-    return { cities: [...cities].sort((a, b) => a.localeCompare(b, "fr")) };
-  }, [state]);
+  const { product } = useAdminBasePath();
+  const [cities, setCities] = useState<string[]>([]);
+  useEffect(() => {
+    fetchLeadCities(product).then(setCities).catch(console.error);
+  }, [product]);
+  return { cities };
 }

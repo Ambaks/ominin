@@ -8,6 +8,7 @@ import { TaskRowItem } from "@/components/admin/tasks/task-row";
 import * as api from "@/lib/admin/api";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import { useProductAdmin } from "@/lib/admin/filters";
+import { fetchLeadSummary } from "@/lib/admin/leads-page";
 import {
   addDays,
   dayStart,
@@ -17,7 +18,8 @@ import {
 import { prospectsLabel, type Product } from "@/lib/admin/products";
 import {
   selectActiveLeadCount,
-  selectFollowUpBuckets,
+  selectFollowUps,
+  type LeadSummary,
   selectFunnel,
   selectStatusCounts,
 } from "@/lib/admin/selectors";
@@ -141,10 +143,15 @@ export default function ApercuPage() {
     api.fetchOutreachStats().then(setOutreach).catch(console.error);
   }, [loaded, withProspection, outreach]);
 
-  const leads = useMemo(() => state?.leads ?? [], [state?.leads]);
-  const counts = useMemo(() => selectStatusCounts(leads), [leads]);
-  const funnel = useMemo(() => selectFunnel(leads), [leads]);
-  const followUps = useMemo(() => selectFollowUpBuckets(leads), [leads]);
+  const [summary, setSummary] = useState<LeadSummary>([]);
+  const revision = state?.revision;
+  useEffect(() => {
+    if (!loaded) return;
+    fetchLeadSummary(product).then(setSummary).catch(console.error);
+  }, [loaded, product, revision]);
+  const counts = useMemo(() => selectStatusCounts(summary), [summary]);
+  const funnel = useMemo(() => selectFunnel(summary), [summary]);
+  const followUps = useMemo(() => selectFollowUps(summary), [summary]);
 
   const weeklyCounts = weekly?.product === product ? weekly.value : null;
   const socialWeek = social?.product === product ? social.value : null;
@@ -153,7 +160,6 @@ export default function ApercuPage() {
   const upcomingRdv = (state?.appointments ?? []).filter(
     (rdv) => rdv.startAt < in7Days,
   );
-  const nameById = new Map(leads.map((lead) => [lead.restaurantId, lead.name]));
   const endOfToday = addDays(dayStart(), 1).toISOString();
   const tasksToday = (state?.tasks ?? [])
     .filter((task) => task.dueAt !== null && task.dueAt < endOfToday)
@@ -168,14 +174,14 @@ export default function ApercuPage() {
   }[] = [
     {
       label: "Relances en retard",
-      count: followUps.overdue.length,
+      count: followUps.overdue,
       href: restaurants,
       urgent: true,
     },
-    { label: "Aujourd'hui", count: followUps.today.length, href: restaurants },
+    { label: "Aujourd'hui", count: followUps.today, href: restaurants },
     {
       label: "7 prochains jours",
-      count: followUps.upcoming7.length,
+      count: followUps.upcoming7,
       href: restaurants,
     },
     ...(withProspection
@@ -215,12 +221,12 @@ export default function ApercuPage() {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           label={prospectsLabel(product)}
-          value={String(leads.length)}
+          value={String(summary.reduce((sum, row) => sum + row.leads, 0))}
           href={`${basePath}/restaurants`}
         />
         <StatCard
           label="Leads actifs"
-          value={String(selectActiveLeadCount(leads))}
+          value={String(selectActiveLeadCount(summary))}
           href={`${basePath}/restaurants`}
           hint="hors signés, perdus, pas intéressés"
         />
@@ -387,7 +393,7 @@ export default function ApercuPage() {
                     {rdv.title}
                     <span className="text-faint">
                       {" "}
-                      · {nameById.get(rdv.restaurantId) ?? ""}
+                      · {rdv.restaurantName ?? ""}
                     </span>
                   </span>
                   <span className="shrink-0 text-xs text-faint">
@@ -418,7 +424,7 @@ export default function ApercuPage() {
                   task={task}
                   restaurantName={
                     task.restaurantId
-                      ? (nameById.get(task.restaurantId) ?? null)
+                      ? (task.restaurantName ?? null)
                       : null
                   }
                 />

@@ -5,17 +5,15 @@ import { useMemo, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
 import { offreTrialEnd } from "@/lib/offre/trial";
-import { must } from "@/lib/supabase/result";
+import { must, mustPage, type ListPage } from "@/lib/supabase/result";
 import { useAdminUnlocked } from "./admin-lock";
 import {
   ANALYTICS_PERIOD_DAYS,
   DEFAULT_DAY_END_HOUR,
   HISTORY_ORDER_STATUSES,
-  ORDER_HISTORY_PAGE_SIZE,
   OPEN_ORDER_STATUSES,
   ORDER_TABS,
   PAID_ORDER_STATUSES,
-  PAYMENTS_PAGE_SIZE,
   TABLE_FEATURES,
 } from "./constants";
 import {
@@ -40,6 +38,7 @@ import type {
   GestionState,
   Order,
   Role,
+  PaymentMode,
 } from "./types";
 
 type Client = SupabaseClient<Database>;
@@ -122,53 +121,56 @@ async function fetchWindow(supabase: Client, etablissementId: string) {
   return orders;
 }
 
-/** Page d'historique (commandes clôturées), curseur = created_at décroissant. */
+/** Page d'historique (commandes clôturées), de la plus récente à la plus ancienne. */
 export async function fetchOrderHistory(
-  before: string | null
-): Promise<{ orders: Order[]; nextCursor: string | null }> {
-  const supabase = createClient();
-  let query = supabase
+  orderNumber: number | null,
+  limit: number,
+  offset: number
+): Promise<ListPage<Order>> {
+  let query = createClient()
     .from("orders")
-    .select("*, order_items(*), order_payments(*)")
+    .select("*, order_items(*), order_payments(*)", { count: "exact" })
     .eq("etablissement_id", getState().etablissement.id)
-    .in("status", HISTORY_ORDER_STATUSES)
-    .order("created_at", { ascending: false })
-    .limit(ORDER_HISTORY_PAGE_SIZE);
-  if (before) query = query.lt("created_at", before);
-  const orders = must(await query).map(rowToOrder);
-  const nextCursor =
-    orders.length === ORDER_HISTORY_PAGE_SIZE
-      ? orders[orders.length - 1].createdAt
-      : null;
-  return { orders, nextCursor };
+    .in("status", HISTORY_ORDER_STATUSES);
+  if (orderNumber !== null) query = query.eq("order_number", orderNumber);
+  const page = mustPage(
+    await query
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(offset, offset + limit - 1)
+  );
+  return { rows: page.rows.map(rowToOrder), total: page.total };
 }
 
 /**
- * Historique des paiements (commandes encaissées), curseur = created_at
- * décroissant. Sans curseur, la page commence où s'arrête la fenêtre de
- * l'état : ce qu'elle contient est déjà là.
+ * Page de paiements (commandes encaissées), de la plus récente à la plus
+ * ancienne. Un mode filtre sur une seconde jointure : celle que la commande
+ * affiche garde tous ses règlements.
  */
 export async function fetchPaidOrders(
-  before: string | null
-): Promise<{ orders: Order[]; nextCursor: string | null }> {
+  mode: PaymentMode | null,
+  limit: number,
+  offset: number
+): Promise<ListPage<Order>> {
   const supabase = createClient();
-  const etablissementId = getState().etablissement.id;
-  const orders = must(
-    await supabase
-      .from("orders")
-      .select("*, order_items(*), order_payments(*)")
-      .eq("etablissement_id", etablissementId)
+  const orders = () =>
+    supabase.from("orders").select("*, order_items(*), order_payments(*)", { count: "exact" });
+  const query = mode
+    ? (supabase
+        .from("orders")
+        .select("*, order_items(*), order_payments(*), mode_leg:order_payments!inner(mode)", { count: "exact" })
+        .eq("mode_leg.mode", mode) as unknown as ReturnType<typeof orders>)
+    : orders();
+  const page = mustPage(
+    await query
+      .eq("etablissement_id", getState().etablissement.id)
       // Payée en ligne puis refusée par la caisse : remboursée, ou à rembourser.
       .or(`status.in.(${PAID_ORDER_STATUSES.join(",")}),and(status.eq.annulee,paid_online.is.true)`)
-      .lt("created_at", before ?? loadedSince)
       .order("created_at", { ascending: false })
-      .limit(PAYMENTS_PAGE_SIZE)
-  ).map(rowToOrder);
-  const nextCursor =
-    orders.length === PAYMENTS_PAGE_SIZE
-      ? orders[orders.length - 1].createdAt
-      : null;
-  return { orders, nextCursor };
+      .order("id")
+      .range(offset, offset + limit - 1)
+  );
+  return { rows: page.rows.map(rowToOrder), total: page.total };
 }
 
 /*

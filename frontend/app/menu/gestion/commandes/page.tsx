@@ -21,6 +21,7 @@ import {
   Field,
   GlassButton,
   Input,
+  ListPager,
   Notice,
   SectionHeading,
   Segmented,
@@ -51,6 +52,7 @@ import { useNow } from "@/lib/gestion/use-now";
 import { counterWords } from "@/lib/menu/format";
 import { usePrinterOffline } from "@/lib/gestion/use-printer-health";
 import { describeError } from "@/lib/gestion/errors";
+import { usePagedList } from "@/lib/use-paged-list";
 
 /*
  * Les moments du service, tels que ce restaurant les vit. Lesquels
@@ -76,6 +78,8 @@ const EMPORTER_HINTS: Record<OrderTab, string> = {
   a_servir: "Les commandes du jour payées en ligne, de la préparation au retrait.",
   historique: "Les commandes retirées ou annulées.",
 };
+
+const orderId = (order: Order) => order.id;
 
 const EMPTY_BODIES: Record<OrderTab, string> = {
   a_encaisser: "Une commande passée depuis la table arrive ici, comme celles que vous saisissez.",
@@ -134,15 +138,6 @@ export default function CommandesPage() {
   const toast = useToast();
   // Onglet choisi ; avant tout choix, celui du rôle (la cuisine n'encaisse pas).
   const [chosenFilter, setChosenFilter] = useState<OrderTab | null>(null);
-  // L'historique s'affiche par pages de ORDER_HISTORY_PAGE_SIZE, chargées à la
-  // demande : en rendre d'un coup les semaines que l'état contient figeait
-  // l'onglet. Curseur : undefined tant qu'aucune page n'est arrivée, null
-  // une fois tout chargé.
-  const [history, setHistory] = useState<Order[]>([]);
-  const [cursor, setCursor] = useState<string | null | undefined>(undefined);
-  const [historyLoaded, setHistoryLoaded] = useState(false);
-  const [loadingHistory, setLoadingHistory] = useState(false);
-  const [historyError, setHistoryError] = useState<unknown>(null);
   // L'onglet déjà posé : une seule orchestration d'entrée à l'arrivée, puis
   // une carte qui arrive seule monte sans délai, et un changement d'onglet
   // n'anime rien (surface à haute fréquence).
@@ -157,32 +152,10 @@ export default function CommandesPage() {
     number: number;
     id: string | null;
   } | null>(null);
-  // Comptoir : l'historique se filtre par numéro du jour, sur les pages chargées.
+  // Comptoir : l'historique se cherche par numéro du jour, côté base.
   const [historyNumber, setHistoryNumber] = useState<number | null>(null);
   const [example, setExample] = useState(false);
   const [creating, setCreating] = useState(false);
-
-  const loadHistory = useCallback(
-    async (before: string | null) => {
-      setLoadingHistory(true);
-      setHistoryError(null);
-      try {
-        const page = await fetchOrderHistory(before);
-        setHistory((current) =>
-          before ? [...current, ...page.orders] : page.orders
-        );
-        setCursor(page.nextCursor);
-      } catch (error) {
-        setHistoryError(error);
-        // Un geste (« Voir plus ») prévient par un toast ; le premier chargement s'affiche en bandeau.
-        if (before) toast.error(describeError(error).message);
-      } finally {
-        setHistoryLoaded(true);
-        setLoadingHistory(false);
-      }
-    },
-    [toast]
-  );
 
   const isCuisinier = state?.role === "cuisinier";
   const fastFood = state?.etablissement.serviceMode === "fast_food";
@@ -209,13 +182,17 @@ export default function CommandesPage() {
     setArrived((current) => new Set([...current, ...fresh.map((order) => order.id)]));
   }, [orders, filter]);
 
+  const fetchHistoryPage = useCallback(
+    (_search: string, limit: number, offset: number) => fetchOrderHistory(historyNumber, limit, offset),
+    [historyNumber]
+  );
+  const history = usePagedList({ fetchPage: fetchHistoryPage, rowId: orderId, enabled: filter === "historique" });
+  const historyLoaded = history.total !== null;
+  // Un geste (« Voir plus ») prévient par un toast ; le premier chargement s'affiche en bandeau.
+  const moreFailed = history.error != null && history.rows.length > 0 ? history.error : null;
   useEffect(() => {
-    if (filter !== "historique" || historyLoaded || loadingHistory) return;
-    // Faux positif : le drapeau de chargement accompagne un appel réseau,
-    // ce n'est pas un état dérivé du rendu.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    void loadHistory(null);
-  }, [filter, historyLoaded, loadingHistory, loadHistory]);
+    if (moreFailed) toast.error(describeError(moreFailed).message);
+  }, [moreFailed, toast]);
 
   if (!state) return null;
   if (!hasFeature("commandes")) return <FeatureLocked feature="commandes" />;
@@ -244,12 +221,15 @@ export default function CommandesPage() {
           order.tableId === historyTable.id &&
           isServiceToday(order.createdAt, state.dayEndHour)
       )
-    : cursor === undefined
-      ? history
+    : !historyLoaded
+      ? []
       : dedupeById([
-          ...history,
+          ...history.rows,
+          // La version en direct prime, sur ce que les pages chargées couvrent.
           ...closedOrders.filter(
-            (order) => cursor === null || order.createdAt >= cursor
+            (order) =>
+              history.rows.length >= (history.total ?? 0) ||
+              order.createdAt >= history.rows[history.rows.length - 1].createdAt
           ),
         ]);
   const visible =
@@ -309,7 +289,7 @@ export default function CommandesPage() {
     filter === "historique" && historyTable
       ? `Aucune commande sur la table ${historyTable.number} depuis le début du service.`
       : filter === "historique" && historyNumber !== null
-        ? `Aucune commande n° ${historyNumber} parmi celles chargées : « Voir plus » remonte plus loin.`
+        ? `Aucune commande n° ${historyNumber}.`
       : fastFood && filter === "a_servir"
         ? "Les commandes payées apparaîtront ici par numéro, de la préparation à la remise au comptoir."
         : pickupShop && filter === "a_servir"
@@ -442,8 +422,8 @@ export default function CommandesPage() {
             <Shimmer className="h-28" />
             <Shimmer className="h-28" />
           </div>
-        ) : filter === "historique" && historyError !== null && history.length === 0 ? (
-          <ErrorNotice error={historyError} onRetry={() => void loadHistory(null)} />
+        ) : filter === "historique" && history.error != null && history.rows.length === 0 ? (
+          <ErrorNotice error={history.error} onRetry={() => void history.reload()} />
         ) : example && canExample ? (
           <Block i={rank}>
             <ExampleOrder now={now} onClose={() => setExample(false)} />
@@ -545,16 +525,16 @@ export default function CommandesPage() {
         </div>
       )}
 
-      {filter === "historique" &&
-        !historyTable &&
-        historyLoaded &&
-        cursor !== null && (
-          <div className="flex justify-center">
-            <GlassButton onClick={() => void loadHistory(cursor ?? null)} disabled={loadingHistory}>
-              {loadingHistory ? "Chargement…" : "Voir plus"}
-            </GlassButton>
-          </div>
-        )}
+      {filter === "historique" && !historyTable && history.total !== null && (
+        <ListPager
+          shown={history.rows.length}
+          total={history.total}
+          pageSize={history.pageSize}
+          loading={history.loading}
+          onPageSize={history.setPageSize}
+          onMore={() => void history.showMore()}
+        />
+      )}
 
       {/* Prise de commande en salle : le client commande au serveur. */}
       {canCreate && (

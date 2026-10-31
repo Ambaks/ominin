@@ -174,8 +174,6 @@ export const PIPELINE_RAIL_COLUMNS: readonly PipelineColumn[] = [
   },
 ];
 
-/** Au-delà, la colonne coupe le rendu (« Voir les N autres »). */
-export const PIPELINE_COLUMN_CAP = 50;
 
 // ---------------------------------------------------------------------------
 // Prospection automatisée (agent « Léa »)
@@ -243,9 +241,6 @@ export const DISQUALIFY_REASON_LABELS: Record<string, string> = {
 };
 
 /** Fenêtre de chargement de la page Prospection (lignes les plus récentes). */
-export const OUTREACH_EMAILS_FETCH_LIMIT = 200;
-export const OUTREACH_RUNS_FETCH_LIMIT = 50;
-export const OUTREACH_PROSPECTS_FETCH_LIMIT = 500;
 export const OUTREACH_VARIANTS_FETCH_LIMIT = 50;
 
 // ---------------------------------------------------------------------------

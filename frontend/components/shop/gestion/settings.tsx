@@ -310,7 +310,7 @@ export function TariffPanel({ feePercent }: { feePercent: number }) {
   );
 }
 
-export function ProductActiveToggle({ id, isActive, name }: { id: string; isActive: boolean; name: string }) {
+export function ProductActiveToggle({ id, isActive, name, onChanged }: { id: string; isActive: boolean; name: string; onChanged?: () => void }) {
   const router = useRouter();
   const toast = useToast();
   return (
@@ -320,6 +320,7 @@ export function ProductActiveToggle({ id, isActive, name }: { id: string; isActi
       onChange={async (value) => {
         try {
           await api.setProductActive(id, value);
+          onChanged?.();
           router.refresh();
         } catch (error) {
           toast.error(error instanceof Error ? error.message : "Erreur.");

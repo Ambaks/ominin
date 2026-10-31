@@ -39,13 +39,14 @@ export interface LeadLite {
   /** Produits qu'on cherche à lui vendre : les vues produit où il apparaît. */
   targetProducts: Product[];
   createdAt: string;
-  /** Champ de recherche pré-normalisé (nom, ville, adresse, contact…). */
-  searchKey: string;
 }
 
 export interface TaskRow {
   id: string;
   restaurantId: string | null;
+  /** Lus avec la ligne : le store ne garde plus toutes les fiches. */
+  restaurantName?: string;
+  targetProducts?: Product[];
   leadId: string | null;
   title: string;
   description: string | null;
@@ -59,6 +60,8 @@ export interface TaskRow {
 export interface AppointmentRow {
   id: string;
   restaurantId: string;
+  restaurantName?: string;
+  targetProducts?: Product[];
   contactId: string | null;
   title: string;
   startAt: string;
@@ -142,7 +145,10 @@ export interface LeadDetail {
 
 export interface AdminState {
   userId: string;
+  /** Les fiches déjà ouvertes ou utilisées, pas tout le CRM (voir store.ts). */
   leads: LeadLite[];
+  /** Change à chaque écriture : les listes servies par la base se relisent. */
+  revision: number;
   /** Tâches ouvertes, toutes (Aperçu, pipeline). */
   tasks: TaskRow[];
   /** RDV prévus dans la fenêtre à venir (tableau de bord, filtres). */
@@ -185,6 +191,8 @@ export type OutreachClassification =
 export interface OutreachEmail {
   id: string;
   restaurantId: string;
+  /** Lu avec la ligne : l'écran n'a pas tout le CRM sous la main. */
+  restaurantName?: string | null;
   leadId: string | null;
   direction: OutreachDirection;
   kind: "cold" | "reply";

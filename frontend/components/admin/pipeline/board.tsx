@@ -1,13 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
+import { fetchLeadsPage, type LeadQuery } from "@/lib/admin/leads-page";
+import { LIST_PAGE_SIZES } from "@/lib/gestion/constants";
+import type { ListPage } from "@/lib/supabase/result";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
   PIPELINE_COLUMNS,
-  PIPELINE_COLUMN_CAP,
   PIPELINE_RAIL_COLUMNS,
   type PipelineColumn,
 } from "@/lib/admin/constants";
@@ -113,10 +115,10 @@ function LeadCard({
 }
 
 export function PipelineBoard({
-  leads,
+  query,
   onSeeAll,
 }: {
-  leads: LeadLite[];
+  query: LeadQuery;
   /** Colonne plafonnée : la suite se lit dans la liste. */
   onSeeAll: (column: PipelineColumn) => void;
 }) {
@@ -129,6 +131,44 @@ export function PipelineBoard({
   );
   const [menuFor, setMenuFor] = useState<LeadLite | null>(null);
 
+  // Chaque colonne lit sa première page ; la suite se lit dans la liste.
+  const [columns, setColumns] = useState<Record<string, ListPage<LeadLite>>>({});
+  const revision = state?.revision;
+  useEffect(() => {
+    let current = true;
+    const { statuses } = query.filters;
+    Promise.all(
+      ALL_COLUMNS.map(async (column) => {
+        const shown = column.statuses.filter((status) => statuses.size === 0 || statuses.has(status));
+        const page: ListPage<LeadLite> =
+          shown.length === 0
+            ? { rows: [], total: 0 }
+            : await fetchLeadsPage(
+                {
+                  ...query,
+                  filters: { ...query.filters, statuses: new Set(shown) },
+                  sort: "nextFollowUpAt",
+                  descending: false,
+                },
+                LIST_PAGE_SIZES[0],
+                0
+              );
+        return [column.id, page] as const;
+      })
+    )
+      .then((pages) => {
+        if (current) setColumns(Object.fromEntries(pages));
+      })
+      .catch(console.error);
+    return () => {
+      current = false;
+    };
+  }, [query, revision]);
+  const leads = useMemo(
+    () => Object.values(columns).flatMap((page) => page.rows),
+    [columns]
+  );
+
   const nextTaskByLead = useMemo(
     () => selectNextTaskByLead(state?.tasks ?? []),
     [state?.tasks]
@@ -136,7 +176,7 @@ export function PipelineBoard({
 
   const onDrop = (restaurantId: string, columnId: string) => {
     const column = ALL_COLUMNS.find((c) => c.id === columnId);
-    const lead = state?.leads.find((l) => l.restaurantId === restaurantId);
+    const lead = leads.find((l) => l.restaurantId === restaurantId);
     if (!column || !lead || column.statuses.includes(lead.status)) return;
     setPendingMoves((current) =>
       new Map(current).set(restaurantId, column.dropStatus)
@@ -174,6 +214,7 @@ export function PipelineBoard({
       >
         {ALL_COLUMNS.map((column) => {
           const columnLeads = byColumn(column);
+          const hidden = (columns[column.id]?.total ?? 0) - (columns[column.id]?.rows.length ?? 0);
           const rail = PIPELINE_RAIL_COLUMNS.includes(column);
           return (
             <section
@@ -196,11 +237,11 @@ export function PipelineBoard({
                   {column.label}
                 </h2>
                 <span className="text-xs tabular-nums text-faint">
-                  {columnLeads.length}
+                  {columns[column.id]?.total ?? "…"}
                 </span>
               </header>
               <div className="flex min-h-16 flex-col gap-2">
-                {columnLeads.slice(0, PIPELINE_COLUMN_CAP).map((lead) => (
+                {columnLeads.map((lead) => (
                   <LeadCard
                     key={lead.restaurantId}
                     lead={lead}
@@ -215,13 +256,13 @@ export function PipelineBoard({
                     handlers={cardHandlers(lead.restaurantId)}
                   />
                 ))}
-                {columnLeads.length > PIPELINE_COLUMN_CAP && (
+                {hidden > 0 && (
                   <button
                     type="button"
                     onClick={() => onSeeAll(column)}
                     className="rounded-xl border border-dashed border-hairline px-3 py-2 text-xs font-medium text-muted transition-colors hover:text-foreground"
                   >
-                    Voir les {columnLeads.length - PIPELINE_COLUMN_CAP} autres
+                    Voir les {hidden} autres
                   </button>
                 )}
               </div>
