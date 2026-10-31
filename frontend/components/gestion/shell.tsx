@@ -20,6 +20,7 @@ import { ToastProvider } from "@/components/ui/toast";
 import { clubFonts } from "@/lib/club/fonts";
 import { collectBrand } from "@/lib/collect-landing-data";
 import * as api from "@/lib/gestion/api";
+import type { GestionLogo } from "@/lib/menu-data";
 import { bullesTabName, OFFRE_LABELS } from "@/lib/gestion/constants";
 import { can } from "@/lib/gestion/permissions";
 import {
@@ -225,8 +226,33 @@ const Scanner = dynamic(() => import("./remise/scanner").then((m) => m.Scanner),
  * a sa propre page, sans l'espace : chaque scan ouvre un onglet neuf, et
  * l'espace y chargeait un mois de commandes avant de remettre la sienne.
  */
-export function GestionShell({ children }: { children: React.ReactNode }) {
-  return useSelectedLayoutSegment() === "remise" ? children : <GestionSpace>{children}</GestionSpace>;
+export function GestionShell({
+  children,
+  logos,
+}: {
+  children: React.ReactNode;
+  logos: Record<string, GestionLogo>;
+}) {
+  return useSelectedLayoutSegment() === "remise" ? children : <GestionSpace logos={logos}>{children}</GestionSpace>;
+}
+
+function VenueLogo({ logo, name }: { logo?: GestionLogo; name: string }) {
+  if (!logo) {
+    return (
+      <span aria-hidden className="g-venue-logo font-display">
+        {name.charAt(0).toUpperCase()}
+      </span>
+    );
+  }
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- actif local de marque, en SVG ou PNG selon l'établissement
+    <img
+      src={logo.src}
+      alt=""
+      className={`g-venue-logo ${logo.background ? "g-venue-logo-inset" : ""}`}
+      style={{ background: logo.background }}
+    />
+  );
 }
 
 function Brand({ product, small = false }: { product: string; small?: boolean }) {
@@ -267,7 +293,13 @@ function PlusSheet({ onClose, children }: { onClose: () => void; children: React
   );
 }
 
-function GestionSpace({ children }: { children: React.ReactNode }) {
+function GestionSpace({
+  children,
+  logos,
+}: {
+  children: React.ReactNode;
+  logos: Record<string, GestionLogo>;
+}) {
   const state = useGestion();
   const loadError = useGestionLoadError();
   const pathname = usePathname();
@@ -518,6 +550,7 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
         <div className="g-col">
           <header ref={header} data-visite-bord="haut" className="g-topbar g-glass">
             <div className="g-who">
+              {state && <VenueLogo logo={logos[state.etablissement.slug]} name={state.etablissement.name} />}
               <b className="truncate font-display text-g-name">
                 {state?.etablissement.name ?? "Espace de gestion"}
               </b>

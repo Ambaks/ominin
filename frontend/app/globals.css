@@ -14904,6 +14904,24 @@ html.light {
   min-width: 0;
   margin-right: auto;
 }
+.g-venue-logo {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--surface-raised);
+  color: var(--ember-1);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  box-shadow: 0 0 0 1px var(--hairline);
+}
+.g-venue-logo-inset {
+  padding: 0.3125rem;
+  object-fit: contain;
+}
 
 /* Barre d'onglets flottante (sous 1024 px) : quatre entrées + « Plus ». */
 .g-tabbar {
