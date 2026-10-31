@@ -1,9 +1,17 @@
 "use client";
 
-import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { useState, type CSSProperties } from "react";
+import {
+  ConfirmSheet,
+  Field,
+  GlassButton,
+  Input,
+  Plate,
+  Segmented,
+  Select,
+  Sheet,
+  Textarea,
+} from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { formatClock } from "@/lib/collect/hours";
 import { formatCents, tableName } from "@/lib/club/format";
@@ -20,6 +28,7 @@ import {
   telHref,
 } from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { PayerRing } from "./payer-ring";
 import { StatusChip } from "./night-plan";
 
@@ -35,18 +44,21 @@ const SOURCE_LABELS: Record<ClubBooking["source"], string> = {
   sur_place: "Sur place",
 };
 
-const PRIMARY =
-  "ember-gradient min-h-11 w-full rounded-full px-5 text-sm font-semibold text-background disabled:opacity-50";
-const SECONDARY =
-  "min-h-11 w-full rounded-full border border-hairline px-5 text-sm font-semibold text-foreground transition-colors hover:border-ember-2/40 disabled:opacity-50";
-const DANGER =
-  "min-h-11 w-full rounded-full border border-ember-3/60 px-5 text-sm font-semibold text-foreground transition-colors hover:bg-ember-3/15 disabled:opacity-50";
+const SOURCE_OPTIONS = [
+  { value: "telephone" as const, label: "Au téléphone" },
+  { value: "sur_place" as const, label: "Sur place" },
+];
+
+const PAID_OPTIONS = [
+  { value: "non" as const, label: "À régler sur place" },
+  { value: "oui" as const, label: "Déjà réglée" },
+];
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 px-4 py-3">
-      <dt className="text-xs font-semibold uppercase tracking-wider text-muted">{label}</dt>
-      <dd className="min-w-0 text-right text-sm">{children}</dd>
+      <dt className="g-eyebrow">{label}</dt>
+      <dd className="min-w-0 text-right text-g-body">{children}</dd>
     </div>
   );
 }
@@ -64,7 +76,7 @@ function Progress({ booking, deposit }: { booking: ClubBooking; deposit: number 
   const share = booking.priceCents > 0 ? booking.paidCents / booking.priceCents : 1;
   return (
     <div className="flex flex-col gap-2">
-      <div className="flex items-baseline justify-between gap-3 text-sm">
+      <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 text-g-body">
         <span>
           {deposit !== null ? (
             <>
@@ -73,11 +85,11 @@ function Progress({ booking, deposit }: { booking: ClubBooking; deposit: number 
           ) : (
             <>
               Payé <span className="font-semibold tabular-nums">{formatCents(booking.paidCents)}</span>{" "}
-              <span className="text-xs text-muted">hors frais</span>
+              <span className="text-g-meta text-muted">hors frais</span>
             </>
           )}
         </span>
-        <span className={booking.remainingCents > 0 ? "font-semibold text-ember-2" : "text-muted"}>
+        <span className={booking.remainingCents > 0 ? "font-semibold text-ember-1" : "text-muted"}>
           {booking.remainingCents > 0 ? (
             <>
               Reste <span className="tabular-nums">{formatCents(booking.remainingCents)}</span> à encaisser
@@ -97,8 +109,8 @@ function Progress({ booking, deposit }: { booking: ClubBooking; deposit: number 
         className="h-2 overflow-hidden rounded-full bg-surface-raised"
       >
         <div
-          className="h-full rounded-full bg-[var(--etat-arrivee)] transition-[width] duration-[var(--c-slow)] ease-[var(--c-ease)]"
-          style={{ width: `${Math.min(1, share) * 100}%` }}
+          className="part-barre h-full rounded-full bg-status-signed"
+          style={{ "--part": Math.min(1, share) } as CSSProperties}
         />
       </div>
     </div>
@@ -150,7 +162,7 @@ function BookingCard({
       toast.success(success);
       if (close) onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     } finally {
       setBusy(null);
     }
@@ -164,40 +176,45 @@ function BookingCard({
   const collect = remaining > 0 && booking.status !== "arrivee";
   const footer =
     holding || booking.status === "remboursee" ? undefined : collect ? (
-      <button
-        type="button"
-        disabled={working}
-        onClick={() =>
-          void run("porte", () => clubApi.markArrival(booking, true, true), `${name} : ${formatCents(remaining)} encaissés, arrivée.`, true)
-        }
-        className={PRIMARY}
-      >
-        {busy === "porte"
-          ? "Encaissement…"
-          : `${booking.paidCents > 0 ? "Encaisser le reste" : "Encaisser"} ${formatCents(remaining)} et faire entrer`}
-      </button>
+      <>
+        {busy === "porte" && <p>Encaissement en cours…</p>}
+        <GlassButton
+          variant="primary"
+          className="min-w-0"
+          disabled={working}
+          onClick={() =>
+            void run("porte", () => clubApi.markArrival(booking, true, true), `${name} : ${formatCents(remaining)} encaissés, arrivée.`, true)
+          }
+        >
+          <span className="porte-libelle">
+            {`${booking.paidCents > 0 ? "Encaisser le reste" : "Encaisser"} ${formatCents(remaining)} et faire entrer`}
+          </span>
+        </GlassButton>
+      </>
     ) : booking.status === "payee" ? (
-      <button
-        type="button"
-        disabled={working}
-        onClick={() => void run("porte", () => clubApi.markArrival(booking, true), `${name} : arrivée.`, true)}
-        className={PRIMARY}
-      >
-        {busy === "porte" ? "Un instant…" : "Marquer arrivé(e)"}
-      </button>
+      <>
+        {busy === "porte" && <p>Un instant…</p>}
+        <GlassButton
+          variant="primary"
+          disabled={working}
+          onClick={() => void run("porte", () => clubApi.markArrival(booking, true), `${name} : arrivée.`, true)}
+        >
+          Faire entrer
+        </GlassButton>
+      </>
     ) : undefined;
 
   return (
-    <Modal title={name} onClose={onClose} footer={footer}>
+    <Sheet title={name} onClose={onClose} footer={footer}>
       <div className="flex flex-col gap-5">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="font-display text-xl font-medium">{booking.name}</p>
-            <p className="mt-0.5 text-sm text-muted">
+            <p className="font-display text-g-h2">{booking.name}</p>
+            <p className="mt-1 text-g-body text-muted">
               {people(booking.partySize)} · {table.seats} places
             </p>
             {booking.shared && payers > 1 && (
-              <span className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-hairline px-2.5 py-1 text-xs font-medium">
+              <span className="g-chip mt-2">
                 <span className="etoile" aria-hidden />
                 Table partagée · {payers} payeur{payers > 1 ? "s" : ""}
               </span>
@@ -217,7 +234,7 @@ function BookingCard({
         )}
 
         {holding ? (
-          <p className="text-sm text-muted">
+          <p className="text-g-body text-muted">
             Le client règle en ce moment sur la page du club
             {booking.holdExpiresAt ? `, table tenue jusqu'à ${formatClock(booking.holdExpiresAt)}` : ""}. Sans
             paiement, elle se libère d&rsquo;elle-même.
@@ -228,180 +245,177 @@ function BookingCard({
 
         {payments.length > 0 && (
           <section aria-label="Paiements" className="flex flex-col gap-2">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Qui a payé</h3>
-            <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
-              {groups.map((payer) => (
-                <li key={payer.key} className="flex flex-col gap-1.5 px-4 py-2.5">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className={`min-w-0 text-sm font-medium ${payer.totalCents === 0 ? "text-muted line-through" : ""}`}>
-                      {payer.name}
-                      {payer.organiser && booking.shared && (
-                        <span className="ml-1.5 text-xs font-medium text-ember-1">Organisateur</span>
-                      )}
-                    </span>
-                    <span className="shrink-0 text-sm font-semibold tabular-nums">{formatCents(payer.totalCents)}</span>
-                  </div>
-                  {payer.payments.map((payment) => {
-                    const refunded = payment.status === "remboursee";
-                    // Un ami qui se désiste ; la part de l'organisateur (et les frais) part avec la table entière.
-                    const refundable =
-                      gerant && booking.shared && !payment.organiser && payment.method === "en_ligne" && !refunded;
-                    return (
-                      <div key={payment.id} className="flex items-center justify-between gap-3 text-xs text-muted">
-                        <span className={refunded ? "line-through" : undefined}>
-                          {METHOD_LABELS[payment.method]}
-                          {payment.paidAt ? ` · ${formatClock(payment.paidAt)}` : ""}
-                          {payer.payments.length > 1 && (
-                            <>
-                              {" · "}
-                              <span className="tabular-nums">{formatCents(payment.amountCents + payment.feeCents)}</span>
-                            </>
-                          )}
-                          {payment.feeCents > 0 && (
-                            <>
-                              {" · dont "}
-                              <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais Ominin
-                            </>
-                          )}
-                          {refunded && (booking.status === "remboursee" ? " · remboursée" : " · part remboursée")}
-                        </span>
-                        {refundable && (
-                          <button
-                            type="button"
-                            disabled={working}
-                            onClick={() => setConfirm(payment)}
-                            aria-label={`Rembourser la part de ${payment.name}`}
-                            className="min-h-11 shrink-0 rounded-full border border-hairline px-3.5 text-xs font-semibold text-foreground hover:border-ember-3/60 disabled:opacity-50"
-                          >
-                            {busy === payment.id ? "…" : "Rembourser"}
-                          </button>
+            <h3 className="g-eyebrow g-money">Qui a payé</h3>
+            <Plate>
+              <ul className="divide-y divide-hairline">
+                {groups.map((payer) => (
+                  <li key={payer.key} className="flex flex-col gap-1.5 px-4 py-2.5">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <span className={`min-w-0 text-g-body font-medium ${payer.totalCents === 0 ? "text-muted line-through" : ""}`}>
+                        {payer.name}
+                        {payer.organiser && booking.shared && (
+                          <span className="ml-1.5 text-g-meta font-medium text-ember-1">Organisateur</span>
                         )}
-                        {gerant && booking.status === "remboursee" && payment.method === "en_ligne" && !refunded && (
-                          <span className="shrink-0 font-semibold text-foreground">Remboursement à relancer</span>
-                        )}
-                      </div>
-                    );
-                  })}
+                      </span>
+                      <span className="shrink-0 text-g-body font-semibold tabular-nums">{formatCents(payer.totalCents)}</span>
+                    </div>
+                    {payer.payments.map((payment) => {
+                      const refunded = payment.status === "remboursee";
+                      // Un ami qui se désiste ; la part de l'organisateur (et les frais) part avec la table entière.
+                      const refundable =
+                        gerant && booking.shared && !payment.organiser && payment.method === "en_ligne" && !refunded;
+                      return (
+                        <div key={payment.id} className="flex items-center justify-between gap-3 text-g-meta text-muted">
+                          <span className={refunded ? "line-through" : undefined}>
+                            {METHOD_LABELS[payment.method]}
+                            {payment.paidAt ? ` · ${formatClock(payment.paidAt)}` : ""}
+                            {payer.payments.length > 1 && (
+                              <>
+                                {" · "}
+                                <span className="tabular-nums">{formatCents(payment.amountCents + payment.feeCents)}</span>
+                              </>
+                            )}
+                            {payment.feeCents > 0 && (
+                              <>
+                                {" · dont "}
+                                <span className="tabular-nums">{formatCents(payment.feeCents)}</span> de frais Ominin
+                              </>
+                            )}
+                            {refunded && (booking.status === "remboursee" ? " · remboursée" : " · part remboursée")}
+                          </span>
+                          {refundable && (
+                            <GlassButton
+                              variant="danger"
+                              disabled={working}
+                              onClick={() => setConfirm(payment)}
+                              aria-label={`Rembourser la part de ${payment.name}`}
+                            >
+                              {busy === payment.id ? "…" : "Rembourser"}
+                            </GlassButton>
+                          )}
+                          {gerant && booking.status === "remboursee" && payment.method === "en_ligne" && !refunded && (
+                            <span className="shrink-0 font-semibold text-foreground">Remboursement à relancer</span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </li>
+                ))}
+                <li className="flex items-center justify-between gap-3 px-4 py-2.5 text-g-body">
+                  <span className="font-medium">
+                    Total payé
+                    {paidFees > 0 && (
+                      <span className="block text-g-meta font-normal text-muted">
+                        dont <span className="tabular-nums">{formatCents(paidFees)}</span> de frais Ominin
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-semibold tabular-nums">{formatCents(paidTotal)}</span>
                 </li>
-              ))}
-              <li className="flex items-center justify-between gap-3 px-4 py-2.5 text-sm">
-                <span className="font-medium">
-                  Total payé
-                  {paidFees > 0 && (
-                    <span className="block text-xs font-normal text-muted">
-                      dont <span className="tabular-nums">{formatCents(paidFees)}</span> de frais Ominin
-                    </span>
-                  )}
-                </span>
-                <span className="font-semibold tabular-nums">{formatCents(paidTotal)}</span>
-              </li>
-            </ul>
+              </ul>
+            </Plate>
           </section>
         )}
 
-        <dl className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
-          {booking.phone && (
-            <Row label="Téléphone">
-              <a
-                href={telHref(booking.phone)}
-                className="inline-flex min-h-11 items-center font-semibold tabular-nums text-ember-1 transition-opacity hover:opacity-80 lg:pointer-fine:min-h-0"
-              >
-                {formatPhone(booking.phone)}
-              </a>
+        <Plate>
+          <dl className="divide-y divide-hairline">
+            {booking.phone && (
+              <Row label="Téléphone">
+                <a href={telHref(booking.phone)} className="inline-flex min-h-g-control items-center font-semibold text-ember-1 tabular-nums">
+                  {formatPhone(booking.phone)}
+                </a>
+              </Row>
+            )}
+            <Row label="Prix hors frais">
+              <span className="font-semibold tabular-nums">{formatCents(booking.priceCents)}</span>
+              {fees > 0 && (
+                <span className="block text-g-meta text-muted">
+                  + <span className="tabular-nums">{formatCents(fees)}</span> de frais de service en ligne
+                </span>
+              )}
             </Row>
-          )}
-          <Row label="Prix hors frais">
-            <span className="font-semibold tabular-nums">{formatCents(booking.priceCents)}</span>
-            {fees > 0 && (
-              <span className="block text-xs text-muted">
-                + <span className="tabular-nums">{formatCents(fees)}</span> de frais de service en ligne
-              </span>
+            <Row label="Réservée">
+              {SOURCE_LABELS[booking.source]} à {formatClock(booking.createdAt)}
+              {booking.source === "en_ligne" && (
+                <span className="block text-g-meta text-muted">Table attribuée automatiquement</span>
+              )}
+            </Row>
+            {booking.arrivedAt && <Row label="Arrivée">{formatClock(booking.arrivedAt)}</Row>}
+            {booking.email && <Row label="E-mail">{booking.email}</Row>}
+            {booking.note && (
+              <div className="px-4 py-3">
+                <dt className="g-eyebrow">Note</dt>
+                <dd className="mt-1.5 whitespace-pre-line text-g-body">{booking.note}</dd>
+              </div>
             )}
-          </Row>
-          <Row label="Réservée">
-            {SOURCE_LABELS[booking.source]} à {formatClock(booking.createdAt)}
-            {booking.source === "en_ligne" && (
-              <span className="block text-xs text-muted">Table attribuée automatiquement</span>
-            )}
-          </Row>
-          {booking.arrivedAt && <Row label="Arrivée">{formatClock(booking.arrivedAt)}</Row>}
-          {booking.email && <Row label="E-mail">{booking.email}</Row>}
-          {booking.note && (
-            <div className="px-4 py-3">
-              <dt className="text-xs font-semibold uppercase tracking-wider text-muted">Note</dt>
-              <dd className="mt-1 whitespace-pre-line text-sm">{booking.note}</dd>
-            </div>
-          )}
-        </dl>
+          </dl>
+        </Plate>
 
         {!holding && booking.status !== "remboursee" && (
-          <section aria-label="Autres actions" className="flex flex-col gap-2 border-t border-hairline pt-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">Autres actions</h3>
+          <section aria-label="Autres actions" className="flex flex-col gap-2">
+            <h3 className="g-eyebrow">Autres actions</h3>
             {collect && (
-              <button
-                type="button"
+              <GlassButton
                 disabled={working}
                 onClick={() =>
                   void run("sans", () => clubApi.markArrival(booking, false, true), `${name} : ${formatCents(remaining)} encaissés.`)
                 }
-                className={SECONDARY}
               >
                 {busy === "sans" ? "Encaissement…" : `Encaisser ${formatCents(remaining)} sans faire entrer`}
-              </button>
+              </GlassButton>
             )}
             {booking.status === "arrivee" && (
-              <button
-                type="button"
+              <GlassButton
                 disabled={working}
                 onClick={() => void run("porte", () => clubApi.markArrival(booking, false), `${name} : arrivée annulée.`)}
-                className={SECONDARY}
               >
                 {busy === "porte" ? "Un instant…" : "Annuler l’arrivée"}
-              </button>
+              </GlassButton>
             )}
             {gerant && (
-              <button type="button" disabled={working} onClick={() => setMoving(true)} className={SECONDARY}>
+              <GlassButton disabled={working} onClick={() => setMoving(true)}>
                 {busy === "deplacer" ? "Déplacement…" : "Déplacer sur une autre table"}
-              </button>
+              </GlassButton>
             )}
             {gerant && online.length > 0 && (
-              <button type="button" disabled={working} onClick={() => setConfirm("refund")} className={DANGER}>
+              <GlassButton variant="danger" disabled={working} onClick={() => setConfirm("refund")}>
                 {busy === "table" ? "Remboursement…" : `Rembourser toute la table (${formatCents(onlineTotal)})`}
-              </button>
+              </GlassButton>
             )}
             {gerant && clubEntered && (
-              <button type="button" disabled={working} onClick={() => setConfirm("cancel")} className={DANGER}>
+              <GlassButton variant="danger" disabled={working} onClick={() => setConfirm("cancel")}>
                 Annuler la réservation
-              </button>
+              </GlassButton>
             )}
           </section>
         )}
       </div>
 
       {moving && (
-        <Modal title={`Déplacer ${booking.name}`} onClose={() => setMoving(false)}>
+        <Sheet
+          title={`Déplacer ${booking.name}`}
+          description={`Les tables libres ce soir qui accueillent ${people(booking.partySize)}. Le prix payé ne change pas.`}
+          onClose={() => setMoving(false)}
+        >
           <div className="flex flex-col gap-5">
-            <p className="text-sm text-muted">
-              Les tables libres ce soir qui accueillent {people(booking.partySize)}. Le prix payé ne change pas.
-            </p>
             {moveTargets.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-hairline px-4 py-6 text-center text-sm text-muted">
+              <p className="rounded-g-card border border-dashed border-hairline px-4 py-6 text-center text-g-body text-muted">
                 Aucune table libre n&rsquo;accueille ce groupe ce soir.
               </p>
             ) : (
               moveTargets.map((group) => (
                 <section key={group.zone.id} className="flex flex-col gap-2">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted">{group.zone.name}</h3>
+                  <h3 className="g-eyebrow">{group.zone.name}</h3>
                   <ul className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                     {group.tables.map((candidate) => (
                       <li key={candidate.id}>
                         <button
                           type="button"
                           onClick={() => setTarget({ table: candidate, zone: group.zone })}
-                          className="flex min-h-12 w-full flex-col items-start rounded-xl border border-hairline bg-surface px-3 py-2 text-left hover:border-[var(--soirees-gold)]"
+                          className="tuile g-press flex-col items-start gap-0.5"
                         >
-                          <span className="text-sm font-semibold tabular-nums">{candidate.label}</span>
-                          <span className="text-xs text-muted">{candidate.seats} places</span>
+                          <span className="text-g-body font-semibold tabular-nums">{candidate.label}</span>
+                          <span className="text-g-meta text-muted">{candidate.seats} places</span>
                         </button>
                       </li>
                     ))}
@@ -410,12 +424,12 @@ function BookingCard({
               ))
             )}
           </div>
-        </Modal>
+        </Sheet>
       )}
       {target && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Déplacer vers ${tableName(target.zone.name, target.table.label)} ?`}
-          message={`${booking.name} (${people(booking.partySize)}) passe de ${name} à ${tableName(target.zone.name, target.table.label)}. ${name} redevient libre ; le prix payé ne change pas.`}
+          text={`${booking.name} (${people(booking.partySize)}) passe de ${name} à ${tableName(target.zone.name, target.table.label)}. ${name} redevient libre ; le prix payé ne change pas.`}
           confirmLabel="Déplacer"
           cancelLabel="Choisir une autre table"
           onClose={() => setTarget(null)}
@@ -435,9 +449,9 @@ function BookingCard({
         />
       )}
       {confirm === "refund" && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Rembourser ${formatCents(onlineTotal)} ?`}
-          message={`${online
+          text={`${online
             .map(
               (payment) =>
                 `${payment.name} : ${formatCents(payment.amountCents)}${
@@ -458,11 +472,11 @@ function BookingCard({
         />
       )}
       {confirm !== null && typeof confirm === "object" && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={`Rembourser ${formatCents(confirm.amountCents)}${
             confirm.feeCents > 0 ? ` + ${formatCents(confirm.feeCents)} de frais` : ""
           } à ${confirm.name} ?`}
-          message={`Sa part lui est rendue sur sa carte et il est prévenu par e-mail. La table reste réservée : il restera ${formatCents(remaining + confirm.amountCents)} à encaisser à la porte.`}
+          text={`Sa part lui est rendue sur sa carte et il est prévenu par e-mail. La table reste réservée : il restera ${formatCents(remaining + confirm.amountCents)} à encaisser à la porte.`}
           confirmLabel="Rembourser cette part"
           cancelLabel="Garder"
           destructive
@@ -475,9 +489,9 @@ function BookingCard({
         />
       )}
       {confirm === "cancel" && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Annuler la réservation ?"
-          message={`La réservation de ${booking.name} est annulée et la table ${name} redevient libre.${
+          text={`La réservation de ${booking.name} est annulée et la table ${name} redevient libre.${
             booking.paidCents > 0
               ? ` Les ${formatCents(booking.paidCents)} réglés sur place sont à lui rendre au comptoir.`
               : ""
@@ -492,7 +506,7 @@ function BookingCard({
           }}
         />
       )}
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -518,13 +532,13 @@ function ReserveForm({
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [party, setParty] = useState(table.seats);
-  const [paid, setPaid] = useState(false);
+  const [paid, setPaid] = useState<"oui" | "non">("non");
   const [note, setNote] = useState("");
   const [saving, setSaving] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
 
   const phoneTrim = phone.trim();
-  const nameError = name.trim() ? undefined : "Le nom du client.";
+  const nameError = name.trim() ? undefined : "Indiquez le nom du client.";
   const phoneError =
     !phoneTrim || (phoneTrim.length >= CLUB_LIMITS.phoneMin && phoneTrim.length <= CLUB_LIMITS.phoneMax)
       ? undefined
@@ -544,34 +558,31 @@ function ReserveForm({
         phone: phoneTrim,
         partySize: party,
         source,
-        paid,
+        paid: paid === "oui",
         note: note.trim(),
       });
       toast.success(`${tableName(zone.name, table.label)} réservée pour ${name.trim()}.`);
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
       setSaving(false);
     }
   };
 
-  const choice = (active: boolean) =>
-    `flex-1 rounded-full px-4 py-2.5 text-sm font-semibold transition-colors ${
-      active ? "ember-gradient text-background" : "text-muted hover:text-foreground"
-    }`;
-
   return (
-    <Modal
+    <Sheet
       title={`Réserver ${tableName(zone.name, table.label)}`}
+      description={`${zone.name} · ${table.seats} places · ${formatCents(price)}${zone.inclus ? ` · ${zone.inclus}` : ""}${
+        onSale ? "" : " · gardée hors vente ce soir : vous seul pouvez la réserver."
+      }`}
       onClose={onClose}
       footer={
         <>
-          <button type="button" onClick={onClose} className={SECONDARY}>
-            Annuler
-          </button>
-          <button type="submit" form="reserver-table" disabled={saving} className={PRIMARY}>
-            {saving ? "Réservation…" : "Réserver la table"}
-          </button>
+          {saving && <p>Réservation en cours…</p>}
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton type="submit" form="reserver-table" variant="primary" disabled={saving}>
+            Réserver la table
+          </GlassButton>
         </>
       }
     >
@@ -584,82 +595,44 @@ function ReserveForm({
         }}
         className="flex flex-col gap-4"
       >
-        <p className="text-sm text-muted">
-          {zone.name} · {table.seats} places · <span className="font-semibold text-foreground">{formatCents(price)}</span>
-          {zone.inclus ? ` · ${zone.inclus}` : ""}
-          {!onSale && <span className="mt-1 block text-xs text-muted">Gardée hors vente ce soir : vous seul pouvez la réserver.</span>}
-        </p>
-
-        <div role="radiogroup" aria-label="Réservation prise" className="flex rounded-full border border-hairline p-1">
-          {(["telephone", "sur_place"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              role="radio"
-              aria-checked={source === value}
-              onClick={() => setSource(value)}
-              className={choice(source === value)}
-            >
-              {SOURCE_LABELS[value]}
-            </button>
-          ))}
+        <div className="flex">
+          <Segmented label="Réservation prise" glass={false} options={SOURCE_OPTIONS} value={source} onChange={setSource} />
         </div>
 
         <Field label="Nom" required error={showErrors ? nameError : undefined}>
-          <input
-            value={name}
-            maxLength={CLUB_LIMITS.name}
-            onChange={(e) => setName(e.target.value)}
-            autoComplete="off"
-            aria-invalid={(showErrors && Boolean(nameError)) || undefined}
-            className={inputClass}
-            data-autofocus
-          />
+          <Input value={name} maxLength={CLUB_LIMITS.name} onChange={(e) => setName(e.target.value)} autoComplete="off" data-autofocus />
         </Field>
         <div className="grid grid-cols-[1fr_7rem] gap-3">
           <Field label="Téléphone" error={showErrors ? phoneError : undefined}>
-            <input
+            <Input
               type="tel"
               inputMode="tel"
               value={phone}
               maxLength={CLUB_LIMITS.phoneMax}
               onChange={(e) => setPhone(e.target.value)}
               autoComplete="off"
-              aria-invalid={(showErrors && Boolean(phoneError)) || undefined}
-              className={inputClass}
             />
           </Field>
           <Field label="Personnes">
-            <select value={party} onChange={(e) => setParty(Number(e.target.value))} className={inputClass}>
+            <Select value={party} onChange={(e) => setParty(Number(e.target.value))}>
               {Array.from({ length: table.seats }, (_, index) => index + 1).map((count) => (
                 <option key={count} value={count}>
                   {count}
                 </option>
               ))}
-            </select>
+            </Select>
           </Field>
         </div>
 
-        <div role="radiogroup" aria-label="Règlement" className="flex rounded-full border border-hairline p-1">
-          <button type="button" role="radio" aria-checked={!paid} onClick={() => setPaid(false)} className={choice(!paid)}>
-            À régler sur place
-          </button>
-          <button type="button" role="radio" aria-checked={paid} onClick={() => setPaid(true)} className={choice(paid)}>
-            Déjà réglée
-          </button>
+        <div className="flex">
+          <Segmented label="Règlement" glass={false} options={PAID_OPTIONS} value={paid} onChange={setPaid} />
         </div>
 
         <Field label="Note" hint="Visible de l'équipe seulement : anniversaire, bouteille réservée…">
-          <textarea
-            value={note}
-            maxLength={CLUB_LIMITS.note}
-            onChange={(e) => setNote(e.target.value)}
-            rows={2}
-            className={inputClass}
-          />
+          <Textarea value={note} maxLength={CLUB_LIMITS.note} onChange={(e) => setNote(e.target.value)} rows={2} />
         </Field>
       </form>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -721,17 +694,17 @@ export function BookingSheet({
     );
   }
   return (
-    <Modal title={tableName(zone.name, table.label)} onClose={onClose}>
+    <Sheet title={tableName(zone.name, table.label)} onClose={onClose}>
       <div className="flex flex-col gap-2">
-        <p className="font-display text-xl font-medium">{onSale ? "Libre" : "Gardée, hors vente"}</p>
-        <p className="text-sm text-muted">
+        <p className="font-display text-g-h2">{onSale ? "Libre" : "Gardée, hors vente"}</p>
+        <p className="text-g-body text-muted">
           {table.seats} places · {formatCents(price)}
           {zone.inclus ? ` · ${zone.inclus}` : ""}
         </p>
         {!event.cancelledAt && (
-          <p className="text-sm text-muted">Le gérant saisit les réservations prises au téléphone ou à la porte.</p>
+          <p className="text-g-body text-muted">Le gérant saisit les réservations prises au téléphone ou à la porte.</p>
         )}
       </div>
-    </Modal>
+    </Sheet>
   );
 }

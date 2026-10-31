@@ -3,11 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { TableState } from "@/components/club/floor-plan";
 import { CheckIcon, PhoneIcon } from "@/components/gestion/icons";
+import { EmptyState, GlassButton, Input, Plate, Segmented } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import type { ClubBooking, ClubTable } from "@/lib/club/types";
 import { formatCents, tableName } from "@/lib/club/format";
 import * as clubApi from "@/lib/gestion/club-api";
 import { formatPhone, matchesSearch, staffTableState, telHref } from "@/lib/gestion/club-selectors";
+import { describeError } from "@/lib/gestion/errors";
 import { StatusChip } from "./night-plan";
 import { usePresence } from "./use-presence";
 
@@ -15,8 +17,10 @@ import { usePresence } from "./use-presence";
  * La porte : les tables du soir en une liste. D'abord celles à encaisser
  * (cerclées de corail), puis les tables réglées qu'on attend, la plus
  * ancienne réservation en tête, signalée ; les arrivées repliées dessous.
- * Un seul geste par rangée ; une table réglée entre aussi d'un glissé vers
- * la droite, et l'annonce qui suit permet de revenir dessus.
+ * Chaque rangée porte son geste écrit — « Faire entrer », ou « Encaisser …
+ * et faire entrer » —, l'appel si un numéro est laissé, et sa fiche (déplacer,
+ * rembourser) ; une table réglée entre aussi d'un glissé vers la droite,
+ * raccourci du même geste. L'annonce qui suit permet de revenir dessus.
  */
 
 /** Glissé (px) qui fait entrer une table ; au-delà, l'étiquette le dit et le lâcher suffit. */
@@ -25,6 +29,8 @@ const SWIPE_COMMIT = 96;
 const SWIPE_START = 10;
 /** Vitesse (px/ms) d'un lancer qui fait entrer avant le seuil. */
 const FLICK_SPEED = 0.6;
+/** Glissé (px) minimal d'un lancer : un doigt qui tremble sur un appui ne fait entrer personne. */
+const FLICK_MIN = 40;
 /** Vibration (ms) qui confirme sous le doigt qu'une table entre. */
 const COMMIT_BUZZ = 10;
 /** L'astuce du glissé ne se montre qu'une fois par appareil. */
@@ -58,78 +64,19 @@ function readHintSeen(): boolean {
 type Filter = "toutes" | "attente" | "payee";
 
 /** Les groupes de la porte, dans l'ordre : ce qu'il faut encaisser, puis ce qui est réglé. */
-const GROUPS: Partial<Record<TableState, string>> = {
-  attente: "À encaisser",
-  payee: "Payées",
-  prise: "Paiement en ligne en cours",
+type Group = { label: string; entity: string };
+const PAID_GROUP: Group = { label: "Payées", entity: "g-orders" };
+const GROUPS: Partial<Record<TableState, Group>> = {
+  attente: { label: "À encaisser", entity: "g-money" },
+  payee: PAID_GROUP,
+  prise: { label: "Paiement en ligne en cours", entity: "" },
 };
 
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: "toutes", label: "Toutes" },
-  { id: "attente", label: "À encaisser" },
-  { id: "payee", label: "Payées" },
+const FILTERS: { value: Filter; label: string }[] = [
+  { value: "toutes", label: "Toutes" },
+  { value: "attente", label: "À encaisser" },
+  { value: "payee", label: "Payées" },
 ];
-
-/** « ⋯ » d'une rangée : appeler, lire la note, ouvrir la fiche (déplacer, rembourser). */
-function RowMenu({ booking, onOpen }: { booking: ClubBooking; onOpen: () => void }) {
-  const [open, setOpen] = useState(false);
-  const item = "flex min-h-11 w-full items-center gap-2 rounded-xl px-3 text-left text-sm hover:bg-surface-raised";
-  return (
-    <div
-      className="relative"
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
-      }}
-      onKeyDown={(event) => {
-        if (event.key === "Escape" && open) {
-          event.stopPropagation();
-          setOpen(false);
-        }
-      }}
-    >
-      <button
-        type="button"
-        aria-haspopup="menu"
-        aria-expanded={open}
-        aria-label={`Plus d'actions pour ${booking.name}`}
-        onClick={() => setOpen(!open)}
-        className="flex size-12 shrink-0 items-center justify-center rounded-full border border-hairline text-lg text-muted hover:text-foreground"
-      >
-        ⋯
-      </button>
-      {open && (
-        <div
-          role="menu"
-          className="soirees-entree absolute bottom-full left-0 z-20 mb-2 flex w-64 flex-col gap-1 rounded-2xl border border-hairline bg-surface-raised p-1.5 shadow-lg shadow-background/60"
-        >
-          {booking.phone && (
-            <a role="menuitem" href={telHref(booking.phone)} draggable={false} className={item}>
-              <PhoneIcon className="size-4 text-muted" />
-              Appeler <span className="tabular-nums">{formatPhone(booking.phone)}</span>
-            </a>
-          )}
-          {booking.note && (
-            <p className="px-3 py-2 text-sm">
-              <span className="block text-xs font-semibold uppercase tracking-wider text-muted">Note</span>
-              {booking.note}
-            </p>
-          )}
-          <button
-            role="menuitem"
-            type="button"
-            onClick={() => {
-              setOpen(false);
-              onOpen();
-            }}
-            className={item}
-          >
-            Ouvrir la fiche · déplacer
-          </button>
-        </div>
-      )}
-    </div>
-  );
-}
 
 function DoorRow({
   entry,
@@ -148,7 +95,8 @@ function DoorRow({
   const { booking, table, zoneName, state, payers, deposit } = entry;
   const remaining = booking.remainingCents;
   const row = useRef<HTMLDivElement>(null);
-  const swipe = useRef<{ id: number; x: number; y: number; dx: number; t: number; speed: number; active: boolean } | null>(null);
+  const swipe = useRef<{ id: number; x: number; y: number; dx: number; t: number; speed: number; active: boolean; armed: boolean } | null>(null);
+  const committing = useRef(false);
   const [phase, setPhase] = useState<Phase>("repos");
   // Glisser fait entrer une table réglée ; l'argent, lui, se prend d'un geste visible.
   const canSwipe = state === "payee";
@@ -160,25 +108,17 @@ function DoorRow({
   };
 
   const commit = async () => {
+    // Un double appui, ou un glissé puis un appui : une seule entrée, une seule annonce.
+    if (committing.current) return;
+    committing.current = true;
     navigator.vibrate?.(COMMIT_BUZZ);
     setPhase("parti");
     setOffset(row.current?.offsetWidth ?? 0);
     if (await onArrive()) return;
+    committing.current = false;
     setPhase("repos");
     setOffset(0);
   };
-
-  const button = (label: string, onClick: () => void) => (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`min-h-12 flex-1 rounded-full px-5 text-sm font-semibold ${
-        next ? "ember-gradient" : "border border-hairline text-foreground hover:border-ember-2/50"
-      }`}
-    >
-      {label}
-    </button>
-  );
 
   return (
     <div
@@ -197,6 +137,7 @@ function DoorRow({
           t: event.timeStamp,
           speed: 0,
           active: false,
+          armed: false,
         };
       }}
       onPointerMove={(event) => {
@@ -220,14 +161,15 @@ function DoorRow({
         setOffset(current.dx);
         const armed = current.dx >= SWIPE_COMMIT;
         // Un cran sous le doigt au passage du seuil : lâcher fera entrer.
-        if (armed && phase !== "pret") navigator.vibrate?.(COMMIT_BUZZ);
+        if (armed && !current.armed) navigator.vibrate?.(COMMIT_BUZZ);
+        current.armed = armed;
         setPhase(armed ? "pret" : "glisse");
       }}
       onPointerUp={() => {
         const current = swipe.current;
         swipe.current = null;
         if (!current?.active) return;
-        if (current.dx >= SWIPE_COMMIT || current.speed >= FLICK_SPEED) {
+        if (current.dx >= SWIPE_COMMIT || (current.dx >= FLICK_MIN && current.speed >= FLICK_SPEED)) {
           void commit();
           return;
         }
@@ -240,23 +182,23 @@ function DoorRow({
         setOffset(0);
       }}
     >
-      {canSwipe && (
+      {(canSwipe || phase === "parti") && (
         <div className="porte-fond" aria-hidden>
-          <span className="porte-coche">
+          <span className={`porte-coche ${phase === "parti" ? "g-ready" : ""}`}>
             <CheckIcon className="size-4" />
           </span>
-          {phase === "pret" || phase === "parti" ? "Relâchez : il entre" : "Faire entrer"}
+          <span className="min-w-0 truncate">
+            {phase === "parti" ? `${booking.name} entre` : phase === "pret" ? "Relâchez : il entre" : "Faire entrer"}
+          </span>
         </div>
       )}
       <div className="porte-contenu flex flex-col gap-3 p-4">
-        <button type="button" onClick={onOpen} className="flex flex-col gap-1.5 rounded-xl text-left">
+        <button type="button" onClick={onOpen} className="g-press flex flex-col gap-1.5 rounded-g-card text-left">
           <span className="flex items-start justify-between gap-3">
-            <span className="text-base font-semibold leading-snug">{booking.name}</span>
-            <span className="shrink-0 whitespace-nowrap rounded-full border border-hairline px-2.5 py-1 text-xs font-semibold tabular-nums">
-              {name}
-            </span>
+            <span className="min-w-0 text-g-body font-semibold leading-snug">{booking.name}</span>
+            <span className="g-chip shrink-0 tabular-nums">{name}</span>
           </span>
-          <span className="flex flex-wrap items-center gap-2 text-sm text-muted">
+          <span className="flex flex-wrap items-center gap-2 text-g-label text-muted">
             {party(booking.partySize)}
             {booking.shared && payers.length > 1 && (
               <span>
@@ -277,19 +219,37 @@ function DoorRow({
             ) : (
               <StatusChip key={state} state={state} />
             )}
-            {next && <span className="text-xs font-semibold text-ember-2">Suivant</span>}
+            {next && <span className="text-g-meta font-semibold text-ember-2">Suivant</span>}
           </span>
         </button>
-        {(state === "payee" || state === "attente" || booking.phone || booking.note) && (
-          <div className="flex items-center gap-2">
-            <RowMenu booking={booking} onOpen={onOpen} />
-            {state === "payee" && button("Arrivé(e)", () => void commit())}
-            {state === "attente" &&
-              button(`Encaisser ${formatCents(remaining)} et faire entrer`, () => void commit())}
-          </div>
-        )}
+        {booking.note && <p className="text-g-meta text-muted">Note : {booking.note}</p>}
+        <div className="flex items-center gap-2">
+          {state === "payee" && (
+            <GlassButton variant={next ? "primary" : "secondary"} className="min-w-0 flex-1" onClick={() => void commit()}>
+              Faire entrer
+            </GlassButton>
+          )}
+          {state === "attente" && (
+            <GlassButton variant={next ? "primary" : "secondary"} className="min-w-0 flex-1" onClick={() => void commit()}>
+              <span className="porte-libelle">Encaisser {formatCents(remaining)} et faire entrer</span>
+            </GlassButton>
+          )}
+          {booking.phone && (
+            <a
+              href={telHref(booking.phone)}
+              draggable={false}
+              aria-label={`Appeler ${booking.name}, ${formatPhone(booking.phone)}`}
+              className="g-btn g-btn-icon g-press"
+            >
+              <PhoneIcon />
+            </a>
+          )}
+          <GlassButton className={state === "payee" || state === "attente" ? "" : "ml-auto"} aria-label={`Fiche de ${booking.name}`} onClick={onOpen}>
+            Fiche
+          </GlassButton>
+        </div>
         {hint && (
-          <p className="text-xs text-muted">Astuce : glissez une table réglée vers la droite pour la faire entrer.</p>
+          <p className="text-g-meta text-muted">Astuce : glisser une table réglée vers la droite la fait entrer aussi.</p>
         )}
       </div>
     </div>
@@ -322,7 +282,7 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
     .sort((a, b) => Date.parse(b.booking.arrivedAt ?? "") - Date.parse(a.booking.arrivedAt ?? ""));
   const nextId = waiting.find((entry) => entry.state !== "prise")?.booking.id;
   const hintId = hintSeen ? undefined : waiting.find((entry) => entry.state === "payee")?.booking.id;
-  const [rows, done] = usePresence(waiting, (entry) => entry.booking.id);
+  const [rows, done] = usePresence(waiting, (entry) => entry.booking.id, `${query}|${filter}`);
 
   // L'astuce montrée, elle ne revient plus sur cet appareil.
   useEffect(() => {
@@ -338,75 +298,63 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
     const collect = booking.remainingCents;
     try {
       await clubApi.markArrival(booking, true, collect > 0);
+      // Revenir dessus annule l'arrivée ; l'argent encaissé, lui, reste noté
+      // (club_marquer_arrivee n'y touche pas) : la table redevient « payée ».
+      const undo = () => {
+        clubApi
+          .markArrival({ ...booking, status: "arrivee", paidCents: booking.priceCents, remainingCents: 0 }, false)
+          .catch((error: unknown) => toast.error(describeError(error).message));
+      };
       if (collect > 0) {
-        // De l'argent a changé de main : rien à annuler d'un geste, la fiche de la table le permet.
-        toast.success(`${name} : ${formatCents(collect)} encaissés, ${booking.name} est entré(e).`);
-        return true;
+        toast.notice(`${name} : ${formatCents(collect)} encaissés, ${booking.name} est entré(e).`, {
+          label: "Annuler l'arrivée",
+          onPress: undo,
+        });
+      } else {
+        toast.notice(`${name} : ${booking.name} est entré(e).`, { label: "Annuler", onPress: undo });
       }
-      toast.notice(`${name} : ${booking.name} est entré(e).`, {
-        label: "Annuler",
-        onPress: () => {
-          clubApi
-            .markArrival({ ...booking, status: "arrivee" }, false)
-            .catch((error: unknown) =>
-              toast.error(error instanceof Error ? error.message : "Une erreur est survenue.")
-            );
-        },
-      });
       return true;
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
       return false;
     }
   };
 
+  const groupOf = (entry: Entry) => GROUPS[entry.state] ?? PAID_GROUP;
+
   return (
     <div className="flex flex-col">
-      <div className="sticky top-0 z-10 bg-background/95 pb-3 backdrop-blur-md">
-        <input
+      <div className="sticky top-0 z-10 flex flex-col gap-2 bg-background pb-3">
+        <Input
           type="search"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Nom, téléphone ou table"
           aria-label="Chercher une réservation"
           enterKeyHint="search"
-          className="w-full rounded-2xl border border-hairline bg-surface px-4 py-3.5 text-base outline-none transition-colors placeholder:text-muted focus:border-ember-2/60"
         />
-        <div role="group" aria-label="Filtrer les tables attendues" className="no-scrollbar mt-2 flex gap-2 overflow-x-auto">
-          {FILTERS.map(({ id, label }) => (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={filter === id}
-              onClick={() => setFilter(id)}
-              className={`min-h-11 shrink-0 rounded-full border px-4 text-sm font-medium lg:pointer-fine:min-h-9 ${
-                filter === id
-                  ? "border-[var(--soirees-gold)] text-foreground"
-                  : "border-hairline text-muted hover:text-foreground"
-              }`}
-            >
-              {label}
-            </button>
-          ))}
+        <div className="seg-defile">
+          <Segmented label="Filtrer les tables attendues" glass={false} options={FILTERS} value={filter} onChange={setFilter} />
         </div>
       </div>
 
       {held.length === 0 ? (
-        <p className="px-1 py-6 text-center text-sm text-muted">
-          Aucune table réservée pour l&rsquo;instant. Les réservations s&rsquo;affichent ici en direct.
-        </p>
+        <EmptyState text="Aucune table réservée pour l'instant : les réservations s'affichent ici en direct." />
       ) : (
         <>
           {rows.length === 0 ? (
-            <p className="px-1 pb-4 text-sm text-muted">
-              {query ? "Personne d'attendu ne correspond." : "Tout le monde est arrivé."}
+            <p className="px-1 pb-4 text-g-body text-muted">
+              {query
+                ? "Personne d'attendu ne correspond."
+                : filter === "toutes"
+                  ? "Tout le monde est arrivé."
+                  : "Aucune table attendue dans ce filtre."}
             </p>
           ) : (
             <ul className="flex flex-col">
               {rows.map(({ key, item, presence }, index) => {
-                const group = GROUPS[item.state] ?? GROUPS.payee;
-                const opens = index === 0 || (GROUPS[rows[index - 1].item.state] ?? GROUPS.payee) !== group;
-                const count = waiting.filter((entry) => (GROUPS[entry.state] ?? GROUPS.payee) === group).length;
+                const group = groupOf(item);
+                const opens = index === 0 || groupOf(rows[index - 1].item) !== group;
                 return (
                   <li
                     key={key}
@@ -418,11 +366,11 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
                   >
                     <div className="pb-2">
                       {opens && (
-                        <p className={`px-1 pb-2 text-xs font-semibold uppercase tracking-wider text-muted ${index > 0 ? "pt-4" : ""}`}>
-                          {group} · <span className="tabular-nums">{count}</span>
+                        <p className={`g-eyebrow px-1 pb-2 ${group.entity} ${index > 0 ? "pt-4" : ""}`}>
+                          {group.label} · <span className="tabular-nums">{waiting.filter((entry) => groupOf(entry) === group).length}</span>
                         </p>
                       )}
-                      <div className="overflow-hidden rounded-2xl border border-hairline bg-surface">
+                      <Plate className="overflow-hidden">
                         <DoorRow
                           entry={item}
                           next={item.booking.id === nextId}
@@ -430,7 +378,7 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
                           onOpen={() => onOpen(item.table.id)}
                           onArrive={() => arrive(item.booking, tableName(item.zoneName, item.table.label))}
                         />
-                      </div>
+                      </Plate>
                     </div>
                   </li>
                 );
@@ -439,32 +387,32 @@ export function DoorList({ held, onOpen }: { held: HeldTable[]; onOpen: (tableId
           )}
 
           {arrived.length > 0 && (
-            <details className="group mt-4 rounded-2xl border border-hairline bg-surface">
-              <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 px-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
-                <span>
-                  Tables arrivées · <span className="tabular-nums">{arrived.length}</span>
-                </span>
-                <svg viewBox="0 0 24 24" className="size-4 text-muted transition-transform group-open:rotate-180" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="m6 9 6 6 6-6" />
-                </svg>
-              </summary>
-              <ul className="divide-y divide-hairline border-t border-hairline">
-                {arrived.map(({ booking, table, zoneName }) => (
-                  <li key={booking.id}>
-                    <button
-                      type="button"
-                      onClick={() => onOpen(table.id)}
-                      className="flex min-h-12 w-full items-center justify-between gap-3 px-4 py-2 text-left"
-                    >
-                      <span className="min-w-0 text-sm font-medium">{booking.name}</span>
-                      <span className="shrink-0 text-xs font-semibold tabular-nums text-muted">
-                        {tableName(zoneName, table.label)}
-                      </span>
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </details>
+            <Plate className="mt-4">
+              <details className="group">
+                <summary className="flex min-h-g-control cursor-pointer list-none items-center justify-between gap-3 rounded-g-card px-4 text-g-label font-semibold [&::-webkit-details-marker]:hidden">
+                  <span>
+                    Tables arrivées · <span className="tabular-nums">{arrived.length}</span>
+                  </span>
+                  <svg viewBox="0 0 24 24" className="size-4 text-muted transition-transform group-open:rotate-180 motion-reduce:transition-none" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="m6 9 6 6 6-6" />
+                  </svg>
+                </summary>
+                <ul className="divide-y divide-hairline border-t border-hairline">
+                  {arrived.map(({ booking, table, zoneName }) => (
+                    <li key={booking.id}>
+                      <button
+                        type="button"
+                        onClick={() => onOpen(table.id)}
+                        className="g-press flex min-h-g-control w-full items-center justify-between gap-3 px-4 py-2 text-left"
+                      >
+                        <span className="min-w-0 truncate text-g-body font-medium">{booking.name}</span>
+                        <span className="shrink-0 text-g-meta text-muted tabular-nums">{tableName(zoneName, table.label)}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </details>
+            </Plate>
           )}
         </>
       )}
