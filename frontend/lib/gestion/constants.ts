@@ -46,6 +46,10 @@ export const DEFAULT_DAY_END_HOUR = 0;
 export const PAYMENTS_PAGE_SIZE = 20;
 /** Onglet Historique des commandes : commandes affichées d'emblée, puis ajoutées à chaque « Voir plus ». */
 export const ORDER_HISTORY_PAGE_SIZE = 10;
+/** Tailles de page au choix d'une longue liste : la première s'applique d'emblée. */
+export const LIST_PAGE_SIZES = [10, 25] as const;
+/** Recherche côté base : le temps de finir de taper avant d'interroger. */
+export const LIST_SEARCH_DEBOUNCE_MS = 250;
 
 /** Onglet Terminaux : cadence de relecture de l'état des appareils et imprimantes. */
 export const TERMINAUX_REFRESH_MS = 5000;

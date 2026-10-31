@@ -66,8 +66,17 @@ export function StatTile({
   }
 
   return (
-    <GlassFrame entity={entity} eyebrow={label} icon={icon} href={href} onClick={onClick} hero={hero} title={title}>
-      <Plate className={hero ? "p-5" : "p-4"}>
+    <GlassFrame
+      entity={entity}
+      eyebrow={label}
+      icon={icon}
+      href={href}
+      onClick={onClick}
+      hero={hero}
+      title={title}
+      className={chart ? "flex flex-col" : ""}
+    >
+      <Plate className={`${hero ? "p-5" : "p-4"} ${chart ? "flex-1" : ""}`}>
         <p className={`${hero ? "text-g-day" : "text-g-kpi"} tabular-nums whitespace-nowrap`}>
           {value}
         </p>
