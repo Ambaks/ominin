@@ -14687,6 +14687,10 @@ html.light {
 }
 
 /* Coquille de l'espace : la grille rail + colonne, au-dessus de l'aura. */
+/* Titres de l'espace : Geist. Un thème de restaurant imbriqué (aperçu du menu) garde sa police. */
+.g-titres {
+  --brand-display: var(--font-kit), var(--font-instrument-sans), sans-serif;
+}
 .g-shell {
   position: relative;
   z-index: 1;

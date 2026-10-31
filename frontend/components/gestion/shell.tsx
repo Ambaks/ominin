@@ -96,7 +96,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   // Le serveur n'a d'aperçu que si Ominin le lui ouvre ; sinon sa page
   // d'accueil est le service lui-même (voir app/menu/gestion/page.tsx).
-  { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, serveurFeature: "apercu_serveur" },
+  { href: "/gestion", label: "Aujourd’hui", feature: "apercu", icon: ApercuIcon, serveurFeature: "apercu_serveur" },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
   { href: "/gestion/soirees", label: "Soirées", feature: "soirees", icon: SoireesIcon },
   { href: "/gestion/bulles", label: "Réservations", feature: "bulles", icon: BullesIcon, excludeRoles: ["cuisinier"] },
@@ -231,7 +231,7 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
 
 function Brand({ product, small = false }: { product: string; small?: boolean }) {
   return (
-    <Link href="/gestion" className={`g-brand ${small ? "g-brand-sm" : ""}`} title="Aperçu">
+    <Link href="/gestion" className={`g-brand ${small ? "g-brand-sm" : ""}`} title="Aujourd’hui">
       <span className="ember-text font-display font-semibold">Ominin</span>
       <small className={small ? "max-sm:hidden" : ""}>{product}</small>
     </Link>

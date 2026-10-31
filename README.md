@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Titres de la gestion en Geist, « Aperçu » devient « Aujourd’hui » (2026-10-31, branche `gestion-titres-geist`, aucune migration) :** les titres de l'espace de gestion quittent Fraunces pour Geist, chez tous les restaurants (`.g-titres`, posé dans `app/menu/gestion/layout.tsx`, Remise comprise) ; les clubs et les menus clients gardent leurs polices. La page d'accueil, son onglet et l'infobulle du logo disent « Aujourd’hui » ; les capacités de l'admin gardent « Aperçu ». Vérifié : `/menu/kit` en navigateur, `tsc`, `eslint`. Non vérifié : gestion connectée, dont Remise et le libellé dans la barre d'onglets du téléphone.
+
 > **Thèmes dans Réglages (2026-10-31, branche `gestion-themes-reglages`, aucune migration) :** le sélecteur quitte le rail et la feuille « Plus » pour une carte « Thèmes » dans Réglages › Appareils, avec un aperçu de chaque thème (`public/gestion-themes/`). Le choix reste par appareil. Le personnel sans accès aux Réglages n'en change plus.
 
 > **Codes admin et d'encaissement centrés (2026-10-31, branche `gestion-code-centre`, aucune migration) :** sur tablette et téléphone, ces deux dialogues n'étaient plus collés en bas, sous le clavier : `Sheet` prend `centered` et se centre dans la zone que le clavier laisse visible.
