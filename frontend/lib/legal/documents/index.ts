@@ -1,7 +1,7 @@
 import { LegalVersionError, type LegalDoc, type LegalDocument, type SignedDoc } from "../types";
 import { cgv, cgv20261007, cgv20261007b, cgv20261011, cgv20261016 } from "./cgv";
 import { commercial } from "./commercial";
-import { confidentialite } from "./confidentialite";
+import { confidentialite, confidentialite20261031 } from "./confidentialite";
 import { dpa } from "./dpa";
 
 /*
@@ -24,9 +24,7 @@ export const documents: Record<LegalDoc, LegalDocument[]> = {
   dpa: [dpa],
   // confidentialite20261026 (prospection par les commerciaux) s'inscrit ici
   // après sa relecture, puis npm run legal:publish.
-  // confidentialite20261101 (suite du repas) de même, avant la mise en service
-  // chez le BOHO.
-  confidentialite: [confidentialite],
+  confidentialite: [confidentialite, confidentialite20261031],
   // commercialV3 (commercial-v3.ts) s'inscrit ici après sa relecture par un
   // avocat et le choix de sa date d'effet, puis npm run legal:publish.
   commercial: [commercial],
