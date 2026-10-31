@@ -24,6 +24,7 @@ export type SeriesPoint = Fn["admin_menu_series"]["Returns"][number];
 export type Funnel = Fn["admin_menu_funnel"]["Returns"][number];
 export type ItemRanking = Fn["admin_menu_items"]["Returns"][number];
 export type Measures = Fn["admin_menu_measures"]["Returns"][number];
+export type PaymentCardRow = Fn["admin_payment_cards"]["Returns"][number];
 export type LiveRow = Fn["admin_menu_live"]["Returns"][number];
 export type FeedRow = Fn["admin_menu_feed"]["Returns"][number];
 
@@ -343,6 +344,19 @@ export async function fetchMeasures(
     })
     .then(must);
   return rows[0] ?? null;
+}
+
+export async function fetchPaymentCards(
+  etablissementId: string,
+  period: Period
+): Promise<PaymentCardRow[]> {
+  return createClient()
+    .rpc("admin_payment_cards", {
+      p_etab: etablissementId,
+      p_from: period.from,
+      p_to: period.to,
+    })
+    .then(must);
 }
 
 export async function fetchLive(): Promise<LiveRow[]> {

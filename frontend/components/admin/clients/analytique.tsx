@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Funnel, StatTile, VolumeBar } from "@/components/admin/charts";
 import { ComboParfait } from "@/components/admin/clients/combo";
+import { PaymentCards } from "@/components/admin/clients/payment-cards";
 import { useToast } from "@/components/ui/toast";
 import { ITEM_RANKING_COUNT } from "@/lib/admin/constants";
 import { formatDayLong, formatEuros, formatPercent } from "@/lib/admin/format";
@@ -11,11 +12,13 @@ import {
   fetchFunnel,
   fetchItemRanking,
   fetchMeasures,
+  fetchPaymentCards,
   paymentFailure,
   type ClientOverview,
   type Funnel as FunnelData,
   type ItemRanking,
   type Measures,
+  type PaymentCardRow,
   type Period,
 } from "@/lib/admin/metrics";
 
@@ -42,6 +45,7 @@ export function ClientAnalytique({
   const [funnel, setFunnel] = useState<FunnelData | null>(null);
   const [items, setItems] = useState<ItemRanking[] | null>(null);
   const [measures, setMeasures] = useState<Measures | null>(null);
+  const [cards, setCards] = useState<PaymentCardRow[] | null>(null);
 
   useEffect(() => {
     /* eslint-disable react-hooks/set-state-in-effect --
@@ -50,16 +54,19 @@ export function ClientAnalytique({
     setFunnel(null);
     setItems(null);
     setMeasures(null);
+    setCards(null);
     /* eslint-enable react-hooks/set-state-in-effect */
     Promise.all([
       fetchFunnel(client.etablissement_id, period),
       fetchItemRanking(client.etablissement_id, period),
       fetchMeasures(client.etablissement_id, period),
+      fetchPaymentCards(client.etablissement_id, period),
     ])
-      .then(([nextFunnel, nextItems, nextMeasures]) => {
+      .then(([nextFunnel, nextItems, nextMeasures, nextCards]) => {
         setFunnel(nextFunnel);
         setItems(nextItems);
         setMeasures(nextMeasures);
+        setCards(nextCards);
       })
       .catch((error) =>
         toast.error(
@@ -174,6 +181,8 @@ export function ClientAnalytique({
       </section>
 
       <PaymentAttempts measures={measures} />
+
+      <PaymentCards rows={cards} />
 
       <ComboParfait etablissementId={client.etablissement_id} period={period} />
     </div>

@@ -1,4 +1,5 @@
 import Stripe from "stripe";
+import { recordPaymentCard, stripeChargeCard } from "@/lib/menu/payment-attempts";
 import { dispatchOrderEvent } from "@/lib/push/server";
 import { clubSiteUrl, collectSiteUrl, menuSiteUrl } from "@/lib/site";
 import type { createAdminClient } from "@/lib/supabase/admin";
@@ -96,6 +97,30 @@ export async function refundIntent(
 
 export type SettleOutcome = "paid" | "already_paid" | "refunded" | "unpaid";
 
+/** La carte n'est que sur le débit. Une mesure ne fait jamais échouer un paiement. */
+async function recordCharge(
+  admin: Admin,
+  stripe: Stripe,
+  orderId: string,
+  paymentIntentId: string,
+  accountId: string
+): Promise<void> {
+  try {
+    const { latest_charge: charge } = await stripe.paymentIntents.retrieve(
+      paymentIntentId,
+      { expand: ["latest_charge"] },
+      { stripeAccount: accountId }
+    );
+    const card = typeof charge === "object" ? charge?.payment_method_details?.card : null;
+    if (card) await recordPaymentCard(admin, orderId, stripeChargeCard(card));
+  } catch (error) {
+    console.error("[stripe] carte non lue", {
+      orderId,
+      message: error instanceof Error ? error.message : String(error),
+    });
+  }
+}
+
 /**
  * Règle une commande d'après un encaissement Stripe abouti. La commande
  * n'est marquée payée que si elle attend encore son encaissement : réglée au
@@ -186,6 +211,8 @@ async function settlePayment(
   if (order.status !== "en_attente" || settledLines?.length) {
     return refund("addition déjà réglée ou annulée");
   }
+
+  await recordCharge(admin, stripe, orderId, paymentIntentId, accountId);
 
   const { error: claimError } = await admin
     .from("orders")

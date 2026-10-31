@@ -4569,6 +4569,10 @@ export type Database = {
       }
       online_payment_attempts: {
         Row: {
+          card_brand: string | null
+          card_country: string | null
+          card_funding: string | null
+          card_wallet: string | null
           ended_at: string | null
           etablissement_id: string
           id: string
@@ -4576,8 +4580,13 @@ export type Database = {
           outcome: Database["public"]["Enums"]["online_payment_outcome"]
           refused: boolean
           started_at: string
+          three_ds: string | null
         }
         Insert: {
+          card_brand?: string | null
+          card_country?: string | null
+          card_funding?: string | null
+          card_wallet?: string | null
           ended_at?: string | null
           etablissement_id: string
           id?: string
@@ -4585,8 +4594,13 @@ export type Database = {
           outcome?: Database["public"]["Enums"]["online_payment_outcome"]
           refused?: boolean
           started_at?: string
+          three_ds?: string | null
         }
         Update: {
+          card_brand?: string | null
+          card_country?: string | null
+          card_funding?: string | null
+          card_wallet?: string | null
           ended_at?: string | null
           etablissement_id?: string
           id?: string
@@ -4594,6 +4608,7 @@ export type Database = {
           outcome?: Database["public"]["Enums"]["online_payment_outcome"]
           refused?: boolean
           started_at?: string
+          three_ds?: string | null
         }
         Relationships: [
           {
@@ -7554,6 +7569,15 @@ export type Database = {
           succeeded: number
           views: number
           views_since: string | null
+        }[]
+      }
+      admin_payment_cards: {
+        Args: { p_etab: string; p_from: string; p_to: string }
+        Returns: {
+          attempts: number
+          dimension: string
+          succeeded: number
+          value: string
         }[]
       }
       admin_menu_overview: {

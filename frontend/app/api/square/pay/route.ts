@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { raiseAlert } from "@/lib/admin/alerts";
 import { onlineMinimumError } from "@/lib/menu/online-minimum";
-import { markPaymentRefused } from "@/lib/menu/payment-attempts";
+import { markPaymentRefused, recordPaymentCard, squareCard } from "@/lib/menu/payment-attempts";
 import {
   createOrder,
   createPayment,
@@ -278,7 +278,10 @@ export async function POST(request: Request) {
       .eq("id", orderId);
 
     const paid = payment.status === "COMPLETED" || payment.status === "APPROVED";
-    if (paid) await settlePayment(admin, orderId, payment.tip_money);
+    if (paid) {
+      await recordPaymentCard(admin, orderId, squareCard(payment.card_details));
+      await settlePayment(admin, orderId, payment.tip_money);
+    }
     return NextResponse.json({ paid });
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
