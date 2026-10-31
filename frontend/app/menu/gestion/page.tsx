@@ -133,6 +133,28 @@ function Block({
   );
 }
 
+/** Le reste à faire : une ligne au téléphone, deux rangées à côté de la courbe du jour. */
+function OpenOrdersSplit({ toPay, toServe }: { toPay: number; toServe: number }) {
+  return (
+    <>
+      <p className="mt-2.5 text-g-label text-muted sm:hidden">
+        {toPay} à encaisser · {toServe} à servir
+      </p>
+      <dl className="mt-4 hidden flex-1 auto-rows-fr divide-y divide-hairline border-t border-hairline sm:grid">
+        {[
+          { label: "À encaisser", count: toPay },
+          { label: "À servir", count: toServe },
+        ].map(({ label, count }) => (
+          <div key={label} className="flex items-center justify-between gap-3 py-3">
+            <dt className="text-g-label text-muted">{label}</dt>
+            <dd className="text-g-kpi tabular-nums">{count}</dd>
+          </div>
+        ))}
+      </dl>
+    </>
+  );
+}
+
 function Card({ title, sub, children }: { title: string; sub?: string; children: ReactNode }) {
   return (
     <Plate className="px-5 pb-4 pt-4.5">
@@ -349,9 +371,9 @@ export default function ApercuPage() {
               icon={<CommandesIcon />}
               label="Commandes en cours"
               value={String(open.length)}
-              baseline={`${toPay} à encaisser · ${toServe} à servir`}
               href="/gestion/commandes"
               title="Commandes ouvertes en ce moment : à encaisser ou à servir"
+              chart={<OpenOrdersSplit toPay={toPay} toServe={toServe} />}
             />
           )}
           <StatTile

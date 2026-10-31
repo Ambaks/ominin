@@ -19,7 +19,6 @@ export function StatTile({
   href,
   onClick,
   chart,
-  fill = false,
   entity = "none",
   icon,
   hero = false,
@@ -37,8 +36,6 @@ export function StatTile({
   onClick?: () => void;
   /** Un graphique sous le chiffre. */
   chart?: ReactNode;
-  /** Sans graphique, la plaque remplit quand même la hauteur de sa rangée. */
-  fill?: boolean;
   entity?: Entity;
   icon?: ReactNode;
   /** Tuile du jour : chiffre 40 px dans un cadre héros. */
@@ -77,9 +74,10 @@ export function StatTile({
       onClick={onClick}
       hero={hero}
       title={title}
-      className={chart || fill ? "flex flex-col" : ""}
+      className="flex flex-col"
     >
-      <Plate className={`${hero ? "p-5" : "p-4"} ${chart || fill ? "flex-1" : ""}`}>
+      {/* Une tuile étirée par sa voisine garde sa plaque jusqu'en bas du cadre. */}
+      <Plate className={`flex flex-1 flex-col ${hero ? "p-5" : "p-4"}`}>
         <p className={`${hero ? "text-g-day" : "text-g-kpi"} tabular-nums whitespace-nowrap`}>
           {value}
         </p>

@@ -30,7 +30,6 @@ export function CashOutWait({ state, weekday }: { state: GestionState; weekday: 
   const lastWeek = cashOutWaits(state, at);
 
   const tile = {
-    fill: true,
     icon: <ClockIcon />,
     label: "Attente à l’encaissement",
     title: "Temps typique entre la commande et l’encaissement sur place, sur les commandes déjà encaissées",
