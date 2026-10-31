@@ -4,8 +4,7 @@ import { useMemo, useState, type CSSProperties } from "react";
 import { BullesSettings } from "@/components/gestion/bulles/settings";
 import { NewReservationSheet, ReservationSheet, STATUS_LABELS } from "@/components/gestion/bulles/reservation-sheet";
 import { CheckIcon, ExternalLinkIcon, GearIcon } from "@/components/gestion/icons";
-import { Chip, EmptyState, GlassButton, GlassFrame, Notice, Plate, SectionHeading, Shimmer } from "@/components/gestion/ui";
-import { inputClass } from "@/components/ui/field";
+import { Chip, EmptyState, ErrorNotice, GlassButton, Input, Plate, SectionHeading, Shimmer } from "@/components/gestion/ui";
 import { addDays, isoWeekday } from "@/lib/bulles/format";
 import { bulleUrl } from "@/lib/bulles/links";
 import { formatHours, formatNight } from "@/lib/club/format";
@@ -27,6 +26,8 @@ const held = (reservation: BulleReservation) =>
   reservation.status === "confirmee" || reservation.status === "arrivee";
 
 const rise = (i: number) => ({ "--g-i": i }) as CSSProperties;
+const CELL_RADIUS = "rounded-[calc(var(--g-radius-card)-var(--g-pad))]";
+const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1";
 
 export function BullesBoard({
   slug,
@@ -120,28 +121,24 @@ export function BullesBoard({
         />
       </div>
 
-      <div className="g-rise" style={rise(1)}>
-        <GlassFrame entity="orders" className="w-fit max-w-full">
-          <Plate className="flex items-center gap-1.5 p-1.5">
-            <GlassButton variant="icon" aria-label="Soir précédent" onClick={() => onDateChange(addDays(date, -1))}>
-              <ChevronIcon className="rotate-180" />
-            </GlassButton>
-            <input
-              type="date"
-              aria-label="Soir"
-              value={date}
-              onChange={(event) => event.target.value && onDateChange(event.target.value)}
-              className={`${inputClass} w-44 border-transparent bg-transparent text-center font-medium tabular-nums`}
-            />
-            <GlassButton variant="icon" aria-label="Soir suivant" onClick={() => onDateChange(addDays(date, 1))}>
-              <ChevronIcon />
-            </GlassButton>
-          </Plate>
-        </GlassFrame>
+      <div className="g-rise flex items-center gap-2" style={rise(1)}>
+        <GlassButton variant="icon" aria-label="Soir précédent" onClick={() => onDateChange(addDays(date, -1))}>
+          <ChevronIcon className="rotate-180" />
+        </GlassButton>
+        <Input
+          type="date"
+          aria-label="Soir"
+          value={date}
+          onChange={(event) => event.target.value && onDateChange(event.target.value)}
+          className="min-w-0 flex-1 font-medium tabular-nums sm:max-w-56 sm:flex-none"
+        />
+        <GlassButton variant="icon" aria-label="Soir suivant" onClick={() => onDateChange(addDays(date, 1))}>
+          <ChevronIcon />
+        </GlassButton>
       </div>
 
       {!setup.reglages ? (
-        <div className="g-rise" style={rise(2)}>
+        <div>
           <EmptyState
             text={
               gerant
@@ -152,29 +149,32 @@ export function BullesBoard({
           />
         </div>
       ) : error ? (
-        <div className="g-rise" style={rise(2)}>
-          <Notice
-            title="Les réservations ne se sont pas chargées"
-            text={error}
-            action={<GlassButton onClick={refresh}>Réessayer</GlassButton>}
-          />
+        <div>
+          <ErrorNotice error={new Error(error)} onRetry={refresh} />
         </div>
       ) : !reservations ? (
-        <div aria-busy className="g-rise grid gap-g-gap" style={rise(2)}>
+        <div aria-busy className="grid gap-g-gap">
           <Shimmer className="h-56" />
           <Shimmer className="h-56" />
         </div>
       ) : slots.length === 0 ? (
-        <div className="g-rise" style={rise(2)}>
+        <div>
           <EmptyState
-            text={`Aucun créneau le ${night}${gerant ? "" : "."}`}
+            text={`Aucun créneau le ${night}.`}
             action={openSettings && <GlassButton onClick={openSettings}>Ajouter des créneaux</GlassButton>}
+          />
+        </div>
+      ) : bulles.length === 0 ? (
+        <div>
+          <EmptyState
+            text={gerant ? "Aucune bulle : ajoutez-en une pour la proposer à la réservation." : "Aucune bulle en service."}
+            action={openSettings && <GlassButton onClick={openSettings}>Ajouter une bulle</GlassButton>}
           />
         </div>
       ) : (
         <ul className="m-0 grid list-none gap-g-gap p-0" aria-label={`Créneaux du ${night}`}>
-          {slots.map((slot, index) => (
-            <li key={slot.startsAt} className="g-rise" style={rise(2 + index)}>
+          {slots.map((slot) => (
+            <li key={slot.startsAt}>
               <Plate className="px-4 pb-4 pt-3.5 sm:px-5">
                 <h2 className="mb-3 font-display text-g-h2 tabular-nums">{formatHours(slot.startsAt, slot.endsAt)}</h2>
                 <div className="grid grid-cols-2 gap-2.5 lg:grid-cols-4">
@@ -184,10 +184,14 @@ export function BullesBoard({
                       const here = reservations.filter((r) => r.bulle_id === bulle.id && sameStart(r, slot));
                       const holder = here.find(held);
                       const pending = here.filter((r) => r.status === "en_attente");
+                      const left = holder ? holder.party_size - holder.places_paid : 0;
                       const table = bulle.table_id ? tableNumber.get(bulle.table_id) : undefined;
+                      const where = `${bulle.name}, ${formatHours(slot.startsAt, slot.endsAt)}`;
                       return (
                         <div
                           key={bulle.id}
+                          role="group"
+                          aria-label={where}
                           className="flex min-h-28 flex-col gap-2 rounded-g-card border border-hairline bg-background p-2.5"
                           style={{ "--bulle": bulle.color } as CSSProperties}
                         >
@@ -195,30 +199,34 @@ export function BullesBoard({
                             <span aria-hidden className="size-3 shrink-0 rounded-full bg-(--bulle)" />
                             <span className="truncate">{bulle.name}</span>
                             {table !== undefined && (
-                              <span className="ml-auto whitespace-nowrap text-g-meta font-medium text-muted tabular-nums">T{table}</span>
+                              <span title={`Table ${table}`} aria-label={`Table ${table}`} className="ml-auto whitespace-nowrap text-g-meta font-medium text-muted tabular-nums">T{table}</span>
                             )}
                           </p>
                           {holder ? (
                             <button
                               type="button"
                               onClick={() => setOpened(holder.id)}
-                              className="g-press flex min-h-(--g-row-h) flex-1 flex-col items-start gap-1 rounded-[calc(var(--g-radius-card)-0.375rem)] bg-surface-raised p-2.5 text-left"
+                              className={`g-press flex min-h-(--g-row-h) flex-1 flex-col items-start gap-1 ${CELL_RADIUS} p-2.5 text-left ${FOCUS} ${holder.status === "arrivee" ? "border border-hairline" : "bg-surface-raised"}`}
                             >
-                              <span className="w-full truncate font-semibold">{holder.name}</span>
-                              <span className="text-g-meta text-muted tabular-nums">
-                                {holder.party_size} pers. · {holder.places_paid}/{holder.party_size} payées
-                              </span>
-                              <span className="mt-auto">
+                              <span className="line-clamp-2 w-full break-words font-semibold">{holder.name}</span>
+                              <span className="text-g-meta text-muted tabular-nums">{holder.party_size} pers.</span>
+                              <span className="mt-auto flex flex-wrap gap-1 pt-1">
                                 <Chip icon={holder.status === "arrivee" ? <CheckIcon /> : undefined}>
                                   {STATUS_LABELS[holder.status]}
                                 </Chip>
+                                {left > 0 && (
+                                  <Chip tone="problem">
+                                    Reste {left} {left > 1 ? "places" : "place"}
+                                  </Chip>
+                                )}
                               </span>
                             </button>
                           ) : gerant && bulle.active ? (
                             <button
                               type="button"
                               onClick={() => setCreating({ bulleId: bulle.id, slot })}
-                              className="g-press flex min-h-(--g-row-h) flex-1 items-center justify-center rounded-[calc(var(--g-radius-card)-0.375rem)] border border-dashed border-hairline text-g-label text-muted"
+                              aria-label={`Réserver ${where}`}
+                              className={`g-press flex min-h-(--g-row-h) flex-1 items-center justify-center ${CELL_RADIUS} border border-dashed border-hairline text-g-label text-muted ${FOCUS}`}
                             >
                               Libre · réserver
                             </button>
@@ -230,11 +238,14 @@ export function BullesBoard({
                               key={group.id}
                               type="button"
                               onClick={() => setOpened(group.id)}
-                              className="g-press flex min-h-9 items-center justify-between gap-2 rounded-lg px-1.5 text-left text-g-meta text-muted"
+                              aria-label={`En attente, ${group.name}, ${group.places_paid} sur ${setup.reglages?.min_party} places payées`}
+                              className={`g-press flex min-h-(--g-control) items-center justify-between gap-2 ${CELL_RADIUS} px-1.5 text-left text-g-meta text-muted ${FOCUS}`}
                             >
-                              <span className="truncate">En attente · {group.name}</span>
-                              <span className="whitespace-nowrap tabular-nums">
-                                {group.places_paid}/{setup.reglages?.min_party}
+                              <span className="min-w-0 flex-1">
+                                <span className="block truncate">En attente · {group.name}</span>
+                                <span className="block tabular-nums">
+                                  {group.places_paid} sur {setup.reglages?.min_party} minimum
+                                </span>
                               </span>
                             </button>
                           ))}

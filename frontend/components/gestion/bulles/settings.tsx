@@ -1,15 +1,12 @@
 "use client";
 
-import { useState } from "react";
-import { GlassButton } from "@/components/gestion/ui";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
-import { PriceInput } from "@/components/ui/price-input";
-import { Toggle } from "@/components/ui/toggle";
-import { useRunMutation } from "@/components/ui/toast";
+import { useEffect, useRef, useState } from "react";
+import { Field, GlassButton, Input, Select, Sheet, Switch } from "@/components/gestion/ui";
+import { useRunMutation, useToast } from "@/components/ui/toast";
 import { WEEKDAY_NAMES, formatDuration, formatStartMinutes } from "@/lib/bulles/format";
 import { BULLE_LIMITS, NEW_BULLE_COLOR } from "@/lib/bulles/limits";
 import { DEFAULT_VAT_RATE, VAT_RATES } from "@/lib/gestion/constants";
+import { describeError } from "@/lib/gestion/errors";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import type { Table } from "@/lib/gestion/types";
 import {
@@ -133,31 +130,38 @@ function ReglagesForm({
       }}
     >
       <h3 className={TITLE}>La réservation</h3>
-      <p className={SUB}>Une bulle se réserve par créneau, au prix de la place ; elle est tenue dès que le minimum de places est payé.</p>
+      <p className={SUB}>Une bulle est un espace qu&rsquo;un groupe réserve pour un créneau, au prix de la place ; elle lui est tenue dès que le minimum de places est payé.</p>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Prix par personne" required error={errors.price}>
-          <PriceInput value={price} onChange={setPrice} invalid={Boolean(errors.price)} />
+        <Field label="Prix par personne" required hint="Le prix d'une place." error={price.trim() ? errors.price : undefined}>
+          <Input
+            numeric
+            unit="€"
+            placeholder="0,00"
+            value={price}
+            onChange={(event) => setPrice(event.target.value)}
+            onBlur={() => euros !== null && setPrice(priceToInput(euros))}
+          />
         </Field>
-        <Field label="Durée d'un créneau (min)" required error={errors.duration} hint={values.duration_minutes ? formatDuration(values.duration_minutes) : undefined}>
-          <input inputMode="numeric" className={`${inputClass} tabular-nums`} value={duration} aria-invalid={errors.duration ? true : undefined} onChange={(event) => setDuration(event.target.value)} />
+        <Field label="Durée d'un créneau" required error={errors.duration} hint={values.duration_minutes ? formatDuration(values.duration_minutes) : undefined}>
+          <Input numeric unit="min" inputMode="numeric" value={duration} onChange={(event) => setDuration(event.target.value)} />
         </Field>
         <Field label="Minimum de personnes" required hint="Places payées pour tenir la bulle." error={errors.min}>
-          <input inputMode="numeric" className={`${inputClass} tabular-nums`} value={minParty} aria-invalid={errors.min ? true : undefined} onChange={(event) => setMinParty(event.target.value)} />
+          <Input numeric inputMode="numeric" value={minParty} onChange={(event) => setMinParty(event.target.value)} />
         </Field>
         <Field label="Maximum de personnes" required error={errors.max}>
-          <input inputMode="numeric" className={`${inputClass} tabular-nums`} value={maxParty} aria-invalid={errors.max ? true : undefined} onChange={(event) => setMaxParty(event.target.value)} />
+          <Input numeric inputMode="numeric" value={maxParty} onChange={(event) => setMaxParty(event.target.value)} />
         </Field>
-        <Field label="Réservable jusqu'à (jours)" required hint="Combien de jours à l'avance." error={errors.days}>
-          <input inputMode="numeric" className={`${inputClass} tabular-nums`} value={days} aria-invalid={errors.days ? true : undefined} onChange={(event) => setDays(event.target.value)} />
+        <Field label="Réservable jusqu'à" required hint="Combien de jours à l'avance." error={errors.days}>
+          <Input numeric unit="jours" inputMode="numeric" value={days} onChange={(event) => setDays(event.target.value)} />
         </Field>
         <Field label="TVA" hint="Comme un article de la carte : portée sur la vente en caisse.">
-          <select value={vatRate} onChange={(event) => setVatRate(event.target.value)} className={inputClass}>
+          <Select value={vatRate} onChange={(event) => setVatRate(event.target.value)}>
             {VAT_RATES.map((rate) => (
               <option key={rate} value={String(rate)}>
                 {String(rate).replace(".", ",")} %
               </option>
             ))}
-          </select>
+          </Select>
         </Field>
       </div>
       <div className="flex flex-wrap items-center justify-end gap-3">
@@ -166,9 +170,9 @@ function ReglagesForm({
         ) : unchanged ? (
           <p className="text-g-meta text-muted">Rien à enregistrer.</p>
         ) : null}
-        <button type="submit" className="g-btn g-btn-primary g-press" disabled={!valid || unchanged || busy}>
+        <GlassButton type="submit" variant="primary" disabled={!valid || unchanged || busy}>
           {current ? "Enregistrer" : "Ouvrir les réservations"}
-        </button>
+        </GlassButton>
       </div>
     </form>
   );
@@ -206,14 +210,19 @@ function CreneauxEditor({
     onSaved();
   };
 
-  /** Le préréglage : des créneaux de la durée réglée, de 20 h jusqu'à 2 h, du jeudi au samedi. */
+  /** Les jours du préréglage encore vides : un jour déjà réglé n'est jamais touché. */
+  const presetDays = PRESET.weekdays.filter((day) => !setup.creneaux.some((creneau) => creneau.weekday === day));
+
+  /** Le préréglage : des créneaux de la durée réglée, de 20 h jusqu'à 2 h ; un au moins par jour. */
   const preset = async () => {
     setBusy(true);
     await run(async () => {
-      for (const day of PRESET.weekdays) {
-        for (let start = PRESET.fromMinutes; start + duration <= PRESET.toMinutes; start += duration) {
+      for (const day of presetDays) {
+        let start: number = PRESET.fromMinutes;
+        do {
           await addCreneau(etablissementId, day, start);
-        }
+          start += duration;
+        } while (start + duration <= PRESET.toMinutes);
       }
     }, "Créneaux ajoutés du jeudi au samedi.");
     setBusy(false);
@@ -224,10 +233,13 @@ function CreneauxEditor({
     <div className={SECTION}>
       <h3 className={TITLE}>Les créneaux</h3>
       <p className={SUB}>Les heures de début, jour par jour ; chaque créneau dure {formatDuration(duration)}.</p>
-      {setup.creneaux.length === 0 && (
-        <GlassButton className="self-start" disabled={busy} onClick={() => void preset()}>
-          Jeudi à samedi, 20 h – 2 h
-        </GlassButton>
+      {presetDays.length > 0 && (
+        <div className="flex flex-wrap items-center gap-3">
+          <GlassButton disabled={busy || !setup.reglages} onClick={() => void preset()}>
+            Jeudi à samedi, 20 h – 2 h
+          </GlassButton>
+          {!setup.reglages && <p className="text-g-meta text-muted">Ouvrez d&rsquo;abord les réservations ci-dessus.</p>}
+        </div>
       )}
       <div className="flex flex-wrap gap-1.5" role="group" aria-label="Jour">
         {WEEKDAY_NAMES.map((name, index) => {
@@ -238,8 +250,9 @@ function CreneauxEditor({
               key={name}
               type="button"
               aria-pressed={selected}
+              aria-label={`${name}, ${count} ${count > 1 ? "créneaux" : "créneau"}`}
               onClick={() => setWeekday(index + 1)}
-              className={`g-press flex h-(--g-control) items-center rounded-full px-3.5 text-g-label font-semibold ${
+              className={`g-press flex h-(--g-control) items-center rounded-full px-3.5 text-g-label font-semibold focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1 ${
                 selected ? "ember-gradient text-background" : "border border-hairline text-muted"
               }`}
             >
@@ -254,12 +267,12 @@ function CreneauxEditor({
       ) : (
         <ul className="m-0 flex list-none flex-wrap gap-2 p-0">
           {ofDay.map((creneau) => (
-            <li key={creneau.id} className="flex items-center gap-1 rounded-full border border-hairline py-1 pl-4 pr-1 text-g-label font-medium tabular-nums">
+            <li key={creneau.id} className="flex items-center gap-1 rounded-full border border-hairline pl-4 text-g-label font-medium tabular-nums">
               {formatStartMinutes(creneau.start_minutes)}
               <button
                 type="button"
                 aria-label={`Retirer le créneau de ${formatStartMinutes(creneau.start_minutes)}`}
-                className="g-press flex size-9 items-center justify-center rounded-full text-muted hover:text-foreground"
+                className="g-press flex size-(--g-control) items-center justify-center rounded-full text-muted hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ember-1"
                 onClick={async () => {
                   await run(() => removeCreneau(creneau.id), "Créneau retiré.");
                   onSaved();
@@ -271,13 +284,18 @@ function CreneauxEditor({
           ))}
         </ul>
       )}
-      <div className="flex items-end gap-2">
-        <Field label="Nouveau créneau" hint={`Avant ${dayEndHour} h, il compte pour la nuit du jour choisi.`}>
-          <input type="time" className={`${inputClass} tabular-nums`} value={time} onChange={(event) => setTime(event.target.value)} />
-        </Field>
-        <GlassButton className="mb-[1.375rem]" disabled={!time || busy} onClick={() => void add()}>
-          Ajouter
-        </GlassButton>
+      <div>
+        <div className="flex items-end gap-2">
+          <Field label="Nouveau créneau" className="min-w-0 flex-1">
+            <Input type="time" value={time} onChange={(event) => setTime(event.target.value)} />
+          </Field>
+          <GlassButton disabled={!time || busy} onClick={() => void add()}>
+            Ajouter
+          </GlassButton>
+        </div>
+        <p className="g-field-hint mt-(--g-field-gap)">
+          Choisissez une heure pour l&rsquo;ajouter. Avant {dayEndHour} h, elle compte pour la nuit du jour choisi.
+        </p>
       </div>
     </div>
   );
@@ -294,61 +312,91 @@ function BulleRow({
   tables: Table[];
   onSaved: () => void;
 }) {
-  const run = useRunMutation();
-  const [name, setName] = useState(bulle.name);
-  const [color, setColor] = useState(bulle.color);
-  const save = async (patch: Partial<Pick<Bulle, "name" | "color" | "active" | "table_id">> = {}) => {
-    const nextName = (patch.name ?? name).trim() || bulle.name;
-    await run(
-      () =>
-        saveBulle(etablissementId, {
-          id: bulle.id,
-          name: nextName,
-          color: patch.color ?? color,
-          active: patch.active ?? bulle.active,
-          sort: bulle.sort,
-          table_id: patch.table_id !== undefined ? patch.table_id : bulle.table_id,
-        }),
-      "Bulle enregistrée."
-    );
-    onSaved();
+  const toast = useToast();
+  const colorRef = useRef<HTMLInputElement>(null);
+  // Ce qui est affiché, tout de suite ; les écritures partent l'une après
+  // l'autre et portent chacune la ligne entière : la dernière gagne toujours.
+  const [draft, setDraft] = useState({
+    name: bulle.name,
+    color: bulle.color,
+    active: bulle.active,
+    table_id: bulle.table_id,
+  });
+  const writes = useRef(Promise.resolve());
+  const latest = useRef(draft);
+
+  const save = (patch: Partial<typeof draft>) => {
+    const previous = latest.current;
+    latest.current = { ...previous, ...patch };
+    setDraft(latest.current);
+    const values = latest.current;
+    writes.current = writes.current.then(async () => {
+      try {
+        await saveBulle(etablissementId, { id: bulle.id, sort: bulle.sort, ...values });
+        onSaved();
+      } catch (error) {
+        toast.error(describeError(error).message);
+        latest.current = { ...latest.current, ...previous };
+        setDraft(latest.current);
+      }
+    });
   };
+  const saveRef = useRef(save);
+  useEffect(() => {
+    saveRef.current = save;
+  });
+
+  // La couleur s'écrit à la fermeture du nuancier (l'événement natif change),
+  // pas à chaque teinte traversée.
+  useEffect(() => {
+    const input = colorRef.current;
+    if (!input) return;
+    const commit = () => saveRef.current({ color: input.value });
+    input.addEventListener("change", commit);
+    return () => input.removeEventListener("change", commit);
+  }, []);
+
+  const commitName = () => {
+    const name = draft.name.trim();
+    if (!name) setDraft((current) => ({ ...current, name: latest.current.name }));
+    else if (name !== latest.current.name) save({ name });
+  };
+
   return (
-    <li className="flex flex-col gap-2 rounded-g-card border border-hairline p-3">
+    <li className="flex flex-col gap-3 rounded-g-card border border-hairline p-3">
       <div className="flex items-center gap-3">
         <input
+          ref={colorRef}
           type="color"
-          value={color}
-          onChange={(event) => setColor(event.target.value)}
-          onBlur={() => color !== bulle.color && void save({ color })}
-          aria-label={`Couleur de ${bulle.name}`}
-          className="size-(--g-control) shrink-0 cursor-pointer rounded-full border border-hairline bg-transparent"
+          value={draft.color}
+          onChange={(event) => setDraft((current) => ({ ...current, color: event.target.value }))}
+          aria-label={`Couleur de ${draft.name}`}
+          className="size-(--g-control) shrink-0 cursor-pointer rounded-full border border-hairline bg-transparent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
         />
-        <input
-          className={inputClass}
-          value={name}
+        <Input
+          value={draft.name}
           maxLength={BULLE_LIMITS.nameMax}
-          aria-label="Nom de la bulle"
-          onChange={(event) => setName(event.target.value)}
-          onBlur={() => name.trim() !== bulle.name && void save({ name })}
+          aria-label={`Nom de la bulle ${bulle.name}`}
+          autoComplete="off"
+          enterKeyHint="done"
+          onChange={(event) => setDraft((current) => ({ ...current, name: event.target.value }))}
+          onBlur={commitName}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") event.currentTarget.blur();
+          }}
         />
-        <Toggle checked={bulle.active} onChange={(active) => void save({ active })} label={`${bulle.name} en service`} />
       </div>
-      <label className="flex items-center justify-between gap-3 text-g-body text-muted">
-        Table du menu QR
-        <select
-          className={`${inputClass} max-w-40`}
-          value={bulle.table_id ?? ""}
-          onChange={(event) => void save({ table_id: event.target.value || null })}
-        >
+      <Switch checked={draft.active} onChange={(active) => save({ active })} label="En service" />
+      <Field label="Table du menu QR" hint="Sur cette table, le menu QR ne prend de commande qu'une fois les places payées.">
+        <Select value={draft.table_id ?? ""} onChange={(event) => save({ table_id: event.target.value || null })}>
           <option value="">Aucune</option>
           {tables.map((table) => (
             <option key={table.id} value={table.id}>
               Table {table.number}
             </option>
           ))}
-        </select>
-      </label>
+        </Select>
+      </Field>
     </li>
   );
 }
@@ -370,8 +418,10 @@ export function BullesSettings({
   onSaved: () => void;
 }) {
   const run = useRunMutation();
+  const [adding, setAdding] = useState(false);
   const addBulle = async () => {
     const number = setup.bulles.length + 1;
+    setAdding(true);
     await run(
       () =>
         saveBulle(etablissementId, {
@@ -383,24 +433,22 @@ export function BullesSettings({
         }),
       `« Bulle ${number} » ajoutée, en service : renommez-la si vous voulez.`
     );
+    setAdding(false);
     onSaved();
   };
   return (
-    <Modal title="Réglages des réservations" onClose={onClose}>
+    <Sheet title="Réglages des réservations" onClose={onClose}>
       <div className="flex flex-col gap-6">
         <ReglagesForm etablissementId={etablissementId} setup={setup} onSaved={onSaved} />
         <CreneauxEditor etablissementId={etablissementId} setup={setup} dayEndHour={dayEndHour} onSaved={onSaved} />
         <div className={SECTION}>
           <h3 className={TITLE}>Les bulles</h3>
-          <p className={SUB}>
-            Une bulle est un espace qu&rsquo;un groupe réserve pour un créneau. Hors service, elle n&rsquo;est plus proposée ; ses réservations restent.
-            Sur la table d&rsquo;une bulle, le menu QR ne prend de commande qu&rsquo;une fois toutes les places du groupe payées.
-          </p>
+          <p className={SUB}>Hors service, une bulle n&rsquo;est plus proposée ; ses réservations restent.</p>
           {setup.bulles.length > 0 && (
             <ul className="m-0 flex list-none flex-col gap-3 p-0">
               {setup.bulles.map((bulle) => (
                 <BulleRow
-                  key={`${bulle.id}:${bulle.name}:${bulle.color}`}
+                  key={bulle.id}
                   etablissementId={etablissementId}
                   bulle={bulle}
                   tables={tables}
@@ -409,11 +457,11 @@ export function BullesSettings({
               ))}
             </ul>
           )}
-          <GlassButton className="self-start" onClick={() => void addBulle()}>
+          <GlassButton className="self-start" disabled={adding} onClick={() => void addBulle()}>
             Ajouter une bulle
           </GlassButton>
         </div>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

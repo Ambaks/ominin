@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { BullesBoard } from "@/components/gestion/bulles/board";
-import { EmptyState, SectionHeading, Shimmer } from "@/components/gestion/ui";
+import { EmptyState, ErrorNotice, GlassButton, SectionHeading, Shimmer } from "@/components/gestion/ui";
+import { contactEmail } from "@/lib/landing-data";
 import { currentServiceDate } from "@/lib/bulles/format";
 import { loadSetup, useBulleDay, type BulleSetup } from "@/lib/gestion/bulles-api";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
@@ -21,14 +22,22 @@ export default function BullesPage() {
   const { hasFeature, role } = useGestionAccess();
   const etablissementId = state?.etablissement.id;
   const [setup, setSetup] = useState<BulleSetup | null>(null);
+  const [setupError, setSetupError] = useState<unknown>(null);
   const [setupVersion, setSetupVersion] = useState(0);
 
   useEffect(() => {
     if (!etablissementId) return;
     let cancelled = false;
-    void loadSetup(etablissementId).then((loaded) => {
-      if (!cancelled) setSetup(loaded);
-    });
+    void loadSetup(etablissementId).then(
+      (loaded) => {
+        if (cancelled) return;
+        setSetup(loaded);
+        setSetupError(null);
+      },
+      (error: unknown) => {
+        if (!cancelled) setSetupError(error);
+      }
+    );
     return () => {
       cancelled = true;
     };
@@ -39,7 +48,18 @@ export default function BullesPage() {
     return (
       <div className="grid gap-6">
         <SectionHeading level={1} title="Réservations" />
-        <EmptyState text="La réservation en ligne s'ouvre sur demande : parlez-en à Ominin." />
+        <EmptyState
+          text="La réservation en ligne s'ouvre sur demande : parlez-en à Ominin."
+          action={role === "gerant" ? <GlassButton href={`mailto:${contactEmail}`}>Écrire à Ominin</GlassButton> : undefined}
+        />
+      </div>
+    );
+  }
+  if (setupError != null && !setup) {
+    return (
+      <div className="grid gap-6">
+        <SectionHeading level={1} title="Réservations" />
+        <ErrorNotice error={setupError} onRetry={reloadSetup} />
       </div>
     );
   }

@@ -1,11 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { GlassButton, Segmented } from "@/components/gestion/ui";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { useId, useState } from "react";
+import { ConfirmSheet, Field, GlassButton, Input, Notice, Segmented, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { formatCents, formatHours, formatNight } from "@/lib/club/format";
+import { describeError } from "@/lib/gestion/errors";
+import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
 import {
   useBulleActions,
   type Bulle,
@@ -28,15 +27,17 @@ const SOURCE_LABELS: Record<BulleSource, string> = {
 };
 
 const SOURCES = [
-  { value: "telephone", label: SOURCE_LABELS.telephone },
-  { value: "sur_place", label: SOURCE_LABELS.sur_place },
+  { value: "telephone", label: "Au téléphone" },
+  { value: "sur_place", label: "Au comptoir" },
 ] as const;
+
+const places = (n: number) => `${n} ${n > 1 ? "places" : "place"}`;
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-hairline py-2.5 text-g-body last:border-b-0">
       <span className="text-muted">{label}</span>
-      <span className="text-right font-medium tabular-nums">{children}</span>
+      <span className="min-w-0 break-words text-right font-medium tabular-nums">{children}</span>
     </div>
   );
 }
@@ -58,6 +59,13 @@ export function ReservationSheet({
   const toast = useToast();
   const { markArrival, cancelReservation } = useBulleActions();
   const [busy, setBusy] = useState(false);
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+  // Un paiement peut arriver pendant que la fiche est ouverte : les gestes
+  // d'argent changeraient sous le pouce. Ils attendent qu'on ait vu le nouvel état.
+  const version = `${reservation.status}:${reservation.places_paid}`;
+  const [seenVersion, setSeenVersion] = useState(version);
+  const changed = version !== seenVersion;
+  const blocked = busy || changed;
   const left = reservation.party_size - reservation.places_paid;
   const confirmed = reservation.status === "confirmee";
   const pending = reservation.status === "en_attente";
@@ -68,6 +76,7 @@ export function ReservationSheet({
   // Refusé (plus de bulle libre, réservation close) : la fiche reste ouverte
   // sur le message, rien n'a changé.
   const act = async (action: () => Promise<void>, message: string) => {
+    setConfirmingCancel(false);
     setBusy(true);
     try {
       await action();
@@ -75,40 +84,107 @@ export function ReservationSheet({
       onChanged();
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
     setBusy(false);
   };
 
   return (
-    <Modal
+    <Sheet
       title={`${bulle?.name ?? "Bulle"} · ${reservation.name}`}
       onClose={onClose}
       footer={
         canCancel ? (
-          <button
-            type="button"
-            disabled={busy}
-            onClick={() => void act(() => cancelReservation(reservation.id), "Réservation annulée.")}
-            className="mr-auto text-g-label font-semibold text-muted underline-offset-4 hover:text-foreground hover:underline disabled:opacity-50"
+          <GlassButton
+            variant="danger"
+            className="mr-auto"
+            disabled={blocked}
+            onClick={() => setConfirmingCancel(true)}
           >
             Annuler la réservation
-          </button>
+          </GlassButton>
         ) : undefined
       }
     >
       <div className="flex flex-col gap-5">
+        {changed && (
+          <Notice
+            tone="info"
+            title="Cette réservation vient de changer"
+            action={<GlassButton onClick={() => setSeenVersion(version)}>Actualiser</GlassButton>}
+          />
+        )}
+
+        <div className="flex flex-col gap-2.5">
+          {pending && left > 0 && (
+            <GlassButton
+              variant="primary"
+              className="w-full"
+              disabled={blocked}
+              onClick={() =>
+                void act(() => markArrival(reservation.id, true, true), "Bulle confirmée, reste encaissé.")
+              }
+            >
+              Confirmer · encaisser {formatCents(left * reservation.place_cents)}
+            </GlassButton>
+          )}
+          {confirmed && left > 0 && (
+            <GlassButton
+              variant="primary"
+              className="w-full"
+              disabled={blocked}
+              onClick={() => void act(() => markArrival(reservation.id, true, true), "Arrivée enregistrée, reste encaissé.")}
+            >
+              Arrivée · encaisser {formatCents(left * reservation.place_cents)}
+            </GlassButton>
+          )}
+          {confirmed && (
+            <GlassButton
+              variant={left > 0 ? "secondary" : "primary"}
+              className="w-full"
+              disabled={blocked}
+              onClick={() => void act(() => markArrival(reservation.id, true, false), "Arrivée enregistrée.")}
+            >
+              {left > 0 ? "Arrivée sans encaisser" : "Marquer l'arrivée"}
+            </GlassButton>
+          )}
+          {reservation.status === "arrivee" && (
+            <GlassButton
+              className="w-full"
+              disabled={blocked}
+              onClick={() => void act(() => markArrival(reservation.id, false, false), "Arrivée annulée.")}
+            >
+              Annuler l&rsquo;arrivée
+            </GlassButton>
+          )}
+          {pending && (
+            <p className="text-g-body text-muted">
+              Confirmée dès que le minimum de places est payé, en ligne ou ici. Le groupe peut payer le reste par
+              son lien jusqu&rsquo;à la fin du créneau ; rien n&rsquo;est remboursé, sauf si toutes les bulles
+              partent avant.
+            </p>
+          )}
+          {gerant && paidOnline && (confirmed || pending) && (
+            <p className="text-g-meta text-muted">Payée en ligne : elle ne s&rsquo;annule pas d&rsquo;ici.</p>
+          )}
+        </div>
+
         <div>
           <Row label="Statut">{STATUS_LABELS[reservation.status]}</Row>
-          <Row label="Soir">{formatNight(reservation.starts_at)}</Row>
-          <Row label="Créneau">{formatHours(reservation.starts_at, reservation.ends_at)}</Row>
+          <Row label="Créneau">
+            {formatNightShort(reservation.starts_at)} · {formatHours(reservation.starts_at, reservation.ends_at)}
+          </Row>
           <Row label="Groupe">{reservation.party_size} pers.</Row>
           <Row label="Places payées">
-            {reservation.places_paid} / {reservation.party_size}
+            {reservation.places_paid} sur {reservation.party_size}
+            {left > 0 && ` · reste ${places(left)}, ${formatCents(left * reservation.place_cents)}`}
           </Row>
           {reservation.phone && (
             <Row label="Téléphone">
-              <a href={`tel:${reservation.phone.replace(/[^\d+]/g, "")}`} className="text-ember-1 underline underline-offset-4">
+              <a
+                href={`tel:${reservation.phone.replace(/[^\d+]/g, "")}`}
+                className="inline-flex min-h-(--g-control) items-center text-ember-1 underline underline-offset-4"
+              >
                 {reservation.phone}
               </a>
             </Row>
@@ -119,75 +195,35 @@ export function ReservationSheet({
 
         {payers.length > 0 && (
           <div className="flex flex-col gap-1.5">
-            <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">Payé</span>
+            <span className="g-field-label">Payé</span>
             <ul className="m-0 flex list-none flex-col gap-1 p-0 text-g-body">
               {payers.map((part) => (
                 <li key={part.id} className="flex justify-between gap-3">
-                  <span>
+                  <span className="min-w-0 break-words">
                     {part.name}
                     {part.method === "sur_place" ? " · sur place" : ""}
                   </span>
-                  <span className="tabular-nums text-muted">
-                    {part.places} pl. · {formatCents(part.amount_cents)}
+                  <span className="whitespace-nowrap tabular-nums text-muted">
+                    {places(part.places)} · {formatCents(part.amount_cents)}
                   </span>
                 </li>
               ))}
             </ul>
           </div>
         )}
-
-        <div className="flex flex-col gap-2.5">
-          {pending && left > 0 && (
-            <GlassButton
-              variant="primary"
-              className="w-full"
-              disabled={busy}
-              onClick={() =>
-                void act(() => markArrival(reservation.id, true, true), "Bulle confirmée, reste encaissé.")
-              }
-            >
-              Confirmer · encaisser {formatCents(left * reservation.place_cents)} ({left} pl.)
-            </GlassButton>
-          )}
-          {confirmed && left > 0 && (
-            <GlassButton
-              variant="primary"
-              className="w-full"
-              disabled={busy}
-              onClick={() => void act(() => markArrival(reservation.id, true, true), "Arrivée enregistrée, reste encaissé.")}
-            >
-              Arrivée · encaisser {formatCents(left * reservation.place_cents)} ({left} pl.)
-            </GlassButton>
-          )}
-          {confirmed && (
-            <GlassButton
-              variant={left > 0 ? "secondary" : "primary"}
-              className="w-full"
-              disabled={busy}
-              onClick={() => void act(() => markArrival(reservation.id, true, false), "Arrivée enregistrée.")}
-            >
-              {left > 0 ? "Arrivée sans encaisser" : "Marquer l'arrivée"}
-            </GlassButton>
-          )}
-          {reservation.status === "arrivee" && (
-            <GlassButton
-              className="w-full"
-              disabled={busy}
-              onClick={() => void act(() => markArrival(reservation.id, false, false), "Arrivée annulée.")}
-            >
-              Annuler l&rsquo;arrivée
-            </GlassButton>
-          )}
-          {pending && (
-            <p className="text-g-body leading-relaxed text-muted">
-              Confirmée dès que le minimum de places est payé, en ligne ou ici. Le groupe peut payer le reste par
-              son lien jusqu&rsquo;à la fin du créneau ; rien n&rsquo;est remboursé, sauf si toutes les bulles
-              partent avant.
-            </p>
-          )}
-        </div>
       </div>
-    </Modal>
+      {confirmingCancel && (
+        <ConfirmSheet
+          title={`Annuler la réservation de ${reservation.name} ?`}
+          text="La bulle redevient libre pour ce créneau."
+          confirmLabel="Annuler la réservation"
+          cancelLabel="Garder la réservation"
+          destructive
+          onConfirm={() => void act(() => cancelReservation(reservation.id), "Réservation annulée.")}
+          onClose={() => setConfirmingCancel(false)}
+        />
+      )}
+    </Sheet>
   );
 }
 
@@ -212,7 +248,7 @@ export function NewReservationSheet({
 }) {
   const toast = useToast();
   const { createReservation } = useBulleActions();
-  const form = useRef<HTMLFormElement>(null);
+  const formId = useId();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [party, setParty] = useState("");
@@ -222,7 +258,7 @@ export function NewReservationSheet({
   const [busy, setBusy] = useState(false);
   const partySize = Number(party);
   const errors = {
-    name: name.trim().length === 0 ? "Le nom de la réservation." : undefined,
+    name: name.trim().length === 0 ? "Indiquez un nom." : undefined,
     party:
       !Number.isInteger(partySize) || partySize < 1 || partySize > maxParty
         ? `De 1 à ${maxParty} personnes.`
@@ -239,26 +275,27 @@ export function NewReservationSheet({
       onChanged();
       onClose();
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+      toast.error(describeError(error).message);
     }
     setBusy(false);
   };
 
   return (
-    <Modal
+    <Sheet
       title={`${bulle.name} · ${formatHours(startsAt, endsAt)}`}
+      description="Tout se règle sur place, à l'arrivée."
       onClose={onClose}
       footer={
         <>
           <GlassButton onClick={onClose}>Annuler</GlassButton>
-          <GlassButton variant="primary" disabled={busy} onClick={() => form.current?.requestSubmit()}>
+          <GlassButton variant="primary" type="submit" form={formId} disabled={busy}>
             Réserver la bulle
           </GlassButton>
         </>
       }
     >
       <form
-        ref={form}
+        id={formId}
         noValidate
         className="flex flex-col gap-4"
         onSubmit={(event) => {
@@ -266,43 +303,36 @@ export function NewReservationSheet({
           void submit();
         }}
       >
-        <Segmented glass={false} label="Prise" options={SOURCES} value={source} onChange={setSource} />
-        <Field label="Nom" required error={showErrors ? errors.name : undefined}>
-          <input
-            data-autofocus
-            className={inputClass}
-            value={name}
-            autoComplete="off"
-            onChange={(event) => setName(event.target.value)}
-            aria-invalid={showErrors && errors.name ? true : undefined}
-          />
-        </Field>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Téléphone">
-            <input type="tel" inputMode="tel" autoComplete="off" className={inputClass} value={phone} onChange={(event) => setPhone(event.target.value)} />
-          </Field>
-          <Field label="Personnes" required hint={`De 1 à ${maxParty}.`} error={showErrors ? errors.party : undefined}>
-            <input
-              inputMode="numeric"
-              className={`${inputClass} tabular-nums`}
-              value={party}
-              onChange={(event) => setParty(event.target.value.replace(/\D/g, ""))}
-              aria-invalid={showErrors && errors.party ? true : undefined}
-            />
-          </Field>
-        </div>
-        <Field label="Note">
-          <input className={inputClass} value={note} maxLength={300} onChange={(event) => setNote(event.target.value)} />
-        </Field>
-        <p className="text-g-meta text-muted">Tout se règle sur place, à l&rsquo;arrivée.</p>
         {pendingGroups > 0 && (
-          <p role="status" className="text-g-meta leading-relaxed text-ember-2">
+          <p role="status" className="text-g-body text-foreground">
             {pendingGroups === 1 ? "Un groupe paie" : `${pendingGroups} groupes paient`} encore cette bulle en
             ligne : {pendingGroups === 1 ? "il passera" : "ils passeront"} sur une autre bulle libre du créneau, ou
             {pendingGroups === 1 ? " sera remboursé" : " seront remboursés"} s&rsquo;il n&rsquo;en reste plus.
           </p>
         )}
+        <Field label="Réservation reçue">
+          <Segmented glass={false} label="Réservation reçue" options={SOURCES} value={source} onChange={setSource} />
+        </Field>
+        <Field label="Nom" required error={showErrors ? errors.name : undefined}>
+          <Input data-autofocus value={name} autoComplete="off" onChange={(event) => setName(event.target.value)} />
+        </Field>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Téléphone">
+            <Input type="tel" inputMode="tel" autoComplete="off" value={phone} onChange={(event) => setPhone(event.target.value)} />
+          </Field>
+          <Field label="Personnes" required hint={`De 1 à ${maxParty}.`} error={showErrors ? errors.party : undefined}>
+            <Input
+              numeric
+              inputMode="numeric"
+              value={party}
+              onChange={(event) => setParty(event.target.value.replace(/\D/g, ""))}
+            />
+          </Field>
+        </div>
+        <Field label="Note">
+          <Input value={note} maxLength={300} onChange={(event) => setNote(event.target.value)} />
+        </Field>
       </form>
-    </Modal>
+    </Sheet>
   );
 }
