@@ -462,8 +462,8 @@ function PaiementsContent({
       )}
       {voiding && (
         <ConfirmSheet
-          title={`Annuler l'encaissement de ${paymentHeading(voiding, state)} · ${formatPrice(orderTotal(voiding))} ?`}
-          text={`Le règlement${
+          title={`Annuler l'encaissement de ${paymentHeading(voiding, state)} ?`}
+          text={`Le règlement de ${formatPrice(orderTotal(voiding))}${
             voiding.paymentMode ? ` en ${PAYMENT_MODE_LABELS[voiding.paymentMode].toLowerCase()}` : ""
           } est effacé et la commande passe en annulée. Cette action est définitive.`}
           confirmLabel="Annuler l'encaissement"

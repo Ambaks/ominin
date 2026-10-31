@@ -142,7 +142,7 @@ export function EditPaymentDialog({
           </Field>
         )}
 
-        {hasGiven && validGiven && (
+        {hasGiven && validGiven && validSplit && (
           <Plate className="g-money flex items-baseline justify-between px-4 py-3">
             <span className="text-g-label font-medium">Monnaie rendue</span>
             <span className="text-g-kpi tabular-nums">{formatPrice(change)}</span>
