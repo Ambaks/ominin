@@ -14972,6 +14972,10 @@ html.light {
 
 /* Feuille « Plus » : dialogue natif de verre, posé au-dessus de la barre. */
 .g-sheet {
+  /* .g-glass pose position: relative ; sur un <dialog> modal cela devient absolute
+     et la feuille suit le document défilé — on la fixe à l'écran. */
+  position: fixed;
+  inset: 0;
   margin: auto var(--g-tabbar-inset)
     calc(
       var(--g-tab-h) + 2 * var(--g-tabbar-pad-y) + var(--g-frame-margin) +
@@ -15426,6 +15430,8 @@ textarea.g-input {
    1024 px ; le corps est une plaque (le formulaire ne pose rien sur du flou).
    Un seul élément de verre. */
 .g-dialog {
+  position: fixed;
+  inset: 0;
   margin: auto 0 0;
   width: 100%;
   max-width: none;
