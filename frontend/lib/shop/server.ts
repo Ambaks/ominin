@@ -257,15 +257,11 @@ export async function requireShopSession(): Promise<ShopSession> {
   return session;
 }
 
-export async function getAllProducts(shopId: string): Promise<ProductWithImages[]> {
+export async function getProductCounts(shopId: string): Promise<{ total: number; active: number }> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("shop_products")
-    .select("*, shop_product_images(*), shop_categories(*)")
-    .eq("shop_id", shopId)
-    .order("sort_order")
-    .order("created_at");
-  return (data ?? []).map(sortImages);
+  const count = () => supabase.from("shop_products").select("id", { count: "exact", head: true }).eq("shop_id", shopId);
+  const [total, active] = await Promise.all([count(), count().eq("is_active", true)]);
+  return { total: total.count ?? 0, active: active.count ?? 0 };
 }
 
 export async function getProductById(shopId: string, id: string): Promise<ProductDetail | null> {
@@ -418,18 +414,16 @@ export async function countUnread(shopId: string): Promise<number> {
   return count ?? 0;
 }
 
-export async function listConversations(
-  shopId: string,
-  status: "open" | "closed" | "all"
-): Promise<ShopConversation[]> {
+/** Les dernières conversations ouvertes, pour le tableau de bord. */
+export async function listRecentOpenConversations(shopId: string, limit: number): Promise<ShopConversation[]> {
   const supabase = await createClient();
-  let query = supabase
+  const { data } = await supabase
     .from("shop_conversations")
     .select("*")
     .eq("shop_id", shopId)
-    .order("last_message_at", { ascending: false });
-  if (status !== "all") query = query.eq("status", status);
-  const { data } = await query;
+    .eq("status", "open")
+    .order("last_message_at", { ascending: false })
+    .limit(limit);
   return data ?? [];
 }
 
@@ -445,14 +439,10 @@ export async function getConversation(shopId: string, id: string): Promise<Conve
   return data;
 }
 
-export async function listCustomers(shopId: string): Promise<ShopCustomerStat[]> {
+export async function getCustomerTotals(shopId: string): Promise<{ customers: number; revenueCents: number }> {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("shop_customer_stats")
-    .select("*")
-    .eq("shop_id", shopId)
-    .order("last_order_at", { ascending: false });
-  return data ?? [];
+  const { data } = await supabase.rpc("shop_customer_totals", { p_shop_id: shopId }).maybeSingle();
+  return { customers: data?.customers ?? 0, revenueCents: Number(data?.revenue_cents ?? 0) };
 }
 
 export interface DashboardStats {

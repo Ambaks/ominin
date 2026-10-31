@@ -8370,6 +8370,13 @@ export type Database = {
         Returns: undefined
       }
       loyalty_contact: { Args: { p_raw: string }; Returns: string }
+      shop_customer_totals: {
+        Args: { p_shop_id: string }
+        Returns: {
+          customers: number
+          revenue_cents: number
+        }[]
+      }
       loyalty_customers_page: {
         Args: {
           p_etablissement_id: string
