@@ -27,9 +27,11 @@ import { describeError } from "@/lib/gestion/errors";
 function CreateOrderDialog({
   state,
   onClose,
+  onEntry,
 }: {
   state: GestionState;
   onClose: () => void;
+  onEntry?: (entering: boolean) => void;
 }) {
   const toast = useToast();
   const order = useStaffOrder(state);
@@ -55,6 +57,7 @@ function CreateOrderDialog({
       return;
     }
     setSending(true);
+    onEntry?.(true);
     try {
       const orderNumber = await api.createStaffOrder(
         fastFood ? null : tableNumber,
@@ -71,6 +74,8 @@ function CreateOrderDialog({
     } catch (error) {
       toast.error(describeError(error).message);
       setSending(false);
+    } finally {
+      onEntry?.(false);
     }
   };
 
@@ -169,8 +174,11 @@ export function CreateOrderFab({
   open,
   onOpen,
   onClose,
+  onEntry,
 }: {
   state: GestionState;
+  /** Une saisie part de cet appareil : son arrivée n'a pas à s'annoncer ici. */
+  onEntry?: (entering: boolean) => void;
   /** L'écran porte déjà un bouton « Nouvelle commande » : le flottant reste rond. */
   quiet?: boolean;
   /** La page Tables autorise le libellé seulement sans table ouverte. */
@@ -187,24 +195,38 @@ export function CreateOrderFab({
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setEntered(window.localStorage.getItem(STAFF_ORDER_ENTERED_KEY) !== null);
   }, []);
+  // Le mot se lit en haut de page ; dès qu'on défile, le bouton se replie pour
+  // ne pas couvrir l'action d'une carte.
+  const [scrolled, setScrolled] = useState(false);
+  const wantsLabel = labelled && !entered && !quiet;
+  useEffect(() => {
+    if (!wantsLabel) return;
+    const onScroll = () => setScrolled(window.scrollY > 0);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, [wantsLabel]);
   const isOpen = open ?? own;
-  const showLabel = labelled && !entered && !quiet;
+  const showLabel = wantsLabel && !scrolled;
   return (
     <>
-      <button
-        type="button"
-        data-visite="prise-commande"
-        onClick={onOpen ?? (() => setOwn(true))}
-        aria-label="Nouvelle commande"
-        title="Nouvelle commande"
-        className={`g-btn g-btn-primary g-press fixed right-5 bottom-24 z-30 h-14 lg:right-10 lg:bottom-10 print:hidden ${showLabel ? "px-5" : "w-14 px-0"}`}
-      >
-        <PlusIcon className="size-6" />
-        {showLabel && <span>Nouvelle commande</span>}
-      </button>
+      <div className="print:hidden">
+        <button
+          type="button"
+          data-visite="prise-commande"
+          onClick={onOpen ?? (() => setOwn(true))}
+          aria-label="Nouvelle commande"
+          title="Nouvelle commande"
+          className={`g-fab g-press ${showLabel ? "g-fab-label" : ""}`}
+        >
+          <PlusIcon className="size-6" />
+          {showLabel && <span>Nouvelle commande</span>}
+        </button>
+      </div>
       {isOpen && (
         <CreateOrderDialog
           state={state}
+          onEntry={onEntry}
           onClose={() => {
             setOwn(false);
             setEntered(window.localStorage.getItem(STAFF_ORDER_ENTERED_KEY) !== null);

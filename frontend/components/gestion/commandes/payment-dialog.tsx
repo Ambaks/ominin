@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Field, GlassButton, Input, Plate, Sheet } from "@/components/gestion/ui";
 import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
 import { amountToInput, parseAmount } from "@/lib/gestion/format";
@@ -53,6 +53,13 @@ export function PaymentDialog({
   // Les deux parts d'un règlement mixte : saisir l'une remplit l'autre.
   const [cashRaw, setCashRaw] = useState("");
   const [cardRaw, setCardRaw] = useState("");
+  // La feuille reste montée d'une étape à l'autre : c'est au changement
+  // d'étape que le champ attendu reprend le focus, le bouton touché ayant
+  // disparu.
+  const stepBody = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    stepBody.current?.querySelector("input")?.focus();
+  }, [step]);
 
   const parsedTip = parseAmount(tipRaw);
   // Le pourboire s'ajoute à l'addition : le client le règle avec elle.
@@ -143,7 +150,7 @@ export function PaymentDialog({
         onClose={onClose}
         footer={footer(settleCash, Boolean(givenRaw) && validGiven, "Indiquez le montant reçu pour encaisser.")}
       >
-        <div className="flex flex-col gap-5">
+        <div ref={stepBody} className="flex flex-col gap-5">
           {dueRow}
           <Field
             label="Montant reçu"
@@ -153,7 +160,6 @@ export function PaymentDialog({
             <Input
               numeric
               unit="€"
-              data-autofocus
               value={givenRaw}
               onChange={(e) => setGivenRaw(e.target.value)}
               onKeyDown={onEnter(settleCash)}
@@ -173,7 +179,7 @@ export function PaymentDialog({
         onClose={onClose}
         footer={footer(settleSplit, validSplit && validSplitGiven, "Indiquez la part en espèces ou en carte pour encaisser.")}
       >
-        <div className="flex flex-col gap-5">
+        <div ref={stepBody} className="flex flex-col gap-5">
           {dueRow}
           <div className="grid gap-3 sm:grid-cols-2">
             {(
@@ -191,7 +197,6 @@ export function PaymentDialog({
                 <Input
                   numeric
                   unit="€"
-                  data-autofocus={index === 0 || undefined}
                   value={value}
                   onChange={(e) => {
                     setSelf(e.target.value);

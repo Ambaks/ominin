@@ -295,7 +295,7 @@ export function EncaisserPanel({
 
       {cancelling && (
         <ConfirmSheet
-          title={`Annuler « ${cancelling.line.name} » ?`}
+          title={`Annuler «\u00a0${cancelling.line.name}\u00a0»\u00a0?`}
           text="L’article sera retiré de l’addition, définitivement."
           confirmLabel="Annuler l’article"
           cancelLabel="Garder l’article"
@@ -345,7 +345,10 @@ export function EncaisserCard({
   onCancel,
   i,
   tag,
+  ready,
 }: {
+  /** Arrivée en temps réel : l'onde de braise, une fois. */
+  ready?: boolean;
   orders: Order[];
   title: string;
   /** Un mot devant le surtitre (« Exemple »). */
@@ -372,13 +375,14 @@ export function EncaisserCard({
       eyebrow={`${tag ? `${tag} · ` : ""}Addition · ${formatTime(oldest)}`}
       title={title}
       i={i}
+      ready={ready}
       right={
         <span className="text-g-name tabular-nums text-g-entity">{formatPrice(remaining)}</span>
       }
       sub={
         <>
           Part {counterWords(barPickup).preparation} une fois encaissée.
-          <HubriseRef orders={orders} />
+          <HubriseRef orders={orders} sendState={!tag} />
         </>
       }
     >

@@ -41,6 +41,7 @@ export function CounterCard({
   readOnly = false,
   setStatus = api.updateOrderStatus,
   i,
+  ready: arrived = false,
 }: {
   order: Order;
   /** L'heure de la page : une seule horloge pour toutes les cartes (et le
@@ -57,6 +58,8 @@ export function CounterCard({
   setStatus?: (orderId: string, status: OrderStatus) => Promise<unknown>;
   /** Rang d'entrée dans la page. */
   i?: number;
+  /** Arrivée en temps réel : l'onde de braise, une fois. */
+  ready?: boolean;
 }) {
   const { role } = useGestionAccess();
   const toast = useToast();
@@ -96,11 +99,11 @@ export function CounterCard({
       data-ready={ready || undefined}
       data-late={late || undefined}
       data-fresh={fresh || undefined}
-      className={`${late ? "g-problem" : "g-orders"} ${rise === undefined ? "" : "g-rise"} flex flex-col overflow-hidden pb-4 data-fresh:ring-1 data-fresh:ring-ember-2 data-late:ring-1 data-late:ring-ember-3 data-ready:ring-1 data-ready:ring-ember-2`}
+      className={`${late ? "g-problem" : "g-orders"} ${rise === undefined ? "" : "g-rise"} ${arrived ? "g-ready" : ""} flex flex-col pb-4 data-fresh:ring-1 data-fresh:ring-ember-2 data-late:ring-1 data-late:ring-ember-3 data-ready:ring-1 data-ready:ring-ember-2`}
       style={rise === undefined ? undefined : ({ "--g-i": rise } as CSSProperties)}
     >
       <div
-        className={`flex items-start justify-between gap-3 px-5 pb-2.5 pt-3.5 ${
+        className={`flex items-start justify-between gap-3 rounded-t-g-card px-5 pb-2.5 pt-3.5 ${
           ready ? "ember-gradient text-background" : late ? "bg-[color-mix(in_srgb,var(--ember-3)_var(--g-chip-tint),transparent)]" : ""
         }`}
       >
@@ -112,7 +115,7 @@ export function CounterCard({
           </span>
           <span className="flex items-baseline gap-1.5 font-semibold leading-none tabular-nums">
             <span className="text-g-h2 opacity-60">N°</span>
-            <span className="text-6xl tracking-tight">{order.orderNumber}</span>
+            <span className="text-g-counter tracking-tight">{order.orderNumber}</span>
           </span>
           {/* Le numéro reste ce qu'on appelle : la table se lit en second. */}
           {table !== undefined && (
@@ -143,7 +146,7 @@ export function CounterCard({
       </div>
       <CounterLines items={order.items} className="flex-1 pt-3" />
       {/* L'identifiant caisse après le contenu du sac : on vérifie le sac d'abord, la caisse ensuite. */}
-      <HubriseRef orders={[order]} className="mt-2 px-5" />
+      <HubriseRef orders={[order]} className="mt-2 px-5" sendState />
 
       {actionable && (
         <div className="mt-3 flex items-center gap-3 px-5">

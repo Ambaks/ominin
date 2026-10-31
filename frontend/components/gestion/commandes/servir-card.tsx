@@ -171,7 +171,10 @@ export function ServirCard({
   onServe,
   i,
   tag,
+  ready,
 }: {
+  /** Arrivée en temps réel : l'onde de braise, une fois. */
+  ready?: boolean;
   orders: Order[];
   title: string;
   /** Un mot devant le surtitre (« Exemple »). */
@@ -202,6 +205,7 @@ export function ServirCard({
       title={title}
       headingId={headingId}
       i={i}
+      ready={ready}
       right={
         <span className="flex flex-wrap items-center gap-2">
           {/* Le retard se dit en toutes lettres, pas par la seule teinte. */}
@@ -216,7 +220,7 @@ export function ServirCard({
       sub={
         <>
           Commandée à {formatTime(oldest)}.
-          <HubriseRef orders={orders} />
+          <HubriseRef orders={orders} sendState={!tag} />
         </>
       }
     >

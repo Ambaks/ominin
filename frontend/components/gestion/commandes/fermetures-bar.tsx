@@ -93,10 +93,13 @@ export function FermeturesBar({
   closures,
   categories,
   dayEndHour,
+  i,
 }: {
   closures: Closure[];
   categories: MenuCategory[];
   dayEndHour: number;
+  /** Rang d'entrée : le cadre de verre monte lui-même. */
+  i?: number;
 }) {
   const now = useNow(WAIT_TICK_MS);
   const [confirming, setConfirming] = useState<Closure | null>(null);
@@ -118,7 +121,7 @@ export function FermeturesBar({
 
   return (
     <div data-visite="commandes-fermetures" className="rounded-g-frame">
-      <GlassFrame entity={anyActive ? "problem" : "orders"} eyebrow="Fermetures" icon={<ClockIcon />}>
+      <GlassFrame i={i} entity={anyActive ? "problem" : "orders"} eyebrow="Fermetures" icon={<ClockIcon />}>
         <Plate className="flex flex-col divide-y divide-hairline px-4">
           {closures.map((closure) => {
             const active = closureActive(closure, clock, dayEndHour);
@@ -178,10 +181,13 @@ export function FermeturesStatut({
   closures,
   categories,
   dayEndHour,
+  i,
 }: {
   closures: Closure[];
   categories: MenuCategory[];
   dayEndHour: number;
+  /** Rang d'entrée : le cadre de verre monte lui-même. */
+  i?: number;
 }) {
   const now = useNow(WAIT_TICK_MS);
   const clock = serviceClock(now, dayEndHour);
@@ -190,7 +196,7 @@ export function FermeturesStatut({
   );
   if (active.length === 0) return null;
   return (
-    <GlassFrame entity="problem" eyebrow="Fermetures" icon={<ClockIcon />}>
+    <GlassFrame i={i} entity="problem" eyebrow="Fermetures" icon={<ClockIcon />}>
       <Plate className="flex flex-col divide-y divide-hairline px-4">
         {active.map((closure) => (
           <div key={closure.id} className="flex min-h-g-control flex-wrap items-center gap-x-2.5 gap-y-1 py-1.5">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react";
 import { CounterCard } from "@/components/gestion/commandes/counter-card";
 import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab";
 import { EncaisserCard } from "@/components/gestion/commandes/encaisser-card";
@@ -147,11 +147,18 @@ export default function CommandesPage() {
   // une carte qui arrive seule monte sans délai, et un changement d'onglet
   // n'anime rien (surface à haute fréquence).
   const [settled, setSettled] = useState<OrderTab | null>(null);
+  // Les commandes arrivées en direct dans l'onglet ouvert : leur carte joue
+  // l'onde une fois. Ni au chargement, ni pour une saisie de cet appareil.
+  const [arrived, setArrived] = useState<ReadonlySet<string>>(new Set());
+  const knownOrders = useRef<Set<string> | null>(null);
+  const ownEntry = useRef(false);
   const [tableQuery, setTableQuery] = useState("");
   const [historyTable, setHistoryTable] = useState<{
     number: number;
     id: string | null;
   } | null>(null);
+  // Comptoir : l'historique se filtre par numéro du jour, sur les pages chargées.
+  const [historyNumber, setHistoryNumber] = useState<number | null>(null);
   const [example, setExample] = useState(false);
   const [creating, setCreating] = useState(false);
 
@@ -190,6 +197,17 @@ export default function CommandesPage() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setSettled(filter);
   }, [filter]);
+
+  const orders = state?.orders;
+  useEffect(() => {
+    if (!orders) return;
+    const previous = knownOrders.current;
+    knownOrders.current = new Set(orders.map((order) => order.id));
+    if (!previous || ownEntry.current) return;
+    const fresh = orders.filter((order) => !previous.has(order.id) && matchesFilter(order, filter));
+    if (fresh.length === 0) return;
+    setArrived((current) => new Set([...current, ...fresh.map((order) => order.id)]));
+  }, [orders, filter]);
 
   useEffect(() => {
     if (filter !== "historique" || historyLoaded || loadingHistory) return;
@@ -235,7 +253,9 @@ export default function CommandesPage() {
         ]);
   const visible =
     filter === "historique"
-      ? [...historyOrders].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
+      ? historyOrders
+          .filter((order) => historyNumber === null || order.orderNumber === historyNumber)
+          .sort((a, b) => b.createdAt.localeCompare(a.createdAt))
       : state.orders
           .filter((order) => matchesFilter(order, filter))
           .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
@@ -260,13 +280,25 @@ export default function CommandesPage() {
   }
   // Rang des cartes : étagées à l'arrivée, seules et sans délai ensuite, aucun mouvement au changement d'onglet.
   const rank = settled === null ? 3 : settled === filter ? 0 : undefined;
+  // Les blocs de tête : à l'arrivée seulement ; un avis qui tombe en plein service apparaît sans mouvement.
+  const entering = settled === null;
+  const isNew = (list: Order[]) => list.some((order) => arrived.has(order.id));
 
   const searchTable = () => {
     const raw = tableQuery.trim();
     if (!/^\d+$/.test(raw)) return;
     const number = Number(raw);
+    if (fastFood) {
+      setHistoryNumber(number);
+      return;
+    }
     const table = state.tables.find((candidate) => candidate.number === number);
     setHistoryTable({ number, id: table?.id ?? null });
+  };
+  const clearSearch = () => {
+    setTableQuery("");
+    setHistoryTable(null);
+    setHistoryNumber(null);
   };
 
   const canCreate = !isCuisinier && hasFeature("prise_commande");
@@ -275,6 +307,8 @@ export default function CommandesPage() {
   const emptyBody =
     filter === "historique" && historyTable
       ? `Aucune commande sur la table ${historyTable.number} depuis le début du service.`
+      : filter === "historique" && historyNumber !== null
+        ? `Aucune commande n° ${historyNumber} parmi celles chargées : « Voir plus » remonte plus loin.`
       : fastFood && filter === "a_servir"
         ? "Les commandes payées apparaîtront ici par numéro, de la préparation à la remise au comptoir."
         : pickupShop && filter === "a_servir"
@@ -284,11 +318,11 @@ export default function CommandesPage() {
             : filter === "a_encaisser" && fastFood
               ? emptyEncaisser(state, true)
               : EMPTY_BODIES[filter];
-  // L'état vide écrit « Nouvelle commande » : le flottant reste rond.
-  const emptyHasButton = visible.length === 0 && canCreate && filter !== "historique" && !(example && canExample);
+  // L'état vide écrit « Nouvelle commande », et l'exemple ne doit pas se cacher derrière : le flottant reste rond.
+  const emptyHasButton = visible.length === 0 && canCreate && filter !== "historique";
 
   return (
-    <div className={`flex flex-col gap-5 ${canCreate ? "pb-20" : ""}`}>
+    <div className={`flex flex-col gap-5 ${canCreate ? "pb-[calc(var(--g-fab)+var(--g-gap))]" : ""}`}>
       <Block i={0}>
         <SectionHeading
           level={1}
@@ -324,34 +358,37 @@ export default function CommandesPage() {
       </Block>
 
       {(state.closures.length > 0 || printerOffline) && (
-        <Block i={1} className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
           {state.closures.length > 0 &&
             (can("fermetures.basculer") ? (
               <FermeturesBar
                 closures={state.closures}
                 categories={state.categories}
                 dayEndHour={state.dayEndHour}
+                i={entering ? 1 : undefined}
               />
             ) : (
               <FermeturesStatut
                 closures={state.closures}
                 categories={state.categories}
                 dayEndHour={state.dayEndHour}
+                i={entering ? 1 : undefined}
               />
             ))}
           {printerOffline && (
             <Notice
+              i={entering ? 1 : undefined}
               icon={<PrinterIcon />}
               title="Boîtier Omilink hors ligne"
               text={`Les tickets ${pickupShop ? "de préparation" : "cuisine"} ne sortent pas. Suivez les commandes dans « ${tabLabel("a_servir")} » en attendant.`}
             />
           )}
-        </Block>
+        </div>
       )}
 
       <PushPrompt />
 
-      <Block i={2} className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2">
         {shown.length > 1 && (
           <div data-visite="commandes-etapes" className="no-scrollbar -mx-1 flex w-fit max-w-[calc(100%+0.5rem)] overflow-x-auto rounded-full p-1">
             <Segmented
@@ -366,13 +403,16 @@ export default function CommandesPage() {
               })}
               value={filter}
               onChange={setChosenFilter}
+              i={entering ? 2 : undefined}
             />
           </div>
         )}
-        <p className="text-g-meta text-muted">{hints[filter]}</p>
-      </Block>
+        <Block i={2}>
+          <p className="text-g-meta text-muted">{hints[filter]}</p>
+        </Block>
+      </div>
 
-      {filter === "historique" && !fastFood && !pickupShop && (
+      {filter === "historique" && !pickupShop && (
         <form
           className="flex max-w-md flex-wrap items-end gap-2"
           onSubmit={(event) => {
@@ -380,7 +420,7 @@ export default function CommandesPage() {
             searchTable();
           }}
         >
-          <Field label="Numéro de table" className="min-w-44 flex-1">
+          <Field label={fastFood ? "Numéro de commande" : "Numéro de table"} className="min-w-44 flex-1">
             <Input
               inputMode="numeric"
               value={tableQuery}
@@ -391,17 +431,7 @@ export default function CommandesPage() {
           <GlassButton variant="primary" type="submit" disabled={!tableQuery.trim()}>
             Rechercher
           </GlassButton>
-          {historyTable && (
-            <GlassButton
-             
-              onClick={() => {
-                setTableQuery("");
-                setHistoryTable(null);
-              }}
-            >
-              Tout afficher
-            </GlassButton>
-          )}
+          {(historyTable || historyNumber !== null) && <GlassButton onClick={clearSearch}>Tout afficher</GlassButton>}
         </form>
       )}
 
@@ -437,7 +467,12 @@ export default function CommandesPage() {
           </Block>
         )
       ) : (
-        <div className="flex flex-col gap-4">
+        <div
+          className="flex flex-col gap-4"
+          onAnimationEnd={(event) => {
+            if (event.animationName === "g-ready") setArrived(new Set());
+          }}
+        >
           {[...byTable.entries()].map(([tableId, orders]) =>
             filter === "a_encaisser" ? (
               <EncaisserCard
@@ -445,6 +480,7 @@ export default function CommandesPage() {
                 orders={orders}
                 title={`Table ${tableNumbersById.get(tableId) ?? 0}`}
                 i={rank}
+                ready={isNew(orders)}
               />
             ) : (
               <ServirCard
@@ -454,6 +490,7 @@ export default function CommandesPage() {
                 now={now}
                 readOnly={isCuisinier}
                 i={rank}
+                ready={isNew(orders)}
               />
             )
           )}
@@ -469,6 +506,7 @@ export default function CommandesPage() {
                     .filter(Boolean)
                     .join(" · ")}
                   i={rank}
+                  ready={arrived.has(order.id)}
                 />
               ))
             : numbered.length > 0 && (
@@ -486,6 +524,7 @@ export default function CommandesPage() {
                       }
                       readOnly={isCuisinier}
                       i={rank}
+                      ready={arrived.has(order.id)}
                     />
                   ))}
                 </div>
@@ -497,6 +536,7 @@ export default function CommandesPage() {
               place={placeLabel(order, state.tables, showTable)}
               pickupShop={pickupShop}
               i={rank}
+              ready={arrived.has(order.id)}
             />
           ))}
         </div>
@@ -521,6 +561,9 @@ export default function CommandesPage() {
           open={creating}
           onOpen={() => setCreating(true)}
           onClose={() => setCreating(false)}
+          onEntry={(sending) => {
+            ownEntry.current = sending;
+          }}
         />
       )}
     </div>

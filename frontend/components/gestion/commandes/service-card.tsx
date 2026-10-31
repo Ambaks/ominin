@@ -17,6 +17,7 @@ export function ServiceCard({
   right,
   sub,
   i,
+  ready = false,
   className = "",
   children,
 }: {
@@ -31,13 +32,15 @@ export function ServiceCard({
   sub?: ReactNode;
   /** Rang d'entrée dans la page ; absent, la carte apparaît sans mouvement. */
   i?: number;
+  /** Arrivée en temps réel : l'onde de braise, une fois. */
+  ready?: boolean;
   className?: string;
   children?: ReactNode;
 }) {
   const [rise] = useState(i);
   return (
     <Plate
-      className={`${ENTITY[entity]} ${rise === undefined ? "" : "g-rise"} flex flex-col p-5 ${className}`}
+      className={`${ENTITY[entity]} ${rise === undefined ? "" : "g-rise"} ${ready ? "g-ready" : ""} flex flex-col p-5 ${className}`}
       style={rise === undefined ? undefined : ({ "--g-i": rise } as CSSProperties)}
     >
       <p className="g-eyebrow flex flex-wrap items-center gap-x-2 gap-y-1">

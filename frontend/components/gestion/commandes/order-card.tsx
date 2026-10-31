@@ -35,7 +35,10 @@ export function OrderCard({
   place,
   pickupShop = false,
   i,
+  ready,
 }: {
+  /** Arrivée en temps réel : l'onde de braise, une fois. */
+  ready?: boolean;
   order: Order;
   /** Sur place : la table ou le numéro du jour (placeLabel). */
   place: string;
@@ -91,6 +94,7 @@ export function OrderCard({
       }
       right={<StatusBadge status={order.status} label={statusLabel} />}
       i={i}
+      ready={ready}
       sub={
         <>
           {isCollect && (
@@ -99,7 +103,7 @@ export function OrderCard({
               {readyAt && ` · prête vers ${formatTime(readyAt)}`}
             </p>
           )}
-          <HubriseRef orders={[order]} className="mt-0" />
+          <HubriseRef orders={[order]} sendState />
         </>
       }
     >
