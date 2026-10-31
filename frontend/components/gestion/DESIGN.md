@@ -43,7 +43,7 @@ Les jetons du kit, préfixés `--g-*`, vivent sur `:root` (surcharges `html.ligh
 | `--g-rail` / `--g-rail-narrow` | `232px` / `200px` (≤ 1200 px) | largeur du rail |
 | `--g-cap-h` / `--g-cap-h-hero` | `30px` / `34px` | rangée du surtitre d'un cadre |
 | `--g-control` | `44px` (souris fine : `36px`) | hauteur des boutons, pilules, boutons icône |
-| `--g-fab` | `56px` | bouton d'action flottant `.g-fab` (rond) ; `.g-fab-label` l'étire, marge `--g-input-px` |
+| `--g-fab` | `56px` | bouton d'action flottant `.g-fab` (rond) ; À partir de 1024 px, `.g-fab-label` l'étire, marge `--g-input-px` |
 | `--g-seg-h` / `--g-seg-pad` | `36px` (souris fine : `32px`) / `4px` | segment et marge du segmenté (44 px au doigt) |
 | `--g-chip-h` / `--g-chip-tint` / `--g-chip-ring` | `24px` / `18%` / `35%` | pastille ; teinte et filet de la pastille problème |
 | `--g-badge` | `18px` | compteur sur un bouton icône |
@@ -189,7 +189,7 @@ sélection au maintien, pas de flash de tap.
   lignes (texte en pleine largeur, action à droite).
 - **Bouton d'action flottant** `.g-fab` (+ `g-press`) : fixe, `z-index` 30, à `--g-topbar-mx-sm` du bord droit,
   posé au-dessus de la barre d'onglets (même formule que la feuille « Plus », `safe-area-inset-bottom` compris) ;
-  ≥ 1024 px, à `--g-topbar-mx` de l'angle bas-droit. `.g-fab-label` l'étire pour porter un mot.
+  ≥ 1024 px, à `--g-topbar-mx` de l'angle bas-droit. À partir de 1024 px, `.g-fab-label` l'étire pour porter un mot.
 - Les grilles passent par les variantes Tailwind (`sm:`, `lg:`, `xl:`), les largeurs par les jetons.
 
 ## 11. Formulaires

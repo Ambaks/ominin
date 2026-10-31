@@ -487,11 +487,11 @@ export function KitPreview() {
         <button
           type="button"
           className={`g-fab g-press${fabLabel ? " g-fab-label" : ""}`}
-          aria-label={fabLabel ? undefined : "Nouvelle commande"}
+          aria-label="Nouvelle commande"
           onClick={() => setFabLabel((v) => !v)}
         >
           <PlusIcon />
-          {fabLabel && "Nouvelle commande"}
+          {fabLabel && <span>Nouvelle commande</span>}
         </button>
       </main>
     </div>

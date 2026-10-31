@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **« Nouvelle commande » reste rond sur téléphone (2026-10-31, branche `gestion-fab-telephone`, aucune migration) :** sous 1024 px, le bouton flottant de Commandes et Tables ne s'étire plus avec son libellé, qui couvrait le reste à encaisser et le bouton d'encaissement. Le libellé reste sur ordinateur.
+
 > **Bulles garde son nom chez le BOHO (2026-10-31, branche `gestion-bulles-boho`, aucune migration) :** l'onglet « Réservations » de la gestion s'appelle « Bulles » pour `boho` et `boho-demo` (`bullesTabName`, `lib/gestion/constants.ts`). Le vrai BOHO n'a pas cette fonctionnalité activée aujourd'hui : le nom se voit sur la démo, et chez lui dès qu'elle s'ouvre.
 
 > **Gestion v2 (2026-10-31, branche `gestion-v2`, migration `20261031001000_admin_combo_parfait`) :** espace de gestion refait sur le kit « ember glass » (`components/gestion/ui`, contrat `components/gestion/DESIGN.md`), navigation par rôle à 4 onglets + « Plus », vocabulaire de `design/gestion-v2/UX-SIMPLICITE.md`, trois thèmes par appareil (Ember glass, Néon braise, Ember teal). Le combo parfait et les suggestions quittent l'Aperçu du gérant : admin seulement, par client et flotte. Non vérifié : encaissements réels, Retraits jamais rendu, Soirées sur données d'échantillon.
