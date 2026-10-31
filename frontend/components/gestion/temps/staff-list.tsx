@@ -47,9 +47,9 @@ function CopyLink({ staff }: { staff: Staff }) {
   );
 }
 
-function PulseDot() {
+function Dot() {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className="animate-pulse" aria-hidden>
+    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
       <circle cx="12" cy="12" r="5" />
     </svg>
   );
@@ -108,13 +108,13 @@ export function StaffList({
                 <button
                   type="button"
                   onClick={() => setEditing(member)}
-                  className="g-press min-h-g-control min-w-0 flex-1 py-1 text-left"
+                  className="min-h-g-control min-w-0 flex-1 rounded-g-card py-1 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                 >
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="truncate text-g-label font-semibold">{member.name}</span>
                     {inService && (
                       <span className="g-orders">
-                        <Chip icon={<PulseDot />}>En service</Chip>
+                        <Chip icon={<Dot />}>En service</Chip>
                       </span>
                     )}
                     {member.hidden && <Chip>Masqué</Chip>}

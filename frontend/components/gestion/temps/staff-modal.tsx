@@ -122,7 +122,7 @@ export function StaffModal({
       onClose={onClose}
       footer={
         <>
-          {missing && <p>{missing}</p>}
+          {missing && <p role="status">{missing}</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
           <GlassButton
             variant="primary"
@@ -172,7 +172,7 @@ export function StaffModal({
             autoComplete="off"
             placeholder={staff?.codeSet ? "••••" : "0000"}
             aria-invalid={code.length > 0 && !codeComplete}
-            className="tracking-[0.4em]"
+            className="tracking-widest"
           />
         </Field>
         {staff && (
@@ -180,7 +180,7 @@ export function StaffModal({
             <p className="text-g-label font-semibold">Lien de planning</p>
             <p className="break-all text-g-meta text-muted">{link}</p>
             <div className="flex items-center justify-between gap-3">
-              <p className="text-g-meta text-faint">
+              <p className="text-g-meta text-muted">
                 À lui envoyer une fois : il y voit ses créneaux sans avoir de
                 compte.
               </p>
@@ -192,7 +192,7 @@ export function StaffModal({
           <div className="flex flex-col gap-3 rounded-g-card border border-hairline p-4">
             <div>
               <p className="text-g-label font-semibold">Fiche</p>
-              <p className="mt-1 text-g-meta text-faint">
+              <p className="mt-1 text-g-meta text-muted">
                 {staff.hidden
                   ? "Masquée : absente de la badgeuse, du planning et des tables. Ses heures restent au journal."
                   : "Masquer la retire de la badgeuse, du planning et des tables sans rien effacer."}

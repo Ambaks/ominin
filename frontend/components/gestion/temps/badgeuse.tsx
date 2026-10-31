@@ -120,7 +120,7 @@ export function Badgeuse({
 
   return (
     <section className="flex flex-col gap-g-gap">
-      <GlassFrame hero entity="orders" eyebrow="Pointage" icon={<ClockIcon />}>
+      <GlassFrame hero entity="orders" eyebrow="Badgeuse" icon={<ClockIcon />}>
         <Plate className="flex flex-wrap items-end justify-between gap-4 p-5">
           <div>
             <p className="text-g-day tabular-nums">{time}</p>
@@ -130,12 +130,13 @@ export function Badgeuse({
                 : "Personne en service"}
             </p>
           </div>
-          <div className="grid w-full grid-cols-2 gap-3 sm:w-auto sm:min-w-80">
+          <div className="grid w-full gap-3 sm:w-auto sm:min-w-80">
+          <div className="grid grid-cols-2 gap-3">
             <button
               type="button"
               onClick={() => setAction("in")}
               disabled={absent.length === 0}
-              className="g-press ember-gradient rounded-g-card px-6 py-5 font-display text-g-h2 text-background disabled:opacity-30"
+              className="g-press ember-gradient rounded-g-card px-6 py-5 font-display text-g-h2 text-background disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
             >
               Arrivée
             </button>
@@ -143,27 +144,38 @@ export function Badgeuse({
               type="button"
               onClick={() => setAction("out")}
               disabled={present.length === 0}
-              className="g-press rounded-g-card border border-hairline bg-surface px-6 py-5 font-display text-g-h2 disabled:opacity-30"
+              className="g-press rounded-g-card border border-hairline bg-surface px-6 py-5 font-display text-g-h2 disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
             >
               Départ
             </button>
+          </div>
+          {team.length > 0 && present.length === 0 && (
+            <p className="text-g-meta text-muted">Le départ attend une arrivée.</p>
+          )}
+          {team.length > 0 && absent.length === 0 && (
+            <p className="text-g-meta text-muted">Toute l’équipe a pointé son arrivée.</p>
+          )}
           </div>
         </Plate>
       </GlassFrame>
 
       {team.length === 0 && (
         <p className="text-g-label text-muted">
-          Aucun {isPickupShop(state) ? "employé" : "serveur"} dans l&rsquo;équipe. Le gérant les
-          ajoute depuis{" "}
-          <Link href="/gestion/equipe" className="font-semibold text-foreground underline decoration-hairline underline-offset-2">
-            Équipe
-          </Link>
+          Aucun {isPickupShop(state) ? "employé" : "serveur"} dans l&rsquo;équipe. Le gérant les{" "}
+          {state?.features.equipe_sans_comptes ? "ajoute" : "invite"} depuis{" "}
+          {state?.role === "gerant" ? (
+            <Link href="/gestion/equipe" className="font-semibold text-foreground underline decoration-hairline underline-offset-2">
+              Équipe
+            </Link>
+          ) : (
+            "Équipe"
+          )}
           .
         </p>
       )}
 
       {present.length > 0 && (
-        <Plate className="divide-y divide-hairline px-4" aria-label="En service">
+        <Plate role="group" className="divide-y divide-hairline px-4" aria-label="En service">
           {present.map((member) => {
             const open = openEntry(entries, member.id)!;
             return (
@@ -201,7 +213,7 @@ export function Badgeuse({
                   <button
                     type="button"
                     onClick={() => setChosen(member)}
-                    className="g-press flex min-h-14 w-full items-center justify-between gap-3 rounded-g-card border border-hairline bg-surface px-4 py-3 text-left"
+                    className="g-press flex min-h-14 w-full items-center justify-between gap-3 rounded-g-card border border-hairline bg-surface px-4 py-3 text-left focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                   >
                     <span className="truncate text-g-body font-semibold">{member.name}</span>
                     {action === "out" && (
@@ -223,6 +235,11 @@ export function Badgeuse({
           onClose={close}
           footer={
             <>
+              {!codeReady ? (
+                <p role="status">Tapez votre code pour valider.</p>
+              ) : (
+                !signature && <p role="status">Signez pour valider.</p>
+              )}
               <GlassButton
                 onClick={() => {
                   setChosen(null);
@@ -262,7 +279,7 @@ export function Badgeuse({
                 }
                 aria-label="Code de badgeage"
                 placeholder="••••"
-                className="text-center tracking-[0.5em] placeholder:tracking-[0.5em]"
+                className="text-center tracking-widest placeholder:tracking-widest"
               />
             )}
             <SignaturePad onChange={setSignature} />

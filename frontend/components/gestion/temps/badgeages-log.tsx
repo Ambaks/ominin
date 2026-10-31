@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ConfirmSheet, EmptyState, Field, GlassButton, Input, Plate, Sheet } from "@/components/gestion/ui";
+import { ConfirmSheet, EmptyState, Field, GlassButton, Input, Plate, Sheet, Shimmer } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { describeError } from "@/lib/gestion/errors";
 import { formatTime } from "@/lib/gestion/format";
@@ -116,12 +116,18 @@ export function BadgeagesLog({
   shifts,
   entries,
   start,
+  loading = false,
+  weekNav,
   onChange,
 }: {
   staff: Staff[];
   shifts: Shift[];
   entries: TimeEntry[];
   start: Date;
+  /** La semaine se relit : le journal attend avant de se dire vide. */
+  loading?: boolean;
+  /** Les flèches de semaine, à droite du titre : elles ne gouvernent que ce journal. */
+  weekNav?: React.ReactNode;
   onChange: () => void;
 }) {
   const toast = useToast();
@@ -133,8 +139,16 @@ export function BadgeagesLog({
   return (
     <div className="flex flex-col gap-6">
       <section className="flex flex-col gap-3">
-        <h3 className="font-display text-g-h2">Heures de la semaine</h3>
-        <Plate className="divide-y divide-hairline px-4" aria-label="Heures badgées par membre">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-display text-g-h2">Heures de la semaine</h2>
+          {weekNav}
+        </div>
+        {loading ? (
+          <Shimmer className="h-24" />
+        ) : entries.length === 0 ? (
+          <EmptyState text="Aucun pointage cette semaine : les arrivées et les départs signés apparaîtront ici." />
+        ) : (
+        <Plate role="group" className="divide-y divide-hairline px-4" aria-label="Heures badgées par membre">
           {staff.map((member) => {
             const worked = workedMinutes(entriesOf(entries, member.id), now);
             const planned = plannedMinutes(shiftsOf(shifts, member.id));
@@ -158,6 +172,7 @@ export function BadgeagesLog({
             <p className="py-3 text-g-label text-muted">Aucun membre.</p>
           )}
         </Plate>
+        )}
       </section>
 
       {days.map((day) => {
@@ -167,13 +182,13 @@ export function BadgeagesLog({
         if (dayEntries.length === 0) return null;
         return (
           <section key={day.toDateString()} className="flex flex-col gap-2.5">
-            <h3 className="text-g-body font-semibold capitalize">
+            <h2 className="text-g-body font-semibold capitalize">
               {day.toLocaleDateString("fr-FR", {
                 weekday: "long",
                 day: "numeric",
                 month: "long",
               })}
-            </h3>
+            </h2>
             <Plate className="divide-y divide-hairline px-4">
               {dayEntries.map((entry) => (
                 <div
@@ -219,10 +234,6 @@ export function BadgeagesLog({
           </section>
         );
       })}
-
-      {entries.length === 0 && (
-        <EmptyState text="Aucun pointage cette semaine. L'équipe pointe depuis l'onglet Pointage, ou ci-dessus." />
-      )}
 
       {correcting && (
         <CorrectionModal

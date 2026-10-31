@@ -1,5 +1,6 @@
 "use client";
 
+import type { KeyboardEvent } from "react";
 import { useField } from "@/components/gestion/ui";
 import { ROLE_TAGLINES, PICKUP_ROLE_TAGLINES } from "@/lib/gestion/constants";
 import { isPickupShop, roleLabels } from "@/lib/gestion/selectors";
@@ -44,13 +45,23 @@ export function RoleCards({
   const gestes = pickup ? PICKUP_GESTES : GESTES;
   // Dans un Field, le groupe reprend l'étiquette et l'indication du champ.
   const field = useField();
+  // Un groupe de radios se parcourt aux flèches ; une seule carte dans l'ordre de tabulation.
+  const onKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    const step = event.key === "ArrowRight" || event.key === "ArrowDown" ? 1 : event.key === "ArrowLeft" || event.key === "ArrowUp" ? -1 : 0;
+    if (!step || disabled) return;
+    event.preventDefault();
+    const next = ROLES[(ROLES.indexOf(value) + step + ROLES.length) % ROLES.length];
+    onChange(next);
+    event.currentTarget.querySelector<HTMLElement>(`[data-role="${next}"]`)?.focus();
+  };
 
   return (
     <div
       role="radiogroup"
       id={field?.id}
-      aria-label={field ? undefined : label}
+      aria-label={label}
       aria-describedby={field?.describedBy}
+      onKeyDown={onKeyDown}
       className="grid gap-2 sm:grid-cols-3"
     >
       {ROLES.map((role) => {
@@ -60,11 +71,15 @@ export function RoleCards({
             key={role}
             type="button"
             role="radio"
+            data-role={role}
             aria-checked={selected}
-            disabled={disabled}
-            onClick={() => onChange(role)}
-            className={`g-press flex flex-col gap-2 rounded-g-card border p-4 text-left disabled:cursor-wait ${
-              selected ? "border-ember-2/60 bg-surface-raised" : "border-hairline bg-background/40"
+            aria-disabled={disabled || undefined}
+            tabIndex={selected ? 0 : -1}
+            onClick={() => {
+              if (!disabled) onChange(role);
+            }}
+            className={`g-press flex flex-col gap-1.5 rounded-g-card border p-3 text-left aria-disabled:cursor-wait focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1 ${
+              selected ? "border-(--g-ring-hover) bg-surface-raised" : "border-hairline bg-surface"
             }`}
           >
             <span className="flex items-center justify-between gap-3">

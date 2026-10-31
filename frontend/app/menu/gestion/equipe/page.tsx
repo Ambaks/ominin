@@ -2,13 +2,13 @@
 
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
-import { TrashIcon } from "@/components/gestion/icons";
+import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
 import { BadgeagesLog } from "@/components/gestion/temps/badgeages-log";
 import { Badgeuse } from "@/components/gestion/temps/badgeuse";
 import { PlanningGrid, WeekNav } from "@/components/gestion/temps/planning";
 import { RoleCards } from "@/components/gestion/temps/role-cards";
 import { StaffList } from "@/components/gestion/temps/staff-list";
-import { Chip, ConfirmSheet, Field, GlassButton, Input, Notice, Plate, ReserveGerant, SectionHeading, Segmented, Sheet, Shimmer } from "@/components/gestion/ui";
+import { Chip, ConfirmSheet, ErrorNotice, Field, GlassButton, Input, Notice, Plate, ReserveGerant, SectionHeading, Segmented, Sheet, Shimmer } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { describeError } from "@/lib/gestion/errors";
 import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
@@ -70,7 +70,8 @@ function InviteSheet({
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
-      await onSent();
+      // L'invitation existe : la feuille se ferme et le gérant le sait, même
+      // si la relecture de la liste échoue ensuite.
       if (result.email_sent === false) {
         toast.error(
           `Invitation enregistrée, mais l'email n'a pas pu être envoyé : ${result.email_error ?? "erreur inconnue"}. Annulez-la puis invitez de nouveau.`,
@@ -79,6 +80,7 @@ function InviteSheet({
         toast.success(`Invitation envoyée à ${address}.`);
       }
       onClose();
+      onSent().catch((error: unknown) => toast.error(describeError(error).message));
     } catch (error) {
       toast.error(
         describeError(error).message
@@ -93,7 +95,7 @@ function InviteSheet({
       onClose={onClose}
       footer={
         <>
-          {!email.trim() && <p>Indiquez son email pour inviter.</p>}
+          {!email.trim() && <p role="status">Indiquez son email pour inviter.</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
           <GlassButton variant="primary" type="submit" form="invite-form" disabled={busy || !email.trim()}>
             {busy ? "Envoi…" : "Envoyer l'invitation"}
@@ -142,6 +144,7 @@ function RoleSheet({
       onClose={onClose}
       footer={
         <>
+          {role === member.role && <p role="status">Choisissez un autre rôle pour changer.</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
           <GlassButton
             variant="primary"
@@ -167,6 +170,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
   const roleLabel = roleLabels(state);
   const pickup = isPickupShop(state);
   const [userId, setUserId] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<unknown>(null);
   const [members, setMembers] = useState<Tables<"memberships">[] | null>(null);
   const [invitations, setInvitations] = useState<Tables<"invitations">[]>([]);
   const [inviting, setInviting] = useState(false);
@@ -196,18 +200,16 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
     setInvitations(invitationsResult.data);
   }, [etablissementId]);
 
-  useEffect(() => {
-    // Faux positif : les setState de load() arrivent après des await
-    // (réponse réseau), pas de façon synchrone dans l'effet.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    load().catch((error) =>
-      toast.error(
-        describeError(error).message
-      )
-    );
-    // toast est stable (contexte) ; on ne recharge que par établissement.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Faux positif : les setState de load() arrivent après des await
+  // (réponse réseau), pas de façon synchrone dans l'effet.
+  const reload = useCallback(() => {
+    setLoadError(null);
+    load().catch((error: unknown) => setLoadError(error));
   }, [load]);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    reload();
+  }, [reload]);
 
   const changeRole = async (member: Tables<"memberships">, role: Role) => {
     try {
@@ -266,10 +268,11 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
 
   const inviteButton = (
     <GlassButton variant="primary" data-visite="equipe-inviter" onClick={() => setInviting(true)}>
-      {pickup ? "Inviter un employé" : "Inviter un serveur ou un cuisinier"}
+      Inviter un membre
     </GlassButton>
   );
 
+  if (loadError) return <ErrorNotice error={loadError} onRetry={reload} />;
   if (!members) {
     return (
       <div aria-busy className="flex flex-col gap-3">
@@ -317,6 +320,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
                       aria-label={`Changer le rôle de ${member.email}, ${roleLabel[member.role]}`}
                     >
                       {roleLabel[member.role]}
+                      <ChevronDownIcon />
                     </GlassButton>
                     <GlassButton
                       variant="icon"
@@ -406,7 +410,7 @@ export default function EquipePage() {
     state?.dayEndHour ?? DEFAULT_DAY_END_HOUR
   );
   const etablissementId = state?.etablissement.id ?? "";
-  const { data, reload } = useWeek(etablissementId, start);
+  const { data, loading, reload } = useWeek(etablissementId, start);
   const open = useOpenEntries(etablissementId);
 
   const badged = () => {
@@ -453,61 +457,54 @@ export default function EquipePage() {
         />
       </Block>
 
-      {role !== "gerant" ? (
-        <Block i={1}>
-          <ReserveGerant ask="inviter ou retirer un membre de l'équipe" />
-        </Block>
-      ) : (
-        <>
-          {active === "membres" && (
-            <Block i={1} className="flex flex-col gap-4">
-              {sansComptes ? (
-                <>
-                  <Notice
-                    tone="info"
-                    icon={<PeopleIcon />}
-                    title="Sans comptes"
-                    text="Votre équipe pointe avec un code et lit son planning par un lien, sans compte ni mot de passe."
-                  />
-                  <StaffList staff={state.staff} entries={data.entries} onChange={reload} />
-                </>
-              ) : (
-                <TeamManager etablissementId={state.etablissement.id} />
-              )}
-            </Block>
-          )}
-          {active === "planning" && (
-            <Block i={1}>
-              <PlanningGrid
-                etablissementId={state.etablissement.id}
-                staff={state.staff}
-                shifts={data.shifts}
-                start={start}
-                onWeekChange={setStart}
-                onChange={reload}
+      {/* Un seul bloc d'entrée : changer de volet ne relance pas la montée. */}
+      <Block i={1} className="flex flex-col gap-6">
+        {role !== "gerant" ? (
+          <ReserveGerant ask="gérer les membres de l'équipe" />
+        ) : active === "membres" ? (
+          sansComptes ? (
+            <>
+              <Notice
+                tone="info"
+                icon={<PeopleIcon />}
+                title="Votre équipe pointe avec un code, sans compte"
+                text="Chacun lit son planning par son lien ; rien à installer ni à retenir."
               />
-            </Block>
-          )}
-          {active === "pointage" && (
-            <Block i={1} className="flex flex-col gap-6">
-              <Badgeuse
-                staff={state.staff}
-                entries={open.entries}
-                showHours
-                onChange={badged}
-              />
-              <WeekNav start={start} onChange={setStart} />
-              <BadgeagesLog
-                staff={state.staff}
-                shifts={data.shifts}
-                entries={data.entries}
-                start={start}
-                onChange={reload}
-              />
-            </Block>
-          )}
-        </>
-      )}
+              <StaffList staff={state.staff} entries={data.entries} onChange={reload} />
+            </>
+          ) : (
+            <TeamManager etablissementId={state.etablissement.id} />
+          )
+        ) : active === "planning" ? (
+          <PlanningGrid
+            etablissementId={state.etablissement.id}
+            staff={state.staff}
+            shifts={data.shifts}
+            start={start}
+            loading={loading}
+            onWeekChange={setStart}
+            onChange={reload}
+          />
+        ) : (
+          <>
+            <Badgeuse
+              staff={state.staff}
+              entries={open.entries}
+              showHours
+              onChange={badged}
+            />
+            <BadgeagesLog
+              staff={state.staff}
+              shifts={data.shifts}
+              entries={data.entries}
+              start={start}
+              loading={loading}
+              weekNav={<WeekNav start={start} onChange={setStart} />}
+              onChange={reload}
+            />
+          </>
+        )}
+      </Block>
     </div>
   );
 }

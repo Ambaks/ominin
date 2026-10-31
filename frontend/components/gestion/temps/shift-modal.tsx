@@ -112,6 +112,7 @@ export function ShiftModal({
               Supprimer
             </GlassButton>
           )}
+          {!staffId && <p role="status">Choisissez un membre pour enregistrer.</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
           <GlassButton variant="primary" type="submit" form="shift-form" disabled={busy || !staffId}>
             Enregistrer
