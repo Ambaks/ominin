@@ -26,7 +26,7 @@ import {
   updateClientRestaurant,
   useProjet,
 } from "@/lib/admin/projet";
-import { useAdmin } from "@/lib/admin/store";
+import { useLeadLite } from "@/lib/admin/store";
 
 /*
  * Un client : ce qu'il rapporte une fois en service, et sa pipeline complète,
@@ -43,7 +43,9 @@ export default function ProjetClientPage() {
   const run = useRunMutation();
   const { basePath, product } = useAdminBasePath();
   const { data } = useProjet();
-  const crm = useAdmin();
+  const crmLead = useLeadLite(
+    data?.clients.find((candidate) => candidate.id === params.id)?.restaurant_id
+  );
 
   if (!data) {
     return <div aria-busy className="shimmer h-96 rounded-2xl" />;
@@ -155,7 +157,7 @@ export default function ProjetClientPage() {
             Fiche du CRM
           </h2>
           <RestaurantPicker
-            value={crm?.leads.find((lead) => lead.restaurantId === client.restaurant_id) ?? null}
+            value={crmLead}
             onSelect={(lead) =>
               void run(
                 () => updateClientRestaurant(client.id, lead?.restaurantId ?? null),

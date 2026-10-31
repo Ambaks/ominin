@@ -1,7 +1,8 @@
 "use client";
 
-import { useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { must } from "@/lib/supabase/result";
 import { adminLoginPath } from "./base-path";
 import { APPOINTMENTS_WINDOW_DAYS } from "./constants";
 import { addDays, dayStart } from "./format";
@@ -11,14 +12,15 @@ import {
   rowToLeadLite,
   rowToTask,
 } from "./mappers";
-import type { AdminState } from "./types";
+import type { Product } from "./products";
+import type { AdminState, LeadLite } from "./types";
 
 /*
- * Store du CRM (pattern lib/gestion/store.ts) : snapshot global des lignes
- * légères — tous les restaurants+leads, les tâches ouvertes et les RDV à
- * venir. Carte, listes et pipeline filtrent en mémoire ; le détail d'une
- * fiche vit dans lead-cache. Pas de realtime : 1-2 utilisateurs internes,
- * les mutations d'api.ts répercutent leurs écritures sur le snapshot.
+ * Store du CRM (pattern lib/gestion/store.ts) : les tâches ouvertes, les RDV à
+ * venir, et les fiches déjà rencontrées (ensureLead). Les listes et le pipeline
+ * lisent la base page par page (leads-page) et se relisent quand `revision`
+ * change ; le détail d'une fiche vit dans lead-cache. Pas de realtime : 1-2
+ * utilisateurs internes, les mutations d'api.ts répercutent leurs écritures.
  */
 
 let state: AdminState | null = null;
@@ -54,17 +56,15 @@ async function fetchAll<Row>(
  * l'ordre des ex æquo n'est pas garanti entre deux requêtes .range() et une
  * ligne peut apparaître sur deux pages — ou sur aucune.
  */
-function fetchLeads() {
-  const supabase = createClient();
-  return fetchAll((from, to) =>
-    supabase
-      .from("crm_restaurants")
-      .select(LEAD_LITE_SELECT)
-      .is("deleted_at", null)
-      .order("name")
-      .order("id")
-      .range(from, to)
-  ).then((rows) => rows.map(rowToLeadLite).filter((row) => row !== null));
+const WITH_RESTAURANT = "*, crm_restaurants(name, lead:crm_leads(target_products))" as const;
+
+function restaurantOf(row: {
+  crm_restaurants: { name: string; lead: { target_products: Product[] } | null } | null;
+}) {
+  return {
+    restaurantName: row.crm_restaurants?.name,
+    targetProducts: row.crm_restaurants?.lead?.target_products,
+  };
 }
 
 function fetchOpenTasks() {
@@ -72,12 +72,12 @@ function fetchOpenTasks() {
   return fetchAll((from, to) =>
     supabase
       .from("crm_tasks")
-      .select("*")
+      .select(WITH_RESTAURANT)
       .eq("status", "open")
       .order("due_at", { ascending: true, nullsFirst: false })
       .order("id")
       .range(from, to)
-  ).then((rows) => rows.map(rowToTask));
+  ).then((rows) => rows.map((row) => ({ ...rowToTask(row), ...restaurantOf(row) })));
 }
 
 function fetchUpcomingAppointments() {
@@ -86,14 +86,14 @@ function fetchUpcomingAppointments() {
   return fetchAll((from, to) =>
     supabase
       .from("crm_appointments")
-      .select("*")
+      .select(WITH_RESTAURANT)
       .eq("status", "scheduled")
       .gte("start_at", today.toISOString())
       .lte("start_at", addDays(today, APPOINTMENTS_WINDOW_DAYS).toISOString())
       .order("start_at", { ascending: true })
       .order("id")
       .range(from, to)
-  ).then((rows) => rows.map(rowToAppointment));
+  ).then((rows) => rows.map((row) => ({ ...rowToAppointment(row), ...restaurantOf(row) })));
 }
 
 async function fetchPendingDraftCount(): Promise<number> {
@@ -129,14 +129,13 @@ async function load(): Promise<void> {
     );
   }
 
-  const [leads, tasks, appointments, pendingDrafts] = await Promise.all([
-    fetchLeads(),
+  const [tasks, appointments, pendingDrafts] = await Promise.all([
     fetchOpenTasks(),
     fetchUpcomingAppointments(),
     fetchPendingDraftCount(),
   ]);
 
-  state = { userId: user.id, leads, tasks, appointments, pendingDrafts };
+  state = { userId: user.id, leads: [], revision: 0, tasks, appointments, pendingDrafts };
   notify();
 }
 
@@ -187,7 +186,7 @@ export function getState(): AdminState {
 }
 
 export function commit(next: AdminState) {
-  state = next;
+  state = { ...next, revision: next.revision + 1 };
   notify();
 }
 
@@ -196,14 +195,49 @@ export function useAdmin(): AdminState | null {
   return useSyncExternalStore(subscribe, getClientSnapshot, getServerSnapshot);
 }
 
-/** Recharge les lignes légères (après un import CSV en masse). */
-export async function reloadLeads(): Promise<void> {
-  if (!state) return;
-  const leads = await fetchLeads();
-  if (state) {
-    state = { ...state, leads };
-    notify();
-  }
+/** Les listes se relisent (après un import CSV en masse). */
+export function reloadLeads() {
+  if (state) commit(state);
+}
+
+const leadsOnTheWay = new Map<string, Promise<LeadLite>>();
+
+/** La fiche légère d'un restaurant : celle du store, sinon lue une fois. */
+export function ensureLead(restaurantId: string): Promise<LeadLite> {
+  const known = state?.leads.find((lead) => lead.restaurantId === restaurantId);
+  if (known) return Promise.resolve(known);
+  const onTheWay = leadsOnTheWay.get(restaurantId);
+  if (onTheWay) return onTheWay;
+  const request = (async () => {
+    const lite = rowToLeadLite(
+      must(
+        await createClient()
+          .from("crm_restaurants")
+          .select(LEAD_LITE_SELECT)
+          .eq("id", restaurantId)
+          .single()
+      )
+    );
+    if (!lite) throw new Error("Restaurant introuvable.");
+    if (state) {
+      state = { ...state, leads: [...state.leads, lite] };
+      notify();
+    }
+    return lite;
+  })().finally(() => leadsOnTheWay.delete(restaurantId));
+  leadsOnTheWay.set(restaurantId, request);
+  return request;
+}
+
+/** La fiche d'un restaurant pour un écran, chargée au besoin (null d'ici là). */
+export function useLeadLite(restaurantId: string | null | undefined): LeadLite | null {
+  const current = useAdmin();
+  const lead = current?.leads.find((row) => row.restaurantId === restaurantId) ?? null;
+  const ready = current !== null;
+  useEffect(() => {
+    if (ready && restaurantId && !lead) void ensureLead(restaurantId).catch(console.error);
+  }, [ready, restaurantId, lead]);
+  return lead;
 }
 
 /** Recompte les brouillons en attente (badge Prospection) — appelé par la

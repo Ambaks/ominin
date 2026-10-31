@@ -7,7 +7,7 @@ import {
   OUTREACH_VARIANTS_FETCH_LIMIT,
   POSITIVE_CLASSIFICATIONS,
 } from "./constants";
-import { dayStart, rollingWeekStart } from "./format";
+import { dayStart, normalizeText, rollingWeekStart } from "./format";
 import { patchDetail, refreshDetail } from "./lead-cache";
 import {
   LEAD_LITE_SELECT,
@@ -27,7 +27,7 @@ import {
 } from "./mappers";
 import type { Product } from "./products";
 import { slugify, uniqueSlug } from "./slug";
-import { commit, getState, reloadLeads } from "./store";
+import { commit, ensureLead, getState, reloadLeads } from "./store";
 import type {
   Activity,
   ActivityType,
@@ -70,14 +70,20 @@ function apply<T>(recipe: (draft: AdminState) => T): T {
 
 const userId = () => getState().userId;
 
-function findLite(draft: AdminState, restaurantId: string): LeadLite {
+/** Répercute une écriture sur la fiche, si le store la connaît. */
+function patchLite(
+  draft: AdminState,
+  restaurantId: string,
+  patch: Partial<LeadLite>
+) {
   const row = draft.leads.find((lead) => lead.restaurantId === restaurantId);
-  if (!row) throw new Error("Restaurant introuvable.");
-  return row;
+  if (row) Object.assign(row, patch);
 }
 
-const liteFor = (restaurantId: string): LeadLite =>
-  findLite(getState(), restaurantId);
+const withRestaurant = (lite: LeadLite | null) => ({
+  restaurantName: lite?.name,
+  targetProducts: lite?.targetProducts,
+});
 
 /** Tâches triées par échéance croissante, sans échéance en dernier. */
 const byDue = (a: TaskRow, b: TaskRow) =>
@@ -93,8 +99,9 @@ function recomputeFollowUp(draft: AdminState, restaurantId: string) {
         task.dueAt !== null
     )
     .map((task) => task.dueAt as string);
-  findLite(draft, restaurantId).nextFollowUpAt =
-    dues.length > 0 ? dues.sort()[0] : null;
+  patchLite(draft, restaurantId, {
+    nextFollowUpAt: dues.length > 0 ? dues.sort()[0] : null,
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -112,7 +119,7 @@ export async function updateLeadStatus(
       .eq("restaurant_id", restaurantId)
   );
   apply((draft) => {
-    findLite(draft, restaurantId).status = status;
+    patchLite(draft, restaurantId, { status });
   });
   patchDetail(restaurantId, (draft) => {
     draft.lead.status = status;
@@ -132,7 +139,7 @@ export async function updateTargetProducts(
       .eq("restaurant_id", restaurantId)
   );
   apply((draft) => {
-    findLite(draft, restaurantId).targetProducts = targetProducts;
+    patchLite(draft, restaurantId, { targetProducts });
   });
 }
 
@@ -149,7 +156,7 @@ export async function markVisited(
   input: MarkVisitedInput
 ): Promise<void> {
   const supabase = createClient();
-  const lite = liteFor(restaurantId);
+  const lite = await ensureLead(restaurantId);
   const nowIso = new Date().toISOString();
 
   check(
@@ -189,11 +196,9 @@ export async function markVisited(
     : null;
 
   apply((draft) => {
-    const row = findLite(draft, restaurantId);
-    row.status = "visited";
-    row.lastContactAt = nowIso;
+    patchLite(draft, restaurantId, { status: "visited", lastContactAt: nowIso });
     if (taskRow) {
-      draft.tasks = [...draft.tasks, rowToTask(taskRow)].sort(byDue);
+      draft.tasks = [...draft.tasks, { ...rowToTask(taskRow), ...withRestaurant(lite) }].sort(byDue);
       recomputeFollowUp(draft, restaurantId);
     }
   });
@@ -220,7 +225,7 @@ export async function addActivity(
   input: ActivityInput
 ): Promise<Activity> {
   const supabase = createClient();
-  const lite = liteFor(restaurantId);
+  const lite = await ensureLead(restaurantId);
   const row = must(
     await supabase
       .from("crm_activities")
@@ -249,7 +254,7 @@ export async function addActivity(
   const activity = rowToActivity(row);
   if (isContact) {
     apply((draft) => {
-      findLite(draft, restaurantId).lastContactAt = row.created_at;
+      patchLite(draft, restaurantId, { lastContactAt: row.created_at });
     });
   }
   patchDetail(restaurantId, (draft) => {
@@ -352,9 +357,7 @@ export async function createRestaurant(
   const lite = rowToLeadLite(row);
   if (lite) {
     apply((draft) => {
-      draft.leads = [...draft.leads, lite].sort((a, b) =>
-        a.name.localeCompare(b.name, "fr")
-      );
+      draft.leads = [...draft.leads, lite];
     });
   }
   return inserted.id;
@@ -404,7 +407,7 @@ export interface TaskInput {
 
 export async function createTask(input: TaskInput): Promise<TaskRow> {
   const supabase = createClient();
-  const lite = input.restaurantId ? liteFor(input.restaurantId) : null;
+  const lite = input.restaurantId ? await ensureLead(input.restaurantId) : null;
   const row = must(
     await supabase
       .from("crm_tasks")
@@ -420,7 +423,7 @@ export async function createTask(input: TaskInput): Promise<TaskRow> {
       .select()
       .single()
   );
-  const task = rowToTask(row);
+  const task = { ...rowToTask(row), ...withRestaurant(lite) };
   apply((draft) => {
     draft.tasks = [...draft.tasks, task].sort(byDue);
     if (task.restaurantId) recomputeFollowUp(draft, task.restaurantId);
@@ -438,7 +441,7 @@ export async function updateTask(
   input: TaskInput
 ): Promise<TaskRow> {
   const supabase = createClient();
-  const lite = input.restaurantId ? liteFor(input.restaurantId) : null;
+  const lite = input.restaurantId ? await ensureLead(input.restaurantId) : null;
   const row = must(
     await supabase
       .from("crm_tasks")
@@ -454,7 +457,7 @@ export async function updateTask(
       .select()
       .single()
   );
-  const task = rowToTask(row);
+  const task = { ...rowToTask(row), ...withRestaurant(lite) };
   const previousRestaurantId = apply((draft) => {
     const previous = draft.tasks.find((t) => t.id === taskId);
     draft.tasks = draft.tasks
@@ -528,7 +531,7 @@ export async function createAppointment(
   input: AppointmentInput
 ): Promise<AppointmentRow> {
   const supabase = createClient();
-  const lite = liteFor(input.restaurantId);
+  const lite = await ensureLead(input.restaurantId);
   const row = must(
     await supabase
       .from("crm_appointments")
@@ -561,7 +564,7 @@ export async function createAppointment(
       .select()
       .single()
   );
-  const appointment = rowToAppointment(row);
+  const appointment = { ...rowToAppointment(row), ...withRestaurant(lite) };
   apply((draft) => {
     if (appointment.startAt >= dayStart().toISOString()) {
       draft.appointments = [...draft.appointments, appointment].sort((a, b) =>
@@ -727,13 +730,39 @@ export async function importRestaurants(
     const chunk = inserts.slice(i, i + CSV_IMPORT_CHUNK_SIZE);
     const { error } = await supabase.from("crm_restaurants").insert(chunk);
     if (error) {
-      await reloadLeads();
+      reloadLeads();
       throw new ImportError(error.message, i);
     }
     onProgress?.(Math.min(i + chunk.length, inserts.length), inserts.length);
   }
-  await reloadLeads();
+  reloadLeads();
   return inserts.length;
+}
+
+/** Clés de dédoublonnage d'un import contre l'existant : nom+ville, téléphone, email. */
+export async function fetchExistingLeadKeys() {
+  const supabase = createClient();
+  const PAGE = 1000;
+  const nameCity = new Set<string>();
+  const phones = new Set<string>();
+  const emails = new Set<string>();
+  for (let from = 0; ; from += PAGE) {
+    const batch = must(
+      await supabase
+        .from("crm_restaurants")
+        .select("name, city, phone, email")
+        .is("deleted_at", null)
+        .order("id")
+        .range(from, from + PAGE - 1)
+    );
+    for (const row of batch) {
+      nameCity.add(`${normalizeText(row.name)}|${normalizeText(row.city ?? "")}`);
+      const phone = (row.phone ?? "").replace(/\D/g, "");
+      if (phone) phones.add(phone);
+      if (row.email) emails.add(normalizeText(row.email));
+    }
+    if (batch.length < PAGE) return { nameCity, phones, emails };
+  }
 }
 
 async function fetchAllSlugs(): Promise<string[]> {

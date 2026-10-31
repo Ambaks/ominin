@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { FilterBar } from "@/components/admin/filter-bar";
 import { PlusIcon } from "@/components/admin/icons";
 import { PipelineBoard } from "@/components/admin/pipeline/board";
@@ -17,8 +17,12 @@ import { prospectsLabel } from "@/lib/admin/products";
 import { CATEGORY_LABELS, STATUS_LABELS, PRIORITY_LABELS } from "@/lib/admin/constants";
 import { toCsv, downloadCsv, type CsvColumn } from "@/lib/admin/csv";
 import { contactName, formatDate, formatRelative } from "@/lib/admin/format";
-import { setFilters, useFilteredLeads } from "@/lib/admin/filters";
-import { sortLeads, type LeadSortKey } from "@/lib/admin/selectors";
+import { setFilters, useSettledFilters } from "@/lib/admin/filters";
+import { fetchAllLeadIds, fetchLeadsPage, type LeadQuery } from "@/lib/admin/leads-page";
+import type { LeadSortKey } from "@/lib/admin/selectors";
+import type { LeadLite } from "@/lib/admin/types";
+import { usePagedList } from "@/lib/use-paged-list";
+import { ListPager } from "@/components/ui/list-pager";
 import { useAdmin } from "@/lib/admin/store";
 
 /*
@@ -93,6 +97,8 @@ function exportColumns(
   ];
 }
 
+const leadId = (lead: LeadLite) => lead.restaurantId;
+
 const COLUMNS: { key: LeadSortKey; label: string }[] = [
   { key: "name", label: "Nom" },
   { key: "city", label: "Ville" },
@@ -104,7 +110,7 @@ const COLUMNS: { key: LeadSortKey; label: string }[] = [
 
 export default function RestaurantsPage() {
   const state = useAdmin();
-  const leads = useFilteredLeads();
+  const filters = useSettledFilters();
   const toast = useToast();
   const router = useRouter();
   const { basePath, localPath, product } = useAdminBasePath();
@@ -116,10 +122,29 @@ export default function RestaurantsPage() {
   const [creating, setCreating] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  const sorted = useMemo(
-    () => sortLeads(leads, sort.key, sort.dir),
-    [leads, sort]
+  const appointmentIds = useMemo(
+    () => (state?.appointments ?? []).map((rdv) => rdv.restaurantId),
+    [state?.appointments]
   );
+  const query = useMemo<LeadQuery>(
+    () => ({ filters, product, appointmentIds, sort: sort.key, descending: sort.dir === -1 }),
+    [filters, product, appointmentIds, sort]
+  );
+  const fetchPage = useCallback(
+    (_search: string, limit: number, offset: number) => fetchLeadsPage(query, limit, offset),
+    [query]
+  );
+  const list = usePagedList({ fetchPage, rowId: leadId });
+  const total = list.total ?? 0;
+  // Une écriture (statut, tâche, import) : les lignes affichées se relisent.
+  const revision = state?.revision;
+  const seenRevision = useRef(revision);
+  const reload = list.reload;
+  useEffect(() => {
+    if (revision === seenRevision.current) return;
+    seenRevision.current = revision;
+    void reload();
+  }, [revision, reload]);
 
   const toggleSort = (key: LeadSortKey) =>
     setSort((current) =>
@@ -131,9 +156,7 @@ export default function RestaurantsPage() {
   const exportCsv = async () => {
     setExporting(true);
     try {
-      const rows = await api.fetchExportRows(
-        sorted.map((lead) => lead.restaurantId)
-      );
+      const rows = await api.fetchExportRows(await fetchAllLeadIds(query));
       const nextRdv = new Map<string, string>();
       for (const rdv of state?.appointments ?? []) {
         if (!nextRdv.has(rdv.restaurantId)) {
@@ -169,10 +192,10 @@ export default function RestaurantsPage() {
           <button
             type="button"
             onClick={() => void exportCsv()}
-            disabled={exporting || sorted.length === 0}
+            disabled={exporting || total === 0}
             className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
           >
-            {exporting ? "Export…" : `Exporter (${sorted.length})`}
+            {exporting ? "Export…" : `Exporter (${total})`}
           </button>
           <button
             type="button"
@@ -188,7 +211,7 @@ export default function RestaurantsPage() {
       <PillTabs
         tabs={[
           { id: "pipeline", label: "Pipeline" },
-          { id: "liste", label: "Liste", count: sorted.length },
+          { id: "liste", label: "Liste", count: total },
         ]}
         activeId={view}
         onSelect={(id) => setView(id as View)}
@@ -198,18 +221,19 @@ export default function RestaurantsPage() {
 
       {view === "pipeline" ? (
         <PipelineBoard
-          leads={leads}
+          query={query}
           onSeeAll={(column) => {
             setFilters({ statuses: new Set(column.statuses) });
             setView("liste");
           }}
         />
-      ) : sorted.length === 0 ? (
+      ) : list.total === 0 ? (
         <EmptyState
           title="Aucune fiche"
           body="Ajustez les filtres, créez une fiche ou importez un CSV."
         />
       ) : (
+        <div className="flex flex-col gap-3">
         <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
           <table className="w-full min-w-160 text-sm">
             <thead>
@@ -240,7 +264,7 @@ export default function RestaurantsPage() {
               </tr>
             </thead>
             <tbody>
-              {sorted.map((lead) => {
+              {list.rows.map((lead) => {
                 const overdue =
                   lead.nextFollowUpAt !== null &&
                   lead.nextFollowUpAt < new Date().toISOString();
@@ -281,6 +305,15 @@ export default function RestaurantsPage() {
               })}
             </tbody>
           </table>
+        </div>
+        <ListPager
+          shown={list.rows.length}
+          total={total}
+          pageSize={list.pageSize}
+          loading={list.loading}
+          onPageSize={list.setPageSize}
+          onMore={() => void list.showMore()}
+        />
         </div>
       )}
 

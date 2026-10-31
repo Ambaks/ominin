@@ -174,8 +174,6 @@ export const PIPELINE_RAIL_COLUMNS: readonly PipelineColumn[] = [
   },
 ];
 
-/** Au-delà, la colonne coupe le rendu (« Voir les N autres »). */
-export const PIPELINE_COLUMN_CAP = 50;
 
 // ---------------------------------------------------------------------------
 // Prospection automatisée (agent « Léa »)

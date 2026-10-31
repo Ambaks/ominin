@@ -10,7 +10,7 @@ import {
   fromDatetimeLocalValue,
   toDatetimeLocalValue,
 } from "@/lib/admin/format";
-import { useAdmin } from "@/lib/admin/store";
+import { useLeadLite } from "@/lib/admin/store";
 import type { LeadLite, Priority, TaskRow } from "@/lib/admin/types";
 import { RestaurantPicker } from "../restaurant-picker";
 
@@ -29,14 +29,9 @@ export function TaskFormModal({
   restaurantId?: string;
   onClose: () => void;
 }) {
-  const state = useAdmin();
   const toast = useToast();
   const fixedRestaurantId = restaurantId ?? null;
-  const initialRestaurant =
-    state?.leads.find(
-      (lead) =>
-        lead.restaurantId === (fixedRestaurantId ?? task?.restaurantId)
-    ) ?? null;
+  const initialRestaurant = useLeadLite(fixedRestaurantId ?? task?.restaurantId);
 
   const [title, setTitle] = useState(task?.title ?? "");
   const [description, setDescription] = useState(task?.description ?? "");
@@ -46,9 +41,9 @@ export function TaskFormModal({
   const [priority, setPriority] = useState<Priority>(
     task?.priority ?? "medium"
   );
-  const [restaurant, setRestaurant] = useState<LeadLite | null>(
-    initialRestaurant
-  );
+  // undefined : rien de choisi, la fiche d'origine vaut (elle peut encore arriver).
+  const [chosen, setRestaurant] = useState<LeadLite | null | undefined>(undefined);
+  const restaurant = chosen === undefined ? initialRestaurant : chosen;
   const [busy, setBusy] = useState(false);
 
   const submit = async () => {

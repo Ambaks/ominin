@@ -61,7 +61,6 @@ function toLead([id, lat, lng, state]: api.MapPoint): LeadLite {
     nextFollowUpAt: null,
     targetProducts: [],
     createdAt: "",
-    searchKey: "",
   };
 }
 
