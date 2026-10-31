@@ -15460,12 +15460,12 @@ dialog.g-dialog {
   }
 }
 @media (min-width: 1024px) {
-  .g-dialog {
+  dialog.g-dialog {
     margin: auto;
     width: min(var(--g-dialog-w), 100% - 2 * var(--g-gap));
     border-radius: var(--g-r);
   }
-  .g-dialog-wide {
+  dialog.g-dialog-wide {
     width: min(var(--g-dialog-w-wide), 100% - 2 * var(--g-gap));
   }
   .g-dialog[open] {
@@ -15479,7 +15479,7 @@ dialog.g-dialog {
   }
 }
 @media (max-width: 1023px) {
-  .g-dialog-wide {
+  dialog.g-dialog-wide {
     max-height: 100dvh;
     height: 100dvh;
     border-radius: 0;
