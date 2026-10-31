@@ -10,10 +10,13 @@ import {
 } from "@/lib/gestion/fermetures";
 import type { GestionState } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
+import { ClockIcon } from "./icons";
+import { GlassButton, GlassFrame, Plate } from "./ui";
 
 /**
  * Ce que le menu ne vend plus en ce moment, et jusqu'à quand : à l'aperçu,
- * sous les yeux de qui peut le rouvrir sans passer par Commandes.
+ * sous les yeux de qui peut le rouvrir sans passer par Commandes. Un seul
+ * cadre de verre, quel que soit le nombre de fermetures.
  */
 export function FermeturesEnCours({ state }: { state: GestionState }) {
   const now = useNow(WAIT_TICK_MS);
@@ -28,40 +31,35 @@ export function FermeturesEnCours({ state }: { state: GestionState }) {
   );
   if (active.length === 0) return null;
   return (
-    <section className="flex flex-col gap-3">
-      <h2 className="font-display text-lg font-medium">À l’arrêt</h2>
-      <div className="rounded-2xl border border-ember-3/40 bg-ember-3/5">
-        {active.map((closure, index) => (
+    <GlassFrame entity="problem" eyebrow="Fermeture en cours" icon={<ClockIcon />}>
+      <Plate role="status" className="px-4">
+        {active.map((closure) => (
           <div
             key={closure.id}
-            className={`flex items-center justify-between gap-4 px-5 py-3 ${
-              index > 0 ? "border-t border-hairline" : ""
-            }`}
+            className="flex min-h-(--g-step-h) items-center justify-between gap-4 border-t border-hairline py-2 first:border-t-0"
           >
-            <div>
-              <p className="text-sm font-medium">
+            <div className="min-w-0">
+              <p className="truncate text-g-body font-semibold">
                 {closure.name}
                 <span className="font-normal text-muted">
                   {" "}
                   · jusqu’à {closureUntil(closure, clock, state.dayEndHour)}
                 </span>
               </p>
-              <p className="text-xs text-faint">
+              <p className="truncate text-g-meta text-muted">
                 {describeTargets(closure, state.categories)}
               </p>
             </div>
-            <button
-              type="button"
+            <GlassButton
               disabled={busy === closure.id}
               onClick={() => void run(closure, false)}
-              aria-label={`Rouvrir : ${closure.name}`}
-              className="ember-gradient min-h-11 shrink-0 rounded-full px-4 text-xs font-semibold text-background disabled:opacity-50"
+              aria-label={`Rouvrir : ${closure.name}`}
             >
               Rouvrir
-            </button>
+            </GlassButton>
           </div>
         ))}
-      </div>
-    </section>
+      </Plate>
+    </GlassFrame>
   );
 }

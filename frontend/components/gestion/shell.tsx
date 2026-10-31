@@ -3,10 +3,19 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname, useSelectedLayoutSegment } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import "@/components/club/tokens.css";
 import "@/components/gestion/soirees/soirees.css";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { Modal } from "@/components/ui/modal";
 import { ToastProvider } from "@/components/ui/toast";
 import { clubFonts } from "@/lib/club/fonts";
 import { collectBrand } from "@/lib/collect-landing-data";
@@ -26,7 +35,7 @@ import {
   roleLabels,
 } from "@/lib/gestion/selectors";
 import { retryLoad, useGestion, useGestionLoadError } from "@/lib/gestion/store";
-import type { Feature, Role } from "@/lib/gestion/types";
+import type { Feature, GestionState, Role } from "@/lib/gestion/types";
 import {
   playChime,
   useChimeArmed,
@@ -56,12 +65,14 @@ import {
   SoireesIcon,
   TablesIcon,
   TeamIcon,
+  XIcon,
   type IconProps,
 } from "./icons";
 import { AdminLockButton } from "./admin-lock-button";
 import { hasProviderReturn } from "./payment-settings";
 import { ReacceptanceGate } from "@/components/legal/reacceptance-gate";
 import { SubscriptionGate } from "./subscription-gate";
+import { Chip, GlassButton, Mesh, Notice, Shimmer } from "./ui";
 import { VisiteGuidee } from "./visite-guidee";
 
 interface NavItem {
@@ -69,52 +80,49 @@ interface NavItem {
   label: string;
   feature: Feature | null;
   icon: React.ComponentType<IconProps>;
-  /** Onglet réservé au gérant : retiré de la navigation des employés. */
+  /** Entrée réservée au gérant : retirée de la navigation des employés. */
   gerantOnly?: boolean;
   excludeRoles?: Role[];
-  /** Onglet ouvert au serveur seulement si cette capacité l'est aussi. */
+  /** Entrée ouverte au serveur seulement si cette capacité l'est aussi. */
   serveurFeature?: Feature;
-  /** Barre latérale seulement : la barre mobile n'a pas la place d'un
-   *  onglet de plus, la page se rejoint depuis Établissement. */
-  sidebarOnly?: boolean;
 }
 
+/**
+ * Toutes les pages de l'espace, aux mots du métier (UX-SIMPLICITÉ § 3.2) ;
+ * les URL ne bougent pas. La navigation en retient quatre par rôle et par
+ * mode (§ 3.1), le reste va dans « Plus ».
+ */
 const NAV_ITEMS: NavItem[] = [
   // Le serveur n'a d'aperçu que si Ominin le lui ouvre ; sinon sa page
   // d'accueil est le service lui-même (voir app/menu/gestion/page.tsx).
   { href: "/gestion", label: "Aperçu", feature: "apercu", icon: ApercuIcon, serveurFeature: "apercu_serveur" },
   { href: "/gestion/commandes", label: "Commandes", feature: "commandes", icon: CommandesIcon },
   { href: "/gestion/soirees", label: "Soirées", feature: "soirees", icon: SoireesIcon },
-  { href: "/gestion/bulles", label: "Bulles", feature: "bulles", icon: BullesIcon, excludeRoles: ["cuisinier"] },
+  { href: "/gestion/bulles", label: "Réservations", feature: "bulles", icon: BullesIcon, excludeRoles: ["cuisinier"] },
   { href: "/gestion/retraits", label: "Retraits", feature: "retraits", icon: BagIcon },
   { href: "/gestion/paiements", label: "Paiements", feature: "paiements", icon: PaymentsIcon, gerantOnly: true },
   { href: "/gestion/tables", label: "Tables", feature: "tables", icon: TablesIcon, excludeRoles: ["cuisinier"] },
-  // Le gérant badge et planifie depuis l'onglet Équipe, qui porte aussi le
-  // planning et le journal : sa barre reste celle du service.
-  { href: "/gestion/badgeage", label: "Badgeage", feature: "badgeage", icon: ClockIcon, excludeRoles: ["gerant"] },
-  // Le menu ne se retire pas : sans carte, aucun produit ne sert à rien.
-  { href: "/gestion/menu", label: "Menu", feature: null, icon: MenuIcon },
+  // Le gérant pointe et planifie depuis Équipe, qui porte aussi le planning
+  // et le journal.
+  { href: "/gestion/badgeage", label: "Pointage", feature: "badgeage", icon: ClockIcon, excludeRoles: ["gerant"] },
+  // La carte ne se retire pas : sans elle, aucun produit ne sert à rien.
+  { href: "/gestion/menu", label: "Carte", feature: null, icon: MenuIcon },
   { href: "/gestion/equipe", label: "Équipe", feature: "roles", icon: TeamIcon, gerantOnly: true },
-  { href: "/gestion/terminaux", label: "Terminaux", feature: "terminaux", icon: PrinterIcon, gerantOnly: true },
-  { href: "/gestion/fidelite", label: "Fidélité", feature: "fidelite", icon: GiftIcon, gerantOnly: true, sidebarOnly: true },
+  { href: "/gestion/terminaux", label: "Imprimantes", feature: "terminaux", icon: PrinterIcon, gerantOnly: true },
+  { href: "/gestion/fidelite", label: "Fidélité", feature: "fidelite", icon: GiftIcon, gerantOnly: true },
+  // Les alertes suivent les commandes : sans service, rien à signaler.
+  { href: "/gestion/notifications", label: "Alertes", feature: "commandes", icon: BellIcon },
+  // Les réglages sont ceux d'un restaurant (horaires, tablette, encaissement).
+  { href: "/gestion/etablissement", label: "Réglages", feature: null, icon: GearIcon, gerantOnly: true },
+  // L'abonnement est fermé au serveur — ni offre à souscrire ni droits à
+  // arbitrer — et Ominin peut le fermer à tout le monde (capacité produits).
+  { href: "/gestion/produits", label: "Abonnement", feature: "produits", icon: ProductsIcon, excludeRoles: ["serveur"] },
 ];
 
-/**
- * Onglet compte : barre latérale uniquement, et fermé au serveur — il n'a ni
- * offre à souscrire ni droits à arbitrer. La barre mobile est celle du
- * service — y ajouter un neuvième onglet la rendrait illisible ; sur mobile,
- * la pastille offre · rôle de l'en-tête mène à la même page. Ominin peut le
- * fermer à tout le monde (capacité produits) : sur la tablette partagée d'un
- * restaurant, le catalogue n'a rien à faire.
- */
-const PRODUITS_ITEM: NavItem = {
-  href: "/gestion/produits",
-  label: "Produits",
-  feature: "produits",
-  icon: ProductsIcon,
-};
+/** Quatre places fixes dans la barre, le reste dans « Plus » (UX § 3.1). */
+const PRIMARY_SLOTS = 4;
 
-/** Ce que compte la pastille d'un onglet, au survol. */
+/** Ce que compte la pastille d'une entrée, au survol. */
 const BADGE_HINTS: Record<string, string> = {
   "/gestion/commandes": "Additions à encaisser et commandes à emporter du jour à prendre en charge",
   "/gestion/retraits": "Commandes du site pour un jour à venir, à prendre en charge",
@@ -125,13 +133,17 @@ const PICKUP_BADGE_HINTS: Record<string, string> = {
   "/gestion/retraits": "Commandes du site à prendre en charge, tous jours confondus",
 };
 
-/** Commandes de l'en-tête : une cible de 44 px au doigt, 36 px à la souris. */
-const HEADER_ICON_CLASS =
-  "flex size-11 items-center justify-center rounded-full border border-hairline text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:pointer-fine:size-9";
-
-/** Surtitre offre · rôle de l'en-tête, lien ou simple texte. */
-const SURTITRE_CLASS =
-  "ember-text truncate text-[10px] font-semibold uppercase tracking-[0.28em]";
+/*
+ * L'entrée (.g-rise) ne se joue qu'une fois l'espace vu : monté dans un
+ * onglet caché, il se présente tel quel et entre au premier affichage.
+ */
+let entrancePlayed = false;
+const subscribeVisibility = (onChange: () => void) => {
+  document.addEventListener("visibilitychange", onChange);
+  return () => document.removeEventListener("visibilitychange", onChange);
+};
+const entranceSnapshot = () =>
+  entrancePlayed || (entrancePlayed = document.visibilityState === "visible");
 
 async function signOut() {
   await createClient().auth.signOut();
@@ -143,37 +155,57 @@ function isActive(pathname: string, href: string): boolean {
   return href === "/gestion" ? pathname === href : pathname.startsWith(href);
 }
 
+/**
+ * Les quatre entrées de la barre, par rôle et par mode (UX § 3.1, décision
+ * n° 2 d'Ambaka) : celles-ci d'abord si elles sont ouvertes, puis les
+ * suivantes dans l'ordre des pages jusqu'à remplir les places.
+ */
+function primaryHrefs(state: GestionState, pickupShop: boolean, clubOnly: boolean): string[] {
+  if (state.role === "gerant") {
+    if (clubOnly) return ["/gestion/soirees", "/gestion/paiements", "/gestion/equipe", "/gestion/bulles"];
+    if (pickupShop) return ["/gestion", "/gestion/retraits", "/gestion/menu", "/gestion/paiements"];
+    if (state.etablissement.serviceMode === "fast_food") {
+      return ["/gestion", "/gestion/commandes", "/gestion/menu", "/gestion/paiements"];
+    }
+    return ["/gestion", "/gestion/commandes", "/gestion/tables", "/gestion/menu"];
+  }
+  if (pickupShop) return ["/gestion/retraits", "/gestion/commandes", "/gestion/badgeage", "/gestion/menu"];
+  if (state.role === "cuisinier") return ["/gestion", "/gestion/commandes", "/gestion/badgeage", "/gestion/menu"];
+  return ["/gestion/commandes", "/gestion/tables", "/gestion/badgeage", "/gestion/menu"];
+}
+
+/** L'accueil du cuisinier est l'écran de la cuisine : épuisés et fermetures. */
+function navLabel(item: NavItem, role: Role): string {
+  return item.href === "/gestion" && role === "cuisinier" ? "Cuisine" : item.label;
+}
+
+/** Repère de visite d'une entrée : la carte et les réglages sont ciblés. */
+function navVisite(item: NavItem): string | undefined {
+  if (item.href === "/gestion/menu") return "nav-menu";
+  if (item.href === "/gestion/etablissement") return "etablissement";
+  return undefined;
+}
+
 function ShellSkeleton() {
   return (
-    <div aria-busy className="flex flex-col gap-4">
-      <div className="shimmer h-9 w-44 rounded-xl" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="shimmer h-28 rounded-2xl" />
-        <div className="shimmer h-28 rounded-2xl" />
-        <div className="shimmer h-28 rounded-2xl" />
-        <div className="shimmer h-28 rounded-2xl" />
+    <div aria-busy className="grid gap-g-gap">
+      <Shimmer className="h-10 w-44" />
+      <div className="grid gap-g-gap sm:grid-cols-2">
+        <Shimmer className="h-36" />
+        <Shimmer className="h-36" />
       </div>
-      <div className="shimmer h-44 rounded-2xl" />
+      <Shimmer className="h-44" />
     </div>
   );
 }
 
 function LoadError({ message }: { message: string }) {
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-2xl border border-hairline bg-surface p-8 text-center">
-      <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-        Erreur
-      </p>
-      <h1 className="font-display text-xl font-medium">Chargement impossible</h1>
-      <p className="text-sm text-muted">{message}</p>
-      <button
-        type="button"
-        onClick={() => retryLoad()}
-        className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-      >
-        Réessayer
-      </button>
-    </div>
+    <Notice
+      title="Chargement impossible"
+      text={message}
+      action={<GlassButton onClick={() => retryLoad()}>Réessayer</GlassButton>}
+    />
   );
 }
 
@@ -195,10 +227,49 @@ export function GestionShell({ children }: { children: React.ReactNode }) {
   return useSelectedLayoutSegment() === "remise" ? children : <GestionSpace>{children}</GestionSpace>;
 }
 
+function Brand({ product, small = false }: { product: string; small?: boolean }) {
+  return (
+    <Link href="/gestion" className={`g-brand ${small ? "g-brand-sm" : ""}`} title="Aperçu">
+      <span className="ember-text font-display font-semibold">Ominin</span>
+      <small className={small ? "max-sm:hidden" : ""}>{product}</small>
+    </Link>
+  );
+}
+
+function Count({ value, hint }: { value: number; hint?: string }) {
+  return value > 0 ? (
+    <span className="g-count" title={hint}>
+      {value}
+    </span>
+  ) : null;
+}
+
+/** Feuille « Plus » : le reste des pages et les gestes transverses. */
+function PlusSheet({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    ref.current?.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      aria-label="Plus"
+      className="g-sheet g-glass"
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === ref.current) onClose();
+      }}
+    >
+      <div className="g-sheet-body">{children}</div>
+    </dialog>
+  );
+}
+
 function GestionSpace({ children }: { children: React.ReactNode }) {
   const state = useGestion();
   const loadError = useGestionLoadError();
   const pathname = usePathname();
+  const entrance = useSyncExternalStore(subscribeVisibility, entranceSnapshot, () => false);
   // Carillon des nouvelles commandes, actif sur tout l'espace (l'onglet
   // ouvert en cuisine sonne quelle que soit la page affichée).
   useOrderChime();
@@ -221,12 +292,21 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
         state?.role !== "serveur" ||
         (state.features[item.serveurFeature] ?? false)) &&
       (!item.excludeRoles || !state || !item.excludeRoles.includes(state.role)) &&
-      // Un club n'a pas de carte : le menu, qui ne se retire jamais d'un
-      // restaurant, n'a rien à y faire.
-      (item.href !== "/gestion/menu" || !clubOnly) &&
+      // Un club n'a ni carte ni réglages de restaurant.
+      ((item.href !== "/gestion/menu" && item.href !== "/gestion/etablissement") || !clubOnly) &&
+      (item.href !== "/gestion/etablissement" || !state || can(state.role, "etablissement.edit")) &&
       // En boutique à emporter seule, l'aperçu de l'équipe renvoie à Retraits.
       (item.feature !== "apercu" || state?.role === "gerant" || !pickupShop)
   );
+  const preferred = state ? primaryHrefs(state, pickupShop, clubOnly) : [];
+  const primary = preferred
+    .map((href) => items.find((item) => item.href === href))
+    .filter((item): item is NavItem => item !== undefined);
+  for (const item of items) {
+    if (primary.length >= PRIMARY_SLOTS) break;
+    if (!primary.includes(item)) primary.push(item);
+  }
+  const more = items.filter((item) => !primary.includes(item));
   // La page que voient les clients : pour une boutique à emporter seule, sa
   // page de commande en ligne — elle n'a pas de menu QR.
   const voirClient = club
@@ -234,6 +314,13 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
     : pickupShop
       ? "Voir ma boutique en ligne"
       : "Voir mon menu";
+  const clientUrl = state
+    ? club
+      ? `${clubSiteUrl}/${state.etablissement.slug}`
+      : pickupShop
+        ? `${collectSiteUrl}/${state.etablissement.slug}`
+        : `${menuSiteUrl}/m/${state.etablissement.slug}`
+    : "";
   // Pastilles : ce qui attend un geste, là où il se fait — les commandes du
   // site pour un jour à venir se prennent en charge depuis Retraits. En
   // boutique à emporter seule, Retraits les compte toutes, aujourd'hui compris :
@@ -249,12 +336,15 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
           ).length,
         };
   const badgeHints = pickupShop ? PICKUP_BADGE_HINTS : BADGE_HINTS;
+  // La pastille d'une page rangée dans « Plus » remonte sur « Plus ».
+  const moreBadge = more.reduce((sum, item) => sum + (badges[item.href] ?? 0), 0);
   // Une barre du bas à un seul onglet (un club : Soirées) ne mène nulle part
   // de plus : elle laisse la place aux barres collées des écrans.
-  const mobileItems = items.filter((item) => !item.sidebarOnly);
-  const mobileNav = mobileItems.length > 1;
-  // Retrait au bar : qui remet les commandes scanne leurs codes depuis la
-  // barre du bas (ou la colonne), sans quitter l'application.
+  const mobileNav = items.length > 1;
+  // Même règle à gauche : un seul onglet, la page prend toute la largeur.
+  const rail = !state || items.length > 1;
+  // Retrait au bar : qui remet les commandes scanne leurs codes depuis
+  // « Plus » (ou le rail), sans quitter l'application.
   const canScan =
     state?.etablissement.serviceMode === "fast_food" &&
     state.etablissement.barPickup &&
@@ -262,8 +352,18 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
   // Le bouton qui a ouvert le scanner : le focus y revient à sa fermeture.
   const [scanFrom, setScanFrom] = useState<HTMLElement | null>(null);
   const closeScanner = useCallback(() => setScanFrom(null), []);
-  // Hauteur de l'en-tête collé, pour ce qui se colle dessous (onglets d'un
-  // écran) : elle change avec la largeur, l'en-tête passant sur deux lignes.
+  const [moreOpen, setMoreOpen] = useState(false);
+  const closeMore = useCallback(() => setMoreOpen(false), []);
+  // Déconnexion : sur une tablette protégée par un code, elle ferme l'espace
+  // à toute l'équipe — on demande confirmation (décision n° 8 d'Ambaka).
+  const [confirmSignOut, setConfirmSignOut] = useState(false);
+  const askSignOut = () => {
+    setMoreOpen(false);
+    if (state?.etablissement.adminPinSet) setConfirmSignOut(true);
+    else void signOut();
+  };
+  // Bas de la barre haute collée, pour ce qui se colle dessous (onglets d'un
+  // écran) : elle est posée à --g-frame-margin du haut de l'écran.
   const header = useRef<HTMLElement>(null);
   useEffect(() => {
     const element = header.current;
@@ -271,31 +371,25 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
     const observer = new ResizeObserver(([entry]) => {
       document.documentElement.style.setProperty(
         "--gestion-entete",
-        `${entry.borderBoxSize[0].blockSize}px`
+        `${entry.borderBoxSize[0].blockSize + parseFloat(getComputedStyle(element).top)}px`
       );
     });
     observer.observe(element);
     return () => observer.disconnect();
   }, []);
-  const showProduits =
-    state != null && state.role !== "serveur" && state.features.produits;
-  const sidebarItems = showProduits ? [...items, PRODUITS_ITEM] : items;
-  // Même règle à gauche : un seul onglet, la page prend toute la largeur.
-  const sidebar = !state || sidebarItems.length > 1;
-  // Visite de la page, pour le gérant (la vue salle d'une tablette
-  // verrouillée se présente en serveur : elle n'en voit aucune). Elle s'ouvre
-  // d'elle-même au premier passage d'un gérant inscrit, sauf au retour d'un
+  // Visite de la page, ouverte à tous les rôles depuis le « ? » (décision
+  // n° 3 d'Ambaka). Elle s'ouvre d'elle-même au premier passage d'un gérant
+  // inscrit — sauf la visite d'accueil, que la carte « Avant votre premier
+  // service » de l'Aperçu remplace (UX § 3.3) —, sauf au retour d'un
   // onboarding Stripe ou Square (la page y affiche son résultat), ou à la
-  // demande, par le bouton « ? ». L'ouverture d'elle-même se décide à
-  // l'arrivée sur la page : la carte qui se remplit sous la visite « menu
-  // vide » n'ouvre pas celle du menu par-dessus la feuille des catégories,
-  // qui attendra le passage suivant — le « ? » relance, lui, la visite du
-  // moment.
+  // demande, par le « ? ». L'ouverture d'elle-même se décide à l'arrivée sur
+  // la page : la carte qui se remplit sous la visite « menu vide » n'ouvre
+  // pas celle du menu par-dessus la feuille des catégories, qui attendra le
+  // passage suivant — le « ? » relance, lui, la visite du moment.
   // Les visites présentent la carte et le service : un club n'en a pas.
-  const visite =
-    state?.role === "gerant" && !clubOnly ? visiteFor(pathname, state) : undefined;
+  const visite = state && !clubOnly ? visiteFor(pathname, state) : undefined;
   // L'abonnement compte dans l'arrivée : revenu de Stripe Checkout avant le
-  // webhook, le gérant arrive sur l'écran d'activation, et l'accueil s'ouvre
+  // webhook, le gérant arrive sur l'écran d'activation, et la visite s'ouvre
   // quand l'espace se déverrouille.
   const arrivalKey = `${pathname} ${state?.role ?? ""} ${subscribed}`;
   const [arrival, setArrival] = useState<{ key: string; id?: VisiteId } | null>(null);
@@ -320,192 +414,159 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
   const [shownVisite, setShownVisite] = useState<VisiteId | null>(null);
   const visiteAuto = Boolean(
     visite &&
+      visite.id !== "bienvenue" &&
+      state?.role === "gerant" &&
       visite.id === arrivedWith &&
       pathname !== providerReturn &&
       !later.includes(visite.id) &&
-      state?.visitesVues &&
+      state.visitesVues &&
       !state.visitesVues.includes(visite.id)
   );
-  const surtitre = state
-    ? `${
-        club
-          ? "Ominin Club"
-          : state.etablissement.offre
-            ? `Ominin ${OFFRE_LABELS[state.etablissement.offre]}`
-            : collectBrand
-      } · ${roleLabels(state)[state.role]}`
-    : "Espace de gestion";
+  // La visite dont une étape est à l'écran : le « ? » la relance.
+  const helpVisite = visite && shownVisite === visite.id ? visite : undefined;
+  const product = state
+    ? club
+      ? "Club"
+      : state.etablissement.offre
+        ? OFFRE_LABELS[state.etablissement.offre]
+        : collectBrand.replace(/^Ominin\s+/, "")
+    : "";
+  const activeHref = items.find((item) => isActive(pathname, item.href))?.href;
+  const activeIndex = [...primary, ...more].findIndex((item) => item.href === activeHref);
+  // La pilule active glisse d'une entrée du rail à l'autre : sa position se
+  // calcule en jetons (hauteur d'entrée, gouttière, rangée « Plus »).
+  const pillStyle =
+    activeIndex >= 0
+      ? ({
+          "--g-nav-y": `calc(${activeIndex} * (var(--g-nav-h) + var(--g-nav-gap))${
+            activeIndex >= primary.length ? " + var(--g-nav-group-h) + var(--g-nav-gap)" : ""
+          })`,
+        } as CSSProperties)
+      : undefined;
+
+  const railLink = (item: NavItem, index: number) => (
+    <Link
+      key={item.href}
+      href={item.href}
+      aria-current={activeHref === item.href ? "page" : undefined}
+      data-visite={navVisite(item)}
+      className="g-nav-item g-rise"
+      style={{ "--g-i": index } as CSSProperties}
+    >
+      <item.icon />
+      {state ? navLabel(item, state.role) : item.label}
+      <Count value={badges[item.href] ?? 0} hint={badgeHints[item.href]} />
+    </Link>
+  );
 
   return (
     <ToastProvider placement={club ? "top" : "bottom"}>
+      <Mesh />
       <div
         // Un club parle la langue de ses soirées sur tout l'espace : leurs
         // jetons, leurs polices et leur allure (.soirees), en-tête compris.
-        className={`flex min-h-dvh w-full flex-col ${club ? `club-tokens club-espace soirees ${clubFonts}` : ""}`}
-        style={{ "--gestion-barre-bas": mobileNav ? "5rem" : "1rem" } as React.CSSProperties}
+        className={`g-shell ${club ? `club-tokens club-espace soirees ${clubFonts}` : ""}`}
+        data-entrance={entrance ? undefined : "off"}
+        style={
+          {
+            "--gestion-barre-bas": mobileNav
+              ? "calc(var(--g-tab-h) + 2 * var(--g-tabbar-pad-y) + var(--g-tabbar-bottom) + var(--g-gap))"
+              : "1rem",
+          } as CSSProperties
+        }
       >
-        <header
-          ref={header}
-          data-visite-bord="haut"
-          className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md print:hidden"
-        >
-          <div className="mx-auto flex w-full max-w-2xl flex-wrap items-center justify-between gap-x-4 gap-y-2 px-5 py-3 lg:max-w-5xl lg:px-10">
-            <div className="min-w-0">
-              {/* Produit et rôle en surtitre : nomme l'espace où l'on est
-                  (« Ominin Connect », face à Ominin Collect ou Ominin Clip),
-                  tient dans la place du libellé qu'il remplace, et mène à la
-                  page Produits — seul chemin vers elle sur mobile, où la
-                  barre du bas est réservée au service. Le serveur, qui n'y a
-                  pas accès, le lit sans lien. */}
-              {showProduits ? (
-                <Link
-                  href={PRODUITS_ITEM.href}
-                  title="Votre produit et votre rôle"
-                  className={`inline-block transition-opacity hover:opacity-80 ${SURTITRE_CLASS}`}
-                >
-                  {surtitre}
-                </Link>
-              ) : (
-                <p className={SURTITRE_CLASS}>{surtitre}</p>
+        {rail && (
+          <aside className="g-rail g-glass">
+            <Brand product={product} />
+            <nav data-visite="nav" aria-label="Sections" className="g-nav">
+              {activeIndex >= 0 && <span className="g-nav-pill" style={pillStyle} aria-hidden />}
+              {primary.map(railLink)}
+              {more.length > 0 && (
+                <div className="g-nav-group">
+                  <span className="g-eyebrow">Plus</span>
+                </div>
               )}
-              <p className="truncate font-display text-lg font-medium">
-                {state?.etablissement.name ?? "Ominin"}
-              </p>
+              {more.map((item, index) => railLink(item, primary.length + 1 + index))}
+              {canScan && (
+                // Une action, pas une page : pleine, à l'inverse du fond.
+                <GlassButton
+                  variant="primary"
+                  className="mt-3"
+                  onClick={(event) => setScanFrom(event.currentTarget)}
+                >
+                  <ScanIcon />
+                  Scanner un code
+                </GlassButton>
+              )}
+            </nav>
+            {state && (
+              <button type="button" onClick={askSignOut} className="g-nav-item mt-auto">
+                <LogoutIcon />
+                Se déconnecter
+              </button>
+            )}
+          </aside>
+        )}
+
+        <div className="g-col">
+          <header ref={header} data-visite-bord="haut" className="g-topbar g-glass">
+            <div className="g-who">
+              <b className="truncate font-display text-g-name">
+                {state?.etablissement.name ?? "Espace de gestion"}
+              </b>
+              {state && (
+                <span className="max-sm:hidden">
+                  <Chip>{roleLabels(state)[state.role]}</Chip>
+                </span>
+              )}
             </div>
             {state && (
-              // Le bouton Admin du code de tablette et le « ? » ensemble
-              // tiennent sur un téléphone de 375 px en resserrant la rangée ;
-              // plus étroit, elle passe à la ligne plutôt que de déborder.
-              <div className="ml-auto flex max-w-full shrink-0 flex-wrap items-center justify-end gap-1 sm:gap-1.5">
-                {visite && shownVisite === visite.id && (
-                  <button
-                    type="button"
+              <>
+                {helpVisite && (
+                  <GlassButton
+                    variant="icon"
                     data-visite="aide"
-                    onClick={() => setReplay(visite.id)}
+                    onClick={() => setReplay(helpVisite.id)}
                     title="Visite guidée de cette page"
                     aria-label="Visite guidée de cette page"
-                    className={HEADER_ICON_CLASS}
                   >
-                    <HelpIcon className="size-4" />
-                  </button>
+                    <HelpIcon />
+                  </GlassButton>
                 )}
                 <AdminLockButton />
                 <ThemeToggle />
                 <a
-                  href={
-                    club
-                      ? `${clubSiteUrl}/${state.etablissement.slug}`
-                      : pickupShop
-                        ? `${collectSiteUrl}/${state.etablissement.slug}`
-                        : `${menuSiteUrl}/m/${state.etablissement.slug}`
-                  }
+                  href={clientUrl}
                   data-visite="voir-menu"
                   target="_blank"
                   rel="noopener"
                   title={voirClient}
                   aria-label={voirClient}
-                  className="flex min-h-11 items-center gap-1.5 rounded-full border border-hairline px-3 text-xs font-medium text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:px-3.5 lg:pointer-fine:min-h-9"
+                  className="g-btn g-btn-secondary g-btn-collapse g-press"
                 >
-                  <ExternalLinkIcon className="size-4" />
-                  <span className="hidden lg:inline">{voirClient}</span>
+                  <ExternalLinkIcon />
+                  <span>{voirClient}</span>
                 </a>
-                {(state?.features.commandes ?? false) && (
-                  <Link
-                    href="/gestion/notifications"
-                    title="Notifications"
-                    aria-label="Notifications"
-                    className={HEADER_ICON_CLASS}
-                  >
-                    <BellIcon className="size-4" />
-                  </Link>
-                )}
-                {/* Les réglages de l'établissement sont ceux d'un restaurant
-                    (horaires, tablette de salle, encaissement) : rien pour un club. */}
-                {can(state.role, "etablissement.edit") && !clubOnly && (
-                  <Link
-                    href="/gestion/etablissement"
-                    data-visite="etablissement"
-                    title="Établissement"
-                    aria-label="Établissement"
-                    className={HEADER_ICON_CLASS}
-                  >
-                    <GearIcon className="size-4" />
-                  </Link>
-                )}
-                <button
-                  type="button"
-                  onClick={() => void signOut()}
-                  title="Se déconnecter"
-                  aria-label="Se déconnecter"
-                  className={HEADER_ICON_CLASS}
-                >
-                  <LogoutIcon className="size-4" />
-                </button>
-              </div>
+                <span className="lg:hidden max-sm:hidden">
+                  <Brand product={product} small />
+                </span>
+              </>
             )}
-          </div>
-        </header>
+          </header>
 
-        {/* Tablette posée sans être touchée : le navigateur garde le son
-            fermé jusqu'au premier geste — on le demande, en sonnant. */}
-        {state?.features.commandes && chimeOn && !chimeArmed && (
-          <button
-            type="button"
-            onClick={() => void playChime()}
-            className="w-full bg-ember-2/15 px-5 py-2.5 text-center text-sm font-medium print:hidden"
-          >
-            Touchez l&rsquo;écran pour activer le carillon des commandes
-          </button>
-        )}
-
-        <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-5xl lg:px-10">
-          {sidebar && (
-            <aside className="sticky top-20 hidden w-44 shrink-0 pt-10 lg:block print:hidden">
-              <div data-visite="nav" className="flex flex-col gap-1 rounded-2xl">
-                {sidebarItems.map((item) => {
-                  const active = isActive(pathname, item.href);
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
-                      className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-                        active
-                          ? "border border-hairline bg-surface text-foreground"
-                          : "text-muted hover:text-foreground"
-                      }`}
-                    >
-                      <item.icon
-                        className={`size-4.5 ${active ? "text-ember-1" : ""}`}
-                      />
-                      {item.label}
-                      {(badges[item.href] ?? 0) > 0 && (
-                        <span
-                          title={badgeHints[item.href]}
-                          className="ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background"
-                        >
-                          {badges[item.href]}
-                        </span>
-                      )}
-                    </Link>
-                  );
-                })}
-                {canScan && (
-                  // Une action, pas une page : pleine, à l'inverse du fond.
-                  <button
-                    type="button"
-                    onClick={(event) => setScanFrom(event.currentTarget)}
-                    className="mt-3 flex items-center gap-2.5 rounded-xl bg-foreground px-3 py-2.5 text-sm font-semibold text-background"
-                  >
-                    <ScanIcon className="size-4.5" />
-                    Scanner un code
-                  </button>
-                )}
-              </div>
-            </aside>
+          {/* Tablette posée sans être touchée : le navigateur garde le son
+              fermé jusqu'au premier geste — on le demande, en sonnant. */}
+          {state?.features.commandes && chimeOn && !chimeArmed && (
+            <button
+              type="button"
+              onClick={() => void playChime()}
+              className="g-plate g-orders mx-[var(--g-topbar-mx-sm)] mt-3 px-5 py-2.5 text-center text-g-label font-medium lg:mx-[var(--g-topbar-mx)] print:hidden"
+            >
+              Touchez l&rsquo;écran pour activer le carillon des commandes
+            </button>
           )}
 
-          <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
+          <main className="w-full min-w-0 flex-1 px-[var(--g-topbar-mx-sm)] pb-[var(--gestion-barre-bas)] pt-6 lg:px-[var(--g-topbar-mx)] lg:pb-16">
             {!state ? (
               loadError ? (
                 <LoadError message={loadError} />
@@ -551,59 +612,135 @@ function GestionSpace({ children }: { children: React.ReactNode }) {
           </main>
         </div>
 
-        {mobileNav && (
+        {mobileNav && state && (
           <nav
             data-visite="nav"
             data-visite-bord="bas"
-            className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden print:hidden"
+            aria-label="Sections"
+            className="g-tabbar g-glass"
+            style={{ "--g-tabs": primary.length + 1 } as CSSProperties}
           >
-            <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-              {mobileItems.map((item) => {
-                const active = isActive(pathname, item.href);
-                return (
+            {primary.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                aria-current={activeHref === item.href ? "page" : undefined}
+                data-visite={navVisite(item)}
+                className="g-tab"
+              >
+                <item.icon />
+                <span>{navLabel(item, state.role)}</span>
+                <Count value={badges[item.href] ?? 0} hint={badgeHints[item.href]} />
+              </Link>
+            ))}
+            <button
+              type="button"
+              aria-expanded={moreOpen}
+              aria-haspopup="dialog"
+              onClick={() => setMoreOpen(true)}
+              className="g-tab"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <circle cx="6" cy="12" r="1.6" />
+                <circle cx="12" cy="12" r="1.6" />
+                <circle cx="18" cy="12" r="1.6" />
+              </svg>
+              <span>Plus</span>
+              <Count value={moreBadge} />
+            </button>
+          </nav>
+        )}
+
+        {moreOpen && state && (
+          <PlusSheet onClose={closeMore}>
+            <div className="flex items-center justify-between gap-3 pl-2">
+              <h2 className="font-display text-g-h2">Plus</h2>
+              <GlassButton variant="icon" aria-label="Fermer" onClick={closeMore}>
+                <XIcon />
+              </GlassButton>
+            </div>
+            {canScan && (
+              <GlassButton
+                variant="primary"
+                onClick={(event) => {
+                  setScanFrom(event.currentTarget);
+                  setMoreOpen(false);
+                }}
+              >
+                <ScanIcon />
+                Scanner un code
+              </GlassButton>
+            )}
+            {more.length > 0 && (
+              <div className="g-sheet-grid">
+                {more.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
-                    data-visite={item.href === "/gestion/menu" ? "nav-menu" : undefined}
-                    className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-                      active ? "text-ember-1" : "text-faint"
-                    }`}
+                    aria-current={activeHref === item.href ? "page" : undefined}
+                    data-visite={navVisite(item)}
+                    onClick={closeMore}
+                    className="g-sheet-item"
                   >
-                    <item.icon className="size-5" />
-                    {/* Sept onglets sur 320 px : le libellé se resserre plutôt que de toucher son voisin. */}
-                    <span className="max-w-full truncate px-0.5 max-[359px]:text-[9px] max-[359px]:tracking-tight">
-                      {item.label}
-                    </span>
-                    {(badges[item.href] ?? 0) > 0 && (
-                      <span
-                        title={badgeHints[item.href]}
-                        className="absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background"
-                      >
-                        {badges[item.href]}
-                      </span>
-                    )}
+                    <item.icon />
+                    <span>{navLabel(item, state.role)}</span>
+                    <Count value={badges[item.href] ?? 0} hint={badgeHints[item.href]} />
                   </Link>
-                );
-              })}
-              {canScan && (
-                // Une action, pas un onglet : l'icône dans une pastille pleine,
-                // le libellé neutre — jamais pris pour l'onglet ouvert.
+                ))}
+              </div>
+            )}
+            <div className="grid">
+              <a
+                href={clientUrl}
+                target="_blank"
+                rel="noopener"
+                onClick={closeMore}
+                className="g-sheet-row"
+              >
+                <ExternalLinkIcon />
+                {voirClient}
+              </a>
+              {helpVisite && (
                 <button
                   type="button"
-                  onClick={(event) => setScanFrom(event.currentTarget)}
-                  className="flex flex-1 flex-col items-center gap-0.5 py-2 text-[10px] font-semibold text-foreground"
+                  className="g-sheet-row"
+                  onClick={() => {
+                    setMoreOpen(false);
+                    setReplay(helpVisite.id);
+                  }}
                 >
-                  <span className="flex size-6 items-center justify-center rounded-full bg-foreground text-background">
-                    <ScanIcon className="size-4" />
-                  </span>
-                  <span className="max-w-full truncate px-0.5 max-[359px]:text-[9px] max-[359px]:tracking-tight">
-                    Scanner
-                  </span>
+                  <HelpIcon />
+                  Visite guidée de cette page
                 </button>
               )}
+              <button type="button" className="g-sheet-row" onClick={askSignOut}>
+                <LogoutIcon />
+                Se déconnecter
+              </button>
             </div>
-          </nav>
+          </PlusSheet>
         )}
+
+        {confirmSignOut && (
+          <Modal
+            title="Se déconnecter ?"
+            onClose={() => setConfirmSignOut(false)}
+            footer={
+              <>
+                <GlassButton onClick={() => setConfirmSignOut(false)}>Annuler</GlassButton>
+                <GlassButton variant="primary" onClick={() => void signOut()}>
+                  Se déconnecter
+                </GlassButton>
+              </>
+            }
+          >
+            <p className="text-g-body text-muted">
+              Cette tablette est protégée par un code : la déconnexion ferme l&rsquo;espace pour
+              toute l&rsquo;équipe, jusqu&rsquo;à une nouvelle connexion avec le compte du restaurant.
+            </p>
+          </Modal>
+        )}
+
         {scanFrom && state && (
           <Scanner venueId={state.etablissement.id} returnTo={scanFrom} onClose={closeScanner} />
         )}

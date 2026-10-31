@@ -13997,6 +13997,7 @@ body {
   --g-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --g-ease-move: cubic-bezier(0.77, 0, 0.175, 1);
   --g-rise-dur: 0.6s;
+  --g-rise-y: 14px;
   --g-stagger: 70ms;
   --g-press-dur: 200ms;
   --g-press-scale: 0.96;
@@ -14206,10 +14207,27 @@ html.light {
   border-radius: calc(var(--g-r) - var(--g-pad));
 }
 
-/* Entrée : montée en fondu, décalée par --g-i (index du bloc). */
+/* Entrée : montée en fondu au montage, décalée par --g-i (index du bloc).
+   Une transition depuis @starting-style, pas une animation : l'état de base
+   est l'état visible et rien n'en dépend — capture précoce, animations
+   figées ou mouvement réduit montrent la page telle qu'elle est. Le délai
+   est posé par propriété : une autre transition sur le même élément
+   (survol, appui) n'en hérite pas. */
 .g-rise {
-  animation: rise var(--g-rise-dur) var(--g-ease-out) backwards;
-  animation-delay: calc(var(--g-i, 0) * var(--g-stagger));
+  --g-rise-delay: calc(var(--g-i, 0) * var(--g-stagger));
+  transition:
+    opacity var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay),
+    transform var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay);
+}
+@starting-style {
+  .g-rise {
+    opacity: 0;
+    transform: translateY(var(--g-rise-y));
+  }
+}
+/* Espace monté hors de vue (onglet caché) : rien à faire entrer. */
+[data-entrance="off"] .g-rise {
+  transition: none;
 }
 
 /* Appui : la commande se tasse sous le doigt, jamais désactivée. */
@@ -14690,6 +14708,13 @@ html.light {
     color var(--g-hover-dur),
     background-color var(--g-hover-dur);
 }
+.g-nav-item.g-rise {
+  transition:
+    color var(--g-hover-dur),
+    background-color var(--g-hover-dur),
+    opacity var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay),
+    transform var(--g-rise-dur) var(--g-ease-out) var(--g-rise-delay);
+}
 .g-nav-item svg {
   width: var(--g-icon);
   height: var(--g-icon);
@@ -14807,6 +14832,7 @@ html.light {
 }
 .g-tab {
   position: relative;
+  min-width: 0;
   display: grid;
   place-items: center;
   align-content: center;
@@ -15474,7 +15500,6 @@ html:has(dialog.g-dialog[open]) {
 }
 @media (prefers-reduced-motion: reduce) {
   .g-mesh i,
-  .g-rise,
   .g-shimmer,
   .g-sheet[open],
   .g-dialog[open] {
@@ -15491,6 +15516,7 @@ html:has(dialog.g-dialog[open]) {
   .g-seg label,
   .g-seg-thumb,
   .g-stale,
+  .g-rise,
   .g-nav-item,
   .g-nav-pill,
   .g-tab,
