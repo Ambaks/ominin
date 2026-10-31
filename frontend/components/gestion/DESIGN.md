@@ -269,6 +269,7 @@ point d'exclamation.
 | `Select` | attributs d'un `select`, `children` = `<option>` | liste native habillée, chevron à droite |
 | `Switch` | `checked`, `onChange`, `disabled?`, `label?`, `hint?`, `aria-label?` | `role="switch"` 28 × 48, rail dégradé de marque allumé, pouce en transform 200 ms, 44 px de zone tactile ; avec `label`, une ligne pleine largeur libellé + indication |
 | `Checkbox` | `checked`, `onChange`, `disabled?`, `label`, `hint?`, `name?` | case native sous une boîte dessinée (coche icône), libellé et case = une cible de 44 px |
+| `CompareChart` | `current`, `previous?`, `domain`, `ticks`, `yTicks`, `step?`, `compact?`, `format`, `tip`, `label` | une période sur l'ombre de la précédente (`--g-prior`, écarts validés clair et sombre), infobulle au survol ; le SVG s'étire, le texte reste en HTML |
 | `Sheet` | `title`, `description?`, `onClose`, `size?: md · wide`, `centered?`, `footer?`, `children` | `<dialog>` modal de verre : feuille basse au téléphone, centré ≥ 1024 (`wide` 1120 px, plein écran sous 1024) ; corps sur plaque défilante, Échap et fond ferment, focus rendu, page figée ; `data-autofocus` sur le champ attendu ; à monter conditionnellement |
 | `ConfirmSheet` | `title`, `text`, `confirmLabel`, `cancelLabel?`, `destructive?`, `busy?`, `onConfirm`, `onClose` | feuille de confirmation : Annuler (focus) puis l'action, `danger` si destructeur, « Un instant… » quand `busy` |
 

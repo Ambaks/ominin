@@ -7360,6 +7360,15 @@ export type Database = {
           restaurant_name: string
         }[]
       }
+      gestion_daily_sales: {
+        Args: {
+          p_day_end_hour: number
+          p_etablissement_id: string
+          p_from: string
+          p_to: string
+        }
+        Returns: { day: string; orders: number; revenue: number }[]
+      }
       admin_combo_parfait: {
         Args: {
           p_etab: string | null

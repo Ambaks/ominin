@@ -479,6 +479,32 @@ export function topVentes(state: GestionState, days: number): VenteEntry[] {
 
 export const topVentesToday = (state: GestionState) => topVentes(state, 1);
 
+/** Une vente de la courbe du jour : minutes depuis le début du service, cumul du CA. */
+export interface SalesCurvePoint {
+  minute: number;
+  revenue: number;
+}
+
+/** Heure de service en minutes, à l'heure affichée : un changement d'heure n'y décale rien. */
+export function serviceMinute(date: Date, dayEndHour: number): number {
+  const shifted = serviceDate(date, dayEndHour);
+  return shifted.getHours() * 60 + shifted.getMinutes();
+}
+
+/** Le CA encaissé d'une journée de service, cumulé vente après vente. */
+export function salesCurve(state: GestionState, daysAgo: number): SalesCurvePoint[] {
+  const day = dayStart(daysAgo, state.dayEndHour).toDateString();
+  const sales = state.orders
+    .filter((order) => isPaid(order) && serviceDayKey(paidAt(order), state.dayEndHour) === day)
+    .map((order) => ({ at: paidAt(order), total: orderTotal(order) }))
+    .sort((a, b) => a.at.localeCompare(b.at));
+  let revenue = 0;
+  return sales.map(({ at, total }) => {
+    revenue += total;
+    return { minute: serviceMinute(new Date(at), state.dayEndHour), revenue };
+  });
+}
+
 export interface DayPoint {
   /** Libellé court d'axe ("lun. 8"). */
   label: string;
@@ -491,25 +517,23 @@ export interface DayPoint {
 }
 
 /** CA encaissé (commandes payées) par jour de service, du plus ancien à aujourd'hui. */
+/** La case vide d'un jour : ses libellés, rien de vendu. */
+export function emptyDayPoint(date: Date): DayPoint {
+  return {
+    label: date.toLocaleDateString("fr-FR", { weekday: "short", day: "numeric" }),
+    day: date.getDate(),
+    full: date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }),
+    revenue: 0,
+    orders: 0,
+  };
+}
+
 export function revenueByDay(state: GestionState, days: number): DayPoint[] {
   const buckets: DayPoint[] = [];
   const index = new Map<string, DayPoint>();
   for (let daysAgo = days - 1; daysAgo >= 0; daysAgo--) {
     const date = dayStart(daysAgo, state.dayEndHour);
-    const point: DayPoint = {
-      label: date.toLocaleDateString("fr-FR", {
-        weekday: "short",
-        day: "numeric",
-      }),
-      day: date.getDate(),
-      full: date.toLocaleDateString("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-      }),
-      revenue: 0,
-      orders: 0,
-    };
+    const point = emptyDayPoint(date);
     buckets.push(point);
     index.set(date.toDateString(), point);
   }

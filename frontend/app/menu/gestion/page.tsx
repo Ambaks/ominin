@@ -4,6 +4,8 @@ import { useEffect, useState, type CSSProperties, type HTMLAttributes, type Reac
 import { useRouter } from "next/navigation";
 import { CuisinierApercu } from "@/components/gestion/apercu/cuisinier-apercu";
 import { ArticlesEpuises } from "@/components/gestion/apercu/carte-en-vente";
+import { DayCurve } from "@/components/gestion/apercu/day-curve";
+import { MetricSheet, type Metric } from "@/components/gestion/apercu/metric-sheet";
 import { MiseEnRoute, miseEnRouteDue } from "@/components/gestion/apercu/mise-en-route";
 import { ServeurApercu } from "@/components/gestion/apercu/serveur-apercu";
 import { FermeturesEnCours } from "@/components/gestion/fermetures-en-cours";
@@ -24,6 +26,7 @@ import {
   SectionHeading,
   Segmented,
   StatTile,
+  niceTicks,
   type DeltaTone,
 } from "@/components/gestion/ui";
 import { formatPercent } from "@/lib/admin/format";
@@ -50,6 +53,7 @@ import {
   type VenteEntry,
 } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
+import { usePriorDays } from "@/lib/gestion/use-prior-days";
 import type { GestionState } from "@/lib/gestion/types";
 
 type Period = (typeof ANALYTICS_PERIOD_DAYS)[number];
@@ -72,16 +76,6 @@ const DENSE_FROM = 10;
 const DENSE_LABEL_EVERY = 5;
 /** Repère des heures : toutes les six heures. */
 const HOUR_LABEL_EVERY = 6;
-
-/** Graduations « rondes » (1, 2, 5 × 10ⁿ) dont la plus haute couvre le maximum. */
-function niceTicks(max: number, lines: number): number[] {
-  if (max <= 0) return Array.from({ length: lines + 1 }, (_, i) => i);
-  const raw = max / lines;
-  const magnitude = 10 ** Math.floor(Math.log10(raw));
-  const unit = raw / magnitude;
-  const step = (unit <= 1 ? 1 : unit <= 2 ? 2 : unit <= 5 ? 5 : 10) * magnitude;
-  return Array.from({ length: lines + 1 }, (_, i) => i * step);
-}
 
 function delta(current: number, previous: number): { text: string; tone: DeltaTone } {
   const ratio = (current - previous) / previous;
@@ -119,7 +113,7 @@ function comparison(
   format: (value: number) => string
 ): { delta?: { text: string; tone: DeltaTone }; baseline: string } {
   if (previous.count === 0) return { baseline: nothing };
-  if (previous.count < SMALL_BASE) return { baseline: `était ${format(previous.value)} ${when}` };
+  if (previous.count < SMALL_BASE || previous.value === 0) return { baseline: `était ${format(previous.value)} ${when}` };
   return { delta: delta(current, previous.value), baseline: `vs ${when}` };
 }
 
@@ -226,6 +220,8 @@ export default function ApercuPage() {
   const state = useGestion();
   const { hasFeature } = useGestionAccess();
   const [period, setPeriod] = useState<Period>(ANALYTICS_PERIOD_DAYS[0]);
+  const [detail, setDetail] = useState<Metric | null>(null);
+  const prior = usePriorDays(state, period, state?.role === "gerant" && hasFeature("commandes"));
 
   if (!state) return null;
   const pickupShop = isPickupShop(state);
@@ -281,26 +277,24 @@ export default function ApercuPage() {
   const hours = hasCommandes ? ordersByHour(state, period) : [];
   const tips = hasCommandes ? tipsTotal(state, period) : 0;
   const hasAnalyticsData = stats ? stats.orders > 0 || ventesTop.length > 0 : false;
-  // La période précédente n'est comparable que si l'espace l'a chargée : la
-  // fenêtre de commandes couvre la plus longue période d'analytique.
-  const comparable = period * 2 <= Math.max(...ANALYTICS_PERIOD_DAYS);
+  // La période d'avant : sur les commandes chargées, ou en totaux par jour au-delà.
   const previous =
-    stats && comparable
+    stats && prior.days
       ? (() => {
-          const both = periodStats(state, period * 2);
-          const orders = both.orders - stats.orders;
-          const revenue = both.revenue - stats.revenue;
+          const orders = prior.days.reduce((sum, day) => sum + day.orders, 0);
+          const revenue = prior.days.reduce((sum, day) => sum + day.revenue, 0);
           return {
             revenue,
             orders,
             avgTicket: orders > 0 ? revenue / orders : 0,
-            tips: tipsTotal(state, period * 2) - tips,
+            // Les totaux par jour ne portent pas les pourboires.
+            tips: period * 2 <= Math.max(...ANALYTICS_PERIOD_DAYS) ? tipsTotal(state, period * 2) - tips : null,
           };
         })()
       : null;
-  // Trente jours : la période d'avant n'est pas chargée, on dit juste la durée.
-  const versus = (current: number, value: number, format: (value: number) => string) =>
-    previous
+  // Tant qu'elle manque, on dit juste la durée.
+  const versus = (current: number, value: number | null | undefined, format: (value: number) => string) =>
+    previous && value != null
       ? comparison(
           current,
           { value, count: previous.orders },
@@ -358,6 +352,7 @@ export default function ApercuPage() {
             )}
             href={hasFeature("paiements") ? "/gestion/paiements" : "/gestion/commandes"}
             title="Chiffre d’affaires encaissé sur la journée de service, TTC"
+            chart={<DayCurve state={state} weekday={weekday} />}
           />
         </Block>
       )}
@@ -412,7 +407,8 @@ export default function ApercuPage() {
               icon={<PaymentsIcon />}
               label="CA encaissé"
               value={stats.orders > 0 ? formatPrice(stats.revenue) : "—"}
-              {...versus(stats.revenue, previous?.revenue ?? 0, formatPrice)}
+              {...versus(stats.revenue, previous?.revenue, formatPrice)}
+              onClick={stats.orders > 0 || (previous?.orders ?? 0) > 0 ? () => setDetail("revenue") : undefined}
               title={`Commandes payées sur ${period} jours, TTC`}
             />
             <StatTile
@@ -420,7 +416,8 @@ export default function ApercuPage() {
               icon={<ChartIcon />}
               label="Commandes payées"
               value={stats.orders > 0 ? String(stats.orders) : "—"}
-              {...versus(stats.orders, previous?.orders ?? 0, String)}
+              {...versus(stats.orders, previous?.orders, String)}
+              onClick={stats.orders > 0 || (previous?.orders ?? 0) > 0 ? () => setDetail("orders") : undefined}
               title={`Commandes payées sur ${period} jours`}
             />
             <StatTile
@@ -428,7 +425,7 @@ export default function ApercuPage() {
               icon={<BagIcon />}
               label="Panier moyen"
               value={stats.orders > 0 ? formatPrice(stats.avgTicket) : "—"}
-              {...versus(stats.avgTicket, previous?.avgTicket ?? 0, formatPrice)}
+              {...versus(stats.avgTicket, previous?.avgTicket, formatPrice)}
               title="CA encaissé ÷ commandes payées"
             />
             <StatTile
@@ -436,7 +433,7 @@ export default function ApercuPage() {
               icon={<GiftIcon />}
               label="Pourboires"
               value={stats.orders > 0 ? formatPrice(tips) : "—"}
-              {...versus(tips, previous?.tips ?? 0, formatPrice)}
+              {...versus(tips, previous?.tips, formatPrice)}
               title={`Pourboires laissés sur ${period} jours, en ligne comme au comptoir`}
             />
           </div>
@@ -518,6 +515,17 @@ export default function ApercuPage() {
             />
           )}
         </Block>
+      )}
+
+      {detail && (
+        <MetricSheet
+          metric={detail}
+          period={period}
+          days={byDay}
+          prior={prior.days}
+          priorFailed={prior.failed}
+          onClose={() => setDetail(null)}
+        />
       )}
     </div>
   );
