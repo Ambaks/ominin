@@ -74,9 +74,10 @@ export function StatTile({
       onClick={onClick}
       hero={hero}
       title={title}
-      className={chart ? "flex flex-col" : ""}
+      className="flex flex-col"
     >
-      <Plate className={`${hero ? "p-5" : "p-4"} ${chart ? "flex-1" : ""}`}>
+      {/* Une tuile étirée par sa voisine garde sa plaque jusqu'en bas du cadre. */}
+      <Plate className={`flex flex-1 flex-col ${hero ? "p-5" : "p-4"}`}>
         <p className={`${hero ? "text-g-day" : "text-g-kpi"} tabular-nums whitespace-nowrap`}>
           {value}
         </p>
