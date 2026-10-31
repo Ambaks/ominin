@@ -92,9 +92,12 @@ export function DataLicenceSettings({
     >
       <Switch
         checked={optOut ?? false}
-        disabled={optOut === null || busy}
-        onChange={(next) => void save(next)}
+        disabled={optOut === null}
+        onChange={(next) => {
+          if (!busy) void save(next);
+        }}
         label="Je m’oppose à la réutilisation des données anonymisées de mes clients"
+        hint="Allumé : leurs données anonymisées ne servent pas à nos modèles. Éteint : elles peuvent y servir."
       />
       {loadError && (
         <p role="alert" className="flex items-start gap-1.5 text-g-meta font-medium">

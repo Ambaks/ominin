@@ -26,7 +26,7 @@ export function SettingsCard({
   return (
     <Plate {...props} className={`flex flex-col gap-4 p-5 ${className}`}>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="min-w-0 flex-1">
+        <div className="min-w-0 flex-1 basis-56">
           <h3 className="text-g-body font-semibold">{title}</h3>
           {text && <p className="mt-1 text-g-meta text-muted">{text}</p>}
         </div>

@@ -94,9 +94,12 @@ export function PopinaSettings() {
           aria-invalid={keyError !== null}
         />
       </Field>
-      <GlassButton variant="primary" type="submit" disabled={busy || !apiKey.trim()} className="self-start">
-        {busy ? "Vérification…" : label}
-      </GlassButton>
+      <div className="flex flex-wrap items-center gap-3">
+        <GlassButton variant="primary" type="submit" disabled={busy || !apiKey.trim()}>
+          {busy ? "Vérification…" : label}
+        </GlassButton>
+        {!apiKey.trim() && <p className="text-g-meta text-muted">Collez la clé pour relier.</p>}
+      </div>
     </form>
   );
 
@@ -113,7 +116,7 @@ export function PopinaSettings() {
 
   return (
     <SettingsCard
-      title="Ventes de la caisse (Popina)"
+      title="Ventes depuis la caisse (Popina)"
       text="Chaque vente réglée sur la caisse arrive dans Commandes et Paiements, marquée « Caisse » ; elle se corrige sur la caisse."
       right={state}
     >
@@ -178,4 +181,3 @@ export function PopinaSettings() {
     </SettingsCard>
   );
 }
-

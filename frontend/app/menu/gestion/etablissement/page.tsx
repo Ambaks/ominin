@@ -8,16 +8,17 @@ import { FermeturesSettings } from "@/components/gestion/fermetures-settings";
 import {
   HubriseSettings,
   hubriseProblems,
+  StatusDot,
   type HubriseStatus,
 } from "@/components/gestion/hubrise-settings";
 import { AlertIcon, BellIcon, PrinterIcon, ProductsIcon, type IconProps } from "@/components/gestion/icons";
-import { hoursProblem, OpeningHoursEditor } from "@/components/gestion/opening-hours-editor";
+import { hoursProblem, OpeningHoursEditor, type HoursProblem } from "@/components/gestion/opening-hours-editor";
 import { PaymentPinSettings } from "@/components/gestion/payment-pin-settings";
 import { PaymentSettings } from "@/components/gestion/payment-settings";
 import { PopinaSettings } from "@/components/gestion/popina-settings";
 import { ServiceModeSettings } from "@/components/gestion/service-mode-settings";
 import { TabletSettings } from "@/components/gestion/tablet-settings";
-import { EmptyState, Field, GlassButton, GlassFrame, Input, Notice, Plate, ReserveGerant, SectionHeading } from "@/components/gestion/ui";
+import { Chip, EmptyState, Field, GlassButton, GlassFrame, Input, Notice, Plate, ReserveGerant, SectionHeading, Shimmer } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { DAY_NAMES, formatOpeningHours, type OpeningHours } from "@/lib/collect/hours";
 import * as api from "@/lib/gestion/api";
@@ -147,13 +148,10 @@ function LinkFrame({
 function EtablissementForm({
   etablissement,
   hoursManaged,
-  onOpenTill,
 }: {
   etablissement: Etablissement;
-  /** Les horaires viennent de la caisse (HubRise) : on ne les saisit plus ici. */
-  hoursManaged: boolean;
-  /** Montre la carte de la caisse connectée, dans « Plus de réglages ». */
-  onOpenTill: () => void;
+  /** Les horaires viennent de la caisse (HubRise) : on ne les saisit plus ici ; null tant qu'on ne sait pas. */
+  hoursManaged: boolean | null;
 }) {
   const toast = useToast();
   const [name, setName] = useState(etablissement.name);
@@ -177,13 +175,13 @@ function EtablissementForm({
   const [saving, setSaving] = useState(false);
   // Les plages se vérifient au moment d'enregistrer, et l'erreur reste
   // affichée sous les horaires jusqu'à la correction.
-  const [hoursError, setHoursError] = useState<string | null>(null);
+  const [hoursError, setHoursError] = useState<HoursProblem | null>(null);
   // Un texte déjà écrit par le gérant se montre d'emblée.
   const [hoursTextOpen] = useState(hours !== "");
 
   const onSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const problem = hoursManaged ? null : hoursProblem(openingHours);
+    const problem = hoursManaged === false ? hoursProblem(openingHours) : null;
     setHoursError(problem);
     if (problem) return;
     const generated = formatOpeningHours(openingHours);
@@ -196,8 +194,8 @@ function EtablissementForm({
         phone: phone.trim(),
         // Le texte affiché est celui du gérant ; vide, il suit les plages.
         // Les horaires de la caisse ne se réécrivent pas d'ici.
-        hours: hoursManaged ? etablissement.hours : hours.trim() || generated,
-        openingHours: hoursManaged
+        hours: hoursManaged === false ? hours.trim() || generated : etablissement.hours,
+        openingHours: hoursManaged !== false
           ? etablissement.openingHours
           : generated
             ? openingHours
@@ -263,71 +261,43 @@ function EtablissementForm({
         </Field>
       </SettingsCard>
 
-      <SettingsCard
-        title="Horaires d'ouverture"
-        text={
-          hoursManaged
-            ? "Les horaires viennent de votre caisse, par HubRise : modifiez-les là-bas."
-            : "Le click & collect propose ses heures de retrait dans ces plages."
-        }
-      >
-        {hoursManaged ? (
-          etablissement.openingHours ? (
-            <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-g-label">
-              {DAY_NAMES.map((day, index) => {
-                const ranges = etablissement.openingHours?.[String(index + 1)] ?? [];
-                return (
-                  <div key={day} className="contents">
-                    <dt className="text-muted">{day}</dt>
-                    <dd className="tabular-nums">
-                      {ranges.length
-                        ? ranges.map(([open, close]) => `${open} – ${close}`).join(", ")
-                        : "Fermé"}
-                    </dd>
-                  </div>
-                );
-              })}
-            </dl>
-          ) : (
-            <EmptyState
-              text={etablissement.hours || "Aucun horaire reçu de la caisse pour l'instant."}
-              action={<GlassButton onClick={onOpenTill}>Caisse connectée</GlassButton>}
-            />
-          )
-        ) : (
-          <>
-            <OpeningHoursEditor
-              value={openingHours}
-              onChange={(next) => {
-                setOpeningHours(next);
-                setHoursError(null);
-              }}
-            />
-            {hoursError && (
-              <p role="alert" className="flex items-start gap-1.5 text-g-meta font-medium">
-                <AlertIcon className="mt-px size-4 shrink-0 text-ember-3" />
-                {hoursError}
-              </p>
-            )}
-            <details className="group" open={hoursTextOpen}>
-              <summary className="flex min-h-g-control cursor-pointer list-none items-center gap-2 rounded-full text-g-meta font-semibold text-muted touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1">
-                <ChevronIcon className="size-3.5 transition-transform duration-(--g-morph-dur) group-open:rotate-90 motion-reduce:transition-none" />
-                Texte des horaires sur la carte
-              </summary>
-              <Field
-                label="Horaires affichés"
-                hint="Votre texte ; laissé vide, il est écrit d'après les plages ci-dessus."
-              >
-                <Input
-                  value={hours}
-                  onChange={(event) => setHours(event.target.value)}
-                  placeholder={formatOpeningHours(openingHours)}
-                />
-              </Field>
-            </details>
-          </>
-        )}
-      </SettingsCard>
+      {hoursManaged === false && (
+        <SettingsCard
+          title="Horaires d'ouverture"
+          text="Le click & collect propose ses heures de retrait dans ces plages."
+        >
+          <OpeningHoursEditor
+            value={openingHours}
+            invalidDay={hoursError?.day}
+            onChange={(next) => {
+              setOpeningHours(next);
+              setHoursError(null);
+            }}
+          />
+          {hoursError && (
+            <p role="alert" className="flex items-start gap-1.5 text-g-meta font-medium">
+              <AlertIcon className="mt-px size-4 shrink-0 text-ember-3" />
+              {hoursError.text}
+            </p>
+          )}
+          <details className="group [interpolate-size:allow-keywords] [&::details-content]:h-0 [&::details-content]:overflow-hidden [&::details-content]:transition-[height,content-visibility] [&::details-content]:duration-(--g-morph-dur) [&::details-content]:ease-(--g-ease-move) [&::details-content]:[transition-behavior:allow-discrete] open:[&::details-content]:h-auto motion-reduce:[&::details-content]:transition-none" open={hoursTextOpen}>
+            <summary className="flex min-h-g-control cursor-pointer list-none items-center gap-2 rounded-full text-g-meta font-semibold text-muted touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1">
+              <ChevronIcon className="size-3.5 transition-transform duration-(--g-morph-dur) group-open:rotate-90 motion-reduce:transition-none" />
+              Texte des horaires sur la carte
+            </summary>
+            <Field
+              label="Horaires affichés"
+              hint="Votre texte ; laissé vide, il est écrit d'après les plages ci-dessus."
+            >
+              <Input
+                value={hours}
+                onChange={(event) => setHours(event.target.value)}
+                placeholder={formatOpeningHours(openingHours)}
+              />
+            </Field>
+          </details>
+        </SettingsCard>
+      )}
 
       <div className="flex justify-end">
         <GlassButton variant="primary" type="submit" disabled={saving}>
@@ -335,6 +305,45 @@ function EtablissementForm({
         </GlassButton>
       </div>
     </form>
+  );
+}
+
+/** Les horaires tenus par la caisse : lus ici, modifiés là-bas. */
+function ManagedHours({
+  etablissement,
+  onOpenTill,
+}: {
+  etablissement: Etablissement;
+  onOpenTill: () => void;
+}) {
+  return (
+    <SettingsCard
+      title="Horaires d'ouverture"
+      text="Les horaires viennent de votre caisse, par HubRise : modifiez-les là-bas."
+    >
+      {etablissement.openingHours ? (
+        <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1.5 text-g-label">
+          {DAY_NAMES.map((day, index) => {
+            const ranges = etablissement.openingHours?.[String(index + 1)] ?? [];
+            return (
+              <div key={day} className="contents">
+                <dt className="text-muted">{day}</dt>
+                <dd className="tabular-nums">
+                  {ranges.length
+                    ? ranges.map(([open, close]) => `${open} – ${close}`).join(", ")
+                    : "Fermé"}
+                </dd>
+              </div>
+            );
+          })}
+        </dl>
+      ) : (
+        <EmptyState
+          text={etablissement.hours || "Aucun horaire reçu de la caisse pour l'instant."}
+          action={<GlassButton onClick={onOpenTill}>Caisse connectée</GlassButton>}
+        />
+      )}
+    </SettingsCard>
   );
 }
 
@@ -349,6 +358,10 @@ export default function EtablissementPage() {
   // ouverte : le défilement attend le rendu qui l'ouvre.
   const pendingScroll = useRef<string | null>(null);
   const scrollTo = (id: string) => {
+    if (plusOpen) {
+      document.getElementById(id)?.scrollIntoView({ block: "start" });
+      return;
+    }
     pendingScroll.current = id;
     setPlusOpen(true);
   };
@@ -356,17 +369,43 @@ export default function EtablissementPage() {
     const id = pendingScroll.current;
     if (!plusOpen || !id) return;
     pendingScroll.current = null;
-    document.getElementById(id)?.scrollIntoView({ block: "start" });
+    // Le pli s'ouvre en transition : tant qu'il grandit, la page est trop courte
+    // pour amener la cible en haut. Sans mouvement, il n'y a rien à attendre.
+    requestAnimationFrame(() => {
+      const opening = document.getElementById("plus")?.getAnimations({ subtree: true }) ?? [];
+      void Promise.allSettled(opening.map((animation) => animation.finished)).then(() =>
+        document.getElementById(id)?.scrollIntoView({ block: "start" })
+      );
+    });
   }, [plusOpen]);
   const isGerant = state?.role === "gerant";
 
   if (!state) return null;
 
   const { etablissement } = state;
-  const hoursManaged = hubrise?.connected === true && hubrise.syncedAt?.hours != null;
+  // Tant que HubRise n'a pas répondu, on ne sait pas qui tient les horaires.
+  const hoursManaged =
+    isGerant && hubrise === null
+      ? null
+      : hubrise?.connected === true && hubrise.syncedAt?.hours != null;
   const problems = hubriseProblems(hubrise);
   const blocked = hubrise?.connected === true && hubrise.blocked === true;
-  const openPlus = () => setPlusOpen(true);
+  // Une section sans réglage n'a ni titre ni entrée au sommaire.
+  const showService = hasFeature("commandes") || etablissement.offre !== null || products.collect;
+  const sections = SECTIONS.filter((section) => section.id !== "service" || showService);
+  // L'état de la caisse connectée se lit dès le sommaire, avant d'ouvrir « Plus » :
+  // le store sait déjà si HubRise est relié, le statut précise ensuite blocage et envois.
+  const tillChip = etablissement.hubriseConnected ? (
+    blocked ? (
+      <Chip tone="problem" icon={<StatusDot />}>HubRise à renouveler</Chip>
+    ) : problems > 0 ? (
+      <Chip tone="problem" icon={<StatusDot />}>{problems} non transmise{problems > 1 ? "s" : ""}</Chip>
+    ) : (
+      <span className="[--g-entity:var(--status-signed)]">
+        <Chip icon={<StatusDot />}>HubRise reliée</Chip>
+      </span>
+    )
+  ) : null;
 
   return (
     <div className="flex max-w-4xl flex-col gap-8">
@@ -400,20 +439,28 @@ export default function EtablissementPage() {
             <GlassFrame eyebrow="Sommaire">
               <Plate>
                 <nav aria-label="Sections des réglages" className="grid sm:grid-cols-2">
-                  {SECTIONS.map((section) => (
+                  {sections.map((section) => (
                     <a
                       key={section.id}
                       href={`#${section.id}`}
-                      onClick={section.id === "plus" ? openPlus : undefined}
-                      className={`g-press flex min-h-g-control items-center gap-3 border-t border-hairline px-4 py-2.5 touch-manipulation first:border-t-0 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-ember-1 sm:[&:nth-child(2)]:border-t-0 sm:[&:nth-child(2n)]:border-l ${
+                      onClick={
+                        section.id === "plus"
+                          ? (event) => {
+                              event.preventDefault();
+                              scrollTo("plus");
+                            }
+                          : undefined
+                      }
+                      className={`flex min-h-g-control items-center gap-3 border-t border-hairline px-4 py-2.5 touch-manipulation first:border-t-0 focus-visible:outline-2 -outline-offset-2 focus-visible:outline-ember-1 sm:[&:nth-child(2)]:border-t-0 sm:[&:nth-child(2n)]:border-l ${
                         section.id === "plus" ? "sm:col-span-2 sm:[&:nth-child(2n)]:border-l-0" : ""
                       }`}
                     >
                       <section.icon className="size-5 shrink-0 text-ember-1" />
-                      <span className="min-w-0">
+                      <span className="min-w-0 flex-1">
                         <span className="block truncate text-g-label font-semibold">{section.label}</span>
                         <span className="block truncate text-g-meta text-muted">{section.hint}</span>
                       </span>
+                      {section.id === "plus" && tillChip}
                     </a>
                   ))}
                 </nav>
@@ -431,10 +478,14 @@ export default function EtablissementPage() {
               key={etablissement.slug}
               etablissement={etablissement}
               hoursManaged={hoursManaged}
-              onOpenTill={() => scrollTo("caisse")}
             />
+            {hoursManaged === null && <Shimmer className="h-48" />}
+            {hoursManaged === true && (
+              <ManagedHours etablissement={etablissement} onOpenTill={() => scrollTo("caisse")} />
+            )}
           </Section>
 
+          {showService && (
           <Section
             id="service"
             i={3}
@@ -470,6 +521,7 @@ export default function EtablissementPage() {
               />
             )}
           </Section>
+          )}
 
           <Section
             id="encaissement"
@@ -501,6 +553,7 @@ export default function EtablissementPage() {
             title="Appareils"
             sub="Les imprimantes, la tablette posée en salle et les alertes de cet appareil."
           >
+            {(hasFeature("terminaux") || hasFeature("commandes")) && (
             <div className="grid gap-g-gap sm:grid-cols-2">
               {hasFeature("terminaux") && (
                 <LinkFrame
@@ -521,6 +574,7 @@ export default function EtablissementPage() {
                 />
               )}
             </div>
+            )}
             <TabletSettings pinSet={etablissement.adminPinSet} />
           </Section>
 
@@ -529,9 +583,9 @@ export default function EtablissementPage() {
               id="plus"
               open={plusOpen}
               onToggle={(event) => setPlusOpen(event.currentTarget.open)}
-              className="group scroll-mt-28"
+              className="group scroll-mt-28 [interpolate-size:allow-keywords] [&::details-content]:h-0 [&::details-content]:overflow-hidden [&::details-content]:transition-[height,content-visibility] [&::details-content]:duration-(--g-morph-dur) [&::details-content]:ease-(--g-ease-move) [&::details-content]:[transition-behavior:allow-discrete] open:[&::details-content]:h-auto motion-reduce:[&::details-content]:transition-none"
             >
-              <summary className="g-press flex min-h-g-control cursor-pointer list-none items-center justify-between gap-3 rounded-full touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1">
+              <summary className="flex min-h-g-control cursor-pointer list-none items-center justify-between gap-3 rounded-g-card touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1">
                 <SectionHeading
                   title="Plus de réglages"
                   sub="Caisse connectée, données et modèles, abonnement."

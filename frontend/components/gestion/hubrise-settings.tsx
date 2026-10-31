@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { SettingsCard } from "@/app/menu/gestion/etablissement/settings-card";
+import { AlertIcon } from "@/components/gestion/icons";
 import { Chip, ConfirmSheet, Field, GlassButton, Input, Shimmer } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { describeError } from "@/lib/gestion/errors";
@@ -121,7 +122,7 @@ function TillSettings({
   };
 
   return (
-    <details className="group rounded-g-card border border-hairline">
+    <details className="group rounded-g-card border border-hairline [interpolate-size:allow-keywords] [&::details-content]:h-0 [&::details-content]:overflow-hidden [&::details-content]:transition-[height,content-visibility] [&::details-content]:duration-(--g-morph-dur) [&::details-content]:ease-(--g-ease-move) [&::details-content]:[transition-behavior:allow-discrete] open:[&::details-content]:h-auto motion-reduce:[&::details-content]:transition-none">
       <summary className="flex min-h-g-control cursor-pointer list-none items-center justify-between gap-3 px-4 text-g-label font-semibold touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1">
         Codes de votre caisse
         <span className="text-g-meta font-normal text-muted group-open:hidden">Facultatif</span>
@@ -162,7 +163,7 @@ function TillSettings({
         </div>
         <div className="flex justify-end">
           <GlassButton variant="primary" type="submit" disabled={saving}>
-            {saving ? "Enregistrement…" : "Enregistrer"}
+            {saving ? "Enregistrement…" : "Enregistrer les codes"}
           </GlassButton>
         </div>
       </form>
@@ -261,7 +262,7 @@ export function HubriseSettings({
     <SettingsCard
       id="caisse"
       className="scroll-mt-28"
-      title="Caisse connectée (HubRise)"
+      title="Commandes vers la caisse (HubRise)"
       text="Vos commandes arrivent dans votre caisse (Popina, Zelty, Clyo…) ; elle nous rend ses stocks, ses horaires et l'état de chaque commande."
       right={
         connected ? (
@@ -301,7 +302,7 @@ export function HubriseSettings({
             </div>
           )}
 
-          <dl className="grid gap-3 sm:grid-cols-2">
+          <dl className="grid grid-cols-2 gap-3">
             <Identity label="Compte" name={status.accountName} />
             <Identity label="Point de vente" name={status.locationName} id={status.locationId} />
             <Identity label="Catalogue" name={status.catalogName} id={status.catalogId} />
@@ -311,9 +312,11 @@ export function HubriseSettings({
           <div className="flex flex-col gap-3 border-t border-hairline pt-4">
             <div className="flex items-center justify-between gap-3">
               <p className="text-g-label font-semibold">Synchronisation</p>
-              <GlassButton onClick={() => void refresh()} disabled={busy || status.blocked}>
-                {busy ? "Lecture…" : "Tout relire"}
-              </GlassButton>
+              {!status.blocked && (
+                <GlassButton onClick={() => void refresh()} disabled={busy}>
+                  {busy ? "Lecture…" : "Tout relire"}
+                </GlassButton>
+              )}
             </div>
             <dl className="grid gap-3 sm:grid-cols-3">
               {(
@@ -350,13 +353,18 @@ export function HubriseSettings({
             <GlassButton href="/gestion/caisse">Associer la carte</GlassButton>
           </div>
 
-          <p className={`text-g-label ${problems ? "text-status-lost" : "text-muted"}`}>
-            {problems
-              ? `${problems} commande${problems > 1 ? "s" : ""} non transmise${problems > 1 ? "s" : ""} à la caisse.`
-              : status.outbox?.pending
-                ? `${status.outbox.pending} commande${status.outbox.pending > 1 ? "s" : ""} en cours d'envoi.`
-                : "Toutes les commandes sont transmises à la caisse."}
-          </p>
+          {problems > 0 ? (
+            <p className="flex items-start gap-1.5 text-g-label font-medium">
+              <AlertIcon className="mt-px size-4 shrink-0 text-ember-3" />
+              {`${problems} commande${problems > 1 ? "s" : ""} non transmise${problems > 1 ? "s" : ""} à la caisse.`}
+            </p>
+          ) : (
+            (status.outbox?.pending ?? 0) > 0 && (
+              <p className="text-g-label text-muted">
+                {`${status.outbox?.pending} commande${(status.outbox?.pending ?? 0) > 1 ? "s" : ""} en cours d'envoi.`}
+              </p>
+            )
+          )}
 
           {status.till && <TillSettings till={status.till} onSaved={() => void load()} />}
 

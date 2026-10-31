@@ -25,11 +25,14 @@ function weekdaysAlike(value: OpeningHours): boolean {
 function Row({
   label,
   ranges,
+  invalid = false,
   onChange,
   copyAll,
 }: {
   label: string;
   ranges: DayRanges;
+  /** Une plage de ce jour est refusée : ses saisies le disent. */
+  invalid?: boolean;
   onChange: (ranges: DayRanges) => void;
   /** Recopie ces plages sur les sept jours. */
   copyAll?: () => void;
@@ -46,7 +49,7 @@ function Row({
               onClick={copyAll}
               className="g-press h-g-control rounded-full px-2.5 text-g-meta font-semibold text-muted"
             >
-              Copier partout
+              Copier sur la semaine
             </button>
           )}
           <button
@@ -72,6 +75,7 @@ function Row({
                 type="time"
                 value={open}
                 aria-label={`${label}, ouverture ${r + 1}`}
+                aria-invalid={invalid || undefined}
                 onChange={(event) =>
                   onChange(ranges.map((range, k) => (k === r ? [event.target.value, range[1]] : range)))
                 }
@@ -85,6 +89,7 @@ function Row({
                 type="time"
                 value={close}
                 aria-label={`${label}, fermeture ${r + 1}`}
+                aria-invalid={invalid || undefined}
                 onChange={(event) =>
                   onChange(ranges.map((range, k) => (k === r ? [range[0], event.target.value] : range)))
                 }
@@ -110,9 +115,12 @@ function Row({
 
 export function OpeningHoursEditor({
   value,
+  invalidDay,
   onChange,
 }: {
   value: OpeningHours;
+  /** Jour ISO (« 1 » à « 7 ») dont une plage est refusée à l'enregistrement. */
+  invalidDay?: string;
   onChange: (next: OpeningHours) => void;
 }) {
   // Séparés à la main, les jours restent séparés même redevenus identiques.
@@ -126,7 +134,7 @@ export function OpeningHoursEditor({
       <div className="flex flex-wrap items-center justify-between gap-2">
         <p className="text-g-meta text-muted">
           {perDay
-            ? "Chaque jour a ses plages ; regrouper aligne mardi–vendredi sur le lundi."
+            ? "Chaque jour a ses plages. Regrouper reprend celles du lundi pour toute la semaine de travail."
             : "Du lundi au vendredi, les mêmes plages."}
         </p>
         <button
@@ -148,6 +156,7 @@ export function OpeningHoursEditor({
               key={day}
               label={DAY_NAMES[Number(day) - 1]}
               ranges={value[day] ?? []}
+              invalid={invalidDay === day}
               onChange={(ranges) => setDays([day], ranges)}
               copyAll={day === WEEKDAYS[0] ? () => copyAll(value[day] ?? []) : undefined}
             />
@@ -156,6 +165,7 @@ export function OpeningHoursEditor({
           <Row
             label="Lundi – vendredi"
             ranges={value[WEEKDAYS[0]] ?? []}
+            invalid={invalidDay !== undefined && (WEEKDAYS as readonly string[]).includes(invalidDay)}
             onChange={(ranges) => setDays(WEEKDAYS, ranges)}
             copyAll={() => copyAll(value[WEEKDAYS[0]] ?? [])}
           />
@@ -165,6 +175,7 @@ export function OpeningHoursEditor({
             key={day}
             label={DAY_NAMES[Number(day) - 1]}
             ranges={value[day] ?? []}
+            invalid={invalidDay === day}
             onChange={(ranges) => setDays([day], ranges)}
           />
         ))}
@@ -173,12 +184,21 @@ export function OpeningHoursEditor({
   );
 }
 
+export interface HoursProblem {
+  /** Jour ISO (« 1 » à « 7 ») de la plage refusée. */
+  day: string;
+  text: string;
+}
+
 /** Une plage dont la fermeture ne suit pas l'ouverture : à signaler. */
-export function hoursProblem(hours: OpeningHours): string | null {
+export function hoursProblem(hours: OpeningHours): HoursProblem | null {
   for (const [i, name] of DAY_NAMES.entries()) {
     for (const [open, close] of hours[String(i + 1)] ?? []) {
       if (!open || !close || close <= open) {
-        return `${name} : l'heure de fermeture doit suivre l'ouverture (après minuit, coupez en deux plages).`;
+        return {
+          day: String(i + 1),
+          text: `${name} : l'heure de fermeture doit suivre l'ouverture (après minuit, coupez en deux plages).`,
+        };
       }
     }
   }

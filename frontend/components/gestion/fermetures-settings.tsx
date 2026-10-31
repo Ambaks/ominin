@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { AlertIcon } from "@/components/gestion/icons";
+import { AlertIcon, ChevronDownIcon } from "@/components/gestion/icons";
 import { SettingsCard } from "@/app/menu/gestion/etablissement/settings-card";
 import { DayPicker } from "@/components/gestion/day-picker";
 import { MenuTargetPicker } from "@/components/gestion/menu-target-picker";
@@ -191,7 +191,7 @@ function ClosureForm({
               Supprimer
             </GlassButton>
           )}
-          {missing && <p>{missing}</p>}
+          {missing && <p role="status">{missing}</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
           <GlassButton variant="primary" disabled={!valid || saving} onClick={() => void submit()}>
             {saving ? "Enregistrement…" : "Enregistrer"}
@@ -402,25 +402,25 @@ export function FermeturesSettings({
                 <button
                   type="button"
                   onClick={() => setEditing(closure)}
-                  className="g-press flex min-h-g-control w-full items-center justify-between gap-3 py-2.5 text-left"
+                  className="flex min-h-g-control w-full items-center justify-between gap-3 py-2.5 text-left touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1"
                 >
                   <span className="min-w-0">
                     <span className="block break-words text-g-label font-semibold">{closure.name}</span>
                     <span className="block text-g-meta text-muted">
                       {describeSchedule(closure) ?? "À la main seulement"}
                     </span>
-                    <span className="line-clamp-2 block text-g-meta text-faint">
+                    <span className="line-clamp-2 block text-g-meta text-muted">
                       {describeTargets(closure, categories) ||
                         "Ne coupe plus rien : ses articles ont été supprimés."}
                     </span>
                   </span>
-                  <span className="flex shrink-0 items-center gap-2">
+                  <span className="flex shrink-0 flex-wrap items-center justify-end gap-2">
                     {active ? (
                       <Chip tone="problem">À l’arrêt</Chip>
                     ) : (
                       suspended && <Chip>Suspendu jusqu’à {suspended}</Chip>
                     )}
-                    <span className="text-g-meta font-semibold text-muted">Modifier&nbsp;›</span>
+                    <ChevronDownIcon className="size-4 -rotate-90 text-muted" />
                   </span>
                 </button>
               </li>

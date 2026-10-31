@@ -96,7 +96,7 @@ export function AdminLockButton() {
                 setCode(event.target.value.replace(/\D/g, "").slice(0, 8))
               }
               aria-label="Code d'accès"
-              className="text-center tracking-[0.5em]"
+              className="text-center tracking-widest"
             />
           </form>
         </Sheet>
