@@ -15,10 +15,12 @@ import {
 } from "@/lib/admin/format";
 import {
   conversionRate,
+  fetchAfterMealStats,
   fetchMeasures,
   fetchPilotage,
   periodOf,
   savePilotageFrom,
+  type AfterMealStats,
   type ClientOverview,
   type Measures,
   type Pilotage,
@@ -372,6 +374,99 @@ function StartDate({
   );
 }
 
+const AFTER_MEAL_EVENTS: [keyof AfterMealStats["by_event"], string][] = [
+  ["ajout", "Assiette ajoutée"],
+  ["retrait", "Assiette retirée"],
+  ["ajout_combo", "Combo parfait ajouté"],
+  ["voir_commande", "« Voir la commande »"],
+  ["non_merci", "« Non merci » ou « Plus tard »"],
+  ["croix", "Fermée par la croix"],
+  ["fermee_autrement", "Fermée par le fond ou un geste"],
+  ["avis", "Lien d'avis Google touché"],
+  ["page_quittee", "Page quittée, feuille ouverte"],
+];
+
+const AFTER_MEAL_MOMENTS: Record<string, string> = {
+  repas: "Après un plat",
+  sucre: "Après un plat, sans café",
+  dessert: "Après un dessert",
+  tournee: "Après des boissons",
+  verre: "Après des boissons, rien à grignoter",
+  grignoter: "Après une boisson à options",
+  fin: "Remerciement seul",
+};
+
+function AfterMealSection({ stats }: { stats: AfterMealStats }) {
+  const added = stats.by_event.ajout?.appearances ?? 0;
+  return (
+    <Section
+      title="Suite du repas"
+      hint="Une apparition : la feuille à l'écran d'un téléphone. Commandes servies : ce qu'elle aurait pu suivre, le client a pu ne jamais revenir sur la page. Recette : les plats ajoutés depuis la feuille, dans la commande qui suit. Avis : le lien touché, pas l'avis publié."
+    >
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        <StatTile label="Commandes servies" value={String(stats.served_orders)} />
+        <StatTile
+          label="Apparitions"
+          value={String(stats.appearances)}
+          hint={`${share(stats.appearances, stats.served_orders)} des servies`}
+        />
+        <StatTile
+          label="Avec un ajout"
+          value={String(added)}
+          hint={`${share(added, stats.appearances)} des apparitions`}
+        />
+        <StatTile
+          label="Commandes qui suivent"
+          value={String(stats.orders)}
+          hint={`${share(stats.orders, stats.appearances)} des apparitions`}
+        />
+        <StatTile label="Recette" value={formatEuros(stats.revenue)} />
+      </div>
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        <Table
+          head={["Ce qui s'est passé", "Fois", "Apparitions", "Part", "Après"]}
+          empty={NO_DATA}
+          rows={AFTER_MEAL_EVENTS.flatMap(([event, label]) => {
+            const row = stats.by_event[event];
+            return row
+              ? [
+                  {
+                    key: event,
+                    cells: [
+                      label,
+                      row.total,
+                      row.appearances,
+                      share(row.appearances, stats.appearances),
+                      formatDuration(row.median_ms === null ? null : row.median_ms / 1000),
+                    ],
+                  },
+                ]
+              : [];
+          })}
+        />
+        <Table
+          head={["Plat", "Montré", "Ajouté", "Retiré", "Commandé"]}
+          empty={NO_DATA}
+          rows={stats.items.map((item) => ({
+            key: item.name,
+            cells: [item.name, item.shown, item.added, item.removed, item.sold],
+          }))}
+        />
+      </div>
+      <div className="mt-6">
+        <Table
+          head={["Ce qui a déclenché la feuille", "Apparitions"]}
+          empty={NO_DATA}
+          rows={stats.by_moment.map((row) => ({
+            key: row.moment,
+            cells: [AFTER_MEAL_MOMENTS[row.moment] ?? row.moment, row.appearances],
+          }))}
+        />
+      </div>
+    </Section>
+  );
+}
+
 export function ClientPilotage({
   client,
   days,
@@ -382,6 +477,7 @@ export function ClientPilotage({
   const toast = useToast();
   const [data, setData] = useState<Pilotage | null>(null);
   const [measures, setMeasures] = useState<Measures | null>(null);
+  const [afterMeal, setAfterMeal] = useState<AfterMealStats | null>(null);
   const [reload, setReload] = useState(0);
 
   useEffect(() => {
@@ -391,11 +487,13 @@ export function ClientPilotage({
     fetchPilotage(client.etablissement_id, period)
       .then(async (next) => {
         // Même début de décompte que le reste de l'onglet.
-        const nextMeasures = await fetchMeasures(client.etablissement_id, {
-          from: next.venue.from_at,
-          to: period.to,
-        });
+        const counted = { from: next.venue.from_at, to: period.to };
+        const [nextMeasures, nextAfterMeal] = await Promise.all([
+          fetchMeasures(client.etablissement_id, counted),
+          fetchAfterMealStats(client.etablissement_id, counted),
+        ]);
         setMeasures(nextMeasures);
+        setAfterMeal(nextAfterMeal);
         setData(next);
       })
       .catch((error) =>
@@ -652,7 +750,7 @@ export function ClientPilotage({
         <Table
           head={["Où", "Proposées", "Retenues", "Taux", "Recette"]}
           empty={NO_DATA}
-          rows={suggestions.map((row) => ({
+          rows={suggestions.filter((row) => row.kind !== "apres_repas").map((row) => ({
             key: row.kind,
             cells: [
               SUGGESTION_LABELS[row.kind],
@@ -664,6 +762,8 @@ export function ClientPilotage({
           }))}
         />
       </Section>
+
+      {afterMeal && afterMeal.appearances > 0 && <AfterMealSection stats={afterMeal} />}
 
       <div className="grid gap-6 lg:grid-cols-2">
         <Section title="Fidélité">

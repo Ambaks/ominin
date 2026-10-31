@@ -28,7 +28,7 @@ import {
   Shimmer,
 } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { ORDER_TABS, ORDER_TAB_HINTS, WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { ENCAISSER_WAIT_ALERT_SLUGS, ORDER_TABS, ORDER_TAB_HINTS, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import {
   awaitsPayment,
   awaitsService,
@@ -206,6 +206,7 @@ export default function CommandesPage() {
     state.tables.map((table) => [table.id, table.number])
   );
   const showTable = state.etablissement.showTableNumber;
+  const encaisserNow = ENCAISSER_WAIT_ALERT_SLUGS.includes(state.etablissement.slug) ? now : undefined;
   const closedOrders = state.orders.filter((order) =>
     isHistoryStatus(order.status)
   );
@@ -461,6 +462,7 @@ export default function CommandesPage() {
                 title={`Table ${tableNumbersById.get(tableId) ?? 0}`}
                 i={rank}
                 ready={isNew(orders)}
+                now={encaisserNow}
               />
             ) : (
               <ServirCard
@@ -487,6 +489,7 @@ export default function CommandesPage() {
                     .join(" · ")}
                   i={rank}
                   ready={arrived.has(order.id)}
+                  now={encaisserNow}
                 />
               ))
             : numbered.length > 0 && (

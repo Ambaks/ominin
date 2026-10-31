@@ -1,10 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import { ConfirmSheet, GlassButton } from "@/components/gestion/ui";
+import { Chip, ConfirmSheet, GlassButton } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { PAYMENT_MODE_LABELS } from "@/lib/gestion/constants";
+import {
+  ENCAISSER_WAIT_LATE_MINUTES,
+  ENCAISSER_WAIT_WARN_MINUTES,
+  PAYMENT_MODE_LABELS,
+} from "@/lib/gestion/constants";
 import { formatTime } from "@/lib/gestion/format";
 import { lineTotal } from "@/lib/gestion/selectors";
 import { useGestion } from "@/lib/gestion/store";
@@ -15,8 +19,9 @@ import type {
   OrderItem,
   PaymentLeg,
 } from "@/lib/gestion/types";
+import { formatWait, minutesSince } from "@/lib/gestion/use-now";
 import { counterWords, formatPrice } from "@/lib/menu/format";
-import { PaymentsIcon, XIcon } from "../icons";
+import { ClockIcon, PaymentsIcon, XIcon } from "../icons";
 import { HubriseRef } from "./hubrise-ref";
 import { CheckMark, LineLabel, LineOptions } from "./order-line";
 import { PaymentDialog } from "./payment-dialog";
@@ -346,7 +351,10 @@ export function EncaisserCard({
   i,
   tag,
   ready,
+  now,
 }: {
+  /** L'heure de l'écran, qui fait courir l'attente ; absente, la carte ne la signale pas. */
+  now?: Date;
   /** Arrivée en temps réel : l'onde de braise, une fois. */
   ready?: boolean;
   orders: Order[];
@@ -368,16 +376,32 @@ export function EncaisserCard({
   const remaining = sumLines(
     orders.flatMap((order) => order.items.filter((line) => !line.paidMode))
   );
+  const waited = now && minutesSince(oldest, now);
+  const late = waited !== undefined && waited >= ENCAISSER_WAIT_LATE_MINUTES;
+  const warn = waited !== undefined && waited >= ENCAISSER_WAIT_WARN_MINUTES;
   return (
     <ServiceCard
-      entity="money"
+      entity={late ? "problem" : "money"}
       icon={<PaymentsIcon />}
-      eyebrow={`${tag ? `${tag} · ` : ""}Addition · ${formatTime(oldest)}`}
+      eyebrow={`${tag ? `${tag} · ` : ""}${late ? "En retard" : "Addition"} · ${formatTime(oldest)}`}
       title={title}
       i={i}
       ready={ready}
+      // Sur la plaque teintée, le grenat s'éclaircit : le retard reste lisible.
+      className={
+        late
+          ? "border-ember-3! bg-[color-mix(in_srgb,var(--ember-3)_var(--g-chip-tint),var(--surface))]! [--g-entity:color-mix(in_srgb,var(--ember-3)_70%,var(--foreground))]!"
+          : ""
+      }
       right={
-        <span className="text-g-name tabular-nums text-g-entity">{formatPrice(remaining)}</span>
+        <span className="flex flex-wrap items-center gap-2">
+          {waited !== undefined && (
+            <Chip tone={warn ? "problem" : "neutral"} icon={warn ? <ClockIcon /> : undefined}>
+              {formatWait(waited)}
+            </Chip>
+          )}
+          <span className="text-g-name tabular-nums text-g-entity">{formatPrice(remaining)}</span>
+        </span>
       }
       sub={
         <>

@@ -142,6 +142,30 @@ export function paidAt(order: Order): string {
 }
 
 /**
+ * Les attentes, en minutes, des commandes réglées sur place le jour de service
+ * de `at` et déjà encaissées à cet instant : de la commande à son premier
+ * règlement. Une addition encore ouverte n'y compte pas.
+ */
+export function cashOutWaits(state: GestionState, at: Date): number[] {
+  const day = serviceDayKey(at.toISOString(), state.dayEndHour);
+  const waits: number[] = [];
+  for (const order of state.orders) {
+    if (
+      order.type !== "sur_place" ||
+      order.paidOnline ||
+      order.status === "annulee" ||
+      order.payments.length === 0 ||
+      serviceDayKey(order.createdAt, state.dayEndHour) !== day
+    ) {
+      continue;
+    }
+    const first = Math.min(...order.payments.map((leg) => Date.parse(leg.paidAt)));
+    if (first <= at.getTime()) waits.push(Math.max(0, first - Date.parse(order.createdAt)) / 60_000);
+  }
+  return waits;
+}
+
+/**
  * Le client règle en ligne : la commande attend son paiement hors de la
  * caisse, et n'y revient que sur son geste (« Payer au comptoir », ou la
  * feuille de paiement refermée). Sans paiement ni geste (onglet fermé), la

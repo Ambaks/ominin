@@ -292,6 +292,36 @@ export async function fetchPilotage(
   return data as unknown as Pilotage;
 }
 
+/** Le document que renvoie admin_after_meal_stats. */
+export interface AfterMealStats {
+  served_orders: number;
+  appearances: number;
+  by_event: Partial<
+    Record<
+      Database["public"]["Enums"]["after_meal_event"],
+      { total: number; appearances: number; median_ms: number | null }
+    >
+  >;
+  by_moment: { moment: string; appearances: number }[];
+  orders: number;
+  revenue: number;
+  items: { name: string; shown: number; added: number; removed: number; sold: number }[];
+}
+
+export async function fetchAfterMealStats(
+  etablissementId: string,
+  period: Period
+): Promise<AfterMealStats> {
+  const data = await createClient()
+    .rpc("admin_after_meal_stats", {
+      p_etab: etablissementId,
+      p_from: period.from,
+      p_to: period.to,
+    })
+    .then(must);
+  return data as unknown as AfterMealStats;
+}
+
 export async function savePilotageFrom(
   etablissementId: string,
   from: string | null

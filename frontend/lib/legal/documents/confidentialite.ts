@@ -147,3 +147,25 @@ export const confidentialite20261026: LegalDocument = {
     return added ? { ...article, body: [...article.body, ...added] } : article;
   }),
 };
+
+/*
+ * La suite du repas sur le menu d'un établissement (le BOHO, 2026-10). Part du
+ * texte en vigueur, sans la prospection de confidentialite20261026, encore à
+ * relire. Ce stockage sert une proposition : il ne se range pas parmi les
+ * traceurs dits strictement nécessaires à l'article 9, et la phrase d'exemption
+ * ne le couvre pas. Texte approuvé par le propriétaire le 2026-10-31, sans relecture
+ * d'avocat. Si la version du 26 s'inscrit plus tard, elle doit reprendre ce texte.
+ */
+const SUITE_DU_REPAS =
+  "Sur le menu de certains établissements, le stockage local du navigateur garde aussi l'identifiant de vos commandes, l'heure de leur service et le nom des articles commandés, afin de vous proposer la suite de votre repas (dessert, café, autre boisson) et un lien pour laisser un avis Google. Ces informations ne servent à aucun suivi entre sites ni à aucune publicité de tiers ; vous pouvez les effacer à tout moment depuis les réglages de votre navigateur. Ominin compte aussi ce qui se passe sur cette proposition (son affichage, les articles touchés, sa fermeture, le lien d'avis touché, la commande qui suit), sans nom ni téléphone, et garde ce relevé 400 jours.";
+
+export const confidentialite20261031: LegalDocument = {
+  ...confidentialite,
+  version: "2026-10-31",
+  effectiveFrom: parisEffectiveDate("2026-10-31"),
+  summary: "Suite du repas sur le menu de certains établissements : ce que le navigateur garde, et pourquoi.",
+  reacceptance: false,
+  articles: confidentialite.articles.map((article) =>
+    article.heading.startsWith("Article 9") ? { ...article, body: [...article.body, SUITE_DU_REPAS] } : article
+  ),
+};

@@ -88,7 +88,7 @@ export type PreviewOrder = {
 type TicketUpdate = Partial<Omit<Ticket, "id">>;
 
 /** La commande attend encore le client : à régler, en préparation ou prête. */
-export const isActiveTicket = (ticket: Ticket) =>
+export const isActiveTicket = (ticket: Pick<Ticket, "status">) =>
   ticket.status !== "servie" && ticket.status !== "annulee";
 
 /** Le mot du service : une commande sans rien à manger se déguste. */

@@ -4,6 +4,7 @@ import { useEffect, useState, type CSSProperties, type HTMLAttributes, type Reac
 import { useRouter } from "next/navigation";
 import { CuisinierApercu } from "@/components/gestion/apercu/cuisinier-apercu";
 import { ArticlesEpuises } from "@/components/gestion/apercu/carte-en-vente";
+import { CashOutWait } from "@/components/gestion/apercu/cash-out-wait";
 import { DayCurve } from "@/components/gestion/apercu/day-curve";
 import { MetricSheet, type Metric } from "@/components/gestion/apercu/metric-sheet";
 import { MiseEnRoute, miseEnRouteDue } from "@/components/gestion/apercu/mise-en-route";
@@ -30,7 +31,7 @@ import {
   type DeltaTone,
 } from "@/components/gestion/ui";
 import { formatPercent } from "@/lib/admin/format";
-import { ANALYTICS_PERIOD_DAYS, SMALL_BASE } from "@/lib/gestion/constants";
+import { ANALYTICS_PERIOD_DAYS, ENCAISSER_WAIT_ALERT_SLUGS, SMALL_BASE } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu/format";
 import {
   awaitsPayment,
@@ -354,6 +355,12 @@ export default function ApercuPage() {
             title="Chiffre d’affaires encaissé sur la journée de service, TTC"
             chart={<DayCurve state={state} weekday={weekday} />}
           />
+        </Block>
+      )}
+
+      {hasCommandes && ENCAISSER_WAIT_ALERT_SLUGS.includes(state.etablissement.slug) && (
+        <Block i={block++} className="grid gap-g-gap empty:hidden sm:grid-cols-2">
+          <CashOutWait state={state} weekday={weekday} />
         </Block>
       )}
 

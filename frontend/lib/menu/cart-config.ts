@@ -24,6 +24,7 @@ export function menuCartConfig(slug: string, data: PublicMenu): CartConfig {
     paymentProvider: data.paymentProvider,
     squareLocationId: data.squareLocationId,
     tableTracking: orderingEnabled && !fastFood && data.restaurant.suivi === true,
+    afterMealLive: orderingEnabled && !fastFood && Boolean(data.restaurant.afterMeal?.live),
     loyalty: data.loyalty,
     // Sans commande, rien à fermer : pas de relecture.
     etablissementId: orderingEnabled ? data.id : undefined,

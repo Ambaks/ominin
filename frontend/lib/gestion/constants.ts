@@ -134,6 +134,16 @@ export const COUNTER_WAIT_WARN_MINUTES = 8;
 export const COUNTER_WAIT_LATE_MINUTES = 15;
 /** Salle : minutes d'attente au-delà desquelles une table à servir se signale. */
 export const SERVICE_LATE_MINUTES = 20;
+/** À encaisser : établissements dont les additions signalent leur attente (le BOHO va encaisser à table). */
+export const ENCAISSER_WAIT_ALERT_SLUGS = ["boho"];
+/** Minutes d'attente au-delà desquelles une addition se signale… */
+export const ENCAISSER_WAIT_WARN_MINUTES = 6;
+/** … puis passe en retard. */
+export const ENCAISSER_WAIT_LATE_MINUTES = 12;
+/** Aperçu : encaissements du jour à réunir avant d'annoncer une attente (avant, deux notes lentes la faussent). */
+export const ENCAISSER_WAIT_MIN_ORDERS = 10;
+/** Aperçu : écart avec la semaine dernière, en minutes, à partir duquel l'attente se signale. */
+export const ENCAISSER_WAIT_NOTABLE_MINUTES = 3;
 /** « Le midi en semaine » sans horaires d'ouverture : la plage de repli (même forme qu'une plage d'OpeningHours). */
 export const LUNCH_FALLBACK: [string, string] = ["11:30", "14:30"];
 /** L'heure qu'une plage d'ouverture doit couvrir pour compter comme le midi. */

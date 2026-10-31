@@ -297,15 +297,23 @@ export interface Restaurant {
    */
   demoHappyHour?: { name: string; prices: Record<string, number> };
   /**
-   * La suite proposée après le retrait au bar (AfterMeal), par id d'article :
-   * ce qui compte pour dessert et pour café, ce qui se grignote avec une
-   * autre tournée. images : la photo d'un article qui n'en a pas à la carte.
+   * La suite proposée après le repas (AfterMeal), par id d'article dans
+   * l'aperçu, par nom en production : ce qui compte pour dessert et pour café,
+   * ce qui se grignote avec une autre tournée. images : la photo d'un article
+   * qui n'en a pas à la carte. live : aussi sur le vrai menu, le délai compté
+   * depuis l'heure où la commande passe servie. drinkCategories : les catégories
+   * de boissons, là où la base ne les dit pas. reviewUrl : le lien d'avis de la
+   * feuille, sans toucher au pied de page.
    */
   afterMeal?: {
     desserts: string[];
     coffees: string[];
     snacks: string[];
     images?: Record<string, string>;
+    live?: { delayMinutes: number };
+    drinkCategories?: string[];
+    reviewUrl?: string;
+    kickers?: { finir: string; encore: string; merci: string };
   };
   /**
    * Affiche de l'établissement (chemin public) portant déjà logo et nom :
@@ -858,6 +866,17 @@ const boho: Restaurant = {
   hours: "Lun–Ven 12h–14h · 16h–2h · Sam 18h–3h · Dim 16h–2h",
   // Généré par Claude depuis la carte en ligne (backend/scripts/pairings.py).
   pairings: bohoAccords,
+  // Les noms de la carte en production. 45 min : le ticket part en cuisine à
+  // l'encaissement, le plat arrive ensuite.
+  afterMeal: {
+    live: { delayMinutes: 45 },
+    desserts: ["Tiramisu au café", "Fondant au chocolat", "Crème brûlée Vanille"],
+    coffees: ["Espresso", "Cappuccino"],
+    snacks: ["Nems poulet (x4)", "Assortiment BOHO"],
+    drinkCategories: ["Cocktails", "Smoothies", "Milkshakes", "Boissons", "Boissons chaudes", "Chichas"],
+    reviewUrl: "https://search.google.com/local/writereview?placeid=ChIJMfJl6rClrhIRPIs1uamYegE",
+    kickers: { finir: "Pour finir", encore: "Encore\u00a0?", merci: "Merci" },
+  },
   categories: [
     {
       id: "a-partager",
