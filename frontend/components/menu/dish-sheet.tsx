@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { useCart } from "@/lib/menu/cart";
 import { ALLERGEN_LABELS, BADGE_LABELS, formatPrice, hasFormats, lineName } from "@/lib/menu/format";
 import type { Allergen, MenuItem } from "@/lib/menu-data";
 import { AddToOrder } from "./add-to-order";
@@ -19,6 +20,7 @@ import { Sheet } from "./sheet";
  * ajoute sans ouvrir ; le reste de sa rangée laisse passer le toucher.
  */
 export function DishOpener({ item, drink }: { item: MenuItem; drink?: boolean }) {
+  const { markViewed } = useCart();
   const [open, setOpen] = useState(false);
   const titleId = useId();
   return (
@@ -30,6 +32,7 @@ export function DishOpener({ item, drink }: { item: MenuItem; drink?: boolean })
           // Safari ne donne pas le focus au bouton cliqué : la feuille le rend à ce qui l'a en s'ouvrant.
           event.currentTarget.focus({ preventScroll: true });
           setOpen(true);
+          markViewed(item.id);
         }}
         aria-label={`Voir la fiche : ${lineName(item)}`}
         className="dish-open absolute inset-0 cursor-pointer outline-none"

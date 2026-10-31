@@ -3924,6 +3924,42 @@ export type Database = {
           },
         ]
       }
+      menu_item_views: {
+        Row: {
+          day: string
+          etablissement_id: string
+          item_id: string
+          views: number
+        }
+        Insert: {
+          day: string
+          etablissement_id: string
+          item_id: string
+          views?: number
+        }
+        Update: {
+          day?: string
+          etablissement_id?: string
+          item_id?: string
+          views?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_item_views_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_item_views_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       menu_sessions: {
         Row: {
           etablissement_id: string
@@ -4449,6 +4485,51 @@ export type Database = {
             columns: ["etablissement_id"]
             isOneToOne: true
             referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      online_payment_attempts: {
+        Row: {
+          ended_at: string | null
+          etablissement_id: string
+          id: string
+          order_id: string | null
+          outcome: Database["public"]["Enums"]["online_payment_outcome"]
+          refused: boolean
+          started_at: string
+        }
+        Insert: {
+          ended_at?: string | null
+          etablissement_id: string
+          id?: string
+          order_id?: string | null
+          outcome?: Database["public"]["Enums"]["online_payment_outcome"]
+          refused?: boolean
+          started_at?: string
+        }
+        Update: {
+          ended_at?: string | null
+          etablissement_id?: string
+          id?: string
+          order_id?: string | null
+          outcome?: Database["public"]["Enums"]["online_payment_outcome"]
+          refused?: boolean
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "online_payment_attempts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "online_payment_attempts_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
             referencedColumns: ["id"]
           },
         ]
@@ -7335,6 +7416,7 @@ export type Database = {
           name: string
           revenue: number
           sold: number
+          views: number
         }[]
       }
       admin_menu_live: {
@@ -7346,6 +7428,20 @@ export type Database = {
           name: string
           open_orders: number
           slug: string
+        }[]
+      }
+      admin_menu_measures: {
+        Args: { p_etab: string; p_from: string; p_to: string }
+        Returns: {
+          attempts_open: number
+          attempts_since: string | null
+          counter: number
+          expired: number
+          failed: number
+          refused: number
+          succeeded: number
+          views: number
+          views_since: string | null
         }[]
       }
       admin_menu_overview: {
@@ -8371,6 +8467,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      menu_track_views: {
+        Args: { p_items: string[]; p_slug: string }
+        Returns: undefined
+      }
       offre_trial_revenue: {
         Args: { p_etablissement_id: string; p_from: string; p_to: string }
         Returns: number
@@ -8744,6 +8844,12 @@ export type Database = {
         | "clip"
         | "agents"
         | "sur-mesure"
+      online_payment_outcome:
+        | "en_cours"
+        | "reussi"
+        | "expire"
+        | "echoue"
+        | "comptoir"
       order_status:
         | "en_attente"
         | "en_preparation"
@@ -9036,6 +9142,13 @@ export const Constants = {
         "clip",
         "agents",
         "sur-mesure",
+      ],
+      online_payment_outcome: [
+        "en_cours",
+        "reussi",
+        "expire",
+        "echoue",
+        "comptoir",
       ],
       order_status: [
         "en_attente",

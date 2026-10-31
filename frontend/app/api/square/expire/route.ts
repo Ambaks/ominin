@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { ONLINE_PAYMENT_TTL_S } from "@/lib/menu/online-payment-ttl";
+import { markPaymentRefused } from "@/lib/menu/payment-attempts";
 import {
   getMerchantToken,
   retrieveOrder,
@@ -54,7 +55,7 @@ async function settledAtSquare(
  */
 async function settledAtStripe(
   admin: Admin,
-  order: { etablissement_id: string; stripe_payment_intent_id: string }
+  order: { id: string; etablissement_id: string; stripe_payment_intent_id: string }
 ): Promise<boolean> {
   const account = await connectedAccount(admin, order.etablissement_id);
   if (!account) throw new Error("Compte Stripe délié : règlement invérifiable.");
@@ -69,6 +70,8 @@ async function settledAtStripe(
     await settlePaymentIntent(admin, stripe, intent, account.id);
     return true;
   }
+  // Le filet du webhook payment_intent.payment_failed : l'intent garde son refus.
+  if (intent.last_payment_error) await markPaymentRefused(admin, order.id);
   if (intent.status !== "canceled") {
     await stripe.paymentIntents.cancel(intent.id, {}, stripeAccount);
   }

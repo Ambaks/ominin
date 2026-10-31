@@ -235,6 +235,8 @@ interface CartContextValue extends CartConfig {
   track: (stage: MenuStage, options?: TrackOptions) => void;
   /** Une suggestion s'est affichée, pour comparer le proposé au retenu. */
   markShown: (kind: SuggestionKind) => void;
+  /** La fiche d'un plat s'ouvre, pour l'analytique (voir menu/analytics). */
+  markViewed: (itemId: string) => void;
   /** Le panier gardé a été relu : les changements suivants sont du client. */
   ready: boolean;
   /**
@@ -448,6 +450,10 @@ export function CartProvider({
     tracker.current?.markShown(kind);
   }, []);
 
+  const markViewed = useCallback((itemId: string) => {
+    tracker.current?.markViewed(itemId);
+  }, []);
+
   const value = useMemo<CartContextValue>(() => {
     const count = lines.reduce((sum, l) => sum + l.quantity, 0);
     const total = lines.reduce((sum, l) => sum + l.unitPrice * l.quantity, 0);
@@ -476,6 +482,7 @@ export function CartProvider({
       clearRewards,
       track,
       markShown,
+      markViewed,
       ready: restoredKey === storageKey,
       closed,
       refreshClosed,
@@ -499,6 +506,7 @@ export function CartProvider({
     clearRewards,
     track,
     markShown,
+    markViewed,
     restoredKey,
     storageKey,
     closed,

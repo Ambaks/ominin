@@ -28,6 +28,8 @@ export interface MenuTracker {
   track: (stage: MenuStage, options?: TrackOptions) => void;
   /** Une sorte de suggestion s'est affichée : comptée une fois par visite. */
   markShown: (kind: SuggestionKind) => void;
+  /** La fiche d'un plat s'ouvre : un compteur par plat et par jour, sans la visite. */
+  markViewed: (itemId: string) => void;
   start: () => void;
   stop: () => void;
 }
@@ -66,11 +68,15 @@ function writeShown(slug: string, shown: Set<SuggestionKind>): void {
   }
 }
 
-function post(body: Record<string, unknown>, keepalive: boolean): void {
+function post(
+  body: Record<string, unknown>,
+  keepalive: boolean,
+  rpc = "menu_track"
+): void {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   if (!url || !key) return;
-  void fetch(`${url}/rest/v1/rpc/menu_track`, {
+  void fetch(`${url}/rest/v1/rpc/${rpc}`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -96,6 +102,18 @@ export function createTracker(
   let unsentShown: SuggestionKind[] = [];
   let pending: number | null = null;
   let heartbeat: number | null = null;
+  let viewed: string[] = [];
+  let pendingViews: number | null = null;
+
+  // Son propre envoi, sans l'identifiant de visite : ouvrir une fiche ne doit
+  // ni réveiller menu_track, ni se rattacher à la visite.
+  const flushViews = (keepalive = false) => {
+    if (pendingViews !== null) window.clearTimeout(pendingViews);
+    pendingViews = null;
+    if (!viewed.length) return;
+    post({ p_slug: slug, p_items: viewed }, keepalive, "menu_track_views");
+    viewed = [];
+  };
 
   const clearPending = () => {
     if (pending !== null) window.clearTimeout(pending);
@@ -124,7 +142,10 @@ export function createTracker(
   };
 
   const onVisibility = () => {
-    if (document.visibilityState === "hidden") flush(true);
+    if (document.visibilityState === "hidden") {
+      flush(true);
+      flushViews(true);
+    }
   };
 
   return {
@@ -145,6 +166,12 @@ export function createTracker(
       unsentShown.push(kind);
       if (pending === null) pending = window.setTimeout(flush, CLICK_FLUSH_MS);
     },
+    markViewed(itemId) {
+      viewed.push(itemId);
+      if (pendingViews === null) {
+        pendingViews = window.setTimeout(flushViews, CLICK_FLUSH_MS);
+      }
+    },
     start() {
       flush();
       heartbeat = window.setInterval(() => {
@@ -154,6 +181,7 @@ export function createTracker(
     },
     stop() {
       clearPending();
+      flushViews(true);
       if (heartbeat !== null) window.clearInterval(heartbeat);
       heartbeat = null;
       document.removeEventListener("visibilitychange", onVisibility);

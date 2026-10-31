@@ -22,6 +22,7 @@ export type ClientOverview = Fn["admin_menu_overview"]["Returns"][number];
 export type SeriesPoint = Fn["admin_menu_series"]["Returns"][number];
 export type Funnel = Fn["admin_menu_funnel"]["Returns"][number];
 export type ItemRanking = Fn["admin_menu_items"]["Returns"][number];
+export type Measures = Fn["admin_menu_measures"]["Returns"][number];
 export type LiveRow = Fn["admin_menu_live"]["Returns"][number];
 export type FeedRow = Fn["admin_menu_feed"]["Returns"][number];
 
@@ -273,6 +274,20 @@ export async function savePilotageFrom(
     .then(check);
 }
 
+export async function fetchMeasures(
+  etablissementId: string,
+  period: Period
+): Promise<Measures | null> {
+  const rows = await createClient()
+    .rpc("admin_menu_measures", {
+      p_etab: etablissementId,
+      p_from: period.from,
+      p_to: period.to,
+    })
+    .then(must);
+  return rows[0] ?? null;
+}
+
 export async function fetchLive(): Promise<LiveRow[]> {
   return createClient()
     .rpc("admin_menu_live", { p_window_seconds: LIVE_SESSION_WINDOW_S })
@@ -299,4 +314,14 @@ export function theoreticalCommission(row: ClientOverview): number {
 
 export function conversionRate(sessions: number, converted: number): number {
   return sessions === 0 ? 0 : converted / sessions;
+}
+
+/**
+ * Tentatives terminées sans paiement ni retour au comptoir. Une tentative en
+ * cours n'a pas encore d'issue : elle n'entre pas dans le calcul.
+ */
+export function paymentFailure(measures: Measures): { failures: number; closed: number; rate: number } {
+  const failures = measures.expired + measures.failed;
+  const closed = measures.succeeded + measures.counter + failures;
+  return { failures, closed, rate: closed === 0 ? 0 : failures / closed };
 }
