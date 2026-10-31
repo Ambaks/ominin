@@ -37,6 +37,38 @@ export const CART_LINES_SHOWN = 3;
 export const REWARD_ITEMS_SHOWN = 3;
 /** Périodes proposées par la page Analytique (en jours calendaires). */
 export const ANALYTICS_PERIOD_DAYS = [7, 30] as const;
+/** Les périodes de l'onglet Analyses, en jours de service complets. */
+export const ANALYSES_PERIOD_DAYS = [7, 30, 90] as const;
+export const ANALYSES_DEFAULT_PERIOD_DAYS = 30;
+/** Les réglages de l'onglet Analyses (décidés avec Ambaka, 2026-10-31). */
+export const ANALYSES = {
+  /** Fourchette normale d'un jour : les mêmes jours de la semaine sur 8 semaines. */
+  historyWeeks: 8,
+  /** Prévision : médiane des 4 derniers mêmes jours ; en deçà, ni prévision ni fourchette. */
+  forecastWeeks: 4,
+  forecastDays: 7,
+  /** Kasavana-Smith : populaire à partir de 70 % d'une part égale de sa catégorie. */
+  popularityFactor: 0.7,
+  /** En deçà, un taux ou un plat ne donne lieu à aucune estimation. */
+  minVisits: 30,
+  minItemUnits: 10,
+  /** Ce qu'une meilleure mise en avant peut gagner, en points de passages. */
+  attachUpliftPoints: 5,
+  /** Rarement vendu : moins d'une vente pour 100 passages. */
+  rareItemPer100Visits: 1,
+  /** Une commande annulée puis reprise dans ce délai n'est pas perdue. */
+  replacedMinutes: 20,
+  /** Au-delà de ce trou, la même table le même jour est un autre passage : un midi, un soir. */
+  visitGapHours: 3,
+  /** Plus souvent indisponible que ça, un article est retiré, pas en rupture. */
+  maxSoldOutShare: 0.5,
+  /** Objectifs par défaut, en % du CA HT ; chaque restaurant peut poser les siens. */
+  foodCostTarget: 30,
+  laborCostTarget: 30,
+  primeCostTarget: 60,
+  /** Un mois, pour ramener une estimation à une base mensuelle. */
+  monthDays: 30,
+} as const;
 /** Petite base : sous ce nombre d'éléments, l'écart s'écrit en brut (« était 1 »), jamais en pourcentage. */
 export const SMALL_BASE = 5;
 /** Bascule de la journée de service. Miroir du défaut SQL de
@@ -376,6 +408,11 @@ export const VIEWS: ViewSpec[] = [
         label: "Aperçu du serveur",
         hint: "La salle a son tableau de bord ; sinon elle ouvre sur le service.",
       },
+      {
+        id: "analyses",
+        label: "Analyses",
+        hint: "Ventes, marge, carte et pertes, avec ce qu'il y a à gagner : réservé au gérant.",
+      },
     ],
   },
   {
@@ -501,6 +538,7 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
   smart: [
     "qr",
     "apercu",
+    "analyses",
     "commandes",
     "prise_commande",
     "appel_serveur",
@@ -516,6 +554,7 @@ export const OFFRE_FEATURES: Record<Offre, Feature[]> = {
   connect: [
     "qr",
     "apercu",
+    "analyses",
     "commandes",
     "prise_commande",
     "appel_serveur",
@@ -551,6 +590,7 @@ export const TABLE_FEATURES: Feature[] = [
  */
 export const COLLECT_FEATURES: Feature[] = [
   "apercu",
+  "analyses",
   "commandes",
   "retraits",
   "paiements",

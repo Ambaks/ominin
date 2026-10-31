@@ -13910,6 +13910,18 @@ body {
   --g-chip-h: 24px;
   --g-row-h: 44px;
   --g-rank-meta-w: 7ch;
+  --g-heat-h: 26px;
+  --g-heat-h-sm: 28px;
+  --g-heat-gap: 2px;
+  --g-heat-label-w: 30px;
+  --g-heat-floor: 6%;
+  --g-range-h: 10px;
+  --g-range-tick: 2px;
+  --g-range-dot: 10px;
+  --g-range-label-w: 60px;
+  --g-range-label-w-wide: 112px;
+  --g-range-value-w: 76px;
+  --g-range-band: 32%;
   --g-share-slim: 3px;
   --g-share-bar: 8px;
   --g-chart-h: 236px;
@@ -17585,4 +17597,100 @@ html:has(:is([data-category-rail], [data-category-wheel])) {
   .wheel-glyph {
     animation: none;
   }
+}
+
+/* Analyses : la grille jour × heure. */
+.g-heat {
+  display: grid;
+  grid-template-columns: var(--g-heat-label-w) repeat(var(--g-heat-n), minmax(0, 1fr));
+  gap: var(--g-heat-gap);
+  align-items: center;
+  font-size: var(--g-text-axis);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.g-heat-cell {
+  display: block;
+  width: 100%;
+  height: var(--g-heat-h);
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  touch-action: manipulation;
+  background: color-mix(
+    in oklab,
+    var(--g-entity) calc(var(--g-heat-floor) + var(--g-v) * (100% - var(--g-heat-floor))),
+    var(--surface-raised)
+  );
+}
+.g-heat-cell[data-empty] {
+  background: var(--surface-raised);
+  cursor: default;
+}
+.g-heat-cell[aria-pressed="true"] {
+  outline: 2px solid var(--foreground);
+  outline-offset: 1px;
+}
+.g-heat-hour {
+  text-align: center;
+  white-space: nowrap;
+}
+@media (max-width: 720px) {
+  .g-heat-cell {
+    height: var(--g-heat-h-sm);
+  }
+}
+
+/* Analyses : une valeur dans sa fourchette, ou face à son objectif. */
+.g-range-row {
+  display: grid;
+  grid-template-columns: var(--g-range-label-w) minmax(0, 1fr) var(--g-range-value-w);
+  align-items: center;
+  gap: 0.75rem;
+  min-height: var(--g-row-h);
+  font-variant-numeric: tabular-nums;
+}
+.g-range-row-wide {
+  grid-template-columns: var(--g-range-label-w-wide) minmax(0, 1fr) var(--g-range-value-w);
+}
+.g-range-track {
+  position: relative;
+  height: var(--g-range-h);
+  border-radius: calc(var(--g-range-h) / 2);
+  background: var(--surface-raised);
+}
+.g-range-band {
+  position: absolute;
+  inset-block: 0;
+  left: calc(var(--g-low) * 100%);
+  width: calc((var(--g-high) - var(--g-low)) * 100%);
+  border-radius: inherit;
+  background: color-mix(in oklab, var(--g-entity) var(--g-range-band), var(--surface-raised));
+}
+.g-range-fill {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: calc(var(--g-v) * 100%);
+  border-radius: inherit;
+  background: var(--g-entity);
+}
+.g-range-tick {
+  position: absolute;
+  inset-block: calc(var(--g-range-h) / -4);
+  left: calc(var(--g-at) * 100%);
+  width: var(--g-range-tick);
+  background: var(--foreground);
+}
+.g-range-dot {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--g-at) * 100%);
+  width: var(--g-range-dot);
+  height: var(--g-range-dot);
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  background: var(--g-entity);
+  transform: translate(-50%, -50%);
 }
