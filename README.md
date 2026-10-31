@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Codes admin et d'encaissement centrés (2026-10-31, branche `gestion-code-centre`, aucune migration) :** sur tablette et téléphone, ces deux dialogues n'étaient plus collés en bas, sous le clavier : `Sheet` prend `centered` et se centre dans la zone que le clavier laisse visible.
+
 > **« Nouvelle commande » reste rond sur téléphone (2026-10-31, branche `gestion-fab-telephone`, aucune migration) :** sous 1024 px, le bouton flottant de Commandes et Tables ne s'étire plus avec son libellé, qui couvrait le reste à encaisser et le bouton d'encaissement. Le libellé reste sur ordinateur.
 
 > **Bulles garde son nom chez le BOHO (2026-10-31, branche `gestion-bulles-boho`, aucune migration) :** l'onglet « Réservations » de la gestion s'appelle « Bulles » pour `boho` et `boho-demo` (`bullesTabName`, `lib/gestion/constants.ts`). Le vrai BOHO n'a pas cette fonctionnalité activée aujourd'hui : le nom se voit sur la démo, et chez lui dès qu'elle s'ouvre.

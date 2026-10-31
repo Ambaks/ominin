@@ -68,6 +68,7 @@ export function AdminLockButton() {
       {asking && (
         <Sheet
           title="Mode gérant"
+          centered
           onClose={() => {
             setAsking(false);
             setCode("");

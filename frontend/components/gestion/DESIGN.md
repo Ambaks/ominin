@@ -211,7 +211,7 @@ sélection au maintien, pas de flash de tap.
   justes (`numeric` pose `decimal`), `autoComplete` quand il existe, jamais de blocage du collage.
 - Un interrupteur décrit **l'état allumé** (« Visible sur la carte », pas « Masquer ») ; une case à cocher sert
   aux listes d'options, l'interrupteur à un réglage qui s'applique seul.
-- **Feuille** (`Sheet`) pour tout formulaire qui n'est pas la page elle-même : collée en bas au téléphone,
+- **Feuille** (`Sheet`, `centered` pour un code à taper : centrée au-dessus du clavier) pour tout formulaire qui n'est pas la page elle-même : collée en bas au téléphone,
   centrée dès 1024 px, `wide` pour un constructeur à deux colonnes (pleine largeur sous 1024). Le formulaire vit
   sur sa plaque ; le titre nomme l'objet (« Modifier le prix »), le `footer` porte Annuler puis l'action. Une
   feuille compte pour **un** élément de verre.
@@ -269,7 +269,7 @@ point d'exclamation.
 | `Select` | attributs d'un `select`, `children` = `<option>` | liste native habillée, chevron à droite |
 | `Switch` | `checked`, `onChange`, `disabled?`, `label?`, `hint?`, `aria-label?` | `role="switch"` 28 × 48, rail dégradé de marque allumé, pouce en transform 200 ms, 44 px de zone tactile ; avec `label`, une ligne pleine largeur libellé + indication |
 | `Checkbox` | `checked`, `onChange`, `disabled?`, `label`, `hint?`, `name?` | case native sous une boîte dessinée (coche icône), libellé et case = une cible de 44 px |
-| `Sheet` | `title`, `description?`, `onClose`, `size?: md · wide`, `footer?`, `children` | `<dialog>` modal de verre : feuille basse au téléphone, centré ≥ 1024 (`wide` 1120 px, plein écran sous 1024) ; corps sur plaque défilante, Échap et fond ferment, focus rendu, page figée ; `data-autofocus` sur le champ attendu ; à monter conditionnellement |
+| `Sheet` | `title`, `description?`, `onClose`, `size?: md · wide`, `centered?`, `footer?`, `children` | `<dialog>` modal de verre : feuille basse au téléphone, centré ≥ 1024 (`wide` 1120 px, plein écran sous 1024) ; corps sur plaque défilante, Échap et fond ferment, focus rendu, page figée ; `data-autofocus` sur le champ attendu ; à monter conditionnellement |
 | `ConfirmSheet` | `title`, `text`, `confirmLabel`, `cancelLabel?`, `destructive?`, `busy?`, `onConfirm`, `onClose` | feuille de confirmation : Annuler (focus) puis l'action, `danger` si destructeur, « Un instant… » quand `busy` |
 
 Types exportés : `Entity`, `DeltaTone`, `Bar`, `RankedItem` (et `ErrorFamily`, `ErrorDescription` depuis `lib/gestion/errors`) ; tables `ENTITY` et `GLASS_ENTITY` pour poser une
