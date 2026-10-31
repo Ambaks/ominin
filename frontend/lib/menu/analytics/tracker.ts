@@ -1,3 +1,4 @@
+import type { Database } from "@/lib/supabase/database.types";
 import {
   CLICK_FLUSH_MS,
   HEARTBEAT_MS,
@@ -21,8 +22,12 @@ export interface TrackOptions {
   orderId?: string;
 }
 
+export type SuggestionKind = Database["public"]["Enums"]["menu_suggestion_kind"];
+
 export interface MenuTracker {
   track: (stage: MenuStage, options?: TrackOptions) => void;
+  /** Une sorte de suggestion s'est affichée : comptée une fois par visite. */
+  markShown: (kind: SuggestionKind) => void;
   start: () => void;
   stop: () => void;
 }
@@ -40,6 +45,24 @@ function readSession(slug: string): string | null {
   } catch {
     // Navigation privée, stockage bloqué : on renonce à mesurer, en silence.
     return null;
+  }
+}
+
+/** Ce que la visite a déjà compté : un rechargement n'est pas un nouvel affichage. */
+function readShown(slug: string): Set<SuggestionKind> {
+  try {
+    const saved = sessionStorage.getItem(`ominin-menu-shown:${slug}`);
+    return new Set(saved ? (JSON.parse(saved) as SuggestionKind[]) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writeShown(slug: string, shown: Set<SuggestionKind>): void {
+  try {
+    sessionStorage.setItem(`ominin-menu-shown:${slug}`, JSON.stringify([...shown]));
+  } catch {
+    // Stockage bloqué : au pire, un rechargement compte une fois de plus.
   }
 }
 
@@ -69,6 +92,8 @@ export function createTracker(
   let stage: MenuStage = "vue";
   let items: string[] = [];
   let orderId: string | null = null;
+  const shown = readShown(slug);
+  let unsentShown: SuggestionKind[] = [];
   let pending: number | null = null;
   let heartbeat: number | null = null;
 
@@ -88,11 +113,14 @@ export function createTracker(
         p_table: tableNumber,
         p_items: items.length ? items : null,
         p_order: orderId,
+        // Absent plutôt que null : la base d'avant ce paramètre refuserait l'appel.
+        ...(unsentShown.length ? { p_shown: unsentShown } : {}),
       },
       keepalive
     );
     items = [];
     orderId = null;
+    unsentShown = [];
   };
 
   const onVisibility = () => {
@@ -109,6 +137,13 @@ export function createTracker(
       // voisins.
       if (advanced || options?.orderId) flush();
       else if (pending === null) pending = window.setTimeout(flush, CLICK_FLUSH_MS);
+    },
+    markShown(kind) {
+      if (shown.has(kind)) return;
+      shown.add(kind);
+      writeShown(slug, shown);
+      unsentShown.push(kind);
+      if (pending === null) pending = window.setTimeout(flush, CLICK_FLUSH_MS);
     },
     start() {
       flush();
