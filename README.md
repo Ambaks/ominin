@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Graphiques de l'Aperçu (2026-10-31, branche `gestion-apercu-graphiques`, migration `20261031002000_gestion_daily_sales`) :** la tuile CA du jour porte la courbe de la journée sur l'ombre du même jour la semaine passée. CA encaissé et Commandes payées ouvrent un détail : courbe par jour ou en cumul sur la période d'avant, meilleur jour, moyenne, tableau. Les 7 jours se lisent sur les commandes chargées ; les 30 jours d'avant viennent de totaux par jour (`gestion_daily_sales`), pour ne pas charger deux mois de commandes. Les tuiles à 30 jours gagnent leur écart, sauf les pourboires.
+
 > **Thèmes dans Réglages (2026-10-31, branche `gestion-themes-reglages`, aucune migration) :** le sélecteur quitte le rail et la feuille « Plus » pour une carte « Thèmes » dans Réglages › Appareils, avec un aperçu de chaque thème (`public/gestion-themes/`). Le choix reste par appareil. Le personnel sans accès aux Réglages n'en change plus.
 
 > **Codes admin et d'encaissement centrés (2026-10-31, branche `gestion-code-centre`, aucune migration) :** sur tablette et téléphone, ces deux dialogues n'étaient plus collés en bas, sous le clavier : `Sheet` prend `centered` et se centre dans la zone que le clavier laisse visible.
