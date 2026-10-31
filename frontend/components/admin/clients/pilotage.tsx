@@ -190,7 +190,7 @@ function buildRows(data: Pilotage, measures: Measures | null): Row[] {
       decision: "Garder ou retirer chaque fonction",
       availability: "partiel",
       value: shown ? `${share(accepted, shown)} (${accepted}/${shown})` : NO_DATA,
-      note: "Comptées depuis ce déploiement. La suite du repas reste en démo : rien à compter en production pour l'instant.",
+      note: "Comptées depuis ce déploiement. Le détail de la suite du repas a sa propre section.",
     },
     {
       goal: "Happy hour",
@@ -398,12 +398,13 @@ const AFTER_MEAL_MOMENTS: Record<string, string> = {
 
 function AfterMealSection({ stats }: { stats: AfterMealStats }) {
   const added = stats.by_event.ajout?.appearances ?? 0;
+  const reviews = stats.by_event.avis?.appearances ?? 0;
   return (
     <Section
       title="Suite du repas"
       hint="Une apparition : la feuille à l'écran d'un téléphone. Commandes servies : ce qu'elle aurait pu suivre, le client a pu ne jamais revenir sur la page. Recette : les plats ajoutés depuis la feuille, dans la commande qui suit. Avis : le lien touché, pas l'avis publié."
     >
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <StatTile label="Commandes servies" value={String(stats.served_orders)} />
         <StatTile
           label="Apparitions"
@@ -421,27 +422,29 @@ function AfterMealSection({ stats }: { stats: AfterMealStats }) {
           hint={`${share(stats.orders, stats.appearances)} des apparitions`}
         />
         <StatTile label="Recette" value={formatEuros(stats.revenue)} />
+        <StatTile
+          label="Lien d'avis Google touché"
+          value={String(reviews)}
+          hint={`${share(reviews, stats.appearances)} des apparitions`}
+        />
       </div>
       <div className="mt-6 grid gap-6 lg:grid-cols-2">
         <Table
           head={["Ce qui s'est passé", "Fois", "Apparitions", "Part", "Après"]}
           empty={NO_DATA}
-          rows={AFTER_MEAL_EVENTS.flatMap(([event, label]) => {
+          rows={AFTER_MEAL_EVENTS.map(([event, label]) => {
             const row = stats.by_event[event];
-            return row
-              ? [
-                  {
-                    key: event,
-                    cells: [
-                      label,
-                      row.total,
-                      row.appearances,
-                      share(row.appearances, stats.appearances),
-                      formatDuration(row.median_ms === null ? null : row.median_ms / 1000),
-                    ],
-                  },
-                ]
-              : [];
+            const medianMs = row?.median_ms ?? null;
+            return {
+              key: event,
+              cells: [
+                label,
+                row?.total ?? 0,
+                row?.appearances ?? 0,
+                share(row?.appearances ?? 0, stats.appearances),
+                formatDuration(medianMs === null ? null : medianMs / 1000),
+              ],
+            };
           })}
         />
         <Table
