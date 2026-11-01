@@ -49,11 +49,11 @@ p { line-height: 1.42; }
 .glass li { font-size: 8.8pt; line-height: 1.34; padding-left: 3.6mm; position: relative; }
 .glass li::before { content: ""; position: absolute; left: 0; top: 1.25mm; width: 1.5mm; height: 1.5mm; border-radius: 50%; background: var(--ember-2); }
 
-/* Appareils : toujours au-dessus du verre, le téléphone au-dessus de la tablette. */
+/* Appareils : toujours au-dessus du verre, le téléphone au-dessus de la tablette. Leur ombre est dans le fond de page, calculée par glass.py. */
 figure { display: block; }
-.phone { position: relative; z-index: 2; width: 46mm; aspect-ratio: 390 / 844; border-radius: 7mm; padding: 1.15mm; background: linear-gradient(135deg, #8d8780, #24201e 30%, #151312 68%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.28), 0 7mm 16mm rgba(10,4,6,.42); flex: none; }
+.phone { position: relative; z-index: 2; width: 46mm; aspect-ratio: 390 / 844; border-radius: 7mm; padding: 1.15mm; background: linear-gradient(135deg, #8d8780, #24201e 30%, #151312 68%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.28); flex: none; }
 .phone img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 5.9mm; }
-.tablet { position: relative; z-index: 1; aspect-ratio: 1180 / 820; border-radius: 4mm; padding: 1.3mm; background: linear-gradient(135deg, #8d8780, #24201e 24%, #151312 72%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.26), 0 7mm 16mm rgba(10,4,6,.42); }
+.tablet { position: relative; z-index: 1; aspect-ratio: 1180 / 820; border-radius: 4mm; padding: 1.3mm; background: linear-gradient(135deg, #8d8780, #24201e 24%, #151312 72%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.26); }
 .tablet img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 2.8mm; }
 .phone.behind { z-index: 0; width: 38mm; margin-left: -9mm; }
 

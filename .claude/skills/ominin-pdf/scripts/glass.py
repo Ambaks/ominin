@@ -10,6 +10,8 @@ from scipy.ndimage import distance_transform_edt, gaussian_filter, map_coordinat
 
 PX_MM = 1800 / 216
 CSS_PX_MM = 96 / 25.4
+# Ombre sous les appareils, en mm : décalage vers le bas, écart type du flou.
+SHADOW_DROP, SHADOW_BLUR, SHADOW_ALPHA, SHADOW_COLOR = 7, 8, 0.42, (10, 4, 6)
 CHEVRONS = [
     [(256, 107), (396, 247), (396, 281), (256, 141), (116, 281), (116, 247)],
     [(256, 170), (396, 310), (396, 344), (256, 204), (116, 344), (116, 310)],
@@ -110,6 +112,21 @@ def add_panel(img, rect, theme, scale):
     img[y0:y1, x0:x1] = np.clip(crop * (1 - m) + glass * m, 0, 255)
 
 
+def add_device_shadow(img, rect, scale):
+    """L'ombre des téléphones et tablettes : dans le PDF, CoreGraphics (iPhone, Aperçu) dessine un box-shadow flou en rectangle gris."""
+    h, w = img.shape[:2]
+    x, y = round(rect["x"] * scale), round(rect["y"] * scale + SHADOW_DROP * PX_MM)
+    rw, rh = round(rect["w"] * scale), round(rect["h"] * scale)
+    x0, y0, x1, y1 = max(x, 0), max(y, 0), min(x + rw, w), min(y + rh, h)
+    if x1 <= x0 or y1 <= y0:
+        return
+    mask = np.zeros((h, w))
+    shape = rounded(rw, rh, round(rect["radius"] * scale))
+    mask[y0:y1, x0:x1] = shape[y0 - y : y1 - y, x0 - x : x1 - x]
+    shadow = gaussian_filter(mask, SHADOW_BLUR * PX_MM)[..., None] * SHADOW_ALPHA
+    img[:] = img * (1 - shadow) + np.array(SHADOW_COLOR, float) * shadow
+
+
 def main(folder):
     out = folder / "bg"
     out.mkdir(exist_ok=True)
@@ -121,6 +138,8 @@ def main(folder):
         img = background(size, page["theme"], page["chevron"], page["clear"])
         for rect in page["panels"]:
             add_panel(img, rect, page["theme"], scale)
+        for rect in page["devices"]:
+            add_device_shadow(img, rect, scale)
         img = np.clip(img + rng.normal(0, 1.1, img.shape[:2])[..., None], 0, 255)
         Image.fromarray(img.astype("uint8")).save(out / f"p{n}.jpg", quality=92, subsampling=0)
         css.append(f".page:nth-of-type({n}) {{ background-image: url(bg/p{n}.jpg); }}")

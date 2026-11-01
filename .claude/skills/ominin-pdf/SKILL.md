@@ -23,7 +23,7 @@ Browsers can't produce this in a PDF. Chromium's export drops `backdrop-filter`,
    <skill>/scripts/build.sh marketing/mon-doc Mon-document
    ```
    This writes `Mon-document.pdf` (trimmed A4, for screens and sending), `Mon-document-impression.pdf` (3 mm bleed, for the print shop) and images of each page in `relecture/`. It stops with the page number if text overflows.
-4. Read every image in `relecture/` and fix what you see, then rebuild. These are renders of the real PDF, and they catch what a browser preview hides. Don't report a document as done without looking at them.
+4. Read every image in `relecture/` and fix what you see, then rebuild. These are renders of the real PDF, made with CoreGraphics on a Mac (the engine of iOS and Preview), and they catch what a browser preview hides. Don't report a document as done without looking at them.
 
 It needs `uv` and `playwright-core`. The script finds a copy in the npx cache, or set `PLAYWRIGHT_CORE`. Before a first print run, ask for a proof: the file is RGB and Chromium embeds fonts as Type 3, which some print shops flag.
 
@@ -67,6 +67,7 @@ These came from real corrections, so keep to them unless the user asks otherwise
 - **Keep text off the chevron.** The chevron is the one loud thing on the page. Titles and body text sit on calm background or inside glass.
 - **Real screens only.** Use captures of the real product. Gestion captures come from a local database with fictional data, never from production or a client's account, and the page says "chiffres fictifs". Retake screens when the product has changed.
 - **Solid accent colours on text.** Chromium print draws stray lines around `background-clip: text`, so no gradient text.
+- **No CSS blur.** On iPhone and in Preview, Chromium's blurred `box-shadow`, `text-shadow` or `filter` prints as a grey rectangle, sometimes over the text. `measure.cjs` refuses them. Device shadows are computed into the background by `glass.py`; a spread-only `box-shadow` (blur 0) is fine.
 - **Avoid `transform` on absolutely positioned elements.** Print export misplaces them; use flex and margins, as `.phone.behind` does.
 
 ## Content rules
