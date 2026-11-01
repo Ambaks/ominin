@@ -62,12 +62,16 @@ figure { display: block; }
 .cover-title .mark { width: 17mm; height: 18.2mm; }
 .cover-title h1 { font-size: 62pt; line-height: 1; }
 .cover-lead { font-size: 14pt; line-height: 1.32; max-width: 128mm; margin-top: 6mm; }
-.stagger { position: relative; height: 95.5mm; margin-top: 14mm; }
-.stagger article { position: absolute; width: 92mm; height: 44mm; padding: 6mm 8mm; }
+.stagger { --h: 44mm; --drop: 12mm; --row: 39.5mm; position: relative; height: calc(var(--row) + var(--drop) + var(--h)); margin-top: 14mm; }
+/* Couverture sans écrans : des rectangles plus hauts, qui occupent la page. */
+.stagger.tall { --h: 62mm; --drop: 16mm; --row: 56mm; margin-top: 18mm; }
+.stagger article { position: absolute; width: 92mm; height: var(--h); padding: 6mm 8mm; }
 .stagger article:nth-child(1) { left: 0; top: 0; }
-.stagger article:nth-child(2) { left: 84mm; top: 12mm; }
-.stagger article:nth-child(3) { left: 8mm; top: 39.5mm; }
-.stagger article:nth-child(4) { left: 92mm; top: 51.5mm; }
+.stagger article:nth-child(2) { left: 84mm; top: var(--drop); }
+.stagger article:nth-child(3) { left: 8mm; top: var(--row); }
+.stagger article:nth-child(4) { left: 92mm; top: calc(var(--row) + var(--drop)); }
+.stagger.tall h3 { font-size: 17pt; }
+.stagger.tall p { font-size: 10.5pt; }
 .stagger h3 { font-size: 14.5pt; }
 .stagger p { margin-top: 2mm; font-size: 9pt; line-height: 1.36; }
 .cover-stage { position: relative; z-index: 2; flex: 1; min-height: 0; }

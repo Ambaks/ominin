@@ -20,5 +20,10 @@ for xref in {image[0] for page in source for image in page.get_images(full=True)
 output = pymupdf.open()
 for number, page in enumerate(source):
     output.new_page(width=page.rect.width, height=page.rect.height).show_pdf_page(page.rect, source, number)
+# show_pdf_page ne reprend pas les liens : le sommaire et les renvois sont recopiés.
+for number, page in enumerate(source):
+    for link in page.get_links():
+        if link["kind"] in (pymupdf.LINK_GOTO, pymupdf.LINK_NAMED) and link.get("page", -1) >= 0:
+            output[number].insert_link({"kind": pymupdf.LINK_GOTO, "from": link["from"], "page": link["page"], "to": pymupdf.Point(0, 0)})
 output.set_metadata(source.metadata)
 output.save(sys.argv[2], garbage=1, deflate=True)

@@ -29,17 +29,22 @@ h3 { font-size: 15pt; line-height: 1.16; letter-spacing: -.018em; }
 .glass.todo { margin-top: 4.5mm; padding: 4.5mm 5mm; border-radius: var(--r-l); list-style: none; display: grid; gap: 2.2mm; font-size: 14pt; line-height: 1.3; }
 .glass.todo li { padding-left: 4.6mm; font-size: 14pt; line-height: 1.3; }
 .glass.todo li::before { top: 2mm; width: 2mm; height: 2mm; border-radius: 50%; background: var(--ember-2); }
-.todo.numbered { counter-reset: s; }
-.glass.todo.numbered li { counter-increment: s; padding-left: 7mm; }
-.glass.todo.numbered li::before { content: counter(s); top: 0; width: auto; height: auto; border-radius: 0; background: none; font-size: 17pt; line-height: 1.1; font-weight: 700; color: var(--ember-text); }
-.glass.todo .after { padding-left: 0; padding-top: 1mm; }
-.glass.todo .after::before { display: none; }
+
+.glass.todo li.act { padding-left: 7.4mm; }
+.glass.todo li.act::before { display: none; }
+.badge { display: flex; align-items: center; justify-content: center; width: 5.4mm; height: 5.4mm; border-radius: 50%; background: var(--ember-text); color: #fff; font-style: normal; font-weight: 700; font-size: 11pt; line-height: 1; }
+.glass.todo .badge { position: absolute; left: 0; top: .4mm; }
 
 /* Appareils : les captures Stripe ne font pas toutes la hauteur d'un écran, le cadre suit la capture.
    Pas d'ombre floue : iOS et Aperçu dessinent celle de Chromium en rectangle sombre autour du téléphone. */
 .shots { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center; gap: 3.5mm; padding: 4mm 0; }
 .shot { flex: none; border-radius: 5mm; padding: 1.15mm; background: linear-gradient(135deg, #8d8780, #24201e 30%, #151312 68%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.28); }
 .shot img { display: block; width: 100%; border-radius: 3.9mm; }
+/* Sur la capture : le cadre de la zone et sa pastille, le même numéro que dans le texte. */
+.screen-box { position: relative; }
+.ring { position: absolute; border: .5mm solid var(--ember-text); border-radius: 1.3mm; }
+.pin { position: absolute; display: flex; align-items: center; justify-content: center; width: 5mm; height: 5mm; margin: -2.5mm 0 0 -4.5mm; border-radius: 50%; background: var(--ember-text); color: #fff; font-style: normal; font-weight: 700; font-size: 10.5pt; line-height: 1; }
+.pin.warn { background: #15110d; color: var(--ember-1); }
 
 /* À l'inverse de la page : .solid sur fond sombre, et le même sombre que les colonnes .o du kit sur la nacre. */
 .glass.callout { padding: 3.6mm 5mm; border-radius: var(--r-m); font-size: 12.6pt; line-height: 1.3; }
@@ -79,3 +84,15 @@ h3 { font-size: 15pt; line-height: 1.16; letter-spacing: -.018em; }
 .cases .glass p { margin-top: 1mm; font-size: 12pt; line-height: 1.28; color: var(--ink-2); }
 .glass.callout .mail { margin: 0; font-size: inherit; font-weight: 700; color: inherit; white-space: nowrap; }
 .note { margin-top: 2.5mm; padding-top: 0; font-size: 10pt; line-height: 1.3; }
+
+/* Sommaire et liens internes */
+a { color: inherit; text-decoration: none; }
+.goto { text-decoration: underline; font-weight: 600; }
+.need { margin-top: 1.4mm; font-size: 12pt; line-height: 1.3; }
+.need b { color: var(--ember-text); font-weight: 700; }
+[data-theme="dark"] .need b { color: var(--ember-1); }
+.glass.contents { flex: 1; display: flex; flex-direction: column; justify-content: space-between; margin-top: 4.5mm; padding: 3mm 4.5mm; border-radius: var(--r-l); min-height: 0; }
+.entry { display: grid; grid-template-columns: 5.4mm 1fr auto; align-items: center; gap: 2.6mm; flex: 1; border-top: .25mm solid var(--hair); }
+.entry:first-child { border-top: 0; }
+.entry span { font-size: 12.4pt; line-height: 1.14; font-weight: 600; letter-spacing: -.01em; }
+.entry small { font-size: 10pt; line-height: 1.14; color: var(--ember-1); text-align: right; white-space: nowrap; }
