@@ -4,7 +4,6 @@ import "@/components/landing-kit/kit.css";
 import { PortalFinalCta } from "@/components/portal/final-cta";
 import { PortalFooter } from "@/components/portal/footer";
 import { PortalHero } from "@/components/portal/hero";
-import { PortalManifesto } from "@/components/portal/manifesto";
 import { PortalMarquee } from "@/components/portal/marquee";
 import { PortalNav } from "@/components/portal/nav";
 import { PortalProducts } from "@/components/portal/products";
@@ -42,7 +41,6 @@ export default function Portal() {
           <PortalHero />
           <PortalMarquee />
           <PortalProducts />
-          <PortalManifesto />
           <PortalFinalCta />
         </main>
         <PortalFooter />
