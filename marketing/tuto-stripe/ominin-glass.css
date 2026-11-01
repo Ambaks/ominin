@@ -1,0 +1,116 @@
+/* Le système de PDF Ominin. A4 + 3 mm de fond perdu : la page fait 216 × 303 mm, le texte reste à 13 mm du massicot.
+   Le verre (flou, réfraction, reflets) est calculé par scripts/glass.py dans bg/ : ici, seulement le texte et les marges. */
+@page { size: 216mm 303mm; margin: 0; }
+:root {
+  --fg: #fbf6f1; --lead: #ded3cc; --muted: #b3a59d;
+  --ink: #17100f; --ink-2: #4d4340; --line: rgba(23,16,15,.13); --hair: rgba(255,255,255,.14);
+  --ember-1: #ffc873; --ember-2: #f0803f; --ember-text: #a33d17;
+  --r-l: 6mm; --r-m: 4.5mm;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #444; }
+body { font-family: "Instrument Sans", system-ui, sans-serif; -webkit-font-smoothing: antialiased; font-feature-settings: "tnum"; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { position: relative; width: 216mm; height: 303mm; overflow: hidden; break-after: page; background-size: 100% 100%; }
+.page:last-of-type { break-after: auto; }
+.inner { position: absolute; inset: 3mm; padding: 11mm 13mm 8mm; display: flex; flex-direction: column; }
+[data-theme="dark"] { color: var(--fg); }
+[data-theme="paper"] { color: var(--ink); }
+
+/* En-tête de page */
+.hd { display: flex; align-items: center; gap: 4mm; }
+.brand { display: inline-flex; align-items: center; gap: 1.6mm; font-weight: 600; font-size: 11.5pt; letter-spacing: -.01em; }
+.mark { width: 3.8mm; height: 4.1mm; }
+.sec { margin-left: auto; font-weight: 500; font-size: 8pt; opacity: .72; }
+.num { font-weight: 600; font-size: 8pt; opacity: .72; }
+
+/* Texte */
+h1 { font-size: 42pt; line-height: 1.02; letter-spacing: -.04em; font-weight: 700; }
+h2 { font-size: 27pt; line-height: 1.04; letter-spacing: -.034em; font-weight: 700; margin-top: 7mm; max-width: 165mm; }
+h3 { font-size: 15.5pt; line-height: 1.12; letter-spacing: -.022em; font-weight: 700; }
+h4 { font-size: 10pt; line-height: 1.2; font-weight: 700; letter-spacing: -.01em; }
+p { line-height: 1.42; }
+.lead { font-size: 10.5pt; line-height: 1.42; margin-top: 3mm; max-width: 158mm; }
+[data-theme="dark"] .lead, [data-theme="dark"] .glass:not(.solid) p, [data-theme="dark"] .glass:not(.solid) li { color: var(--lead); }
+[data-theme="paper"] .lead, [data-theme="paper"] .glass p { color: var(--ink-2); }
+.kicker { display: block; font-size: 8.4pt; font-weight: 600; color: var(--ember-text); margin-bottom: 1.8mm; }
+[data-theme="dark"] .kicker { color: var(--ember-1); }
+[data-theme="dark"] .solid .kicker { color: var(--ember-text); }
+.accent { color: var(--ember-1); }
+[data-theme="paper"] .accent { color: var(--ember-text); }
+.note { margin-top: auto; font-size: 6.4pt; line-height: 1.35; opacity: .74; padding-top: 2mm; }
+
+/* Le verre : .glass donne le panneau, .solid le rend presque opaque, pour écrire dessus. */
+.glass { padding: 6mm; border-radius: var(--r-l); }
+.glass.tight { padding: 4.5mm; border-radius: var(--r-m); }
+.solid { color: var(--ink); }
+.solid p { color: var(--ink-2); }
+.glass p { font-size: 9.4pt; margin-top: 2.5mm; }
+.glass ul { list-style: none; margin-top: 3mm; display: grid; gap: 1.7mm; }
+.glass li { font-size: 8.8pt; line-height: 1.34; padding-left: 3.6mm; position: relative; }
+.glass li::before { content: ""; position: absolute; left: 0; top: 1.25mm; width: 1.5mm; height: 1.5mm; border-radius: 50%; background: var(--ember-2); }
+
+/* Appareils : toujours au-dessus du verre, le téléphone au-dessus de la tablette. */
+figure { display: block; }
+.phone { position: relative; z-index: 2; width: 46mm; aspect-ratio: 390 / 844; border-radius: 7mm; padding: 1.15mm; background: linear-gradient(135deg, #8d8780, #24201e 30%, #151312 68%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.28), 0 7mm 16mm rgba(10,4,6,.42); flex: none; }
+.phone img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 5.9mm; }
+.tablet { position: relative; z-index: 1; aspect-ratio: 1180 / 820; border-radius: 4mm; padding: 1.3mm; background: linear-gradient(135deg, #8d8780, #24201e 24%, #151312 72%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.26), 0 7mm 16mm rgba(10,4,6,.42); }
+.tablet img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: top; border-radius: 2.8mm; }
+.phone.behind { z-index: 0; width: 38mm; margin-left: -9mm; }
+
+/* Couverture : le nom, une phrase, quatre rectangles décalés dont chaque coin recouvre le précédent, là où il n'y a pas de texte. */
+.cover-title { display: flex; align-items: center; gap: 5mm; margin-top: 4mm; }
+.cover-title .mark { width: 17mm; height: 18.2mm; }
+.cover-title h1 { font-size: 62pt; line-height: 1; }
+.cover-lead { font-size: 14pt; line-height: 1.32; max-width: 128mm; margin-top: 6mm; }
+.stagger { position: relative; height: 95.5mm; margin-top: 14mm; }
+.stagger article { position: absolute; width: 92mm; height: 44mm; padding: 6mm 8mm; }
+.stagger article:nth-child(1) { left: 0; top: 0; }
+.stagger article:nth-child(2) { left: 84mm; top: 12mm; }
+.stagger article:nth-child(3) { left: 8mm; top: 39.5mm; }
+.stagger article:nth-child(4) { left: 92mm; top: 51.5mm; }
+.stagger h3 { font-size: 14.5pt; }
+.stagger p { margin-top: 2mm; font-size: 9pt; line-height: 1.36; }
+.cover-stage { position: relative; z-index: 2; flex: 1; min-height: 0; }
+.cover-stage .tablet { position: absolute; left: 0; bottom: 5mm; width: 140mm; }
+.cover-stage .phone { position: absolute; right: 0; bottom: 0; width: 52mm; }
+
+/* Rangées moitié image, moitié texte, en alternance */
+.row { flex: 1; display: grid; grid-template-columns: 1fr 1fr; gap: 6mm; align-items: center; min-height: 0; margin-top: 3mm; }
+.visual { position: relative; display: flex; justify-content: center; align-items: center; height: 100%; }
+
+/* Chiffres et grilles */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 5mm; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4mm; margin-top: 5mm; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4mm; margin-top: 5mm; }
+.stat b { display: block; font-size: 32pt; line-height: 1; letter-spacing: -.04em; color: var(--ember-1); }
+[data-theme="paper"] .stat b { color: var(--ember-text); }
+.stat span { display: block; margin-top: 2mm; font-size: 9pt; line-height: 1.34; opacity: .86; }
+.panel { display: flex; flex-direction: column; }
+.panel .sub { font-size: 7.2pt; line-height: 1.3; opacity: .72; margin: 1mm 0 3mm; }
+.panel svg { display: block; width: 100%; margin-top: auto; }
+svg .t { font: 500 13px "Instrument Sans"; fill: #ded3cc; }
+svg .v { font: 700 13px "Instrument Sans"; fill: #fbf6f1; }
+svg .a { font: 500 11px "Instrument Sans"; fill: #b3a59d; }
+
+/* Tableau : le tableau entier est un panneau de verre, une colonne peut ressortir en sombre. */
+table { width: 100%; border-collapse: separate; border-spacing: 0; margin-top: 4mm; font-size: 8.5pt; line-height: 1.3; border-radius: var(--r-l); }
+thead th { padding: 3.2mm 3mm 2.5mm; text-align: left; font-size: 11pt; font-weight: 700; vertical-align: bottom; }
+tbody th { text-align: left; font-weight: 600; width: 38mm; padding: 2.4mm 3mm 2.4mm 4.5mm; border-top: .25mm solid var(--line); vertical-align: top; }
+tbody td { padding: 2.4mm 3mm; border-top: .25mm solid var(--line); color: var(--ink-2); vertical-align: top; }
+td.o, th.o { background: rgba(20,11,12,.9); color: var(--fg); border-top-color: rgba(255,255,255,.13); }
+td.o b { color: var(--ember-1); font-weight: 700; }
+[data-theme="dark"] tbody th { border-top-color: var(--hair); }
+[data-theme="dark"] tbody td { border-top-color: var(--hair); color: var(--lead); }
+
+/* Étapes numérotées : seulement pour une vraie suite */
+.steps { list-style: none; counter-reset: s; display: grid; gap: 4mm; }
+.steps li { counter-increment: s; position: relative; padding: 5.5mm 5.5mm 5.5mm 20mm; font-size: 11.5pt; line-height: 1.34; }
+.steps li::before { content: counter(s); position: absolute; left: 5.5mm; top: 5.5mm; width: auto; height: auto; border-radius: 0; background: none; font-weight: 700; font-size: 25pt; line-height: 1; letter-spacing: -.04em; color: var(--ember-1); }
+[data-theme="paper"] .steps li::before { color: var(--ember-text); }
+
+/* Contact : panneau .solid, on écrit dessus au stylo */
+.contact { display: grid; grid-template-columns: 1fr 44mm; gap: 7mm; align-items: stretch; padding: 6mm 7mm; }
+.line { height: 14mm; border-bottom: .3mm solid rgba(23,16,15,.55); display: flex; align-items: flex-end; padding-bottom: 1mm; }
+.line span { font-size: 7.4pt; color: var(--ink-2); }
+.mail { margin-top: 4mm; font-size: 10.5pt; font-weight: 600; color: var(--ink); }
+.qr { display: block; width: 33mm; height: 33mm; }

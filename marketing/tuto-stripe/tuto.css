@@ -1,0 +1,81 @@
+/* Ce qui est propre au tuto, par-dessus ominin-glass.css. Format téléphone (9:16) : 135 × 240 mm une fois coupé,
+   141 × 246 mm avec les 3 mm de fond perdu du kit. Une page remplit l'écran, le corps de texte y fait environ 15 px. */
+@page { size: 141mm 246mm; margin: 0; }
+.page { width: 141mm; height: 246mm; }
+.inner { padding: 8mm 9mm; }
+
+.hd { gap: 3mm; }
+.brand { font-size: 12pt; }
+.sec, .num { font-size: 10pt; }
+
+h1 { font-size: 39pt; }
+h2 { margin-top: 0; }
+h3 { font-size: 15pt; line-height: 1.16; letter-spacing: -.018em; }
+.kicker { font-size: 12pt; margin-bottom: 1.6mm; }
+.screen { font-size: 12pt; line-height: 1.3; margin-top: 1.6mm; color: var(--ink-2); }
+[data-theme="dark"] .screen { color: var(--lead); }
+.title { margin-top: 6mm; }
+
+/* Où en est le commercial dans les neuf écrans de Stripe */
+.progress { display: grid; grid-template-columns: repeat(9, 1fr); gap: 1mm; margin-top: 5mm; }
+.progress i { height: 1mm; border-radius: .5mm; background: var(--line); }
+[data-theme="dark"] .progress i { background: var(--hair); }
+.progress i.on { background: var(--ember-2); }
+.progress + .title { margin-top: 5mm; }
+
+.key { display: inline-block; padding: 0 1.5mm; border: .25mm solid var(--line); border-radius: 1.6mm; background: rgba(255,255,255,.72); font-weight: 600; white-space: nowrap; }
+[data-theme="dark"] .key { border-color: rgba(255,255,255,.26); background: rgba(255,255,255,.12); }
+
+.glass.todo { margin-top: 4.5mm; padding: 4.5mm 5mm; border-radius: var(--r-l); list-style: none; display: grid; gap: 2.2mm; font-size: 14pt; line-height: 1.3; }
+.glass.todo li { padding-left: 4.6mm; font-size: 14pt; line-height: 1.3; }
+.glass.todo li::before { top: 2mm; width: 2mm; height: 2mm; border-radius: 50%; background: var(--ember-2); }
+.todo.numbered { counter-reset: s; }
+.glass.todo.numbered li { counter-increment: s; padding-left: 7mm; }
+.glass.todo.numbered li::before { content: counter(s); top: 0; width: auto; height: auto; border-radius: 0; background: none; font-size: 17pt; line-height: 1.1; font-weight: 700; color: var(--ember-text); }
+.glass.todo .after { padding-left: 0; padding-top: 1mm; }
+.glass.todo .after::before { display: none; }
+
+/* Appareils : les captures Stripe ne font pas toutes la hauteur d'un écran, le cadre suit la capture.
+   Pas d'ombre floue : iOS et Aperçu dessinent celle de Chromium en rectangle sombre autour du téléphone. */
+.shots { flex: 1; min-height: 0; display: flex; justify-content: center; align-items: center; gap: 3.5mm; padding: 4mm 0; }
+.shot { flex: none; border-radius: 5mm; padding: 1.15mm; background: linear-gradient(135deg, #8d8780, #24201e 30%, #151312 68%, #6e6862); box-shadow: 0 0 0 .2mm rgba(255,255,255,.28); }
+.shot img { display: block; width: 100%; border-radius: 3.9mm; }
+
+/* À l'inverse de la page : .solid sur fond sombre, et le même sombre que les colonnes .o du kit sur la nacre. */
+.glass.callout { padding: 3.6mm 5mm; border-radius: var(--r-m); font-size: 12.6pt; line-height: 1.3; }
+[data-theme="paper"] .glass.callout { color: var(--fg); background: rgba(20,11,12,.9); }
+.callout b { color: var(--ember-text); font-weight: 700; }
+[data-theme="paper"] .callout b { color: var(--ember-1); }
+[data-theme="dark"] .callout .key { border-color: var(--line); background: rgba(23,16,15,.05); }
+[data-theme="paper"] .callout .key { border-color: rgba(255,255,255,.26); background: rgba(255,255,255,.12); }
+
+/* Couverture */
+.cover .kicker { font-size: 14pt; margin-top: 16mm; margin-bottom: 3mm; }
+.cover h1 span { display: block; color: var(--ember-1); margin-top: 2mm; }
+.cover .lead { margin-top: 6mm; max-width: none; font-size: 15pt; line-height: 1.34; }
+.cover-tiles { margin-top: auto; display: grid; gap: 3.5mm; }
+.cover-tiles div { padding: 5mm 6mm; border-radius: var(--r-l); }
+.cover-tiles b { display: block; font-size: 23pt; line-height: 1.06; letter-spacing: -.03em; color: var(--ember-1); }
+.cover-tiles span { display: block; margin-top: 1mm; font-size: 14pt; line-height: 1.26; }
+
+/* Ce que le gérant paie */
+.prices { flex: 1; display: grid; grid-auto-rows: 1fr; gap: 3mm; margin-top: 5mm; min-height: 0; }
+.prices div { padding: 3.4mm 5mm; border-radius: var(--r-m); display: flex; flex-direction: column; justify-content: center; }
+.prices b { font-size: 22pt; line-height: 1.04; letter-spacing: -.03em; color: var(--ember-text); }
+.prices span { margin-top: .8mm; font-size: 12.6pt; line-height: 1.26; color: var(--ink-2); }
+.prices h3 + span { margin-top: .8mm; }
+
+/* Ce que le gérant prépare */
+.check { flex: 1; display: grid; grid-auto-rows: 1fr; gap: 2.4mm; margin-top: 5mm; margin-bottom: 3mm; min-height: 0; }
+.check li { list-style: none; position: relative; padding: 2.4mm 4mm 2.4mm 12mm; border-radius: var(--r-m); display: flex; flex-direction: column; justify-content: center; }
+.check li::before { content: ""; position: absolute; left: 4mm; top: 50%; margin-top: -2.5mm; width: 5mm; height: 5mm; border-radius: 1.3mm; border: .5mm solid var(--ember-1); }
+.check h3 { font-size: 13.4pt; }
+.check span { margin-top: .5mm; font-size: 11pt; line-height: 1.22; color: var(--lead); }
+
+/* Les cas qu'on rencontre */
+.cases { flex: 1; display: grid; grid-auto-rows: 1fr; gap: 2.6mm; margin-top: 5mm; margin-bottom: 3mm; min-height: 0; }
+.cases div { padding: 3mm 5mm; border-radius: var(--r-m); display: flex; flex-direction: column; justify-content: center; }
+.cases h3 { font-size: 13.6pt; }
+.cases .glass p { margin-top: 1mm; font-size: 12pt; line-height: 1.28; color: var(--ink-2); }
+.glass.callout .mail { margin: 0; font-size: inherit; font-weight: 700; color: inherit; white-space: nowrap; }
+.note { margin-top: 2.5mm; padding-top: 0; font-size: 10pt; line-height: 1.3; }
