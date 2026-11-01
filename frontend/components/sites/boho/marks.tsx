@@ -1,9 +1,8 @@
 import type { CSSProperties } from "react";
 
 /*
- * Les signes de la DA « automne bohème » : le kilim du logo, la feuille
- * d'érable, et la bulle — un hublot éclairé de l'intérieur, teinté de sa
- * couleur (bulles.color).
+ * Les signes du Boho : le kilim du logo, et la bulle, un hublot de verre
+ * éclairé de l'intérieur, teinté de sa couleur (bulles.color).
  */
 
 /** Le motif kilim de la carte papier (treillis à 45° autour d'un losange), en couleur du texte. */
@@ -25,30 +24,17 @@ export function KilimMark({ className }: { className?: string }) {
   );
 }
 
-export function Leaf({ className, style }: { className?: string; style?: CSSProperties }) {
-  return (
-    <svg viewBox="0 0 100 100" aria-hidden className={className} style={style}>
-      <path
-        fill="currentColor"
-        d="M50 4 58 24 70 16 67 36 86 30 78 46 96 52 78 60 84 74 64 70 62 84 54 76 52 96 48 96 46 76 38 84 36 70 16 74 22 60 4 52 22 46 14 30 33 36 30 16 42 24Z"
-      />
-    </svg>
-  );
-}
-
 /** Une bulle à sa couleur ; sa lueur respire, sauf en mouvement réduit. */
 export function Orb({ color, className }: { color: string; className?: string }) {
   return <span aria-hidden className={`bo-orb ${className ?? ""}`} style={{ "--orb": color } as CSSProperties} />;
 }
 
-/** Les feuilles qui tombent dans un ciel : décor, à poser dans un conteneur en position relative. */
-export function FallingLeaves() {
+/** Le fond de toutes les pages : le jardin flouté et ses lampes, que le verre réfracte. */
+export function BohoCanvas() {
   return (
-    <div aria-hidden className="bo-leaves">
-      <Leaf className="bo-leaf" style={{ left: "8%", width: 46, color: "var(--bo-erable)", animationDuration: "14s" }} />
-      <Leaf className="bo-leaf" style={{ left: "27%", width: 30, color: "var(--bo-lampe)", animationDuration: "19s", animationDelay: "-6s" }} />
-      <Leaf className="bo-leaf" style={{ left: "63%", width: 40, color: "var(--bo-rouge)", animationDuration: "16s", animationDelay: "-3s" }} />
-      <Leaf className="bo-leaf" style={{ left: "85%", width: 34, color: "var(--bo-caramel)", animationDuration: "21s", animationDelay: "-11s" }} />
+    <div aria-hidden className="bo-canvas">
+      <span className="bo-lamp bo-lamp--a" />
+      <span className="bo-lamp bo-lamp--b" />
     </div>
   );
 }

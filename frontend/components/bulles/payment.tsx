@@ -39,17 +39,17 @@ export function refundMessage(reason: NonNullable<PartResult["refunded"]>): stri
 
 /** Le formulaire carte vit dans une iframe Square : les couleurs du parchemin lui sont passées. */
 function cardStyle(element: Element): Record<string, Record<string, string>> {
-  const color = themeColors(element, ["--bo-filet", "--bo-caramel", "--bo-rouge", "--bo-nuit", "--bo-muted"]);
+  const color = themeColors(element, ["--bo-filet", "--bo-caramel", "--bo-erreur", "--bo-nuit", "--bo-muted"]);
   return {
     ".input-container": { borderColor: color["--bo-filet"], borderRadius: "16px" },
     ".input-container.is-focus": { borderColor: color["--bo-caramel"] },
-    ".input-container.is-error": { borderColor: color["--bo-rouge"] },
+    ".input-container.is-error": { borderColor: color["--bo-erreur"] },
     input: { color: color["--bo-nuit"] },
     "input::placeholder": { color: color["--bo-muted"] },
     ".message-text": { color: color["--bo-muted"] },
     ".message-icon": { color: color["--bo-muted"] },
-    ".message-text.is-error": { color: color["--bo-rouge"] },
-    ".message-icon.is-error": { color: color["--bo-rouge"] },
+    ".message-text.is-error": { color: color["--bo-erreur"] },
+    ".message-icon.is-error": { color: color["--bo-erreur"] },
   };
 }
 

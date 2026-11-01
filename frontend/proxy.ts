@@ -2,6 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { isProduct } from "@/lib/admin/products";
 import { LEGAL_PATHS } from "@/lib/legal/constants";
+import { siteHostOf, siteSlugOfHost } from "@/lib/sites/bespoke";
 
 /*
  * Chaque produit vit sur son sous-domaine et son arborescence de routes ;
@@ -191,6 +192,28 @@ export async function proxy(request: NextRequest) {
     if (host) url.host = host;
     return url;
   };
+
+  // Le domaine d'un site d'établissement (boho.ominin.com) : public, sans
+  // session, tout y est servi par sa page /w/<slug>, sauf les textes légaux.
+  const siteSlug = host ? siteSlugOfHost(host) : undefined;
+  if (siteSlug) {
+    if (Object.values(LEGAL_PATHS).some((path) => matchesPath(pathname, path))) {
+      return NextResponse.next({ request });
+    }
+    const url = request.nextUrl.clone();
+    url.pathname = `/menu/w/${siteSlug}${pathname === "/" ? "" : pathname}`;
+    return NextResponse.rewrite(url, { request });
+  }
+
+  // Son ancienne adresse y converge : les liens déjà envoyés restent bons.
+  const sitePath = /^(?:\/menu)?\/w\/([^/]+)(\/.*)?$/.exec(pathname);
+  const siteHost = sitePath && siteHostOf(sitePath[1]);
+  if (siteHost) {
+    const url = request.nextUrl.clone();
+    url.host = siteHost;
+    url.pathname = sitePath[2] ?? "/";
+    return NextResponse.redirect(url, 308);
+  }
 
   const subdomain = PRODUCTS.find((p) => p.host && host === p.host);
   // Produit dont la requête apex emprunte une ancienne URL alors que son

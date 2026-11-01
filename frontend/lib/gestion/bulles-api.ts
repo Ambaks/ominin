@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useState } from "react";
-import { addDays } from "@/lib/bulles/format";
+import { addDays, currentServiceDate, serviceDateOf } from "@/lib/bulles/format";
 import { parisInstant } from "@/lib/collect/hours";
 import { createClient } from "@/lib/supabase/client";
 import type { Database } from "@/lib/supabase/database.types";
@@ -64,9 +64,38 @@ async function loadDay(etablissementId: string, date: string, dayEndHour: number
   ) as BulleReservation[];
 }
 
+/**
+ * Les soirs à venir qui ont des réservations : un client réserve rarement pour
+ * ce soir, et le tableau n'en montre qu'un. Une demande dont aucune place n'est
+ * payée ne compte pas : elle peut encore s'évaporer. La fenêtre de réservation
+ * borne la liste.
+ */
+async function loadUpcoming(etablissementId: string, dayEndHour: number) {
+  const today = currentServiceDate(dayEndHour);
+  const rows = unwrap(
+    await createClient()
+      .from("bulle_reservations")
+      .select("starts_at")
+      .eq("etablissement_id", etablissementId)
+      .in("status", ["en_attente", "confirmee", "arrivee"])
+      .or("places_paid.gt.0,status.neq.en_attente")
+      .gte("starts_at", parisInstant(today, dayEndHour * 60).toISOString())
+  );
+  const counts = new Map<string, number>();
+  for (const { starts_at } of rows ?? []) {
+    const night = serviceDateOf(Date.parse(starts_at), dayEndHour);
+    counts.set(night, (counts.get(night) ?? 0) + 1);
+  }
+  return [...counts].map(([date, count]) => ({ date, count })).sort((a, b) => a.date.localeCompare(b.date));
+}
+
+export type BulleNight = { date: string; count: number };
+
 /** Les réservations d'un soir (null tant qu'elles se chargent), et de quoi les relire. */
 export type BulleDay = {
   reservations: BulleReservation[] | null;
+  /** Absent sur la démonstration, qui n'a qu'un soir à montrer. */
+  upcoming?: BulleNight[];
   error: string | null;
   refresh: () => void;
 };
@@ -76,7 +105,23 @@ export function useBulleDay(etablissementId: string | undefined, date: string, d
   const [day, setDay] = useState<{ key: string; reservations: BulleReservation[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [version, setVersion] = useState(0);
+  const [upcoming, setUpcoming] = useState<BulleNight[]>([]);
   const key = `${etablissementId}:${date}`;
+
+  useEffect(() => {
+    if (!etablissementId) return;
+    let cancelled = false;
+    // Une liste qui ne charge pas n'empêche pas de lire le soir affiché.
+    loadUpcoming(etablissementId, dayEndHour).then(
+      (nights) => {
+        if (!cancelled) setUpcoming(nights);
+      },
+      () => {}
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [etablissementId, dayEndHour, version]);
 
   useEffect(() => {
     if (!etablissementId) return;
@@ -117,7 +162,7 @@ export function useBulleDay(etablissementId: string | undefined, date: string, d
   }, [etablissementId]);
 
   const refresh = useCallback(() => setVersion((count) => count + 1), []);
-  return { reservations: day?.key === key ? day.reservations : null, error, refresh };
+  return { reservations: day?.key === key ? day.reservations : null, upcoming, error, refresh };
 }
 
 export async function markArrival(reservationId: string, arrived: boolean, paid: boolean) {

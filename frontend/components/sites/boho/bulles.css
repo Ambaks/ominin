@@ -4,18 +4,16 @@
  * de boho.css, chargée avant celle-ci.
  */
 
-.bo-bulle-site {
-  background:
-    radial-gradient(ellipse 120% 60% at 50% -10%, #6b3328 0%, transparent 60%),
-    var(--bo-nuit);
-}
-
+/* Sur ces pages, l'en-tête tient sa place : rien ne passe dessous. */
 .bo-header--plain {
+  width: fit-content;
   justify-content: center;
+  margin: 0.75rem auto 0;
+  padding-inline: 1.25rem 1.5rem;
 }
 
 .bo-bulle-main {
-  padding: 1rem 1rem 4rem;
+  padding: 1rem 0.75rem 4rem;
 }
 
 .bo-bulle-page {
@@ -71,6 +69,17 @@
   line-height: 1.5;
 }
 
+/* Ce qu'il faut lire avant de payer. */
+.bo-note {
+  margin: 0;
+  padding-left: 0.875rem;
+  border-left: 2px solid var(--bo-caramel);
+  color: var(--bo-ecorce);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
 .bo-button--block {
   width: 100%;
 }
@@ -83,11 +92,16 @@
   padding: 0 1rem;
   border: 0;
   background: none;
-  color: var(--bo-rouge-texte) !important;
+  color: var(--bo-or-texte) !important;
   font: 500 1rem var(--bo-sans);
   text-decoration: underline;
   text-underline-offset: 0.2em;
   cursor: pointer;
+}
+
+.bo-link-button--start {
+  align-self: flex-start;
+  padding-inline: 0;
 }
 
 .bo-night-text .bo-link-button {
@@ -98,27 +112,26 @@
   margin: 0;
   padding: 0.75rem 1rem;
   border-radius: 0.875rem;
-  background: rgb(181 68 58 / 0.12);
-  color: var(--bo-rouge-texte);
+  background: rgb(166 49 31 / 0.1);
+  color: var(--bo-erreur);
   font-size: 0.9375rem;
 }
 
 .bo-night-text .bo-form-error {
-  background: rgb(181 68 58 / 0.25);
+  background: rgb(214 92 72 / 0.28);
   color: var(--bo-creme);
 }
 
 /* Les cartes sur parchemin, posées dans la nuit. */
 .bo-panel {
   padding: 1.5rem 1.25rem;
-  border-radius: 1.5rem;
-  background: var(--bo-parchemin);
+  border-radius: 1.75rem;
   color: var(--bo-nuit);
 }
 
 .bo-panel-script {
   font-size: 3.25rem;
-  color: var(--bo-rouge);
+  color: var(--bo-or);
 }
 
 /* ───────────── Le soir ───────────── */
@@ -126,10 +139,20 @@
 .bo-days {
   display: flex;
   gap: 0.5rem;
-  margin: 0 -1rem;
-  padding: 0 1rem 0.25rem;
+  margin: 0 -0.75rem;
+  padding: 0.25rem 0.75rem;
   overflow-x: auto;
   scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 2rem), transparent);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 2rem), transparent);
+}
+
+/* Sur le site, l'outil tient sa colonne : pas de débord sur la marge. */
+@media (min-width: 60rem) {
+  .bo-reserver-outil .bo-days {
+    margin-inline: 0;
+    padding-inline: 0 2rem;
+  }
 }
 
 .bo-day {
@@ -141,22 +164,22 @@
   align-items: center;
   justify-content: center;
   gap: 0.1rem;
-  border: 1px solid rgb(229 176 114 / 0.4);
-  border-radius: 1.125rem;
-  background: transparent;
+  border: 0;
+  border-radius: 1.25rem;
+  background: rgb(255 244 228 / 0.08);
+  box-shadow:
+    inset 1px 1px 0 var(--bo-verre-reflet),
+    inset 0 0 0 1px rgb(251 227 196 / 0.2);
   color: var(--bo-parchemin);
   font-family: var(--bo-sans);
   cursor: pointer;
   transition:
     background 0.25s,
-    color 0.25s,
-    border-color 0.25s;
+    color 0.25s;
 }
 
 .bo-day span {
-  font-size: 0.75rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 0.8125rem;
 }
 
 .bo-day strong {
@@ -167,8 +190,10 @@
 }
 
 .bo-day[aria-pressed="true"] {
-  border-color: var(--bo-parchemin);
   background: var(--bo-parchemin);
+  box-shadow:
+    inset 1px 1px 0 rgb(255 255 255 / 0.8),
+    0 10px 24px -10px rgb(245 194 101 / 0.7);
   color: var(--bo-nuit);
 }
 
@@ -185,12 +210,12 @@
 
 .bo-slot {
   padding: 1rem;
-  border: 1px solid rgb(229 176 114 / 0.3);
-  border-radius: 1.25rem;
-  background: rgb(244 230 212 / 0.04);
+  border-radius: 1.75rem;
 }
 
 .bo-slot--skeleton {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
   height: 8.5rem;
   animation: bo-respire 1.6s ease-in-out infinite;
 }
@@ -202,7 +227,6 @@
 }
 
 .bo-slot[data-full] {
-  border-style: dashed;
   opacity: 0.6;
 }
 
@@ -215,9 +239,9 @@
 }
 
 .bo-slot-head strong {
-  font-family: var(--bo-display);
-  font-size: 1.375rem;
-  font-weight: 400;
+  font-size: 1.25rem;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
 }
 
 .bo-slot-head span {
@@ -232,7 +256,7 @@
 }
 
 .bo-pick {
-  --orb: var(--bo-rouge);
+  --orb: var(--bo-or);
   display: flex;
   min-height: 5.25rem;
   flex-direction: column;
@@ -254,13 +278,18 @@
   width: 2.75rem;
   aspect-ratio: 1;
   border-radius: 50%;
-  background: radial-gradient(
-    circle at 35% 28%,
-    color-mix(in oklab, var(--orb) 40%, white) 0%,
-    var(--orb) 55%,
-    color-mix(in oklab, var(--orb) 45%, black) 100%
-  );
-  box-shadow: 0 0 18px rgb(229 176 114 / 0.25);
+  background:
+    radial-gradient(circle at 32% 24%, rgb(255 255 255 / 0.85) 0%, rgb(255 255 255 / 0.16) 16%, transparent 34%),
+    radial-gradient(
+      circle at 50% 50%,
+      color-mix(in oklab, var(--orb) 68%, transparent) 0%,
+      color-mix(in oklab, var(--orb) 86%, transparent) 62%,
+      color-mix(in oklab, var(--orb) 62%, black) 100%
+    );
+  box-shadow:
+    inset 0 0 0 1px rgb(255 244 228 / 0.26),
+    inset -2px -4px 8px rgb(20 12 16 / 0.3),
+    0 0 18px rgb(245 194 101 / 0.25);
   transition:
     transform 0.35s var(--bo-ease),
     box-shadow 0.35s;
@@ -272,14 +301,16 @@
 
 .bo-pick[aria-pressed="true"] {
   border-color: var(--bo-lampe);
-  background: rgb(229 176 114 / 0.14);
+  background: rgb(245 194 101 / 0.14);
 }
 
 .bo-pick[aria-pressed="true"] .bo-pick-orb {
   box-shadow:
+    inset 0 0 0 1px rgb(255 244 228 / 0.26),
+    inset -2px -4px 8px rgb(20 12 16 / 0.3),
     0 0 0 3px var(--bo-nuit),
     0 0 0 5px var(--bo-lampe),
-    0 0 28px rgb(229 176 114 / 0.6);
+    0 0 28px rgb(245 194 101 / 0.6);
 }
 
 /* Prise : le hublot éteint, barré d'un trait. */
@@ -292,11 +323,11 @@
   background: linear-gradient(
     135deg,
     transparent 47%,
-    rgb(229 176 114 / 0.45) 47%,
-    rgb(229 176 114 / 0.45) 53%,
+    rgb(245 194 101 / 0.45) 47%,
+    rgb(245 194 101 / 0.45) 53%,
     transparent 53%
   );
-  box-shadow: inset 0 0 0 1px rgb(229 176 114 / 0.35);
+  box-shadow: inset 0 0 0 1px rgb(245 194 101 / 0.35);
 }
 
 /* ───────────── Le groupe ───────────── */
@@ -312,8 +343,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.6rem 0.75rem;
-  border: 1px solid rgb(229 176 114 / 0.35);
-  border-radius: 1.125rem;
+  border-radius: 999px;
 }
 
 .bo-stepper button {
@@ -322,12 +352,20 @@
   height: 3rem;
   flex: 0 0 auto;
   place-items: center;
-  border: 1px solid var(--bo-lampe);
+  border: 0;
   border-radius: 50%;
-  background: transparent;
+  background: rgb(255 244 228 / 0.1);
+  box-shadow:
+    inset 1px 1px 0 var(--bo-verre-reflet),
+    inset 0 0 0 1px rgb(251 227 196 / 0.3);
   color: inherit;
   font: 400 1.5rem/1 var(--bo-sans);
   cursor: pointer;
+  transition: scale 0.2s var(--bo-ease);
+}
+
+.bo-stepper button:active:not(:disabled) {
+  scale: 0.92;
 }
 
 .bo-stepper button:disabled {
@@ -355,11 +393,12 @@
 }
 
 .bo-stepper--paper {
-  border-color: var(--bo-filet);
+  box-shadow: inset 0 0 0 1px var(--bo-filet);
 }
 
 .bo-stepper--paper button {
-  border-color: var(--bo-caramel);
+  background: var(--bo-parchemin-2);
+  box-shadow: inset 0 0 0 1px var(--bo-caramel);
 }
 
 .bo-stepper--paper output span {
@@ -370,27 +409,42 @@
 
 .bo-total {
   position: sticky;
-  bottom: 0;
+  bottom: max(0.75rem, env(safe-area-inset-bottom));
+  z-index: 10;
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
   gap: 0.75rem;
-  margin: 0 -1rem;
-  padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
-  background: linear-gradient(180deg, rgb(37 27 32 / 0) 0%, var(--bo-nuit) 22%);
+  padding: 0.5rem 0.5rem 0.5rem 1.25rem;
+  border-radius: 999px;
+  --bo-verre-voile: 74%;
 }
 
+/* Une seule ligne : le prix à gauche, l'action à droite. Elle ne cache pas les bulles. */
 .bo-total > div {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid rgb(229 176 114 / 0.25);
+  min-width: 0;
+  flex-direction: column-reverse;
+  gap: 0.125rem;
+  line-height: 1.1;
+}
+
+.bo-total .bo-muted {
+  font-size: 0.8125rem;
+  white-space: nowrap;
+}
+
+.bo-total .bo-button {
+  width: auto;
+  flex: 0 1 auto;
+  min-height: 3rem;
+  padding: 0.6rem 1.25rem;
+  font-size: 0.9375rem;
 }
 
 .bo-total strong {
   font-family: var(--bo-display);
-  font-size: 2rem;
+  font-size: 1.625rem;
   font-weight: 400;
 }
 
@@ -402,8 +456,7 @@
   align-items: center;
   gap: 1.1rem;
   padding: 1.25rem;
-  border-radius: 3.5rem 1.5rem 1.5rem 3.5rem;
-  background: var(--bo-parchemin);
+  border-radius: 3.5rem 1.75rem 1.75rem 3.5rem;
   color: var(--bo-nuit);
 }
 
@@ -461,26 +514,25 @@
 
 .bo-field input:focus {
   border-color: var(--bo-ecorce);
-  outline: none;
-  box-shadow: 0 0 0 3px rgb(90 46 31 / 0.25);
+  outline: 2px solid transparent;
+  box-shadow: 0 0 0 3px rgb(74 52 24 / 0.25);
 }
 
 .bo-field input[aria-invalid="true"] {
-  border-color: var(--bo-rouge);
+  border-color: var(--bo-erreur);
 }
 
 .bo-field-error {
   font-weight: 400;
   letter-spacing: 0;
-  color: var(--bo-rouge-texte);
+  color: var(--bo-erreur);
 }
 
 /* ───────────── Paiement ───────────── */
 
 .bo-pay {
   padding: 1.5rem 1.25rem;
-  border-radius: 1.5rem;
-  background: var(--bo-parchemin);
+  border-radius: 1.75rem;
   color: var(--bo-nuit);
 }
 
@@ -545,10 +597,7 @@
   align-items: center;
   gap: 1rem;
   margin: 0.25rem 0;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
+  font-size: 0.875rem;
   color: var(--bo-muted);
 }
 
@@ -615,7 +664,7 @@
 }
 
 .bo-pay .club-countdown[data-urgent] .club-countdown-ring {
-  stroke: var(--bo-rouge);
+  stroke: var(--bo-erreur);
 }
 
 .bo-pay .club-countdown-time {
@@ -669,14 +718,13 @@
 /* ───────────── Le pass ───────────── */
 
 .bo-ticket {
-  --orb: var(--bo-rouge);
+  --orb: var(--bo-or);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
   padding: 2.5rem 1.5rem 1.5rem;
-  border-radius: 50% 50% 1.5rem 1.5rem / 11rem 11rem 1.5rem 1.5rem;
-  background: var(--bo-parchemin);
+  border-radius: 50% 50% 1.75rem 1.75rem / 11rem 11rem 1.75rem 1.75rem;
   color: var(--bo-nuit);
   text-align: center;
 }
@@ -693,6 +741,10 @@
 .bo-ticket[data-status="remboursee"] .bo-ticket-orb,
 .bo-ticket[data-status="annulee"] .bo-ticket-orb {
   filter: grayscale(0.85);
+}
+
+.bo-ticket[data-status="remboursee"] .bo-ticket-orb::before,
+.bo-ticket[data-status="annulee"] .bo-ticket-orb::before {
   animation: none;
 }
 
@@ -701,16 +753,14 @@
   border-radius: 999px;
   background: var(--bo-nuit);
   color: var(--bo-lampe);
-  font-size: 0.75rem;
+  font-size: 0.875rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
 }
 
 .bo-ticket[data-status="confirmee"] .bo-pill,
 .bo-ticket[data-status="arrivee"] .bo-pill {
-  background: var(--bo-rouge);
-  color: var(--bo-parchemin-2);
+  background: var(--bo-or);
+  color: var(--bo-encre);
 }
 
 .bo-ticket-title {
@@ -747,11 +797,9 @@
 }
 
 .bo-ticket-facts dt {
-  font-size: 0.6875rem;
+  font-size: 0.8125rem;
   font-weight: 600;
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-  color: var(--bo-rouge-texte);
+  color: var(--bo-or-texte);
 }
 
 .bo-ticket-facts dd {

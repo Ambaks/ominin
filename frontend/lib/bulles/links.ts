@@ -1,14 +1,16 @@
 import { BOHO_DEMO_PATH, BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
 import { menuSiteUrl } from "@/lib/site";
+import { siteOriginOf } from "@/lib/sites/bespoke";
 
 /*
- * Le site d'un établissement et ses réservations vivent sous
- * menu.ominin.com/w/<slug> ; ceux de la démonstration du Boho sous /demo/boho.
+ * Le site d'un établissement et ses réservations vivent sur son domaine s'il en
+ * a un, sinon sous menu.ominin.com/w/<slug> ; ceux de la démonstration du Boho
+ * sous /demo/boho.
  * Absolues, elles marchent aussi bien dans un e-mail que sous la
  * forme préfixée /menu du domaine principal.
  */
 const publicBase = (slug: string) =>
-  slug === BOHO_DEMO_SLUG ? `${menuSiteUrl}${BOHO_DEMO_PATH}` : `${menuSiteUrl}/w/${slug}`;
+  slug === BOHO_DEMO_SLUG ? `${menuSiteUrl}${BOHO_DEMO_PATH}` : (siteOriginOf(slug) ?? `${menuSiteUrl}/w/${slug}`);
 
 /** La carte (le menu QR) de l'établissement. */
 export const carteUrl = (slug: string) =>

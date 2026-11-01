@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { BullePayment, refundMessage, type PartResult } from "@/components/bulles/payment";
 import { ContactFields, contactErrors, emptyContact, type Contact } from "@/components/bulles/contact-fields";
 import { addDays, formatDuration, isoWeekday } from "@/lib/bulles/format";
@@ -99,6 +99,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
   const [choice, setChoice] = useState<{ startsAt: string; endsAt: string; bulleId: string } | null>(null);
   const [party, setParty] = useState(minParty);
   const [places, setPlaces] = useState(minParty);
+  const [payingShare, setPayingShare] = useState(false);
   const [step, setStep] = useState<"choix" | "infos" | "paiement" | "rendue">("choix");
   const [refunded, setRefunded] = useState<NonNullable<PartResult["refunded"]> | null>(null);
   const [contact, setContact] = useState<Contact>(emptyContact);
@@ -131,6 +132,17 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
       cancelled = true;
     };
   }, [date, etablissement.id, reload]);
+
+  // Sur le site, l'outil est au milieu de la page : chaque étape repart de son haut.
+  const shownStep = useRef(step);
+  useEffect(() => {
+    if (shownStep.current === step) return;
+    shownStep.current = step;
+    const tool = document.getElementById("reserver-outil");
+    tool?.scrollIntoView({ block: "start" });
+    // Le bouton pressé a disparu : le clavier repart de l'outil, pas du haut de la page.
+    tool?.focus({ preventScroll: true });
+  }, [step]);
 
   const slots = planning?.date === date ? planning.slots : null;
   const chosenBulle = choice ? bullesById.get(choice.bulleId) : undefined;
@@ -216,7 +228,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
     return (
       <div className="bo-panel bo-center bo-stack-sm" role="status">
         <p className="bo-script bo-panel-script">Pas de chance</p>
-        <h1 className="bo-h3 bo-text-center">{refundMessage(refunded)}</h1>
+        <h2 className="bo-h3 bo-text-center">{refundMessage(refunded)}</h2>
         <p className="bo-muted">Le remboursement arrive sous 5 à 10 jours, selon votre banque.</p>
         <button
           type="button"
@@ -272,7 +284,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
               {error}
             </p>
           )}
-          <p className="bo-muted bo-small">
+          <p className="bo-note">
             Une place payée ne s&rsquo;annule pas et ne se rembourse pas, sauf si toutes les bulles du créneau
             sont confirmées par d&rsquo;autres groupes avant le vôtre. Dans la bulle, la carte s&rsquo;ouvre une fois
             toutes les places du groupe payées.
@@ -390,16 +402,28 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
             unit={(value) => (value > 1 ? "personnes" : "personne")}
             onChange={changeParty}
           />
-          <Stepper
-            label="Places payées maintenant"
-            noun="place"
-            value={places}
-            min={1}
-            max={party}
-            unit={(value) => (value > 1 ? "places payées maintenant" : "place payée maintenant")}
-            onChange={setPlaces}
-          />
+          {payingShare && (
+            <Stepper
+              label="Places payées maintenant"
+              noun="place"
+              value={places}
+              min={1}
+              max={party}
+              unit={(value) => (value > 1 ? "places payées maintenant" : "place payée maintenant")}
+              onChange={setPlaces}
+            />
+          )}
         </div>
+        <button
+          type="button"
+          className="bo-link-button bo-link-button--start"
+          onClick={() => {
+            if (payingShare) setPlaces(party);
+            setPayingShare(!payingShare);
+          }}
+        >
+          {payingShare ? "Je paie pour tout le groupe" : "Je ne paie que ma part"}
+        </button>
         <p className="bo-muted bo-small">
           {places >= party
             ? `Vous payez pour tout le groupe : la bulle est confirmée dès le paiement.`

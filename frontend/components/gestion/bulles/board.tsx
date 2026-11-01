@@ -26,6 +26,7 @@ type Slot = { startsAt: string; endsAt: string };
 const held = (reservation: BulleReservation) =>
   reservation.status === "confirmee" || reservation.status === "arrivee";
 
+const NIGHT_CHIP = new Intl.DateTimeFormat("fr-FR", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" });
 const rise = (i: number) => ({ "--g-i": i }) as CSSProperties;
 const CELL_RADIUS = "rounded-[calc(var(--g-radius-card)-var(--g-pad))]";
 const FOCUS = "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1";
@@ -138,6 +139,22 @@ export function BullesBoard({
           <ChevronIcon />
         </GlassButton>
       </div>
+
+      {day.upcoming && day.upcoming.length > 0 && (
+        <nav aria-label="Soirs à venir avec des réservations" className="g-rise flex gap-2 overflow-x-auto" style={rise(1)}>
+          {day.upcoming.map((night) => (
+            <button
+              key={night.date}
+              type="button"
+              aria-current={night.date === date ? "date" : undefined}
+              className={`g-btn g-press shrink-0 tabular-nums ${night.date === date ? "g-btn-primary" : "g-btn-secondary"}`}
+              onClick={() => onDateChange(night.date)}
+            >
+              {NIGHT_CHIP.format(new Date(`${night.date}T12:00:00Z`))} : {night.count}
+            </button>
+          ))}
+        </nav>
+      )}
 
       {!setup.reglages ? (
         <div>
