@@ -2,18 +2,11 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
-import { TYPE_DEMOS } from "@/lib/commercial/demos";
+import { plaquetteHref, TYPE_DEMOS } from "@/lib/commercial/demos";
 import type { SignupKind } from "@/lib/commercial/signup-form";
 import { commercialPrefix } from "@/lib/site";
 import { ShareLink } from "./share-link";
 import { cardClass, ghostButton, primaryButton } from "./ui";
-
-/** Les types qui ont leur plaquette (public/commercial/plaquettes) : elle y remplace le deck. */
-const PLAQUETTES: Partial<Record<SignupKind, string>> = {
-  bar: "plaquette-bar.pdf",
-  club: "plaquette-club.pdf",
-  fast_food: "plaquette-fast-food.pdf",
-};
 
 /*
  * Présentations et démos : un type d'établissement, puis sa plaquette ou son
@@ -25,7 +18,7 @@ export function Presentations({ kinds }: { kinds: { kind: SignupKind; label: str
   const [open, setOpen] = useState<{ kind: SignupKind; label: string } | null>(null);
   const [showDemo, setShowDemo] = useState(false);
   const demo = open && TYPE_DEMOS[open.kind];
-  const plaquette = open && PLAQUETTES[open.kind];
+  const plaquette = open && plaquetteHref(open.kind);
 
   return (
     <>
@@ -62,7 +55,7 @@ export function Presentations({ kinds }: { kinds: { kind: SignupKind; label: str
           ) : (
             <div className="flex flex-col gap-2">
               {plaquette ? (
-                <a href={`/commercial/plaquettes/${plaquette}`} target="_blank" className={primaryButton}>
+                <a href={plaquette} target="_blank" className={primaryButton}>
                   La plaquette
                 </a>
               ) : (

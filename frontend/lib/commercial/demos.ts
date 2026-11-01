@@ -1,6 +1,19 @@
 import { menuSiteUrl } from "@/lib/site";
 import type { SignupKind } from "./signup-form";
 
+/** Les types qui ont leur plaquette (public/commercial/plaquettes) : elle y remplace le deck. */
+const PLAQUETTES: Partial<Record<SignupKind, string>> = {
+  restaurant: "plaquette-restaurant.pdf",
+  bar: "plaquette-bar.pdf",
+  club: "plaquette-club.pdf",
+  fast_food: "plaquette-fast-food.pdf",
+};
+
+export const plaquetteHref = (kind: SignupKind) => {
+  const file = PLAQUETTES[kind];
+  return file && `/commercial/plaquettes/${file}`;
+};
+
 /* La démo montrée pour chaque type d'établissement : le menu du client, ou l'espace de gestion du personnel. */
 export interface TypeDemo {
   name: string;
