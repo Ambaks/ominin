@@ -34,7 +34,7 @@ export default async function BullePage({ params }: PageProps<"/menu/w/[slug]/bu
   const offer = await getOffer(slug);
   if (!offer) notFound();
   return (
-    <div className="bo-bulle-page">
+    <div id="reserver-outil" className="bo-bulle-page" tabIndex={-1}>
       <div className="bo-bulle-intro">
         <h1 className="bo-script bo-bulle-title">Votre bulle</h1>
         <p className="bo-muted-night">

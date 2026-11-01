@@ -7,8 +7,10 @@ import { fetchBulleOffer } from "@/lib/bulles/public";
 import { bohoFontVariables } from "@/lib/menu/brand-fonts";
 import { fetchRestaurant } from "@/lib/public-menu";
 import { BOHO_THEME_COLOR, bohoPhotos } from "@/lib/sites/boho";
+import { siteOriginOf } from "@/lib/sites/bespoke";
 import { isSiteOpen } from "@/lib/sites/public";
 import "@/components/sites/boho/boho.css";
+import "@/components/sites/boho/bulles.css";
 
 /*
  * Le site d'un établissement, ouvert par la capacité « Site web », en attendant
@@ -37,11 +39,12 @@ export async function generateMetadata({
   const description = (await getOffer(slug))
     ? `${DESCRIPTION}, et des bulles chauffées à réserver dans le jardin.`
     : `${DESCRIPTION}.`;
+  const origin = siteOriginOf(slug);
   return {
     title: "BOHO · Restaurant chicha à Toulouse",
     description,
     // Aperçu tant que le domaine du Boho ne pointe pas ici.
-    robots: { index: false, follow: false },
+    ...(origin ? { alternates: { canonical: origin } } : { robots: { index: false, follow: false } }),
     openGraph: {
       type: "website",
       title: "BOHO · Côté Jardin",
