@@ -21,9 +21,9 @@ const PLAQUETTES = [
 ];
 
 /*
- * Ressources : ce que le commercial montre au gérant (le deck et la démo de
- * chaque type d'établissement, le deck PDF), ses plaquettes, et les tutos pour brancher
- * Stripe et la caisse.
+ * Ressources : le guide du commercial (interne), ce qu'il montre au gérant (le
+ * deck et la démo de chaque type d'établissement), ses plaquettes, et les tutos
+ * pour brancher Stripe et la caisse.
  */
 export default async function RessourcesPage() {
   await requireRunningContract();
@@ -33,16 +33,20 @@ export default async function RessourcesPage() {
       <PageTitle sub="Ce que tu montres au gérant, et ce qui t’aide à vendre.">Ressources</PageTitle>
 
       <section className="flex flex-col gap-2.5">
-        <SectionTitle>Présentations et démos</SectionTitle>
-        <Presentations kinds={DECKS.map(({ kind, label }) => ({ kind, label }))} />
-        <p className="text-xs text-faint">{"Un deck et une démo par type d’établissement. Ouvre chaque deck une fois avec du réseau : il reste lisible hors ligne."}</p>
+        <SectionTitle>Le guide du commercial</SectionTitle>
         <a href={`${commercialPrefix}/espace/ressources/deck`} target="_blank" className={`${cardClass} flex items-center justify-between gap-3`}>
           <span>
-            <span className="block font-medium">Deck Ominin (PDF)</span>
-            <span className="text-sm text-muted">PDF, à montrer au gérant sur ton téléphone</span>
+            <span className="block font-medium">Guide du commercial (PDF)</span>
+            <span className="text-sm text-muted">Toutes les infos pour vendre. Interne : ne le montre pas au gérant.</span>
           </span>
           <span className={ghostButton}>Ouvrir</span>
         </a>
+      </section>
+
+      <section className="flex flex-col gap-2.5">
+        <SectionTitle>Présentations et démos</SectionTitle>
+        <Presentations kinds={DECKS.map(({ kind, label }) => ({ kind, label }))} />
+        <p className="text-xs text-faint">{"Un deck et une démo par type d’établissement. Ouvre chaque deck une fois avec du réseau : il reste lisible hors ligne."}</p>
       </section>
 
       <section className="flex flex-col gap-2.5">
