@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ominin</title>
+<link rel="stylesheet" href="fonts/instrument.css">
+<link rel="stylesheet" href="ominin-glass.css">
+<link rel="stylesheet" href="bg.css">
+</head>
+<body>
+
+<!-- Le chevron et son dégradé, partagés par toutes les pages. Ne pas retirer. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0b35b"/><stop offset=".55" stop-color="#e2764b"/><stop offset="1" stop-color="#c94f5e"/></linearGradient><symbol id="mark" viewBox="116 107 280 300"><path d="M256 107 L396 247 V281 L256 141 L116 281 V247 Z" fill="url(#g)"/><path d="M256 170 L396 310 V344 L256 204 L116 344 V310 Z" fill="url(#g)"/><path d="M256 233 L396 373 V407 L256 267 L116 407 V373 Z" fill="url(#g)"/></symbol></defs></svg>
+
+<!-- Couverture. data-chevron : centre x, centre y, largeur en mm. data-clear : le chevron s'efface au-dessus et en dessous de ces hauteurs en mm. -->
+<section class="page" data-theme="dark" data-chevron="158,142,240" data-clear="66,303">
+  <div class="inner">
+    <div class="cover-title">
+      <svg class="mark" aria-hidden="true"><use href="#mark"/></svg>
+      <h1>Titre</h1>
+    </div>
+    <p class="cover-lead">Une phrase qui dit ce qu’est ce document et à qui il sert.</p>
+    <!-- Sans écrans : class="stagger tall", et retirer .cover-stage. -->
+    <div class="stagger">
+      <article class="glass"><h3>Premier point</h3><p>Une ou deux lignes. Laisser le coin bas droit sans texte : le rectangle suivant le recouvre.</p></article>
+      <article class="glass"><h3>Deuxième point</h3><p>Une à trois lignes.</p></article>
+      <article class="glass"><h3>Troisième point</h3><p>Une ou deux lignes.</p></article>
+      <article class="glass"><h3>Quatrième point</h3><p>Une à trois lignes.</p></article>
+    </div>
+    <div class="cover-stage">
+      <!-- <figure class="tablet"><img src="img/ecran.jpg" alt=""></figure> -->
+      <!-- <figure class="phone"><img src="img/telephone.jpg" alt=""></figure> -->
+    </div>
+  </div>
+</section>
+
+<!-- Page claire : texte en verre d'un côté, image de l'autre. -->
+<section class="page" data-theme="paper" data-chevron="34,150,175" data-clear="60,276">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Section</span><span class="num">2</span></header>
+    <h2>Un titre qui dit l’idée de la page.</h2>
+    <p class="lead">Une ou deux lignes d’introduction.</p>
+    <div class="row">
+      <div class="visual"><!-- <figure class="phone"><img src="img/telephone.jpg" alt=""></figure> --></div>
+      <div class="glass"><span class="kicker">Ce que c’est</span><h3>Le point à retenir.</h3><p>Le texte d’explication.</p><ul><li>Un détail concret.</li><li>Un autre détail.</li></ul></div>
+    </div>
+    <p class="note">Sources et mentions, ici en bas de page.</p>
+  </div>
+</section>
+
+<!-- Page de chiffres. Le chevron passe sous le contenu : centre y vers 235, début vers 150 quand le texte remplit le haut. -->
+<section class="page" data-theme="dark" data-chevron="120,238,230" data-clear="150,276">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Section</span><span class="num">3</span></header>
+    <h2>Une page de chiffres.</h2>
+    <div class="grid2">
+      <div class="glass stat"><b>42 %</b><span>Ce que mesure ce chiffre, en une ligne.</span></div>
+      <div class="glass stat"><b>67 %</b><span>Ce que mesure ce chiffre, en une ligne.</span></div>
+    </div>
+    <p class="note">Source de chaque chiffre.</p>
+  </div>
+</section>
+
+<!-- Page d'étapes, sans image. Pour continuer la numérotation d'une page à l'autre : style="counter-reset: s 2" sur le ol. -->
+<section class="page" data-theme="paper" data-chevron="182,226,175" data-clear="130,272">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Section</span><span class="num">4</span></header>
+    <h2>Une suite d’étapes.</h2>
+    <ol class="steps" style="margin-top: 6mm">
+      <li class="glass"><b>Première étape.</b> Ce qu’il faut faire.</li>
+      <li class="glass"><b>Deuxième étape.</b> Ce qu’il faut faire.</li>
+    </ol>
+    <p class="note">Sources et mentions.</p>
+  </div>
+</section>
+
+</body>
+</html>
