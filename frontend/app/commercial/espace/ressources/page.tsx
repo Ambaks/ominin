@@ -13,9 +13,16 @@ const TUTOS = [
   { name: "Fiches caisses HubRise", file: "fiches-caisses-hubrise.pdf", draft: true },
 ];
 
+/** Les plaquettes à laisser au gérant, dans public/commercial/plaquettes ; gardées hors ligne comme les tutos. */
+const PLAQUETTES = [
+  { name: "Plaquette Bar", file: "plaquette-bar.pdf" },
+  { name: "Plaquette Club", file: "plaquette-club.pdf" },
+  { name: "Plaquette Fast-food", file: "plaquette-fast-food.pdf" },
+];
+
 /*
  * Ressources : ce que le commercial montre au gérant (le deck et la démo de
- * chaque type d'établissement, le deck PDF), et les tutos pour brancher
+ * chaque type d'établissement, le deck PDF), ses plaquettes, et les tutos pour brancher
  * Stripe et la caisse.
  */
 export default async function RessourcesPage() {
@@ -36,6 +43,24 @@ export default async function RessourcesPage() {
           </span>
           <span className={ghostButton}>Ouvrir</span>
         </a>
+      </section>
+
+      <section className="flex flex-col gap-2.5">
+        <SectionTitle>Plaquettes</SectionTitle>
+        <ul className="flex flex-col gap-2">
+          {PLAQUETTES.map((plaquette) => (
+            <li key={plaquette.file}>
+              <a href={`/commercial/plaquettes/${plaquette.file}`} target="_blank" className={`${cardClass} flex items-center justify-between gap-3`}>
+                <span>
+                  <span className="block font-medium">{plaquette.name}</span>
+                  <span className="text-sm text-muted">PDF, 8 pages, à montrer au gérant</span>
+                </span>
+                <span className={ghostButton}>Ouvrir</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+        <p className="text-xs text-faint">Ouvre chacune une fois avec du réseau : elle reste lisible hors ligne.</p>
       </section>
 
       <section className="flex flex-col gap-2.5">

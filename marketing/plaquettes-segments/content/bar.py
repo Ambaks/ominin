@@ -1,0 +1,118 @@
+from content.common import *
+
+CONTENT = {
+    "cover": {
+        "lead": "Le système tout-en-un pour les bars : des clients plus satisfaits, moins de coûts et plus de ventes.",
+        "pillars": [
+            ("Des clients plus satisfaits", "Ils commandent et paient depuis leur table, sans attendre au comptoir ni chercher un serveur."),
+            ("Des coûts d’exploitation réduits", "Les commandes arrivent seules au bar, et l’encaissement se fait en ligne. Moins d’allers-retours pour votre équipe."),
+            ("Plus de ventes", "La tournée suivante se commande en deux gestes, la fidélité fait revenir, et la happy hour s’applique toute seule."),
+            ANALYSE,
+        ],
+        "tablet": "g-aujourdhui",
+        "phone": "menu",
+    },
+    "p2": {
+        "section": "Satisfaction et coûts",
+        "title": "Votre bar, sur chaque téléphone.",
+        "lead": "Les écrans de ces pages viennent d’une carte de démonstration. Votre version reprend votre logo, vos couleurs, vos boissons et vos photos.",
+        "rows": [
+            dict(image_first=True, screens=["hero", "reglement"], kicker="Clients plus satisfaits : la carte", title="La tournée, depuis la table.", text="Sans appli et sans compte. Le client scanne le QR de sa table et votre carte s’ouvre, avec vos cocktails, vos prix et leurs options.", points=["La commande part au bar avec le numéro de table.", "Il choisit : payer en ligne, par CB, Apple Pay ou Google Pay, ou payer au comptoir.", "Une table commande plusieurs fois ? Tout se suit sur le même écran de gestion."]),
+            dict(image_first=False, screens=["g-aujourdhui"], kicker="Réduisez vos dépenses : la gestion", title="Tout arrive au même endroit.", text="Sur une tablette, un téléphone ou un ordinateur, vous suivez la soirée en direct : ce qui est à encaisser, ce qui est à servir, ce que vous avez vendu.", points=["Le chiffre du jour, comparé à la même heure la semaine d’avant.", "Une vue pour le gérant, le serveur et le bar.", "Un encaissement article par article, quand la table se sépare."]),
+        ],
+        "note": f"Écrans réels du produit. Dans l’espace de gestion, les chiffres sont fictifs. {ALCOOL}",
+    },
+    "p3": {
+        "section": "Boostez vos ventes",
+        "rows": [
+            dict(image_first=True, screens=["happy", "menu"], kicker="Boostez vos ventes : la happy hour", title="La happy hour, toute seule.", text="Vous choisissez les jours, les heures et les boissons. Le bon prix s’affiche et s’applique tout seul, puis la carte revient au prix normal sans que personne n’y touche.", points=["Une pastille sur la carte, avec le temps qu’il reste.", "Vos offres réunies sur une seule page.", "Modifiée depuis votre téléphone, sans rien réimprimer."]),
+            dict(image_first=False, screens=["roue", "panier"], kicker="Boostez vos ventes : la fidélité et les recommandations", title="Une raison de revenir, et le bon accord.", text="Le client laisse son numéro une fois : ses points se cumulent tout seuls, sans carte à tamponner. Dans le panier, le combo parfait propose ce qui va avec sa commande, et dit pourquoi.", points=["Un tour de roue offert chaque jour, pour donner envie de revenir.", "Vous choisissez les récompenses, sans alcool si vous préférez.", "Vos habitués deviennent une base que vous voyez enfin."]),
+        ],
+    },
+    "p4": {
+        "section": "Réduisez vos dépenses",
+        "cards": dict(kicker="Vos cartes de table", title="À votre image, jusque sur la table.", text=["On dessine vos QR dans votre charte, un par table, chacun lié à son numéro, et on vous les livre prêts à poser."], price=PRICE, small=SMALL),
+        "kicker": "Réduisez vos dépenses : l’espace de gestion",
+        "title": "Votre soirée, en direct.",
+        "lead": "C’est l’interface que vous utilisez au quotidien si vous travaillez avec nous. Elle se branche sur votre caisse, et sur vos imprimantes si besoin.",
+        "tablets": ["g-commandes", "g-carte", "g-fidelite", "g-planning"],
+        "features": [
+            ("Commandes", "À encaisser, à servir, l’historique. Un encaissement article par article."),
+            ("Carte", "Prix, photos, ruptures et happy hours, modifiés depuis votre téléphone."),
+            ("Fidélité", "Vos clients, leurs points et les résultats du programme en graphiques."),
+            ("Équipe", "Rôles, pointage, et un planning proposé d’après les commandes prévues."),
+        ],
+        "note": "Écrans de gestion : chiffres fictifs.",
+    },
+    "p5": {
+        "section": "Vos données",
+        "title": "3 %. Et tout ce que vous récupérez en échange.",
+        "lead": "Nous prenons 3 % sur les commandes payées en ligne, et rien sur le reste. Voici ce que ça change dans une vraie salle, et ce que dit la recherche.",
+        "stats": [
+            (ONLINE, "du chiffre d’affaires payé depuis la table, le dernier week-end relevé"),
+            (MULTI, "des tables commandent plus d’une fois dans la soirée"),
+            (CARD, "des commandes passées avec une carte de fidélité"),
+            (MEMBERS, f"clients inscrits à la fidélité, dont {RETURNING} déjà revenus un autre soir"),
+        ],
+        "research_title": "Ce que disent les études",
+        "research": [
+            TAN,
+            ("93 800", "projets de recrutement de serveurs de cafés et restaurants en 2026. Chaque heure rendue à l’équipe compte.", "France Travail, Besoins en main-d’œuvre 2026."),
+            HBR,
+        ],
+        "tablet": "g-analyses",
+        "aside": dict(kicker="Le prix", text="0 € d’abonnement. 3 % sur les commandes payées en ligne, rien sur le reste.", strong="Sans commande en ligne, vous ne nous devez rien.", small="Espèces et paiement au comptoir : 0 %. Frais de carte PSP en sus."),
+        "note": f"{RELEVE} Un seul établissement : ces chiffres ne garantissent pas les vôtres. Écran de gestion : chiffres fictifs.",
+    },
+    "p6": {
+        "section": "Vos données",
+        "title": "Moins d’intuition, de meilleures décisions.",
+        "lead": "Chaque commande devient une donnée : sur vos heures, vos équipes et votre carte. Chaque mois, on vous présente le rapport et ce qu’on en tire. Ces graphiques sont tirés du même établissement.",
+        "panels": [
+            dict(chart="heat", title="Calez l’équipe sur vos vraies heures de pointe", sub="Commandes payées par heure, en moyenne", read="À 23 h, un samedi fait six fois un mardi. Le planning peut le suivre."),
+            dict(chart="load", title="Voyez où le service décroche", sub="Attente médiane au comptoir (min:s), selon les commandes des 15 dernières minutes", read="Au-delà de 15 commandes en 15 minutes, l’attente décolle. Vous savez quand ajouter un renfort."),
+            dict(chart="mix", title="Voyez comment vos clients paient", sub="Part du chiffre d’affaires par moyen de paiement", read="Sans aucune obligation : chacun garde le choix de payer au comptoir."),
+        ],
+        "lever_title": "Ce que vous pilotez",
+        "lever": [
+            ("Équipe", "Heures de pointe, CA par heure, planning de la semaine proposé."),
+            ("Service", "Temps de préparation, attente, commandes annulées."),
+            ("Carte", "Boissons vedettes, marge par article, et celles à retravailler."),
+            ("Marge", "Coût matière et coût d’équipe face à vos objectifs."),
+            ("Clients", "Fidèles, retours, récompenses utilisées."),
+        ],
+        "strip": "g-analytique",
+        "note": f"Graphiques : {RELEVE[0].lower() + RELEVE[1:]} Écran de gestion : chiffres fictifs.",
+    },
+    "p7": {
+        "section": "Le comparatif",
+        "title": "0 € par mois. Vous payez quand ça marche.",
+        "lead": "Sans vente en ligne, vous ne nous devez rien. Chez Sunday, qui s’adresse aussi aux bars, l’offre complète coûte 199 € par mois, avant ses frais.",
+        "yearly": [("Vos frais fixes par an avec Ominin", "0 €"), ("L’abonnement Sunday Premium par an, frais en plus", "2 388 €")],
+        "them": "Sunday",
+        "rows": [
+            ("Abonnement", "<b>0 €</b> par mois", "29, 99 ou 199 € par mois"),
+            ("Commission", "<b>3 %</b> des commandes payées en ligne, affichés", "Fixée au bon de commande, absente de sa grille tarifaire"),
+            ("Commande depuis la table", "<b>Incluse</b>", "Option à 49 € par mois, incluse en Premium"),
+            ("Carte digitale", "<b>Incluse</b>, montée par nous à vos couleurs", "Option Menu AI à 25 € par mois, incluse en Premium"),
+            ("Fidélité", "<b>Incluse</b>, avec la roue du jour", "Option à 49 € par mois, incluse en Premium"),
+            ("Pourboires de l’équipe", "<b>0 %</b> de commission", "Une commission, au taux indiqué dans son application"),
+            ("Installation et QR", "<b>Comprise</b>, 1,50 € le QR", "Option à 49 € à Paris, 299 € ailleurs, 3 € le QR"),
+            ("Vos chiffres", "<b>Un rapport présenté chaque mois</b>, et ce qu’on en tire", "Pas d’équivalent dans sa grille tarifaire"),
+        ],
+        "claim": dict(title="Essayez-la comme un client.", text="Ne nous croyez pas sur parole. Scannez, et comparez avec ce que vous avez aujourd’hui.", url="menu.ominin.com/demo/le-novelty", qr="qr-demo"),
+        "note": "Sunday : sundayapp.com/fr/tarifs, conditions générales de service et conditions applicables aux serveurs, relevés le 01/11/2026. Ominin : frais de carte PSP en sus.",
+    },
+    "p8": {
+        "section": "Et maintenant",
+        "title": "On commence quand vous voulez.",
+        "steps": [
+            "<b>Envoyez-nous une photo de votre carte.</b> C’est votre seul travail.",
+            "<b>On monte votre carte et vos QR de table</b>, à vos couleurs.",
+            "<b>On est là à la première soirée</b>, et on forme votre équipe sur place.",
+        ],
+        "phone": "hero",
+        "scan": "Scannez : la carte de démonstration s’ouvre.",
+        "foot": FOOT,
+    },
+}
