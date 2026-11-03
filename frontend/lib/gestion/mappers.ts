@@ -4,6 +4,7 @@ import type { CategoryLayout, ItemCuisine, MenuCategory, MenuItem, OptionGroup }
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
   Affiche,
+  BulleEncaissement,
   Closure,
   Etablissement,
   Etape,
@@ -146,6 +147,20 @@ export function rowToMember(row: Tables<"memberships">): Member {
     email: row.email,
     role: row.role,
     displayName: row.display_name,
+  };
+}
+
+export function rowToBulleEncaissement(row: Tables<"bulle_encaissements">): BulleEncaissement {
+  return {
+    id: row.id!,
+    bulleName: row.bulle_name!,
+    name: row.name!,
+    places: row.places!,
+    amount: Number(row.amount),
+    mode: row.mode as BulleEncaissement["mode"],
+    paidAt: row.paid_at!,
+    refundedAt: row.refunded_at ?? undefined,
+    etat: row.etat as BulleEncaissement["etat"],
   };
 }
 

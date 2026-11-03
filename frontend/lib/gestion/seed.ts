@@ -312,6 +312,7 @@ export function seed(): GestionState {
     priceRules: [],
     affiches: [],
     closures: [],
+    bulleEncaissements: [],
     formules: [
       {
         id: crypto.randomUUID(),

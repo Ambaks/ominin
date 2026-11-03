@@ -4,6 +4,7 @@ import { useCallback, useState, type CSSProperties } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { describeError } from "@/lib/gestion/errors";
 import { EditPaymentDialog } from "@/components/gestion/paiements/edit-payment-dialog";
+import { BulleRow } from "@/components/gestion/paiements/bulle-row";
 import { CoinsIcon } from "@/components/gestion/paiements/icons";
 import { PaymentRow, paymentHeading } from "@/components/gestion/paiements/payment-row";
 import { StripeDashboardButton } from "@/components/gestion/paiements/stripe-dashboard-button";
@@ -32,13 +33,13 @@ import {
   isServiceToday,
   paidAt,
   orderTotal,
+  sameHourLastWeek,
   serviceDate,
   serviceDayKey,
   tipsByStaff,
-  totalsByMode,
 } from "@/lib/gestion/selectors";
-import { fetchPaidOrders, useGestion, useGestionAccess } from "@/lib/gestion/store";
-import type { Feature, GestionState, Order } from "@/lib/gestion/types";
+import { fetchPaiements, useGestion, useGestionAccess } from "@/lib/gestion/store";
+import type { Feature, GestionState, Order, Paiement } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 import { usePagedList } from "@/lib/use-paged-list";
 
@@ -53,36 +54,49 @@ type ModeFilter = (typeof MODE_FILTERS)[number]["value"];
 
 /** Le filtre suit les jambes : une addition partagée se retrouve sous Espèces
  *  comme sous Carte, sans avoir à traiter le mixte à part. */
-function matchesMode(order: Order, filter: ModeFilter): boolean {
-  return order.payments.some((leg) => leg.mode === filter);
+function matchesMode(paiement: Paiement, filter: ModeFilter): boolean {
+  return paiement.kind === "commande"
+    ? paiement.order.payments.some((leg) => leg.mode === filter)
+    : paiement.part.mode === filter;
 }
 
-const orderId = (order: Order) => order.id;
+const paiementId = (paiement: Paiement) =>
+  paiement.kind === "commande" ? paiement.order.id : paiement.part.id;
 
-function dedupeById(orders: Order[]): Order[] {
-  const byId = new Map<string, Order>();
-  for (const order of orders) byId.set(order.id, order);
+const paiementAt = (paiement: Paiement) =>
+  paiement.kind === "commande" ? paidAt(paiement.order) : paiement.part.paidAt;
+
+/** Compté dans l'encaissé : une commande remboursée ou une place rendue n'y est pas. */
+const counted = (paiement: Paiement) =>
+  paiement.kind === "commande" ? isPaid(paiement.order) : paiement.part.etat === "encaissee";
+
+const amountOf = (paiement: Paiement) =>
+  paiement.kind === "commande" ? orderTotal(paiement.order) : paiement.part.amount;
+
+function dedupeById(paiements: Paiement[]): Paiement[] {
+  const byId = new Map<string, Paiement>();
+  for (const paiement of paiements) byId.set(paiementId(paiement), paiement);
   return [...byId.values()];
 }
 
 interface DayGroup {
   key: string;
   label: string;
-  orders: Order[];
+  paiements: Paiement[];
   /** Paiements et montant encaissé : une commande remboursée n'y compte pas. */
   count: number;
   total: number;
 }
 
-function groupByDay(orders: Order[], dayEndHour: number): DayGroup[] {
+function groupByDay(paiements: Paiement[], dayEndHour: number): DayGroup[] {
   const days: DayGroup[] = [];
   const index = new Map<string, DayGroup>();
-  for (const order of orders) {
-    const date = serviceDate(new Date(paidAt(order)), dayEndHour);
-    const key = serviceDayKey(paidAt(order), dayEndHour);
+  for (const paiement of paiements) {
+    const at = paiementAt(paiement);
+    const key = serviceDayKey(at, dayEndHour);
     let day = index.get(key);
     if (!day) {
-      const label = date.toLocaleDateString("fr-FR", {
+      const label = serviceDate(new Date(at), dayEndHour).toLocaleDateString("fr-FR", {
         weekday: "long",
         day: "numeric",
         month: "long",
@@ -90,17 +104,17 @@ function groupByDay(orders: Order[], dayEndHour: number): DayGroup[] {
       day = {
         key,
         label: label.charAt(0).toUpperCase() + label.slice(1),
-        orders: [],
+        paiements: [],
         count: 0,
         total: 0,
       };
       index.set(key, day);
       days.push(day);
     }
-    day.orders.push(order);
-    if (isPaid(order)) {
+    day.paiements.push(paiement);
+    if (counted(paiement)) {
       day.count += 1;
-      day.total += orderTotal(order);
+      day.total += amountOf(paiement);
     }
   }
   return days;
@@ -183,30 +197,37 @@ function PaiementsContent({
   const [voiding, setVoiding] = useState<Order | null>(null);
   const fetchPage = useCallback(
     (_search: string, limit: number, offset: number) =>
-      fetchPaidOrders(filter === "tous" ? null : filter, limit, offset),
+      fetchPaiements(filter === "tous" ? null : filter, limit, offset),
     [filter]
   );
-  const history = usePagedList({ fetchPage, rowId: orderId });
+  const history = usePagedList({ fetchPage, rowId: paiementId });
 
   // L'état, tenu en direct, reste la source des KPI et des totaux par jour : il
   // couvre la fenêtre chargée au démarrage sans une requête de plus.
-  const paidInState = state.orders
-    .filter((order) => isPaid(order) || isCancelledPaid(order))
-    .filter((order) => filter === "tous" || matchesMode(order, filter));
+  const listed: Paiement[] = [
+    ...state.orders
+      .filter((order) => isPaid(order) || isCancelledPaid(order))
+      .map((order) => ({ kind: "commande" as const, order })),
+    ...state.bulleEncaissements.map((part) => ({ kind: "bulle" as const, part })),
+  ];
+  const paidInState = listed.filter((paiement) => filter === "tous" || matchesMode(paiement, filter));
   const oldestPage = history.rows.reduce(
-    (oldest, order) => (paidAt(order) < oldest ? paidAt(order) : oldest),
+    (oldest, paiement) => (paiementAt(paiement) < oldest ? paiementAt(paiement) : oldest),
     "9999"
   );
   const allLoaded = history.total !== null && history.rows.length >= history.total;
   const merged = dedupeById([
     ...history.rows,
     // La version en direct prime, et un encaissement arrive sans recharger.
-    ...paidInState.filter((order) => allLoaded || paidAt(order) >= oldestPage),
+    ...paidInState.filter((paiement) => allLoaded || paiementAt(paiement) >= oldestPage),
   ]);
   // Filtré après fusion : une commande annulée sous nos yeux quitte la liste.
   const visible = merged
-    .filter((order) => isPaid(order) || isCancelledPaid(order))
-    .sort((a, b) => paidAt(b).localeCompare(paidAt(a)));
+    .filter(
+      (paiement) =>
+        paiement.kind === "bulle" || isPaid(paiement.order) || isCancelledPaid(paiement.order)
+    )
+    .sort((a, b) => paiementAt(b).localeCompare(paiementAt(a)));
   // Le compte et le total d'un jour portent sur tout ce qui est connu de ce jour.
   const wholeDays = new Map(
     groupByDay(
@@ -218,45 +239,25 @@ function PaiementsContent({
     ...day,
     whole: wholeDays.get(day.key) ?? day,
   }));
-  const listed = state.orders.filter((order) => isPaid(order) || isCancelledPaid(order));
 
   const todayPaid = listed.filter(
-    (order) => isPaid(order) && isServiceToday(paidAt(order), state.dayEndHour)
+    (paiement) => counted(paiement) && isServiceToday(paiementAt(paiement), state.dayEndHour)
   );
-  const todayTotal = todayPaid.reduce((sum, o) => sum + orderTotal(o), 0);
-  const todayByMode = todayPaid.reduce(
-    (sums, order) => {
-      const modes = totalsByMode(order);
-      return {
-        especes: sums.especes + modes.especes,
-        carte: sums.carte + modes.carte,
-        en_ligne: sums.en_ligne + modes.en_ligne,
-        caisse: sums.caisse + modes.caisse,
-      };
-    },
-    { especes: 0, carte: 0, en_ligne: 0, caisse: 0 }
-  );
+  const todayOrders = todayPaid.flatMap((paiement) => (paiement.kind === "commande" ? [paiement.order] : []));
+  const todayTotal = todayPaid.reduce((sum, paiement) => sum + amountOf(paiement), 0);
+  // Une commande pose une jambe par mode (deux quand l'addition est partagée), une place une seule.
+  const todayByMode = { especes: 0, carte: 0, en_ligne: 0, caisse: 0 };
+  for (const paiement of todayPaid) {
+    const legs = paiement.kind === "commande" ? paiement.order.payments : [paiement.part];
+    for (const leg of legs) todayByMode[leg.mode] += leg.amount;
+  }
   // Le même jour de service, il y a sept jours, jusqu'à la même heure : la
   // fenêtre chargée au démarrage (ANALYTICS_PERIOD_DAYS) le contient.
-  const now = new Date();
-  const lastWeekAt = new Date(now);
-  lastWeekAt.setDate(lastWeekAt.getDate() - 7);
-  const lastWeekKey = serviceDayKey(lastWeekAt.toISOString(), state.dayEndHour);
-  const lastWeekUntil = lastWeekAt.toISOString();
-  const lastWeekPaid = state.orders.filter(
-    (order) =>
-      isPaid(order) &&
-      paidAt(order) <= lastWeekUntil &&
-      serviceDayKey(paidAt(order), state.dayEndHour) === lastWeekKey
-  );
-  const lastWeek = {
-    total: lastWeekPaid.reduce((sum, order) => sum + orderTotal(order), 0),
-    payments: lastWeekPaid.length,
-  };
-  const weekday = serviceDate(now, state.dayEndHour).toLocaleDateString("fr-FR", { weekday: "long" });
+  const lastWeek = sameHourLastWeek(state);
+  const weekday = serviceDate(new Date(), state.dayEndHour).toLocaleDateString("fr-FR", { weekday: "long" });
   const todayRef = todayBaseline(todayTotal, lastWeek, weekday);
-  const todayTips = todayPaid.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
-  const tipShares = tipsByStaff(todayPaid, state.staff);
+  const todayTips = todayOrders.reduce((sum, o) => sum + (o.tipAmount ?? 0), 0);
+  const tipShares = tipsByStaff(todayOrders, state.staff);
   const tipItems = tipShares.map(({ staff, tip }) => ({
     label: staff.name,
     value: formatPrice(tip),
@@ -389,21 +390,25 @@ function PaiementsContent({
                   <span className="shrink-0 text-g-meta text-muted tabular-nums">
                     {day.whole.count > 0
                       ? `${plural(day.whole.count, "paiement")} · ${formatPrice(day.whole.total)}`
-                      : plural(day.whole.orders.length, "remboursée")}
+                      : plural(day.whole.paiements.length, "remboursée")}
                   </span>
                 }
               />
               <Plate>
                 <ul role="list" className="m-0 list-none p-0">
-                  {day.orders.map((order) => (
-                    <PaymentRow
-                      key={order.id}
-                      order={order}
-                      state={state}
-                      onEdit={() => setEditing(order)}
-                      onVoid={() => setVoiding(order)}
-                    />
-                  ))}
+                  {day.paiements.map((paiement) =>
+                    paiement.kind === "commande" ? (
+                      <PaymentRow
+                        key={paiement.order.id}
+                        order={paiement.order}
+                        state={state}
+                        onEdit={() => setEditing(paiement.order)}
+                        onVoid={() => setVoiding(paiement.order)}
+                      />
+                    ) : (
+                      <BulleRow key={paiement.part.id} part={paiement.part} />
+                    )
+                  )}
                 </ul>
               </Plate>
             </section>

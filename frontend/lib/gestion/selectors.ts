@@ -8,6 +8,7 @@ import {
 } from "./constants";
 import type {
   ActiveProducts,
+  BulleEncaissement,
   GestionState,
   Order,
   OrderItem,
@@ -444,14 +445,46 @@ export function isServiceToday(iso: string, dayEndHour: number): boolean {
   );
 }
 
+/**
+ * Les parts de bulle encaissées : elles entrent dans l'encaissé au jour de
+ * leur paiement, sans compter parmi les commandes ni dans le panier moyen.
+ */
+export function bullesEncaissees(state: GestionState): BulleEncaissement[] {
+  return state.bulleEncaissements.filter((part) => part.etat === "encaissee");
+}
+
+/** Un encaissement daté : une commande payée ou une part de bulle encaissée. */
+interface Sale {
+  at: string;
+  amount: number;
+  order: boolean;
+}
+
+function sales(state: GestionState): Sale[] {
+  return [
+    ...state.orders
+      .filter(isPaid)
+      .map((order) => ({ at: paidAt(order), amount: orderTotal(order), order: true })),
+    ...bullesEncaissees(state).map((part) => ({ at: part.paidAt, amount: part.amount, order: false })),
+  ];
+}
+
 export function revenueToday(state: GestionState): number {
-  return state.orders
-    .filter(
-      (order) =>
-        isPaid(order) &&
-        isServiceToday(paidAt(order), state.dayEndHour)
-    )
-    .reduce((sum, order) => sum + orderTotal(order), 0);
+  return sales(state)
+    .filter((sale) => isServiceToday(sale.at, state.dayEndHour))
+    .reduce((sum, sale) => sum + sale.amount, 0);
+}
+
+/** Ce qu'on avait encaissé le même jour la semaine dernière, à cette heure-ci. */
+export function sameHourLastWeek(state: GestionState): { total: number; payments: number } {
+  const at = new Date();
+  at.setDate(at.getDate() - 7);
+  const day = serviceDayKey(at.toISOString(), state.dayEndHour);
+  const until = at.toISOString();
+  const paid = sales(state).filter(
+    (sale) => serviceDayKey(sale.at, state.dayEndHour) === day && sale.at <= until
+  );
+  return { total: paid.reduce((sum, sale) => sum + sale.amount, 0), payments: paid.length };
 }
 
 /** Début du jour de service (heure de bascule), il y a `daysAgo` jours. */
@@ -518,13 +551,12 @@ export function serviceMinute(date: Date, dayEndHour: number): number {
 /** Le CA encaissé d'une journée de service, cumulé vente après vente. */
 export function salesCurve(state: GestionState, daysAgo: number): SalesCurvePoint[] {
   const day = dayStart(daysAgo, state.dayEndHour).toDateString();
-  const sales = state.orders
-    .filter((order) => isPaid(order) && serviceDayKey(paidAt(order), state.dayEndHour) === day)
-    .map((order) => ({ at: paidAt(order), total: orderTotal(order) }))
+  const ofDay = sales(state)
+    .filter((sale) => serviceDayKey(sale.at, state.dayEndHour) === day)
     .sort((a, b) => a.at.localeCompare(b.at));
   let revenue = 0;
-  return sales.map(({ at, total }) => {
-    revenue += total;
+  return ofDay.map(({ at, amount }) => {
+    revenue += amount;
     return { minute: serviceMinute(new Date(at), state.dayEndHour), revenue };
   });
 }
@@ -536,11 +568,19 @@ export interface DayPoint {
   day: number;
   /** Date complète pour l'infobulle ("lundi 8 juillet"). */
   full: string;
+  /** Tout l'encaissé, places de bulle comprises. */
   revenue: number;
+  /** Commandes payées : les places de bulle n'en sont pas. */
   orders: number;
+  /** La part des places de bulle dans revenue. */
+  bulles: number;
 }
 
-/** CA encaissé (commandes payées) par jour de service, du plus ancien à aujourd'hui. */
+/** Panier moyen : ce que les commandes ont rapporté, places de bulle exclues. */
+export function avgTicket(point: { revenue: number; orders: number; bulles: number }): number {
+  return point.orders > 0 ? (point.revenue - point.bulles) / point.orders : 0;
+}
+
 /** La case vide d'un jour : ses libellés, rien de vendu. */
 export function emptyDayPoint(date: Date): DayPoint {
   return {
@@ -549,9 +589,11 @@ export function emptyDayPoint(date: Date): DayPoint {
     full: date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" }),
     revenue: 0,
     orders: 0,
+    bulles: 0,
   };
 }
 
+/** CA encaissé par jour de service, du plus ancien à aujourd'hui. */
 export function revenueByDay(state: GestionState, days: number): DayPoint[] {
   const buckets: DayPoint[] = [];
   const index = new Map<string, DayPoint>();
@@ -561,12 +603,12 @@ export function revenueByDay(state: GestionState, days: number): DayPoint[] {
     buckets.push(point);
     index.set(date.toDateString(), point);
   }
-  for (const order of state.orders) {
-    if (!isPaid(order)) continue;
-    const point = index.get(serviceDayKey(paidAt(order), state.dayEndHour));
+  for (const sale of sales(state)) {
+    const point = index.get(serviceDayKey(sale.at, state.dayEndHour));
     if (!point) continue;
-    point.revenue += orderTotal(order);
-    point.orders += 1;
+    point.revenue += sale.amount;
+    if (sale.order) point.orders += 1;
+    else point.bulles += sale.amount;
   }
   return buckets;
 }
@@ -575,17 +617,16 @@ export function revenueByDay(state: GestionState, days: number): DayPoint[] {
 export function periodStats(
   state: GestionState,
   days: number
-): { revenue: number; orders: number; avgTicket: number } {
+): { revenue: number; orders: number; bulles: number; avgTicket: number } {
   const from = dayStart(days - 1, state.dayEndHour).getTime();
-  const paid = state.orders.filter(
-    (order) => isPaid(order) && new Date(paidAt(order)).getTime() >= from
-  );
-  const revenue = paid.reduce((sum, order) => sum + orderTotal(order), 0);
-  return {
-    revenue,
-    orders: paid.length,
-    avgTicket: paid.length ? revenue / paid.length : 0,
-  };
+  const totals = { revenue: 0, orders: 0, bulles: 0 };
+  for (const sale of sales(state)) {
+    if (new Date(sale.at).getTime() < from) continue;
+    totals.revenue += sale.amount;
+    if (sale.order) totals.orders += 1;
+    else totals.bulles += sale.amount;
+  }
+  return { ...totals, avgTicket: avgTicket(totals) };
 }
 
 /** Pourboires laissés sur la période (en ligne comme au comptoir). */

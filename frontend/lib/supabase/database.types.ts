@@ -7357,6 +7357,22 @@ export type Database = {
       }
     }
     Views: {
+      bulle_encaissements: {
+        Row: {
+          amount: number | null
+          bulle_name: string | null
+          etablissement_id: string | null
+          etat: string | null
+          id: string | null
+          mode: string | null
+          name: string | null
+          paid_at: string | null
+          places: number | null
+          refunded_at: string | null
+          reservation_id: string | null
+        }
+        Relationships: []
+      }
       shop_customer_stats: {
         Row: {
           email: string | null
@@ -7504,7 +7520,16 @@ export type Database = {
           p_from: string
           p_to: string
         }
-        Returns: { day: string; orders: number; revenue: number }[]
+        Returns: { bulles: number; day: string; orders: number; revenue: number }[]
+      }
+      gestion_paiements: {
+        Args: {
+          p_etablissement_id: string
+          p_limit: number
+          p_mode: string | null
+          p_offset: number
+        }
+        Returns: Json
       }
       admin_combo_parfait: {
         Args: {
