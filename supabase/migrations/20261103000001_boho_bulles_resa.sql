@@ -480,9 +480,9 @@ grant execute on function public.bulle_marquer_arrivee(uuid, boolean, public.bul
 -- ---------------------------------------------------------------------------
 -- Le QR de la table d'une bulle
 
--- La réservation concerne-t-elle ceux qui sont à la table ? Le groupe est
--- arrivé, ou son créneau commence dans moins d'un créneau. Plus loin, la bulle
--- n'est pas la leur : personne ne doit payer une réservation d'un autre soir.
+-- La réservation concerne-t-elle ceux qui sont à la table ? Son créneau a
+-- commencé, ou l'accueil a coché l'arrivée. Avant, la bulle n'est pas encore
+-- la leur : la table se lit comme non réservée.
 create function public.bulle_table_proche(p_reservation public.bulle_reservations)
 returns boolean
 language sql
@@ -492,10 +492,7 @@ set search_path = public
 as $$
   select p_reservation.id is not null and (
     p_reservation.status = 'arrivee'
-    or p_reservation.starts_at <= now() + (
-      select make_interval(mins => g.duration_minutes) from bulle_reglages g
-      where g.etablissement_id = p_reservation.etablissement_id
-    )
+    or p_reservation.starts_at <= now()
   );
 $$;
 
