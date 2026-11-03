@@ -116,7 +116,7 @@ export function SignaturePad({
 }
 
 /** Relecture d'une signature : toujours sur son fond blanc d'origine. */
-export function SignatureThumb({
+export function SignatureImage({
   signature,
   label,
 }: {
@@ -128,7 +128,8 @@ export function SignatureThumb({
     <img
       src={signature}
       alt={label}
-      className="h-10 w-28 rounded border border-hairline bg-white object-contain"
+      className="w-full rounded-g-card border border-hairline bg-white object-contain"
+      style={{ aspectRatio: `${WIDTH} / ${HEIGHT}` }}
     />
   );
 }

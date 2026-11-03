@@ -9186,7 +9186,7 @@ export type Database = {
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte" | "caisse"
       payment_provider: "stripe" | "sumup" | "square" | "demo"
-      price_rule_direction: "majoration" | "remise"
+      price_rule_direction: "majoration" | "remise" | "prix_fixe"
       price_rule_unit: "montant" | "pourcentage"
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
@@ -9503,7 +9503,7 @@ export const Constants = {
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte", "caisse"],
       payment_provider: ["stripe", "sumup", "square", "demo"],
-      price_rule_direction: ["majoration", "remise"],
+      price_rule_direction: ["majoration", "remise", "prix_fixe"],
       price_rule_unit: ["montant", "pourcentage"],
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],

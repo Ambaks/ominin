@@ -20,13 +20,42 @@ import {
   type TimeEntry,
 } from "@/lib/gestion/temps";
 import type { Staff } from "@/lib/gestion/types";
-import { SignatureThumb } from "./signature-pad";
+import { SignatureImage } from "./signature-pad";
 
 /*
  * Les badgeages de la semaine, tels que le gérant doit pouvoir les relire :
- * jour par jour, avec les signatures, et corrigeables — un départ oublié se
- * répare ici, jamais en silence (la ligne garde la trace de la correction).
+ * jour par jour, les signatures à portée d'un bouton, et corrigeables — un
+ * départ oublié se répare ici, jamais en silence (la ligne garde la trace de la
+ * correction).
  */
+
+function SignaturesSheet({ entry, onClose }: { entry: TimeEntry; onClose: () => void }) {
+  return (
+    <Sheet title={`Signatures — ${entry.memberName}`} onClose={onClose}>
+      <div className="flex flex-col gap-5">
+        <section className="flex flex-col gap-2">
+          <h3 className="text-g-label font-semibold">
+            Arrivée · <span className="tabular-nums">{formatTime(entry.startedAt)}</span>
+          </h3>
+          <SignatureImage signature={entry.signatureIn} label={`Signature d'arrivée de ${entry.memberName}`} />
+        </section>
+        <section className="flex flex-col gap-2">
+          <h3 className="text-g-label font-semibold">
+            Départ{entry.endedAt && " · "}
+            {entry.endedAt && <span className="tabular-nums">{formatTime(entry.endedAt)}</span>}
+          </h3>
+          {entry.signatureOut ? (
+            <SignatureImage signature={entry.signatureOut} label={`Signature de départ de ${entry.memberName}`} />
+          ) : (
+            <p className="text-g-label text-muted">
+              {entry.endedAt ? "Départ non signé." : "Encore en service."}
+            </p>
+          )}
+        </section>
+      </div>
+    </Sheet>
+  );
+}
 
 /** Saisie « datetime-local » à partir d'un instant, en heure locale. */
 function localInput(iso: string): string {
@@ -133,6 +162,7 @@ export function BadgeagesLog({
   const toast = useToast();
   const [correcting, setCorrecting] = useState<TimeEntry | null>(null);
   const [removing, setRemoving] = useState<TimeEntry | null>(null);
+  const [reading, setReading] = useState<TimeEntry | null>(null);
   const now = new Date();
   const days = weekDays(start).filter((day) => day <= now || entries.some((e) => sameDay(e.startedAt, day)));
 
@@ -193,9 +223,9 @@ export function BadgeagesLog({
               {dayEntries.map((entry) => (
                 <div
                   key={entry.id}
-                  className="flex flex-wrap items-center gap-x-4 gap-y-3 py-3"
+                  className="flex flex-col gap-3 py-4 lg:flex-row lg:items-center lg:gap-4 lg:py-3"
                 >
-                  <div className="min-w-0 flex-1">
+                  <div className="min-w-0 lg:flex-1">
                     <p className="truncate text-g-label font-semibold">{entry.memberName}</p>
                     <p className="text-g-meta tabular-nums text-muted">
                       {formatTime(entry.startedAt)} –{" "}
@@ -209,20 +239,19 @@ export function BadgeagesLog({
                       )}
                       {entry.editedAt && " · corrigé"}
                     </p>
+                    <p className="mt-1 flex flex-wrap gap-x-3 text-g-meta">
+                      <span>Arrivée signée ✓</span>
+                      {entry.signatureOut ? (
+                        <span>Départ signé ✓</span>
+                      ) : (
+                        entry.endedAt && <span className="text-muted">Départ non signé</span>
+                      )}
+                    </p>
                   </div>
-                  <div className="flex shrink-0 items-center gap-2">
-                    <SignatureThumb
-                      signature={entry.signatureIn}
-                      label={`Signature d'arrivée de ${entry.memberName}`}
-                    />
-                    {entry.signatureOut && (
-                      <SignatureThumb
-                        signature={entry.signatureOut}
-                        label={`Signature de départ de ${entry.memberName}`}
-                      />
-                    )}
-                  </div>
-                  <div className="flex shrink-0 items-center gap-2">
+                  <div className="grid grid-cols-2 gap-2 lg:flex lg:shrink-0 lg:items-center">
+                    <GlassButton className="col-span-2" onClick={() => setReading(entry)}>
+                      Voir les signatures
+                    </GlassButton>
                     <GlassButton onClick={() => setCorrecting(entry)}>Corriger</GlassButton>
                     <GlassButton variant="danger" onClick={() => setRemoving(entry)}>
                       Supprimer
@@ -235,6 +264,7 @@ export function BadgeagesLog({
         );
       })}
 
+      {reading && <SignaturesSheet entry={reading} onClose={() => setReading(null)} />}
       {correcting && (
         <CorrectionModal
           entry={correcting}

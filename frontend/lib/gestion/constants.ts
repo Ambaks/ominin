@@ -102,6 +102,10 @@ export const DEFAULT_DAY_END_HOUR = 0;
 export const LIST_PAGE_SIZES = [10, 25] as const;
 /** Recherche côté base : le temps de finir de taper avant d'interroger. */
 export const LIST_SEARCH_DEBOUNCE_MS = 250;
+/** Tarifs planifiés : articles montrés dans l'aperçu du formulaire ; au-delà, « + N autres ». */
+export const TARIF_PREVIEW_LINES = 3;
+/** Rapport d'heures : lignes relues par requête (le plafond de PostgREST), jusqu'à tout avoir. */
+export const HOURS_REPORT_READ_ROWS = 1000;
 
 /** Onglet Terminaux : cadence de relecture de l'état des appareils et imprimantes. */
 export const TERMINAUX_REFRESH_MS = 5000;
