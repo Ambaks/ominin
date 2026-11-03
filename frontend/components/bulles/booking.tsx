@@ -9,6 +9,7 @@ import {
   bulleConfirmPlaces,
   bullePlaceCents,
   bullePlacesFacturees,
+  formatBulleNight,
   formatBulleTarifs,
   formatDuration,
   formatSoloPrice,
@@ -264,7 +265,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
   if (step === "paiement" && part && choice && chosenBulle) {
     return (
       <div className="bo-stack-sm">
-        <Recap bulle={chosenBulle} choice={choice} party={party} date={date} />
+        <Recap bulle={chosenBulle} choice={choice} party={party} dayEndHour={offer.dayEndHour} />
         <BullePayment
           partId={part.partId}
           amountCents={part.amountCents}
@@ -288,7 +289,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
           void reserve();
         }}
       >
-        <Recap bulle={chosenBulle} choice={choice} party={party} date={date} />
+        <Recap bulle={chosenBulle} choice={choice} party={party} dayEndHour={offer.dayEndHour} />
         <section className="bo-panel bo-stack-sm" aria-labelledby="bo-infos-title">
           <h2 id="bo-infos-title" className="bo-h3">
             Vos coordonnées
@@ -481,18 +482,18 @@ function Recap({
   bulle,
   choice,
   party,
-  date,
+  dayEndHour,
 }: {
   bulle: { name: string; color: string };
   choice: { startsAt: string; endsAt: string };
   party: number;
-  date: string | null;
+  dayEndHour: number;
 }) {
   return (
     <div className="bo-recap" style={{ "--orb": bulle.color } as CSSProperties}>
       <span className="bo-orb bo-recap-orb" aria-hidden />
       <div>
-        <p className="bo-eyebrow">{date ? DAY_LONG.format(asUtc(date)) : ""}</p>
+        <p className="bo-eyebrow">{formatBulleNight(choice.startsAt, dayEndHour)}</p>
         <p className="bo-recap-title">{bulle.name}</p>
         <p className="bo-recap-detail">
           {formatHours(choice.startsAt, choice.endsAt)} · {party} personne{party > 1 ? "s" : ""}
