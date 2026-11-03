@@ -345,7 +345,7 @@ function shared(names: string[]): string {
  * `format` y coche d'avance ce format (l'offre de happy hour : le 50 cl).
  */
 export function AddToOrder({ item, format }: { item: MenuItem; format?: string }) {
-  const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, collect } =
+  const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, closedLabel, collect } =
     useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const [added, setAdded] = useState(false);
@@ -377,7 +377,7 @@ export function AddToOrder({ item, format }: { item: MenuItem; format?: string }
           isUnavailable(item) ? "text-faint" : "text-muted"
         }`}
       >
-        {isUnavailable(item) ? "Indisponible" : "Plus servi"}
+        {isUnavailable(item) ? "Indisponible" : closedLabel(item.id)}
       </span>
     );
   }
@@ -420,8 +420,8 @@ export function AddToOrder({ item, format }: { item: MenuItem; format?: string }
       {collect && closed.has(item.id) && (
         <span className="mr-3 self-center text-xs text-muted">
           {closedAt
-            ? "Plus servi à l’heure choisie"
-            : "Plus servi maintenant · possible pour un retrait plus tard"}
+            ? `${closedLabel(item.id)} à l’heure choisie`
+            : `${closedLabel(item.id)} maintenant · possible pour un retrait plus tard`}
         </span>
       )}
       <button

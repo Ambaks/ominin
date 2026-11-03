@@ -1,4 +1,5 @@
 import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
+import type { ItemCuisine } from "@/lib/menu-data";
 import type {
   AccordSource,
   Action,
@@ -638,6 +639,13 @@ export const ACTION_LABELS: Record<Action, string> = {
   "fermetures.basculer": "Fermer ou rouvrir la cuisine",
   "soirees.edit": "Préparer les soirées, saisir et rembourser les tables",
 };
+
+/** Le marqueur d'un article, dans sa fiche et sur sa catégorie. */
+export const CUISINE_OPTIONS: { value: ItemCuisine | ""; label: string }[] = [
+  { value: "", label: "Hors cuisine" },
+  { value: "chaud", label: "Chaud" },
+  { value: "froid", label: "Froid" },
+];
 
 /** Fonctionnalité conditionnant un droit (absente ⇒ incluse dans toute offre). */
 export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {

@@ -97,6 +97,8 @@ export async function fetchRestaurant(slug: string): Promise<{
    * menu les filtre d'après l'état relu (components/menu/formules.tsx).
    */
   closedItems: string[];
+  /** Ceux d'entre eux que le bouton « Fermeture cuisine » coupe. */
+  kitchenClosedItems: string[];
   /** L'accord du chef, par id de plat ; absent ⇒ le restaurant n'en propose pas. */
   pairings: Record<string, Pairing[]> | undefined;
   /** Les formules que l'accord du chef propose de compléter ; absent avec lui. */
@@ -127,7 +129,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   // Tarifs planifiés en cours. Un second aller-retour, mais la page est mise
   // en cache : c'est la revalidation qui le paie, pas le scan du client. Le
   // prix affiché est ainsi celui que place_order figera sur la commande.
-  const [tarifs, closedItems] = await Promise.all([
+  const [tarifs, closedNow] = await Promise.all([
     fetchActiveTarifs(supabase, etablissement.id),
     fetchClosedItems(supabase, etablissement.id),
   ]);
@@ -246,7 +248,8 @@ export async function fetchRestaurant(slug: string): Promise<{
       etablissement.online_min_order === null
         ? null
         : Number(etablissement.online_min_order),
-    closedItems,
+    closedItems: closedNow.closed,
+    kitchenClosedItems: closedNow.kitchen,
     paymentProvider: etablissement.payment_provider ?? "stripe",
     squareLocationId: etablissement.square_location_id ?? null,
     qrMenu: features?.qr !== false,

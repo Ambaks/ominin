@@ -23,6 +23,7 @@ import {
   type CartChoice,
   type FormuleSelection,
 } from "@/lib/menu/cart";
+import { KITCHEN_CLOSED_LABEL } from "@/lib/menu/fermetures";
 import { FORMULES_LINK, formatPrice } from "@/lib/menu/format";
 import { scrollBehavior } from "@/lib/menu/scroll";
 import type { AfficheMenu, OptionGroup } from "@/lib/menu-data";
@@ -64,6 +65,17 @@ export function openFormule(
 function useServable(): (formule: Formule) => Formule | null {
   const { closed, collect } = useCart();
   return (formule) => (collect ? formule : openFormule(formule, closed));
+}
+
+/** Le mot d'une formule coupée : la cuisine, si le bouton en coupe un plat. */
+function useFormuleClosedLabel(): (formule: Formule) => string {
+  const { kitchenClosed } = useCart();
+  return (formule) =>
+    formule.etapes.some((etape) =>
+      etape.articles.some((article) => article.itemId && kitchenClosed.has(article.itemId))
+    )
+      ? KITCHEN_CLOSED_LABEL
+      : "Plus servie";
 }
 
 function optionsSupplement(article: Article, chosen: Record<string, string[]>) {
@@ -592,6 +604,7 @@ function AffichesTrack({
 function AffichesMarquee({ affiches }: { affiches: AfficheMenu[] }) {
   const [open, setOpen] = useState<Formule | null>(null);
   const servable = useServable();
+  const closedLabel = useFormuleClosedLabel();
   const formules = affiches.flatMap((affiche) => affiche.formules);
 
   return (
@@ -614,7 +627,7 @@ function AffichesMarquee({ affiches }: { affiches: AfficheMenu[] }) {
               key={formule.id}
               className="min-w-[45%] flex-1 rounded-full border border-hairline px-3 py-2.5 text-center text-xs font-semibold text-faint"
             >
-              {formule.name} · Plus servie
+              {formule.name} · {closedLabel(formule)}
             </span>
           );
         })}
@@ -689,6 +702,7 @@ export function FormuleTile({
   note?: string;
   className?: string;
 }) {
+  const closedLabel = useFormuleClosedLabel();
   const { lines } = useCart();
   const tint = index % 2 === 0 ? "from-ember-1/25" : "from-ember-3/25";
   const descriptionId = useId();
@@ -709,7 +723,7 @@ export function FormuleTile({
         event.currentTarget.focus({ preventScroll: true });
         onOpen(event.currentTarget);
       }}
-      aria-label={`${closed ? "Plus servie" : "Composer"} : ${formule.name}, ${formatPrice(formule.price)}${
+      aria-label={`${closed ? closedLabel(formule) : "Composer"} : ${formule.name}, ${formatPrice(formule.price)}${
         inCart > 0 ? `, ${inCart} au panier` : ""
       }`}
       aria-describedby={formule.description ? `${descriptionId} ${etapesId}` : etapesId}
@@ -771,7 +785,7 @@ export function FormuleTile({
           </span>
         </span>
         <span className="formule-action inline-flex items-center gap-1 text-xs font-semibold text-muted">
-          {closed ? "Plus servie" : <>Composer <span aria-hidden>→</span></>}
+          {closed ? closedLabel(formule) : <>Composer <span aria-hidden>→</span></>}
           {inCart > 0 && (
             <span
               aria-hidden
@@ -883,6 +897,7 @@ export function FormuleTiles({
 }) {
   const servable = useServable();
   const { closed, closedAt, collect } = useCart();
+  const closedLabel = useFormuleClosedLabel();
   const [open, setOpen] = useState<Formule | null>(null);
   const opener = useRef<HTMLButtonElement | null>(null);
   const added = useRef(false);
@@ -904,8 +919,8 @@ export function FormuleTiles({
               note={
                 collect && openFormule(formule, closed) === null
                   ? closedAt
-                    ? "Plus servie à l’heure choisie"
-                    : "Plus servie maintenant · possible pour un retrait plus tard"
+                    ? `${closedLabel(formule)} à l’heure choisie`
+                    : `${closedLabel(formule)} maintenant · possible pour un retrait plus tard`
                   : undefined
               }
               onOpen={(tile) => {

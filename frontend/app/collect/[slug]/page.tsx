@@ -82,6 +82,7 @@ export default async function CollectPage({
     onlinePayment,
     onlineMinOrder,
     closedItems,
+    kitchenClosedItems,
     paymentProvider,
     squareLocationId,
     loyalty,
@@ -115,6 +116,7 @@ export default async function CollectPage({
         onlineMinOrder,
         etablissementId: id,
         closedItems,
+        kitchenClosedItems,
         collect: { hours: openingHours, slotMinutes: collectSlotMinutes },
       }}
       restaurant={restaurant}

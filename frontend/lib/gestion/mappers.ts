@@ -1,6 +1,6 @@
 import type { OpeningHours } from "@/lib/collect/hours";
 import { byWindowOrder } from "./fermetures";
-import type { CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import type { CategoryLayout, ItemCuisine, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
   Affiche,
@@ -69,6 +69,7 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     pairing: row.pairing ?? undefined,
     detail: row.detail ?? undefined,
     printName: row.print_name ?? undefined,
+    cuisine: (row.cuisine as ItemCuisine | null) ?? undefined,
     disponible: row.disponible,
     stock: row.stock ?? undefined,
     options: options.length ? options : undefined,
@@ -252,5 +253,6 @@ export function rowToClosure(
     overrideClosed: row.override_closed,
     overrideUntil: row.override_until,
     targets: row.closure_targets.map(rowToTarget),
+    cuisine: row.cuisine as Closure["cuisine"],
   };
 }

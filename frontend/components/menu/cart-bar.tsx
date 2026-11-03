@@ -23,6 +23,7 @@ import { collectHref, normalizePhone, previewOrderKey, type PreviewCollectOrder 
 import { rememberOrder, takeAppearance } from "@/lib/menu/after-meal";
 import { trackAfterMeal } from "@/lib/menu/analytics/tracker";
 import { useCart, type CartLine } from "@/lib/menu/cart";
+import { KITCHEN_CLOSED_LABEL } from "@/lib/menu/fermetures";
 import { counterWords, formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
 import { cardNotices, useTickets, type TicketLine } from "@/lib/menu/tickets";
@@ -380,23 +381,33 @@ export function CartBar() {
     .reduce((sum, line) => sum + line.quantity, 0);
   // Une ligne coupée : ce qui l'est, et comment repartir. Une formule ne perd
   // pas un choix en silence, elle se recompose.
+  const closedNow = (line: CartLine) => {
+    const label = cart.closedLineLabel(line);
+    return label === KITCHEN_CLOSED_LABEL ? label : `${label} en ce moment`;
+  };
   const closedNotice = () => {
     if (closedLines.length > 1) {
+      if (closedLines.every((line) => cart.closedLineLabel(line) === KITCHEN_CLOSED_LABEL)) {
+        return cart.collect
+          ? `${KITCHEN_CLOSED_LABEL} à l’heure du retrait pour certains articles\u00a0: choisissez un autre créneau ou un autre jour, ou retirez-les.`
+          : `${KITCHEN_CLOSED_LABEL} pour certains articles\u00a0: retirez-les pour envoyer la commande.`;
+      }
       return cart.collect
         ? "Certains articles ne sont plus servis à l’heure du retrait\u00a0: choisissez un autre créneau ou un autre jour, ou retirez-les."
         : "Certains articles ne sont plus servis\u00a0: retirez-les pour envoyer la commande.";
     }
     const [line] = closedLines;
     const name = `«\u00a0${line.name}\u00a0»`;
+    const label = closedNow(line);
     if (line.formule) {
       const dish = lineClosed(line);
       return cart.collect
-        ? `Plus servi à l’heure du retrait\u00a0: ${dish}. Choisissez un autre créneau ou un autre jour, ou retirez ${name} et recomposez-la.`
-        : `Plus servi en ce moment\u00a0: ${dish}. Retirez ${name}, puis recomposez-la si elle est encore proposée.`;
+        ? `${cart.closedLineLabel(line)} à l’heure du retrait\u00a0: ${dish}. Choisissez un autre créneau ou un autre jour, ou retirez ${name} et recomposez-la.`
+        : `${label}\u00a0: ${dish}. Retirez ${name}, puis recomposez-la si elle est encore proposée.`;
     }
     return cart.collect
-      ? `Plus servi à l’heure du retrait\u00a0: choisissez un autre créneau ou un autre jour, ou retirez ${name}.`
-      : `Plus servi en ce moment\u00a0: retirez ${name} pour envoyer la commande.`;
+      ? `${cart.closedLineLabel(line)} à l’heure du retrait\u00a0: choisissez un autre créneau ou un autre jour, ou retirez ${name}.`
+      : `${label}\u00a0: retirez ${name} pour envoyer la commande.`;
   };
   // Le message d'un envoi refusé s'efface dès qu'on corrige ce qui le
   // causait : l'heure de retrait, ou la ligne retirée.
@@ -1388,10 +1399,10 @@ export function CartBar() {
                                 {dish && (
                                   <p className="mt-1 text-xs font-semibold text-ember-3">
                                     {line.formule
-                                      ? `Plus servi\u00a0: ${dish}`
+                                      ? `${cart.closedLineLabel(line)}\u00a0: ${dish}`
                                       : cart.collect
-                                        ? "Plus servi à l’heure du retrait"
-                                        : "Plus servi en ce moment"}
+                                        ? `${cart.closedLineLabel(line)} à l’heure du retrait`
+                                        : closedNow(line)}
                                   </p>
                                 )}
                               </div>

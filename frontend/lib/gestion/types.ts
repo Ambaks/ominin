@@ -423,4 +423,10 @@ export interface Closure {
   /** Heure de service où le forçage cède à l'horaire, "2026-10-13T19:00:00". */
   overrideUntil: string | null;
   targets: MenuTarget[];
+  /**
+   * Fermeture réservée du bouton « Fermeture cuisine », null pour celles de
+   * Réglages. chaud, froid : coupe les articles qui portent ce marqueur ;
+   * choix : coupe ses cibles.
+   */
+  cuisine: "chaud" | "froid" | "choix" | null;
 }

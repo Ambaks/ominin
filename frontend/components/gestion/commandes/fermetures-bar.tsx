@@ -25,8 +25,8 @@ import { ClockIcon } from "../icons";
 import { describeError } from "@/lib/gestion/errors";
 
 /**
- * Fermer ou rouvrir, avec l'avis qui suit : à la barre de Commandes comme à
- * l'aperçu. Les noms sont libres (« Cuisine », « Bar ») : les états se
+ * Fermer ou rouvrir, avec l'avis qui suit : sur Aujourd'hui comme dans les
+ * alertes. Les noms sont libres (« Cuisine », « Bar ») : les états se
  * disent sans accord.
  */
 export function useClosureToggle(
@@ -83,23 +83,19 @@ export function useClosureToggle(
 }
 
 /*
- * Pendant le service, d'un geste : fermer la cuisine quand elle s'arrête,
- * la rouvrir pour une table arrivée tard. Le gérant et le cuisinier y ont
- * accès ; le geste vaut jusqu'au prochain changement de l'horaire, au plus
- * tard la fin de la journée de service. Un bandeau de verre par fermeture :
- * grenat à l'arrêt, neutre en service.
+ * Les fermetures nommées de Réglages, dans la feuille du bouton « Fermeture
+ * cuisine » : le gérant et le cuisinier les ferment d'un geste, jusqu'au
+ * prochain changement de l'horaire, au plus tard la fin de la journée de
+ * service.
  */
-export function FermeturesBar({
+export function FermeturesReglees({
   closures,
   categories,
   dayEndHour,
-  i,
 }: {
   closures: Closure[];
   categories: MenuCategory[];
   dayEndHour: number;
-  /** Rang d'entrée : le cadre de verre monte lui-même. */
-  i?: number;
 }) {
   const now = useNow(WAIT_TICK_MS);
   const [confirming, setConfirming] = useState<Closure | null>(null);
@@ -117,39 +113,33 @@ export function FermeturesBar({
   const confirmingTargets = confirming && describeTargets(confirming, categories);
   const confirmingUntil = confirming && manualCloseUntil(confirming, clock, dayEndHour);
 
-  const anyActive = closures.some((closure) => closureActive(closure, clock, dayEndHour));
-
   return (
-    <div data-visite="commandes-fermetures" className="rounded-g-frame">
-      <GlassFrame i={i} entity={anyActive ? "problem" : "orders"} eyebrow="Fermetures" icon={<ClockIcon />}>
-        <Plate className="flex flex-col divide-y divide-hairline px-4">
-          {closures.map((closure) => {
-            const active = closureActive(closure, clock, dayEndHour);
-            return (
-              <div key={closure.id} className="flex min-h-g-control items-center gap-3 py-1.5">
-                <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1">
-                  <span className="min-w-0 text-g-body font-semibold [overflow-wrap:anywhere]">{closure.name}</span>
-                  {active ? (
-                    <Chip tone="problem" icon={<ClockIcon />}>
-                      {status(closure)}
-                    </Chip>
-                  ) : (
-                    <span className="text-g-meta text-muted">{status(closure)}</span>
-                  )}
-                </div>
-                <GlassButton
-                  variant={active ? "primary" : "secondary"}
-                  disabled={busy === closure.id}
-                  onClick={() => (active ? void run(closure, false) : setConfirming(closure))}
-                  aria-label={`${active ? "Rouvrir" : "Fermer"} : ${closure.name}`}
-                >
-                  {active ? "Rouvrir" : "Fermer"}
-                </GlassButton>
-              </div>
-            );
-          })}
-        </Plate>
-      </GlassFrame>
+    <div className="flex flex-col divide-y divide-hairline">
+      {closures.map((closure) => {
+        const active = closureActive(closure, clock, dayEndHour);
+        return (
+          <div key={closure.id} className="flex min-h-g-control items-center gap-3 py-1.5">
+            <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-2.5 gap-y-1">
+              <span className="min-w-0 text-g-body font-semibold [overflow-wrap:anywhere]">{closure.name}</span>
+              {active ? (
+                <Chip tone="problem" icon={<ClockIcon />}>
+                  {status(closure)}
+                </Chip>
+              ) : (
+                <span className="text-g-meta text-muted">{status(closure)}</span>
+              )}
+            </div>
+            <GlassButton
+              variant={active ? "primary" : "secondary"}
+              disabled={busy === closure.id}
+              onClick={() => (active ? void run(closure, false) : setConfirming(closure))}
+              aria-label={`${active ? "Rouvrir" : "Fermer"} : ${closure.name}`}
+            >
+              {active ? "Rouvrir" : "Fermer"}
+            </GlassButton>
+          </div>
+        );
+      })}
 
       {confirming && (
         <ConfirmSheet

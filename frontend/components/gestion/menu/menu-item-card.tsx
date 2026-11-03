@@ -13,6 +13,7 @@ import * as api from "@/lib/gestion/api";
 import { isItemAvailable } from "@/lib/gestion/selectors";
 import { useGestionAccess } from "@/lib/gestion/store";
 import type { Printer } from "@/lib/gestion/terminaux";
+import { KITCHEN_CLOSED_LABEL } from "@/lib/menu/fermetures";
 import { allergenLine, BADGE_LABELS, formatPrice } from "@/lib/menu/format";
 import {
   hasBlockedRequiredGroup,
@@ -30,6 +31,7 @@ export function MenuItemCard({
   last = false,
   tarifs,
   closedBy,
+  closedKitchen = false,
   onMove,
   onEdit,
   onDelete,
@@ -48,6 +50,8 @@ export function MenuItemCard({
   tarifs?: React.ReactNode;
   /** Fermeture qui le coupe en ce moment : le client le voit « Plus servi ». */
   closedBy?: string;
+  /** Le bouton « Fermeture cuisine » le coupe : le client le voit « Cuisine fermée ». */
+  closedKitchen?: boolean;
   /** Absent, l'ordre ne se change pas d'ici. */
   onMove?: (delta: -1 | 1) => void;
   onEdit: () => void;
@@ -135,9 +139,10 @@ export function MenuItemCard({
           </p>
         )}
 
-        {item.badges && item.badges.length > 0 && (
+        {(item.cuisine || (item.badges && item.badges.length > 0)) && (
           <div className="flex flex-wrap gap-1.5">
-            {item.badges.map((badge) => (
+            {item.cuisine && <Chip>{item.cuisine === "chaud" ? "Chaud" : "Froid"}</Chip>}
+            {item.badges?.map((badge) => (
               <Chip key={badge}>{BADGE_LABELS[badge]}</Chip>
             ))}
           </div>
@@ -202,7 +207,7 @@ export function MenuItemCard({
         {closedBy && (
           <p className="flex items-start gap-1.5 text-g-meta">
             <AlertIcon className="size-4 shrink-0 text-ember-3" />
-            <span>Fermé en ce moment ({closedBy})&nbsp;: vos clients le voient «&nbsp;Plus servi&nbsp;».</span>
+            <span>Fermé en ce moment ({closedBy})&nbsp;: vos clients le voient «&nbsp;{closedKitchen ? KITCHEN_CLOSED_LABEL : "Plus servi"}&nbsp;».</span>
           </p>
         )}
 
