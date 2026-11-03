@@ -6,7 +6,6 @@ import { CreateOrderFab } from "@/components/gestion/commandes/create-order-fab"
 import { EncaisserCard } from "@/components/gestion/commandes/encaisser-card";
 import { ExampleOrder } from "@/components/gestion/commandes/example-order";
 import {
-  FermeturesBar,
   FermeturesStatut,
 } from "@/components/gestion/commandes/fermetures-bar";
 import { OrderCard } from "@/components/gestion/commandes/order-card";
@@ -338,24 +337,16 @@ export default function CommandesPage() {
         />
       </Block>
 
-      {(state.closures.length > 0 || printerOffline) && (
-        <div className="flex flex-col gap-3">
-          {state.closures.length > 0 &&
-            (can("fermetures.basculer") ? (
-              <FermeturesBar
-                closures={state.closures}
-                categories={state.categories}
-                dayEndHour={state.dayEndHour}
-                i={entering ? 1 : undefined}
-              />
-            ) : (
-              <FermeturesStatut
-                closures={state.closures}
-                categories={state.categories}
-                dayEndHour={state.dayEndHour}
-                i={entering ? 1 : undefined}
-              />
-            ))}
+      {(!can("fermetures.basculer") || printerOffline) && (
+        <div className="flex flex-col gap-3 empty:hidden">
+          {!can("fermetures.basculer") && (
+            <FermeturesStatut
+              closures={state.closures}
+              categories={state.categories}
+              dayEndHour={state.dayEndHour}
+              i={entering ? 1 : undefined}
+            />
+          )}
           {printerOffline && (
             <Notice
               i={entering ? 1 : undefined}

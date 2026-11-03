@@ -9,7 +9,7 @@ import { DayCurve } from "@/components/gestion/apercu/day-curve";
 import { MetricSheet, type Metric } from "@/components/gestion/apercu/metric-sheet";
 import { MiseEnRoute, miseEnRouteDue } from "@/components/gestion/apercu/mise-en-route";
 import { ServeurApercu } from "@/components/gestion/apercu/serveur-apercu";
-import { FermeturesEnCours } from "@/components/gestion/fermetures-en-cours";
+import { FermetureCuisine } from "@/components/gestion/fermeture-cuisine";
 import {
   BagIcon,
   ChartIcon,
@@ -323,6 +323,12 @@ export default function ApercuPage() {
       </Block>
 
       {hasCommandes && (
+        <Block i={block++} className="empty:hidden">
+          <FermetureCuisine state={state} />
+        </Block>
+      )}
+
+      {hasCommandes && (
         <Block i={block++} data-visite="apercu-jour" className="grid gap-g-gap rounded-g-hero sm:grid-cols-2">
           <StatTile
             hero
@@ -367,12 +373,6 @@ export default function ApercuPage() {
               chart={<OpenOrdersSplit toPay={toPay} toServe={toServe} />}
             />
           )}
-        </Block>
-      )}
-
-      {hasCommandes && (
-        <Block i={block++} className="empty:hidden">
-          <FermeturesEnCours state={state} />
         </Block>
       )}
 

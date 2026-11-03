@@ -506,7 +506,7 @@ export default function EtablissementPage() {
             )}
             {hasFeature("commandes") && (
               <FermeturesSettings
-                closures={state.closures}
+                closures={state.closures.filter((closure) => closure.cuisine === null)}
                 categories={state.categories}
                 dayEndHour={state.dayEndHour}
               />

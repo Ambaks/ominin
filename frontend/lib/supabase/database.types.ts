@@ -1342,6 +1342,7 @@ export type Database = {
       closures: {
         Row: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -1351,6 +1352,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          cuisine?: string | null
           etablissement_id: string
           id?: string
           name: string
@@ -1360,6 +1362,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          cuisine?: string | null
           etablissement_id?: string
           id?: string
           name?: string
@@ -3564,6 +3567,7 @@ export type Database = {
           image: string | null
           name: string
           notice_hours: number | null
+          cuisine: string | null
           options: Json
           pairing: string | null
           position: number
@@ -3585,6 +3589,7 @@ export type Database = {
           image?: string | null
           name: string
           notice_hours?: number | null
+          cuisine?: string | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -3606,6 +3611,7 @@ export type Database = {
           image?: string | null
           name?: string
           notice_hours?: number | null
+          cuisine?: string | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -7735,6 +7741,13 @@ export type Database = {
         Args: { p_at?: string; p_etablissement: string }
         Returns: string[]
       }
+      articles_fermes_detail: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: {
+          cuisine: boolean
+          id: string
+        }[]
+      }
       auth_account_state: {
         Args: { p_email: string }
         Returns: {
@@ -7744,10 +7757,35 @@ export type Database = {
           invited: boolean
         }[]
       }
+      basculer_cuisine: {
+        Args: {
+          p_articles?: string[]
+          p_etablissement: string
+          p_fermee: boolean
+          p_parties: string[]
+        }
+        Returns: {
+          created_at: string
+          cuisine: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          open_windows: boolean
+          override_closed: boolean | null
+          override_until: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       basculer_fermeture: {
         Args: { p_closure: string; p_fermee: boolean }
         Returns: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -8409,6 +8447,7 @@ export type Database = {
         }
         Returns: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string

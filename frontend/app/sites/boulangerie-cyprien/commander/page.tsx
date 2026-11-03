@@ -64,6 +64,7 @@ export default async function CommanderPage() {
     onlinePayment,
     onlineMinOrder,
     closedItems,
+    kitchenClosedItems,
     paymentProvider,
     squareLocationId,
     openingHours,
@@ -100,6 +101,7 @@ export default async function CommanderPage() {
         onlineMinOrder,
         etablissementId: id,
         closedItems,
+        kitchenClosedItems,
         collect: {
           hours: openingHours,
           slotMinutes: collectSlotMinutes,
