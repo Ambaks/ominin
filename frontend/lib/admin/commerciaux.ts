@@ -35,9 +35,14 @@ export interface CommercialRow {
   endReason: EndReason | null;
   discordUserId: string | null;
   signedRestaurants: number;
-  /** Taux propre (art. 4.6), null : le taux de base. */
-  commissionPercent: number | null;
+  settings: CommercialOwnSettings;
 }
+
+/** Les réglages de la fiche, remplis à l'invitation par les réglages communs. */
+export type CommercialOwnSettings = Pick<
+  Tables<"commerciaux">,
+  "commission_percent" | "term_months" | "visit_request_days" | "search_radius_km"
+>;
 
 /**
  * Qui a amené chaque client : établissement ou boutique → nom du commercial.
@@ -76,7 +81,7 @@ export async function fetchCommerciaux(): Promise<CommercialRow[]> {
   const rows = await createClient()
     .from("commerciaux")
     .select(
-      "id, email, first_name, last_name, invited_at, option_exercised_at, notice_given_at, ended_at, end_reason, discord_user_id, commission_percent, legal_acceptances(accepted_at, legal_versions!inner(version)), commercial_clients(id)"
+      "id, email, first_name, last_name, invited_at, option_exercised_at, notice_given_at, ended_at, end_reason, discord_user_id, commission_percent, term_months, visit_request_days, search_radius_km, legal_acceptances(accepted_at, legal_versions!inner(version)), commercial_clients(id)"
     )
     .order("invited_at", { ascending: false })
     .then(must);
@@ -98,7 +103,12 @@ export async function fetchCommerciaux(): Promise<CommercialRow[]> {
       endReason: row.end_reason as EndReason | null,
       discordUserId: row.discord_user_id,
       signedRestaurants: row.commercial_clients.length,
-      commissionPercent: row.commission_percent,
+      settings: {
+        commission_percent: row.commission_percent,
+        term_months: row.term_months,
+        visit_request_days: row.visit_request_days,
+        search_radius_km: row.search_radius_km,
+      },
     };
   });
 }
@@ -223,9 +233,9 @@ export async function endContract(id: string, endedAt: string, reason: EndReason
   );
 }
 
-/** Taux propre du commercial (art. 4.6) : la base refuse une baisse. */
-export async function setCommissionPercent(id: string, percent: number): Promise<void> {
-  check(await createClient().rpc("admin_set_commission_percent", { p_commercial: id, p_percent: percent }));
+/** Taux, durée, délai des demandes et rayon du commercial ; un relevé envoyé garde son taux. */
+export async function updateCommercialSettings(id: string, settings: CommercialOwnSettings): Promise<void> {
+  check(await createClient().from("commerciaux").update(settings).eq("id", id));
 }
 
 /** Le contrat est prolongé : l'option de l'article 3.3 est levée. */
@@ -279,10 +289,6 @@ export type CommercialSettings = Tables<"commercial_settings">;
 
 export const fetchSettings = () =>
   createClient().from("commercial_settings").select("*").single().then(must);
-
-export async function updateSettings(patch: Partial<CommercialSettings>) {
-  check(await createClient().from("commercial_settings").update(patch).eq("id", true));
-}
 
 // ---------------------------------------------------------------------------
 // Relevés
