@@ -6,8 +6,8 @@ import { RelevesTab } from "@/components/admin/commerciaux/releves-tab";
 import { PillTabs } from "@/components/ui/pill-tabs";
 
 /*
- * Les commerciaux indépendants : qui est invité et sous contrat, leur fiche,
- * les réglages communs et leurs relevés.
+ * Les commerciaux indépendants : qui est invité et sous contrat, leur fiche
+ * et ses réglages, leurs relevés.
  */
 
 const TABS = [

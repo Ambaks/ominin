@@ -2398,7 +2398,7 @@ export type Database = {
       commerciaux: {
         Row: {
           address: string | null
-          commission_percent: number | null
+          commission_percent: number
           discord_user_id: string | null
           email: string
           end_reason: string | null
@@ -2412,12 +2412,15 @@ export type Database = {
           option_reminded_at: string | null
           phone: string | null
           push_prefs: Json
+          search_radius_km: number
           siret: string | null
+          term_months: number
           user_id: string | null
+          visit_request_days: number | null
         }
         Insert: {
           address?: string | null
-          commission_percent?: number | null
+          commission_percent?: number
           discord_user_id?: string | null
           email: string
           end_reason?: string | null
@@ -2431,12 +2434,15 @@ export type Database = {
           option_reminded_at?: string | null
           phone?: string | null
           push_prefs?: Json
+          search_radius_km?: number
           siret?: string | null
+          term_months?: number
           user_id?: string | null
+          visit_request_days?: number | null
         }
         Update: {
           address?: string | null
-          commission_percent?: number | null
+          commission_percent?: number
           discord_user_id?: string | null
           email?: string
           end_reason?: string | null
@@ -2450,8 +2456,11 @@ export type Database = {
           option_reminded_at?: string | null
           phone?: string | null
           push_prefs?: Json
+          search_radius_km?: number
           siret?: string | null
+          term_months?: number
           user_id?: string | null
+          visit_request_days?: number | null
         }
         Relationships: []
       }
@@ -7721,10 +7730,6 @@ export type Database = {
       }
       admin_set_client_ended: {
         Args: { p_ended_at: string; p_restaurant: string }
-        Returns: undefined
-      }
-      admin_set_commission_percent: {
-        Args: { p_commercial: string; p_percent: number }
         Returns: undefined
       }
       admin_set_pilotage_from: {
