@@ -45,3 +45,55 @@ as $$
     )
   );
 $$;
+
+-- « Moins cher de » en euros ne descend aucun article visé sous 0 € : le
+-- formulaire le refuse, la base aussi, à l'écriture des cibles : la gestion
+-- les réécrit à chaque enregistrement (replaceTargets), après l'écart. Un
+-- prix de carte baissé plus tard reste borné à 0 € par prix_ajuste.
+create function public.tarif_sous_zero(p_rule uuid)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1
+    from price_rules r
+    join price_rule_targets t on t.rule_id = r.id
+    join items i
+      on i.etablissement_id = r.etablissement_id
+      and (i.id = t.item_id or i.category_id = t.category_id)
+    left join lateral (
+      select (c.value->>'supplement')::numeric as supplement
+      from jsonb_array_elements(i.options) g,
+        jsonb_array_elements(g.value->'choices') c
+      where c.value->>'id' = t.choice_id
+      limit 1
+    ) choix on t.choice_id is not null
+    where r.id = p_rule
+      and r.direction = 'remise'
+      and r.unit = 'montant'
+      and i.price + coalesce(choix.supplement, 0) < r.value
+  );
+$$;
+
+revoke execute on function public.tarif_sous_zero(uuid) from public, anon, authenticated;
+
+create function public.tarif_sous_zero_garde()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  if tarif_sous_zero(new.rule_id) then
+    raise exception 'Ce tarif ferait passer un article sous 0 €.';
+  end if;
+  return new;
+end;
+$$;
+
+create trigger price_rule_targets_sous_zero
+  after insert or update on public.price_rule_targets
+  for each row execute function public.tarif_sous_zero_garde();

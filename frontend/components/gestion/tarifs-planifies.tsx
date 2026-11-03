@@ -93,7 +93,6 @@ function PricePreview({
 }) {
   const lines =
     value !== null && value > 0 ? previewLines(categories, targets, { direction, unit, value }) : [];
-  const free = lines.filter((line) => line.to === 0).length;
   const fixedOnFormats = direction === "prix_fixe" && lines.some((line) => line.startingAt);
   return (
     <div className="g-money g-plate flex flex-col gap-2 p-3" aria-live="polite">
@@ -121,11 +120,6 @@ function PricePreview({
       {fixedOnFormats && (
         <p className="text-g-meta text-muted">
           Pour un article à plusieurs formats, ce prix remplace le prix de départ : les formats gardent leur supplément.
-        </p>
-      )}
-      {free > 0 && (
-        <p role="alert" className="text-g-meta font-semibold">
-          {free} article{free > 1 ? "s" : ""} à {formatPrice(0)} : le prix ne descend pas plus bas.
         </p>
       )}
       {days.length > 0 && (
@@ -168,6 +162,17 @@ export function RuleForm({
   const name = typedName ?? suggestRuleName(direction, days, !allDay);
   const hoursMissing = !allDay && (startsAt === "" || endsAt === "" || startsAt === endsAt);
   const tooLow = direction === "remise" && unit === "pourcentage" && value !== null && value > 100;
+  // En euros, la baisse s'arrête au moins cher des articles visés : en dessous, il passerait sous 0 €.
+  const belowZero =
+    direction === "remise" && unit === "montant" && value !== null && value > 0
+      ? previewLines(categories, targets, { direction, unit, value }).filter((line) => line.from < value)
+      : [];
+  const belowZeroMessage =
+    belowZero.length > 0
+      ? `Pas plus de ${formatPrice(Math.min(...belowZero.map((line) => line.from)))} de moins : ${belowZero
+          .map((line) => line.label)
+          .join(", ")} passerai${belowZero.length > 1 ? "en" : ""}t sous ${formatPrice(0)}.`
+      : "";
 
   // Un bouton désactivé dit pourquoi (UX-SIMPLICITÉ § 3.9).
   const missing =
@@ -181,9 +186,11 @@ export function RuleForm({
             ? "Indiquez le prix pour enregistrer."
             : tooLow
               ? "Le prix ne peut pas baisser de plus de 100 %."
-              : !name.trim()
-                ? "Donnez un nom au tarif pour enregistrer."
-                : "";
+              : belowZeroMessage
+                ? belowZeroMessage
+                : !name.trim()
+                  ? "Donnez un nom au tarif pour enregistrer."
+                  : "";
   const valid = missing === "";
 
   const submit = async () => {
@@ -339,9 +346,9 @@ export function RuleForm({
               />
             )}
           </div>
-          {tooLow && (
+          {(tooLow || belowZeroMessage) && (
             <p role="alert" className="g-field-error">
-              <span>Le prix ne peut pas baisser de plus de 100 %.</span>
+              <span>{tooLow ? "Le prix ne peut pas baisser de plus de 100 %." : belowZeroMessage}</span>
             </p>
           )}
           <PricePreview
