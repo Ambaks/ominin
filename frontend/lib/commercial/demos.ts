@@ -1,17 +1,27 @@
 import { menuSiteUrl } from "@/lib/site";
 import type { SignupKind } from "./signup-form";
 
-/** Les types qui ont leur plaquette (public/commercial/plaquettes) : elle y remplace le deck. */
-const PLAQUETTES: Partial<Record<SignupKind, string>> = {
-  restaurant: "plaquette-restaurant.pdf",
-  bar: "plaquette-bar.pdf",
-  club: "plaquette-club.pdf",
-  fast_food: "plaquette-fast-food.pdf",
+/**
+ * Les types qui ont leur plaquette : elle y remplace le deck. Ses pages sont
+ * des images (public/commercial/plaquettes, backend/scripts/plaquette_pages.py) :
+ * un PDF ouvert sur téléphone n'offre aucun bouton pour revenir à l'appli.
+ */
+const PLAQUETTES: Partial<Record<SignupKind, { folder: string; pages: number }>> = {
+  restaurant: { folder: "plaquette-restaurant", pages: 8 },
+  bar: { folder: "plaquette-bar", pages: 8 },
+  club: { folder: "plaquette-club", pages: 8 },
+  fast_food: { folder: "plaquette-fast-food", pages: 8 },
 };
 
-export const plaquetteHref = (kind: SignupKind) => {
-  const file = PLAQUETTES[kind];
-  return file && `/commercial/plaquettes/${file}`;
+/** Taille des images de page, en pixels. */
+export const PLAQUETTE_PAGE_SIZE = { width: 1405, height: 1988 };
+
+export const plaquettePages = (kind: SignupKind) => {
+  const plaquette = PLAQUETTES[kind];
+  return (
+    plaquette &&
+    Array.from({ length: plaquette.pages }, (_, i) => `/commercial/plaquettes/${plaquette.folder}/${i + 1}.jpg`)
+  );
 };
 
 /* La démo montrée pour chaque type d'établissement : le menu du client, ou l'espace de gestion du personnel. */

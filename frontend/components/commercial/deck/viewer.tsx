@@ -64,10 +64,12 @@ export function DeckViewer({ title, slides }: { title: string; slides: ReactNode
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-background text-foreground">
       <header className="flex items-center justify-between gap-3 px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-2">
-        <a href={backHref} className={iconButton} aria-label="Fermer le deck">
-          <svg viewBox="0 0 16 16" aria-hidden className="size-3.5">
-            <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-          </svg>
+        <a
+          href={backHref}
+          className="flex h-11 shrink-0 items-center gap-1.5 rounded-full border border-hairline pr-4 pl-3 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+        >
+          <Chevron />
+          Retour
         </a>
         <p className="min-w-0 truncate text-[11px] font-semibold uppercase tracking-wider text-faint">
           {title} · <span className="tabular-nums">{current + 1} / {slides.length}</span>

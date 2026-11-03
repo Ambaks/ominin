@@ -5,7 +5,7 @@ import { inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { updateSettings, type CommercialSettings } from "@/lib/admin/commerciaux";
 
-type Key = "commission_percent" | "term_months" | "visit_request_days";
+type Key = "commission_percent" | "term_months" | "visit_request_days" | "search_radius_km";
 
 /* Les réglages communs à tous les commerciaux, saisis par l'admin : aucune valeur n'est écrite dans le code. */
 const FIELDS: { key: Key; label: string; unit: string; hint: string; required: boolean }[] = [
@@ -29,6 +29,13 @@ const FIELDS: { key: Key; label: string; unit: string; hint: string; required: b
     unit: "jours",
     hint: "Sans réponse, ou refusée sans que le restaurant avance, il est libéré pour tous. Vide : jamais libéré.",
     required: false,
+  },
+  {
+    key: "search_radius_km",
+    label: "Rayon de recherche sur la carte",
+    unit: "km",
+    hint: "Un commercial ne trouve par son nom qu’un établissement à cette distance de lui.",
+    required: true,
   },
 ];
 

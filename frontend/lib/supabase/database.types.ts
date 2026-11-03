@@ -2079,6 +2079,7 @@ export type Database = {
           option_reminder_days: number | null
           option_years: number
           payment_days: number
+          search_radius_km: number
           statement_before_day: number
           term_months: number
           updated_at: string
@@ -2100,6 +2101,7 @@ export type Database = {
           option_reminder_days?: number | null
           option_years: number
           payment_days: number
+          search_radius_km?: number
           statement_before_day: number
           term_months: number
           updated_at?: string
@@ -2121,6 +2123,7 @@ export type Database = {
           option_reminder_days?: number | null
           option_years?: number
           payment_days?: number
+          search_radius_km?: number
           statement_before_day?: number
           term_months?: number
           updated_at?: string
@@ -8173,7 +8176,24 @@ export type Database = {
           isSetofReturn: false
         }
       }
-      commercial_map_points: { Args: never; Returns: Json }
+      commercial_map_points: {
+        Args: {
+          p_east: number
+          p_north: number
+          p_south: number
+          p_west: number
+        }
+        Returns: Json
+      }
+      commercial_map_search: {
+        Args: {
+          p_lat: number
+          p_limit: number
+          p_lng: number
+          p_query: string
+        }
+        Returns: Json
+      }
       commercial_money: { Args: never; Returns: Json }
       commercial_month_estimate: { Args: never; Returns: Json }
       commercial_month_lines: {

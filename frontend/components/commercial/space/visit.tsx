@@ -6,7 +6,6 @@ import { useState } from "react";
 import { Field, inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import type { MapRestaurant } from "@/lib/commercial/api";
-import { plaquetteHref } from "@/lib/commercial/demos";
 import { SIGNUP_KINDS } from "@/lib/commercial/signup-form";
 import { REFUSAL_REASONS, visitMessage, type VisitInput, type VisitReason } from "@/lib/commercial/visit";
 import { useAccount, spaceHref } from "./shell";
@@ -71,8 +70,7 @@ export function VisitScreen({ place }: { place: MapRestaurant }) {
               {SIGNUP_KINDS.map((kind) => (
                 <a
                   key={kind.id}
-                  href={plaquetteHref(kind.id) ?? spaceHref(`/ressources/decks/${kind.id}?restaurant=${place.id}`)}
-                  target={plaquetteHref(kind.id) ? "_blank" : undefined}
+                  href={spaceHref(`/ressources/decks/${kind.id}?restaurant=${place.id}`)}
                   className={ghostButton}
                 >
                   {kind.label}
