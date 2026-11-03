@@ -1,18 +1,19 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapCanvas } from "@/components/admin/carte/map-canvas";
 import { Field, inputClass } from "@/components/ui/field";
 import { Modal } from "@/components/ui/modal";
 import { useToast } from "@/components/ui/toast";
 import { STATUS_MAP_COLORS } from "@/lib/admin/status";
-import type { GeoPoint, LeadLite, LeadStatus } from "@/lib/admin/types";
+import type { GeoPoint, LeadLite, LeadStatus, MapBounds } from "@/lib/admin/types";
 import { MAPS_DIRECTIONS_BASE } from "@/lib/collect/shared";
+import { LIST_PAGE_SIZES, LIST_SEARCH_DEBOUNCE_MS } from "@/lib/gestion/constants";
 import { frenchDate } from "@/lib/legal/format";
 import * as api from "@/lib/commercial/api";
 import { spaceHref } from "./shell";
-import { ErrorNote, Skeleton, cardClass, errorMessage, ghostButton, primaryButton, telHref } from "./ui";
+import { ErrorNote, cardClass, errorMessage, ghostButton, primaryButton, telHref } from "./ui";
 
 /*
  * Les quatre couleurs de la carte, prises dans la palette des statuts de
@@ -181,37 +182,160 @@ function AddRestaurant({ position, onClose, onAdded }: { position: GeoPoint; onC
   );
 }
 
+const formatDistance = (meters: number) =>
+  meters < 1000 ? `${Math.round(meters)} m` : `${(meters / 1000).toLocaleString("fr-FR", { maximumFractionDigits: 1 })} km`;
+
+/* Chercher un établissement par son nom, autour du commercial, ou du centre de la carte s'il n'a pas partagé sa position. */
+function MapSearchBox({
+  origin,
+  located,
+  onPick,
+}: {
+  origin: () => GeoPoint | null;
+  located: boolean;
+  onPick: (result: api.MapSearch["results"][number]) => void;
+}) {
+  const [query, setQuery] = useState("");
+  const [found, setFound] = useState<{ term: string; search: api.MapSearch } | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
+  const term = query.trim();
+
+  useEffect(() => {
+    const from = origin();
+    if (!term || !from) return;
+    let stale = false;
+    const timer = setTimeout(() => {
+      api.mapSearch(term, from, LIST_PAGE_SIZES[0]).then(
+        (search) => {
+          if (stale) return;
+          setFailed(null);
+          setFound({ term, search });
+        },
+        (cause: unknown) => {
+          if (!stale) setFailed(errorMessage(cause));
+        }
+      );
+    }, LIST_SEARCH_DEBOUNCE_MS);
+    return () => {
+      stale = true;
+      clearTimeout(timer);
+    };
+  }, [term, origin]);
+
+  const search = found?.term === term ? found.search : null;
+
+  return (
+    <div className="relative z-20">
+      <input
+        type="search"
+        value={query}
+        onChange={(event) => setQuery(event.target.value)}
+        placeholder={located ? "Chercher un établissement autour de toi" : "Chercher autour du centre de la carte"}
+        aria-label="Chercher un établissement par son nom"
+        className={inputClass}
+      />
+      {term && (failed || search) && (
+        <div className="absolute inset-x-0 top-full mt-1 max-h-72 overflow-y-auto rounded-2xl border border-hairline bg-surface shadow-lg">
+          {failed ? (
+            <p className="px-4 py-3 text-sm text-ember-3">{failed}</p>
+          ) : search!.results.length === 0 ? (
+            <p className="px-4 py-3 text-sm text-muted">Aucun établissement de ce nom à moins de {search!.radius_km} km.</p>
+          ) : (
+            <ul className="divide-y divide-hairline">
+              {search!.results.map((result) => (
+                <li key={result.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setQuery("");
+                      onPick(result);
+                    }}
+                    className="flex min-h-11 w-full items-center justify-between gap-3 px-4 py-2 text-left"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate text-sm font-medium">{result.name}</span>
+                      {result.city && <span className="block truncate text-xs text-muted">{result.city}</span>}
+                    </span>
+                    <span className="shrink-0 text-xs text-faint">{formatDistance(result.distance_m)}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+const covers = (outer: MapBounds | null, inner: MapBounds) =>
+  outer !== null &&
+  outer.south <= inner.south &&
+  outer.west <= inner.west &&
+  outer.north >= inner.north &&
+  outer.east >= inner.east;
+
 /*
- * La carte : tous les restaurants à attraper, aux couleurs de leur état, et
- * la position du commercial suivie en direct.
+ * La carte : les restaurants de la vue, aux couleurs de leur état, et la
+ * position du commercial suivie en direct. Une vue déjà couverte par le
+ * dernier chargement ne redemande rien, et les points déjà reçus restent.
  */
 export function MapScreen() {
-  const [points, setPoints] = useState(api.mapPoints.last);
+  const [points, setPoints] = useState<api.MapPoint[]>(() => api.mapPoints.last() ?? []);
   const [error, setError] = useState<string | null>(null);
   const [position, setPosition] = useState<GeoPoint | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [place, setPlace] = useState<api.MapRestaurant | null>(null);
   const [adding, setAdding] = useState(false);
+  const [focus, setFocus] = useState<GeoPoint | null>(null);
+  const view = useRef<MapBounds | null>(null);
+  const covered = useRef<MapBounds | null>(null);
+  const positionRef = useRef(position);
 
-  const load = useCallback(
-    () => api.mapPoints().then(setPoints, (cause: unknown) => setError(errorMessage(cause))),
-    []
+  const refresh = useCallback(async () => {
+    const target = view.current;
+    if (!target) return;
+    try {
+      const found = await api.mapPoints(target);
+      covered.current = target;
+      setPoints((known) => [...new Map([...known, ...found].map((point) => [point[0], point])).values()]);
+    } catch (cause) {
+      setError(errorMessage(cause));
+    }
+  }, []);
+  const onViewChange = useCallback(
+    (next: MapBounds) => {
+      view.current = next;
+      if (!covers(covered.current, next)) void refresh();
+    },
+    [refresh]
   );
   const loadPlace = useCallback(
     (id: string) => api.mapRestaurant(id).then(setPlace, (cause: unknown) => setError(errorMessage(cause))),
     []
   );
+  const searchOrigin = useCallback((): GeoPoint | null => {
+    if (positionRef.current) return positionRef.current;
+    const target = view.current;
+    return target && { lat: (target.south + target.north) / 2, lng: (target.west + target.east) / 2 };
+  }, []);
 
   useEffect(() => {
-    void load();
     const watch = navigator.geolocation.watchPosition(
-      (found) => setPosition({ lat: found.coords.latitude, lng: found.coords.longitude }),
-      () => setPosition(null)
+      (found) => {
+        const next = { lat: found.coords.latitude, lng: found.coords.longitude };
+        positionRef.current = next;
+        setPosition(next);
+      },
+      () => {
+        positionRef.current = null;
+        setPosition(null);
+      }
     );
     return () => navigator.geolocation.clearWatch(watch);
-  }, [load]);
+  }, []);
 
-  const leads = useMemo(() => points?.map(toLead) ?? [], [points]);
+  const leads = useMemo(() => points.map(toLead), [points]);
 
   const select = (id: string | null) => {
     setSelected(id);
@@ -219,13 +343,30 @@ export function MapScreen() {
     if (id) void loadPlace(id);
   };
 
-  if (error) return <ErrorNote message={error} onRetry={() => void load()} />;
-  if (!points) return <Skeleton />;
+  if (error) {
+    return (
+      <ErrorNote
+        message={error}
+        onRetry={() => {
+          covered.current = null;
+          setError(null);
+        }}
+      />
+    );
+  }
 
   const current = leads.find((lead) => lead.restaurantId === selected) ?? null;
 
   return (
     <div className="flex flex-col gap-3">
+      <MapSearchBox
+        origin={searchOrigin}
+        located={position !== null}
+        onPick={(result) => {
+          setFocus({ lat: result.latitude, lng: result.longitude });
+          select(result.id);
+        }}
+      />
       <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted">
         {LEGEND.map(({ status, label }) => (
           <li key={status} className="flex items-center gap-1.5">
@@ -240,12 +381,14 @@ export function MapScreen() {
           selected={current}
           onSelect={select}
           myPosition={position}
+          focus={focus}
+          onViewChange={onViewChange}
           renderCard={() =>
             place?.id === selected ? (
               <RestaurantCard
                 place={place}
                 onChange={() => {
-                  void load();
+                  void refresh();
                   void loadPlace(place.id);
                 }}
               />
@@ -270,7 +413,8 @@ export function MapScreen() {
           onClose={() => setAdding(false)}
           onAdded={(id) => {
             setAdding(false);
-            void load().then(() => select(id));
+            setFocus(position);
+            void refresh().then(() => select(id));
           }}
         />
       )}

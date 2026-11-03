@@ -178,6 +178,13 @@ export interface GeoPoint {
   accuracy?: number;
 }
 
+export interface MapBounds {
+  south: number;
+  west: number;
+  north: number;
+  east: number;
+}
+
 // ---------------------------------------------------------------------------
 // Prospection automatisée (agent « Léa »)
 

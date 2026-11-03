@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Modal } from "@/components/ui/modal";
-import { plaquetteHref, TYPE_DEMOS } from "@/lib/commercial/demos";
+import { plaquettePages, TYPE_DEMOS } from "@/lib/commercial/demos";
 import type { SignupKind } from "@/lib/commercial/signup-form";
 import { commercialPrefix } from "@/lib/site";
 import { ShareLink } from "./share-link";
@@ -11,14 +11,13 @@ import { cardClass, ghostButton, primaryButton } from "./ui";
 /*
  * Présentations et démos : un type d'établissement, puis sa plaquette ou son
  * deck, ou sa démo, et pour la démo, le menu du client ou l'espace de gestion.
- * Le deck s'ouvre en navigation complète : le service worker garde l'un et
- * l'autre pour le hors ligne.
+ * L'un et l'autre s'ouvrent en navigation complète : le service worker les
+ * garde pour le hors ligne.
  */
 export function Presentations({ kinds }: { kinds: { kind: SignupKind; label: string }[] }) {
   const [open, setOpen] = useState<{ kind: SignupKind; label: string } | null>(null);
   const [showDemo, setShowDemo] = useState(false);
   const demo = open && TYPE_DEMOS[open.kind];
-  const plaquette = open && plaquetteHref(open.kind);
 
   return (
     <>
@@ -54,15 +53,9 @@ export function Presentations({ kinds }: { kinds: { kind: SignupKind; label: str
             </div>
           ) : (
             <div className="flex flex-col gap-2">
-              {plaquette ? (
-                <a href={plaquette} target="_blank" className={primaryButton}>
-                  La plaquette
-                </a>
-              ) : (
-                <a href={`${commercialPrefix}/espace/ressources/decks/${open.kind}`} className={primaryButton}>
-                  Le deck
-                </a>
-              )}
+              <a href={`${commercialPrefix}/espace/ressources/decks/${open.kind}`} className={primaryButton}>
+                {plaquettePages(open.kind) ? "La plaquette" : "Le deck"}
+              </a>
               <button type="button" onClick={() => setShowDemo(true)} className={ghostButton}>
                 La démo
               </button>
