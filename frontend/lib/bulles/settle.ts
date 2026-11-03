@@ -6,7 +6,7 @@ import {
   sendPlacesRefunded,
   type BulleMail,
 } from "@/lib/bulles/mail";
-import { bulleConfirmPlaces } from "@/lib/bulles/format";
+import { bulleConfirmPlaces, bullePlacesFacturees } from "@/lib/bulles/format";
 import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { SQUARE_CURRENCY } from "@/lib/square/config";
 import { getMerchantToken, refundPayment, withFreshToken } from "@/lib/square/server";
@@ -39,7 +39,7 @@ export type PartOutcome = {
 };
 
 const MAIL_SELECT =
-  "name, email, token, share_token, starts_at, ends_at, party_size, places_paid, status, bulles(name), etablissements(slug, name, address, bulle_reglages(group_threshold), etablissement_settings(day_end_hour))";
+  "name, email, token, share_token, starts_at, ends_at, party_size, places_paid, place_cents, paid_cents, min_billed_places, status, bulles(name), etablissements(slug, name, address, bulle_reglages(group_threshold), etablissement_settings(day_end_hour))";
 
 type MailReservation = {
   name: string;
@@ -50,6 +50,9 @@ type MailReservation = {
   ends_at: string;
   party_size: number;
   places_paid: number;
+  place_cents: number;
+  paid_cents: number;
+  min_billed_places: number;
   status: string;
   bulles: { name: string } | null;
   etablissements: {
@@ -85,8 +88,14 @@ function mailFor(data: MailReservation, payer: Payer): BulleMail | null {
     endsAt: data.ends_at,
     dayEndHour: data.etablissements.etablissement_settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR,
     partySize: data.party_size,
-    confirmPlaces: bulleConfirmPlaces(data.party_size, data.etablissements.bulle_reglages.group_threshold),
-    placesPaid: data.places_paid,
+    confirmPlaces: bulleConfirmPlaces(
+      bullePlacesFacturees(data.party_size, data.min_billed_places),
+      data.etablissements.bulle_reglages.group_threshold
+    ),
+    placeCents: data.place_cents,
+    paidCents: data.paid_cents,
+    minBilledPlaces: data.min_billed_places,
+    confirmed: data.status === "confirmee" || data.status === "arrivee",
     places: payer.places,
     amountCents: payer.amount_cents,
   };

@@ -24,7 +24,7 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
   const { data, error } = await createPublicClient()
     .from("etablissements")
     .select(
-      "id, slug, name, bulle_reglages(place_cents, small_group_place_cents, group_threshold, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features, day_end_hour)"
+      "id, slug, name, bulle_reglages(place_cents, small_group_place_cents, group_threshold, min_billed_places, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features, day_end_hour)"
     )
     .eq("slug", slug)
     .order("sort", { referencedTable: "bulles", ascending: true })
@@ -38,6 +38,7 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
     placeCents: reglages.place_cents,
     smallGroupPlaceCents: reglages.small_group_place_cents,
     groupThreshold: reglages.group_threshold,
+    minBilledPlaces: reglages.min_billed_places,
     minParty: reglages.min_party,
     maxParty: reglages.max_party,
     durationMinutes: reglages.duration_minutes,

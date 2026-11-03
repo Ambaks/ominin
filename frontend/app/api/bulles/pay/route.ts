@@ -84,6 +84,10 @@ export async function POST(request: Request) {
   const reservation = part.bulle_reservations;
   const etabName = part.etablissements?.name ?? "";
   const vatRate = part.etablissements?.bulle_reglages?.vat_rate ?? DEFAULT_VAT_RATE;
+  // Une part au prix plein se lit place par place ; un reste après un changement
+  // de taille, ou une part prise au tarif d'avant, d'un seul montant.
+  const perPlace =
+    reservation !== null && part.places > 0 && part.amount_cents === part.places * reservation.place_cents;
   const label = reservation
     ? `${reservation.bulles?.name ?? "Bulle"} · ${formatBulleNight(reservation.starts_at, part.etablissements?.etablissement_settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR, true)} ${formatHours(reservation.starts_at, reservation.ends_at)}`
     : "Bulle";
@@ -132,9 +136,9 @@ export async function POST(request: Request) {
             line_items: [
               {
                 name: label,
-                quantity: String(part.places),
+                quantity: perPlace ? String(part.places) : "1",
                 base_price_money: {
-                  amount: reservation?.place_cents ?? part.amount_cents / part.places,
+                  amount: perPlace && reservation ? reservation.place_cents : part.amount_cents,
                   currency: CURRENCY,
                 },
                 applied_taxes: [{ tax_uid: "tva" }],

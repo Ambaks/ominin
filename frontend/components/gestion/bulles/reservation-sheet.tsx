@@ -4,8 +4,21 @@ import { useId, useState } from "react";
 import { TenderSheet } from "@/components/gestion/bulles/tender-sheet";
 import { ConfirmSheet, Field, GlassButton, Input, Notice, Segmented, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { bullePlaceCents, capitalize, formatBulleNight } from "@/lib/bulles/format";
+import {
+  bullePlaceCents,
+  bullePlacesCouvertes,
+  bullePlacesFacturees,
+  bulleReste,
+  bulleTotalCents,
+  capitalize,
+  formatBulleNight,
+  formatSoloPrice,
+  type BulleCompte,
+  type BullePricing,
+} from "@/lib/bulles/format";
+import { WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { describeError } from "@/lib/gestion/errors";
+import { useNow } from "@/lib/gestion/use-now";
 import { formatCents, formatHours } from "@/lib/club/format";
 import {
   useBulleActions,
@@ -38,6 +51,77 @@ const SOURCES = [
 const TENDER_LABELS: Record<BulleTender, string> = { carte: "carte", especes: "espèces" };
 
 const places = (n: number) => `${n} ${n > 1 ? "places" : "place"}`;
+const persons = (n: number) => `${n} ${n > 1 ? "personnes" : "personne"}`;
+
+const compteOf = (reservation: BulleReservation): BulleCompte => ({
+  partySize: reservation.party_size,
+  placeCents: reservation.place_cents,
+  minBilledPlaces: reservation.min_billed_places,
+  paidCents: reservation.paid_cents,
+});
+
+const pricingOf = (reglages: BulleReglages, minBilledPlaces: number): BullePricing => ({
+  placeCents: reglages.place_cents,
+  smallGroupPlaceCents: reglages.small_group_place_cents,
+  groupThreshold: reglages.group_threshold,
+  minBilledPlaces,
+});
+
+/**
+ * Le nombre de personnes, changé par le gérant : le prix suit la nouvelle
+ * taille, ce qui est payé se déduit (bulle_changer_taille). Jamais sous les
+ * places déjà payées, comptées au minimum facturé.
+ */
+function PartySizeEditor({
+  reservation,
+  reglages,
+  disabled,
+  onSave,
+}: {
+  reservation: BulleReservation;
+  reglages: BulleReglages;
+  disabled: boolean;
+  onSave: (partySize: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(reservation.party_size));
+  const size = Number(draft);
+  const floor = Math.max(
+    reglages.min_party,
+    reservation.min_billed_places >= reservation.places_paid ? 1 : reservation.places_paid
+  );
+  const error =
+    !Number.isInteger(size) || size < floor || size > reglages.max_party
+      ? reservation.places_paid > 0 && floor > reglages.min_party
+        ? `De ${floor} à ${reglages.max_party} : ${places(reservation.places_paid)} déjà payées.`
+        : `De ${floor} à ${reglages.max_party} personnes.`
+      : undefined;
+  const preview = error
+    ? null
+    : (() => {
+        const pricing = pricingOf(reglages, reservation.min_billed_places);
+        const next = { ...compteOf(reservation), partySize: size, placeCents: bullePlaceCents(pricing, size) };
+        return { total: bulleTotalCents(pricing, size), ...bulleReste(next) };
+      })();
+  return (
+    <div className="flex flex-col gap-2">
+      <Field label="Personnes" hint={`De ${floor} à ${reglages.max_party}.`} error={error}>
+        <Input numeric inputMode="numeric" value={draft} onChange={(event) => setDraft(event.target.value)} />
+      </Field>
+      {preview && size !== reservation.party_size && (
+        <>
+          <p className="text-g-meta text-muted">
+            Nouveau total {formatCents(preview.total)}
+            {preview.cents > 0 ? ` · reste ${formatCents(preview.cents)}` : " · tout est payé"}
+            {preview.trop > 0 && ` · ${formatCents(preview.trop)} payés en trop, à rendre ou non`}
+          </p>
+          <GlassButton disabled={disabled} onClick={() => onSave(size)}>
+            Passer à {persons(size)}
+          </GlassButton>
+        </>
+      )}
+    </div>
+  );
+}
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -52,6 +136,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 export function ReservationSheet({
   reservation,
   bulle,
+  reglages,
   gerant,
   dayEndHour,
   onClose,
@@ -59,6 +144,7 @@ export function ReservationSheet({
 }: {
   reservation: BulleReservation;
   bulle: Bulle | undefined;
+  reglages: BulleReglages | null;
   gerant: boolean;
   /** Bascule du jour de service : un créneau d'après minuit reste au soir réservé. */
   dayEndHour: number;
@@ -66,24 +152,33 @@ export function ReservationSheet({
   onChanged: () => void;
 }) {
   const toast = useToast();
-  const { markArrival, cancelReservation } = useBulleActions();
+  const { markArrival, cancelReservation, changeSize } = useBulleActions();
+  const now = useNow(WAIT_TICK_MS);
   const [busy, setBusy] = useState(false);
   const [confirmingCancel, setConfirmingCancel] = useState(false);
   // Le mode reste à choisir avant ce message : le geste d'encaissement en cours.
   const [collecting, setCollecting] = useState<string | null>(null);
   // Un paiement peut arriver pendant que la fiche est ouverte : les gestes
   // d'argent changeraient sous le pouce. Ils attendent qu'on ait vu le nouvel état.
-  const version = `${reservation.status}:${reservation.places_paid}`;
+  const version = `${reservation.status}:${reservation.paid_cents}:${reservation.party_size}`;
   const [seenVersion, setSeenVersion] = useState(version);
   const changed = version !== seenVersion;
   const blocked = busy || changed;
-  const left = reservation.party_size - reservation.places_paid;
-  const leftCents = left * reservation.place_cents;
+  // Le reste se compte en argent : après un changement de taille, la dernière place peut coûter moins.
+  const compte = compteOf(reservation);
+  const { cents: leftCents, places: left, trop } = bulleReste(compte);
+  const billed = bullePlacesFacturees(reservation.party_size, reservation.min_billed_places);
   const confirmed = reservation.status === "confirmee";
   const pending = reservation.status === "en_attente";
   const paidOnline = reservation.bulle_parts.some((part) => part.method === "en_ligne" && part.status === "payee");
   const payers = reservation.bulle_parts.filter((part) => part.status === "payee");
   const canCancel = gerant && !paidOnline && (confirmed || pending);
+  const canResize =
+    gerant &&
+    reglages !== null &&
+    changeSize !== undefined &&
+    (confirmed || pending || reservation.status === "arrivee") &&
+    Date.parse(reservation.ends_at) > now.getTime();
   // Ce qui a été encaissé ici se rend à la main : la confirmation le rappelle, mode par mode.
   const toGiveBack = Object.entries(
     payers.reduce<Record<string, number>>((byTender, part) => {
@@ -203,11 +298,14 @@ export function ReservationSheet({
           <Row label="Créneau">
             {capitalize(formatBulleNight(reservation.starts_at, dayEndHour, true))} · {formatHours(reservation.starts_at, reservation.ends_at)}
           </Row>
-          <Row label="Groupe">{reservation.party_size} pers.</Row>
-          <Row label="Places payées">
-            {reservation.places_paid} sur {reservation.party_size}
-            {left > 0 && ` · reste ${places(left)}, ${formatCents(leftCents)}`}
+          <Row label="Groupe">
+            {reservation.party_size} pers.{reservation.party_size < billed && `, payé au prix de ${billed}`}
           </Row>
+          <Row label="Places payées">
+            {bullePlacesCouvertes(compte)} sur {billed}
+            {left > 0 && ` · reste ${formatCents(leftCents)}`}
+          </Row>
+          {trop > 0 && <Row label="Payé en trop">{formatCents(trop)}, à rendre ou non</Row>}
           {reservation.phone && (
             <Row label="Téléphone">
               <a
@@ -222,6 +320,16 @@ export function ReservationSheet({
           {reservation.note && <Row label="Note">{reservation.note}</Row>}
         </div>
 
+        {canResize && changeSize && reglages && (
+          <PartySizeEditor
+            key={version}
+            reservation={reservation}
+            reglages={reglages}
+            disabled={blocked}
+            onSave={(size) => void act(() => changeSize(reservation.id, size), `Réservation passée à ${persons(size)}.`)}
+          />
+        )}
+
         {payers.length > 0 && (
           <div className="flex flex-col gap-1.5">
             <span className="g-field-label">Payé</span>
@@ -233,7 +341,8 @@ export function ReservationSheet({
                     {part.method === "en_ligne" ? " · en ligne" : ` · ${part.tender ? TENDER_LABELS[part.tender] : "sur place"}`}
                   </span>
                   <span className="whitespace-nowrap tabular-nums text-muted">
-                    {places(part.places)} · {formatCents(part.amount_cents)}
+                    {part.places > 0 ? `${places(part.places)} · ` : ""}
+                    {formatCents(part.amount_cents)}
                   </span>
                 </li>
               ))}
@@ -304,16 +413,9 @@ export function NewReservationSheet({
         : undefined,
   };
 
-  const placeCents = errors.party
-    ? null
-    : bullePlaceCents(
-        {
-          placeCents: reglages.place_cents,
-          smallGroupPlaceCents: reglages.small_group_place_cents,
-          groupThreshold: reglages.group_threshold,
-        },
-        partySize
-      );
+  const pricing = pricingOf(reglages, reglages.min_billed_places);
+  const placeCents = errors.party ? null : bullePlaceCents(pricing, partySize);
+  const billed = bullePlacesFacturees(partySize, reglages.min_billed_places);
 
   const askTender = () => {
     setShowErrors(true);
@@ -336,7 +438,7 @@ export function NewReservationSheet({
   if (tendering && placeCents !== null) {
     return (
       <TenderSheet
-        amountCents={partySize * placeCents}
+        amountCents={billed * placeCents}
         busy={busy}
         later={() => void create()}
         onSelect={(tender) => void create(tender)}
@@ -400,9 +502,9 @@ export function NewReservationSheet({
         {placeCents !== null && (
           <p className="flex items-baseline justify-between gap-3 border-t border-hairline pt-3 text-g-body">
             <span className="text-muted tabular-nums">
-              {partySize} × {formatCents(placeCents)}
+              {partySize < billed ? `${formatSoloPrice(pricing)}` : `${partySize} × ${formatCents(placeCents)}`}
             </span>
-            <strong className="font-semibold tabular-nums">{formatCents(partySize * placeCents)}</strong>
+            <strong className="font-semibold tabular-nums">{formatCents(billed * placeCents)}</strong>
           </p>
         )}
       </form>

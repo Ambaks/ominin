@@ -1,4 +1,4 @@
-import { bulleConfirmPlaces } from "@/lib/bulles/format";
+import { bulleConfirmPlaces, bullePlacesFacturees, type BulleCompte } from "@/lib/bulles/format";
 import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
@@ -9,7 +9,7 @@ import type { Database } from "@/lib/supabase/database.types";
  * les réservations portent des coordonnées et ne sont pas publiques.
  */
 
-export type BulleTicket = {
+export type BulleTicket = BulleCompte & {
   slug: string;
   etablissement: string;
   address: string | null;
@@ -21,11 +21,9 @@ export type BulleTicket = {
   organiser: string;
   token: string;
   shareToken: string;
-  partySize: number;
   placesPaid: number;
   /** Les places payées qui confirment ce groupe. */
   confirmPlaces: number;
-  placeCents: number;
   status: Database["public"]["Enums"]["bulle_reservation_status"];
   /** Qui a payé en ligne, et combien de places. */
   payers: { name: string; places: number; organiser: boolean }[];
@@ -37,7 +35,7 @@ export async function fetchBulleTicket(
   const query = createAdminClient()
     .from("bulle_reservations")
     .select(
-      "token, share_token, name, starts_at, ends_at, party_size, places_paid, place_cents, status, bulles(name, color), etablissements(slug, name, address, bulle_reglages(group_threshold), etablissement_settings(day_end_hour)), bulle_parts(name, places, organiser, method, status, created_at)"
+      "token, share_token, name, starts_at, ends_at, party_size, places_paid, place_cents, paid_cents, min_billed_places, status, bulles(name, color), etablissements(slug, name, address, bulle_reglages(group_threshold), etablissement_settings(day_end_hour)), bulle_parts(name, places, organiser, method, status, created_at)"
     );
   const { data, error } = await ("token" in key
     ? query.eq("token", key.token)
@@ -58,8 +56,13 @@ export async function fetchBulleTicket(
     shareToken: data.share_token,
     partySize: data.party_size,
     placesPaid: data.places_paid,
-    confirmPlaces: bulleConfirmPlaces(data.party_size, data.etablissements.bulle_reglages.group_threshold),
+    confirmPlaces: bulleConfirmPlaces(
+      bullePlacesFacturees(data.party_size, data.min_billed_places),
+      data.etablissements.bulle_reglages.group_threshold
+    ),
     placeCents: data.place_cents,
+    paidCents: data.paid_cents,
+    minBilledPlaces: data.min_billed_places,
     status: data.status,
     payers: data.bulle_parts
       .filter((part) => part.method === "en_ligne" && part.status === "payee")

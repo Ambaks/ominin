@@ -1,4 +1,11 @@
-import { capitalize, formatBulleNight } from "@/lib/bulles/format";
+import {
+  BULLE_NO_REFUND,
+  bulleManquePourConfirmer,
+  bulleReste,
+  capitalize,
+  formatBulleNight,
+  type BulleCompte,
+} from "@/lib/bulles/format";
 import { partageUrl, reservationUrl } from "@/lib/bulles/links";
 import { formatCents, formatHours } from "@/lib/club/format";
 import { mailConfig, sendEmail } from "@/lib/gmail";
@@ -10,7 +17,7 @@ import { mailConfig, sendEmail } from "@/lib/gmail";
  * l'envoi est simulé.
  */
 
-export type BulleMail = {
+export type BulleMail = BulleCompte & {
   to: string;
   /** La personne qui reçoit l'e-mail : l'organisateur, ou un ami qui a payé. */
   name: string;
@@ -24,9 +31,9 @@ export type BulleMail = {
   endsAt: string;
   /** Bascule du jour de service : un créneau d'après minuit reste au soir réservé. */
   dayEndHour: number;
-  partySize: number;
   confirmPlaces: number;
-  placesPaid: number;
+  /** La réservation tient déjà sa bulle. */
+  confirmed: boolean;
   /** Ce que cette personne a payé. */
   places: number;
   amountCents: number;
@@ -50,7 +57,8 @@ function row(label: string, value: string, strong = false) {
 }
 
 function layout(mail: BulleMail, title: string, intro: string, cta: string, extra = "", refunded = false) {
-  const places = `${mail.places} place${mail.places > 1 ? "s" : ""}`;
+  // Une part qui complète un montant après un changement de taille ne compte aucune place.
+  const places = mail.places > 0 ? `${mail.places} place${mail.places > 1 ? "s" : ""}` : "le reste du groupe";
   return `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(title)}</title></head>
 <body style="margin:0;padding:0;background:#251b20;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#251b20;">
@@ -66,10 +74,11 @@ function layout(mail: BulleMail, title: string, intro: string, cta: string, extr
 ${row("Bulle", escapeHtml(mail.bulle))}
 ${row("Soir", escapeHtml(capitalize(formatBulleNight(mail.startsAt, mail.dayEndHour))))}
 ${row("Créneau", escapeHtml(formatHours(mail.startsAt, mail.endsAt)))}
-${row("Groupe", `${mail.partySize} personnes`)}
+${row("Groupe", `${mail.partySize} personne${mail.partySize > 1 ? "s" : ""}`)}
 ${row(refunded ? "Remboursé" : "Payé", `${formatCents(mail.amountCents)} · ${places}`, true)}
 </table></td></tr>
 ${extra}
+${refunded ? "" : `<tr><td style="padding:16px 32px 0;text-align:center;font-size:12px;line-height:1.6;color:#7a5a52;">${escapeHtml(BULLE_NO_REFUND)}</td></tr>`}
 <tr><td style="padding:24px 32px 8px;text-align:center;"><a href="${linkOf(mail)}" style="display:inline-block;background:#b5443a;color:#fbf3e8;text-decoration:none;font-size:15px;font-weight:600;padding:15px 28px;border-radius:999px;">${escapeHtml(cta)}</a></td></tr>
 <tr><td style="padding:20px 32px 28px;text-align:center;font-size:12px;line-height:1.7;color:#7a5a52;">${escapeHtml(mail.etablissement.name)}${mail.etablissement.address ? ` · ${escapeHtml(mail.etablissement.address)}` : ""}</td></tr>
 </table></td></tr></table></body></html>`;
@@ -77,7 +86,7 @@ ${extra}
 
 // Le lien à transmettre aux amis, tant que des places restent à payer.
 function shareBlock(mail: BulleMail) {
-  if (!mail.organiser || mail.placesPaid >= mail.partySize) return "";
+  if (!mail.organiser || bulleReste(mail).cents === 0) return "";
   const url = partageUrl(mail.etablissement.slug, mail.shareToken);
   return `<tr><td style="padding:20px 32px 0;"><div style="border:1px dashed #c9803f;border-radius:14px;padding:14px 16px;font-size:14px;line-height:1.6;color:#251b20;">Envoyez ce lien à vos amis : chacun paie sa place, jusqu'à la fin du créneau. Pour commander depuis la bulle, toutes les places doivent être payées.<br><a href="${url}" style="color:#9e3a31;word-break:break-all;">${url}</a></div></td></tr>`;
 }
@@ -94,18 +103,18 @@ async function send(to: string, subject: string, html: string) {
   }
 }
 
-const missing = (mail: BulleMail) => Math.max(mail.confirmPlaces - mail.placesPaid, 0);
-
-/** Une place payée, la bulle pas encore confirmée. */
+/** Une place payée : la bulle pas encore réservée, ou déjà confirmée. */
 export function sendPlacesPaid(mail: BulleMail) {
-  const left = missing(mail);
+  const left = bulleManquePourConfirmer(mail, mail.confirmPlaces);
   return send(
     mail.to,
-    `${mail.bulle} · votre place est payée`,
+    `${mail.bulle} · votre paiement est reçu`,
     layout(
       mail,
-      mail.organiser ? "Votre bulle se prépare" : "Votre place est payée",
-      `${escapeHtml(mail.name)}, encore ${left} place${left > 1 ? "s" : ""} à payer et la bulle est à vous. Si un autre groupe la confirme avant, vous passez sur une bulle libre du créneau ; s'il n'en reste plus, vous êtes remboursé.`,
+      mail.confirmed ? "Votre place est payée" : "Votre bulle n'est pas encore réservée",
+      mail.confirmed
+        ? `${escapeHtml(mail.name)}, votre paiement est reçu. La bulle est confirmée.`
+        : `${escapeHtml(mail.name)}, votre paiement est reçu, mais la bulle n'est pas encore réservée : elle le sera dès que ${mail.confirmPlaces} places sont payées (encore ${left}). Si un autre groupe la confirme avant, vous passez sur une bulle libre du créneau ; s'il n'en reste plus, chacun est remboursé.`,
       mail.organiser ? "Suivre ma réservation" : "Voir la bulle",
       shareBlock(mail)
     )
@@ -119,7 +128,7 @@ export function sendBulleConfirmed(mail: BulleMail) {
     `${mail.bulle} est à vous · ${formatBulleNight(mail.startsAt, mail.dayEndHour)}`,
     layout(
       mail,
-      `${mail.bulle} est à vous`,
+      `${mail.bulle} est confirmée`,
       mail.organiser
         ? `${escapeHtml(mail.name)}, votre bulle est confirmée. Présentez votre pass à l'accueil. Pour commander depuis la bulle, toutes les places du groupe doivent être payées : par le lien de partage ou à l'accueil.`
         : `${escapeHtml(mail.name)}, la bulle de ${escapeHtml(mail.organiserName)} est confirmée. Rendez-vous à l'accueil avec votre groupe.`,

@@ -928,6 +928,7 @@ export type Database = {
           etablissement_id: string
           group_threshold: number
           max_party: number
+          min_billed_places: number
           min_party: number
           place_cents: number
           small_group_place_cents: number | null
@@ -939,6 +940,7 @@ export type Database = {
           etablissement_id: string
           group_threshold: number
           max_party: number
+          min_billed_places?: number
           min_party: number
           place_cents: number
           small_group_place_cents?: number | null
@@ -950,6 +952,7 @@ export type Database = {
           etablissement_id?: string
           group_threshold?: number
           max_party?: number
+          min_billed_places?: number
           min_party?: number
           place_cents?: number
           small_group_place_cents?: number | null
@@ -976,8 +979,10 @@ export type Database = {
           ends_at: string
           etablissement_id: string
           id: string
+          min_billed_places: number
           name: string
           note: string | null
+          paid_cents: number
           party_size: number
           phone: string | null
           place_cents: number
@@ -998,8 +1003,10 @@ export type Database = {
           ends_at: string
           etablissement_id: string
           id?: string
+          min_billed_places?: number
           name: string
           note?: string | null
+          paid_cents?: number
           party_size: number
           phone?: string | null
           place_cents: number
@@ -1020,8 +1027,10 @@ export type Database = {
           ends_at?: string
           etablissement_id?: string
           id?: string
+          min_billed_places?: number
           name?: string
           note?: string | null
+          paid_cents?: number
           party_size?: number
           phone?: string | null
           place_cents?: number
@@ -7847,6 +7856,10 @@ export type Database = {
         Args: { p_date: string; p_start_minutes: number }
         Returns: string
       }
+      bulle_changer_taille: {
+        Args: { p_party: number; p_reservation: string }
+        Returns: Database["public"]["Tables"]["bulle_reservations"]["Row"]
+      }
       bulle_deloger: { Args: { p_reservation: string }; Returns: string[] }
       bulle_fermer: { Args: { p_reservation: string }; Returns: string[] }
       bulle_libre: {
@@ -7939,6 +7952,7 @@ export type Database = {
           place_cents: number
           places_paid: number
           reservation_status: Database["public"]["Enums"]["bulle_reservation_status"]
+          reste_cents: number
           starts_at: string
         }[]
       }

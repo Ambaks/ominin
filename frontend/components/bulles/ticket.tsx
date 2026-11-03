@@ -1,5 +1,12 @@
 import type { CSSProperties } from "react";
-import { capitalize, formatBulleNight } from "@/lib/bulles/format";
+import {
+  bulleManquePourConfirmer,
+  bullePlacesCouvertes,
+  bullePlacesFacturees,
+  bulleReste,
+  capitalize,
+  formatBulleNight,
+} from "@/lib/bulles/format";
 import type { BulleTicket } from "@/lib/bulles/reservation";
 import { formatCents, formatHours } from "@/lib/club/format";
 
@@ -16,25 +23,25 @@ import { formatCents, formatHours } from "@/lib/club/format";
  */
 export function ticketState(ticket: BulleTicket) {
   const ended = Date.parse(ticket.endsAt) <= Date.now();
-  const left = ticket.partySize - ticket.placesPaid;
+  const { cents: leftCents, places: left } = bulleReste(ticket);
   const open = ticket.status === "en_attente" || ticket.status === "confirmee" || ticket.status === "arrivee";
-  return { ended, left, live: open && !ended };
+  return { ended, left, leftCents, live: open && !ended };
 }
 
 function headline(ticket: BulleTicket, missing: number) {
   switch (ticket.status) {
     case "en_attente":
       return {
-        pill: "En attente",
-        title: `Encore ${missing} place${missing > 1 ? "s" : ""} à payer`,
-        text: `La bulle est confirmée dès ${ticket.confirmPlaces} places payées. Si un autre groupe la confirme avant, vous passez sur une bulle libre du créneau ; s'il n'en reste plus, chacun est remboursé.`,
+        pill: "Pas encore réservée",
+        title: "Votre bulle n'est pas encore réservée",
+        text: `Elle le sera dès que ${ticket.confirmPlaces} places sont payées : encore ${missing}. Si un autre groupe la confirme avant, vous passez sur une bulle libre du créneau ; s'il n'en reste plus, chacun est remboursé.`,
       };
     case "confirmee":
       return {
         pill: "Confirmée",
-        title: `${ticket.bulle.name} est à vous`,
+        title: `${ticket.bulle.name} est confirmée`,
         text:
-          ticket.placesPaid < ticket.partySize
+          bulleReste(ticket).cents > 0
             ? "Présentez cette page à l'accueil. Pour commander depuis la bulle, toutes les places du groupe doivent être payées."
             : "Présentez cette page à l'accueil. Toutes les places sont payées : la carte de la bulle s'ouvre au début du créneau.",
       };
@@ -52,11 +59,13 @@ function headline(ticket: BulleTicket, missing: number) {
 }
 
 export function Ticket({ ticket }: { ticket: BulleTicket }) {
-  const missing = Math.max(ticket.confirmPlaces - ticket.placesPaid, 0);
-  const left = ticket.partySize - ticket.placesPaid;
+  const missing = bulleManquePourConfirmer(ticket, ticket.confirmPlaces);
+  const { cents: leftCents } = bulleReste(ticket);
   const copy = headline(ticket, missing);
   const confirmed = ticket.status === "confirmee" || ticket.status === "arrivee";
-  const filled = Math.min(ticket.placesPaid, ticket.partySize);
+  // Seul au Boho, on paie deux places : les sièges disent les places facturées.
+  const seats = bullePlacesFacturees(ticket.partySize, ticket.minBilledPlaces);
+  const filled = bullePlacesCouvertes(ticket);
   return (
     <article className="bo-ticket" data-status={ticket.status} style={{ "--orb": ticket.bulle.color } as CSSProperties}>
       <span className="bo-orb bo-ticket-orb" aria-hidden />
@@ -78,6 +87,13 @@ export function Ticket({ ticket }: { ticket: BulleTicket }) {
           <dd>{formatHours(ticket.startsAt, ticket.endsAt)}</dd>
         </div>
         <div>
+          <dt>Groupe</dt>
+          <dd>
+            {ticket.partySize} personne{ticket.partySize > 1 ? "s" : ""}
+            {ticket.partySize < seats ? `, payé au prix de ${seats}` : ""}
+          </dd>
+        </div>
+        <div>
           <dt>Au nom de</dt>
           <dd>{ticket.organiser}</dd>
         </div>
@@ -85,8 +101,8 @@ export function Ticket({ ticket }: { ticket: BulleTicket }) {
 
       {(ticket.status === "en_attente" || confirmed) && (
         <div className="bo-places">
-          <div className="bo-seats" role="img" aria-label={`${filled} places payées sur ${ticket.partySize}`}>
-            {Array.from({ length: ticket.partySize }, (_, index) => (
+          <div className="bo-seats" role="img" aria-label={`${filled} places payées sur ${seats}`}>
+            {Array.from({ length: seats }, (_, index) => (
               <span
                 key={index}
                 data-paid={index < filled || undefined}
@@ -96,13 +112,13 @@ export function Ticket({ ticket }: { ticket: BulleTicket }) {
           </div>
           <p>
             <strong>
-              {ticket.placesPaid} / {ticket.partySize}
+              {filled} / {seats}
             </strong>{" "}
             places payées
-            {confirmed && left > 0 && (
+            {confirmed && leftCents > 0 && (
               <>
                 {" "}
-                · reste {formatCents(left * ticket.placeCents)} avant de commander
+                · reste {formatCents(leftCents)} avant de commander
               </>
             )}
           </p>

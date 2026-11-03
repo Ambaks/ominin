@@ -11,6 +11,7 @@ import {
 } from "@/components/payment/use-square-payments";
 import type { BulleCheckout } from "@/lib/bulles/server";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
+import { BULLE_NO_REFUND } from "@/lib/bulles/format";
 import { formatCents } from "@/lib/club/format";
 
 /*
@@ -155,6 +156,7 @@ function SquareForm({
           {error}
         </p>
       )}
+      <p className="bo-muted bo-small">{BULLE_NO_REFUND}</p>
       <button type="button" className="bo-button bo-button--block" onClick={() => void pay("card")} disabled={!ready}>
         {paying ? "Paiement en cours…" : square.status === "loading" ? "Préparation du paiement…" : `Payer ${formatCents(amountCents)}`}
       </button>
@@ -181,6 +183,7 @@ function DemoForm({ partId, amountCents, onResult }: { partId: string; amountCen
           {error}
         </p>
       )}
+      <p className="bo-muted bo-small">{BULLE_NO_REFUND}</p>
       <button type="button" className="bo-button bo-button--block" onClick={() => void pay()} disabled={paying}>
         {paying ? "Paiement en cours…" : `Payer ${formatCents(amountCents)}`}
       </button>
@@ -218,7 +221,7 @@ export function BullePayment({
             {formatCents(amountCents)}
           </h2>
           <p className="bo-pay-detail">
-            {places} place{places > 1 ? "s" : ""}, gardée{places > 1 ? "s" : ""} le temps de payer
+            {places > 0 ? `${places} place${places > 1 ? "s" : ""}, gardée${places > 1 ? "s" : ""} le temps de payer` : "Le reste du groupe"}
           </p>
         </div>
         <HoldCountdown remainingMs={remainingMs} totalMs={TABLE_HOLD_S * 1000} onExpire={onExpire} what="vos places" />

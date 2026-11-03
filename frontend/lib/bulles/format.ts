@@ -57,11 +57,13 @@ export function formatStartMinutes(minutes: number): string {
   return `${String(Math.floor(inDay / 60)).padStart(2, "0")}h${String(inDay % 60).padStart(2, "0")}`;
 }
 
-/** Les prix d'une place et le seuil qui les sépare (bulle_reglages). */
+/** Les prix d'une place, le seuil qui les sépare et le minimum facturé (bulle_reglages). */
 export type BullePricing = {
   placeCents: number;
   smallGroupPlaceCents: number | null;
   groupThreshold: number;
+  /** Une réservation paie au moins ces places, même à moins de personnes. */
+  minBilledPlaces: number;
 };
 
 /** Le prix d'une place pour un groupe de cette taille, à l'affichage : la base calcule le sien (bulle_prix_place). */
@@ -70,16 +72,76 @@ export const bullePlaceCents = (pricing: BullePricing, party: number) =>
     ? pricing.smallGroupPlaceCents
     : pricing.placeCents;
 
-/** Les places payées qui confirment un groupe de cette taille (bulle_places_confirmation). */
-export const bulleConfirmPlaces = (party: number, groupThreshold: number) => Math.min(party, groupThreshold);
+/** Les places qu'une réservation paie : le groupe, au moins le minimum facturé (bulle_places_facturees). */
+export const bullePlacesFacturees = (party: number, minBilledPlaces: number) => Math.max(party, minBilledPlaces);
 
-/** « 14,90 € par personne à 2, 9,90 € dès 3 », ou le seul prix sans tarif distinct. */
-export function formatBulleTarifs(pricing: BullePricing, minParty: number): string {
-  const { placeCents, smallGroupPlaceCents: small, groupThreshold: threshold } = pricing;
-  if (small === null || minParty >= threshold) return `${formatCents(placeCents)} par personne`;
-  const group = minParty === threshold - 1 ? `à ${minParty}` : `de ${minParty} à ${threshold - 1}`;
-  return `${formatCents(small)} par personne ${group}, ${formatCents(placeCents)} dès ${threshold}`;
+/** Le prix d'une réservation de cette taille. */
+export const bulleTotalCents = (pricing: BullePricing, party: number) =>
+  bullePlacesFacturees(party, pricing.minBilledPlaces) * bullePlaceCents(pricing, party);
+
+/** Les places payées qui confirment une réservation de tant de places facturées (bulle_places_confirmation). */
+export const bulleConfirmPlaces = (billedPlaces: number, groupThreshold: number) => Math.min(billedPlaces, groupThreshold);
+
+/** Ce qu'une réservation sait de son argent : sa taille, son tarif, son minimum facturé, ce qui est payé. */
+export type BulleCompte = {
+  partySize: number;
+  placeCents: number;
+  minBilledPlaces: number;
+  paidCents: number;
+};
+
+/**
+ * Le reste dû au tarif de la taille actuelle (bulle_reste_cents), en centimes
+ * et en places à payer, la dernière au plus au reste ; et le trop-perçu après
+ * un changement de taille.
+ */
+export function bulleReste(compte: BulleCompte) {
+  const due = bullePlacesFacturees(compte.partySize, compte.minBilledPlaces) * compte.placeCents;
+  const cents = Math.max(due - compte.paidCents, 0);
+  return { cents, places: Math.ceil(cents / compte.placeCents), trop: Math.max(compte.paidCents - due, 0) };
 }
+
+/** Les places facturées couvertes par ce qui est payé. */
+export const bullePlacesCouvertes = (compte: BulleCompte) =>
+  bullePlacesFacturees(compte.partySize, compte.minBilledPlaces) - bulleReste(compte).places;
+
+/** Les places qui manquent encore pour confirmer. */
+export const bulleManquePourConfirmer = (compte: BulleCompte, confirmPlaces: number) =>
+  Math.ceil(Math.max(confirmPlaces * compte.placeCents - compte.paidCents, 0) / compte.placeCents);
+
+/** Le prix de tant de places, la dernière au plus au reste (contribuer_bulle). */
+export const bulleMontant = (places: number, placeCents: number, resteCents: number) =>
+  Math.min(places * placeCents, resteCents);
+
+/**
+ * « 14,90 € par personne à 2, 9,90 € dès 3 », ou le seul prix sans tarif
+ * distinct ; précédé de « Seul : 29,80 €, le prix de deux » quand on réserve à
+ * moins que le minimum facturé.
+ */
+export function formatBulleTarifs(pricing: BullePricing, minParty: number): string {
+  const { placeCents, smallGroupPlaceCents: small, groupThreshold: threshold, minBilledPlaces } = pricing;
+  const from = Math.max(minParty, minBilledPlaces);
+  let tarifs: string;
+  if (small === null || from >= threshold) tarifs = `${formatCents(placeCents)} par personne`;
+  else {
+    const group = from === threshold - 1 ? `à ${from}` : `de ${from} à ${threshold - 1}`;
+    tarifs = `${formatCents(small)} par personne ${group}, ${formatCents(placeCents)} dès ${threshold}`;
+  }
+  if (minParty >= minBilledPlaces) return tarifs;
+  return `${formatSoloPrice(pricing)} · ${tarifs}`;
+}
+
+const COUNT_WORDS = ["zéro", "un", "deux", "trois", "quatre", "cinq", "six", "sept", "huit", "neuf", "dix"];
+
+/** « Seul : 29,80 €, le prix de deux ». */
+export function formatSoloPrice(pricing: BullePricing): string {
+  const billed = pricing.minBilledPlaces;
+  return `Seul : ${formatCents(bulleTotalCents(pricing, 1))}, le prix de ${COUNT_WORDS[billed] ?? billed}`;
+}
+
+/** Ce que voit toute personne juste avant de payer : la règle de bulle_rembourser_part. */
+export const BULLE_NO_REFUND =
+  "Les sommes payées, acomptes compris, ne sont pas remboursées, sauf si la bulle ne peut pas être tenue.";
 
 /** Les jours ISO (1 = lundi) comme les écrit la gestion. */
 export const WEEKDAY_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"] as const;

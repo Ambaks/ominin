@@ -32,8 +32,7 @@ export function useBulleOrderBlock(): string | null {
 function blockOf(state: TableState | null): string | null {
   if (!state || state.ordering) return null;
   if (!state.reservation_status) return `${state.bulle_name} n'est pas réservée en ce moment.`;
-  const left = state.party_size - state.places_paid;
-  if (left > 0) return `Encore ${left} place${left > 1 ? "s" : ""} à payer pour commander.`;
+  if (state.reste_cents > 0) return `Encore ${formatCents(state.reste_cents)} à payer pour commander.`;
   return "Toutes les places sont payées : la carte s'ouvre au début de votre créneau.";
 }
 
@@ -101,7 +100,8 @@ function BulleGate({
   message: string;
   dayEndHour: number;
 }) {
-  const left = state.party_size - state.places_paid;
+  // Le reste se compte en argent (bulle_reste_cents) : un changement de taille le rend exact.
+  const left = state.reste_cents;
   return (
     <main
       className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-[#0a0e1c] px-6 py-10 text-center text-[#fbf3e8]"
@@ -128,10 +128,7 @@ function BulleGate({
       {left > 0 && (
         <div className="flex flex-col gap-1">
           <p className="text-sm opacity-85">Reste à payer</p>
-          <p className="text-5xl font-semibold tabular-nums">{formatCents(left * state.place_cents)}</p>
-          <p className="text-sm tabular-nums opacity-85">
-            {state.places_paid} place{state.places_paid > 1 ? "s" : ""} payée{state.places_paid > 1 ? "s" : ""} sur {state.party_size}
-          </p>
+          <p className="text-5xl font-semibold tabular-nums">{formatCents(left)}</p>
         </div>
       )}
       <p role="status" className="max-w-xs leading-snug">
@@ -142,7 +139,7 @@ function BulleGate({
           href={bulleTableUrl(slug, table)}
           className="inline-flex min-h-12 w-full max-w-xs items-center justify-center rounded-full bg-[#fbf3e8] px-6 font-semibold text-[#0a0e1c]"
         >
-          Payer {formatCents(left * state.place_cents)}
+          Payer {formatCents(left)}
         </a>
       )}
       {left > 0 && (

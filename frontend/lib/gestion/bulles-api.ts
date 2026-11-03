@@ -176,6 +176,11 @@ export async function markArrival(reservationId: string, arrived: boolean, tende
   );
 }
 
+/** Le gérant change le nombre de personnes ; le prix suit la nouvelle taille (bulle_changer_taille). */
+export async function changeSize(reservationId: string, partySize: number) {
+  unwrap(await createClient().rpc("bulle_changer_taille", { p_reservation: reservationId, p_party: partySize }));
+}
+
 export async function cancelReservation(reservationId: string) {
   unwrap(await createClient().rpc("bulle_annuler_reservation", { p_reservation: reservationId }));
 }
@@ -216,9 +221,16 @@ export type BulleActions = {
   markArrival: (reservationId: string, arrived: boolean, tender?: BulleTender) => Promise<void>;
   cancelReservation: (reservationId: string) => Promise<void>;
   createReservation: (input: NewBulleReservation) => Promise<void>;
+  /** Absent sur la démonstration : sans compte, personne n'y est gérant. */
+  changeSize?: (reservationId: string, partySize: number) => Promise<void>;
 };
 
-export const BulleActionsContext = createContext<BulleActions>({ markArrival, cancelReservation, createReservation });
+export const BulleActionsContext = createContext<BulleActions>({
+  markArrival,
+  cancelReservation,
+  createReservation,
+  changeSize,
+});
 
 export const useBulleActions = () => useContext(BulleActionsContext);
 

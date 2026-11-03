@@ -6,7 +6,15 @@ import { bullesTabName } from "@/lib/gestion/constants";
 import { NewReservationSheet, ReservationSheet, STATUS_LABELS } from "@/components/gestion/bulles/reservation-sheet";
 import { CheckIcon, ExternalLinkIcon, GearIcon } from "@/components/gestion/icons";
 import { Chip, EmptyState, ErrorNotice, GlassButton, Input, Plate, SectionHeading, Shimmer } from "@/components/gestion/ui";
-import { addDays, bulleConfirmPlaces, isoWeekday } from "@/lib/bulles/format";
+import {
+  addDays,
+  bulleConfirmPlaces,
+  bulleManquePourConfirmer,
+  bullePlacesFacturees,
+  bulleReste,
+  isoWeekday,
+  type BulleCompte,
+} from "@/lib/bulles/format";
 import { bulleUrl } from "@/lib/bulles/links";
 import { formatHours, formatNight } from "@/lib/club/format";
 import { parisInstant } from "@/lib/collect/hours";
@@ -78,8 +86,19 @@ export function BullesBoard({
     return [...starts.values()].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   }, [setup.creneaux, date, duration, reservations]);
 
-  const confirmPlaces = (group: BulleReservation) =>
-    bulleConfirmPlaces(group.party_size, setup.reglages?.group_threshold ?? group.party_size);
+  const compteOf = (group: BulleReservation): BulleCompte => ({
+    partySize: group.party_size,
+    placeCents: group.place_cents,
+    minBilledPlaces: group.min_billed_places,
+    paidCents: group.paid_cents,
+  });
+  const confirmPlaces = (group: BulleReservation) => {
+    const billed = bullePlacesFacturees(group.party_size, group.min_billed_places);
+    return bulleConfirmPlaces(billed, setup.reglages?.group_threshold ?? billed);
+  };
+  // Les places du minimum déjà couvertes par ce qui est payé.
+  const confirmPaid = (group: BulleReservation) =>
+    confirmPlaces(group) - bulleManquePourConfirmer(compteOf(group), confirmPlaces(group));
   const bulles = setup.bulles;
   const bulleById = new Map(bulles.map((bulle) => [bulle.id, bulle]));
   const tableNumber = new Map(tables.map((table) => [table.id, table.number]));
@@ -205,7 +224,7 @@ export function BullesBoard({
                       const here = reservations.filter((r) => r.bulle_id === bulle.id && sameStart(r, slot));
                       const holder = here.find(held);
                       const pending = here.filter((r) => r.status === "en_attente");
-                      const left = holder ? holder.party_size - holder.places_paid : 0;
+                      const left = holder ? bulleReste(compteOf(holder)).places : 0;
                       const table = bulle.table_id ? tableNumber.get(bulle.table_id) : undefined;
                       const where = `${bulle.name}, ${formatHours(slot.startsAt, slot.endsAt)}`;
                       return (
@@ -259,13 +278,13 @@ export function BullesBoard({
                               key={group.id}
                               type="button"
                               onClick={() => setOpened(group.id)}
-                              aria-label={`En attente, ${group.name}, ${group.places_paid} sur ${confirmPlaces(group)} places payées`}
+                              aria-label={`En attente, ${group.name}, ${confirmPaid(group)} sur ${confirmPlaces(group)} places payées`}
                               className={`g-press flex min-h-(--g-control) items-center justify-between gap-2 ${CELL_RADIUS} px-1.5 text-left text-g-meta text-muted ${FOCUS}`}
                             >
                               <span className="min-w-0 flex-1">
                                 <span className="block truncate">En attente · {group.name}</span>
                                 <span className="block tabular-nums">
-                                  {group.places_paid} sur {confirmPlaces(group)} minimum
+                                  {confirmPaid(group)} sur {confirmPlaces(group)} minimum
                                 </span>
                               </span>
                             </button>
@@ -289,6 +308,7 @@ export function BullesBoard({
         <ReservationSheet
           reservation={openedReservation}
           bulle={bulleById.get(openedReservation.bulle_id)}
+          reglages={setup.reglages}
           gerant={gerant}
           dayEndHour={dayEndHour}
           onClose={() => setOpened(null)}

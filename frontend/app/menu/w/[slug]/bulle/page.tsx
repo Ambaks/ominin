@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: PageProps<"/menu/w/[slug]/bul
   if (!offer) notFound();
   return {
     title: `Réserver une bulle · ${offer.etablissement.name}`,
-    description: `${formatBulleTarifs(offer, offer.minParty)}, ${formatDuration(offer.durationMinutes)}, dès ${offer.minParty} personnes.`,
+    description: `${formatBulleTarifs(offer, offer.minParty)}, ${formatDuration(offer.durationMinutes)}, dès ${offer.minParty} personne${offer.minParty > 1 ? "s" : ""}.`,
     robots: { index: false, follow: false },
   };
 }

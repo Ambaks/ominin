@@ -29,7 +29,9 @@ export default async function BulleTablePage({ params }: PageProps<"/menu/w/[slu
   if (error) throw new Error(error.message);
   const state = data?.[0];
   if (!state) notFound();
-  const left = state.reservation_status ? state.party_size - state.places_paid : 0;
+  // Le reste se compte en argent (bulle_reste_cents) : la dernière place s'y arrête.
+  const leftCents = state.reservation_status ? state.reste_cents : 0;
+  const left = Math.ceil(leftCents / state.place_cents);
 
   return (
     <div className="bo-bulle-page bo-stack-sm">
@@ -42,16 +44,16 @@ export default async function BulleTablePage({ params }: PageProps<"/menu/w/[slu
           {state.reservation_status && (
             <p className="bo-recap-detail">
               {formatHours(state.starts_at, state.ends_at)}
-              {left > 0 && ` · reste ${formatCents(left * state.place_cents)}`}
+              {leftCents > 0 && ` · reste ${formatCents(leftCents)}`}
             </p>
           )}
         </div>
       </div>
       {state.can_pay ? (
-        <Contribute target={{ slug, table }} placeCents={state.place_cents} placesLeft={left} allLeft />
+        <Contribute target={{ slug, table }} placeCents={state.place_cents} placesLeft={left} resteCents={leftCents} allLeft />
       ) : (
         <p className="bo-muted-night bo-text-center">
-          {state.reservation_status && left === 0 ? "Toutes les places sont payées." : "Rien à payer pour cette bulle en ce moment."}
+          {state.reservation_status && leftCents === 0 ? "Toutes les places sont payées." : "Rien à payer pour cette bulle en ce moment."}
         </p>
       )}
       <a className="bo-button bo-button--ghost" href={`${carteUrl(slug)}?table=${table}`}>
