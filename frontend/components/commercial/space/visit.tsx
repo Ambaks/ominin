@@ -180,7 +180,11 @@ export function VisitScreen({ place }: { place: MapRestaurant }) {
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">Message envoyé sur Discord</span>
             <p className={`${cardClass} text-sm`}>{visitMessage(account.first_name ?? account.email, place.name, visit.outcome)}</p>
-            <span className="text-xs text-faint">Le contact et le nom du gérant ne partent jamais sur Discord.</span>
+            <span className="text-xs text-faint">
+              {visit.outcome === "absent"
+                ? "Le contact part seulement dans #inscriptions, que voit l’équipe."
+                : "Le nom du gérant ne part jamais sur Discord."}
+            </span>
           </div>
           {error && <p className="text-sm text-ember-3">{error}</p>}
           <button type="button" disabled={busy} onClick={() => void send()} className={primaryButton}>

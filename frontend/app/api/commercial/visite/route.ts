@@ -1,13 +1,14 @@
 import { NextResponse } from "next/server";
 import { commercialAccount } from "@/lib/commercial/session";
-import { visitMessage, type VisitInput } from "@/lib/commercial/visit";
+import { absentContactMessage, visitMessage, type VisitInput } from "@/lib/commercial/visit";
 import { postDiscord } from "@/lib/discord";
 import type { Json } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
 /*
  * Enregistre une visite (commercial_visit vérifie le compte et le restaurant),
- * puis l'annonce dans #terrain. Un Discord muet ne défait pas la visite.
+ * puis l'annonce dans #terrain ; le contact d'un responsable absent part dans
+ * #inscriptions. Un Discord muet ne défait pas la visite.
  */
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as { restaurantId?: string; visit?: VisitInput } | null;
@@ -26,10 +27,13 @@ export async function POST(request: Request) {
     supabase.rpc("commercial_map", { p_restaurant: body.restaurantId }).maybeSingle(),
   ]);
   if (account && place) {
-    try {
-      await postDiscord("terrain", visitMessage(account.first_name ?? account.email, place.name, body.visit.outcome));
-    } catch (cause) {
-      console.error("[discord] visite non annoncée", cause);
+    const commercial = account.first_name ?? account.email;
+    const posts = [postDiscord("terrain", visitMessage(commercial, place.name, body.visit.outcome))];
+    if (body.visit.outcome === "absent") {
+      posts.push(postDiscord("inscriptions", absentContactMessage(commercial, place.name, place.address, body.visit)));
+    }
+    for (const result of await Promise.allSettled(posts)) {
+      if (result.status === "rejected") console.error("[discord] visite non annoncée", result.reason);
     }
   }
   return NextResponse.json({ ok: true });
