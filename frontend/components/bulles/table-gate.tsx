@@ -129,7 +129,9 @@ function BulleGate({ slug, table, state, message }: { slug: string; table: numbe
           Payer {formatCents(left * state.place_cents)}
         </a>
       )}
-      <p className="max-w-xs text-sm opacity-75">La carte s&rsquo;ouvre ici toute seule une fois le reste réglé, ou à l&rsquo;accueil.</p>
+      {left > 0 && (
+        <p className="max-w-xs text-sm opacity-75">La carte s&rsquo;ouvre ici toute seule une fois le reste réglé, ou à l&rsquo;accueil.</p>
+      )}
     </main>
   );
 }
