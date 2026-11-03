@@ -117,18 +117,47 @@ export function formatDifference(minutes: number): string {
   return `${minutes > 0 ? "+" : "−"}${formatDuration(Math.abs(minutes))}`;
 }
 
-/** Heures décimales à la française (« 37,50 ») : Excel en fait un nombre, le comptable additionne. */
-const decimalHours = (minutes: number) => (minutes / 60).toFixed(2).replace(".", ",");
+/** Centièmes d'heure, arrondis une seule fois depuis les minutes entières d'une ligne. */
+const centiHours = (minutes: number) => Math.round((minutes * 100) / 60);
 
+/** Heures décimales à la française (« 37,50 ») : Excel en fait un nombre, le comptable additionne. */
+const decimalHours = (centi: number) => (centi / 100).toFixed(2).replace(".", ",");
+
+interface CsvRow {
+  name: string;
+  planned: number;
+  worked: number;
+  open: number;
+}
+
+/**
+ * Chaque ligne s'arrondit une fois, et le total additionne les lignes telles
+ * qu'elles s'affichent : arrondir la somme des minutes le décalerait d'un
+ * centième sur une colonne que le comptable refait à la main. L'écart se lit
+ * de même, badgé affiché moins prévu affiché.
+ */
 export function hoursReportCsv({ rows, total }: HoursReport, period: ReportPeriod): string {
-  return toCsv<ReportRow>(
-    [...rows, total],
+  const lines: CsvRow[] = rows.map((row) => ({
+    name: row.name,
+    planned: centiHours(row.planned),
+    worked: centiHours(row.worked),
+    open: row.open,
+  }));
+  const sum = (pick: (line: CsvRow) => number) => lines.reduce((acc, line) => acc + pick(line), 0);
+  const totalLine: CsvRow = {
+    name: total.name,
+    planned: sum((line) => line.planned),
+    worked: sum((line) => line.worked),
+    open: total.open,
+  };
+  return toCsv<CsvRow>(
+    [...lines, totalLine],
     [
       { header: "Période", value: () => period.label },
       { header: "Personne", value: (row) => row.name },
       { header: "Heures prévues", value: (row) => decimalHours(row.planned) },
       { header: "Heures badgées", value: (row) => decimalHours(row.worked) },
-      { header: "Écart (heures)", value: (row) => decimalHours(row.difference) },
+      { header: "Écart (heures)", value: (row) => decimalHours(row.worked - row.planned) },
       { header: "Pointages en cours (non comptés)", value: (row) => row.open },
     ],
     CSV_DELIMITER
