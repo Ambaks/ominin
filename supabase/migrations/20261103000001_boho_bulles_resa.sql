@@ -648,3 +648,35 @@ begin
   where etablissement_id = (select id from etablissements where slug = 'boho-demo');
 end;
 $$;
+
+-- La Grise s'appelle la Beige, au Boho comme sur sa démonstration. Les bulles
+-- du vrai Boho se posent sur leurs tables du menu QR ; une table absente est
+-- signalée et sa bulle reste sans table, le gérant la choisira dans les
+-- réglages. La démonstration garde les siennes.
+do $$
+declare
+  v_boho uuid;
+  v_table uuid;
+  v_pose record;
+begin
+  update bulles set name = 'La Beige', color = '#c4a57f'
+  where name = 'La Grise'
+    and etablissement_id in (select id from etablissements where slug in ('boho', 'boho-demo'));
+
+  select id into v_boho from etablissements where slug = 'boho';
+  if v_boho is null then
+    return;
+  end if;
+  for v_pose in
+    select * from (values ('La Beige', 48), ('La Verte', 49), ('La Bleue', 51)) as p (bulle, numero)
+  loop
+    select id into v_table from tables where etablissement_id = v_boho and number = v_pose.numero;
+    if v_table is null then
+      raise notice 'Le Boho n''a pas de table % : % reste sans table.', v_pose.numero, v_pose.bulle;
+    else
+      update bulles set table_id = v_table
+      where etablissement_id = v_boho and name = v_pose.bulle;
+    end if;
+  end loop;
+end;
+$$;
