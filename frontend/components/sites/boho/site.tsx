@@ -116,7 +116,7 @@ export function BohoSite({
                 <h2 className="bo-h2">Choisissez votre soir.</h2>
                 {offer ? (
                   <p className="bo-lead">
-                    {formatBulleTarifs(offer, offer.minParty)}, {formatDuration(offer.durationMinutes)}, de{" "}
+                    {formatBulleTarifs(offer, offer.minParty)} · {formatDuration(offer.durationMinutes)} · de{" "}
                     {offer.minParty} à {offer.maxParty} personnes.
                   </p>
                 ) : (
