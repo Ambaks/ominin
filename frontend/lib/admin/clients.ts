@@ -27,6 +27,8 @@ export interface Client {
   /** Habillage de saison du menu QR, et son dernier jour de service (inclus). */
   saison: Saison | null;
   saisonFin: string | null;
+  /** « Commande bientôt » : le menu QR se consulte, on n'y commande pas encore. */
+  orderingSoon: boolean;
   /** Heure de bascule du jour de service : la date de fin s'y lit. */
   dayEndHour: number;
 }
@@ -59,7 +61,7 @@ export async function fetchClients(): Promise<Client[]> {
       .then(must),
     supabase
       .from("etablissement_settings")
-      .select("etablissement_id, features, order_tabs, saison, saison_fin, day_end_hour")
+      .select("etablissement_id, features, order_tabs, saison, saison_fin, ordering_soon, day_end_hour")
       .then(must),
   ]);
 
@@ -89,6 +91,7 @@ export async function fetchClients(): Promise<Client[]> {
       categoryLayout: etablissement.category_layout as CategoryLayout,
       saison: row?.saison ?? null,
       saisonFin: row?.saison_fin ?? null,
+      orderingSoon: row?.ordering_soon ?? false,
       dayEndHour: row?.day_end_hour ?? 0,
     };
   });
@@ -175,6 +178,25 @@ export async function saveSaison(
           etablissement_id: etablissementId,
           saison,
           saison_fin: saison ? fin : null,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "etablissement_id" }
+      )
+  );
+}
+
+/** « Commande bientôt » sur le menu QR : Ominin seul le pose, comme la saison. */
+export async function saveOrderingSoon(
+  etablissementId: string,
+  orderingSoon: boolean
+): Promise<void> {
+  check(
+    await createClient()
+      .from("etablissement_settings")
+      .upsert(
+        {
+          etablissement_id: etablissementId,
+          ordering_soon: orderingSoon,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "etablissement_id" }

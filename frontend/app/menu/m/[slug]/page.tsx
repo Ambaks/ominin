@@ -199,7 +199,7 @@ export default async function MenuPage({
           la barre est fixed mais reste dans le sous-arbre des variables. */}
       <LoyaltyMemberProvider
         slug={slug}
-        enabled={orderingEnabled && loyalty != null}
+        enabled={orderingEnabled && !cartConfig.orderingSoon && loyalty != null}
         wheel={restaurant.loyaltyWheel}
       >
         <div
