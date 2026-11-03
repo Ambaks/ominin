@@ -128,6 +128,12 @@ export function CommercialSheet({
   const saved = settingsDraft(row.settings);
   const incomplete = SETTING_FIELDS.some(({ key, required }) => required && draft[key] === "");
   const unchanged = SETTING_FIELDS.every(({ key }) => draft[key] === saved[key]);
+  /* Les bornes de la base : un taux de 0 à 100, des durées et un rayon entiers et positifs. */
+  const outOfRange = SETTING_FIELDS.some(({ key }) => {
+    if (draft[key] === "") return false;
+    const value = Number(draft[key]);
+    return key === "commission_percent" ? !(value >= 0 && value <= 100) : !(Number.isInteger(value) && value > 0);
+  });
 
   const saveSettings = () => {
     const next = Object.fromEntries(
@@ -192,7 +198,15 @@ export function CommercialSheet({
               </li>
             ))}
           </ul>
-          <button type="button" disabled={busy || incomplete || unchanged} onClick={saveSettings} className={`${GHOST_BUTTON} self-start`}>
+          {outOfRange && (
+            <p className="text-sm text-ember-3">Le taux va de 0 à 100 % ; les durées et le rayon sont des nombres entiers d’au moins 1.</p>
+          )}
+          <button
+            type="button"
+            disabled={busy || incomplete || unchanged || outOfRange}
+            onClick={saveSettings}
+            className={`${GHOST_BUTTON} self-start`}
+          >
             Enregistrer
           </button>
         </section>
