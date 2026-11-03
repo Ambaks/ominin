@@ -10,6 +10,25 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Boho, lot de novembre : bulles, fermeture cuisine, planning, tarifs (2026-11-03, `boho-novembre`, migrations `20261103000010` à `20261103000014` appliquées en production juste avant la fusion) :**
+>
+> - **Bulles :**
+>   - Créneaux 19h, 21h et 23h tous les jours, plus 01h la nuit du samedi au dimanche (« Nuit du samedi 7 au dimanche 8 »).
+>   - 14,90 €/pers. à 2, 9,90 €/pers. dès 3. Une personne seule réserve au prix de deux (minimum facturé réglable).
+>   - La Rouge est retirée, la Grise devient la Beige. Tables 48 (Beige), 49 (Verte) et 51 (Bleue).
+>   - En gestion : réservation Carte, Espèces ou Plus tard, nombre de personnes modifiable par le gérant (le reste à payer se compte désormais en argent, `paid_cents`), rappel de la somme à rendre à l'annulation.
+>   - Page QR de la table au début du créneau ou dès l'arrivée cochée : reste à payer, puis menu débloqué.
+>   - Mentions « pas encore réservée » et « aucun remboursement » avant chaque paiement et dans les mails.
+>   - Les places encaissées comptent dans Paiements, Aujourd'hui et Analyses (vue `bulle_encaissements`).
+> - **Fermeture cuisine :** le bouton passe de Commandes à Aujourd'hui (Toute la cuisine, Plats chauds, Plats froids, Choisir), avec un marqueur chaud/froid par article. Le client voit « Cuisine fermée ».
+> - **Planning :** les signatures ne s'affichent plus dans les lignes, une coche et un bouton les ouvrent. Rapport d'heures par semaine ou par mois (prévu, badgé, écart) en CSV et en PDF.
+> - **Tarifs planifiés :** formulaire en trois temps (articles, quand, prix) avec « Plus cher de », « Moins cher de » et « Prix fixe », et un aperçu en direct. Une baisse qui passerait un article sous 0 € est refusée.
+> - **Vérifié :** `tsc`, `eslint`, toutes les migrations rejouées sur un Postgres local, tests SQL, parcours en navigateur mobile (28 captures des bulles), `next build` en webpack.
+> - **Pas vérifié :**
+>   - à l'écran : la taille modifiable, la réservation seule, les mentions avant paiement et Analyses ;
+>   - le vrai paiement Square et les mails envoyés.
+>   - **Retest complet prévu le jeudi 5 novembre au matin.**
+
 > **Admin : réglages de chaque commercial sur sa fiche, taux qui peut baisser (2026-11-03, `point-plan-novembre`, migration `20261103000002_commercial_reglages_par_fiche` appliquée en production) :** la section « Réglages communs » sous la liste des commerciaux disparaît ; la fiche de chaque commercial porte ses réglages : taux de commission, durée de la commission (et du contrat), délai d'une demande de visite, rayon de recherche sur la carte. Le taux peut maintenant baisser, pour corriger une erreur (le contrat n'a pas changé) ; un relevé envoyé garde son taux. Une fiche créée par invitation part des valeurs de `commercial_settings` (plus éditables dans l'admin). Le délai d'une demande de visite est celui du commercial qui suit le restaurant (carte, libération, message #demandes). Fichiers : la migration, `components/admin/commerciaux/commercial-sheet.tsx`, `lib/admin/commerciaux.ts`, `lib/commercial/requests.ts` ; `reglages-communs.tsx` supprimé, `admin_set_commission_percent` et le garde-fou du taux supprimés. Vérifié : `tsc`, `eslint`, tests SQL commerciaux (02, 05, 12 à 17, 19, 20 passent ; 01 et 18 cassés par `20261103000001` — paramètre `p_limit` et `commercial_map_points()` supprimée —, 07 dépend de la date). Pas vérifié dans un navigateur.
 
 > **Espace commercial : recherche sur la carte, chargement de la vue, retour dans les plaquettes (2026-11-03, `point-plan-novembre`, migration `20261103000001` appliquée en production) :** le commercial cherche un établissement par son nom dans un rayon autour de sa position (autour du centre de la carte s'il ne la partage pas), réglable dans l'admin (Réglages communs, 20 km par défaut). La carte ne télécharge plus que les restaurants de la vue, sans limite de dézoom. Les plaquettes s'ouvrent dans l'écran du deck avec un bouton « Retour », leurs pages étant des images générées par `backend/scripts/plaquette_pages.py`, à relancer si un PDF change. Fichiers : `components/commercial/space/map.tsx`, `components/admin/carte/map-canvas.tsx`, `lib/commercial/demos.ts`. Mise en ligne : `npm run db:push` puis fusion immédiate ; `commercial_map_points` change de signature, donc la carte en ligne est en erreur jusqu'à la fin du déploiement. Vérifié : `tsc`, `eslint` sur les dossiers touchés, migration sur un Postgres jetable, carte, recherche, fiche et plaquette dans un navigateur en taille téléphone, avec réponses de la base simulées. Non testé : l'espace avec un vrai compte, le champ de l'admin, le retour de la plaquette vers une visite, le hors ligne des plaquettes.
