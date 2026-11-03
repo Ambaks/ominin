@@ -18,6 +18,8 @@ export interface PeriodSummary {
   cost_exact: number;
   costed_revenue_ht: number;
   free_units: number;
+  /** Places de bulle encaissées, TTC : hors revenue, qui reste aux commandes. */
+  bulles: number;
 }
 
 export interface AnalysesItem {
@@ -51,7 +53,12 @@ export interface AnalysesDay {
   revenue: number;
   orders: number;
   visits: number;
+  /** Places de bulle encaissées ce jour-là, hors revenue. */
+  bulles: number;
 }
+
+/** Le CA d'un jour : ses commandes et ses places de bulle. */
+export const dayTotal = (day: AnalysesDay) => day.revenue + day.bulles;
 
 export interface CancelledSummary {
   orders: number;
@@ -154,9 +161,9 @@ export interface RangeRow {
 function revenueByWeekday(days: readonly AnalysesDay[], before: string): Map<number, number[]> {
   const byWeekday = new Map<number, number[]>();
   for (const day of days) {
-    if (day.day >= before || day.revenue <= 0) continue;
+    if (day.day >= before || dayTotal(day) <= 0) continue;
     const weekday = isoWeekday(day.day);
-    byWeekday.set(weekday, [...(byWeekday.get(weekday) ?? []), day.revenue]);
+    byWeekday.set(weekday, [...(byWeekday.get(weekday) ?? []), dayTotal(day)]);
   }
   return byWeekday;
 }
@@ -169,7 +176,7 @@ function revenueByWeekday(days: readonly AnalysesDay[], before: string): Map<num
 export function weekdayNorms(days: readonly AnalysesDay[], lastDays: number, to: string): RangeRow[] {
   const from = addDays(to, -lastDays);
   return days
-    .filter((day) => day.day >= from && day.day < to && day.revenue > 0)
+    .filter((day) => day.day >= from && day.day < to && dayTotal(day) > 0)
     .flatMap((day) => {
       const history = (revenueByWeekday(days, day.day).get(isoWeekday(day.day)) ?? []).slice(-ANALYSES.historyWeeks);
       if (history.length < ANALYSES.forecastWeeks) return [];
@@ -183,8 +190,8 @@ export function weekdayNorms(days: readonly AnalysesDay[], lastDays: number, to:
         median,
         low,
         high,
-        actual: day.revenue,
-        outside: day.revenue > high ? ("above" as const) : day.revenue < low ? ("below" as const) : undefined,
+        actual: dayTotal(day),
+        outside: dayTotal(day) > high ? ("above" as const) : dayTotal(day) < low ? ("below" as const) : undefined,
       }];
     });
 }

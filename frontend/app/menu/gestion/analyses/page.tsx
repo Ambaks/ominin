@@ -119,6 +119,10 @@ function Sections({
   openCosts: () => void;
 }) {
   const { current, previous } = data.summary;
+  // Le CA encaissé compte les places de bulle ; le reste lit les seules commandes.
+  const revenue = current.revenue + current.bulles;
+  const previousRevenue = previous.revenue + previous.bulles;
+  const hasBulles = current.bulles > 0 || previous.bulles > 0;
   const when = `les ${days} jours d’avant`;
   const nothing = `aucune vente les ${days} jours d’avant`;
   const targets = targetsOf(data.settings);
@@ -164,8 +168,14 @@ function Sections({
           entity="money"
           icon={<PaymentsIcon />}
           label="CA encaissé TTC"
-          value={money(current.revenue)}
-          {...comparison(current.revenue, { value: previous.revenue, count: previous.orders }, when, nothing, money)}
+          value={money(revenue)}
+          title={hasBulles ? "Commandes payées et places de bulle, TTC" : undefined}
+          {...comparison(revenue, { value: previousRevenue, count: previous.orders }, when, nothing, money)}
+          chart={
+            current.bulles > 0 ? (
+              <p className="mt-1 text-g-meta text-muted tabular-nums">dont bulles {money(current.bulles)}</p>
+            ) : undefined
+          }
         />
         <StatTile
           entity="orders"
@@ -179,7 +189,7 @@ function Sections({
           icon={<BagIcon />}
           label="Dépense par passage"
           value={current.visits > 0 ? money(current.revenue / current.visits) : "—"}
-          title="CA encaissé ÷ passages, TTC"
+          title={hasBulles ? "CA des commandes ÷ passages, TTC, places de bulle exclues" : "CA encaissé ÷ passages, TTC"}
           {...comparison(
             current.visits > 0 ? current.revenue / current.visits : 0,
             { value: previous.visits > 0 ? previous.revenue / previous.visits : 0, count: previous.visits },
@@ -228,9 +238,12 @@ function Sections({
       </Block>
 
       <Block i={block++}>
-        <SectionHeading title="Ventes" sub="Un passage : une table sur un service, ou une commande sans table." />
+        <SectionHeading
+          title="Ventes"
+          sub={`Un passage : une table sur un service, ou une commande sans table.${hasBulles ? " Les jours et la prévision comptent les places de bulle." : ""}`}
+        />
         <div className="grid gap-g-gap lg:grid-cols-2">
-          <Card title="D’où vient l’écart" sub={`face aux ${days} jours d’avant`}>
+          <Card title="D’où vient l’écart" sub={`face aux ${days} jours d’avant${hasBulles ? ", hors bulles" : ""}`}>
             {split ? (
               <>
                 <Fact label="Écart de CA" value={signed(split.revenueDelta)} />
@@ -411,7 +424,10 @@ function Sections({
           <div className="grid gap-g-gap lg:grid-cols-2">
             {data.loyalty.member_orders > 0 && (
               <Card title="Fidélité">
-                <Fact label="Part du CA" value={percentOf(ratio(data.loyalty.member_revenue * 100, current.revenue))} />
+                <Fact
+                  label={hasBulles ? "Part du CA des commandes" : "Part du CA"}
+                  value={percentOf(ratio(data.loyalty.member_revenue * 100, current.revenue))}
+                />
                 <Fact
                   label="Commande moyenne, membres · autres"
                   value={`${memberTicket == null ? "—" : money(memberTicket)} · ${otherTicket == null ? "—" : money(otherTicket)}`}
@@ -455,7 +471,12 @@ export default function AnalysesPage() {
   if (state.role !== "gerant") return <ReserveGerant ask="consulter les analyses" />;
 
   const data = loaded?.data ?? null;
-  const noSales = data != null && data.summary.current.orders === 0 && data.summary.previous.orders === 0;
+  const noSales =
+    data != null &&
+    data.summary.current.orders === 0 &&
+    data.summary.previous.orders === 0 &&
+    data.summary.current.bulles === 0 &&
+    data.summary.previous.bulles === 0;
   const noFoodCost = data != null && !noSales && data.summary.current.costed_revenue_ht === 0;
   const noLaborCost =
     data != null && !noSales && data.labor.length > 0 && data.settings?.hourly_labor_cost == null;
