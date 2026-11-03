@@ -25,7 +25,7 @@ import {
   STATUS_ORDER,
 } from "@/lib/admin/constants";
 import { STATUS_MAP_COLORS } from "@/lib/admin/status";
-import type { GeoPoint, LeadLite } from "@/lib/admin/types";
+import type { GeoPoint, LeadLite, MapBounds } from "@/lib/admin/types";
 
 /*
  * Une seule instance MapLibre, créée au montage et jamais recréée : les
@@ -79,12 +79,18 @@ export function MapCanvas({
   selected,
   onSelect,
   myPosition,
+  focus,
+  onViewChange,
   renderCard,
 }: {
   leads: LeadLite[];
   selected: LeadLite | null;
   onSelect: (restaurantId: string | null) => void;
   myPosition: GeoPoint | null;
+  /** Un point où amener la carte, assez près pour le sortir de son groupe. */
+  focus: GeoPoint | null;
+  /** Le cadre visible, au chargement puis à la fin de chaque déplacement. */
+  onViewChange: (view: MapBounds) => void;
   renderCard: (lead: LeadLite) => React.ReactNode;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -93,13 +99,15 @@ export function MapCanvas({
   const leadsRef = useRef(leads);
   const selectedRef = useRef(selected);
   const onSelectRef = useRef(onSelect);
+  const onViewChangeRef = useRef(onViewChange);
   const myPositionRef = useRef(myPosition);
   const hadPositionRef = useRef(false);
   const [cardPos, setCardPos] = useState<{ x: number; y: number } | null>(null);
 
   useEffect(() => {
     onSelectRef.current = onSelect;
-  }, [onSelect]);
+    onViewChangeRef.current = onViewChange;
+  }, [onSelect, onViewChange]);
 
   const syncData = () => {
     const map = mapRef.current;
@@ -165,6 +173,16 @@ export function MapCanvas({
       } else {
         setCardPos(null);
       }
+    };
+
+    const emitView = () => {
+      const bounds = map.getBounds();
+      onViewChangeRef.current({
+        south: bounds.getSouth(),
+        west: bounds.getWest(),
+        north: bounds.getNorth(),
+        east: bounds.getEast(),
+      });
     };
 
     map.on("load", () => {
@@ -261,6 +279,7 @@ export function MapCanvas({
       syncSelection();
       syncMyPosition();
       updateCardPos();
+      emitView();
     });
 
     map.on("click", "leads-point", (event) => {
@@ -307,6 +326,7 @@ export function MapCanvas({
           zoom: map.getZoom(),
         } satisfies Viewport)
       );
+      if (readyRef.current) emitView();
     });
 
     return () => {
@@ -340,6 +360,15 @@ export function MapCanvas({
     syncMyPosition();
     // syncMyPosition est stable (lit les refs) : seule la position compte.
   }, [myPosition]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !focus) return;
+    map.flyTo({
+      center: [focus.lng, focus.lat],
+      zoom: Math.max(map.getZoom(), MAP_CLUSTER_MAX_ZOOM + 1),
+    });
+  }, [focus]);
 
   return (
     <div className="relative h-full w-full">

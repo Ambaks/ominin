@@ -1,5 +1,6 @@
 "use client";
 
+import type { GeoPoint, MapBounds } from "@/lib/admin/types";
 import { createClient } from "@/lib/supabase/client";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -41,8 +42,8 @@ async function call<T>(promise: PromiseLike<{ data: unknown; error: { message: s
  * revenir sur un onglet l'affiche tout de suite, puis le rafraîchit.
  */
 const last = new Map<string, unknown>();
-function remembered<T>(key: string, fetch: () => Promise<T>) {
-  const run = () => fetch().then((data) => (last.set(key, data), data));
+function remembered<T, A extends unknown[] = []>(key: string, fetch: (...args: A) => Promise<T>) {
+  const run = (...args: A) => fetch(...args).then((data) => (last.set(key, data), data));
   return Object.assign(run, { last: () => (last.get(key) as T | undefined) ?? null });
 }
 
@@ -76,11 +77,24 @@ export interface MapRestaurant {
   last_at: string | null;
 }
 
-/** commercial_map_points() : la carte en points [id, latitude, longitude, état] (migration 20261029000018). */
+/** commercial_map_points() : les points de la vue, [id, latitude, longitude, état] (migration 20261103000001). */
 export type MapPointState = "c" | "m" | "v" | "l" | "f";
 export type MapPoint = [id: string, lat: number, lng: number, state: MapPointState];
 
-export const mapPoints = remembered("mapPoints", () => call<MapPoint[]>(db().rpc("commercial_map_points")));
+export const mapPoints = remembered("mapPoints", (view: MapBounds) =>
+  call<MapPoint[]>(
+    db().rpc("commercial_map_points", { p_south: view.south, p_west: view.west, p_north: view.north, p_east: view.east })
+  )
+);
+
+/** commercial_map_search() : les établissements de ce nom dans le rayon réglé par l'admin, du plus proche au plus loin. */
+export interface MapSearch {
+  radius_km: number;
+  results: { id: string; name: string; city: string | null; latitude: number; longitude: number; distance_m: number }[];
+}
+
+export const mapSearch = (query: string, origin: GeoPoint, limit: number) =>
+  call<MapSearch>(db().rpc("commercial_map_search", { p_query: query, p_lat: origin.lat, p_lng: origin.lng, p_limit: limit }));
 
 /** La fiche d'un point, chargée quand le commercial le touche. */
 export const mapRestaurant = (id: string) =>
