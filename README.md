@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Caffè Panis, carte hiver sur la démo (2026-11-03, `panis-carte-hiver`, pas de migration) :** les plats de la démo statique (`/menu/demo/caffe-panis`, `const caffePanis` dans `frontend/lib/menu-data.ts`) sont ceux de la carte hiver transmise par le restaurant, sans photos ; fidélité, après-repas, happy hour, accords et démo salle suivent. La carte en base du restaurant n'a pas changé. Vérifié : `tsc`, `eslint`, cohérence des références par script ; pas de contrôle en navigateur (serveur de dev local en panne). Points à valider avec le restaurant (Pollo Croccante sans prix, fondue et raclette par personne ?, milanaise « à faire ») : `demos/caffe-panis/profile.json`.
+
 > **Boho, lot de novembre : bulles, fermeture cuisine, planning, tarifs (2026-11-03, `boho-novembre`, migrations `20261103000010` à `20261103000014` appliquées en production juste avant la fusion) :**
 >
 > - **Bulles :**
