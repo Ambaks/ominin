@@ -856,6 +856,7 @@ export type Database = {
           square_payment_id: string | null
           square_refund_id: string | null
           status: Database["public"]["Enums"]["bulle_part_status"]
+          tender: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Insert: {
           amount_cents: number
@@ -878,6 +879,7 @@ export type Database = {
           square_payment_id?: string | null
           square_refund_id?: string | null
           status?: Database["public"]["Enums"]["bulle_part_status"]
+          tender?: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Update: {
           amount_cents?: number
@@ -900,6 +902,7 @@ export type Database = {
           square_payment_id?: string | null
           square_refund_id?: string | null
           status?: Database["public"]["Enums"]["bulle_part_status"]
+          tender?: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Relationships: [
           {
@@ -923,27 +926,33 @@ export type Database = {
           booking_days: number
           duration_minutes: number
           etablissement_id: string
+          group_threshold: number
           max_party: number
           min_party: number
           place_cents: number
+          small_group_place_cents: number | null
           vat_rate: number
         }
         Insert: {
           booking_days: number
           duration_minutes: number
           etablissement_id: string
+          group_threshold: number
           max_party: number
           min_party: number
           place_cents: number
+          small_group_place_cents?: number | null
           vat_rate?: number
         }
         Update: {
           booking_days?: number
           duration_minutes?: number
           etablissement_id?: string
+          group_threshold?: number
           max_party?: number
           min_party?: number
           place_cents?: number
+          small_group_place_cents?: number | null
           vat_rate?: number
         }
         Relationships: [
@@ -7779,7 +7788,11 @@ export type Database = {
         Returns: boolean
       }
       bulle_marquer_arrivee: {
-        Args: { p_arrived: boolean; p_paid?: boolean; p_reservation: string }
+        Args: {
+          p_arrived: boolean
+          p_reservation: string
+          p_tender?: Database["public"]["Enums"]["bulle_part_tender"]
+        }
         Returns: undefined
       }
       bulle_prendre: { Args: { p_reservation: string }; Returns: boolean }
@@ -7853,14 +7866,19 @@ export type Database = {
         Returns: {
           bulle_color: string
           bulle_name: string
+          can_pay: boolean
           ends_at: string
           ordering: boolean
           party_size: number
+          place_cents: number
           places_paid: number
           reservation_status: Database["public"]["Enums"]["bulle_reservation_status"]
-          share_token: string
           starts_at: string
         }[]
+      }
+      bulle_table_partage: {
+        Args: { p_slug: string; p_table: number }
+        Returns: string
       }
       bulle_verrou: {
         Args: { p_etab: string; p_starts_at: string }
@@ -8260,6 +8278,7 @@ export type Database = {
           p_phone: string
           p_source: Database["public"]["Enums"]["bulle_reservation_source"]
           p_starts_at: string
+          p_tender?: Database["public"]["Enums"]["bulle_part_tender"]
         }
         Returns: {
           arrived_at: string | null
@@ -9013,6 +9032,7 @@ export type Database = {
       badge: "maison" | "top" | "nouveau"
       bulle_part_method: "en_ligne" | "sur_place"
       bulle_part_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      bulle_part_tender: "carte" | "especes"
       bulle_reservation_source: "en_ligne" | "telephone" | "sur_place"
       bulle_reservation_status:
         | "en_attente"
@@ -9317,6 +9337,7 @@ export const Constants = {
       badge: ["maison", "top", "nouveau"],
       bulle_part_method: ["en_ligne", "sur_place"],
       bulle_part_status: ["en_attente", "payee", "remboursee", "annulee"],
+      bulle_part_tender: ["carte", "especes"],
       bulle_reservation_source: ["en_ligne", "telephone", "sur_place"],
       bulle_reservation_status: [
         "en_attente",
