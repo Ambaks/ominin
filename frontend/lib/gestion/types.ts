@@ -356,9 +356,9 @@ export interface GestionState {
   orders: Order[];
 }
 
-/** Sens de l'écart : le prix monte ou il descend. */
-export type PriceRuleDirection = "majoration" | "remise";
-/** L'écart s'exprime en euros ou en pourcentage du prix de base. */
+/** Le prix monte, il descend, ou il est donné tel quel (`prix_fixe`, toujours en euros). */
+export type PriceRuleDirection = "majoration" | "remise" | "prix_fixe";
+/** En euros, ou en pourcentage du prix de base. */
 export type PriceRuleUnit = "montant" | "pourcentage";
 
 /**
@@ -373,9 +373,9 @@ export type MenuTarget =
   | { kind: "item"; id: string; choiceId?: string };
 
 /**
- * Un tarif planifié : un écart de prix qui revient chaque semaine, les jours
- * dits, sur les articles visés. Le prix de la carte ne bouge pas — l'écart se
- * calcule à la lecture, et cesse dès que la règle s'arrête.
+ * Un tarif planifié : un prix qui revient chaque semaine, les jours dits, sur
+ * les articles visés. Le prix de la carte ne bouge pas — le tarif se calcule à
+ * la lecture, et cesse dès que la règle s'arrête.
  */
 export interface PriceRule {
   id: string;
