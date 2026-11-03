@@ -6,6 +6,7 @@ import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
 import { BadgeagesLog } from "@/components/gestion/temps/badgeages-log";
 import { Badgeuse } from "@/components/gestion/temps/badgeuse";
+import { HoursReportSheet } from "@/components/gestion/temps/hours-report-sheet";
 import { PlanningGrid, WeekNav } from "@/components/gestion/temps/planning";
 import { RoleCards } from "@/components/gestion/temps/role-cards";
 import { StaffList } from "@/components/gestion/temps/staff-list";
@@ -410,6 +411,7 @@ function EquipeScreen() {
   // de bascule du restaurant (rien ne se charge tant que l'état manque).
   const [chosenStart, setStart] = useState<Date | null>(null);
   const [drafting, setDrafting] = useState(fromAnalyses);
+  const [reporting, setReporting] = useState(false);
   const router = useRouter();
   // L'adresse se nettoie : recharger la page ne rouvre pas le brouillon.
   const closeDraft = () => {
@@ -488,12 +490,23 @@ function EquipeScreen() {
           )
         ) : active === "planning" ? (
           <>
-          {hasFeature("analyses") && (
-            <div className="flex justify-end">
+          <div className="flex flex-wrap justify-end gap-2">
+            <GlassButton onClick={() => setReporting(true)}>Rapport d&apos;heures</GlassButton>
+            {hasFeature("analyses") && (
               <GlassButton variant="primary" onClick={() => setDrafting(true)}>
                 Générer la semaine prochaine
               </GlassButton>
-            </div>
+            )}
+          </div>
+          {reporting && (
+            <HoursReportSheet
+              etablissementId={state.etablissement.id}
+              restaurant={state.etablissement.name}
+              slug={state.etablissement.slug}
+              staff={state.staff}
+              dayEndHour={state.dayEndHour}
+              onClose={() => setReporting(false)}
+            />
           )}
           {drafting && hasFeature("analyses") && (
             <WeekDraftSheet
