@@ -45,7 +45,7 @@
     ]
   },
   "menu": {
-    "source": "Carte hiver transmise par le restaurant (texte, 3 novembre 2026), reprise sur la démo statique (const caffePanis dans frontend/lib/menu-data.ts), sans photos. Remplace la carte de livraison Ciccio Gang (Uber Eats, novembre 2025). Boissons inchangées : café Illy (TheFork 2022) et trois softs.",
+    "source": "Carte hiver transmise par le restaurant (texte, 3 novembre 2026), reprise sur la démo statique (const caffePanis dans frontend/lib/menu-data.ts). Remplace la carte de livraison Ciccio Gang (Uber Eats, novembre 2025). Boissons inchangées : café Illy (TheFork 2022) et trois softs.",
     "categories_summary": [
       "Antipasti — 4, 8 €",
       "Insalatone — 2, 17 et 18 €",
@@ -58,7 +58,7 @@
       "Goloseria — 4, 4 à 8 €",
       "Boissons — café Illy 2 €, 3 softs 2,90 €"
     ],
-    "photos": "Carte hiver sans photos, à la demande de Marwan (3 novembre 2026). Les anciennes photos (frontend/public/caffe-panis/plats/) ne servent plus sur la carte.",
+    "photos": "40 plats illustrés dans frontend/public/caffe-panis/plats/ciccio/ (boissons sans photo) : 4 photos du shooting Ciccio Gang (Uber Eats, novembre 2025) conservées telles quelles pour les recettes identiques (La Vera Carbo, Margherita, Mama King, Puissance 4) et 36 visuels générés en 16:10 (1152×720) sur le même papier à motifs Ciccio Gang et la vaisselle Caffè Panis pour épouser les recettes exactes de la carte hiver. Visuels d'illustration en attendant de vraies photos : quelques mots « CICCIO GANG » du papier restent mal orthographiés à l'image.",
     "options_a_valider": [
       "Pollo Croccante (« poulet croustillant et sauce au choix ») : pas de prix ni de liste de sauces sur la carte transmise, non repris.",
       "Fondue italienne 22 € et raclette française 25 € : notées « À PROPOSER » ; prix par personne ou pour deux ? Reprises dans une section « À partager », lundi et mardi, 2 personnes minimum.",
@@ -90,6 +90,8 @@
     "Police et fichiers du logo (SVG) ?",
     "Combien vous coûte Sunday aujourd'hui, et pourquoi la carte n'y est-elle pas chargée ?",
     "Photos des plats : les Dwich, la stracciatella, les gnocchis en panier, les pizzas (Truffle Suprême, Amor Amatriciana), les pâtes, les burratas.",
+    "Avez-vous les originaux pleine résolution du shooting Ciccio Gang ? Les copies Uber Eats font 660 px de large. La Margherita et la Mama King annoncent du basilic qui n'apparaît pas sur leur photo : nouvelle photo, ou basilic retiré de la description ?",
+    "Les 36 autres plats sont illustrés par des visuels générés : nous envoyer vos propres photos de la carte hiver pour les remplacer ?",
     "Prix de salle : la démo affiche ceux de la livraison (Uber Eats), sous la mention « Prix nets en euros, service compris ». Quels sont vos prix en salle et à emporter ?",
     "Horaires de cuisine et du retrait à emporter : la maison ouvre de 9h à 1h, la livraison Ciccio Gang de 12h à 15h et de 19h à 22h. Pizzas et pâtes dès 9h ? La démo click & collect propose le retrait de toute la carte de 9h à 1h : à restreindre aux heures de cuisine si besoin.",
     "Allergènes de chaque plat (dus avant paiement pour la vente à emporter).",
