@@ -6004,10 +6004,14 @@ const cafeDesArts: Restaurant = {
   ],
 };
 
+const panisPlat = (file: string) => `/caffe-panis/plats/ciccio/${file}.webp`;
+
 /*
  * Caffè Panis — 3 place du Marché aux Fleurs. Les plats : leur carte hiver
- * (novembre 2026, texte transmis par le restaurant), sans photos ; le café
- * Illy de leur fiche TheFork (2022). Sources : demos/caffe-panis/docs/.
+ * (novembre 2026, texte transmis par le restaurant), avec les photos du
+ * shooting Ciccio Gang (Uber Eats, novembre 2025) pour les plats identiques et
+ * des visuels générés sur le même fond à motifs pour les nouveaux plats ; le
+ * café Illy de leur fiche TheFork (2022). Sources : demos/caffe-panis/docs/.
  */
 const caffePanis: Restaurant = {
   slug: "caffe-panis",
@@ -6120,15 +6124,17 @@ const caffePanis: Restaurant = {
           name: "La Parmigiana della Nonna",
           description: "Gratin d'aubergines, tomate, mozzarella, parmesan et basilic dans une casserolette.",
           price: 8,
+          image: panisPlat("parmigiana-della-nonna"),
         },
         {
           id: "burrata-bella-vita",
           name: "Burrata Bella Vita",
           description: "Burrata à la truffe, mortadelle, tomates colorées et crème balsamique à la truffe.",
           price: 8,
+          image: panisPlat("burrata-bella-vita"),
         },
-        { id: "camembert-roti", name: "Camembert rôti miel thym", price: 8 },
-        { id: "focaccia", name: "Focaccia", price: 8 },
+        { id: "camembert-roti", name: "Camembert rôti miel thym", price: 8, image: panisPlat("camembert-roti") },
+        { id: "focaccia", name: "Focaccia", price: 8, image: panisPlat("focaccia") },
       ],
     },
     {
@@ -6141,12 +6147,14 @@ const caffePanis: Restaurant = {
           name: "Ave César, Ragazzo !",
           description: "Poulet croustillant, parmesan, croûtons, œuf mollet et sauce César maison.",
           price: 17,
+          image: panisPlat("ave-cesar-ragazzo"),
         },
         {
           id: "la-super-bonita",
           name: "La Super Bonita",
           description: "Chèvre au miel, guanciale croustillant, œuf mollet et vinaigrette à la moutarde.",
           price: 18,
+          image: panisPlat("la-super-bonita"),
         },
       ],
     },
@@ -6161,12 +6169,14 @@ const caffePanis: Restaurant = {
           description:
             "Guanciale croustillant, jaune d'œuf, parmesan et poivre noir. Sans crème, comme à Roma.",
           price: 15,
+          image: panisPlat("pasta-carbonara"),
         },
         {
           id: "carbo-tartufo",
           name: "Carbo Tartufo",
           description: "Carbonara à la truffe, guanciale croustillant et copeaux de truffe.",
           price: 17,
+          image: panisPlat("carbo-tartufo"),
         },
         {
           id: "gnocchi-bella-cocotte",
@@ -6174,18 +6184,21 @@ const caffePanis: Restaurant = {
           description:
             "Gnocchi gratinés, mozzarella, tomate-basilic et parmesan, servis dans leur bol de pain croustillant.",
           price: 15,
+          image: panisPlat("gnocchi-bella-cocotte"),
         },
         {
           id: "paccheri-ragu-della-nonna",
           name: "Paccheri Ragù della Nonna",
           description: "Paccheri XXL, bœuf effiloché et ragù napolitain mijoté six heures.",
           price: 17,
+          image: panisPlat("paccheri-ragu-della-nonna"),
         },
         {
           id: "black-moon",
           name: "Black Moon",
           description: "Demi-lunes à l'encre de seiche, farce crémeuse aux crevettes et sauce saumon maison.",
           price: 19,
+          image: panisPlat("black-moon"),
         },
       ],
     },
@@ -6199,6 +6212,7 @@ const caffePanis: Restaurant = {
           name: "Polpette à la Casa",
           description: "Boulettes de bœuf à la tomate et spaghetti au pesto genovese.",
           price: 16,
+          image: panisPlat("polpette-a-la-casa"),
         },
         {
           id: "burger-bella-italia",
@@ -6206,18 +6220,21 @@ const caffePanis: Restaurant = {
           description:
             "Bœuf Angus, mozzarella di bufala, porchetta, pesto maison, tomates fraîches et frites.",
           price: 16,
+          image: panisPlat("burger-bella-italia"),
         },
         {
           id: "milanaise-de-veau",
           name: "Milanaise de veau",
           description: "Accompagnée de frites, salade et mayonnaise citronnée.",
           price: 17,
+          image: panisPlat("milanaise-de-veau"),
         },
         {
           id: "magret-de-canard",
           name: "Magret de canard",
           description: "Frites, salade et sauce crème balsamique thym.",
           price: 17,
+          image: panisPlat("magret-de-canard"),
         },
       ],
     },
@@ -6226,8 +6243,8 @@ const caffePanis: Restaurant = {
       name: "À partager",
       tagline: "Exclusivement lundi et mardi, 2 personnes minimum",
       items: [
-        { id: "fondue-italienne", name: "Fondue italienne", price: 22 },
-        { id: "raclette-francaise", name: "Raclette française", price: 25 },
+        { id: "fondue-italienne", name: "Fondue italienne", price: 22, image: panisPlat("fondue-italienne") },
+        { id: "raclette-francaise", name: "Raclette française", price: 25, image: panisPlat("raclette-francaise") },
       ],
     },
     {
@@ -6241,6 +6258,7 @@ const caffePanis: Restaurant = {
           description:
             "Une recette italienne différente chaque semaine. En ce moment : Lasagne della Nonna, lasagnes maison gratinées.",
           price: 16,
+          image: panisPlat("la-dolce-surprise"),
         },
       ],
     },
@@ -6255,12 +6273,14 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, ail émincé, origan calabrais, olives Taggiasche, basilic et huile d'olive. Sans mozzarella.",
           price: 8,
+          image: panisPlat("marinara"),
         },
         {
           id: "margherita",
           name: "Margherita",
           description: "Sauce tomate, parmesan râpé, mozzarella fior di latte, basilic et huile d'olive.",
           price: 9,
+          image: panisPlat("pizza-margherita"),
         },
         {
           id: "luna-rossa",
@@ -6268,12 +6288,14 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, mozzarella fior di latte, parmesan, filets d'anchois, olives Taggiasche, câpres, ail émincé, origan calabrais, basilic et huile d'olive.",
           price: 11,
+          image: panisPlat("luna-rossa"),
         },
         {
           id: "mama-king",
           name: "Mama King",
           description: "Sauce tomate, parmesan, jambon blanc, champignons, mozzarella fior di latte et basilic.",
           price: 14,
+          image: panisPlat("pizza-mama-king"),
         },
         {
           id: "bufala-kill",
@@ -6281,6 +6303,7 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, mozzarella fior di latte et parmesan. À la sortie du four : mozzarella di bufala Campana AOP, jambon sec, pesto maison, tomates cerises multicolores et basilic.",
           price: 18,
+          image: panisPlat("bufala-kill"),
         },
         {
           id: "puissance-4",
@@ -6288,6 +6311,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de ricotta, parmesan, mozzarella fior di latte, provola fumée, gorgonzola et copeaux de parmesan. Quatre fromages, zéro compromis.",
           price: 16,
+          image: panisPlat("pizza-puissance-4"),
         },
         {
           id: "mafia-blues",
@@ -6295,6 +6319,7 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, parmesan, mozzarella fior di latte et spianata calabraise piquante. En finition : burrata crémeuse des Pouilles, poivrons confits, tomates cerises multicolores, copeaux de parmesan et basilic.",
           price: 17,
+          image: panisPlat("mafia-blues"),
         },
         {
           id: "green-circle",
@@ -6302,6 +6327,7 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, courgettes à la plancha, dés d'aubergines panées, parmesan, mozzarella fior di latte et scamorza fumée. En finition : roquette, poivrons confits, tomates confites, copeaux de parmesan et basilic.",
           price: 16,
+          image: panisPlat("green-circle"),
         },
         {
           id: "charcu-three",
@@ -6309,6 +6335,7 @@ const caffePanis: Restaurant = {
           description:
             "Base huile d'olive, tomates cerises rôties, jambon blanc, spianata calabraise piquante, parmesan et mozzarella fior di latte. En finition : mortadelle, éclats de pistache et basilic.",
           price: 15,
+          image: panisPlat("charcu-three"),
         },
         {
           id: "mortazzza",
@@ -6316,6 +6343,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de ricotta, parmesan et mozzarella fior di latte. En finition : mortadelle et éclats de pistache.",
           price: 17,
+          image: panisPlat("mortazzza"),
         },
         {
           id: "viking-ring",
@@ -6323,6 +6351,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de ricotta, saumon fumé, mozzarella fior di latte, chips de courgettes, tomates confites, émulsion de yaourt au citron vert et billes de grenade.",
           price: 18,
+          image: panisPlat("viking-ring"),
         },
       ],
     },
@@ -6331,42 +6360,54 @@ const caffePanis: Restaurant = {
       name: "Sfiziomeni",
       tagline: "À picorer",
       items: [
-        { id: "gamberi-crunch", name: "Gamberi Crunch", description: "Crevettes croustillantes au panko.", price: 7 },
+        {
+          id: "gamberi-crunch",
+          name: "Gamberi Crunch",
+          description: "Crevettes croustillantes au panko.",
+          price: 7,
+          image: panisPlat("gamberi-crunch"),
+        },
         {
           id: "crocchette-messicane",
           name: "Crocchette Messicane",
           description: "Croquettes aux saveurs épicées.",
           price: 7,
+          image: panisPlat("crocchette-messicane"),
         },
         {
           id: "la-tavola-rital",
           name: "La Tavola Rital",
           description: "Planche de charcuteries italiennes.",
           price: 17,
+          image: panisPlat("la-tavola-rital"),
         },
         {
           id: "formaggi-e-basta",
           name: "Formaggi & Basta",
           description: "Sélection de fromages italiens.",
           price: 17,
+          image: panisPlat("formaggi-e-basta"),
         },
         {
           id: "aperitivo-mix",
           name: "Aperitivo Mix",
           description: "Planche mixte de charcuteries et fromages.",
           price: 17,
+          image: panisPlat("aperitivo-mix"),
         },
         {
           id: "petite-planche-charcuterie",
           name: "Petite planche charcuterie",
           description: "Assortiment de charcuterie italienne.",
           price: 7,
+          image: panisPlat("petite-planche-charcuterie"),
         },
         {
           id: "petite-planche-fromage",
           name: "Petite planche fromage",
           description: "Assortiment de fromages italiens.",
           price: 7,
+          image: panisPlat("petite-planche-fromage"),
         },
       ],
     },
@@ -6380,23 +6421,27 @@ const caffePanis: Restaurant = {
           name: "Tiramisù della Casa",
           description: "Café, mascarpone et cacao.",
           price: 6,
+          image: panisPlat("tiramisu-della-casa"),
         },
         {
           id: "brioche-perduta",
           name: "Brioche Perduta",
           description: "Brioche dorée, sucre et caramel.",
           price: 5,
+          image: panisPlat("brioche-perduta"),
         },
         {
           id: "caffe-gourmand",
           name: "Caffè Gourmand",
           description: "Café accompagné de petites douceurs.",
           price: 8,
+          image: panisPlat("caffe-gourmand"),
         },
         {
           id: "crepe",
           name: "Crêpe",
           price: 4,
+          image: panisPlat("crepe"),
           options: [
             groupeChoix("garniture", "Garniture", ["Nutella", "Coulis fruits rouges", "Coulis caramel"], {
               obligatoire: true,
