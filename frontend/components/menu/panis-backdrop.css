@@ -54,6 +54,12 @@
       0 0 2px rgb(4 24 12 / 0.6);
   }
 
+  /* Le sous-titre en ivoire aussi : au gris du thème, il se perdait dans le satin. */
+  & .category-tagline {
+    color: rgb(238 234 199 / 0.92);
+    text-shadow: 0 1px 12px rgb(4 24 12 / 0.9);
+  }
+
   & .category-rule {
     background: var(--cp-ivory);
     opacity: 0.8;
