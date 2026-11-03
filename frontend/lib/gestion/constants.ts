@@ -163,13 +163,6 @@ export const ORDER_TAB_HINTS: Record<OrderTab, string> = {
 /** Statuts d'historique : commandes closes. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "retiree"];
 
-/**
- * Statuts relus par la page Paiements : payée sur place (servie ou non),
- * prête (une commande fast food réglée, ou à emporter payée en ligne, qui
- * attend son client), ou retirée. isPaid trie ensuite ce qui est réglé.
- */
-export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "prete", "servie", "retiree"];
-
 /** Retrait au bar : une commande numérotée se remet réglée, prête ou pas encore. */
 export const HANDOVER_STATUSES: OrderStatus[] = ["payee", "prete"];
 

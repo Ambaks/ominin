@@ -33,18 +33,16 @@ import { comparison } from "@/lib/gestion/compare";
 import { ANALYTICS_PERIOD_DAYS, ENCAISSER_WAIT_ALERT_SLUGS } from "@/lib/gestion/constants";
 import { formatPrice } from "@/lib/menu/format";
 import {
+  avgTicket,
   awaitsPayment,
-  isPaid,
   isPickupShop,
   openOrders,
-  orderTotal,
   ordersByHour,
-  paidAt,
   periodStats,
   revenueByDay,
   revenueToday,
+  sameHourLastWeek,
   serviceDate,
-  serviceDayKey,
   tipsTotal,
   topVentes,
   topVentesToday,
@@ -54,7 +52,6 @@ import {
 } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { usePriorDays } from "@/lib/gestion/use-prior-days";
-import type { GestionState } from "@/lib/gestion/types";
 
 type Period = (typeof ANALYTICS_PERIOD_DAYS)[number];
 type PeriodKey = `${Period}`;
@@ -76,21 +73,6 @@ const DENSE_FROM = 10;
 const DENSE_LABEL_EVERY = 5;
 /** Repère des heures : toutes les six heures. */
 const HOUR_LABEL_EVERY = 6;
-
-/** Ce qu'on avait encaissé le même jour la semaine dernière, à cette heure-ci. */
-function sameHourLastWeek(state: GestionState): { total: number; payments: number } {
-  const at = new Date();
-  at.setDate(at.getDate() - 7);
-  const day = serviceDayKey(at.toISOString(), state.dayEndHour);
-  const until = at.toISOString();
-  const paid = state.orders.filter(
-    (order) =>
-      isPaid(order) &&
-      serviceDayKey(paidAt(order), state.dayEndHour) === day &&
-      paidAt(order) <= until
-  );
-  return { total: paid.reduce((sum, order) => sum + orderTotal(order), 0), payments: paid.length };
-}
 
 const plural = (count: number, word: string) => `${count} ${word}${count > 1 ? "s" : ""}`;
 
@@ -273,17 +255,25 @@ export default function ApercuPage() {
   const ventesTop = hasCommandes ? topVentes(state, period) : [];
   const hours = hasCommandes ? ordersByHour(state, period) : [];
   const tips = hasCommandes ? tipsTotal(state, period) : 0;
-  const hasAnalyticsData = stats ? stats.orders > 0 || ventesTop.length > 0 : false;
+  // Une période où seules des places de bulle ont été payées a quelque chose à montrer.
+  const sold = stats ? stats.orders > 0 || stats.bulles > 0 : false;
+  const hasAnalyticsData = sold || ventesTop.length > 0;
   // La période d'avant : sur les commandes chargées, ou en totaux par jour au-delà.
   const previous =
     stats && prior.days
       ? (() => {
-          const orders = prior.days.reduce((sum, day) => sum + day.orders, 0);
-          const revenue = prior.days.reduce((sum, day) => sum + day.revenue, 0);
+          const totals = prior.days.reduce(
+            (sum, day) => ({
+              revenue: sum.revenue + day.revenue,
+              orders: sum.orders + day.orders,
+              bulles: sum.bulles + day.bulles,
+            }),
+            { revenue: 0, orders: 0, bulles: 0 }
+          );
           return {
-            revenue,
-            orders,
-            avgTicket: orders > 0 ? revenue / orders : 0,
+            revenue: totals.revenue,
+            orders: totals.orders,
+            avgTicket: avgTicket(totals),
             // Les totaux par jour ne portent pas les pourboires.
             tips: period * 2 <= Math.max(...ANALYTICS_PERIOD_DAYS) ? tipsTotal(state, period * 2) - tips : null,
           };
@@ -301,7 +291,10 @@ export default function ApercuPage() {
         )
       : { baseline: `sur ${period} jours` };
   const otherPeriodWithData = ANALYTICS_PERIOD_DAYS.find(
-    (days) => days !== period && periodStats(state, days).orders > 0
+    (days) => {
+      const other = periodStats(state, days);
+      return days !== period && (other.orders > 0 || other.bulles > 0);
+    }
   );
 
   let block = 0;
@@ -419,10 +412,10 @@ export default function ApercuPage() {
               entity="money"
               icon={<PaymentsIcon />}
               label="CA encaissé"
-              value={stats.orders > 0 ? formatPrice(stats.revenue) : "—"}
+              value={sold ? formatPrice(stats.revenue) : "—"}
               {...versus(stats.revenue, previous?.revenue, formatPrice)}
-              onClick={stats.orders > 0 || (previous?.orders ?? 0) > 0 ? () => setDetail("revenue") : undefined}
-              title={`Commandes payées sur ${period} jours, TTC`}
+              onClick={sold || (previous?.revenue ?? 0) > 0 ? () => setDetail("revenue") : undefined}
+              title={`Commandes payées et places de bulle sur ${period} jours, TTC`}
             />
             <StatTile
               entity="orders"
@@ -439,7 +432,7 @@ export default function ApercuPage() {
               label="Panier moyen"
               value={stats.orders > 0 ? formatPrice(stats.avgTicket) : "—"}
               {...versus(stats.avgTicket, previous?.avgTicket, formatPrice)}
-              title="CA encaissé ÷ commandes payées"
+              title="CA des commandes ÷ commandes payées, places de bulle exclues"
             />
             <StatTile
               entity="money"
@@ -492,10 +485,10 @@ export default function ApercuPage() {
                             <td className="px-5 py-2.5 capitalize">{point.full}</td>
                             <td className="px-5 py-2.5 text-right">{point.orders > 0 ? point.orders : "—"}</td>
                             <td className="px-5 py-2.5 text-right">
-                              {point.orders > 0 ? formatPrice(point.revenue) : "—"}
+                              {point.orders > 0 || point.bulles > 0 ? formatPrice(point.revenue) : "—"}
                             </td>
                             <td className="px-5 py-2.5 text-right">
-                              {point.orders > 0 ? formatPrice(point.revenue / point.orders) : "—"}
+                              {point.orders > 0 ? formatPrice(avgTicket(point)) : "—"}
                             </td>
                           </tr>
                         ))}

@@ -190,6 +190,29 @@ export interface OrderPayment {
   paidAt: string;
 }
 
+/**
+ * Une part de bulle payée (vue bulle_encaissements) : elle compte dans
+ * l'encaissé comme une commande, sans en être une. Seul l'état « encaissee »
+ * compte ; les autres restent visibles dans Paiements.
+ */
+export interface BulleEncaissement {
+  id: string;
+  bulleName: string;
+  /** Qui a payé : l'organisateur, ou l'ami qui a pris sa place. */
+  name: string;
+  places: number;
+  amount: number;
+  mode: PaymentLeg;
+  paidAt: string;
+  refundedAt?: string;
+  etat: "encaissee" | "remboursee" | "a_rembourser" | "annulee";
+}
+
+/** Une ligne de Paiements : une commande encaissée, ou une part de bulle. */
+export type Paiement =
+  | { kind: "commande"; order: Order }
+  | { kind: "bulle"; part: BulleEncaissement };
+
 export interface Order {
   id: string;
   type: OrderType;
@@ -354,6 +377,8 @@ export interface GestionState {
   closures: Closure[];
   tables: Table[];
   orders: Order[];
+  /** Parts de bulle payées sur la même fenêtre que les commandes. */
+  bulleEncaissements: BulleEncaissement[];
 }
 
 /** Le prix monte, il descend, ou il est donné tel quel (`prix_fixe`, toujours en euros). */
