@@ -6000,16 +6000,10 @@ const cafeDesArts: Restaurant = {
   ],
 };
 
-const panisPlat = (file: string) => `/caffe-panis/plats/${file}.webp`;
-
 /*
- * Caffè Panis — 3 place du Marché aux Fleurs. Aucune carte de salle en ligne
- * (leur menu Sunday renvoie à « la carte papier ») : la carte entière de
- * Ciccio Gang, leur marque de livraison à la même adresse (Uber Eats,
- * archive du 26 novembre 2025), mot pour mot à l'orthographe près, prix de
- * livraison, dans l'ordre d'une carte de salle (Uber Eats ouvre sur les
- * Dwich), les plats à photo en tête de section ; le café Illy de leur fiche
- * TheFork (2022). Sources : demos/caffe-panis/docs/.
+ * Caffè Panis — 3 place du Marché aux Fleurs. Les plats : leur carte hiver
+ * (novembre 2026, texte transmis par le restaurant), sans photos ; le café
+ * Illy de leur fiche TheFork (2022). Sources : demos/caffe-panis/docs/.
  */
 const caffePanis: Restaurant = {
   slug: "caffe-panis",
@@ -6032,12 +6026,12 @@ const caffePanis: Restaurant = {
   loyaltyWheel: roueDuJour,
   demoHappyHour: {
     name: "Aperitivo Happy Hour",
-    prices: { margherita: 9, "cafe-illy": 1.5, "coca-cola": 2 },
+    prices: { margherita: 7, "cafe-illy": 1.5, "coca-cola": 2 },
   },
   afterMeal: {
-    desserts: ["il-tiramisu", "mousse-big-love", "deurty-cookie"],
+    desserts: ["tiramisu-della-casa", "brioche-perduta", "caffe-gourmand"],
     coffees: ["cafe-illy"],
-    snacks: ["trio-arancini", "classic-burrata"],
+    snacks: ["gamberi-crunch", "focaccia"],
     images: {
       "cafe-illy": "/caffe-panis/boissons/cafe-illy.webp",
       "coca-cola": "/big-smash/coca-cola.webp",
@@ -6059,19 +6053,17 @@ const caffePanis: Restaurant = {
         id: "dessert",
         label: "1 dessert offert",
         points: 100,
-        items: ["il-tiramisu", "mousse-big-love", "deurty-cookie"],
+        items: ["tiramisu-della-casa", "brioche-perduta", "caffe-gourmand"],
       },
       {
         id: "antipasto",
         label: "1 antipasto offert",
         points: 150,
         items: [
-          "trio-arancini",
-          "prosciutto",
-          "burrata-pesto-forever",
-          "classic-burrata",
-          "stracciatella-fumee",
-          "burrata-truffe-mortadelle",
+          "parmigiana-della-nonna",
+          "burrata-bella-vita",
+          "camembert-roti",
+          "focaccia",
         ],
       },
       {
@@ -6079,20 +6071,22 @@ const caffePanis: Restaurant = {
         label: "1 pizza ou pasta offerte",
         points: 250,
         items: [
-          "amor-amatriciana",
-          "mama-king",
+          "marinara",
           "margherita",
+          "luna-rossa",
+          "mama-king",
+          "bufala-kill",
           "puissance-4",
-          "stracciatella-versace",
-          "capo",
+          "mafia-blues",
           "green-circle",
-          "truffle-supreme",
-          "carbonara-originale",
-          "alla-bolognese",
-          "all-amatriciana",
-          "vivi-e-vechio",
-          "con-il-pesto",
-          "al-tartufo",
+          "charcu-three",
+          "mortazzza",
+          "viking-ring",
+          "la-vera-carbo",
+          "carbo-tartufo",
+          "gnocchi-bella-cocotte",
+          "paccheri-ragu-della-nonna",
+          "black-moon",
         ],
       },
     ],
@@ -6115,229 +6109,295 @@ const caffePanis: Restaurant = {
     {
       id: "antipasti",
       name: "Antipasti",
+      tagline: "Pour commencer",
       items: [
         {
-          id: "trio-arancini",
-          name: "Trio d'arancini",
-          description: "Trois dodues boulettes frites de risotto au prosciutto et fromage mozza fior di latte, ouuuuh.",
-          price: 6.9,
-          image: panisPlat("ciccio/trio-arancini"),
+          id: "parmigiana-della-nonna",
+          name: "La Parmigiana della Nonna",
+          description: "Gratin d'aubergines, tomate, mozzarella, parmesan et basilic dans une casserolette.",
+          price: 8,
         },
         {
-          id: "prosciutto",
-          name: "Prosciutto",
-          description: "L'inoubliable jambon en direct de la région de Parme, fondant à souhait.",
-          price: 7.9,
-          image: panisPlat("ciccio/prosciutto"),
+          id: "burrata-bella-vita",
+          name: "Burrata Bella Vita",
+          description: "Burrata à la truffe, mortadelle, tomates colorées et crème balsamique à la truffe.",
+          price: 8,
+        },
+        { id: "camembert-roti", name: "Camembert rôti miel thym", price: 8 },
+        { id: "focaccia", name: "Focaccia", price: 8 },
+      ],
+    },
+    {
+      id: "insalatone",
+      name: "Insalatone",
+      tagline: "Les belles assiettes",
+      items: [
+        {
+          id: "ave-cesar-ragazzo",
+          name: "Ave César, Ragazzo !",
+          description: "Poulet croustillant, parmesan, croûtons, œuf mollet et sauce César maison.",
+          price: 17,
         },
         {
-          id: "burrata-pesto-forever",
-          name: "Burrata Pesto Forever",
+          id: "la-super-bonita",
+          name: "La Super Bonita",
+          description: "Chèvre au miel, guanciale croustillant, œuf mollet et vinaigrette à la moutarde.",
+          price: 18,
+        },
+      ],
+    },
+    {
+      id: "primi",
+      name: "Primi",
+      tagline: "Pasta, amore mio",
+      items: [
+        {
+          id: "la-vera-carbo",
+          name: "La Vera Carbo",
           description:
-            "Belle burrata straight from Puglia fourrée au pesto de basilic, tomates séchées à l'huile, huile d'olive et basilic frais. Servi avec une boule de pain maison.",
-          price: 8.9,
-          image: panisPlat("ciccio/burrata-pesto-forever"),
+            "Guanciale croustillant, jaune d'œuf, parmesan et poivre noir. Sans crème, comme à Roma.",
+          price: 15,
         },
         {
-          id: "classic-burrata",
-          name: "Classic Burrata",
+          id: "carbo-tartufo",
+          name: "Carbo Tartufo",
+          description: "Carbonara à la truffe, guanciale croustillant et copeaux de truffe.",
+          price: 17,
+        },
+        {
+          id: "gnocchi-bella-cocotte",
+          name: "Gnocchi Bella Cocotte",
           description:
-            "Burrata de 125 g crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive e basta.",
-          price: 6.9,
-          image: panisPlat("classic-burrata"),
+            "Gnocchi gratinés, mozzarella, tomate-basilic et parmesan, servis dans leur bol de pain croustillant.",
+          price: 15,
         },
         {
-          id: "stracciatella-fumee",
-          name: "Stracciatella fumée 125\u00a0g",
+          id: "paccheri-ragu-della-nonna",
+          name: "Paccheri Ragù della Nonna",
+          description: "Paccheri XXL, bœuf effiloché et ragù napolitain mijoté six heures.",
+          price: 17,
+        },
+        {
+          id: "black-moon",
+          name: "Black Moon",
+          description: "Demi-lunes à l'encre de seiche, farce crémeuse aux crevettes et sauce saumon maison.",
+          price: 19,
+        },
+      ],
+    },
+    {
+      id: "secondi",
+      name: "Secondi",
+      tagline: "Les plats qui régalent",
+      items: [
+        {
+          id: "polpette-a-la-casa",
+          name: "Polpette à la Casa",
+          description: "Boulettes de bœuf à la tomate et spaghetti au pesto genovese.",
+          price: 16,
+        },
+        {
+          id: "burger-bella-italia",
+          name: "Burger Bella Italia",
           description:
-            "Stracciatella de 125 g fumée et crémeuse à souhait straight from Puglia, basilic frais, un filet d'huile d'olive et une pointe de sel de poivre e basta.",
-          price: 6.9,
-          image: panisPlat("ciccio/stracciatella-fumee"),
+            "Bœuf Angus, mozzarella di bufala, porchetta, pesto maison, tomates fraîches et frites.",
+          price: 16,
         },
         {
-          id: "burrata-truffe-mortadelle",
-          name: "Burrata Truffe & Mortadelle",
-          description: "Dodue burrata bien fraîche en direct des Pouilles et crème de truffe d'été.",
-          price: 10.9,
-          image: panisPlat("ciccio/burrata-truffe-mortadelle"),
+          id: "milanaise-de-veau",
+          name: "Milanaise de veau",
+          description: "Accompagnée de frites, salade et mayonnaise citronnée.",
+          price: 17,
+        },
+        {
+          id: "magret-de-canard",
+          name: "Magret de canard",
+          description: "Frites, salade et sauce crème balsamique thym.",
+          price: 17,
+        },
+      ],
+    },
+    {
+      id: "a-partager",
+      name: "À partager",
+      tagline: "Exclusivement lundi et mardi, 2 personnes minimum",
+      items: [
+        { id: "fondue-italienne", name: "Fondue italienne", price: 22 },
+        { id: "raclette-francaise", name: "Raclette française", price: 25 },
+      ],
+    },
+    {
+      id: "piatto-del-momento",
+      name: "Il Piatto del Momento",
+      tagline: "Le plat du moment",
+      items: [
+        {
+          id: "la-dolce-surprise",
+          name: "La Dolce Surprise",
+          description:
+            "Une recette italienne différente chaque semaine. En ce moment : Lasagne della Nonna, lasagnes maison gratinées.",
+          price: 16,
         },
       ],
     },
     {
       id: "pizze",
       name: "Pizze",
+      tagline: "La squadra",
       items: [
         {
-          id: "mama-king",
-          name: "Pizza Mama King",
+          id: "marinara",
+          name: "Marinara",
           description:
-            "Champignons de Paris cuits finement tranchés, jambon blanc aux herbes, mozza fior di latte, sauce tomates italiennes, olives taggiasche et basilic frais.",
-          price: 14.9,
-          image: panisPlat("ciccio/pizza-mama-king"),
+            "Sauce tomate, ail émincé, origan calabrais, olives Taggiasche, basilic et huile d'olive. Sans mozzarella.",
+          price: 8,
         },
         {
           id: "margherita",
-          name: "Pizza Margherita",
+          name: "Margherita",
+          description: "Sauce tomate, parmesan râpé, mozzarella fior di latte, basilic et huile d'olive.",
+          price: 9,
+        },
+        {
+          id: "luna-rossa",
+          name: "Luna Rossa",
           description:
-            "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé et basilic frais.",
-          price: 11.9,
-          image: panisPlat("ciccio/pizza-margherita"),
+            "Sauce tomate, mozzarella fior di latte, parmesan, filets d'anchois, olives Taggiasche, câpres, ail émincé, origan calabrais, basilic et huile d'olive.",
+          price: 11,
+        },
+        {
+          id: "mama-king",
+          name: "Mama King",
+          description: "Sauce tomate, parmesan, jambon blanc, champignons, mozzarella fior di latte et basilic.",
+          price: 14,
+        },
+        {
+          id: "bufala-kill",
+          name: "Bufala Kill",
+          description:
+            "Sauce tomate, mozzarella fior di latte et parmesan. À la sortie du four : mozzarella di bufala Campana AOP, jambon sec, pesto maison, tomates cerises multicolores et basilic.",
+          price: 18,
         },
         {
           id: "puissance-4",
-          name: "Pizza Puissance 4",
+          name: "Puissance 4",
           description:
-            "Crème fraîche, gorgonzola, gran formaggio râpé, mozza fior di latte et ciboulette. Du cheesy comme on aime.",
-          price: 14.9,
-          image: panisPlat("ciccio/pizza-puissance-4"),
+            "Crème de ricotta, parmesan, mozzarella fior di latte, provola fumée, gorgonzola et copeaux de parmesan. Quatre fromages, zéro compromis.",
+          price: 16,
         },
         {
-          id: "stracciatella-versace",
-          name: "Pizza Stracciatella Versace",
+          id: "mafia-blues",
+          name: "Mafia Blues",
           description:
-            "Jambon de Parme, stracciatella fumée bien crémeuse, pecorino romano râpé, roquette fraîche et sauce tomates italiennes en direct de notre producteur fiammante.",
-          price: 19.9,
-          image: panisPlat("ciccio/pizza-stracciatella-versace"),
-        },
-        {
-          id: "capo",
-          name: "Pizza Capo",
-          description:
-            "Fines tranches de salame piccante, salsa nduja xxxtra hot, mozza fior di latte, sauce tomates italiennes en direct de notre producteur fiammante et marjolaine fraîche.",
-          price: 15.9,
-          image: panisPlat("ciccio/pizza-capo"),
+            "Sauce tomate, parmesan, mozzarella fior di latte et spianata calabraise piquante. En finition : burrata crémeuse des Pouilles, poivrons confits, tomates cerises multicolores, copeaux de parmesan et basilic.",
+          price: 17,
         },
         {
           id: "green-circle",
-          name: "Pizza Green Circle",
+          name: "Green Circle",
           description:
-            "Mozza fior di latte, sauce de tomates italiennes en direct de notre producteur fiammante, gran formaggio râpé, aubergines frites et basilic frais.",
-          price: 14.9,
-          image: panisPlat("ciccio/pizza-green-circle"),
+            "Sauce tomate, courgettes à la plancha, dés d'aubergines panées, parmesan, mozzarella fior di latte et scamorza fumée. En finition : roquette, poivrons confits, tomates confites, copeaux de parmesan et basilic.",
+          price: 16,
         },
         {
-          id: "truffle-supreme",
-          name: "Pizza Truffle Suprême",
+          id: "charcu-three",
+          name: "Charcu-Three",
           description:
-            "Crème de truffe d'été à la ricotta, mozza fior di latte, petits champignons de Paris, beaux copeaux de truffe fraîche d'automne, gran formaggio râpé et ciboulette.",
-          price: 20.9,
-          image: panisPlat("ciccio/pizza-truffle-supreme"),
+            "Base huile d'olive, tomates cerises rôties, jambon blanc, spianata calabraise piquante, parmesan et mozzarella fior di latte. En finition : mortadelle, éclats de pistache et basilic.",
+          price: 15,
         },
         {
-          id: "amor-amatriciana",
-          name: "Pizza Amor Amatriciana",
+          id: "mortazzza",
+          name: "Mortazzza",
           description:
-            "Pancetta «\u00a0Poitrine de porc\u00a0» et sauce de tomates italiennes pour une extra dose de saveurs, mozza fior di latte, pecorino et basilic frais.",
-          price: 15.9,
-          image: panisPlat("ciccio/pizza-amor-amatriciana"),
+            "Crème de ricotta, parmesan et mozzarella fior di latte. En finition : mortadelle et éclats de pistache.",
+          price: 17,
+        },
+        {
+          id: "viking-ring",
+          name: "Viking Ring",
+          description:
+            "Crème de ricotta, saumon fumé, mozzarella fior di latte, chips de courgettes, tomates confites, émulsion de yaourt au citron vert et billes de grenade.",
+          price: 18,
         },
       ],
     },
     {
-      id: "pastas",
-      name: "Pastas",
+      id: "sfiziomeni",
+      name: "Sfiziomeni",
+      tagline: "À picorer",
       items: [
+        { id: "gamberi-crunch", name: "Gamberi Crunch", description: "Crevettes croustillantes au panko.", price: 7 },
         {
-          id: "carbonara-originale",
-          name: "Pasta Carbonara Originale",
-          description: "Pasta rigatoni à la sauce carbonara, guanciale de cochon et pecorino.",
-          price: 13.9,
-          image: panisPlat("ciccio/pasta-carbonara"),
+          id: "crocchette-messicane",
+          name: "Crocchette Messicane",
+          description: "Croquettes aux saveurs épicées.",
+          price: 7,
         },
         {
-          id: "alla-bolognese",
-          name: "Pasta Alla Bolognese",
-          description: "Pasta rigatoni au ragù de bœuf, gran formaggio italiano et feuilles de basilic.",
-          price: 14.9,
-          image: panisPlat("ciccio/pasta-bolognese"),
+          id: "la-tavola-rital",
+          name: "La Tavola Rital",
+          description: "Planche de charcuteries italiennes.",
+          price: 17,
         },
         {
-          id: "all-amatriciana",
-          name: "Pasta All'Amatriciana",
-          description: "Pasta rigatoni à la sauce de tomates italiennes, pancetta de cochon et pecorino.",
-          price: 14.9,
-          image: panisPlat("ciccio/pasta-amatriciana"),
+          id: "formaggi-e-basta",
+          name: "Formaggi & Basta",
+          description: "Sélection de fromages italiens.",
+          price: 17,
         },
         {
-          id: "vivi-e-vechio",
-          name: "Pasta Vivi E Vechio",
-          description: "Pasta rigatoni à la sauce de tomates italiennes, stracciatella fumée et feuilles de basilic.",
-          price: 12.9,
-          image: panisPlat("ciccio/pasta-vivi-e-vechio"),
+          id: "aperitivo-mix",
+          name: "Aperitivo Mix",
+          description: "Planche mixte de charcuteries et fromages.",
+          price: 17,
         },
         {
-          id: "con-il-pesto",
-          name: "Pasta Con Il Pesto",
-          description:
-            "Pasta casareccia au pesto de basilic frais, gran formaggio italiano, petites noisettes et feuilles de basilic.",
-          price: 12.9,
-          image: panisPlat("ciccio/pasta-pesto"),
+          id: "petite-planche-charcuterie",
+          name: "Petite planche charcuterie",
+          description: "Assortiment de charcuterie italienne.",
+          price: 7,
         },
         {
-          id: "al-tartufo",
-          name: "Pasta Al Tartufo",
-          description:
-            "Pasta mafaldine à la crème de gorgonzola, jambon truffé, éclat de noisettes, copeaux de parmesan, huile truffée.",
-          price: 18.9,
-          image: panisPlat("ciccio/pasta-tartufo"),
+          id: "petite-planche-fromage",
+          name: "Petite planche fromage",
+          description: "Assortiment de fromages italiens.",
+          price: 7,
         },
       ],
     },
     {
-      id: "dwich",
-      name: "Les Dwich du Panis",
+      id: "goloseria",
+      name: "Goloseria",
+      tagline: "La touche finale",
       items: [
         {
-          id: "dwich-du-gang",
-          name: "Les Dwich du Gang",
-          description: "Le dwich jambon pâte à pizza bien fluffy, jambon blanc et mozza fior di latte xxtra fondante.",
-          price: 6.9,
-          image: panisPlat("ciccio/dwich-du-gang"),
+          id: "tiramisu-della-casa",
+          name: "Tiramisù della Casa",
+          description: "Café, mascarpone et cacao.",
+          price: 6,
         },
         {
-          id: "dwich-regina",
-          name: "Le Dwich Regina",
-          description:
-            "Pâte à pizza bien fluffy, sauce de tomates italiennes en direct de notre producteur fiammante, mozza fior di latte, jambon blanc, champignons de Paris cuits et olives taggiasche.",
-          price: 7.9,
-          image: panisPlat("ciccio/dwich-regina"),
+          id: "brioche-perduta",
+          name: "Brioche Perduta",
+          description: "Brioche dorée, sucre et caramel.",
+          price: 5,
         },
         {
-          id: "dwich-truffe",
-          name: "Le Dwich Truffe",
-          description:
-            "Pâte à pizza bien fluffy, crème de ricotta à la truffe d'été, mozza fior di latte et champignons de Paris cuits.",
-          price: 8.9,
-          image: panisPlat("ciccio/dwich-truffe"),
-        },
-      ],
-    },
-    {
-      id: "desserts",
-      name: "Desserts",
-      items: [
-        {
-          id: "il-tiramisu",
-          name: "Il Tiramisù",
-          description:
-            "Le grand classique de la casa bien onctueux et une petite pointe de liqueur de marsala, c'est que du love.",
-          price: 6.9,
-          image: panisPlat("ciccio/tiramisu"),
+          id: "caffe-gourmand",
+          name: "Caffè Gourmand",
+          description: "Café accompagné de petites douceurs.",
+          price: 8,
         },
         {
-          id: "mousse-big-love",
-          name: "Mousse Big-love",
-          description: "Inimitable mousse au bon chocolat, praliné noisette et crunchy gaufrette au chocolat au lait.",
-          price: 6.9,
-          image: panisPlat("ciccio/mousse-big-love"),
-        },
-        {
-          id: "deurty-cookie",
-          name: "Deurty Cookie",
-          description:
-            "Décadent cookie choco-praliné mi-cuit, noix de pécan, big pépites de chocolat et pour l'overdose de love, cœur fondant ultra coulant à la gianduja.",
-          price: 5.9,
-          image: panisPlat("ciccio/deurty-cookie"),
+          id: "crepe",
+          name: "Crêpe",
+          price: 4,
+          options: [
+            groupeChoix("garniture", "Garniture", ["Nutella", "Coulis fruits rouges", "Coulis caramel"], {
+              obligatoire: true,
+            }),
+          ],
         },
       ],
     },
