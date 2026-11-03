@@ -30,7 +30,7 @@ export type EncaissementMode = Extract<
 /** Mode d'une jambe de règlement : « mixte », c'est deux jambes, jamais une. */
 export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
-export type PaymentProvider = "stripe" | "sumup" | "square" | "demo";
+export type PaymentProvider = "stripe" | "sumup" | "square" | "demo" | "viva";
 /**
  * Restaurant : le client commande depuis sa table, la salle la lui apporte.
  * Fast food : il retire au comptoir et reçoit un numéro du jour ; la table
