@@ -32,7 +32,7 @@ export function DayPicker({
               onClick={() => toggle(day.iso)}
               aria-pressed={picked}
               aria-label={day.long}
-              className={`flex size-9 items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
+              className={`flex h-g-control min-w-0 flex-1 items-center justify-center rounded-xl text-sm font-semibold transition-colors ${
                 picked
                   ? "ember-gradient text-background"
                   : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"

@@ -6,6 +6,7 @@ import { BullePayment, refundMessage, type PartResult } from "@/components/bulle
 import { ContactFields, contactErrors, emptyContact, type Contact } from "@/components/bulles/contact-fields";
 import { CLUB_TIMING } from "@/components/club/timing";
 import type { BulleCheckout } from "@/lib/bulles/server";
+import { BULLE_NO_REFUND, bulleMontant } from "@/lib/bulles/format";
 import { formatCents } from "@/lib/club/format";
 
 /*
@@ -91,16 +92,23 @@ type Part = { partId: string; amountCents: number; holdExpiresAt: string; checko
 
 /** Payer une ou plusieurs places par le lien de partage. */
 export function Contribute({
-  shareToken,
+  target,
   placeCents,
   placesLeft,
+  resteCents,
+  allLeft = false,
 }: {
-  shareToken: string;
+  /** Le lien de partage, ou la table de la bulle (son QR). */
+  target: { shareToken: string } | { slug: string; table: number };
   placeCents: number;
   placesLeft: number;
+  /** Le reste dû : la dernière place s'y arrête (contribuer_bulle). */
+  resteCents: number;
+  /** Propose d'emblée tout ce qui reste, plutôt qu'une place. */
+  allLeft?: boolean;
 }) {
   const router = useRouter();
-  const [wanted, setPlaces] = useState(1);
+  const [wanted, setPlaces] = useState(allLeft ? placesLeft : 1);
   // D'autres amis paient pendant qu'on remplit : jamais plus que ce qui reste.
   const places = Math.min(wanted, placesLeft);
   const [contact, setContact] = useState<Contact>(emptyContact);
@@ -119,7 +127,7 @@ export function Contribute({
       const response = await fetch("/api/bulles/contribute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareToken, places, ...contact }),
+        body: JSON.stringify({ ...target, places, ...contact }),
       });
       const body = (await response.json().catch(() => ({}))) as Partial<Part> & { error?: string };
       if (!response.ok || !body.partId || !body.checkout || !body.holdExpiresAt) {
@@ -129,7 +137,7 @@ export function Contribute({
       }
       setPart({
         partId: body.partId,
-        amountCents: body.amountCents ?? places * placeCents,
+        amountCents: body.amountCents ?? bulleMontant(places, placeCents, resteCents),
         holdExpiresAt: body.holdExpiresAt,
         checkout: body.checkout,
         places,
@@ -150,7 +158,7 @@ export function Contribute({
             ? refundMessage(done.refunded)
             : done.confirmed
               ? "Votre place est payée, la bulle est confirmée."
-              : "Votre place est payée."}
+              : "Votre place est payée. La bulle n’est pas encore réservée."}
         </p>
         <p className="bo-muted">
           {done.refunded
@@ -198,8 +206,9 @@ export function Contribute({
           {error}
         </p>
       )}
+      <p className="bo-muted bo-small">{BULLE_NO_REFUND}</p>
       <button type="submit" className="bo-button bo-button--block" disabled={sending}>
-        {sending ? "Un instant…" : `Payer ${formatCents(places * placeCents)}`}
+        {sending ? "Un instant…" : `Payer ${formatCents(bulleMontant(places, placeCents, resteCents))}`}
       </button>
     </form>
   );

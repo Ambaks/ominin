@@ -21,6 +21,7 @@ export const LAYOUT = {
   paragraphGap: 5,
   sectionGap: 14,
   labelWidth: 112,
+  tableColumn: 72,
   bulletIndent: 14,
   /** Lignes de texte gardées sous un titre d'article. */
   keepWithNext: 2,
@@ -166,6 +167,29 @@ export async function pdfWriter(meta: { title: string; subject: string; date: Da
     }
   };
 
+  /** Ligne de tableau : le premier texte coupé à sa colonne, les suivants alignés à droite. */
+  const tableRow = ([first, ...numbers]: string[], font: PDFFont = regular) => {
+    const firstWidth = textWidth - numbers.length * LAYOUT.tableColumn;
+    const lines = wrap(clean(first), font, LAYOUT.body, firstWidth);
+    const height = lineHeight(LAYOUT.body);
+    room(height * lines.length);
+    numbers.forEach((cell, index) => {
+      const text = clean(cell);
+      const right = left + firstWidth + (index + 1) * LAYOUT.tableColumn;
+      page.drawText(text, {
+        x: right - font.widthOfTextAtSize(text, LAYOUT.body),
+        y: y - height,
+        size: LAYOUT.body,
+        font,
+        color: LAYOUT.ink,
+      });
+    });
+    for (const line of lines) {
+      y -= height;
+      page.drawText(line, { x: left, y, size: LAYOUT.body, font, color: LAYOUT.ink });
+    }
+  };
+
   /** Un titre ne reste pas seul en bas de page. */
   const heading = (text: string) => {
     y -= LAYOUT.sectionGap;
@@ -193,7 +217,7 @@ export async function pdfWriter(meta: { title: string; subject: string; date: Da
     return pdf.save();
   };
 
-  return { paragraph, row, heading, gap, finish, bold, left };
+  return { paragraph, row, tableRow, heading, gap, finish, bold, left };
 }
 
 export async function signedContractPdf(signature: CommercialSignature) {

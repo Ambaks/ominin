@@ -10,6 +10,13 @@ export function formatDays(days: number[]): string {
   return `${names.slice(0, -1).join(", ")} et ${names[names.length - 1]}`;
 }
 
+/** « ven, sam, dim », le même jeu de jours en court. */
+export function formatDaysShort(days: number[]): string {
+  return WEEK_DAYS.filter((day) => days.includes(day.iso))
+    .map((day) => day.long.slice(0, 3))
+    .join(", ");
+}
+
 /** Parse une saisie de prix française ("7,90", "7.90", "7") → nombre, ou null si invalide. */
 export function parsePriceInput(value: string): number | null {
   const normalized = value.trim().replace(",", ".");

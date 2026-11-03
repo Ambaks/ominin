@@ -6,6 +6,8 @@ import {
   sendPlacesRefunded,
   type BulleMail,
 } from "@/lib/bulles/mail";
+import { bulleConfirmPlaces, bullePlacesFacturees } from "@/lib/bulles/format";
+import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { SQUARE_CURRENCY } from "@/lib/square/config";
 import { getMerchantToken, refundPayment, withFreshToken } from "@/lib/square/server";
 import type { createAdminClient } from "@/lib/supabase/admin";
@@ -37,7 +39,7 @@ export type PartOutcome = {
 };
 
 const MAIL_SELECT =
-  "name, email, token, share_token, starts_at, ends_at, party_size, places_paid, status, bulles(name), etablissements(slug, name, address, bulle_reglages(min_party))";
+  "name, email, token, share_token, starts_at, ends_at, party_size, places_paid, place_cents, paid_cents, min_billed_places, status, bulles(name), etablissements(slug, name, address, bulle_reglages(group_threshold), etablissement_settings(day_end_hour))";
 
 type MailReservation = {
   name: string;
@@ -48,13 +50,17 @@ type MailReservation = {
   ends_at: string;
   party_size: number;
   places_paid: number;
+  place_cents: number;
+  paid_cents: number;
+  min_billed_places: number;
   status: string;
   bulles: { name: string } | null;
   etablissements: {
     slug: string;
     name: string;
     address: string | null;
-    bulle_reglages: { min_party: number } | null;
+    bulle_reglages: { group_threshold: number } | null;
+    etablissement_settings: { day_end_hour: number } | null;
   } | null;
 };
 
@@ -80,9 +86,16 @@ function mailFor(data: MailReservation, payer: Payer): BulleMail | null {
     bulle: data.bulles.name,
     startsAt: data.starts_at,
     endsAt: data.ends_at,
+    dayEndHour: data.etablissements.etablissement_settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR,
     partySize: data.party_size,
-    minParty: data.etablissements.bulle_reglages.min_party,
-    placesPaid: data.places_paid,
+    confirmPlaces: bulleConfirmPlaces(
+      bullePlacesFacturees(data.party_size, data.min_billed_places),
+      data.etablissements.bulle_reglages.group_threshold
+    ),
+    placeCents: data.place_cents,
+    paidCents: data.paid_cents,
+    minBilledPlaces: data.min_billed_places,
+    confirmed: data.status === "confirmee" || data.status === "arrivee",
     places: payer.places,
     amountCents: payer.amount_cents,
   };

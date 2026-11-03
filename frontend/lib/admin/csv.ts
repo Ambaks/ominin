@@ -80,7 +80,7 @@ export function isEmptyRow(row: string[]): boolean {
   return row.every((cell) => cell.trim() === "");
 }
 
-function escapeField(value: string): string {
+function escapeField(value: string, delimiter: string): string {
   // Préfixe apostrophe : neutralise l'interprétation en formule par les
   // tableurs (=, +, -, @ en tête de cellule — exfiltration/DDE à l'ouverture
   // d'un export dont les données viennent de listes importées). Les nombres
@@ -90,21 +90,23 @@ function escapeField(value: string): string {
     /^[=+\-@]/.test(value) && !/^-?\d+([.,]\d+)?$/.test(value)
       ? `'${value}`
       : value;
-  return /[",;\n\r]/.test(neutralized)
+  // En « ; », la virgule d'un décimal reste nue : Excel y lit un nombre.
+  return (delimiter === ";" ? /[";\n\r]/ : /[",;\n\r]/).test(neutralized)
     ? `"${neutralized.replaceAll('"', '""')}"`
     : neutralized;
 }
 
-export function toCsv<Row>(rows: Row[], columns: CsvColumn<Row>[]): string {
+/** `delimiter` : « ; » pour un fichier destiné à l'Excel français. */
+export function toCsv<Row>(rows: Row[], columns: CsvColumn<Row>[], delimiter = ","): string {
   const lines = [
-    columns.map((c) => escapeField(c.header)).join(","),
+    columns.map((c) => escapeField(c.header, delimiter)).join(delimiter),
     ...rows.map((row) =>
       columns
         .map((c) => {
           const value = c.value(row);
-          return escapeField(value == null ? "" : String(value));
+          return escapeField(value == null ? "" : String(value), delimiter);
         })
-        .join(",")
+        .join(delimiter)
     ),
   ];
   // BOM : Excel ouvre le fichier en UTF-8 (accents intacts) ; CRLF RFC 4180.
@@ -112,7 +114,10 @@ export function toCsv<Row>(rows: Row[], columns: CsvColumn<Row>[]): string {
 }
 
 export function downloadCsv(filename: string, csv: string): void {
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+  downloadBlob(filename, new Blob([csv], { type: "text/csv;charset=utf-8" }));
+}
+
+export function downloadBlob(filename: string, blob: Blob): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
   link.href = url;

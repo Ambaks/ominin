@@ -366,7 +366,7 @@ export function FermeturesSettings({
     <SettingsCard
       data-visite="etablissement-fermetures"
       title="Fermeture de la cuisine"
-      text="Ce qui n'est plus servi passé une heure, ou d'un geste depuis Commandes ; vos clients voient « Plus servi »."
+      text="Ce qui n'est plus servi passé une heure, ou d'un geste depuis Aujourd'hui ; vos clients voient « Plus servi »."
       right={
         closures.length > 0 ? (
           <GlassButton onClick={() => setCreating({})}>+ Fermeture</GlassButton>

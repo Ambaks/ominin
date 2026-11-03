@@ -93,8 +93,12 @@ export interface OptionGroup {
   choices: OptionChoice[];
 }
 
+/** Pour le bouton « Fermeture cuisine » ; absent ⇒ hors cuisine (boissons, chichas). */
+export type ItemCuisine = "chaud" | "froid";
+
 export interface MenuItem {
   id: string;
+  cuisine?: ItemCuisine;
   name: string;
   description?: string;
   price: number;

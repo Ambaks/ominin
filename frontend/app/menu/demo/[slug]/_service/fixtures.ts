@@ -181,5 +181,6 @@ export function demoState(
     closures: [],
     tables,
     orders,
+    bulleEncaissements: [],
   };
 }

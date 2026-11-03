@@ -856,6 +856,7 @@ export type Database = {
           square_payment_id: string | null
           square_refund_id: string | null
           status: Database["public"]["Enums"]["bulle_part_status"]
+          tender: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Insert: {
           amount_cents: number
@@ -878,6 +879,7 @@ export type Database = {
           square_payment_id?: string | null
           square_refund_id?: string | null
           status?: Database["public"]["Enums"]["bulle_part_status"]
+          tender?: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Update: {
           amount_cents?: number
@@ -900,6 +902,7 @@ export type Database = {
           square_payment_id?: string | null
           square_refund_id?: string | null
           status?: Database["public"]["Enums"]["bulle_part_status"]
+          tender?: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Relationships: [
           {
@@ -923,27 +926,36 @@ export type Database = {
           booking_days: number
           duration_minutes: number
           etablissement_id: string
+          group_threshold: number
           max_party: number
+          min_billed_places: number
           min_party: number
           place_cents: number
+          small_group_place_cents: number | null
           vat_rate: number
         }
         Insert: {
           booking_days: number
           duration_minutes: number
           etablissement_id: string
+          group_threshold: number
           max_party: number
+          min_billed_places?: number
           min_party: number
           place_cents: number
+          small_group_place_cents?: number | null
           vat_rate?: number
         }
         Update: {
           booking_days?: number
           duration_minutes?: number
           etablissement_id?: string
+          group_threshold?: number
           max_party?: number
+          min_billed_places?: number
           min_party?: number
           place_cents?: number
+          small_group_place_cents?: number | null
           vat_rate?: number
         }
         Relationships: [
@@ -967,8 +979,10 @@ export type Database = {
           ends_at: string
           etablissement_id: string
           id: string
+          min_billed_places: number
           name: string
           note: string | null
+          paid_cents: number
           party_size: number
           phone: string | null
           place_cents: number
@@ -989,8 +1003,10 @@ export type Database = {
           ends_at: string
           etablissement_id: string
           id?: string
+          min_billed_places?: number
           name: string
           note?: string | null
+          paid_cents?: number
           party_size: number
           phone?: string | null
           place_cents: number
@@ -1011,8 +1027,10 @@ export type Database = {
           ends_at?: string
           etablissement_id?: string
           id?: string
+          min_billed_places?: number
           name?: string
           note?: string | null
+          paid_cents?: number
           party_size?: number
           phone?: string | null
           place_cents?: number
@@ -1333,6 +1351,7 @@ export type Database = {
       closures: {
         Row: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -1342,6 +1361,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          cuisine?: string | null
           etablissement_id: string
           id?: string
           name: string
@@ -1351,6 +1371,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          cuisine?: string | null
           etablissement_id?: string
           id?: string
           name?: string
@@ -3567,6 +3588,7 @@ export type Database = {
           image: string | null
           name: string
           notice_hours: number | null
+          cuisine: string | null
           options: Json
           pairing: string | null
           position: number
@@ -3588,6 +3610,7 @@ export type Database = {
           image?: string | null
           name: string
           notice_hours?: number | null
+          cuisine?: string | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -3609,6 +3632,7 @@ export type Database = {
           image?: string | null
           name?: string
           notice_hours?: number | null
+          cuisine?: string | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -7354,6 +7378,22 @@ export type Database = {
       }
     }
     Views: {
+      bulle_encaissements: {
+        Row: {
+          amount: number | null
+          bulle_name: string | null
+          etablissement_id: string | null
+          etat: string | null
+          id: string | null
+          mode: string | null
+          name: string | null
+          paid_at: string | null
+          places: number | null
+          refunded_at: string | null
+          reservation_id: string | null
+        }
+        Relationships: []
+      }
       shop_customer_stats: {
         Row: {
           email: string | null
@@ -7501,7 +7541,16 @@ export type Database = {
           p_from: string
           p_to: string
         }
-        Returns: { day: string; orders: number; revenue: number }[]
+        Returns: { bulles: number; day: string; orders: number; revenue: number }[]
+      }
+      gestion_paiements: {
+        Args: {
+          p_etablissement_id: string
+          p_limit: number
+          p_mode: string | null
+          p_offset: number
+        }
+        Returns: Json
       }
       admin_combo_parfait: {
         Args: {
@@ -7734,6 +7783,13 @@ export type Database = {
         Args: { p_at?: string; p_etablissement: string }
         Returns: string[]
       }
+      articles_fermes_detail: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: {
+          cuisine: boolean
+          id: string
+        }[]
+      }
       auth_account_state: {
         Args: { p_email: string }
         Returns: {
@@ -7743,10 +7799,35 @@ export type Database = {
           invited: boolean
         }[]
       }
+      basculer_cuisine: {
+        Args: {
+          p_articles?: string[]
+          p_etablissement: string
+          p_fermee: boolean
+          p_parties: string[]
+        }
+        Returns: {
+          created_at: string
+          cuisine: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          open_windows: boolean
+          override_closed: boolean | null
+          override_until: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       basculer_fermeture: {
         Args: { p_closure: string; p_fermee: boolean }
         Returns: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -7780,6 +7861,10 @@ export type Database = {
         Args: { p_date: string; p_start_minutes: number }
         Returns: string
       }
+      bulle_changer_taille: {
+        Args: { p_party: number; p_reservation: string }
+        Returns: Database["public"]["Tables"]["bulle_reservations"]["Row"]
+      }
       bulle_deloger: { Args: { p_reservation: string }; Returns: string[] }
       bulle_fermer: { Args: { p_reservation: string }; Returns: string[] }
       bulle_libre: {
@@ -7787,7 +7872,11 @@ export type Database = {
         Returns: boolean
       }
       bulle_marquer_arrivee: {
-        Args: { p_arrived: boolean; p_paid?: boolean; p_reservation: string }
+        Args: {
+          p_arrived: boolean
+          p_reservation: string
+          p_tender?: Database["public"]["Enums"]["bulle_part_tender"]
+        }
         Returns: undefined
       }
       bulle_prendre: { Args: { p_reservation: string }; Returns: boolean }
@@ -7861,14 +7950,20 @@ export type Database = {
         Returns: {
           bulle_color: string
           bulle_name: string
+          can_pay: boolean
           ends_at: string
           ordering: boolean
           party_size: number
+          place_cents: number
           places_paid: number
           reservation_status: Database["public"]["Enums"]["bulle_reservation_status"]
-          share_token: string
+          reste_cents: number
           starts_at: string
         }[]
+      }
+      bulle_table_partage: {
+        Args: { p_slug: string; p_table: number }
+        Returns: string
       }
       bulle_verrou: {
         Args: { p_etab: string; p_starts_at: string }
@@ -8285,6 +8380,7 @@ export type Database = {
           p_phone: string
           p_source: Database["public"]["Enums"]["bulle_reservation_source"]
           p_starts_at: string
+          p_tender?: Database["public"]["Enums"]["bulle_part_tender"]
         }
         Returns: {
           arrived_at: string | null
@@ -8415,6 +8511,7 @@ export type Database = {
         }
         Returns: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -9038,6 +9135,7 @@ export type Database = {
       badge: "maison" | "top" | "nouveau"
       bulle_part_method: "en_ligne" | "sur_place"
       bulle_part_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      bulle_part_tender: "carte" | "especes"
       bulle_reservation_source: "en_ligne" | "telephone" | "sur_place"
       bulle_reservation_status:
         | "en_attente"
@@ -9152,7 +9250,7 @@ export type Database = {
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte" | "caisse"
       payment_provider: "stripe" | "sumup" | "square" | "demo"
-      price_rule_direction: "majoration" | "remise"
+      price_rule_direction: "majoration" | "remise" | "prix_fixe"
       price_rule_unit: "montant" | "pourcentage"
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
@@ -9342,6 +9440,7 @@ export const Constants = {
       badge: ["maison", "top", "nouveau"],
       bulle_part_method: ["en_ligne", "sur_place"],
       bulle_part_status: ["en_attente", "payee", "remboursee", "annulee"],
+      bulle_part_tender: ["carte", "especes"],
       bulle_reservation_source: ["en_ligne", "telephone", "sur_place"],
       bulle_reservation_status: [
         "en_attente",
@@ -9468,7 +9567,7 @@ export const Constants = {
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte", "caisse"],
       payment_provider: ["stripe", "sumup", "square", "demo"],
-      price_rule_direction: ["majoration", "remise"],
+      price_rule_direction: ["majoration", "remise", "prix_fixe"],
       price_rule_unit: ["montant", "pourcentage"],
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],

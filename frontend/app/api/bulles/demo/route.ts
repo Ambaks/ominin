@@ -15,6 +15,7 @@ import type { Database } from "@/lib/supabase/database.types";
 
 type Admin = ReturnType<typeof createAdminClient>;
 type Source = Exclude<Database["public"]["Enums"]["bulle_reservation_source"], "en_ligne">;
+type Tender = Database["public"]["Enums"]["bulle_part_tender"];
 
 async function demoEtablissement(admin: Admin) {
   const { data } = await admin
@@ -44,7 +45,7 @@ export async function GET(request: Request) {
     admin.from("tables").select("id, number").eq("etablissement_id", etab.id).order("number"),
     admin
       .from("bulle_reservations")
-      .select("*, bulle_parts(id, name, places, amount_cents, method, status, organiser)")
+      .select("*, bulle_parts(id, name, places, amount_cents, method, tender, status, organiser)")
       .eq("etablissement_id", etab.id)
       .gte("starts_at", parisInstant(date, dayEndHour * 60).toISOString())
       .lt("starts_at", parisInstant(addDays(date, 1), dayEndHour * 60).toISOString())
@@ -69,6 +70,7 @@ export async function POST(request: Request) {
   const etab = await demoEtablissement(admin);
   if (!etab || !body) return NextResponse.json({ error: "Démonstration introuvable." }, { status: 404 });
 
+  const tender: Tender | undefined = body.tender === "carte" || body.tender === "especes" ? body.tender : undefined;
   let result: { error: { code?: string; message: string } | null };
   if (body.action === "creer") {
     const { data: bulle } = await admin
@@ -86,6 +88,7 @@ export async function POST(request: Request) {
       p_party: Number(body.partySize),
       p_source: (body.source === "sur_place" ? "sur_place" : "telephone") satisfies Source,
       p_note: String(body.note ?? ""),
+      p_tender: tender,
     });
   } else {
     const { data: reservation } = await admin
@@ -100,7 +103,7 @@ export async function POST(request: Request) {
         ? await admin.rpc("bulle_marquer_arrivee", {
             p_reservation: reservation.id,
             p_arrived: body.arrived === true,
-            p_paid: body.paid === true,
+            p_tender: tender,
           })
         : body.action === "annuler"
           ? await admin.rpc("bulle_annuler_reservation", { p_reservation: reservation.id })

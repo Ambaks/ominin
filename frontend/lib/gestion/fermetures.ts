@@ -131,6 +131,10 @@ export function closureActive(
     : scheduledAt(closure, clock.isoDay, clock.minutes, dayEndHour);
 }
 
+/** Bouton « Fermeture cuisine », chaud ou froid : elle suit le marqueur, sans cibles. */
+const markedOnly = (closure: Closure) =>
+  closure.cuisine === "chaud" || closure.cuisine === "froid";
+
 const targets = (closure: Closure, kind: MenuTarget["kind"], id: string) =>
   closure.targets.some((target) => target.kind === kind && target.id === id);
 
@@ -140,7 +144,9 @@ export function targetedItems(
   categories: MenuCategory[]
 ): MenuItem[] {
   return categories.flatMap((category) =>
-    targets(closure, "category", category.id)
+    markedOnly(closure)
+      ? category.items.filter((item) => item.cuisine === closure.cuisine)
+      : targets(closure, "category", category.id)
       ? category.items
       : category.items.filter((item) => targets(closure, "item", item.id))
   );
@@ -165,6 +171,22 @@ export function closedItems(
   }
   return closed;
 }
+
+/** Articles que le bouton « Fermeture cuisine » coupe en ce moment. */
+export const kitchenClosedItems = (
+  closures: Closure[],
+  categories: MenuCategory[],
+  clock: ServiceClock,
+  dayEndHour: number
+): Set<string> =>
+  new Set(
+    closedItems(
+      closures.filter((closure) => closure.cuisine !== null),
+      categories,
+      clock,
+      dayEndHour
+    ).keys()
+  );
 
 /** Une minute de service, dite à l'heure de Paris : « 19 h », ou la bascule. */
 function serviceHeure(minutes: number, dayEndHour: number): string {
@@ -335,10 +357,17 @@ export function describeTargets(
 ): string {
   return listFr(
     categories.flatMap((category) =>
-      targets(closure, "category", category.id)
+      targets(closure, "category", category.id) ||
+      (markedOnly(closure) &&
+        category.items.length > 0 &&
+        category.items.every((item) => item.cuisine === closure.cuisine))
         ? [category.name]
         : category.items
-            .filter((item) => targets(closure, "item", item.id))
+            .filter((item) =>
+              markedOnly(closure)
+                ? item.cuisine === closure.cuisine
+                : targets(closure, "item", item.id)
+            )
             .map((item) => item.name)
     )
   );

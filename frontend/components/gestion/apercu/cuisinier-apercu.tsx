@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { FermeturesBar } from "@/components/gestion/commandes/fermetures-bar";
+import { FermetureCuisine } from "@/components/gestion/fermeture-cuisine";
 import { ProfileRow } from "@/components/gestion/profile-row";
 import { PrinterIcon } from "@/components/gestion/icons";
 import { GlassFrame, Plate } from "@/components/gestion/ui";
@@ -57,15 +57,9 @@ export function CuisinierApercu({ state }: { state: GestionState }) {
         </Plate>
       </GlassFrame>
 
-      {state.closures.length > 0 && (
-        <section className="g-rise" style={block(1)}>
-          <FermeturesBar
-            closures={state.closures}
-            categories={state.categories}
-            dayEndHour={state.dayEndHour}
-          />
-        </section>
-      )}
+      <section className="g-rise empty:hidden" style={block(1)}>
+        <FermetureCuisine state={state} />
+      </section>
 
       {!named && <ProfileRow state={state} style={block(2)} />}
 

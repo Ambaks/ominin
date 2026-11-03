@@ -1,4 +1,5 @@
 import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
+import type { ItemCuisine } from "@/lib/menu-data";
 import type {
   AccordSource,
   Action,
@@ -101,6 +102,10 @@ export const DEFAULT_DAY_END_HOUR = 0;
 export const LIST_PAGE_SIZES = [10, 25] as const;
 /** Recherche côté base : le temps de finir de taper avant d'interroger. */
 export const LIST_SEARCH_DEBOUNCE_MS = 250;
+/** Tarifs planifiés : articles montrés dans l'aperçu du formulaire ; au-delà, « + N autres ». */
+export const TARIF_PREVIEW_LINES = 3;
+/** Rapport d'heures : lignes relues par requête (le plafond de PostgREST), jusqu'à tout avoir. */
+export const HOURS_REPORT_READ_ROWS = 1000;
 
 /** Onglet Terminaux : cadence de relecture de l'état des appareils et imprimantes. */
 export const TERMINAUX_REFRESH_MS = 5000;
@@ -157,13 +162,6 @@ export const ORDER_TAB_HINTS: Record<OrderTab, string> = {
 
 /** Statuts d'historique : commandes closes. */
 export const HISTORY_ORDER_STATUSES: OrderStatus[] = ["servie", "annulee", "retiree"];
-
-/**
- * Statuts relus par la page Paiements : payée sur place (servie ou non),
- * prête (une commande fast food réglée, ou à emporter payée en ligne, qui
- * attend son client), ou retirée. isPaid trie ensuite ce qui est réglé.
- */
-export const PAID_ORDER_STATUSES: OrderStatus[] = ["payee", "prete", "servie", "retiree"];
 
 /** Retrait au bar : une commande numérotée se remet réglée, prête ou pas encore. */
 export const HANDOVER_STATUSES: OrderStatus[] = ["payee", "prete"];
@@ -638,6 +636,13 @@ export const ACTION_LABELS: Record<Action, string> = {
   "fermetures.basculer": "Fermer ou rouvrir la cuisine",
   "soirees.edit": "Préparer les soirées, saisir et rembourser les tables",
 };
+
+/** Le marqueur d'un article, dans sa fiche et sur sa catégorie. */
+export const CUISINE_OPTIONS: { value: ItemCuisine | ""; label: string }[] = [
+  { value: "", label: "Hors cuisine" },
+  { value: "chaud", label: "Chaud" },
+  { value: "froid", label: "Froid" },
+];
 
 /** Fonctionnalité conditionnant un droit (absente ⇒ incluse dans toute offre). */
 export const ACTION_FEATURE: Partial<Record<Action, Feature>> = {
