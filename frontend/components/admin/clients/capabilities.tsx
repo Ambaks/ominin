@@ -7,6 +7,7 @@ import {
   clientFeatures,
   nextOverrides,
   saveCategoryLayout,
+  saveOrderingSoon,
   saveOrderTabs,
   saveOverrides,
   saveSaison,
@@ -244,6 +245,52 @@ function CategoryLayoutCard({
         disabled={saving}
         onChoose={(layout) => void choose(layout)}
       />
+    </section>
+  );
+}
+
+/*
+ * « Commande bientôt » : le menu QR se consulte en entier, mais rien ne
+ * s'ajoute au panier — chaque « + » grisé porte « Bientôt » dessous. Pour
+ * mettre un client en ligne avant que son paiement soit prêt.
+ */
+function OrderingSoonCard({
+  client,
+  onChange,
+}: {
+  client: Client;
+  onChange: (client: Client) => void;
+}) {
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const toggle = async (orderingSoon: boolean) => {
+    const previous = client;
+    onChange({ ...client, orderingSoon });
+    setSaving(true);
+    try {
+      await saveOrderingSoon(client.id, orderingSoon);
+    } catch (error) {
+      onChange(previous);
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="flex flex-col gap-3">
+      <h3 className="font-display text-base font-medium">Commande sur le menu QR</h3>
+      <div className="rounded-2xl border border-hairline bg-surface px-5">
+        <Row
+          label="Commande bientôt"
+          hint="La carte se consulte, mais rien ne s’ajoute au panier : chaque « + » grisé porte « Bientôt » dessous. La fidélité se masque aussi. Le menu l’affiche en une minute environ."
+          checked={client.orderingSoon}
+          fromPlan
+          disabled={saving}
+          onChange={(value) => void toggle(value)}
+        />
+      </div>
     </section>
   );
 }
@@ -593,6 +640,10 @@ export function Capabilities({
 
       {features.commandes && (
         <OrderTabsCard client={client} onChange={onChange} />
+      )}
+
+      {client.products.offre && (
+        <OrderingSoonCard client={client} onChange={onChange} />
       )}
 
       {client.products.offre && (

@@ -7993,6 +7993,25 @@ html:has([data-menu-root].theme-caffe-panis) body {
   font-size: 0.6875rem;
 }
 
+/* « Commande bientôt » (réglé dans l'admin) : « Bientôt »
+   sous le « + » grisé. */
+:is(.dish-action, .dish-sheet-add):has(> .order-soon) {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3125rem;
+}
+
+:is(.dish-action, .dish-sheet-add) > span.order-soon {
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
 /* La roue des catégories ne passe que sur la colonne de droite : à gauche,
    la place revient au nom. */
 @media (22.5rem <= width < 48rem) {
