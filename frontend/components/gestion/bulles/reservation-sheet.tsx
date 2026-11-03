@@ -81,6 +81,15 @@ export function ReservationSheet({
   const paidOnline = reservation.bulle_parts.some((part) => part.method === "en_ligne" && part.status === "payee");
   const payers = reservation.bulle_parts.filter((part) => part.status === "payee");
   const canCancel = gerant && !paidOnline && (confirmed || pending);
+  // Ce qui a été encaissé ici se rend à la main : la confirmation le rappelle, mode par mode.
+  const toGiveBack = Object.entries(
+    payers.reduce<Record<string, number>>((byTender, part) => {
+      if (part.method !== "sur_place") return byTender;
+      const how = part.tender ? `en ${TENDER_LABELS[part.tender]}` : "sur place";
+      byTender[how] = (byTender[how] ?? 0) + part.amount_cents;
+      return byTender;
+    }, {})
+  ).map(([how, amountCents]) => `${formatCents(amountCents)} encaissés ${how}, à rendre au client.`);
 
   // Refusé (plus de bulle libre, réservation close) : la fiche reste ouverte
   // sur le message, rien n'a changé.
@@ -240,7 +249,7 @@ export function ReservationSheet({
       {confirmingCancel && (
         <ConfirmSheet
           title={`Annuler la réservation de ${reservation.name} ?`}
-          text="La bulle redevient libre pour ce créneau."
+          text={["La bulle redevient libre pour ce créneau.", ...toGiveBack].join(" ")}
           confirmLabel="Annuler la réservation"
           cancelLabel="Garder la réservation"
           destructive
