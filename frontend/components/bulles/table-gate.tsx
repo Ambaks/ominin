@@ -74,6 +74,10 @@ export function BulleTableGate({
     };
   }, [slug, table, enabled]);
 
+  // Sans bulles, aucun conteneur : le thème vise les enfants directs de la
+  // carte (le fond velours de Caffè Panis, :has(> .panis-backdrop)).
+  if (!enabled) return children;
+
   const block = blockOf(state);
   const gated = Boolean(state?.reservation_status && block);
   return (
