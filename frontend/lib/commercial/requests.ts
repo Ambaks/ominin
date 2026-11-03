@@ -25,7 +25,7 @@ interface RequestRow {
   discord_message_id: string | null;
   restaurant: { name: string };
   requester: Person;
-  holder: Person;
+  holder: Person & { visit_request_days: number | null };
 }
 
 const nameOf = (person: Person) => person.first_name ?? person.email;
@@ -35,7 +35,7 @@ async function loadRequest(admin: Admin, id: string): Promise<RequestRow> {
   const { data, error } = await admin
     .from("commercial_visit_requests")
     .select(
-      "id, created_at, discord_message_id, restaurant:crm_restaurants(name), requester:commerciaux!commercial_visit_requests_requester_id_fkey(first_name, email, discord_user_id), holder:commerciaux!commercial_visit_requests_holder_id_fkey(first_name, email, discord_user_id)"
+      "id, created_at, discord_message_id, restaurant:crm_restaurants(name), requester:commerciaux!commercial_visit_requests_requester_id_fkey(first_name, email, discord_user_id), holder:commerciaux!commercial_visit_requests_holder_id_fkey(first_name, email, discord_user_id, visit_request_days)"
     )
     .eq("id", id)
     .single();
@@ -43,8 +43,12 @@ async function loadRequest(admin: Admin, id: string): Promise<RequestRow> {
   return data as unknown as RequestRow;
 }
 
-/* La règle donne la date de libération : elle reste juste quand le message est réécrit. */
-function requestText(row: RequestRow, days: number | null): string {
+/*
+ * La règle donne la date de libération, au délai de celui qui suit le
+ * restaurant : elle reste juste quand le message est réécrit.
+ */
+function requestText(row: RequestRow, withRule: boolean): string {
+  const days = withRule ? row.holder.visit_request_days : null;
   const ends = new Date(row.created_at);
   ends.setDate(ends.getDate() + (days ?? 0));
   const rule = days
@@ -55,11 +59,8 @@ function requestText(row: RequestRow, days: number | null): string {
 
 /** Poste la demande dans #demandes, avec les boutons pour celui qui suit le restaurant. */
 export async function announceRequest(admin: Admin, id: string): Promise<void> {
-  const [row, { data: settings }] = await Promise.all([
-    loadRequest(admin, id),
-    admin.from("commercial_settings").select("visit_request_days").single(),
-  ]);
-  const messageId = await postDiscord("demandes", requestText(row, settings?.visit_request_days ?? null), {
+  const row = await loadRequest(admin, id);
+  const messageId = await postDiscord("demandes", requestText(row, true), {
     mentions: [row.holder.discord_user_id, row.requester.discord_user_id].filter((value): value is string => value !== null),
     buttons: [
       { label: "Accepter", customId: `${REQUEST_BUTTON}:accept:${id}`, style: "success" },
@@ -74,10 +75,7 @@ export type RequestOutcome = "accepted" | "refused" | "released" | "kept";
 
 /** Le texte de la demande, suivi de son issue : ce que devient le message de #demandes. */
 export async function outcomeText(admin: Admin, id: string, outcome: RequestOutcome): Promise<string> {
-  const [row, { data: settings }] = await Promise.all([
-    loadRequest(admin, id),
-    admin.from("commercial_settings").select("visit_request_days").single(),
-  ]);
+  const row = await loadRequest(admin, id);
   const restaurant = row.restaurant.name;
   const line = {
     accepted: `✅ **Accepté** : ${restaurant} est libre, ${nameOf(row.requester)} peut y aller.`,
@@ -86,7 +84,7 @@ export async function outcomeText(admin: Admin, id: string, outcome: RequestOutc
     kept: `📌 ${nameOf(row.holder)} a avancé : ${restaurant} lui reste.`,
   }[outcome];
   // Accepté, libéré ou gardé : la règle ne sert plus.
-  return `${requestText(row, outcome === "refused" ? (settings?.visit_request_days ?? null) : null)}\n${line}`;
+  return `${requestText(row, outcome === "refused")}\n${line}`;
 }
 
 /** Tâche quotidienne : traite les demandes échues et réécrit leur message. */

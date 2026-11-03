@@ -19,7 +19,6 @@ import {
 import { formatEuros, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { commercialSiteUrl } from "@/lib/site";
 import { CommercialSheet, contractLine } from "./commercial-sheet";
-import { CommonSettings } from "./reglages-communs";
 
 /** Commission estimée du mois en cours (même calcul que le relevé). */
 function MonthCommission({ commercialId }: { commercialId: string }) {
@@ -88,7 +87,7 @@ function EndContractModal({
 }
 
 /*
- * Commerciaux invités, ouverts chacun sur sa fiche, et les réglages communs.
+ * Commerciaux invités, ouverts chacun sur sa fiche, qui porte ses réglages.
  * L'invitation envoie le lien d'accès à l'espace, où le commercial lit et
  * signe son contrat.
  */
@@ -179,8 +178,7 @@ export function CommerciauxTab() {
           <div className="shimmer h-20 rounded-2xl" />
         </div>
       ) : (
-        <>
-          {rows.length === 0 ? (
+        rows.length === 0 ? (
             <EmptyState title="Aucun commercial" body="Les commerciaux invités apparaissent ici, avec l'état de leur contrat." />
           ) : (
             <ul className="flex flex-col gap-3">
@@ -197,7 +195,7 @@ export function CommerciauxTab() {
                       {contractLine(row)}
                     </p>
                     <p className="mt-1 text-xs text-muted">
-                      {(row.commissionPercent ?? settings.commission_percent).toLocaleString("fr-FR")} %
+                      {row.settings.commission_percent.toLocaleString("fr-FR")} %
                       {row.signed && (
                         <>
                           {" · "}
@@ -212,9 +210,7 @@ export function CommerciauxTab() {
                 </li>
               ))}
             </ul>
-          )}
-          <CommonSettings settings={settings} onSaved={load} />
-        </>
+          )
       )}
       {open && settings && rows && (
         <CommercialSheet
