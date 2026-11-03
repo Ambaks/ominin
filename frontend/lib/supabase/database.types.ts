@@ -2975,6 +2975,7 @@ export type Database = {
           features: Json
           order_number_reset_hour: number
           order_tabs: Database["public"]["Enums"]["order_tab"][]
+          ordering_soon: boolean
           saison: Database["public"]["Enums"]["saison"] | null
           saison_fin: string | null
           updated_at: string
@@ -2985,6 +2986,7 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          ordering_soon?: boolean
           saison?: Database["public"]["Enums"]["saison"] | null
           saison_fin?: string | null
           updated_at?: string
@@ -2995,6 +2997,7 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          ordering_soon?: boolean
           saison?: Database["public"]["Enums"]["saison"] | null
           saison_fin?: string | null
           updated_at?: string
