@@ -542,7 +542,9 @@ export default function EtablissementPage() {
                 initialEnabled={etablissement.onlinePayment}
                 initialMinOrder={etablissement.onlineMinOrder}
                 initialProvider={
-                  etablissement.paymentProvider === "square" ? "square" : "stripe"
+                  etablissement.paymentProvider === "square" || etablissement.paymentProvider === "viva"
+                    ? etablissement.paymentProvider
+                    : "stripe"
                 }
               />
             )}

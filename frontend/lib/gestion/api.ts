@@ -1168,7 +1168,7 @@ export async function updateEtablissement(
  * façon si le nouveau fournisseur n'est pas encore capable d'encaisser.
  */
 export async function setPaymentProvider(
-  provider: "stripe" | "square"
+  provider: "stripe" | "square" | "viva"
 ): Promise<void> {
   const supabase = createClient();
   const dbValue = provider === "stripe" ? null : provider;

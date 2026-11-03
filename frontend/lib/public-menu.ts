@@ -74,7 +74,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   offre: string | null;
   onlinePayment: boolean;
   /** Fournisseur du paiement à table ; non choisi ⇒ Stripe (historique). */
-  paymentProvider: "stripe" | "sumup" | "square" | "demo";
+  paymentProvider: "stripe" | "sumup" | "square" | "demo" | "viva";
   /** Point de vente Square encaisseur — public par conception (SDK carte). */
   squareLocationId: string | null;
   /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */

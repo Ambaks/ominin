@@ -4750,6 +4750,10 @@ export type Database = {
           table_id: string | null
           tip_amount: number | null
           type: Database["public"]["Enums"]["order_type"]
+          viva_order_code: string | null
+          viva_return_url: string | null
+          viva_tip: number | null
+          viva_transaction_id: string | null
         }
         Insert: {
           cash_change?: number | null
@@ -4790,6 +4794,10 @@ export type Database = {
           table_id?: string | null
           tip_amount?: number | null
           type?: Database["public"]["Enums"]["order_type"]
+          viva_order_code?: string | null
+          viva_return_url?: string | null
+          viva_tip?: number | null
+          viva_transaction_id?: string | null
         }
         Update: {
           cash_change?: number | null
@@ -4830,6 +4838,10 @@ export type Database = {
           table_id?: string | null
           tip_amount?: number | null
           type?: Database["public"]["Enums"]["order_type"]
+          viva_order_code?: string | null
+          viva_return_url?: string | null
+          viva_tip?: number | null
+          viva_transaction_id?: string | null
         }
         Relationships: [
           {
@@ -7379,6 +7391,41 @@ export type Database = {
           },
         ]
       }
+      viva_accounts: {
+        Row: {
+          etablissement_id: string
+          merchant_id: string
+          source_code: string | null
+          updated_at: string
+          verified: boolean
+          viva_account_id: string | null
+        }
+        Insert: {
+          etablissement_id: string
+          merchant_id: string
+          source_code?: string | null
+          updated_at?: string
+          verified?: boolean
+          viva_account_id?: string | null
+        }
+        Update: {
+          etablissement_id?: string
+          merchant_id?: string
+          source_code?: string | null
+          updated_at?: string
+          verified?: boolean
+          viva_account_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viva_accounts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       bulle_encaissements: {
@@ -7849,6 +7896,7 @@ export type Database = {
         Args: { p_idempotency_key: string; p_order_id: string }
         Returns: boolean
       }
+      begin_viva_payment: { Args: { p_order_id: string }; Returns: boolean }
       bulle_annuler_reservation: {
         Args: { p_reservation: string }
         Returns: undefined
@@ -9252,7 +9300,7 @@ export type Database = {
         | "failed"
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte" | "caisse"
-      payment_provider: "stripe" | "sumup" | "square" | "demo"
+      payment_provider: "stripe" | "sumup" | "square" | "demo" | "viva"
       price_rule_direction: "majoration" | "remise" | "prix_fixe"
       price_rule_unit: "montant" | "pourcentage"
       print_job_kind: "order" | "test"
@@ -9569,7 +9617,7 @@ export const Constants = {
         "cancelled",
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte", "caisse"],
-      payment_provider: ["stripe", "sumup", "square", "demo"],
+      payment_provider: ["stripe", "sumup", "square", "demo", "viva"],
       price_rule_direction: ["majoration", "remise", "prix_fixe"],
       price_rule_unit: ["montant", "pourcentage"],
       print_job_kind: ["order", "test"],
