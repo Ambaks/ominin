@@ -42,7 +42,7 @@ async function send(body: Record<string, unknown>) {
 }
 
 const actions: BulleActions = {
-  markArrival: (reservationId, arrived, paid) => send({ action: "arrivee", reservationId, arrived, paid }),
+  markArrival: (reservationId, arrived, tender) => send({ action: "arrivee", reservationId, arrived, tender }),
   cancelReservation: (reservationId) => send({ action: "annuler", reservationId }),
   createReservation: (input) => send({ action: "creer", ...input }),
 };

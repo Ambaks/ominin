@@ -29,6 +29,9 @@ export const reservationUrl = (slug: string, token: string) => `${publicBase(slu
 export const partageUrl = (slug: string, shareToken: string) =>
   `${publicBase(slug)}/bulle/partage/${shareToken}`;
 
+/** Payer le reste depuis la table d'une bulle (son QR). */
+export const bulleTableUrl = (slug: string, table: number) => `${publicBase(slug)}/bulle/table/${table}`;
+
 /** La clé de la page de réservation : 16 octets en hexadécimal (bulle_reservations.token). */
 export const isReservationToken = (value: string) => /^[0-9a-f]{32}$/.test(value);
 

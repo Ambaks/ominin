@@ -8,24 +8,43 @@ import { createAdminClient } from "@/lib/supabase/admin";
 /*
  * Un ami de l'organisateur paie une ou plusieurs places par le lien de
  * partage. Sa part est tenue le temps de payer ; le nombre de places est
- * borné en base par ce qui reste (contribuer_bulle).
+ * borné en base par ce qui reste (contribuer_bulle). Depuis la table d'une
+ * bulle (son QR), la réservation se retrouve ici par le numéro de table : son
+ * lien de partage, qui porte le nom de l'organisateur, ne quitte pas le serveur.
  */
 export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
     shareToken?: unknown;
+    slug?: unknown;
+    table?: unknown;
     name?: unknown;
     phone?: unknown;
     email?: unknown;
     places?: unknown;
   } | null;
-  const shareToken = typeof body?.shareToken === "string" ? body.shareToken : "";
   const places = typeof body?.places === "number" ? Math.trunc(body.places) : 0;
   const contact = body ? cleanContact(body) : null;
-  if (!isShareToken(shareToken) || !contact || places < 1) {
+  if (!contact || places < 1) {
     return NextResponse.json({ error: "Coordonnées incomplètes." }, { status: 400 });
   }
 
   const admin = createAdminClient();
+  let shareToken = typeof body?.shareToken === "string" ? body.shareToken : "";
+  if (typeof body?.slug === "string" && typeof body.table === "number") {
+    const { data: token, error: tokenError } = await admin.rpc("bulle_table_partage", {
+      p_slug: body.slug,
+      p_table: Math.trunc(body.table),
+    });
+    if (tokenError) console.error("[bulles] bulle_table_partage", tokenError);
+    if (!token) {
+      return NextResponse.json({ error: "Cette bulle n'a rien à payer pour le moment." }, { status: 409 });
+    }
+    shareToken = token;
+  }
+  if (!isShareToken(shareToken)) {
+    return NextResponse.json({ error: "Coordonnées incomplètes." }, { status: 400 });
+  }
+
   const { data: reservation } = await admin
     .from("bulle_reservations")
     .select("etablissement_id")

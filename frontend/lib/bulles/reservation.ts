@@ -1,3 +1,4 @@
+import { bulleConfirmPlaces } from "@/lib/bulles/format";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -19,7 +20,8 @@ export type BulleTicket = {
   shareToken: string;
   partySize: number;
   placesPaid: number;
-  minParty: number;
+  /** Les places payées qui confirment ce groupe. */
+  confirmPlaces: number;
   placeCents: number;
   status: Database["public"]["Enums"]["bulle_reservation_status"];
   /** Qui a payé en ligne, et combien de places. */
@@ -32,7 +34,7 @@ export async function fetchBulleTicket(
   const query = createAdminClient()
     .from("bulle_reservations")
     .select(
-      "token, share_token, name, starts_at, ends_at, party_size, places_paid, place_cents, status, bulles(name, color), etablissements(slug, name, address, bulle_reglages(min_party)), bulle_parts(name, places, organiser, method, status, created_at)"
+      "token, share_token, name, starts_at, ends_at, party_size, places_paid, place_cents, status, bulles(name, color), etablissements(slug, name, address, bulle_reglages(group_threshold)), bulle_parts(name, places, organiser, method, status, created_at)"
     );
   const { data, error } = await ("token" in key
     ? query.eq("token", key.token)
@@ -52,7 +54,7 @@ export async function fetchBulleTicket(
     shareToken: data.share_token,
     partySize: data.party_size,
     placesPaid: data.places_paid,
-    minParty: data.etablissements.bulle_reglages.min_party,
+    confirmPlaces: bulleConfirmPlaces(data.party_size, data.etablissements.bulle_reglages.group_threshold),
     placeCents: data.place_cents,
     status: data.status,
     payers: data.bulle_parts

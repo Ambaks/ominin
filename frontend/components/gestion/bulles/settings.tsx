@@ -54,6 +54,10 @@ function ReglagesForm({
   const run = useRunMutation();
   const current = setup.reglages;
   const [price, setPrice] = useState(current ? priceToInput(current.place_cents / 100) : "");
+  const [smallPrice, setSmallPrice] = useState(
+    current?.small_group_place_cents ? priceToInput(current.small_group_place_cents / 100) : ""
+  );
+  const [threshold, setThreshold] = useState(String(current?.group_threshold ?? PROPOSED.minParty));
   const [minParty, setMinParty] = useState(String(current?.min_party ?? PROPOSED.minParty));
   const [maxParty, setMaxParty] = useState(String(current?.max_party ?? PROPOSED.maxParty));
   const [duration, setDuration] = useState(String(current?.duration_minutes ?? PROPOSED.durationMinutes));
@@ -62,8 +66,11 @@ function ReglagesForm({
   const [busy, setBusy] = useState(false);
 
   const euros = parsePriceInput(price);
+  const smallEuros = parsePriceInput(smallPrice);
   const values = {
     place_cents: euros !== null ? Math.round(euros * 100) : null,
+    small_group_place_cents: smallEuros !== null ? Math.round(smallEuros * 100) : null,
+    group_threshold: integer(threshold),
     min_party: integer(minParty),
     max_party: integer(maxParty),
     duration_minutes: integer(duration),
@@ -71,6 +78,15 @@ function ReglagesForm({
   };
   const errors = {
     price: values.place_cents === null || values.place_cents <= 0 ? "Un prix par personne, au-dessus de zéro." : undefined,
+    smallPrice:
+      smallPrice.trim() && (values.small_group_place_cents === null || values.small_group_place_cents <= 0)
+        ? "Un prix au-dessus de zéro, ou rien."
+        : undefined,
+    threshold: within(values.group_threshold, BULLE_LIMITS.party)
+      ? values.max_party !== null && values.group_threshold > values.max_party
+        ? "Au plus le maximum."
+        : undefined
+      : `De ${BULLE_LIMITS.party.min} à ${BULLE_LIMITS.party.max} personnes.`,
     duration: within(values.duration_minutes, BULLE_LIMITS.durationMinutes)
       ? undefined
       : `De ${BULLE_LIMITS.durationMinutes.min} à ${BULLE_LIMITS.durationMinutes.max} minutes.`,
@@ -88,6 +104,10 @@ function ReglagesForm({
   };
   const missing = errors.price
     ? "Indiquez un prix pour enregistrer."
+    : errors.smallPrice
+      ? "Corrigez le prix du petit groupe pour enregistrer."
+    : errors.threshold
+      ? "Corrigez le seuil de groupe pour enregistrer."
     : errors.duration
       ? "Corrigez la durée pour enregistrer."
       : errors.min || errors.max
@@ -99,6 +119,8 @@ function ReglagesForm({
   const unchanged =
     current !== null &&
     values.place_cents === current.place_cents &&
+    values.small_group_place_cents === current.small_group_place_cents &&
+    values.group_threshold === current.group_threshold &&
     values.min_party === current.min_party &&
     values.max_party === current.max_party &&
     values.duration_minutes === current.duration_minutes &&
@@ -117,6 +139,8 @@ function ReglagesForm({
           () =>
             saveReglages(etablissementId, {
               place_cents: values.place_cents!,
+              small_group_place_cents: values.small_group_place_cents,
+              group_threshold: values.group_threshold!,
               min_party: values.min_party!,
               max_party: values.max_party!,
               duration_minutes: values.duration_minutes!,
@@ -130,9 +154,9 @@ function ReglagesForm({
       }}
     >
       <h3 className={TITLE}>La réservation</h3>
-      <p className={SUB}>Une bulle est un espace qu&rsquo;un groupe réserve pour un créneau, au prix de la place ; elle lui est tenue dès que le minimum de places est payé.</p>
+      <p className={SUB}>Une bulle est un espace qu&rsquo;un groupe réserve pour un créneau, au prix de la place ; elle lui est tenue dès que le seuil de places est payé, ou tout le groupe s&rsquo;il est plus petit.</p>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Prix par personne" required hint="Le prix d'une place." error={price.trim() ? errors.price : undefined}>
+        <Field label="Prix par personne" required hint="Le prix d'une place, à partir du seuil de groupe." error={price.trim() ? errors.price : undefined}>
           <Input
             numeric
             unit="€"
@@ -142,10 +166,23 @@ function ReglagesForm({
             onBlur={() => euros !== null && setPrice(priceToInput(euros))}
           />
         </Field>
+        <Field label="Prix du petit groupe" hint="Par personne, en dessous du seuil. Vide : le même prix." error={errors.smallPrice}>
+          <Input
+            numeric
+            unit="€"
+            placeholder="0,00"
+            value={smallPrice}
+            onChange={(event) => setSmallPrice(event.target.value)}
+            onBlur={() => smallEuros !== null && setSmallPrice(priceToInput(smallEuros))}
+          />
+        </Field>
+        <Field label="Seuil de groupe" required hint="Places payées pour tenir la bulle ; un groupe plus petit paie toutes les siennes." error={errors.threshold}>
+          <Input numeric unit="pers." inputMode="numeric" value={threshold} onChange={(event) => setThreshold(event.target.value)} />
+        </Field>
         <Field label="Durée d'un créneau" required error={errors.duration} hint={values.duration_minutes ? formatDuration(values.duration_minutes) : undefined}>
           <Input numeric unit="min" inputMode="numeric" value={duration} onChange={(event) => setDuration(event.target.value)} />
         </Field>
-        <Field label="Minimum de personnes" required hint="Places payées pour tenir la bulle." error={errors.min}>
+        <Field label="Minimum de personnes" required hint="Le plus petit groupe qu'on réserve." error={errors.min}>
           <Input numeric inputMode="numeric" value={minParty} onChange={(event) => setMinParty(event.target.value)} />
         </Field>
         <Field label="Maximum de personnes" required error={errors.max}>

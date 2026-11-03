@@ -26,7 +26,7 @@ function headline(ticket: BulleTicket, missing: number) {
       return {
         pill: "En attente",
         title: `Encore ${missing} place${missing > 1 ? "s" : ""} à payer`,
-        text: `La bulle est confirmée dès ${ticket.minParty} places payées. Si un autre groupe la confirme avant, vous passez sur une bulle libre du créneau ; s'il n'en reste plus, chacun est remboursé.`,
+        text: `La bulle est confirmée dès ${ticket.confirmPlaces} places payées. Si un autre groupe la confirme avant, vous passez sur une bulle libre du créneau ; s'il n'en reste plus, chacun est remboursé.`,
       };
     case "confirmee":
       return {
@@ -51,7 +51,7 @@ function headline(ticket: BulleTicket, missing: number) {
 }
 
 export function Ticket({ ticket }: { ticket: BulleTicket }) {
-  const missing = Math.max(ticket.minParty - ticket.placesPaid, 0);
+  const missing = Math.max(ticket.confirmPlaces - ticket.placesPaid, 0);
   const left = ticket.partySize - ticket.placesPaid;
   const copy = headline(ticket, missing);
   const confirmed = ticket.status === "confirmee" || ticket.status === "arrivee";
@@ -89,7 +89,7 @@ export function Ticket({ ticket }: { ticket: BulleTicket }) {
               <span
                 key={index}
                 data-paid={index < filled || undefined}
-                data-minimum={index < ticket.minParty || undefined}
+                data-minimum={index < ticket.confirmPlaces || undefined}
               />
             ))}
           </div>

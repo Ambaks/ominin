@@ -1,3 +1,4 @@
+import { formatCents } from "@/lib/club/format";
 import { parisDate } from "@/lib/collect/hours";
 
 const HOUR_MS = 3_600_000;
@@ -23,6 +24,30 @@ export function formatDuration(minutes: number): string {
 export function formatStartMinutes(minutes: number): string {
   const inDay = minutes % 1440;
   return `${String(Math.floor(inDay / 60)).padStart(2, "0")}h${String(inDay % 60).padStart(2, "0")}`;
+}
+
+/** Les prix d'une place et le seuil qui les sépare (bulle_reglages). */
+export type BullePricing = {
+  placeCents: number;
+  smallGroupPlaceCents: number | null;
+  groupThreshold: number;
+};
+
+/** Le prix d'une place pour un groupe de cette taille, à l'affichage : la base calcule le sien (bulle_prix_place). */
+export const bullePlaceCents = (pricing: BullePricing, party: number) =>
+  party < pricing.groupThreshold && pricing.smallGroupPlaceCents !== null
+    ? pricing.smallGroupPlaceCents
+    : pricing.placeCents;
+
+/** Les places payées qui confirment un groupe de cette taille (bulle_places_confirmation). */
+export const bulleConfirmPlaces = (party: number, groupThreshold: number) => Math.min(party, groupThreshold);
+
+/** « 14,90 € par personne à 2, 9,90 € dès 3 », ou le seul prix sans tarif distinct. */
+export function formatBulleTarifs(pricing: BullePricing, minParty: number): string {
+  const { placeCents, smallGroupPlaceCents: small, groupThreshold: threshold } = pricing;
+  if (small === null || minParty >= threshold) return `${formatCents(placeCents)} par personne`;
+  const group = minParty === threshold - 1 ? `à ${minParty}` : `de ${minParty} à ${threshold - 1}`;
+  return `${formatCents(small)} par personne ${group}, ${formatCents(placeCents)} dès ${threshold}`;
 }
 
 /** Les jours ISO (1 = lundi) comme les écrit la gestion. */

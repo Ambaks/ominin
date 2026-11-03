@@ -22,7 +22,7 @@ export type BulleMail = {
   startsAt: string;
   endsAt: string;
   partySize: number;
-  minParty: number;
+  confirmPlaces: number;
   placesPaid: number;
   /** Ce que cette personne a payé. */
   places: number;
@@ -91,7 +91,7 @@ async function send(to: string, subject: string, html: string) {
   }
 }
 
-const missing = (mail: BulleMail) => Math.max(mail.minParty - mail.placesPaid, 0);
+const missing = (mail: BulleMail) => Math.max(mail.confirmPlaces - mail.placesPaid, 0);
 
 /** Une place payée, la bulle pas encore confirmée. */
 export function sendPlacesPaid(mail: BulleMail) {

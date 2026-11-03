@@ -6,7 +6,7 @@ import { bullesTabName } from "@/lib/gestion/constants";
 import { NewReservationSheet, ReservationSheet, STATUS_LABELS } from "@/components/gestion/bulles/reservation-sheet";
 import { CheckIcon, ExternalLinkIcon, GearIcon } from "@/components/gestion/icons";
 import { Chip, EmptyState, ErrorNotice, GlassButton, Input, Plate, SectionHeading, Shimmer } from "@/components/gestion/ui";
-import { addDays, isoWeekday } from "@/lib/bulles/format";
+import { addDays, bulleConfirmPlaces, isoWeekday } from "@/lib/bulles/format";
 import { bulleUrl } from "@/lib/bulles/links";
 import { formatHours, formatNight } from "@/lib/club/format";
 import { parisInstant } from "@/lib/collect/hours";
@@ -78,6 +78,8 @@ export function BullesBoard({
     return [...starts.values()].sort((a, b) => a.startsAt.localeCompare(b.startsAt));
   }, [setup.creneaux, date, duration, reservations]);
 
+  const confirmPlaces = (group: BulleReservation) =>
+    bulleConfirmPlaces(group.party_size, setup.reglages?.group_threshold ?? group.party_size);
   const bulles = setup.bulles;
   const bulleById = new Map(bulles.map((bulle) => [bulle.id, bulle]));
   const tableNumber = new Map(tables.map((table) => [table.id, table.number]));
@@ -257,13 +259,13 @@ export function BullesBoard({
                               key={group.id}
                               type="button"
                               onClick={() => setOpened(group.id)}
-                              aria-label={`En attente, ${group.name}, ${group.places_paid} sur ${setup.reglages?.min_party} places payées`}
+                              aria-label={`En attente, ${group.name}, ${group.places_paid} sur ${confirmPlaces(group)} places payées`}
                               className={`g-press flex min-h-(--g-control) items-center justify-between gap-2 ${CELL_RADIUS} px-1.5 text-left text-g-meta text-muted ${FOCUS}`}
                             >
                               <span className="min-w-0 flex-1">
                                 <span className="block truncate">En attente · {group.name}</span>
                                 <span className="block tabular-nums">
-                                  {group.places_paid} sur {setup.reglages?.min_party} minimum
+                                  {group.places_paid} sur {confirmPlaces(group)} minimum
                                 </span>
                               </span>
                             </button>
@@ -297,7 +299,7 @@ export function BullesBoard({
           bulle={creatingBulle}
           startsAt={creating.slot.startsAt}
           endsAt={creating.slot.endsAt}
-          maxParty={setup.reglages.max_party}
+          reglages={setup.reglages}
           pendingGroups={
             reservations?.filter(
               (r) => r.status === "en_attente" && r.bulle_id === creating.bulleId && sameStart(r, creating.slot)

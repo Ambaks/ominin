@@ -8,7 +8,7 @@ import type { CashDetails, EncaissementMode } from "@/lib/gestion/types";
 import { formatPrice } from "@/lib/menu/format";
 import { PaymentsIcon, type IconProps } from "../icons";
 
-function CashIcon({ className }: IconProps) {
+export function CashIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 24 24" className={className} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <rect x="2" y="6" width="20" height="12" rx="2" />
@@ -27,6 +27,62 @@ function SplitIcon({ className }: IconProps) {
       <circle cx="7" cy="12" r="2" />
       <path d="M15 10h5" />
     </svg>
+  );
+}
+
+/** Le montant reçu lu face à ce qui est dû. */
+export function readCash(givenRaw: string, due: number) {
+  const given = parseAmount(givenRaw);
+  const valid = given != null && given >= due;
+  return { given, valid, change: valid ? Math.round((given - due) * 100) / 100 : 0 };
+}
+
+/** L'étape espèces : ce qui est dû, le montant reçu, la monnaie à rendre. */
+export function CashChangeFields({
+  due,
+  dueLabel,
+  givenRaw,
+  onGivenChange,
+  onSubmit,
+}: {
+  due: number;
+  dueLabel: string;
+  givenRaw: string;
+  onGivenChange: (value: string) => void;
+  onSubmit: () => void;
+}) {
+  const { given, valid, change } = readCash(givenRaw, due);
+  return (
+    <>
+      <div className="g-money flex items-baseline justify-between gap-3">
+        <span className="text-g-body text-muted">{dueLabel}</span>
+        <span className="text-g-kpi tabular-nums text-g-entity">{formatPrice(due)}</span>
+      </div>
+      <Field
+        label="Montant reçu"
+        hint="Au moins le total ; la monnaie se calcule."
+        error={givenRaw && given != null && given < due ? "Le montant doit couvrir le total à régler." : undefined}
+      >
+        <Input
+          numeric
+          unit="€"
+          value={givenRaw}
+          onChange={(e) => onGivenChange(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") onSubmit();
+          }}
+          placeholder={amountToInput(due)}
+        />
+      </Field>
+      {valid && (
+        <Plate className="px-4 py-3">
+          <div className="g-money flex items-baseline justify-between border-t border-hairline pt-2.5">
+            <span className="text-g-body font-medium">Monnaie à rendre</span>
+            <span className="text-g-name tabular-nums text-g-entity">{formatPrice(change)}</span>
+          </div>
+        </Plate>
+      )}
+    </>
   );
 }
 
@@ -66,9 +122,7 @@ export function PaymentDialog({
   const tip = parsedTip != null && parsedTip > 0 ? parsedTip : 0;
   const due = Math.round((total + tip) * 100) / 100;
 
-  const given = parseAmount(givenRaw);
-  const validGiven = given != null && given >= due;
-  const change = validGiven ? Math.round((given - due) * 100) / 100 : 0;
+  const { given, valid: validGiven, change } = readCash(givenRaw, due);
 
   const cashPart = parseAmount(cashRaw);
   const validSplit = cashPart != null && cashPart > 0 && cashPart < due;
@@ -151,22 +205,13 @@ export function PaymentDialog({
         footer={footer(settleCash, Boolean(givenRaw) && validGiven, "Indiquez le montant reçu pour encaisser.")}
       >
         <div ref={stepBody} className="flex flex-col gap-5">
-          {dueRow}
-          <Field
-            label="Montant reçu"
-            hint="Au moins le total ; la monnaie se calcule."
-            error={givenRaw && given != null && given < due ? "Le montant doit couvrir le total à régler." : undefined}
-          >
-            <Input
-              numeric
-              unit="€"
-              value={givenRaw}
-              onChange={(e) => setGivenRaw(e.target.value)}
-              onKeyDown={onEnter(settleCash)}
-              placeholder={amountToInput(due)}
-            />
-          </Field>
-          {validGiven && <Plate className="px-4 py-3">{changeRow("Monnaie à rendre", change)}</Plate>}
+          <CashChangeFields
+            due={due}
+            dueLabel={`Total à régler${tip > 0 ? " (pourboire inclus)" : ""}`}
+            givenRaw={givenRaw}
+            onGivenChange={setGivenRaw}
+            onSubmit={settleCash}
+          />
         </div>
       </Sheet>
     );

@@ -1,8 +1,8 @@
+import type { BullePricing } from "@/lib/bulles/format";
 import { createPublicClient } from "@/lib/supabase/public";
 
-export type BulleOffer = {
+export type BulleOffer = BullePricing & {
   etablissement: { id: string; slug: string; name: string };
-  placeCents: number;
   minParty: number;
   maxParty: number;
   durationMinutes: number;
@@ -21,7 +21,7 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
   const { data, error } = await createPublicClient()
     .from("etablissements")
     .select(
-      "id, slug, name, bulle_reglages(place_cents, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features)"
+      "id, slug, name, bulle_reglages(place_cents, small_group_place_cents, group_threshold, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features)"
     )
     .eq("slug", slug)
     .order("sort", { referencedTable: "bulles", ascending: true })
@@ -33,6 +33,8 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
   return {
     etablissement: { id: data.id, slug: data.slug, name: data.name },
     placeCents: reglages.place_cents,
+    smallGroupPlaceCents: reglages.small_group_place_cents,
+    groupThreshold: reglages.group_threshold,
     minParty: reglages.min_party,
     maxParty: reglages.max_party,
     durationMinutes: reglages.duration_minutes,

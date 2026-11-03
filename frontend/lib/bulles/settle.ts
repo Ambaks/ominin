@@ -6,6 +6,7 @@ import {
   sendPlacesRefunded,
   type BulleMail,
 } from "@/lib/bulles/mail";
+import { bulleConfirmPlaces } from "@/lib/bulles/format";
 import { SQUARE_CURRENCY } from "@/lib/square/config";
 import { getMerchantToken, refundPayment, withFreshToken } from "@/lib/square/server";
 import type { createAdminClient } from "@/lib/supabase/admin";
@@ -37,7 +38,7 @@ export type PartOutcome = {
 };
 
 const MAIL_SELECT =
-  "name, email, token, share_token, starts_at, ends_at, party_size, places_paid, status, bulles(name), etablissements(slug, name, address, bulle_reglages(min_party))";
+  "name, email, token, share_token, starts_at, ends_at, party_size, places_paid, status, bulles(name), etablissements(slug, name, address, bulle_reglages(group_threshold))";
 
 type MailReservation = {
   name: string;
@@ -54,7 +55,7 @@ type MailReservation = {
     slug: string;
     name: string;
     address: string | null;
-    bulle_reglages: { min_party: number } | null;
+    bulle_reglages: { group_threshold: number } | null;
   } | null;
 };
 
@@ -81,7 +82,7 @@ function mailFor(data: MailReservation, payer: Payer): BulleMail | null {
     startsAt: data.starts_at,
     endsAt: data.ends_at,
     partySize: data.party_size,
-    minParty: data.etablissements.bulle_reglages.min_party,
+    confirmPlaces: bulleConfirmPlaces(data.party_size, data.etablissements.bulle_reglages.group_threshold),
     placesPaid: data.places_paid,
     places: payer.places,
     amountCents: payer.amount_cents,

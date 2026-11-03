@@ -91,16 +91,20 @@ type Part = { partId: string; amountCents: number; holdExpiresAt: string; checko
 
 /** Payer une ou plusieurs places par le lien de partage. */
 export function Contribute({
-  shareToken,
+  target,
   placeCents,
   placesLeft,
+  allLeft = false,
 }: {
-  shareToken: string;
+  /** Le lien de partage, ou la table de la bulle (son QR). */
+  target: { shareToken: string } | { slug: string; table: number };
   placeCents: number;
   placesLeft: number;
+  /** Propose d'emblée tout ce qui reste, plutôt qu'une place. */
+  allLeft?: boolean;
 }) {
   const router = useRouter();
-  const [wanted, setPlaces] = useState(1);
+  const [wanted, setPlaces] = useState(allLeft ? placesLeft : 1);
   // D'autres amis paient pendant qu'on remplit : jamais plus que ce qui reste.
   const places = Math.min(wanted, placesLeft);
   const [contact, setContact] = useState<Contact>(emptyContact);
@@ -119,7 +123,7 @@ export function Contribute({
       const response = await fetch("/api/bulles/contribute", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ shareToken, places, ...contact }),
+        body: JSON.stringify({ ...target, places, ...contact }),
       });
       const body = (await response.json().catch(() => ({}))) as Partial<Part> & { error?: string };
       if (!response.ok || !body.partId || !body.checkout || !body.holdExpiresAt) {

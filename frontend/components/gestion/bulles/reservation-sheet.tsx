@@ -1,15 +1,19 @@
 "use client";
 
 import { useId, useState } from "react";
+import { TenderSheet } from "@/components/gestion/bulles/tender-sheet";
 import { ConfirmSheet, Field, GlassButton, Input, Notice, Segmented, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
+import { bullePlaceCents } from "@/lib/bulles/format";
 import { describeError } from "@/lib/gestion/errors";
 import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
 import {
   useBulleActions,
   type Bulle,
+  type BulleReglages,
   type BulleReservation,
   type BulleSource,
+  type BulleTender,
 } from "@/lib/gestion/bulles-api";
 
 export const STATUS_LABELS: Record<BulleReservation["status"], string> = {
@@ -30,6 +34,8 @@ const SOURCES = [
   { value: "telephone", label: "Au téléphone" },
   { value: "sur_place", label: "Au comptoir" },
 ] as const;
+
+const TENDER_LABELS: Record<BulleTender, string> = { carte: "carte", especes: "espèces" };
 
 const places = (n: number) => `${n} ${n > 1 ? "places" : "place"}`;
 
@@ -60,6 +66,8 @@ export function ReservationSheet({
   const { markArrival, cancelReservation } = useBulleActions();
   const [busy, setBusy] = useState(false);
   const [confirmingCancel, setConfirmingCancel] = useState(false);
+  // Le mode reste à choisir avant ce message : le geste d'encaissement en cours.
+  const [collecting, setCollecting] = useState<string | null>(null);
   // Un paiement peut arriver pendant que la fiche est ouverte : les gestes
   // d'argent changeraient sous le pouce. Ils attendent qu'on ait vu le nouvel état.
   const version = `${reservation.status}:${reservation.places_paid}`;
@@ -67,6 +75,7 @@ export function ReservationSheet({
   const changed = version !== seenVersion;
   const blocked = busy || changed;
   const left = reservation.party_size - reservation.places_paid;
+  const leftCents = left * reservation.place_cents;
   const confirmed = reservation.status === "confirmee";
   const pending = reservation.status === "en_attente";
   const paidOnline = reservation.bulle_parts.some((part) => part.method === "en_ligne" && part.status === "payee");
@@ -121,11 +130,9 @@ export function ReservationSheet({
               variant="primary"
               className="w-full"
               disabled={blocked}
-              onClick={() =>
-                void act(() => markArrival(reservation.id, true, true), "Bulle confirmée, reste encaissé.")
-              }
+              onClick={() => setCollecting("Bulle confirmée, reste encaissé.")}
             >
-              Confirmer · encaisser {formatCents(left * reservation.place_cents)}
+              Confirmer · encaisser {formatCents(leftCents)}
             </GlassButton>
           )}
           {confirmed && left > 0 && (
@@ -133,9 +140,9 @@ export function ReservationSheet({
               variant="primary"
               className="w-full"
               disabled={blocked}
-              onClick={() => void act(() => markArrival(reservation.id, true, true), "Arrivée enregistrée, reste encaissé.")}
+              onClick={() => setCollecting("Arrivée enregistrée, reste encaissé.")}
             >
-              Arrivée · encaisser {formatCents(left * reservation.place_cents)}
+              Arrivée · encaisser {formatCents(leftCents)}
             </GlassButton>
           )}
           {confirmed && (
@@ -143,16 +150,26 @@ export function ReservationSheet({
               variant={left > 0 ? "secondary" : "primary"}
               className="w-full"
               disabled={blocked}
-              onClick={() => void act(() => markArrival(reservation.id, true, false), "Arrivée enregistrée.")}
+              onClick={() => void act(() => markArrival(reservation.id, true), "Arrivée enregistrée.")}
             >
               {left > 0 ? "Arrivée sans encaisser" : "Marquer l'arrivée"}
+            </GlassButton>
+          )}
+          {reservation.status === "arrivee" && left > 0 && (
+            <GlassButton
+              variant="primary"
+              className="w-full"
+              disabled={blocked}
+              onClick={() => setCollecting("Reste encaissé.")}
+            >
+              Encaisser {formatCents(leftCents)}
             </GlassButton>
           )}
           {reservation.status === "arrivee" && (
             <GlassButton
               className="w-full"
               disabled={blocked}
-              onClick={() => void act(() => markArrival(reservation.id, false, false), "Arrivée annulée.")}
+              onClick={() => void act(() => markArrival(reservation.id, false), "Arrivée annulée.")}
             >
               Annuler l&rsquo;arrivée
             </GlassButton>
@@ -177,7 +194,7 @@ export function ReservationSheet({
           <Row label="Groupe">{reservation.party_size} pers.</Row>
           <Row label="Places payées">
             {reservation.places_paid} sur {reservation.party_size}
-            {left > 0 && ` · reste ${places(left)}, ${formatCents(left * reservation.place_cents)}`}
+            {left > 0 && ` · reste ${places(left)}, ${formatCents(leftCents)}`}
           </Row>
           {reservation.phone && (
             <Row label="Téléphone">
@@ -201,7 +218,7 @@ export function ReservationSheet({
                 <li key={part.id} className="flex justify-between gap-3">
                   <span className="min-w-0 break-words">
                     {part.name}
-                    {part.method === "sur_place" ? " · sur place" : ""}
+                    {part.method === "en_ligne" ? " · en ligne" : ` · ${part.tender ? TENDER_LABELS[part.tender] : "sur place"}`}
                   </span>
                   <span className="whitespace-nowrap tabular-nums text-muted">
                     {places(part.places)} · {formatCents(part.amount_cents)}
@@ -212,6 +229,14 @@ export function ReservationSheet({
           </div>
         )}
       </div>
+      {collecting && (
+        <TenderSheet
+          amountCents={leftCents}
+          busy={busy}
+          onSelect={(tender) => void act(() => markArrival(reservation.id, true, tender), collecting)}
+          onClose={() => setCollecting(null)}
+        />
+      )}
       {confirmingCancel && (
         <ConfirmSheet
           title={`Annuler la réservation de ${reservation.name} ?`}
@@ -227,12 +252,12 @@ export function ReservationSheet({
   );
 }
 
-/** Une réservation prise au téléphone ou au comptoir : confirmée d'emblée, réglée sur place. */
+/** Une réservation prise au téléphone ou au comptoir : confirmée d'emblée, aux mêmes bornes et prix qu'en ligne. */
 export function NewReservationSheet({
   bulle,
   startsAt,
   endsAt,
-  maxParty,
+  reglages,
   pendingGroups,
   onClose,
   onChanged,
@@ -240,7 +265,7 @@ export function NewReservationSheet({
   bulle: Bulle;
   startsAt: string;
   endsAt: string;
-  maxParty: number;
+  reglages: BulleReglages;
   /** Les groupes en ligne qui visent cette bulle et paient encore : ils seront délogés. */
   pendingGroups: number;
   onClose: () => void;
@@ -256,22 +281,38 @@ export function NewReservationSheet({
   const [source, setSource] = useState<Exclude<BulleSource, "en_ligne">>("telephone");
   const [showErrors, setShowErrors] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [tendering, setTendering] = useState(false);
+  const { min_party: minParty, max_party: maxParty } = reglages;
   const partySize = Number(party);
   const errors = {
     name: name.trim().length === 0 ? "Indiquez un nom." : undefined,
     party:
-      !Number.isInteger(partySize) || partySize < 1 || partySize > maxParty
-        ? `De 1 à ${maxParty} personnes.`
+      !Number.isInteger(partySize) || partySize < minParty || partySize > maxParty
+        ? `De ${minParty} à ${maxParty} personnes.`
         : undefined,
   };
 
-  const submit = async () => {
+  const placeCents = errors.party
+    ? null
+    : bullePlaceCents(
+        {
+          placeCents: reglages.place_cents,
+          smallGroupPlaceCents: reglages.small_group_place_cents,
+          groupThreshold: reglages.group_threshold,
+        },
+        partySize
+      );
+
+  const askTender = () => {
     setShowErrors(true);
-    if (errors.name || errors.party) return;
+    if (!errors.name && !errors.party) setTendering(true);
+  };
+
+  const create = async (tender?: BulleTender) => {
     setBusy(true);
     try {
-      await createReservation({ bulleId: bulle.id, startsAt, name: name.trim(), phone, partySize, source, note });
-      toast.success("Bulle réservée.");
+      await createReservation({ bulleId: bulle.id, startsAt, name: name.trim(), phone, partySize, source, note, tender });
+      toast.success(tender ? "Bulle réservée, encaissée." : "Bulle réservée, reste à payer.");
       onChanged();
       onClose();
     } catch (error) {
@@ -280,10 +321,22 @@ export function NewReservationSheet({
     setBusy(false);
   };
 
+  if (tendering && placeCents !== null) {
+    return (
+      <TenderSheet
+        amountCents={partySize * placeCents}
+        busy={busy}
+        later={() => void create()}
+        onSelect={(tender) => void create(tender)}
+        onClose={() => setTendering(false)}
+      />
+    );
+  }
+
   return (
     <Sheet
       title={`${bulle.name} · ${formatHours(startsAt, endsAt)}`}
-      description="Tout se règle sur place, à l'arrivée."
+      description="Elle se règle maintenant, ou plus tard."
       onClose={onClose}
       footer={
         <>
@@ -300,7 +353,7 @@ export function NewReservationSheet({
         className="flex flex-col gap-4"
         onSubmit={(event) => {
           event.preventDefault();
-          void submit();
+          askTender();
         }}
       >
         {pendingGroups > 0 && (
@@ -320,7 +373,7 @@ export function NewReservationSheet({
           <Field label="Téléphone">
             <Input type="tel" inputMode="tel" autoComplete="off" value={phone} onChange={(event) => setPhone(event.target.value)} />
           </Field>
-          <Field label="Personnes" required hint={`De 1 à ${maxParty}.`} error={showErrors ? errors.party : undefined}>
+          <Field label="Personnes" required hint={`De ${minParty} à ${maxParty}.`} error={showErrors ? errors.party : undefined}>
             <Input
               numeric
               inputMode="numeric"
@@ -332,6 +385,14 @@ export function NewReservationSheet({
         <Field label="Note">
           <Input value={note} maxLength={300} onChange={(event) => setNote(event.target.value)} />
         </Field>
+        {placeCents !== null && (
+          <p className="flex items-baseline justify-between gap-3 border-t border-hairline pt-3 text-g-body">
+            <span className="text-muted tabular-nums">
+              {partySize} × {formatCents(placeCents)}
+            </span>
+            <strong className="font-semibold tabular-nums">{formatCents(partySize * placeCents)}</strong>
+          </p>
+        )}
       </form>
     </Sheet>
   );

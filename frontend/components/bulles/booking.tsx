@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { BullePayment, refundMessage, type PartResult } from "@/components/bulles/payment";
 import { ContactFields, contactErrors, emptyContact, type Contact } from "@/components/bulles/contact-fields";
-import { addDays, formatDuration, isoWeekday } from "@/lib/bulles/format";
+import { addDays, bulleConfirmPlaces, bullePlaceCents, formatBulleTarifs, formatDuration, isoWeekday } from "@/lib/bulles/format";
 import { reservationUrl } from "@/lib/bulles/links";
 import type { BulleOffer } from "@/lib/bulles/public";
 import type { BulleCheckout } from "@/lib/bulles/server";
@@ -75,7 +75,7 @@ function Stepper({
 const noSubscription = () => () => {};
 
 export function BulleBooking({ offer }: { offer: BulleOffer }) {
-  const { etablissement, placeCents, minParty, maxParty } = offer;
+  const { etablissement, minParty, maxParty, groupThreshold } = offer;
   const bullesById = useMemo(() => new Map(offer.bulles.map((bulle) => [bulle.id, bulle])), [offer.bulles]);
 
   // Les soirs ouverts de la fenêtre de réservation, à l'heure de Paris. Lu
@@ -155,7 +155,9 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
           slot.bulles.some((bulle) => bulle.id === choice.bulleId && bulle.free)
       )
   );
+  const placeCents = bullePlaceCents(offer, party);
   const amountCents = places * placeCents;
+  const confirmPlaces = bulleConfirmPlaces(party, groupThreshold);
 
   const changeParty = (next: number) => {
     // Qui payait tout le groupe continue de le faire.
@@ -427,10 +429,13 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
         <p className="bo-muted bo-small">
           {places >= party
             ? `Vous payez pour tout le groupe : la bulle est confirmée dès le paiement.`
-            : places >= minParty
+            : places >= confirmPlaces
               ? `La bulle est confirmée dès le paiement ; vos amis paient les ${party - places} autres places par un lien, ou à l'accueil, avant de commander.`
-              : `Vos amis paient leur place par un lien. La bulle est confirmée dès ${minParty} places payées.`}
+              : `Vos amis paient leur place par un lien. La bulle est confirmée dès ${confirmPlaces} places payées.`}
         </p>
+        {offer.smallGroupPlaceCents !== null && minParty < groupThreshold && (
+          <p className="bo-muted bo-small">{formatBulleTarifs(offer, minParty)}.</p>
+        )}
       </section>
 
       <div className="bo-total">
