@@ -34,6 +34,7 @@ import { brandName, etoileScene, hasVelours, restaurantThemeClass } from "@/lib/
 import { fetchRestaurant } from "@/lib/public-menu";
 import { BulleTableGate } from "@/components/bulles/table-gate";
 import { fetchBulleOffer } from "@/lib/bulles/public";
+import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { clubSiteUrl, menuSiteUrl } from "@/lib/site";
 
 /*
@@ -208,7 +209,7 @@ export default async function MenuPage({
           data-saison={saison ?? undefined}
           className={`${brandFontVariables} ${restaurantThemeClass(slug) ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
-          <BulleTableGate slug={slug} enabled={bulleOffer !== null}>
+          <BulleTableGate slug={slug} enabled={bulleOffer !== null} dayEndHour={bulleOffer?.dayEndHour ?? DEFAULT_DAY_END_HOUR}>
             {/* « < » échappé : un nom ou une description contenant
                 « </script> » fermerait la balise et injecterait du script. */}
             <script

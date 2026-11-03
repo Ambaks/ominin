@@ -4,9 +4,9 @@ import { useId, useState } from "react";
 import { TenderSheet } from "@/components/gestion/bulles/tender-sheet";
 import { ConfirmSheet, Field, GlassButton, Input, Notice, Segmented, Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
-import { bullePlaceCents } from "@/lib/bulles/format";
+import { bullePlaceCents, capitalize, formatBulleNight } from "@/lib/bulles/format";
 import { describeError } from "@/lib/gestion/errors";
-import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
+import { formatCents, formatHours } from "@/lib/club/format";
 import {
   useBulleActions,
   type Bulle,
@@ -53,12 +53,15 @@ export function ReservationSheet({
   reservation,
   bulle,
   gerant,
+  dayEndHour,
   onClose,
   onChanged,
 }: {
   reservation: BulleReservation;
   bulle: Bulle | undefined;
   gerant: boolean;
+  /** Bascule du jour de service : un créneau d'après minuit reste au soir réservé. */
+  dayEndHour: number;
   onClose: () => void;
   onChanged: () => void;
 }) {
@@ -198,7 +201,7 @@ export function ReservationSheet({
         <div>
           <Row label="Statut">{STATUS_LABELS[reservation.status]}</Row>
           <Row label="Créneau">
-            {formatNightShort(reservation.starts_at)} · {formatHours(reservation.starts_at, reservation.ends_at)}
+            {capitalize(formatBulleNight(reservation.starts_at, dayEndHour, true))} · {formatHours(reservation.starts_at, reservation.ends_at)}
           </Row>
           <Row label="Groupe">{reservation.party_size} pers.</Row>
           <Row label="Places payées">

@@ -1,4 +1,5 @@
 import { bulleConfirmPlaces } from "@/lib/bulles/format";
+import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { createAdminClient } from "@/lib/supabase/admin";
 import type { Database } from "@/lib/supabase/database.types";
 
@@ -15,6 +16,8 @@ export type BulleTicket = {
   bulle: { name: string; color: string };
   startsAt: string;
   endsAt: string;
+  /** Bascule du jour de service : un créneau d'après minuit reste au soir réservé. */
+  dayEndHour: number;
   organiser: string;
   token: string;
   shareToken: string;
@@ -34,7 +37,7 @@ export async function fetchBulleTicket(
   const query = createAdminClient()
     .from("bulle_reservations")
     .select(
-      "token, share_token, name, starts_at, ends_at, party_size, places_paid, place_cents, status, bulles(name, color), etablissements(slug, name, address, bulle_reglages(group_threshold)), bulle_parts(name, places, organiser, method, status, created_at)"
+      "token, share_token, name, starts_at, ends_at, party_size, places_paid, place_cents, status, bulles(name, color), etablissements(slug, name, address, bulle_reglages(group_threshold), etablissement_settings(day_end_hour)), bulle_parts(name, places, organiser, method, status, created_at)"
     );
   const { data, error } = await ("token" in key
     ? query.eq("token", key.token)
@@ -49,6 +52,7 @@ export async function fetchBulleTicket(
     bulle: data.bulles,
     startsAt: data.starts_at,
     endsAt: data.ends_at,
+    dayEndHour: data.etablissements.etablissement_settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR,
     organiser: data.name,
     token: data.token,
     shareToken: data.share_token,

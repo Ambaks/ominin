@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import type { CSSProperties } from "react";
 import { Contribute, TicketWatch } from "@/components/bulles/live";
+import { formatBulleNight } from "@/lib/bulles/format";
 import { carteUrl } from "@/lib/bulles/links";
-import { formatCents, formatHours, formatNight } from "@/lib/club/format";
+import { fetchBulleOffer } from "@/lib/bulles/public";
+import { formatCents, formatHours } from "@/lib/club/format";
+import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { tableParam } from "@/lib/menu/table-param";
 import { createPublicClient } from "@/lib/supabase/public";
 
@@ -19,7 +22,10 @@ export default async function BulleTablePage({ params }: PageProps<"/menu/w/[slu
   const { slug, table: rawTable } = await params;
   const table = tableParam(rawTable);
   if (!table) notFound();
-  const { data, error } = await createPublicClient().rpc("bulle_table_etat", { p_slug: slug, p_table: table });
+  const [{ data, error }, offer] = await Promise.all([
+    createPublicClient().rpc("bulle_table_etat", { p_slug: slug, p_table: table }),
+    fetchBulleOffer(slug),
+  ]);
   if (error) throw new Error(error.message);
   const state = data?.[0];
   if (!state) notFound();
@@ -31,7 +37,7 @@ export default async function BulleTablePage({ params }: PageProps<"/menu/w/[slu
       <div className="bo-recap" style={{ "--orb": state.bulle_color } as CSSProperties}>
         <span className="bo-orb bo-recap-orb" aria-hidden />
         <div>
-          {state.reservation_status && <p className="bo-eyebrow">{formatNight(state.starts_at)}</p>}
+          {state.reservation_status && <p className="bo-eyebrow">{formatBulleNight(state.starts_at, offer?.dayEndHour ?? DEFAULT_DAY_END_HOUR)}</p>}
           <p className="bo-recap-title">{state.bulle_name}</p>
           {state.reservation_status && (
             <p className="bo-recap-detail">

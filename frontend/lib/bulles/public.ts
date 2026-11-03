@@ -1,4 +1,5 @@
 import type { BullePricing } from "@/lib/bulles/format";
+import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type BulleOffer = BullePricing & {
@@ -7,6 +8,8 @@ export type BulleOffer = BullePricing & {
   maxParty: number;
   durationMinutes: number;
   bookingDays: number;
+  /** Bascule du jour de service : un créneau d'après minuit reste au soir réservé. */
+  dayEndHour: number;
   bulles: { id: string; name: string; color: string }[];
   /** Les jours de la semaine (ISO, 1 = lundi) où au moins un créneau est ouvert. */
   weekdays: number[];
@@ -21,7 +24,7 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
   const { data, error } = await createPublicClient()
     .from("etablissements")
     .select(
-      "id, slug, name, bulle_reglages(place_cents, small_group_place_cents, group_threshold, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features)"
+      "id, slug, name, bulle_reglages(place_cents, small_group_place_cents, group_threshold, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features, day_end_hour)"
     )
     .eq("slug", slug)
     .order("sort", { referencedTable: "bulles", ascending: true })
@@ -39,6 +42,7 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
     maxParty: reglages.max_party,
     durationMinutes: reglages.duration_minutes,
     bookingDays: reglages.booking_days,
+    dayEndHour: data.etablissement_settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR,
     bulles: data.bulles
       .filter((bulle) => bulle.active)
       .map(({ id, name, color }) => ({ id, name, color })),

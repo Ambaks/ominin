@@ -290,6 +290,7 @@ export function BullesBoard({
           reservation={openedReservation}
           bulle={bulleById.get(openedReservation.bulle_id)}
           gerant={gerant}
+          dayEndHour={dayEndHour}
           onClose={() => setOpened(null)}
           onChanged={refresh}
         />

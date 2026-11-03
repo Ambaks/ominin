@@ -1,6 +1,7 @@
 import type { CSSProperties } from "react";
+import { capitalize, formatBulleNight } from "@/lib/bulles/format";
 import type { BulleTicket } from "@/lib/bulles/reservation";
-import { formatCents, formatHours, formatNight } from "@/lib/club/format";
+import { formatCents, formatHours } from "@/lib/club/format";
 
 /*
  * Une réservation de bulle telle que le client la lit : la bulle, le soir,
@@ -70,7 +71,7 @@ export function Ticket({ ticket }: { ticket: BulleTicket }) {
         </div>
         <div>
           <dt>Soir</dt>
-          <dd>{formatNight(ticket.startsAt)}</dd>
+          <dd>{capitalize(formatBulleNight(ticket.startsAt, ticket.dayEndHour))}</dd>
         </div>
         <div>
           <dt>Créneau</dt>

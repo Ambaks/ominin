@@ -8,6 +8,37 @@ export const serviceDateOf = (instant: number, dayEndHour: number) => parisDate(
 
 export const currentServiceDate = (dayEndHour: number) => serviceDateOf(Date.now(), dayEndHour);
 
+// Des dates civiles (« 2026-11-07 »), lues à midi UTC : aucun fuseau ne les fait changer de jour.
+const civil = (date: string) => new Date(`${date}T12:00:00Z`);
+const NIGHT_FORMATS = {
+  long: {
+    day: new Intl.DateTimeFormat("fr-FR", { timeZone: "UTC", weekday: "long", day: "numeric" }),
+    dayMonth: new Intl.DateTimeFormat("fr-FR", { timeZone: "UTC", weekday: "long", day: "numeric", month: "long" }),
+  },
+  short: {
+    day: new Intl.DateTimeFormat("fr-FR", { timeZone: "UTC", weekday: "short", day: "numeric" }),
+    dayMonth: new Intl.DateTimeFormat("fr-FR", { timeZone: "UTC", weekday: "short", day: "numeric", month: "short" }),
+  },
+};
+
+/**
+ * Le soir d'une bulle, celui du jour de service où le créneau a été réservé :
+ * « samedi 7 novembre », ou pour un créneau d'après minuit « nuit du samedi 7
+ * au dimanche 8 novembre » (court : « nuit du sam. 7 au dim. 8 nov. »).
+ */
+export function formatBulleNight(startsAt: string, dayEndHour: number, short = false): string {
+  const instant = Date.parse(startsAt);
+  const night = serviceDateOf(instant, dayEndHour);
+  const calendar = parisDate(new Date(instant));
+  const { day, dayMonth } = NIGHT_FORMATS[short ? "short" : "long"];
+  if (night === calendar) return dayMonth.format(civil(night));
+  const sameMonth = night.slice(0, 7) === calendar.slice(0, 7);
+  return `nuit du ${(sameMonth ? day : dayMonth).format(civil(night))} au ${dayMonth.format(civil(calendar))}`;
+}
+
+/** « Nuit du samedi 7… » en tête d'une ligne. */
+export const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
+
 /** 120 → « 2 h », 90 → « 1 h 30 », 45 → « 45 min ». */
 export function formatDuration(minutes: number): string {
   const hours = Math.floor(minutes / 60);

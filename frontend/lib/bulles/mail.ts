@@ -1,5 +1,6 @@
+import { capitalize, formatBulleNight } from "@/lib/bulles/format";
 import { partageUrl, reservationUrl } from "@/lib/bulles/links";
-import { formatCents, formatHours, formatNight } from "@/lib/club/format";
+import { formatCents, formatHours } from "@/lib/club/format";
 import { mailConfig, sendEmail } from "@/lib/gmail";
 
 /*
@@ -21,6 +22,8 @@ export type BulleMail = {
   bulle: string;
   startsAt: string;
   endsAt: string;
+  /** Bascule du jour de service : un créneau d'après minuit reste au soir réservé. */
+  dayEndHour: number;
   partySize: number;
   confirmPlaces: number;
   placesPaid: number;
@@ -61,7 +64,7 @@ function layout(mail: BulleMail, title: string, intro: string, cta: string, extr
 <tr><td style="padding:0 32px;">
 <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:14px;">
 ${row("Bulle", escapeHtml(mail.bulle))}
-${row("Soir", escapeHtml(formatNight(mail.startsAt)))}
+${row("Soir", escapeHtml(capitalize(formatBulleNight(mail.startsAt, mail.dayEndHour))))}
 ${row("Créneau", escapeHtml(formatHours(mail.startsAt, mail.endsAt)))}
 ${row("Groupe", `${mail.partySize} personnes`)}
 ${row(refunded ? "Remboursé" : "Payé", `${formatCents(mail.amountCents)} · ${places}`, true)}
@@ -113,7 +116,7 @@ export function sendPlacesPaid(mail: BulleMail) {
 export function sendBulleConfirmed(mail: BulleMail) {
   return send(
     mail.to,
-    `${mail.bulle} est à vous · ${formatNight(mail.startsAt)}`,
+    `${mail.bulle} est à vous · ${formatBulleNight(mail.startsAt, mail.dayEndHour)}`,
     layout(
       mail,
       `${mail.bulle} est à vous`,

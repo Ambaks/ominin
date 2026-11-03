@@ -3,7 +3,8 @@
 import { createContext, useContext, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { CLUB_TIMING } from "@/components/club/timing";
 import { bulleTableUrl, bulleUrl } from "@/lib/bulles/links";
-import { formatCents, formatHours, formatNightShort } from "@/lib/club/format";
+import { capitalize, formatBulleNight } from "@/lib/bulles/format";
+import { formatCents, formatHours } from "@/lib/club/format";
 import { tableParam } from "@/lib/menu/table-param";
 import { useQueryParam } from "@/lib/menu/use-query-param";
 import { createClient } from "@/lib/supabase/client";
@@ -39,9 +40,12 @@ function blockOf(state: TableState | null): string | null {
 export function BulleTableGate({
   slug,
   enabled,
+  dayEndHour,
   children,
 }: {
   slug: string;
+  /** Bascule du jour de service : un créneau d'après minuit reste au soir réservé. */
+  dayEndHour: number;
   /** L'établissement a des bulles : sans elles, aucune table n'en est une. */
   enabled: boolean;
   children: ReactNode;
@@ -75,7 +79,7 @@ export function BulleTableGate({
   const gated = Boolean(state?.reservation_status && block);
   return (
     <BlockContext.Provider value={block}>
-      {state && block && table && gated && <BulleGate slug={slug} table={table} state={state} message={block} />}
+      {state && block && table && gated && <BulleGate slug={slug} table={table} state={state} message={block} dayEndHour={dayEndHour} />}
       {state && block && !gated && <BulleBanner slug={slug} state={state} message={block} />}
       {/* Caché, pas retiré : la carte et son panier reviennent tels quels. */}
       <div className={gated ? "hidden" : "contents"}>{children}</div>
@@ -84,7 +88,19 @@ export function BulleTableGate({
 }
 
 /** Ni nom ni téléphone : qui scanne n'a pas à savoir qui a réservé. */
-function BulleGate({ slug, table, state, message }: { slug: string; table: number; state: TableState; message: string }) {
+function BulleGate({
+  slug,
+  table,
+  state,
+  message,
+  dayEndHour,
+}: {
+  slug: string;
+  table: number;
+  state: TableState;
+  message: string;
+  dayEndHour: number;
+}) {
   const left = state.party_size - state.places_paid;
   return (
     <main
@@ -106,7 +122,7 @@ function BulleGate({ slug, table, state, message }: { slug: string; table: numbe
       <div className="flex flex-col gap-1">
         <h1 className="text-3xl font-semibold">{state.bulle_name}</h1>
         <p className="tabular-nums opacity-85">
-          {formatNightShort(state.starts_at)} · {formatHours(state.starts_at, state.ends_at)}
+          {capitalize(formatBulleNight(state.starts_at, dayEndHour, true))} · {formatHours(state.starts_at, state.ends_at)}
         </p>
       </div>
       {left > 0 && (
