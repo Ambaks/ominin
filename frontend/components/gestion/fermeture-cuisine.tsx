@@ -359,7 +359,7 @@ function PickSheet({
             disabled={busy || (picked.size === 0 && !active)}
             onClick={() => onConfirm([...picked])}
           >
-            {picked.size === 0 ? "Tout rouvrir" : `Fermer ${articles(picked.size)}`}
+            {picked.size > 0 ? `Fermer ${articles(picked.size)}` : active ? "Tout rouvrir" : "Fermer"}
           </GlassButton>
         </>
       }
