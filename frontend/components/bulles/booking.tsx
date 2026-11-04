@@ -450,9 +450,12 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
               ? `La bulle est réservée dès le paiement ; vos amis paient les ${billed - places} autres places par un lien, ou à l'accueil, avant de commander.`
               : `Votre bulle n'est pas encore réservée après ce paiement : elle le sera dès que ${confirmPlaces} places sont payées. Vos amis paient leur place par un lien.`}
         </p>
-        {party < billed && <p className="bo-muted bo-small">{formatSoloPrice(offer)}.</p>}
-        {offer.smallGroupPlaceCents !== null && minParty < groupThreshold && (
-          <p className="bo-muted bo-small">{formatBulleTarifs(offer, minParty)}.</p>
+        {/* Les tarifs commencent déjà par le prix seul : une ligne ou l'autre. */}
+        {party < billed ? (
+          <p className="bo-muted bo-small">{formatSoloPrice(offer)}.</p>
+        ) : (
+          offer.smallGroupPlaceCents !== null &&
+          minParty < groupThreshold && <p className="bo-muted bo-small">{formatBulleTarifs(offer, minParty)}.</p>
         )}
       </section>
 
