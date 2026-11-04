@@ -10,6 +10,17 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Bulles du Boho : retest complet et quatre corrections (2026-11-04, `boho-retest`, pas de migration) :**
+>
+> - **Le retest :** le lot de novembre (#563) a été retesté entièrement, sur une base locale et avec un faux Square.
+>   - Ça passe : bulles dans Aujourd'hui, Paiements et Analyses ; nuit du samedi au dimanche partout ; taille du groupe modifiable ; minimum facturé ; parts plafonnées envoyées à Square ; build.
+> - **Corrigé :**
+>   - la mention « pas encore réservée » manquait à l'étape carte, sur le lien de partage et sur le QR de la table ;
+>   - le prix seul apparaissait deux fois sur la page de réservation ;
+>   - le mail d'une réservation seule disait « 1 place » au lieu de 2 ;
+>   - le lien de partage d'une réservation prise par l'accueil ne permettait pas de payer.
+> - **Pas testé :** le vrai Square (carte, 3-D Secure, Apple Pay, webhook, remboursement), l'envoi réel des mails, le temps réel.
+
 > **Bulles : l'accueil ouvre la table d'une bulle sans réservation (2026-11-04, `bulle-table-ouverte`, migration `20261104000001_bulle_table_ouverte` appliquée en production juste avant la fusion) :**
 >
 > - **Le problème :** au Boho, des clients assis dans la Beige sans réservation ne pouvaient pas commander par le QR (« n'est pas réservée en ce moment »).

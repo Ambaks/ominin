@@ -2,11 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BullePayment, refundMessage, type PartResult } from "@/components/bulles/payment";
+import { BeforePay, BullePayment, refundMessage, type PartResult } from "@/components/bulles/payment";
 import { ContactFields, contactErrors, emptyContact, type Contact } from "@/components/bulles/contact-fields";
 import { CLUB_TIMING } from "@/components/club/timing";
 import type { BulleCheckout } from "@/lib/bulles/server";
-import { BULLE_NO_REFUND, bulleMontant } from "@/lib/bulles/format";
+import { bulleMontant } from "@/lib/bulles/format";
 import { formatCents } from "@/lib/club/format";
 
 /*
@@ -96,6 +96,7 @@ export function Contribute({
   placeCents,
   placesLeft,
   resteCents,
+  notReserved,
   allLeft = false,
 }: {
   /** Le lien de partage, ou la table de la bulle (son QR). */
@@ -104,6 +105,8 @@ export function Contribute({
   placesLeft: number;
   /** Le reste dû : la dernière place s'y arrête (contribuer_bulle). */
   resteCents: number;
+  /** La réservation attend encore son minimum de places. */
+  notReserved: boolean;
   /** Propose d'emblée tout ce qui reste, plutôt qu'une place. */
   allLeft?: boolean;
 }) {
@@ -177,6 +180,7 @@ export function Contribute({
         places={part.places}
         holdExpiresAt={part.holdExpiresAt}
         checkout={part.checkout}
+        notReserved={notReserved}
         onResult={(result) => {
           setDone(result);
           router.refresh();
@@ -206,7 +210,7 @@ export function Contribute({
           {error}
         </p>
       )}
-      <p className="bo-muted bo-small">{BULLE_NO_REFUND}</p>
+      <BeforePay notReserved={notReserved} />
       <button type="submit" className="bo-button bo-button--block" disabled={sending}>
         {sending ? "Un instant…" : `Payer ${formatCents(bulleMontant(places, placeCents, resteCents))}`}
       </button>

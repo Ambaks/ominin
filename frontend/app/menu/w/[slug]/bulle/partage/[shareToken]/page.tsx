@@ -19,8 +19,10 @@ export default async function BullePartagePage({ params }: PageProps<"/menu/w/[s
   const ticket = await fetchBulleTicket({ shareToken });
   if (!ticket || ticket.slug !== slug) notFound();
   const { live, left, leftCents } = ticketState(ticket);
-  // L'organisateur n'a pas encore payé : le lien ne s'ouvre qu'après sa part.
-  const open = live && left > 0 && ticket.placesPaid > 0;
+  // En attente, le lien ne s'ouvre qu'après la part de l'organisateur ; une
+  // réservation prise par l'accueil, confirmée sans rien payé, s'ouvre d'emblée
+  // (contribuer_bulle).
+  const open = live && left > 0 && (ticket.status !== "en_attente" || ticket.placesPaid > 0);
 
   return (
     <div className="bo-bulle-page bo-stack-sm">
@@ -28,7 +30,13 @@ export default async function BullePartagePage({ params }: PageProps<"/menu/w/[s
       <p className="bo-muted-night bo-text-center">{ticket.organiser} vous invite dans sa bulle.</p>
       <Ticket ticket={ticket} />
       {open ? (
-        <Contribute target={{ shareToken }} placeCents={ticket.placeCents} placesLeft={left} resteCents={leftCents} />
+        <Contribute
+          target={{ shareToken }}
+          placeCents={ticket.placeCents}
+          placesLeft={left}
+          resteCents={leftCents}
+          notReserved={ticket.status === "en_attente"}
+        />
       ) : (
         <a className="bo-button bo-button--ghost" href={bulleUrl(slug)}>
           Réserver ma propre bulle
