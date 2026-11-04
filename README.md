@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Démos de l'Écusson : verre liquide (2026-11-04, `ecusson-liquid-glass`, pas de migration, pas fusionné) :** sur `/menu/demo` seulement, Le Novelty, Le Victoria, Café des Arts et Brasserie Laissac ont un satin animé à leurs couleurs et des surfaces en verre (filet clair, liseré, ombre). Le flou d'arrière-plan ne va qu'au panier, aux pastilles, aux feuilles, au quai des tickets et au voile de la roue ; les fiches sont translucides sans flou. Café Riche, Caffè Panis, le Boho, `?theme=ominin`, le click & collect et les cartes publiées ne changent pas. Réglages dans `frontend/components/menu/ecusson-glass.css`. Vérifié : `eslint`, `npm run build`, parcours démo (roue, fiche, panier, paiement simulé, ticket, happy hour, après-repas) et défilement en production locale, 375×812, CPU ×4 (mêmes temps qu'à Panis, max 19 ms, aucun passage à 32 ms). Pas vérifié : un iPhone réel, un Android d'entrée de gamme.
+
 > **Bulles du Boho : retest complet et quatre corrections (2026-11-04, `boho-retest`, pas de migration) :**
 >
 > - **Le retest :** le lot de novembre (#563) a été retesté entièrement, sur une base locale et avec un faux Square.

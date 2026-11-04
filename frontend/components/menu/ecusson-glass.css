@@ -1,0 +1,368 @@
+/*
+  Verre liquide des quatre aperçus de l'Écusson, sur leur velours
+  (panis-backdrop). Le flou d'arrière-plan ne va qu'aux surfaces fixes ou
+  posées par-dessus : un flou sur chaque fiche, ou sur les disques de la
+  roue, se recalculerait à chaque image du satin. Les fiches ont le même
+  verre, sans flou. Réglages par maison, plus bas : le propriétaire les
+  ajuste sans réécrire la recette.
+*/
+
+/* Le Novelty : feutre noir, filet d'or. */
+[data-menu-root].theme-le-novelty:has(> .panis-backdrop) {
+  --eg-tint: 12 10 6;
+  --eg-alpha: 0.68;
+  --eg-sheen: 232 201 106;
+  --eg-rim: 201 168 76;
+  --eg-wash: 0.14;
+  --eg-reflet: 0.9;
+  --eg-lisere: 0.55;
+  --eg-halo: 0.22;
+  --eg-fond: 0.1;
+  --eg-ombre: 0.62;
+  --eg-blur: 18px;
+  --eg-saturate: 1.25;
+  --eg-metal: var(--nv-gold);
+  --eg-metal-voile: 88%;
+  --eg-struck: #e6d7b4;
+  --eg-price: var(--nv-gold-light);
+  --eg-radius: 0px;
+  --muted: #cfc4b2;
+  --faint: #c0b4a0;
+}
+
+/* Le Victoria : noir rouge, liseré de laiton, éclat de pierre. */
+[data-menu-root].theme-le-victoria:has(> .panis-backdrop) {
+  --eg-tint: 28 12 14;
+  --eg-alpha: 0.7;
+  --eg-sheen: 233 223 201;
+  --eg-rim: 168 131 74;
+  --eg-wash: 0.1;
+  --eg-reflet: 0.85;
+  --eg-lisere: 0.62;
+  --eg-halo: 0.22;
+  --eg-fond: 0.16;
+  --eg-ombre: 0.66;
+  --eg-blur: 18px;
+  --eg-saturate: 1.2;
+  --eg-metal: var(--vc-red);
+  --eg-metal-voile: 90%;
+  --eg-struck: #f3eadc;
+  --eg-price: #ffb4ba;
+  --eg-radius: 1.25rem;
+  --muted: #d4cbbd;
+  --faint: #c4b9a8;
+}
+
+/* Café des Arts : noir magenta. */
+[data-menu-root].theme-cafe-des-arts:has(> .panis-backdrop) {
+  --eg-tint: 22 6 16;
+  --eg-alpha: 0.7;
+  --eg-sheen: 255 210 232;
+  --eg-rim: 230 0 126;
+  --eg-wash: 0.1;
+  --eg-reflet: 0.8;
+  --eg-lisere: 0.65;
+  --eg-halo: 0.24;
+  --eg-fond: 0.16;
+  --eg-ombre: 0.68;
+  --eg-blur: 18px;
+  --eg-saturate: 1.3;
+  --eg-metal: var(--ca-magenta-ink);
+  --eg-metal-voile: 90%;
+  --eg-struck: #f2e4ec;
+  --eg-price: #ff8ec8;
+  --eg-radius: 1.25rem;
+  --muted: #d4d4d8;
+  --faint: #c6c6cc;
+}
+
+/* Brasserie Laissac : noir chaud, or de fleuron. */
+[data-menu-root].theme-brasserie-laissac:has(> .panis-backdrop) {
+  --eg-tint: 18 14 10;
+  --eg-alpha: 0.68;
+  --eg-sheen: 245 220 160;
+  --eg-rim: 214 165 86;
+  --eg-wash: 0.14;
+  --eg-reflet: 0.88;
+  --eg-lisere: 0.55;
+  --eg-halo: 0.22;
+  --eg-fond: 0.12;
+  --eg-ombre: 0.64;
+  --eg-blur: 18px;
+  --eg-saturate: 1.22;
+  --eg-metal: var(--lc-or);
+  --eg-metal-voile: 88%;
+  --eg-struck: #f3e6cf;
+  --eg-price: var(--lc-or-clair);
+  --eg-radius: 1.25rem;
+  --muted: #d5cbbd;
+  --faint: #c4b8a6;
+}
+
+[data-menu-root]:is(
+    .theme-le-novelty,
+    .theme-le-victoria,
+    .theme-cafe-des-arts,
+    .theme-brasserie-laissac
+  ):has(> .panis-backdrop) {
+  /* Le dégradé du verre et son relief, tirés des réglages. */
+  --eg-glace: linear-gradient(
+    180deg,
+    rgb(var(--eg-sheen) / var(--eg-wash)) 0%,
+    rgb(var(--eg-sheen) / 0) 36%,
+    rgb(var(--eg-rim) / var(--eg-fond)) 100%
+  );
+  --eg-relief:
+    inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+    inset 1px 0 0 rgb(var(--eg-sheen) / calc(var(--eg-reflet) * 0.35)),
+    inset -1px 0 0 rgb(var(--eg-sheen) / calc(var(--eg-reflet) * 0.2)),
+    inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
+    inset 0 16px 26px -18px rgb(var(--eg-sheen) / var(--eg-halo)),
+    inset 0 -20px 30px -22px rgb(var(--eg-rim) / var(--eg-halo)),
+    0 22px 40px -26px rgb(0 0 0 / var(--eg-ombre));
+  --eg-flou: blur(var(--eg-blur)) saturate(var(--eg-saturate));
+  --eg-verre: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha));
+  --eg-metal-verre: var(--eg-glace), color-mix(in srgb, var(--eg-metal) var(--eg-metal-voile), transparent);
+
+  isolation: isolate;
+  background-color: transparent;
+
+  & > header.logo-hero,
+  & > header.logo-hero > .bg-background {
+    background: transparent;
+  }
+
+  /* Le voile du héros reste, atténué : le satin doit se lire derrière l'enseigne. */
+  & .hero-gradient-drift {
+    opacity: 0.35;
+  }
+
+  & :is(.hero-name, .hero-tagline, .category-heading, .hero-cue) {
+    text-shadow: 0 1px 16px rgb(0 0 0 / 0.8);
+  }
+
+  & .hero-logo img {
+    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.55));
+  }
+
+  /* Pastilles d'adresse : verre sans flou, elles défilent sur le satin. */
+  & .hero-contact a {
+    border-color: rgb(var(--eg-sheen) / 0.35);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & .menu-ticker {
+    border-color: rgb(var(--eg-rim) / 0.35);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+  }
+
+  & .menu-ticker-pause {
+    background: linear-gradient(to left, rgb(var(--eg-tint)) 62%, rgb(var(--eg-tint) / 0));
+  }
+
+  & .menu-highlights {
+    border-color: rgb(var(--eg-rim) / 0.45);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+  }
+
+  /* Le bandeau rouge du Victoria et le bandeau d'or de Laissac : le métal, en verre. */
+  &:is(.theme-le-victoria, .theme-brasserie-laissac) .menu-highlights {
+    background: var(--eg-metal-verre);
+  }
+
+  & .category-head {
+    margin-bottom: 0.25rem;
+    padding: 0.7rem 0.95rem 0.8rem;
+    border: 1px solid rgb(var(--eg-sheen) / 0.28);
+    border-radius: var(--eg-radius);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+  }
+
+  & :is(.dish-grid > article, .dish-mini, .formule-tile) {
+    border-color: rgb(var(--eg-sheen) / 0.28);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & .dish-grid {
+    background: transparent;
+  }
+
+  & .dish-photo-fade {
+    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.92), rgb(var(--eg-tint) / 0));
+  }
+
+  & .dish-price {
+    color: var(--eg-price);
+  }
+
+  /* Le « + » et ses filets : la couleur d'enseigne, éclaircie là où elle se perd sur le satin. */
+  & .dish-action {
+    --ember-1: var(--eg-price);
+    --ember-2: var(--eg-price);
+  }
+
+  & :is(.line-through, .offer-price s, .formule-tile s) {
+    color: var(--eg-struck);
+    text-decoration-color: var(--eg-struck);
+  }
+
+  & > footer {
+    border-color: rgb(var(--eg-rim) / 0.28);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+  }
+
+  /* L'aperçu est la carte du lieu : la signature Ominin ne s'y lit pas. */
+  & > footer .text-xs > p:last-child {
+    display: none;
+  }
+
+  /* La roue : un seul flou, sur le voile. Les disques restent pleins. */
+  & [data-category-wheel] > div:first-child {
+    background: linear-gradient(
+      to left,
+      rgb(var(--eg-tint) / 0.78),
+      rgb(var(--eg-tint) / 0.55) 55%,
+      rgb(var(--eg-tint) / 0.28)
+    );
+    -webkit-backdrop-filter: var(--eg-flou);
+    backdrop-filter: var(--eg-flou);
+  }
+
+  /* Repliée, la roue ne floute pas : le voile est invisible, le satin défile derrière. */
+  & [data-category-wheel].pointer-events-none > div:first-child {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & [data-category-wheel] [data-wheel-item] > div:first-child {
+    border-color: rgb(var(--eg-sheen) / 0.55);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* Barre et rail : ils défilent avec la carte, donc sans flou. */
+  & :is([data-category-nav], [data-category-rail]) {
+    border-color: rgb(var(--eg-rim) / 0.3);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & :is(.cart-bar, .offer-pill, .loyalty-pill, .loyalty-greeting) {
+    border-color: rgb(var(--eg-sheen) / 0.4);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: var(--eg-flou);
+    backdrop-filter: var(--eg-flou);
+  }
+
+  /* Le panier garde le métal de la maison : l'encre posée dessus ne change pas. */
+  & .cart-bar {
+    background: var(--eg-metal-verre);
+  }
+
+  & .ticket-dock {
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: var(--eg-flou);
+    backdrop-filter: var(--eg-flou);
+  }
+
+  & .ticket-dock::before {
+    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.45), rgb(var(--eg-tint) / 0));
+  }
+
+  & .ticket-chip:not([data-ready]) {
+    border-color: rgb(var(--eg-sheen) / 0.4);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & [role="dialog"] {
+    border-color: rgb(var(--eg-sheen) / 0.38);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: var(--eg-flou);
+    backdrop-filter: var(--eg-flou);
+  }
+
+  /* La feuille d'offres et la roue apportent leur propre fond : le verre est le cadre. */
+  & .offer-sheet {
+    background: transparent;
+  }
+
+  & .offer-head {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.55),
+      inset 0 -1px 0 rgb(var(--eg-rim) / 0.45);
+  }
+
+  & .wheel-stage {
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / 0.45),
+      inset 0 -1px 0 rgb(var(--eg-rim) / 0.4);
+  }
+}
+
+/* Le survol du Novelty repeint la fiche en aplat : on garde le verre, un cran plus couvert. */
+@media (hover: hover) {
+  [data-menu-root].theme-le-novelty:has(> .panis-backdrop) .dish-grid > article:hover {
+    background: var(--eg-glace), rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.08));
+  }
+}
+
+/* Sans transparence : les mêmes contrastes, sur un aplat. */
+@media (prefers-reduced-transparency: reduce) {
+  [data-menu-root]:is(
+      .theme-le-novelty,
+      .theme-le-victoria,
+      .theme-cafe-des-arts,
+      .theme-brasserie-laissac
+    ):has(> .panis-backdrop) {
+    --eg-alpha: 1;
+    --eg-metal-voile: 100%;
+    --eg-flou: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  [data-menu-root]:is(
+      .theme-le-novelty,
+      .theme-le-victoria,
+      .theme-cafe-des-arts,
+      .theme-brasserie-laissac
+    ):has(> .panis-backdrop) {
+    --eg-alpha: 0.94;
+    --eg-metal-voile: 100%;
+    --eg-flou: none;
+  }
+}
+
+/* Trop ancien pour color-mix : le métal du panier et des bandeaux redevient plein. */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  [data-menu-root]:is(
+      .theme-le-novelty,
+      .theme-le-victoria,
+      .theme-cafe-des-arts,
+      .theme-brasserie-laissac
+    ):has(> .panis-backdrop) {
+    & :is(.cart-bar, .theme-le-victoria .menu-highlights, .theme-brasserie-laissac .menu-highlights) {
+      background: var(--eg-metal);
+    }
+  }
+}
