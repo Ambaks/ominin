@@ -70,9 +70,10 @@ import { applyTarifs } from "@/lib/menu/tarifs";
  * ?service=fast-food, le même retrait sur un ticket numéroté, comme en
  * production (etablissements.bar_pickup).
  *
- * Avec ?retrait=bar, un établissement doté d'une suite d'aperçu (afterMeal) la
- * propose à ses couleurs au retour du client, le délai passé depuis le scan du
- * retrait : même page fermée entre-temps. Un bouton « Démo » saute l'attente.
+ * Un établissement doté d'une suite d'aperçu (afterMeal) la propose à ses
+ * couleurs au retour du client, le délai passé depuis le service à table ou,
+ * avec ?retrait=bar, depuis le scan du retrait : même page fermée entre-temps.
+ * Un bouton « Démo » saute l'attente.
  *
  * ?categories=top|rail|wheel essaie une autre présentation des catégories
  * que celle de l'établissement.

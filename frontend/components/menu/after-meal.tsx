@@ -165,9 +165,14 @@ function AfterMealCard({
         className="after-meal-card"
       >
         <span className="after-meal-photo">
-          {item.image && (
+          {item.image ? (
             // eslint-disable-next-line @next/next/no-img-element -- photo servie telle quelle, comme au panier
             <img src={item.image} alt="" />
+          ) : (
+            // Sans photo à la carte : son initiale, comme dans la feuille happy hour.
+            <span aria-hidden className="after-meal-initial">
+              {lineName(item).charAt(0)}
+            </span>
           )}
           {coffee && (
             <span aria-hidden className="after-meal-vapour">
@@ -382,12 +387,15 @@ function AfterMealSheet({
 /** Une commande telle que la suite la lit : du ticket en aperçu, de order_ticket en production. */
 type WatchedOrder = Pick<Ticket, "id" | "status" | "lines"> & { servedAt?: string | null };
 
-/** Le ticket du retrait au bar, dans l'aperçu : le scan se joue sous les yeux. */
+/**
+ * Les tickets de l'aperçu, qui se jouent sous les yeux : le scan du retrait au
+ * bar, ou le service à table. Le ticket numéroté du fast food n'a pas de suite.
+ */
 export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
   const tickets = useTickets();
   return <AfterMealFlow
       offer={offer}
-      enabled={Boolean(tickets?.barPickup)}
+      enabled={Boolean(tickets && (tickets.barPickup || tickets.table !== null))}
       orders={tickets?.tickets}
       tracked={false}
     />;
