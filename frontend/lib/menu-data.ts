@@ -11,7 +11,7 @@ import type { SaisonSpots } from "@/lib/menu/saison";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
-import { veloursPalettes } from "@/components/menu/velours-palettes";
+import { ecussonVelours, veloursPalettes } from "@/components/menu/velours-palettes";
 import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import allergenesDemo from "@/lib/menu/allergenes-demo.json";
@@ -10807,9 +10807,13 @@ export function restaurantThemeClass(slug: string): string | undefined {
   return themeClasses[slug];
 }
 
-/** Les cartes posées sur le velours animé (components/menu/panis-backdrop), à leurs teintes. */
+/**
+ * Les cartes publiées posées sur le velours (components/menu/panis-backdrop).
+ * Les quatre aperçus de l'Écusson ont une palette, montée seulement par
+ * /menu/demo : sinon le satin passerait sur la carte publiée et le click & collect.
+ */
 export function hasVelours(slug: string): boolean {
-  return slug in veloursPalettes;
+  return slug in veloursPalettes && !ecussonVelours.has(slug);
 }
 
 /**
