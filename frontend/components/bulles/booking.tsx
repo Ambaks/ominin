@@ -272,6 +272,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
           places={part.places}
           holdExpiresAt={part.holdExpiresAt}
           checkout={part.checkout}
+          notReserved={part.places < confirmPlaces}
           onResult={onPaid}
           onExpire={onExpire}
         />

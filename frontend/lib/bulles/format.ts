@@ -143,6 +143,10 @@ export function formatSoloPrice(pricing: BullePricing): string {
 export const BULLE_NO_REFUND =
   "Les sommes payées, acomptes compris, ne sont pas remboursées, sauf si la bulle ne peut pas être tenue.";
 
+/** Ce que voit, juste avant de payer, le groupe d'une réservation en attente. */
+export const BULLE_NOT_RESERVED =
+  "La bulle n'est pas encore réservée : elle le sera dès que le minimum de places est payé.";
+
 /** Les jours ISO (1 = lundi) comme les écrit la gestion. */
 export const WEEKDAY_NAMES = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"] as const;
 

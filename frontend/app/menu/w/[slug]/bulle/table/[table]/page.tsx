@@ -50,7 +50,14 @@ export default async function BulleTablePage({ params }: PageProps<"/menu/w/[slu
         </div>
       </div>
       {state.can_pay ? (
-        <Contribute target={{ slug, table }} placeCents={state.place_cents} placesLeft={left} resteCents={leftCents} allLeft />
+        <Contribute
+          target={{ slug, table }}
+          placeCents={state.place_cents}
+          placesLeft={left}
+          resteCents={leftCents}
+          notReserved={state.reservation_status === "en_attente"}
+          allLeft
+        />
       ) : (
         <p className="bo-muted-night bo-text-center">
           {state.reservation_status && leftCents === 0 ? "Toutes les places sont payées." : "Rien à payer pour cette bulle en ce moment."}

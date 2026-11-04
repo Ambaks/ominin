@@ -28,7 +28,13 @@ export default async function BullePartagePage({ params }: PageProps<"/menu/w/[s
       <p className="bo-muted-night bo-text-center">{ticket.organiser} vous invite dans sa bulle.</p>
       <Ticket ticket={ticket} />
       {open ? (
-        <Contribute target={{ shareToken }} placeCents={ticket.placeCents} placesLeft={left} resteCents={leftCents} />
+        <Contribute
+          target={{ shareToken }}
+          placeCents={ticket.placeCents}
+          placesLeft={left}
+          resteCents={leftCents}
+          notReserved={ticket.status === "en_attente"}
+        />
       ) : (
         <a className="bo-button bo-button--ghost" href={bulleUrl(slug)}>
           Réserver ma propre bulle
