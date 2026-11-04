@@ -13,11 +13,11 @@
   --eg-alpha: 0.68;
   --eg-sheen: 232 201 106;
   --eg-rim: 201 168 76;
-  --eg-wash: 0.14;
-  --eg-reflet: 0.9;
-  --eg-lisere: 0.55;
-  --eg-halo: 0.22;
-  --eg-fond: 0.1;
+  --eg-wash: 0.07;
+  --eg-reflet: 0.95;
+  --eg-lisere: 0.7;
+  --eg-halo: 0.28;
+  --eg-fond: 0.14;
   --eg-ombre: 0.62;
   --eg-blur: 18px;
   --eg-saturate: 1.25;
@@ -36,18 +36,18 @@
   --eg-alpha: 0.7;
   --eg-sheen: 233 223 201;
   --eg-rim: 168 131 74;
-  --eg-wash: 0.1;
-  --eg-reflet: 0.85;
-  --eg-lisere: 0.62;
-  --eg-halo: 0.22;
-  --eg-fond: 0.16;
+  --eg-wash: 0.06;
+  --eg-reflet: 0.9;
+  --eg-lisere: 0.72;
+  --eg-halo: 0.24;
+  --eg-fond: 0.18;
   --eg-ombre: 0.66;
   --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--vc-red);
   --eg-metal-voile: 90%;
   --eg-struck: #f3eadc;
-  --eg-price: #ffb4ba;
+  --eg-price: #f2a3ab;
   --eg-radius: 1.25rem;
   --muted: #d4cbbd;
   --faint: #c4b9a8;
@@ -59,18 +59,18 @@
   --eg-alpha: 0.7;
   --eg-sheen: 255 210 232;
   --eg-rim: 230 0 126;
-  --eg-wash: 0.1;
-  --eg-reflet: 0.8;
-  --eg-lisere: 0.65;
-  --eg-halo: 0.24;
-  --eg-fond: 0.16;
+  --eg-wash: 0.07;
+  --eg-reflet: 0.9;
+  --eg-lisere: 0.75;
+  --eg-halo: 0.26;
+  --eg-fond: 0.18;
   --eg-ombre: 0.68;
   --eg-blur: 18px;
   --eg-saturate: 1.3;
   --eg-metal: var(--ca-magenta-ink);
   --eg-metal-voile: 90%;
   --eg-struck: #f2e4ec;
-  --eg-price: #ff8ec8;
+  --eg-price: #ff7aba;
   --eg-radius: 1.25rem;
   --muted: #d4d4d8;
   --faint: #c6c6cc;
@@ -82,11 +82,11 @@
   --eg-alpha: 0.68;
   --eg-sheen: 245 220 160;
   --eg-rim: 214 165 86;
-  --eg-wash: 0.14;
-  --eg-reflet: 0.88;
-  --eg-lisere: 0.55;
-  --eg-halo: 0.22;
-  --eg-fond: 0.12;
+  --eg-wash: 0.07;
+  --eg-reflet: 0.92;
+  --eg-lisere: 0.68;
+  --eg-halo: 0.26;
+  --eg-fond: 0.16;
   --eg-ombre: 0.64;
   --eg-blur: 18px;
   --eg-saturate: 1.22;
@@ -112,14 +112,13 @@
     rgb(var(--eg-sheen) / 0) 36%,
     rgb(var(--eg-rim) / var(--eg-fond)) 100%
   );
+  /* Le filet est en haut, le liseré en bas : pas de contour sur les quatre côtés, qui lisait comme un cadre. */
   --eg-relief:
     inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
-    inset 1px 0 0 rgb(var(--eg-sheen) / calc(var(--eg-reflet) * 0.35)),
-    inset -1px 0 0 rgb(var(--eg-sheen) / calc(var(--eg-reflet) * 0.2)),
     inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
-    inset 0 16px 26px -18px rgb(var(--eg-sheen) / var(--eg-halo)),
-    inset 0 -20px 30px -22px rgb(var(--eg-rim) / var(--eg-halo)),
-    0 22px 40px -26px rgb(0 0 0 / var(--eg-ombre));
+    inset 0 22px 28px -14px rgb(var(--eg-sheen) / var(--eg-halo)),
+    inset 0 -26px 32px -16px rgb(var(--eg-rim) / var(--eg-halo)),
+    0 16px 32px -22px rgb(0 0 0 / var(--eg-ombre));
   --eg-flou: blur(var(--eg-blur)) saturate(var(--eg-saturate));
   --eg-verre: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha));
   --eg-metal-verre: var(--eg-glace), color-mix(in srgb, var(--eg-metal) var(--eg-metal-voile), transparent);
@@ -147,17 +146,20 @@
 
   /* Pastilles d'adresse : verre sans flou, elles défilent sur le satin. */
   & .hero-contact a {
-    border-color: rgb(var(--eg-sheen) / 0.35);
-    background: var(--eg-verre);
-    box-shadow: var(--eg-relief);
+    border-color: transparent;
+    background: rgb(var(--eg-tint) / 0.42);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
   & .menu-ticker {
-    border-color: rgb(var(--eg-rim) / 0.35);
-    background: var(--eg-verre);
-    box-shadow: var(--eg-relief);
+    border-color: transparent;
+    background: rgb(var(--eg-tint) / 0.5);
+    box-shadow:
+      inset 0 -1px 0 rgb(var(--eg-rim) / calc(var(--eg-lisere) * 0.6));
   }
 
   & .menu-ticker-pause {
@@ -165,7 +167,7 @@
   }
 
   & .menu-highlights {
-    border-color: rgb(var(--eg-rim) / 0.45);
+    border-color: transparent;
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
   }
@@ -175,17 +177,17 @@
     background: var(--eg-metal-verre);
   }
 
+  /* Le titre de rubrique est une légende sur le satin, pas une fiche de plus. */
   & .category-head {
-    margin-bottom: 0.25rem;
-    padding: 0.7rem 0.95rem 0.8rem;
-    border: 1px solid rgb(var(--eg-sheen) / 0.28);
-    border-radius: var(--eg-radius);
-    background: var(--eg-verre);
-    box-shadow: var(--eg-relief);
+    margin-bottom: 0.15rem;
+    padding: 0.2rem 0.1rem 0.45rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   & :is(.dish-grid > article, .dish-mini, .formule-tile) {
-    border-color: rgb(var(--eg-sheen) / 0.28);
+    border-color: transparent;
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
     -webkit-backdrop-filter: none;
@@ -196,8 +198,15 @@
     background: transparent;
   }
 
+  /* Au Novelty les fiches se touchaient par un filet d'or : chaque verre se détache, le satin passe entre elles. */
+  &:is(.theme-le-novelty) .dish-grid {
+    gap: 0.75rem;
+    border: 0;
+  }
+
+  /* Le fondu ne couvre que le bas de la photo : le plat reste lisible. */
   & .dish-photo-fade {
-    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.92), rgb(var(--eg-tint) / 0));
+    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.72) 0%, rgb(var(--eg-tint) / 0) 42%);
   }
 
   & .dish-price {
@@ -213,6 +222,7 @@
   & :is(.line-through, .offer-price s, .formule-tile s) {
     color: var(--eg-struck);
     text-decoration-color: var(--eg-struck);
+    text-decoration-thickness: 1.5px;
   }
 
   & > footer {
@@ -245,9 +255,12 @@
   }
 
   & [data-category-wheel] [data-wheel-item] > div:first-child {
-    border-color: rgb(var(--eg-sheen) / 0.55);
+    border-color: transparent;
     background: var(--eg-verre);
-    box-shadow: var(--eg-relief);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
+      0 8px 16px -10px rgb(0 0 0 / 0.75);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
@@ -293,9 +306,10 @@
     backdrop-filter: none;
   }
 
+  /* La feuille se lit : plus couverte que les fiches, le filet dit encore le verre. */
   & [role="dialog"] {
-    border-color: rgb(var(--eg-sheen) / 0.38);
-    background: var(--eg-verre);
+    border-color: transparent;
+    background: var(--eg-glace), rgb(var(--eg-tint) / 0.9);
     box-shadow: var(--eg-relief);
     -webkit-backdrop-filter: var(--eg-flou);
     backdrop-filter: var(--eg-flou);
