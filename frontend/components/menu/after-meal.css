@@ -1,5 +1,5 @@
 /*
-  Après le repas, chez Caffè Panis et au BOHO. À Panis : le vert des portes, la
+  Après le repas, chez Caffè Panis, au BOHO et sur les démos de l'Écusson. À Panis : le vert des portes, la
   mosaïque du sol, et la question du serveur qui repasse à table. La tasse se dessine, sa vapeur
   monte, les assiettes se posent une à une comme sur un plateau. Un choix fait
   parle le langage des feuilles de la maison (panis-sheets.css) : le vert,
@@ -47,7 +47,122 @@
   --am-name-weight: 400;
 }
 
-[data-menu-root]:is(.theme-caffe-panis, .theme-boho) {
+/* Les démos de l'Écusson : la couleur de chaque maison pour la feuille, son
+   métal pour le filet, sans mosaïque ni grain. */
+[data-menu-root]:is(
+    .theme-le-novelty,
+    .theme-le-victoria,
+    .theme-cafe-des-arts,
+    .theme-brasserie-laissac,
+    .theme-cafe-riche
+  ) {
+  --cp-mosaic: linear-gradient(transparent, transparent);
+  --cp-grain: linear-gradient(transparent, transparent);
+  --cp-ressort: cubic-bezier(0.34, 1.5, 0.64, 1);
+  --cp-glisse: cubic-bezier(0.22, 1, 0.36, 1);
+  --am-card-ink: var(--foreground);
+  --am-title-weight: 600;
+  --am-name-weight: 600;
+}
+
+/* Le Novelty : le feutre noir et l'or de son enseigne. */
+[data-menu-root].theme-le-novelty {
+  --cp-green: #1a1712;
+  --cp-green-deep: #080808;
+  --cp-ivory: #f5f0e8;
+  --cp-laiton: var(--nv-gold);
+  --am-ivory-rgb: 245 240 232;
+  --am-shade-rgb: 0 0 0;
+  --am-veil-rgb: 8 8 8;
+  --am-glow-rgb: 201 168 76;
+  --am-top: #2a251b;
+  --am-chosen: #2e2717;
+  --am-star: var(--nv-gold);
+  --am-pill: var(--nv-gold-light);
+  --am-pill-ink: #080808;
+  --am-demo-ink: var(--nv-gold-light);
+}
+
+/* Le Victoria : le rouge de sa devanture, son laiton. */
+[data-menu-root].theme-le-victoria {
+  --cp-green: #4a161c;
+  --cp-green-deep: #1c0b0d;
+  --cp-ivory: #f2ebdc;
+  --cp-laiton: var(--vc-brass);
+  --am-ivory-rgb: 242 235 220;
+  --am-shade-rgb: 12 4 5;
+  --am-veil-rgb: 28 11 13;
+  --am-glow-rgb: 224 96 111;
+  --am-top: #6a1f27;
+  --am-chosen: #6a1f27;
+  --am-star: var(--vc-red);
+  --am-pill: var(--vc-red);
+  --am-pill-ink: var(--vc-stone);
+  --am-demo-ink: var(--vc-red-light);
+}
+
+/* Café des Arts : le noir et le magenta de son logo. */
+[data-menu-root].theme-cafe-des-arts {
+  --cp-green: #1c0a15;
+  --cp-green-deep: #000000;
+  --cp-ivory: #ededed;
+  --cp-laiton: var(--ca-magenta-ink);
+  --am-ivory-rgb: 237 237 237;
+  --am-shade-rgb: 0 0 0;
+  --am-veil-rgb: 10 4 8;
+  --am-glow-rgb: 230 0 126;
+  --am-top: #2e0c21;
+  --am-chosen: #3d0f2c;
+  --am-star: var(--ca-magenta);
+  --am-pill: var(--ca-magenta);
+  --am-pill-ink: #ffffff;
+  --am-demo-ink: var(--ca-magenta-ink);
+}
+
+/* Brasserie Laissac : le noir et l'or de ses fleurons. */
+[data-menu-root].theme-brasserie-laissac {
+  --cp-green: #1f1b15;
+  --cp-green-deep: #0b0a09;
+  --cp-ivory: #f5efe4;
+  --cp-laiton: var(--lc-or);
+  --am-ivory-rgb: 245 239 228;
+  --am-shade-rgb: 0 0 0;
+  --am-veil-rgb: 11 10 9;
+  --am-glow-rgb: 214 165 86;
+  --am-top: #2d271d;
+  --am-chosen: #33291a;
+  --am-star: var(--lc-or);
+  --am-pill: var(--lc-or-clair);
+  --am-pill-ink: #0b0a09;
+  --am-demo-ink: var(--lc-or-clair);
+}
+
+/* Café Riche : son bleu, sa crème et son laiton. */
+[data-menu-root].theme-cafe-riche {
+  --cp-green: var(--cr-bleu);
+  --cp-green-deep: var(--cr-bleu-profond);
+  --cp-ivory: var(--cr-creme);
+  --cp-laiton: var(--cr-laiton-clair);
+  --am-ivory-rgb: 244 238 227;
+  --am-shade-rgb: 6 16 32;
+  --am-veil-rgb: 15 42 80;
+  --am-glow-rgb: 201 176 122;
+  --am-top: #24497d;
+  --am-chosen: var(--cr-bleu-profond);
+  --am-star: var(--cr-laiton);
+  --am-pill: var(--cr-laiton-clair);
+  --am-pill-ink: var(--cr-bleu-profond);
+}
+
+[data-menu-root]:is(
+    .theme-caffe-panis,
+    .theme-boho,
+    .theme-le-novelty,
+    .theme-le-victoria,
+    .theme-cafe-des-arts,
+    .theme-brasserie-laissac,
+    .theme-cafe-riche
+  ) {
   & [role="dialog"]:has(> .after-meal) {
     border-color: rgb(var(--am-ivory-rgb) / 0.16);
     background: var(--cp-green-deep);
@@ -234,6 +349,18 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  & .after-meal-initial {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-family: var(--brand-display);
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--cp-laiton);
+    background: radial-gradient(circle at 50% 45%, rgb(var(--am-glow-rgb) / 0.2), transparent 70%);
   }
 
   /* Les photos de la carte sont prises de loin, sur le papier de leur marque
@@ -603,14 +730,22 @@
     font-size: 0.8125rem;
     font-weight: 600;
     white-space: nowrap;
-    color: var(--cp-green);
+    color: var(--am-demo-ink, var(--cp-green));
     background: var(--surface);
     box-shadow: 0 0.75rem 1.5rem -0.75rem rgb(0 0 0 / 0.5);
   }
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  [data-menu-root]:is(.theme-caffe-panis, .theme-boho) {
+  [data-menu-root]:is(
+    .theme-caffe-panis,
+    .theme-boho,
+    .theme-le-novelty,
+    .theme-le-victoria,
+    .theme-cafe-des-arts,
+    .theme-brasserie-laissac,
+    .theme-cafe-riche
+  ) {
     /* La tasse se dessine, la vapeur monte en boucle, doucement. */
     & .after-meal-trace {
       stroke-dasharray: 1;
