@@ -45,6 +45,7 @@ const actions: BulleActions = {
   markArrival: (reservationId, arrived, tender) => send({ action: "arrivee", reservationId, arrived, tender }),
   cancelReservation: (reservationId) => send({ action: "annuler", reservationId }),
   createReservation: (input) => send({ action: "creer", ...input }),
+  openTable: (bulleId, open) => send({ action: "table", bulleId, open }),
 };
 
 export function BullesDemoGestion() {
@@ -117,6 +118,7 @@ export function BullesDemoGestion() {
           date={date ?? snapshot.date}
           onDateChange={setDate}
           day={day}
+          tableOpening={{ onChanged: refresh }}
         />
       </BulleActionsContext>
     </ToastProvider>

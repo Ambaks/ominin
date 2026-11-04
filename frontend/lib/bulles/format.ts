@@ -1,5 +1,5 @@
 import { formatCents } from "@/lib/club/format";
-import { parisDate } from "@/lib/collect/hours";
+import { parisDate, parisInstant } from "@/lib/collect/hours";
 
 const HOUR_MS = 3_600_000;
 
@@ -156,4 +156,33 @@ export function addDays(date: string, days: number): string {
 export function isoWeekday(date: string): number {
   const [year, month, day] = date.split("-").map(Number);
   return ((new Date(Date.UTC(year, month - 1, day)).getUTCDay() + 6) % 7) + 1;
+}
+
+// Un créneau déborde d'au plus deux jours sur la nuit (start_minutes < 2880)
+// et revient chaque semaine.
+const CRENEAU_OVERFLOW_DAYS = 2;
+const WEEK_DAYS = 7;
+
+/**
+ * Le créneau jusqu'à la fin duquel une table ouverte par l'accueil le reste :
+ * celui en cours, ou entre deux créneaux le suivant. Même règle que la base
+ * (bulle_fin_ouverture), qui fixe la fin.
+ */
+export function bulleOpeningSlot(
+  creneaux: { weekday: number; start_minutes: number }[],
+  durationMinutes: number,
+  now: number
+): { startsAt: string; endsAt: string } | null {
+  const today = parisDate(new Date(now));
+  let best: { start: number; end: number } | null = null;
+  for (let offset = -CRENEAU_OVERFLOW_DAYS; offset <= WEEK_DAYS; offset++) {
+    const date = addDays(today, offset);
+    for (const creneau of creneaux) {
+      if (creneau.weekday !== isoWeekday(date)) continue;
+      const start = parisInstant(date, creneau.start_minutes).getTime();
+      const end = start + durationMinutes * 60_000;
+      if (end > now && (!best || end < best.end)) best = { start, end };
+    }
+  }
+  return best && { startsAt: new Date(best.start).toISOString(), endsAt: new Date(best.end).toISOString() };
 }
