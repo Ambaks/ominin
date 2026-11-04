@@ -17,7 +17,8 @@ import type { Database } from "@/lib/supabase/database.types";
  * de la bulle remplace la carte : le créneau, le reste, le bouton pour payer.
  * La table se relit : dès que le reste est réglé, par qui que ce soit, la carte
  * s'ouvre sur tous les téléphones, sans recharger. Sans réservation, la carte
- * se lit et le panier ne propose pas d'envoyer une commande qui serait refusée.
+ * se lit et le panier ne propose pas d'envoyer une commande qui serait refusée,
+ * jusqu'à ce que l'accueil ouvre la table : elle commande alors comme une autre.
  */
 
 type TableState = Database["public"]["Functions"]["bulle_table_etat"]["Returns"][number];
@@ -31,7 +32,7 @@ export function useBulleOrderBlock(): string | null {
 
 function blockOf(state: TableState | null): string | null {
   if (!state || state.ordering) return null;
-  if (!state.reservation_status) return `${state.bulle_name} n'est pas réservée en ce moment.`;
+  if (!state.reservation_status) return "Demandez à l'accueil d'ouvrir la table ou réservez la bulle.";
   if (state.reste_cents > 0) return `Encore ${formatCents(state.reste_cents)} à payer pour commander.`;
   return "Toutes les places sont payées : la carte s'ouvre au début de votre créneau.";
 }

@@ -8,7 +8,8 @@ import type { Database } from "@/lib/supabase/database.types";
 
 /*
  * La gestion des bulles de la démonstration (/demo/boho/gestion), sans
- * compte : le serveur lit le soir et fait les gestes de l'accueil avec la clé
+ * compte : le serveur lit le soir et fait les gestes de l'accueil (dont ouvrir
+ * la table d'une bulle) avec la clé
  * de service, sur l'établissement de démonstration seulement — la base
  * refuse ces gestes partout ailleurs (bulle_demo_service, 20261027000002).
  */
@@ -72,7 +73,7 @@ export async function POST(request: Request) {
 
   const tender: Tender | undefined = body.tender === "carte" || body.tender === "especes" ? body.tender : undefined;
   let result: { error: { code?: string; message: string } | null };
-  if (body.action === "creer") {
+  if (body.action === "creer" || body.action === "table") {
     const { data: bulle } = await admin
       .from("bulles")
       .select("id")
@@ -80,16 +81,19 @@ export async function POST(request: Request) {
       .eq("etablissement_id", etab.id)
       .maybeSingle();
     if (!bulle) return NextResponse.json({ error: "Bulle introuvable." }, { status: 404 });
-    result = await admin.rpc("creer_reservation_bulle", {
-      p_bulle: bulle.id,
-      p_starts_at: String(body.startsAt),
-      p_name: String(body.name ?? ""),
-      p_phone: String(body.phone ?? ""),
-      p_party: Number(body.partySize),
-      p_source: (body.source === "sur_place" ? "sur_place" : "telephone") satisfies Source,
-      p_note: String(body.note ?? ""),
-      p_tender: tender,
-    });
+    result =
+      body.action === "table"
+        ? await admin.rpc("ouvrir_table_bulle", { p_bulle: bulle.id, p_ouvrir: body.open === true })
+        : await admin.rpc("creer_reservation_bulle", {
+            p_bulle: bulle.id,
+            p_starts_at: String(body.startsAt),
+            p_name: String(body.name ?? ""),
+            p_phone: String(body.phone ?? ""),
+            p_party: Number(body.partySize),
+            p_source: (body.source === "sur_place" ? "sur_place" : "telephone") satisfies Source,
+            p_note: String(body.note ?? ""),
+            p_tender: tender,
+          });
   } else {
     const { data: reservation } = await admin
       .from("bulle_reservations")

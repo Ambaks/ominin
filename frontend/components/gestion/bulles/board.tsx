@@ -2,31 +2,37 @@
 
 import { useMemo, useState, type CSSProperties } from "react";
 import { BullesSettings } from "@/components/gestion/bulles/settings";
-import { bullesTabName } from "@/lib/gestion/constants";
+import { bullesTabName, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { NewReservationSheet, ReservationSheet, STATUS_LABELS } from "@/components/gestion/bulles/reservation-sheet";
 import { CheckIcon, ExternalLinkIcon, GearIcon } from "@/components/gestion/icons";
 import { Chip, EmptyState, ErrorNotice, GlassButton, Input, Plate, SectionHeading, Shimmer } from "@/components/gestion/ui";
+import { useToast } from "@/components/ui/toast";
 import {
   addDays,
   bulleConfirmPlaces,
   bulleManquePourConfirmer,
+  bulleOpeningSlot,
   bullePlacesFacturees,
   bulleReste,
   isoWeekday,
   type BulleCompte,
 } from "@/lib/bulles/format";
 import { bulleUrl } from "@/lib/bulles/links";
-import { formatHours, formatNight } from "@/lib/club/format";
+import { formatHours, formatNight, formatTime } from "@/lib/club/format";
 import { parisInstant } from "@/lib/collect/hours";
-import type { BulleDay, BulleReservation, BulleSetup } from "@/lib/gestion/bulles-api";
+import { useBulleActions, type Bulle, type BulleDay, type BulleReservation, type BulleSetup } from "@/lib/gestion/bulles-api";
+import { describeError } from "@/lib/gestion/errors";
 import type { Table } from "@/lib/gestion/types";
+import { useNow } from "@/lib/gestion/use-now";
 
 /*
  * Le soir de service des bulles, créneau par créneau : ce que chaque bulle a
  * de réservé — confirmé (la bulle est tenue) ou en attente (des groupes qui
  * paient encore leurs places). L'accueil y coche les arrivées et encaisse le
  * reste ; le gérant y prend une réservation au téléphone et règle prix,
- * créneaux et bulles. Les données et les gestes viennent de l'appelant.
+ * créneaux et bulles. Sur le créneau en cours (ou le suivant), l'accueil ouvre
+ * la table d'une bulle libre à des clients sans réservation. Les données et
+ * les gestes viennent de l'appelant.
  */
 
 type Slot = { startsAt: string; endsAt: string };
@@ -49,6 +55,7 @@ export function BullesBoard({
   onDateChange,
   day,
   settings,
+  tableOpening,
 }: {
   slug: string;
   dayEndHour: number;
@@ -61,14 +68,33 @@ export function BullesBoard({
   day: BulleDay;
   /** Les réglages (prix, créneaux, bulles) ; absents, le bouton n'est pas proposé. */
   settings?: { etablissementId: string; onSaved: () => void };
+  /** Ouvrir ou fermer la table d'une bulle libre ; absent, le geste n'est pas proposé. onChanged relit les bulles. */
+  tableOpening?: { onChanged: () => void };
 }) {
   const tabName = bullesTabName(slug);
+  const toast = useToast();
+  const { openTable } = useBulleActions();
+  const now = useNow(WAIT_TICK_MS).getTime();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [opened, setOpened] = useState<string | null>(null);
   const [creating, setCreating] = useState<{ bulleId: string; slot: Slot } | null>(null);
+  const [toggling, setToggling] = useState<string | null>(null);
   const { reservations, error, refresh } = day;
 
   const duration = setup.reglages?.duration_minutes ?? 0;
+  // Le créneau sur lequel une table s'ouvre, et dont la fin la referme.
+  const opening = tableOpening ? bulleOpeningSlot(setup.creneaux, duration, now) : null;
+  const toggleTable = async (bulle: Bulle, open: boolean) => {
+    setToggling(bulle.id);
+    try {
+      await openTable(bulle.id, open);
+      toast.success(open ? `Table de ${bulle.name} ouverte.` : `Table de ${bulle.name} fermée.`);
+      tableOpening?.onChanged();
+    } catch (toggleError) {
+      toast.error(describeError(toggleError).message);
+    }
+    setToggling(null);
+  };
   // Les créneaux du soir, plus l'heure de toute réservation prise en dehors.
   const slots = useMemo<Slot[]>(() => {
     const starts = new Map<string, Slot>();
@@ -227,6 +253,10 @@ export function BullesBoard({
                       const left = holder ? bulleReste(compteOf(holder)).places : 0;
                       const table = bulle.table_id ? tableNumber.get(bulle.table_id) : undefined;
                       const where = `${bulle.name}, ${formatHours(slot.startsAt, slot.endsAt)}`;
+                      const tableSlot =
+                        opening !== null && table !== undefined && bulle.active && Date.parse(opening.startsAt) === Date.parse(slot.startsAt);
+                      const openUntil =
+                        bulle.table_ouverte_jusqua && Date.parse(bulle.table_ouverte_jusqua) > now ? bulle.table_ouverte_jusqua : null;
                       return (
                         <div
                           key={bulle.id}
@@ -261,6 +291,16 @@ export function BullesBoard({
                                 )}
                               </span>
                             </button>
+                          ) : tableSlot && openUntil ? (
+                            <div className={`flex min-h-(--g-row-h) flex-1 flex-col items-start justify-center gap-1 ${CELL_RADIUS} border border-(--bulle) p-2.5`}>
+                              <span className="flex items-center gap-1.5 font-semibold">
+                                <span aria-hidden className="size-2 shrink-0 rounded-full bg-(--bulle)" />
+                                Table ouverte
+                              </span>
+                              <span className="text-g-meta text-muted tabular-nums">
+                                Sans réservation, jusqu&rsquo;à {formatTime(openUntil)}
+                              </span>
+                            </div>
                           ) : gerant && bulle.active ? (
                             <button
                               type="button"
@@ -273,6 +313,30 @@ export function BullesBoard({
                           ) : (
                             <span className="flex flex-1 items-center text-g-label text-faint">Libre</span>
                           )}
+                          {tableSlot && opening && (holder ? (
+                            <p className="text-g-meta text-muted">Réservée : la table suit la réservation.</p>
+                          ) : (
+                            <button
+                              type="button"
+                              disabled={toggling !== null}
+                              onClick={() => void toggleTable(bulle, !openUntil)}
+                              aria-label={
+                                openUntil
+                                  ? `Fermer la table de ${bulle.name}`
+                                  : `Ouvrir la table de ${bulle.name} sans réservation, jusqu'à ${formatTime(opening.endsAt)}`
+                              }
+                              className={`g-press flex min-h-(--g-control) flex-col items-center justify-center ${CELL_RADIUS} border border-hairline bg-surface-raised px-2 py-1.5 text-center text-g-meta font-semibold leading-tight disabled:opacity-30 ${FOCUS}`}
+                            >
+                              {openUntil ? (
+                                "Fermer la table"
+                              ) : (
+                                <>
+                                  Ouvrir la table
+                                  <span className="font-normal text-muted tabular-nums">jusqu&rsquo;à {formatTime(opening.endsAt)}</span>
+                                </>
+                              )}
+                            </button>
+                          ))}
                           {pending.map((group) => (
                             <button
                               key={group.id}

@@ -81,6 +81,7 @@ export default function BullesPage() {
       dayEndHour={state.dayEndHour}
       tables={state.tables}
       gerant={role === "gerant"}
+      opensTables={role === "gerant" || role === "serveur"}
       setup={setup}
       reloadSetup={reloadSetup}
     />
@@ -92,6 +93,7 @@ function LiveBoard({
   etablissementId,
   dayEndHour,
   gerant,
+  opensTables,
   reloadSetup,
   ...board
 }: {
@@ -100,6 +102,8 @@ function LiveBoard({
   dayEndHour: number;
   tables: Table[];
   gerant: boolean;
+  /** Ouvrir la table d'une bulle libre : le gérant et le serveur (ouvrir_table_bulle). */
+  opensTables: boolean;
   setup: BulleSetup;
   reloadSetup: () => void;
 }) {
@@ -114,6 +118,7 @@ function LiveBoard({
       onDateChange={setDate}
       day={day}
       settings={gerant ? { etablissementId, onSaved: reloadSetup } : undefined}
+      tableOpening={opensTables ? { onChanged: reloadSetup } : undefined}
     />
   );
 }

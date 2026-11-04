@@ -1068,6 +1068,7 @@ export type Database = {
           name: string
           sort: number
           table_id: string | null
+          table_ouverte_jusqua: string | null
         }
         Insert: {
           active?: boolean
@@ -1078,6 +1079,7 @@ export type Database = {
           name: string
           sort?: number
           table_id?: string | null
+          table_ouverte_jusqua?: string | null
         }
         Update: {
           active?: boolean
@@ -1088,6 +1090,7 @@ export type Database = {
           name?: string
           sort?: number
           table_id?: string | null
+          table_ouverte_jusqua?: string | null
         }
         Relationships: [
           {
@@ -7903,6 +7906,7 @@ export type Database = {
       }
       bulle_commande_ouverte: {
         Args: {
+          p_bulle: Database["public"]["Tables"]["bulles"]["Row"]
           p_reservation: Database["public"]["Tables"]["bulle_reservations"]["Row"]
         }
         Returns: boolean
@@ -7918,6 +7922,7 @@ export type Database = {
       }
       bulle_deloger: { Args: { p_reservation: string }; Returns: string[] }
       bulle_fermer: { Args: { p_reservation: string }; Returns: string[] }
+      bulle_fin_ouverture: { Args: { p_etab: string }; Returns: string }
       bulle_libre: {
         Args: { p_bulle: string; p_ends_at: string; p_starts_at: string }
         Returns: boolean
@@ -8004,6 +8009,7 @@ export type Database = {
           can_pay: boolean
           ends_at: string
           ordering: boolean
+          ouverte: boolean
           party_size: number
           place_cents: number
           places_paid: number
@@ -8955,6 +8961,10 @@ export type Database = {
           sent: number
           variant_id: string
         }[]
+      }
+      ouvrir_table_bulle: {
+        Args: { p_bulle: string; p_ouvrir: boolean }
+        Returns: string
       }
       pay_order_items: {
         Args: {
