@@ -4,7 +4,7 @@ import { HubriseError } from "./client";
 import { HUBRISE } from "./config";
 import { callHubrise, type Connection } from "./connection";
 import { money, parisIso, splitName, toE164 } from "./format";
-import { counterLegs, counterPayment } from "./payments";
+import { counterLegs, counterPayment, counterTip, tipCharge } from "./payments";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
@@ -353,8 +353,15 @@ export async function buildOrder(
   const transaction = paymentTransaction(order);
   // Déjà encaissée au comptoir dans Ominin quand elle part (envoi en retard) :
   // ses jambes partent avec elle, marquées — la synchronisation des
-  // règlements les trouvera en place.
+  // règlements les trouvera en place. Son pourboire ne part qu'avec elles :
+  // laissé lors d'un règlement partiel, il attend celui qui la solde.
   const legs = counterLegs(order.order_payments, total - tip);
+  const counterTipLeg = order.paid_online ? null : counterTip(legs, tip);
+  const charge = order.paid_online && tip > 0
+    ? tipCharge(tip, connection, false)
+    : counterTipLeg
+      ? tipCharge(counterTipLeg.amount, connection, true)
+      : null;
 
   return {
     payload: {
@@ -369,17 +376,7 @@ export async function buildOrder(
       ...(order.customer_note ? { customer_notes: order.customer_note } : {}),
       items,
       ...(Object.keys(deals).length ? { deals } : {}),
-      ...(tip > 0
-        ? {
-            charges: [
-              {
-                name: HUBRISE.labels.tip,
-                price: money(tip),
-                ...(connection.tip_charge_ref ? { ref: connection.tip_charge_ref } : {}),
-              },
-            ],
-          }
-        : {}),
+      ...(charge ? { charges: [charge] } : {}),
       // Réglée en ligne : un paiement égal au total. Au comptoir : ses jambes.
       // Sinon aucun — HubRise lit une commande sans paiement comme à encaisser.
       ...(order.paid_online
@@ -394,7 +391,11 @@ export async function buildOrder(
             ],
           }
         : legs.length
-          ? { payments: legs.map((leg) => counterPayment(leg, connection)) }
+          ? {
+              payments: (counterTipLeg ? [...legs, counterTipLeg] : legs).map((leg) =>
+                counterPayment(leg, connection)
+              ),
+            }
           : {}),
       // Une commande numérotée (fast food) ne donne sa table que si le
       // gérant l'affiche à l'équipe.
