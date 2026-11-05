@@ -10,6 +10,8 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Ominin Hôtels : photos de luxe pour la piscine, la plage et le spa (2026-11-05, `hotels-espaces-photos`, pas de migration) :** dans « Les espaces » de hotels.ominin.com, trois photos Unsplash (licence gratuite) remplacent celles jugées pas assez luxueuses : maison blanche et piscine miroir au crépuscule, cabanes à rideaux sur pontons dans une crique de pins (étalonnage légèrement réchauffé), bassin de spa à cascade éclairé de nuit. Fichiers `public/hotels/{pool,beach,spa}.webp` remplacés en place (piscine recadrée dans le fichier pour garder l'eau au-dessus de la légende), textes alternatifs dans `lib/hotels-landing-data.ts`, et `.hotels-scrim-card` assombrit maintenant le haut de chaque carte pour que la pastille reste lisible sur un ciel clair. Choix fait en deux tours de notation par des agents indépendants (section ~8/10 contre ~6 avant), vérifié au navigateur en bureau et en téléphone ; dernier choix du spa non renoté.
+
 > **Bulles : minimum facturé sous le seuil de groupe (2026-11-05, `bulles-minimum`, migration `20261105000010_bulle_minimum_sous_seuil` appliquée en production juste avant la fusion) :**
 >
 > - **La règle :** quand un tarif de petit groupe existe, le minimum facturé reste sous le seuil de groupe. Au Boho, c'est au plus 2.
