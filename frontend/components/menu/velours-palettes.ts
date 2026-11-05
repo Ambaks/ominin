@@ -31,7 +31,7 @@ const bohoVelours: VeloursPalette = {
 // Feutre noir, reflet d'or ancien.
 const noveltyVelours: VeloursPalette = {
   deep: [".02,.018,.014", ".045,.034,.022"],
-  mid: [".1,.075,.038", ".15,.11,.05"],
+  mid: [".1,.075,.038", ".18,.13,.06"],
   sheen: ".82,.66,.32",
   flat: "#080808",
 };
@@ -55,8 +55,8 @@ const artsVelours: VeloursPalette = {
 // Noir chaud, reflet champagne (plus clair que l'or du Novelty).
 const laissacVelours: VeloursPalette = {
   deep: [".03,.026,.02", ".05,.04,.028"],
-  mid: [".12,.086,.042", ".18,.13,.06"],
-  sheen: ".94,.78,.48",
+  mid: [".15,.11,.06", ".22,.165,.09"],
+  sheen: ".96,.84,.6",
   flat: "#0b0a09",
 };
 
