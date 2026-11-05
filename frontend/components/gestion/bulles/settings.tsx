@@ -103,7 +103,12 @@ function ReglagesForm({
     minBilled: within(values.min_billed_places, BULLE_LIMITS.party)
       ? values.max_party !== null && values.min_billed_places > values.max_party
         ? "Au plus le maximum."
-        : undefined
+        : // Au seuil, un petit groupe paierait plus de places au prix fort qu'un groupe au tarif de groupe.
+          values.small_group_place_cents !== null &&
+            values.group_threshold !== null &&
+            values.min_billed_places >= values.group_threshold
+          ? `Moins que le seuil de groupe : au plus ${values.group_threshold - 1}.`
+          : undefined
       : `De ${BULLE_LIMITS.party.min} à ${BULLE_LIMITS.party.max} places.`,
     days: within(values.booking_days, BULLE_LIMITS.bookingDays)
       ? undefined
