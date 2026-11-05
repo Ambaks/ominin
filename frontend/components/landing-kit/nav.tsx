@@ -7,6 +7,12 @@ interface Link {
   href: string;
 }
 
+/* Largeur dès laquelle les sections passent dans la barre (classes littérales pour Tailwind). */
+const linksFromClasses = {
+  md: { bar: "md:flex", row: "md:hidden" },
+  lg: { bar: "lg:flex", row: "lg:hidden" },
+};
+
 /**
  * Barre des landings produit : marque, sections en pilule, connexion et
  * appel. Sur téléphone, les sections passent en rangée défilante dessous.
@@ -19,13 +25,17 @@ export function KitNav({
   login,
   cta,
   glass,
+  linksFrom = "md",
 }: {
   wordmark: ReactNode;
   links: readonly Link[];
   login: Link;
   cta: Link;
   glass?: boolean;
+  /** Beaucoup de sections : « lg » les garde dans la rangée du dessous jusqu'à l'ordinateur. */
+  linksFrom?: keyof typeof linksFromClasses;
 }) {
+  const breakpoint = linksFromClasses[linksFrom];
   return (
     <>
       <nav
@@ -49,7 +59,7 @@ export function KitNav({
           </a>
 
           <div
-            className={`hidden items-center gap-1 md:flex ${
+            className={`hidden items-center gap-1 ${breakpoint.bar} ${
               glass
                 ? ""
                 : "rounded-full border border-hairline bg-surface/60 p-1"
@@ -99,7 +109,7 @@ export function KitNav({
       {/* Téléphone : les sections en une rangée sous la barre, qui défile
           avec la page. */}
       <div
-        className={`flex gap-1 overflow-x-auto px-4 py-2 [scrollbar-width:none] md:hidden ${
+        className={`flex gap-1 overflow-x-auto px-4 py-2 [scrollbar-width:none] ${breakpoint.row} ${
           glass ? "mt-1" : "border-b border-hairline"
         }`}
       >
