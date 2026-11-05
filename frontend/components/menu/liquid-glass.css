@@ -346,7 +346,7 @@
 
   & .dish-photo-fade {
     display: block;
-    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.6), rgb(var(--eg-tint) / 0) 45%);
+    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.42), rgb(var(--eg-tint) / 0) 45%);
   }
 
   /* La description : un cran plus posée et plus serrée, lisible d'un coup d'œil en service. */
