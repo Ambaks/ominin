@@ -75,18 +75,17 @@ export function BulleTableGate({
     };
   }, [slug, table, enabled]);
 
-  // Sans bulles, aucun conteneur : le thème vise les enfants directs de la
-  // carte (le fond velours de Caffè Panis, :has(> .panis-backdrop)).
-  if (!enabled) return children;
-
   const block = blockOf(state);
   const gated = Boolean(state?.reservation_status && block);
+  // Aucun conteneur autour de la carte : les thèmes visent les enfants directs
+  // de [data-menu-root] (le velours, l'en-tête, le pied). Fermée, la carte est
+  // cachée par la feuille de style (.bulle-gate), pas retirée : elle et son
+  // panier reviennent tels quels.
   return (
     <BlockContext.Provider value={block}>
       {state && block && table && gated && <BulleGate slug={slug} table={table} state={state} message={block} dayEndHour={dayEndHour} />}
       {state && block && !gated && <BulleBanner slug={slug} state={state} message={block} />}
-      {/* Caché, pas retiré : la carte et son panier reviennent tels quels. */}
-      <div className={gated ? "hidden" : "contents"}>{children}</div>
+      {children}
     </BlockContext.Provider>
   );
 }
@@ -109,7 +108,7 @@ function BulleGate({
   const left = state.reste_cents;
   return (
     <main
-      className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-[#0a0e1c] px-6 py-10 text-center text-[#fbf3e8]"
+      className="bulle-gate flex min-h-dvh flex-col items-center justify-center gap-6 bg-[#0a0e1c] px-6 py-10 text-center text-[#fbf3e8]"
       style={
         {
           "--bulle": state.bulle_color,
