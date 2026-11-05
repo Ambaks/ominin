@@ -53,11 +53,11 @@ export type HotelPhoto =
 
 export const photoAlt: Record<HotelPhoto, string> = {
   hero: "Piscine à débordement à l’heure bleue, palmiers et cabanes éclairées au bord de l’eau",
-  pool: "Transats en teck sous un parasol, au bord d’une piscine face à la mer",
-  beach: "Parasols blancs et tables dressées sur une plage de galets, mer calme",
+  pool: "Piscine miroir au crépuscule devant une maison blanche, transats crème de part et d’autre",
+  beach: "Cabanes à rideaux blancs sur pontons, au-dessus d’une crique turquoise bordée de pins",
   rooftop: "Terrasse éclairée à la bougie au-dessus d’une baie, à la tombée de la nuit",
   lobby: "Fauteuil de cuir clair dans un salon d’hôtel, soleil filtré par la verrière",
-  spa: "Bassin intérieur du spa, transats en bois et serviettes roulées",
+  spa: "Bassin du spa à la nuit tombée, cascade sur un mur de pierre éclairé, palmiers au bord de l’eau",
   room: "Lampe en laiton sur un bureau, porte-fenêtre ouverte sur la mer au coucher du soleil",
   breakfast: "Plateau de petit-déjeuner sur un lit : viennoiseries, jus d’orange, cappuccinos",
   deck: "Bord de piscine à débordement face à la mer, au crépuscule",
