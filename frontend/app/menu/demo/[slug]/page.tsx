@@ -16,7 +16,6 @@ import { SAISONS } from "@/lib/menu/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
 import { veloursPalettes } from "@/components/menu/velours-palettes";
-import "@/components/menu/ecusson-glass.css";
 import { resolveAfterMeal } from "@/lib/menu/after-meal";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";

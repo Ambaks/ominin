@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import "./panis-backdrop.css";
+import "./liquid-glass.css";
 import { veloursPalettes, type VeloursPalette } from "./velours-palettes";
 
 /*

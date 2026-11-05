@@ -1,11 +1,58 @@
 /*
-  Verre liquide des quatre aperçus de l'Écusson, sur leur velours
-  (panis-backdrop). Le flou d'arrière-plan ne va qu'aux surfaces fixes ou
-  posées par-dessus : un flou sur chaque fiche, ou sur les disques de la
-  roue, se recalculerait à chaque image du satin. Les fiches ont le même
-  verre, sans flou. Réglages par maison, plus bas : le propriétaire les
-  ajuste sans réécrire la recette.
+  Verre liquide des cartes posées sur le velours (panis-backdrop) : Caffè
+  Panis, le BOHO et les quatre aperçus de l'Écusson. Le flou d'arrière-plan
+  ne va qu'aux surfaces fixes ou posées par-dessus : un flou sur chaque
+  fiche, ou sur les disques de la roue, se recalculerait à chaque image du
+  satin. Les fiches ont le même verre, sans flou. Réglages par maison, plus
+  bas : le propriétaire les ajuste sans réécrire la recette.
 */
+
+/* Caffè Panis : la toile crème de la devanture en verre dépoli sur le vert
+   des portes. Le filet blanc en haut ; le liseré et la lueur du bas au vert,
+   là où le verre s'épaissit. */
+[data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
+  --eg-tint: 251 248 238;
+  --eg-alpha: 0.78;
+  --eg-sheen: 255 255 255;
+  --eg-rim: 15 75 37;
+  --eg-wash: 0.45;
+  --eg-reflet: 1;
+  --eg-lisere: 0.5;
+  --eg-halo: 0.3;
+  --eg-fond: 0.12;
+  --eg-ombre: 0.55;
+  --eg-blur: 18px;
+  --eg-saturate: 1.1;
+  --eg-metal: var(--cp-green);
+  --eg-metal-voile: 86%;
+  --eg-struck: #6f7d72;
+  --eg-price: var(--cp-green);
+  --muted: #3f4a42;
+  --faint: #52605a;
+}
+
+/* Le BOHO : la nuit prune de la terrasse, un reflet rosé, le liseré des
+   lampes en rotin. */
+[data-menu-root].theme-boho:has(> .panis-backdrop) {
+  --eg-tint: 37 27 32;
+  --eg-alpha: 0.66;
+  --eg-sheen: 246 233 230;
+  --eg-rim: 229 176 114;
+  --eg-wash: 0.06;
+  --eg-reflet: 0.6;
+  --eg-lisere: 0.6;
+  --eg-halo: 0.22;
+  --eg-fond: 0.14;
+  --eg-ombre: 0.7;
+  --eg-blur: 18px;
+  --eg-saturate: 1.2;
+  --eg-metal: var(--ember-2);
+  --eg-metal-voile: 88%;
+  --eg-struck: #e9d5ce;
+  --eg-price: var(--ember-1);
+  --muted: #d2b8b3;
+  --faint: #a98f90;
+}
 
 /* Le Novelty : feutre noir, filet d'or. */
 [data-menu-root].theme-le-novelty:has(> .panis-backdrop) {
@@ -25,7 +72,6 @@
   --eg-metal-voile: 88%;
   --eg-struck: #e6d7b4;
   --eg-price: var(--nv-gold-light);
-  --eg-radius: 0px;
   --muted: #cfc4b2;
   --faint: #c0b4a0;
 }
@@ -48,7 +94,6 @@
   --eg-metal-voile: 90%;
   --eg-struck: #f3eadc;
   --eg-price: #f2a3ab;
-  --eg-radius: 1.25rem;
   --muted: #d4cbbd;
   --faint: #c4b9a8;
 }
@@ -71,7 +116,6 @@
   --eg-metal-voile: 90%;
   --eg-struck: #f2e4ec;
   --eg-price: #ff7aba;
-  --eg-radius: 1.25rem;
   --muted: #d4d4d8;
   --faint: #c6c6cc;
 }
@@ -94,12 +138,13 @@
   --eg-metal-voile: 88%;
   --eg-struck: #f3e6cf;
   --eg-price: var(--lc-or-clair);
-  --eg-radius: 1.25rem;
   --muted: #d5cbbd;
   --faint: #c4b8a6;
 }
 
 [data-menu-root]:is(
+    .theme-caffe-panis,
+    .theme-boho,
     .theme-le-novelty,
     .theme-le-victoria,
     .theme-cafe-des-arts,
@@ -232,7 +277,7 @@
   }
 
   /* L'aperçu est la carte du lieu : la signature Ominin ne s'y lit pas. */
-  & > footer .text-xs > p:last-child {
+  &:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-brasserie-laissac) > footer .text-xs > p:last-child {
     display: none;
   }
 
@@ -306,8 +351,10 @@
     backdrop-filter: none;
   }
 
-  /* La feuille se lit : plus couverte que les fiches, le filet dit encore le verre. */
-  & [role="dialog"] {
+  /* La feuille se lit : plus couverte que les fiches, le filet dit encore le
+     verre. .bg-surface dans le sélecteur : la feuille de Panis
+     (panis-sheets.css) la vise ainsi, le verre doit passer devant. */
+  & [role="dialog"].bg-surface {
     border-color: transparent;
     background: var(--eg-glace), rgb(var(--eg-tint) / 0.9);
     box-shadow: var(--eg-relief);
@@ -333,6 +380,24 @@
   }
 }
 
+/* Caffè Panis : le grain de sa carte imprimée reste sur le verre, comme un
+   dépoli ; le pied de page garde le vert des portes et la mosaïque du sol,
+   l'ivoire de ses textes vient du thème. */
+[data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
+  & :is(.dish-grid > article, .dish-mini, .formule-tile, .menu-highlights) {
+    background: var(--cp-grain), var(--eg-verre);
+  }
+
+  & [role="dialog"].bg-surface {
+    background: var(--cp-grain) local, var(--eg-glace), rgb(var(--eg-tint) / 0.9);
+  }
+
+  & > footer {
+    border-color: transparent;
+    background: var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x, var(--eg-metal-verre);
+  }
+}
+
 /* Le survol du Novelty repeint la fiche en aplat : on garde le verre, un cran plus couvert. */
 @media (hover: hover) {
   [data-menu-root].theme-le-novelty:has(> .panis-backdrop) .dish-grid > article:hover {
@@ -343,6 +408,8 @@
 /* Sans transparence : les mêmes contrastes, sur un aplat. */
 @media (prefers-reduced-transparency: reduce) {
   [data-menu-root]:is(
+      .theme-caffe-panis,
+      .theme-boho,
       .theme-le-novelty,
       .theme-le-victoria,
       .theme-cafe-des-arts,
@@ -356,6 +423,8 @@
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   [data-menu-root]:is(
+      .theme-caffe-panis,
+      .theme-boho,
       .theme-le-novelty,
       .theme-le-victoria,
       .theme-cafe-des-arts,
@@ -367,15 +436,19 @@
   }
 }
 
-/* Trop ancien pour color-mix : le métal du panier et des bandeaux redevient plein. */
+/* Trop ancien pour color-mix : le métal du panier, des bandeaux et du pied de Panis redevient plein. */
 @supports not (color: color-mix(in srgb, red 50%, transparent)) {
   [data-menu-root]:is(
+      .theme-caffe-panis,
+      .theme-boho,
       .theme-le-novelty,
       .theme-le-victoria,
       .theme-cafe-des-arts,
       .theme-brasserie-laissac
     ):has(> .panis-backdrop) {
-    & :is(.cart-bar, .theme-le-victoria .menu-highlights, .theme-brasserie-laissac .menu-highlights) {
+    & .cart-bar,
+    &:is(.theme-le-victoria, .theme-brasserie-laissac) .menu-highlights,
+    &.theme-caffe-panis > footer {
       background: var(--eg-metal);
     }
   }
