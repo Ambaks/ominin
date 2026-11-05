@@ -94,6 +94,11 @@ Backend (run from `backend/`):
 - `graphify-out/` is local and not versioned: each person keeps their own
   graph, refreshed by `/pull` (`graphify update .`, incremental, AST-only,
   free).
+- Once a branch is merged into `main`, delete its local preview in the same
+  turn: stop its dev server (`preview_stop`), close its browser tab, remove
+  its entry from `.claude/launch.json`, and remove the worktree it ran in
+  (`git worktree remove`). Previews pile up otherwise. Vercel's own PR
+  preview deployments are left alone.
 
 ## graphify
 

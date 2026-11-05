@@ -3,59 +3,229 @@
   sur une palette d'hôtel — nuit marine et laiton (sombre), travertin et
   bronze (clair). Les braises deviennent du laiton : tout ce qui lit
   --ember-* (dégradés, aura, anneaux) suit, sans toucher aux composants.
-  Repris de la proposition Plage Palace : plaque de laiton, travertin.
+
+  Le verre est retendu pour la photo : voile léger, flou profond et saturé,
+  reflet blanc en haut, lentille courbe (::after). Il ne se lit que sur une
+  image ou une lumière : chaque section en pose une derrière lui. Ce qui est
+  posé sur une photo garde la nuit en thème clair (.hotels-night).
 */
-.hotels {
-  --background: #0b1016;
-  --foreground: #f1ebdf;
+.hotels,
+html.light .hotels .hotels-night {
+  --background: #131729;
+  --foreground: #f6f1e8;
 
-  --surface: #141b23;
-  --surface-raised: #1c2530;
-  --hairline: rgba(241, 235, 223, 0.1);
+  --surface: #1a1f35;
+  --surface-raised: #242a44;
+  --hairline: rgba(246, 241, 232, 0.12);
 
-  --muted: #a39a8b;
-  --faint: #6f6b62;
+  --muted: #bdb5a8;
+  --faint: #8a8478;
 
-  --ember-1: #e4c67f;
-  --ember-2: #c9973f;
-  --ember-3: #9c6a2a;
+  --ember-1: #e9c98a;
+  --ember-2: #d1a35f;
+  --ember-3: #a5733a;
 
-  --shimmer-highlight: rgba(228, 198, 127, 0.14);
-  --glow-inner: rgba(228, 198, 127, 0.08);
-  --glow-outer: rgba(201, 151, 63, 0.04);
+  --shimmer-highlight: rgba(255, 255, 255, 0.38);
+  --glow-inner: rgba(255, 255, 255, 0.07);
+  --glow-outer: rgba(201, 160, 90, 0.06);
+
+  --g-blur: 26px;
+  --g-saturate: 1.8;
+  --g-scrim: 26%;
+  --g-plate: 38%;
+  --g-specular: rgba(255, 255, 255, 0.4);
+  --g-ring: rgba(255, 255, 255, 0.13);
+  --g-ring-hover: rgba(232, 205, 140, 0.45);
+  --g-bloom: rgba(255, 255, 255, 0.09);
+  --g-sheen: rgba(255, 255, 255, 0.07);
+  --g-rim: rgba(232, 205, 140, 0.18);
+  --g-shade: rgba(0, 0, 0, 0.18);
+  --g-edge: rgba(0, 0, 0, 0.12);
+  --g-drop: rgba(2, 6, 10, 0.7);
+  --g-shadow: var(--glow-outer);
+  --g-lens: rgba(255, 255, 255, 0.14);
+
+  /* Aura : laiton, et l'eau d'une piscine la nuit. */
+  --hotels-water: rgba(38, 120, 140, 0.3);
+  --g-mesh-1: rgba(209, 163, 95, 0.24);
+  --g-mesh-2: var(--hotels-water);
+  --g-mesh-3: rgba(120, 100, 170, 0.18);
+
+  color: var(--foreground);
 }
 
 html.light .hotels {
-  --background: #f6f2ea;
-  --foreground: #171f27;
+  --background: #f6f1e8;
+  --foreground: #1e1b18;
 
-  --surface: #ece6d9;
+  --surface: #fbf8f2;
   --surface-raised: #ffffff;
-  --hairline: rgba(23, 31, 39, 0.12);
+  --hairline: rgba(30, 27, 24, 0.12);
 
-  --muted: #6f6757;
-  --faint: #a09888;
+  --muted: #5f574c;
+  --faint: #978f80;
 
-  --ember-1: #9a6f18;
-  --ember-2: #8c5a1a;
-  --ember-3: #6b4416;
+  /* En clair, le bordeaux de la proposition à la place du laiton. */
+  --ember-1: #7c1d1d;
+  --ember-2: #8f2a22;
+  --ember-3: #5c1414;
 
-  --shimmer-highlight: rgba(154, 111, 24, 0.18);
-  --glow-inner: rgba(154, 111, 24, 0.12);
-  --glow-outer: rgba(140, 90, 26, 0.07);
+  --shimmer-highlight: rgba(255, 255, 255, 0.9);
+  --glow-inner: rgba(255, 255, 255, 0.4);
+  --glow-outer: rgba(140, 90, 26, 0.06);
+
+  --g-scrim: 46%;
+  --g-plate: 62%;
+  --g-specular: rgba(255, 255, 255, 0.9);
+  --g-ring: rgba(255, 255, 255, 0.6);
+  --g-bloom: rgba(255, 255, 255, 0.4);
+  --g-sheen: rgba(255, 255, 255, 0.3);
+  --g-rim: rgba(124, 29, 29, 0.12);
+  --g-shade: rgba(22, 29, 37, 0.06);
+  --g-edge: rgba(22, 29, 37, 0.08);
+  --g-drop: rgba(60, 30, 20, 0.26);
+  --g-lens: rgba(255, 255, 255, 0.5);
+
+  --hotels-water: rgba(60, 150, 165, 0.22);
+  --g-mesh-1: rgba(209, 163, 95, 0.28);
+  --g-mesh-2: var(--hotels-water);
+  --g-mesh-3: rgba(124, 29, 29, 0.1);
+}
+
+/* En clair, la barre passe sur la photo de nuit du hero : un voile plus
+   dense garde ses liens lisibles. */
+html.light .hotels .kit-glass-nav {
+  --g-scrim: 82%;
 }
 
 .hotels {
   background: var(--background);
-  color: var(--foreground);
+  font-family: var(--font-hotels-sans), sans-serif;
 }
 
-/* Les grands « chiffres » des cartes sont ici des mots (« En direct »,
-   « Par étage ») : plus petits que les chiffres du kit, pour tenir sur une
-   carte de trois colonnes sans être coupés. Hors @layer : gagne sur
-   l'utilitaire de taille posé à côté. */
-.hotels article .g-plate .kit-display.ember-text {
-  font-size: 2.25rem;
+/* Lentille : la courbe claire qui fait d'un cadre une goutte de verre. */
+.hotels .g-glass::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 70% at 50% -30%, var(--g-lens), transparent 62%),
+    radial-gradient(90% 40% at 50% 125%, color-mix(in srgb, var(--g-lens) 45%, transparent), transparent 70%);
+}
+
+/* Titres : Cormorant, un mot en italique, comme la proposition Plage Palace. */
+.hotels .kit-display {
+  font-family: var(--font-hotels-serif), serif;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  line-height: 1;
+}
+.hotels .kit-mark {
+  padding: 0;
+  color: var(--ember-1);
+  font-style: italic;
+}
+.hotels .kit-mark::before {
+  content: none;
+}
+.hotels-italic {
+  font-style: italic;
+  color: var(--ember-1);
+}
+
+/* Le soleil sur l'horizon : un demi-cercle posé sur un filet. */
+.hotels-sun {
+  position: relative;
+  display: block;
+  width: 7rem;
+  height: 1.25rem;
+  margin-inline: auto;
+  border-bottom: 1px solid var(--ember-1);
+}
+.hotels-sun::before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 2.5rem;
+  height: 1.25rem;
+  translate: -50% 0;
+  border: 1px solid var(--ember-1);
+  border-bottom: 0;
+  border-radius: 999px 999px 0 0;
+}
+
+/* Arche méditerranéenne : le cadre des photos du cachet. */
+.hotels-arch {
+  border-radius: 999px 999px 1.75rem 1.75rem;
+}
+
+/* Photos : voile pour lire le texte posé dessus, zoom lent au survol. */
+.hotels-scrim-hero {
+  background:
+    linear-gradient(90deg, rgba(5, 9, 14, 0.8), rgba(5, 9, 14, 0.35) 55%, rgba(5, 9, 14, 0.12)),
+    linear-gradient(180deg, rgba(5, 9, 14, 0.5), transparent 22%, transparent);
+}
+@media (max-width: 1023px) {
+  .hotels-scrim-hero {
+    background: linear-gradient(180deg, rgba(5, 9, 14, 0.72), rgba(5, 9, 14, 0.5) 40%, rgba(5, 9, 14, 0.62));
+  }
+}
+/* Les photos pleine largeur fondent dans la page (masque, pas une couleur :
+   l'aura de dessous reste visible, sans couture). */
+.hotels-fade-b {
+  -webkit-mask-image: linear-gradient(180deg, #000 72%, transparent);
+  mask-image: linear-gradient(180deg, #000 72%, transparent);
+}
+.hotels-fade-y {
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent);
+}
+.hotels-scrim-card {
+  background: linear-gradient(180deg, transparent 30%, rgba(5, 9, 14, 0.7));
+}
+.hotels-scrim-wash {
+  background: rgba(5, 9, 14, 0.42);
+}
+.hotels-scrim-panel {
+  background: linear-gradient(180deg, rgba(5, 9, 14, 0.2), rgba(5, 9, 14, 0.5));
+}
+.hotels-zoom img {
+  transition: transform 1.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hotels-zoom:hover img {
+    transform: scale(1.05);
+  }
+}
+
+/* Jauge de fréquentation : un anneau qui se remplit à l'apparition. */
+@property --share {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0;
+}
+.hotels-ring {
+  background: conic-gradient(var(--ember-1) calc(var(--share) * 1turn), rgba(255, 255, 255, 0.14) 0);
+  mask: radial-gradient(farthest-side, transparent calc(100% - var(--ring-w, 5px)), #000 calc(100% - var(--ring-w, 5px) + 1px));
+  transition: --share 1.4s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s;
+}
+.kit-reveal:not([data-shown]) .hotels-ring {
+  --share: 0 !important;
+}
+
+/* Courbe de la journée : barres qui montent à l'apparition. */
+.kit-reveal .hotels-col {
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 1s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transition-delay: calc(var(--col-i, 0) * 40ms + 200ms);
+}
+.kit-reveal[data-shown] .hotels-col {
+  transform: none;
 }
 
 /* Les tuiles de l'écran d'accueil montent une à une. */
@@ -64,7 +234,7 @@ html.light .hotels {
   animation-delay: calc(var(--tile-i, 0) * 70ms + 320ms);
 }
 
-/* Les deux cartes posées sur le téléphone flottent lentement. */
+/* Les cartes posées sur le téléphone flottent lentement. */
 .hotels-float {
   animation: hotels-float 7s ease-in-out infinite alternate;
   animation-delay: var(--float-delay, 0s);
@@ -82,5 +252,15 @@ html.light .hotels {
   .hotels-tile,
   .hotels-float {
     animation: none;
+  }
+  .kit-reveal .hotels-col,
+  .hotels-ring,
+  .hotels-zoom img {
+    transition: none;
+  }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .hotels .g-glass::after {
+    content: none;
   }
 }
