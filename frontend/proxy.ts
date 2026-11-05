@@ -107,6 +107,16 @@ const PRODUCTS: readonly ProductConfig[] = [
     rewriteOverrides: LEGAL_OVERRIDES,
   },
   {
+    host: process.env.NEXT_PUBLIC_HOTELS_HOST,
+    prefix: "/hotels",
+    // Landing seule : pas d'espace privé, l'équipe d'un hôtel se connecte sur
+    // le host menu, qui héberge la gestion.
+    privatePaths: [],
+    afterLogin: "/",
+    legacyPaths: [],
+    rewriteOverrides: LEGAL_OVERRIDES,
+  },
+  {
     host: process.env.NEXT_PUBLIC_COMMERCIAL_HOST,
     prefix: "/commercial",
     // Pas d'inscription publique : on n'entre que sur invitation, par le
