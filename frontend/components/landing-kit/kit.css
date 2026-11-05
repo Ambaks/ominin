@@ -403,3 +403,37 @@
     transform: none;
   }
 }
+
+/*
+  Variante verre (glass) : la landing posée sur l'aura de gestion — Mesh,
+  .g-glass, .g-plate, .g-btn de components/gestion/ui (contrat :
+  components/gestion/DESIGN.md). Ici seulement ce que ce kit ne connaît pas :
+  la barre collée, le châssis des téléphones, l'intérieur concentrique d'un
+  cadre, la FAQ ouverte, les étapes du parcours. Classes hors @layer, comme
+  les .g-* : elles gagnent sur les utilitaires posés à côté.
+*/
+.g-glass.kit-glass-nav {
+  position: sticky;
+  top: var(--g-frame-margin);
+  z-index: 50;
+}
+.g-glass.kit-phone {
+  --g-r: 2.6rem;
+  --g-pad: 10px;
+}
+.kit-glass-inner {
+  border-radius: calc(var(--g-r) - var(--g-pad));
+}
+.kit-faq.g-glass[open] {
+  --g-ring: var(--g-ring-hover);
+}
+/* Étapes du parcours : verre sous le téléphone collé (téléphone), texte nu
+   à côté du téléphone (ordinateur). */
+@media (min-width: 1024px) {
+  .kit-story-step.g-glass {
+    background: none;
+    box-shadow: none;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

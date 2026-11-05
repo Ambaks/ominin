@@ -6,7 +6,7 @@ import { KitHeading } from "@/components/landing-kit/heading";
 
 export function DemoShowcase() {
   return (
-    <section id="demo" className="scroll-mt-20 border-y border-hairline bg-surface/40">
+    <section id="demo" className="scroll-mt-20">
       <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-24">
         <KitHeading
           eyebrow={demoSection.eyebrow}
@@ -16,12 +16,11 @@ export function DemoShowcase() {
         />
 
         {/* Desktop : le téléphone posé en scène, à la table 12 */}
-        <div className="relative mt-12 hidden overflow-hidden rounded-3xl border border-hairline lg:mt-16 lg:block">
+        <div className="g-glass g-glass-hero mt-12 hidden overflow-hidden lg:mt-16 lg:block">
           <div className="kit-grid absolute inset-0" aria-hidden />
-          <div className="kit-aura absolute inset-0" aria-hidden />
 
           <div className="relative flex flex-col items-center gap-6 px-10 py-14">
-            <span className="rounded-full border border-hairline bg-background/60 px-4 py-1.5 kit-display text-sm font-semibold backdrop-blur-sm">
+            <span className="g-glass g-glass-pill px-4 py-1.5 kit-display text-sm font-semibold">
               {demoSection.tableTag}
             </span>
 
@@ -50,8 +49,8 @@ export function DemoShowcase() {
 
         {/* Mobile : la vraie carte, dans un téléphone, puis la démo plein écran. */}
         <div className="mt-10 flex flex-col items-center gap-5 text-center lg:hidden">
-          <div className="w-full max-w-[18rem] rounded-[2.4rem] border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10">
-            <div className="relative overflow-hidden rounded-[1.9rem] bg-background">
+          <div className="g-glass kit-phone w-full max-w-[18rem] p-g-pad">
+            <div className="g-plate relative overflow-hidden">
               <iframe
                 src={`${demoCta.href}?embed=1`}
                 title={demoSection.iframeTitle}
@@ -66,7 +65,7 @@ export function DemoShowcase() {
           </div>
           <Link
             href={demoCta.href}
-            className="ember-gradient rounded-full px-6 py-3 text-sm font-bold text-background"
+            className="g-btn g-btn-primary g-press"
           >
             {demoSection.fullscreenLabel}
           </Link>

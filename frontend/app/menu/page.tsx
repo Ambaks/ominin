@@ -18,6 +18,7 @@ import { LandingFooter } from "@/components/landing/landing-footer";
 import { kitFont } from "@/components/landing-kit/font";
 import "@/components/landing-kit/kit.css";
 import { Marquee } from "@/components/landing-kit/marquee";
+import { Mesh } from "@/components/gestion/ui";
 
 // Canonical absolu : la réécriture du proxy rend cette page accessible à la
 // fois sur menu.ominin.com et ominin.com/menu — une seule URL fait foi.
@@ -38,24 +39,27 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className={`kit-landing ${kitFont.variable}`}>
-      <LandingNav />
-      <main className="overflow-x-clip">
-        <Hero />
-        <Marquee words={marquee} />
-        <HowItWorks />
-        <FastFood />
-        <QrShowcase />
-        <Features />
-        <DemoShowcase />
-        <Install />
-        <Pricing />
-        <Proof />
-        <Testimonials />
-        <FinalCta />
-        <Faq />
-      </main>
-      <LandingFooter />
+    <div className={`kit-landing g-titres ${kitFont.variable}`}>
+      <Mesh />
+      <div className="relative z-1">
+        <LandingNav />
+        <main className="overflow-x-clip">
+          <Hero />
+          <Marquee words={marquee} />
+          <HowItWorks />
+          <FastFood />
+          <QrShowcase />
+          <Features />
+          <DemoShowcase />
+          <Install />
+          <Pricing />
+          <Proof />
+          <Testimonials />
+          <FinalCta />
+          <Faq />
+        </main>
+        <LandingFooter />
+      </div>
     </div>
   );
 }
