@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/modal";
-import { Toggle } from "@/components/ui/toggle";
-import { inputClass } from "@/components/ui/field";
+import { GlassButton, Select, Sheet, Switch } from "@/components/gestion/ui";
 import {
   CATEGORY_LABELS,
   NO_CONTACT_OPTIONS,
@@ -22,7 +20,7 @@ import type { RestaurantCategory } from "@/lib/admin/types";
 import { FilterIcon, SearchIcon } from "./icons";
 
 /*
- * Barre commune aux listes : recherche, puces de statut, volet Filtres.
+ * Barre commune aux listes : recherche, puces de statut, feuille Filtres.
  * L'état vit dans lib/admin/filters (singleton) — passer d'une page à
  * l'autre garde le même sous-ensemble.
  */
@@ -34,6 +32,9 @@ function toggleInSet<T>(set: Set<T>, value: T): Set<T> {
   return next;
 }
 
+const CHIP = "g-btn g-press";
+const chipClass = (active: boolean) => `${CHIP} ${active ? "g-btn-primary" : "g-btn-secondary"}`;
+
 export function FilterBar() {
   const filters = useFilters();
   const { cities } = useFilterOptions();
@@ -43,50 +44,40 @@ export function FilterBar() {
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center gap-2">
-        <div className="relative min-w-0 flex-1 lg:max-w-sm">
-          <SearchIcon className="pointer-events-none absolute left-3.5 top-1/2 size-4 -translate-y-1/2 text-faint" />
+        <span className="g-input-wrap min-w-0 flex-1 lg:max-w-sm">
           <input
             type="search"
             value={filters.q}
             onChange={(event) => setFilters({ q: event.target.value })}
             placeholder="Nom, ville, contact…"
             aria-label="Rechercher un restaurant"
-            className={`${inputClass} bg-surface-raised pl-10 shadow-sm`}
+            className="g-input"
           />
-        </div>
-        <button
-          type="button"
-          onClick={() => setPanelOpen(true)}
-          className="relative flex shrink-0 items-center gap-2 rounded-xl border border-hairline bg-surface-raised px-3.5 py-2.5 text-sm font-medium text-muted shadow-sm transition-colors hover:border-ember-2/40 hover:text-foreground"
-        >
-          <FilterIcon className="size-4" />
+          <span className="g-input-unit flex" aria-hidden>
+            <SearchIcon />
+          </span>
+        </span>
+        <GlassButton onClick={() => setPanelOpen(true)} badge={activeCount} className="shrink-0">
+          <FilterIcon />
           <span className="hidden lg:inline">Filtres</span>
-          {activeCount > 0 && (
-            <span className="flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background">
-              {activeCount}
-            </span>
-          )}
-        </button>
+        </GlassButton>
       </div>
 
-      <div className="no-scrollbar -mx-5 flex gap-1.5 overflow-x-auto px-5 lg:mx-0 lg:px-0">
+      <div className="no-scrollbar -mx-[var(--g-topbar-mx-sm)] flex gap-1.5 overflow-x-auto px-[var(--g-topbar-mx-sm)] lg:mx-0 lg:px-0">
         {STATUS_ORDER.map((status) => {
           const active = filters.statuses.has(status);
           return (
             <button
               key={status}
               type="button"
+              aria-pressed={active}
               onClick={() =>
                 setFilters({ statuses: toggleInSet(filters.statuses, status) })
               }
-              className={`flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium shadow-sm transition-colors ${
-                active
-                  ? "border-ember-2/60 bg-surface-raised text-foreground"
-                  : "border-hairline bg-surface-raised/90 text-muted hover:text-foreground"
-              }`}
+              className={`${chipClass(active)} shrink-0`}
             >
               <span
-                className={`size-2 rounded-full ${STATUS_DOT_CLASSES[status]}`}
+                className={`size-2 rounded-full ${active ? "bg-background" : STATUS_DOT_CLASSES[status]}`}
               />
               {STATUS_LABELS[status]}
             </button>
@@ -95,33 +86,21 @@ export function FilterBar() {
       </div>
 
       {panelOpen && (
-        <Modal
+        <Sheet
           title="Filtres"
           onClose={() => setPanelOpen(false)}
           footer={
             <>
-              <button
-                type="button"
-                onClick={() => resetFilters()}
-                className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
-              >
-                Tout effacer
-              </button>
-              <button
-                type="button"
-                onClick={() => setPanelOpen(false)}
-                className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background"
-              >
+              <GlassButton onClick={() => resetFilters()}>Tout effacer</GlassButton>
+              <GlassButton variant="primary" onClick={() => setPanelOpen(false)}>
                 Appliquer
-              </button>
+              </GlassButton>
             </>
           }
         >
           <div className="flex flex-col gap-5">
             <section>
-              <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-faint">
-                Catégorie
-              </p>
+              <p className="g-eyebrow mb-2">Catégorie</p>
               <div className="flex flex-wrap gap-1.5">
                 {(
                   Object.entries(CATEGORY_LABELS) as [
@@ -132,16 +111,13 @@ export function FilterBar() {
                   <button
                     key={category}
                     type="button"
+                    aria-pressed={filters.categories.has(category)}
                     onClick={() =>
                       setFilters({
                         categories: toggleInSet(filters.categories, category),
                       })
                     }
-                    className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                      filters.categories.has(category)
-                        ? "border-ember-2/60 text-foreground"
-                        : "border-hairline text-muted hover:text-foreground"
-                    }`}
+                    className={chipClass(filters.categories.has(category))}
                   >
                     {label}
                   </button>
@@ -151,22 +127,17 @@ export function FilterBar() {
 
             {cities.length > 0 && (
               <section>
-                <p className="mb-2 text-[11px] font-semibold uppercase tracking-wider text-faint">
-                  Ville
-                </p>
+                <p className="g-eyebrow mb-2">Ville</p>
                 <div className="flex flex-wrap gap-1.5">
                   {cities.map((city) => (
                     <button
                       key={city}
                       type="button"
+                      aria-pressed={filters.cities.has(city)}
                       onClick={() =>
                         setFilters({ cities: toggleInSet(filters.cities, city) })
                       }
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
-                        filters.cities.has(city)
-                          ? "border-ember-2/60 text-foreground"
-                          : "border-hairline text-muted hover:text-foreground"
-                      }`}
+                      className={chipClass(filters.cities.has(city))}
                     >
                       {city}
                     </button>
@@ -175,10 +146,8 @@ export function FilterBar() {
               </section>
             )}
 
-            <section className="flex flex-col gap-3">
-              <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-                Coordonnées & suivi
-              </p>
+            <section className="flex flex-col gap-1">
+              <p className="g-eyebrow mb-2">Coordonnées & suivi</p>
               {(
                 [
                   ["hasEmail", "A un email"],
@@ -188,22 +157,20 @@ export function FilterBar() {
                   ["hasFollowUp", "Relance prévue"],
                 ] as const
               ).map(([key, label]) => (
-                <div key={key} className="flex items-center justify-between">
-                  <span className="text-sm">{label}</span>
-                  <Toggle
-                    checked={filters[key]}
-                    onChange={(checked) =>
-                      setFilters({ [key]: checked } as Partial<
-                        typeof filters
-                      >)
-                    }
-                    label={label}
-                  />
-                </div>
+                <Switch
+                  key={key}
+                  checked={filters[key]}
+                  onChange={(checked) =>
+                    setFilters({ [key]: checked } as Partial<typeof filters>)
+                  }
+                  label={label}
+                />
               ))}
-              <div className="flex items-center justify-between gap-4">
-                <span className="text-sm">Sans contact depuis</span>
-                <select
+              <label className="g-switch-row">
+                <span>
+                  <span>Sans contact depuis</span>
+                </span>
+                <Select
                   value={filters.noContactDays ?? ""}
                   onChange={(event) =>
                     setFilters({
@@ -212,7 +179,7 @@ export function FilterBar() {
                         : null,
                     })
                   }
-                  className={`${inputClass} w-auto`}
+                  className="w-40"
                 >
                   <option value="">Peu importe</option>
                   {NO_CONTACT_OPTIONS.map((days) => (
@@ -220,11 +187,11 @@ export function FilterBar() {
                       {days} jours
                     </option>
                   ))}
-                </select>
-              </div>
+                </Select>
+              </label>
             </section>
           </div>
-        </Modal>
+        </Sheet>
       )}
     </div>
   );

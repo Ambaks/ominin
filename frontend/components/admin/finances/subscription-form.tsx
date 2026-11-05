@@ -1,9 +1,8 @@
 "use client";
 
+import { ConfirmSheet, Sheet } from "@/components/gestion/ui";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import {
   centsToInput,
@@ -62,7 +61,7 @@ export function SubscriptionForm({
 
   return (
     <>
-      <Modal
+      <Sheet
         title={subscription ? "Modifier l'abonnement" : "Nouvel abonnement"}
         onClose={onClose}
         footer={
@@ -96,7 +95,7 @@ export function SubscriptionForm({
                   "Abonnement enregistré."
                 )
               }
-              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+              className="g-btn g-btn-primary g-press"
             >
               Enregistrer
             </button>
@@ -105,40 +104,40 @@ export function SubscriptionForm({
       >
         <div className="flex flex-col gap-4">
           <Field label="Nom" required>
-            <input data-autofocus value={name} onChange={(event) => setName(event.target.value)} className={inputClass} />
+            <input data-autofocus value={name} onChange={(event) => setName(event.target.value)} className="g-input" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Montant TTC (€)" required hint={subscription ? "Prix changé ? Mettez une date de fin ici et créez un nouvel abonnement, sinon le passé change aussi." : undefined}>
-              <input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className={inputClass} />
+              <input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className="g-input" />
             </Field>
             <Field label="Dont TVA (€)">
-              <input inputMode="decimal" value={vat} onChange={(event) => setVat(event.target.value)} className={inputClass} />
+              <input inputMode="decimal" value={vat} onChange={(event) => setVat(event.target.value)} className="g-input" />
             </Field>
           </div>
           <Field label="Fréquence" required>
-            <select value={frequency} onChange={(event) => setFrequency(event.target.value)} className={inputClass}>
+            <select value={frequency} onChange={(event) => setFrequency(event.target.value)} className="g-input">
               <option value="monthly">Chaque mois</option>
               <option value="yearly">Chaque année</option>
             </select>
           </Field>
           <Field label="Premier paiement" required hint="Cette date fixe aussi le jour de chaque paiement.">
-            <input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} className={inputClass} />
+            <input type="date" value={startsOn} onChange={(event) => setStartsOn(event.target.value)} className="g-input" />
           </Field>
           <Field label="Fin" hint="Vide tant que l'abonnement court.">
-            <input type="date" value={endsOn} onChange={(event) => setEndsOn(event.target.value)} className={inputClass} />
+            <input type="date" value={endsOn} onChange={(event) => setEndsOn(event.target.value)} className="g-input" />
           </Field>
           <Field label="Catégorie">
-            <input list="finance-categories" value={category} onChange={(event) => setCategory(event.target.value)} className={inputClass} />
+            <input list="finance-categories" value={category} onChange={(event) => setCategory(event.target.value)} className="g-input" />
           </Field>
           <Field label="Note">
-            <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} className={inputClass} />
+            <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} className="g-input" />
           </Field>
         </div>
-      </Modal>
+      </Sheet>
       {confirming && subscription && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Supprimer cet abonnement ?"
-          message={`Tous les paiements passés de ${subscription.name} disparaissent aussi de la comptabilité. Pour un abonnement résilié, mettez plutôt une date de fin.`}
+          text={`Tous les paiements passés de ${subscription.name} disparaissent aussi de la comptabilité. Pour un abonnement résilié, mettez plutôt une date de fin.`}
           confirmLabel="Supprimer"
           destructive
           onClose={() => setConfirming(false)}

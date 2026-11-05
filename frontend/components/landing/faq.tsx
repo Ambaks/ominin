@@ -3,6 +3,6 @@ import { faqSection } from "@/lib/landing-data";
 
 export function Faq() {
   return (
-    <KitFaq id={faqSection.id} eyebrow={faqSection.eyebrow} title={faqSection.title} items={faqSection.items} />
+    <KitFaq id={faqSection.id} eyebrow={faqSection.eyebrow} title={faqSection.title} items={faqSection.items} glass />
   );
 }

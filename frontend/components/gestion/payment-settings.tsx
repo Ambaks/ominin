@@ -12,10 +12,12 @@ import {
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 
 /*
- * Réglage « paiement à table en ligne » (gérant). Deux encaisseurs possibles,
+ * Réglage « paiement à table en ligne » (gérant). Trois encaisseurs possibles,
  * au choix de l'établissement : Stripe, dont le compte Express se crée par
- * l'onboarding hébergé, ou Square, dont le restaurant relie SON compte
- * existant — dans les deux cas l'argent des additions lui va directement.
+ * l'onboarding hébergé, Square, dont le restaurant relie SON compte
+ * existant, ou Viva, dont Ominin ouvre et relie le compte (rien à faire ici
+ * tant que l'ouverture en ligne n'existe pas) — dans tous les cas l'argent
+ * des additions lui va directement.
  * Le choix se verrouille visuellement dès qu'un compte est relié ; le gérant
  * peut le rouvrir via « Changer d'encaisseur » — la bascule coupe le
  * paiement par carte et le rallume si le nouveau fournisseur peut déjà
@@ -33,7 +35,7 @@ import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
  * gérant a fait tout ce parcours précisément pour ça.
  */
 
-type Provider = "stripe" | "square";
+type Provider = "stripe" | "square" | "viva";
 
 interface StripeStatus {
   connected: boolean;
@@ -52,13 +54,22 @@ interface SquareStatus {
   locations?: SquareLocation[];
 }
 
+interface VivaStatus {
+  connected: boolean;
+  verified: boolean;
+}
+
 const NO_STRIPE: StripeStatus = { connected: false, chargesEnabled: false };
 const NO_SQUARE: SquareStatus = { connected: false };
+const NO_VIVA: VivaStatus = { connected: false, verified: false };
 
 const PROVIDERS = [
   ["stripe", "Stripe", "Compte créé pendant la configuration."],
   ["square", "Square", "Vous reliez votre compte Square existant."],
+  ["viva", "Viva", "Compte ouvert et relié par Ominin."],
 ] as const;
+
+const PROVIDER_LABELS: Record<Provider, string> = { stripe: "Stripe", square: "Square", viva: "Viva" };
 
 /** Paramètre d'échec posé par l'URL de retour, à côté de celui du résultat. */
 const errorParam = (provider: Provider) => `${provider}_error`;
@@ -196,6 +207,7 @@ export function PaymentSettings({
   const toast = useToast();
   const [stripe, setStripe] = useState<StripeStatus | null>(null);
   const [square, setSquare] = useState<SquareStatus | null>(null);
+  const [viva, setViva] = useState<VivaStatus | null>(null);
   const [provider, setProvider] = useState<Provider>(initialProvider);
   const [enabled, setEnabled] = useState(initialEnabled);
   const [busy, setBusy] = useState(false);
@@ -220,14 +232,23 @@ export function PaymentSettings({
     const fromSquare = takeReturn("square");
 
     void (async () => {
-      const [stripeStatus, squareStatus] = await Promise.all([
+      const [stripeStatus, squareStatus, vivaStatus] = await Promise.all([
         readStatus<StripeStatus>("/api/stripe/connect", NO_STRIPE),
         readStatus<SquareStatus>("/api/square/connect", NO_SQUARE),
+        readStatus<VivaStatus>("/api/viva/connect", NO_VIVA),
       ]);
       setStripe(stripeStatus);
       setSquare(squareStatus);
-      if (squareStatus.connected && !stripeStatus.connected) setProvider("square");
-      else if (stripeStatus.connected && !squareStatus.connected) setProvider("stripe");
+      setViva(vivaStatus);
+      // Un seul compte relié : c'est l'encaisseur.
+      const connected = (
+        [
+          ["stripe", stripeStatus],
+          ["square", squareStatus],
+          ["viva", vivaStatus],
+        ] as const
+      ).filter(([, status]) => status.connected);
+      if (connected.length === 1) setProvider(connected[0][0]);
 
       if (fromStripe.outcome === "recommencer") {
         toast.error("Le lien Stripe a expiré — reprenez la configuration.");
@@ -295,17 +316,20 @@ export function PaymentSettings({
     }
   };
 
-  // Encaissement réellement possible : Stripe vérifié, ou Square avec un
-  // point de vente désigné. C'est aussi ce que la base exige pour activer.
+  // Encaissement réellement possible : Stripe vérifié, Square avec un point
+  // de vente désigné, ou Viva vérifié. C'est aussi ce que la base exige pour
+  // activer.
   const canChargeWith = (candidate: Provider) =>
     candidate === "square"
       ? Boolean(square?.connected && square.locationId)
-      : Boolean(stripe?.chargesEnabled);
+      : candidate === "viva"
+        ? Boolean(viva?.verified)
+        : Boolean(stripe?.chargesEnabled);
 
   const confirmSwitch = async () => {
     setBusy(true);
     const blocked = !enabled && canChargeWith(providerBeforeSwitch);
-    const label = provider === "square" ? "Square" : "Stripe";
+    const label = PROVIDER_LABELS[provider];
     try {
       await setPaymentProvider(provider);
       setEnabled(false);
@@ -334,11 +358,11 @@ export function PaymentSettings({
     setSwitching(false);
   };
 
-  const loading = stripe === null || square === null;
-  const linked = Boolean(stripe?.connected || square?.connected);
+  const loading = stripe === null || square === null || viva === null;
+  const linked = Boolean(stripe?.connected || square?.connected || viva?.connected);
   const canCharge = canChargeWith(provider);
   const needsLocation = Boolean(provider === "square" && square?.connected && !square.locationId);
-  const providerLabel = provider === "square" ? "Square" : "Stripe";
+  const providerLabel = PROVIDER_LABELS[provider];
 
   return (
     <Plate className="flex max-w-xl flex-col gap-4 p-5">
@@ -453,6 +477,14 @@ export function PaymentSettings({
                 <p className="text-muted">Aucun point de vente lisible sur ce compte Square.</p>
               )}
             </div>
+          ) : provider === "viva" ? (
+            !canCharge && (
+              <p className="text-muted">
+                {viva?.connected
+                  ? "Compte Viva relié — Viva vérifie vos informations avant les premiers encaissements."
+                  : "Ominin ouvre et relie votre compte Viva : contactez-nous pour le démarrer."}
+              </p>
+            )
           ) : (
             !canCharge && (
               <div className="flex flex-wrap items-center justify-between gap-3">

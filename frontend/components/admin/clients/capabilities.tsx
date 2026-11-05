@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Toggle } from "@/components/ui/toggle";
+import { Switch } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import {
   clientFeatures,
   nextOverrides,
   saveCategoryLayout,
+  saveOrderingSoon,
   saveOrderTabs,
   saveOverrides,
   saveSaison,
   type Client,
 } from "@/lib/admin/clients";
-import { inputClass } from "@/components/ui/field";
 import { activeSaison, type Saison } from "@/lib/menu/saison";
 import {
   ORDER_TAB_HINTS,
@@ -66,11 +66,11 @@ function Row({
         </div>
         <p className="mt-0.5 text-xs leading-relaxed text-faint">{hint}</p>
       </div>
-      <Toggle
+      <Switch
         checked={checked}
         disabled={disabled || !onChange}
         onChange={(value) => onChange?.(value)}
-        label={label}
+        aria-label={label}
       />
     </div>
   );
@@ -131,7 +131,7 @@ function OrderTabsCard({
           règle pas.
         </p>
       </div>
-      <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+      <div className="divide-y divide-hairline g-plate">
         {kept.map((tab, index) => (
           <div key={tab} className="flex items-center gap-3 px-4 py-3">
             <span className="w-5 shrink-0 text-center font-display text-sm text-faint">
@@ -244,6 +244,52 @@ function CategoryLayoutCard({
         disabled={saving}
         onChoose={(layout) => void choose(layout)}
       />
+    </section>
+  );
+}
+
+/*
+ * « Commande bientôt » : le menu QR se consulte en entier, mais rien ne
+ * s'ajoute au panier — chaque « + » grisé porte « Bientôt » dessous. Pour
+ * mettre un client en ligne avant que son paiement soit prêt.
+ */
+function OrderingSoonCard({
+  client,
+  onChange,
+}: {
+  client: Client;
+  onChange: (client: Client) => void;
+}) {
+  const toast = useToast();
+  const [saving, setSaving] = useState(false);
+
+  const toggle = async (orderingSoon: boolean) => {
+    const previous = client;
+    onChange({ ...client, orderingSoon });
+    setSaving(true);
+    try {
+      await saveOrderingSoon(client.id, orderingSoon);
+    } catch (error) {
+      onChange(previous);
+      toast.error(error instanceof Error ? error.message : "Une erreur est survenue.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <section className="flex flex-col gap-3">
+      <h3 className="font-display text-base font-medium">Commande sur le menu QR</h3>
+      <div className="rounded-2xl border border-hairline bg-surface px-5">
+        <Row
+          label="Commande bientôt"
+          hint="La carte se consulte, mais rien ne s’ajoute au panier : chaque « + » grisé porte « Bientôt » dessous. La fidélité se masque aussi. Le menu l’affiche en une minute environ."
+          checked={client.orderingSoon}
+          fromPlan
+          disabled={saving}
+          onChange={(value) => void toggle(value)}
+        />
+      </div>
     </section>
   );
 }
@@ -436,14 +482,14 @@ function SaisonCard({
                 if (event.key === "Enter") commitFin(event.currentTarget);
               }}
               onBlur={(event) => commitFin(event.currentTarget)}
-              className={inputClass}
+              className="g-input"
             />
           </label>
           {fin && (
             <button
               type="button"
               onClick={() => persist(client.saison, null)}
-              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
+              className="g-btn g-btn-secondary g-press"
             >
               Sans date de fin
             </button>
@@ -539,7 +585,7 @@ export function Capabilities({
             type="button"
             onClick={() => void reset()}
             disabled={saving}
-            className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            className="g-btn g-btn-secondary g-press"
           >
             Revenir à l&rsquo;offre
           </button>
@@ -553,7 +599,7 @@ export function Capabilities({
         </p>
       )}
 
-      <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface px-5">
+      <div className="divide-y divide-hairline g-plate px-5">
         {VIEWS.map((view) => {
           const open = view.id == null || features[view.id];
           return (
@@ -593,6 +639,10 @@ export function Capabilities({
 
       {features.commandes && (
         <OrderTabsCard client={client} onChange={onChange} />
+      )}
+
+      {client.products.offre && (
+        <OrderingSoonCard client={client} onChange={onChange} />
       )}
 
       {client.products.offre && (

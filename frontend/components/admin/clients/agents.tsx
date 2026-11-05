@@ -114,7 +114,7 @@ export function AgentsClients() {
             items={alerts}
           />
 
-          <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+          <div className="overflow-x-auto g-plate">
             <table className="w-full min-w-184 text-sm">
               <thead>
                 <tr className={TABLE_HEAD}>

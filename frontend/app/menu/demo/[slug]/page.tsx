@@ -15,6 +15,7 @@ import { SaisonAmbient } from "@/components/menu/saison/saison";
 import { SAISONS } from "@/lib/menu/saison";
 import { TicketTracker } from "@/components/menu/order-ticket";
 import { PanisBackdrop } from "@/components/menu/panis-backdrop";
+import { veloursPalettes } from "@/components/menu/velours-palettes";
 import { resolveAfterMeal } from "@/lib/menu/after-meal";
 import { brandFontVariables } from "@/lib/menu/brand-fonts";
 import { CATEGORY_LAYOUTS } from "@/lib/menu/category-layouts";
@@ -28,7 +29,6 @@ import { resolveFormuleOffers, resolvePairings } from "@/lib/menu/pairings";
 import {
   brandName,
   getRestaurant,
-  hasVelours,
   restaurantThemeClass,
   type DemoLoyalty,
   type MenuItem,
@@ -70,9 +70,10 @@ import { applyTarifs } from "@/lib/menu/tarifs";
  * ?service=fast-food, le même retrait sur un ticket numéroté, comme en
  * production (etablissements.bar_pickup).
  *
- * Avec ?retrait=bar, un établissement doté d'une suite d'aperçu (afterMeal) la
- * propose à ses couleurs au retour du client, le délai passé depuis le scan du
- * retrait : même page fermée entre-temps. Un bouton « Démo » saute l'attente.
+ * Un établissement doté d'une suite d'aperçu (afterMeal) la propose à ses
+ * couleurs au retour du client, le délai passé depuis le service à table ou,
+ * avec ?retrait=bar, depuis le scan du retrait : même page fermée entre-temps.
+ * Un bouton « Démo » saute l'attente.
  *
  * ?categories=top|rail|wheel essaie une autre présentation des catégories
  * que celle de l'établissement.
@@ -248,7 +249,7 @@ export default async function MenuPreviewPage({
           data-saison={saison}
           className={`${brandFontVariables} ${themeClass ?? ""} flex flex-1 flex-col bg-background text-foreground`}
         >
-          {themeClass && hasVelours(slug) && <PanisBackdrop slug={slug} />}
+          {themeClass && veloursPalettes[slug] && <PanisBackdrop slug={slug} />}
           <MenuTicker items={restaurant.ticker} />
           <Hero restaurant={restaurant} firstSectionId={categoryLinks[0]?.id} saison={saison} />
           {saison && <SaisonAmbient saison={saison} />}

@@ -1,0 +1,86 @@
+/*
+  Ominin Hôtels : le kit des landings produit et le verre de gestion, posés
+  sur une palette d'hôtel — nuit marine et laiton (sombre), travertin et
+  bronze (clair). Les braises deviennent du laiton : tout ce qui lit
+  --ember-* (dégradés, aura, anneaux) suit, sans toucher aux composants.
+  Repris de la proposition Plage Palace : plaque de laiton, travertin.
+*/
+.hotels {
+  --background: #0b1016;
+  --foreground: #f1ebdf;
+
+  --surface: #141b23;
+  --surface-raised: #1c2530;
+  --hairline: rgba(241, 235, 223, 0.1);
+
+  --muted: #a39a8b;
+  --faint: #6f6b62;
+
+  --ember-1: #e4c67f;
+  --ember-2: #c9973f;
+  --ember-3: #9c6a2a;
+
+  --shimmer-highlight: rgba(228, 198, 127, 0.14);
+  --glow-inner: rgba(228, 198, 127, 0.08);
+  --glow-outer: rgba(201, 151, 63, 0.04);
+}
+
+html.light .hotels {
+  --background: #f6f2ea;
+  --foreground: #171f27;
+
+  --surface: #ece6d9;
+  --surface-raised: #ffffff;
+  --hairline: rgba(23, 31, 39, 0.12);
+
+  --muted: #6f6757;
+  --faint: #a09888;
+
+  --ember-1: #9a6f18;
+  --ember-2: #8c5a1a;
+  --ember-3: #6b4416;
+
+  --shimmer-highlight: rgba(154, 111, 24, 0.18);
+  --glow-inner: rgba(154, 111, 24, 0.12);
+  --glow-outer: rgba(140, 90, 26, 0.07);
+}
+
+.hotels {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Les grands « chiffres » des cartes sont ici des mots (« En direct »,
+   « Par étage ») : plus petits que les chiffres du kit, pour tenir sur une
+   carte de trois colonnes sans être coupés. Hors @layer : gagne sur
+   l'utilitaire de taille posé à côté. */
+.hotels article .g-plate .kit-display.ember-text {
+  font-size: 2.25rem;
+}
+
+/* Les tuiles de l'écran d'accueil montent une à une. */
+.hotels-tile {
+  animation: rise 0.6s cubic-bezier(0.22, 1, 0.36, 1) backwards;
+  animation-delay: calc(var(--tile-i, 0) * 70ms + 320ms);
+}
+
+/* Les deux cartes posées sur le téléphone flottent lentement. */
+.hotels-float {
+  animation: hotels-float 7s ease-in-out infinite alternate;
+  animation-delay: var(--float-delay, 0s);
+}
+@keyframes hotels-float {
+  from {
+    transform: translateY(0) rotate(var(--float-tilt, 0deg));
+  }
+  to {
+    transform: translateY(-8px) rotate(var(--float-tilt, 0deg));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hotels-tile,
+  .hotels-float {
+    animation: none;
+  }
+}

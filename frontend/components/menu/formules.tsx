@@ -104,7 +104,7 @@ export function FormuleModal({
   onClose: () => void;
   onAdded?: (selections: FormuleSelection[]) => void;
 }) {
-  const { orderingEnabled, canOrder, addLine, track } = useCart();
+  const { orderingEnabled, orderingSoon, canOrder, addLine, track } = useCart();
   const [picks, setPicks] = useState<Picks>(initialPicks);
   const [flash, setFlash] = useState<Flash>(null);
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -462,7 +462,9 @@ export function FormuleModal({
           ) : (
             orderingEnabled && (
               <p className="flex-1 text-xs text-muted">
-                Scannez le Cachet de votre table pour commander.
+                {orderingSoon
+                  ? "La commande en ligne arrive bientôt."
+                  : "Scannez le Cachet de votre table pour commander."}
               </p>
             )
           )}

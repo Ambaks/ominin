@@ -29,7 +29,7 @@ export function ContactLink() {
 
 export function Notice({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-hairline bg-surface p-5 sm:p-6">
+    <div className="g-plate p-5 sm:p-6">
       <h1 className="font-display text-xl font-medium">{title}</h1>
       <div className={`mt-2 ${legalBodyClass}`}>{children}</div>
     </div>
@@ -53,7 +53,7 @@ export function Signed({ signature }: { signature: CommercialSignature }) {
         </p>
         <a
           href="/api/commercial/contrat"
-          className="ember-gradient mt-4 inline-flex rounded-full px-5 py-2.5 text-sm font-semibold text-background print:hidden"
+          className="g-btn g-btn-primary g-press mt-4 inline-flex  print:hidden"
         >
           Télécharger mon exemplaire (PDF)
         </a>
@@ -73,7 +73,7 @@ export function Signed({ signature }: { signature: CommercialSignature }) {
           {signatureStatement(signature)}
         </p>
       </section>
-      <details className="group rounded-2xl border border-hairline bg-surface p-5 sm:p-6">
+      <details className="group g-plate p-5 sm:p-6">
         <summary className="cursor-pointer text-sm font-semibold text-muted group-open:mb-6">
           Relire le contrat
         </summary>
@@ -89,7 +89,7 @@ export function Signed({ signature }: { signature: CommercialSignature }) {
 function Essentials({ document }: { document: LegalDocument }) {
   if (!document.essentials) return null;
   return (
-    <section className="rounded-2xl border border-hairline bg-surface p-5 sm:p-6">
+    <section className="g-plate p-5 sm:p-6">
       <h2 className="font-display text-lg font-medium">L’essentiel</h2>
       <ul className={`mt-3 ml-5 list-disc space-y-2 marker:text-ember-2 ${legalBodyClass}`}>
         {document.essentials.map((item) => (
@@ -102,7 +102,7 @@ function Essentials({ document }: { document: LegalDocument }) {
       </p>
       <a
         href={`#${SIGN_ANCHOR}`}
-        className="mt-4 inline-flex rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+        className="mt-4 inline-flex g-btn g-btn-secondary g-press"
       >
         Aller à la signature ↓
       </a>

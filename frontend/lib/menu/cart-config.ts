@@ -16,6 +16,7 @@ export function menuCartConfig(slug: string, data: PublicMenu): CartConfig {
     tableNumber: null,
     tableFromUrl: true,
     orderingEnabled,
+    orderingSoon: data.orderingSoon,
     serviceMode: data.serviceMode,
     barPickup: fastFood && data.barPickup,
     restaurantName: data.restaurant.name,

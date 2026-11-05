@@ -3,14 +3,15 @@
 import { useEffect, useRef, useState } from "react";
 import { GoogleIcon } from "@/components/auth/auth-form";
 import { Wordmark } from "@/components/brand/wordmark";
-import { Field, inputClass } from "@/components/ui/field";
+import { Mesh } from "@/components/gestion/ui";
+import { Field } from "@/components/ui/field";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { commercialPrefix } from "@/lib/site";
 import { createClient } from "@/lib/supabase/client";
 
 type Mode = "signin" | "link";
 
-const submitClass = "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60";
+const submitClass = "g-btn g-btn-primary g-press";
 
 /*
  * Connexion : e-mail et code à 6 chiffres, ou Google. L'inscription et le
@@ -90,7 +91,8 @@ export function LinkRequestForm({ authError }: { authError: boolean }) {
   };
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+    <div className="g-titres relative z-1 flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+      <Mesh />
       <ThemeToggle className="fixed right-4 top-4" />
       <div className="flex flex-col items-center gap-1.5">
         <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-faint">
@@ -99,7 +101,7 @@ export function LinkRequestForm({ authError }: { authError: boolean }) {
         <Wordmark className="text-2xl" />
       </div>
 
-      <div aria-live="polite" className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6">
+      <div aria-live="polite" className="w-full max-w-sm g-plate p-6">
         {sentTo ? (
           <>
             <h1 ref={sentHeading} tabIndex={-1} className="font-display text-xl font-medium outline-none">
@@ -135,7 +137,7 @@ export function LinkRequestForm({ authError }: { authError: boolean }) {
               type="button"
               disabled={busy}
               onClick={() => void signInWithGoogle()}
-              className="mt-5 flex w-full items-center justify-center gap-2 rounded-full border border-hairline px-5 py-2.5 text-sm font-semibold disabled:opacity-60"
+              className="mt-5 flex w-full items-center justify-center gap-2 g-btn g-btn-secondary g-press"
             >
               <GoogleIcon />
               Continuer avec Google
@@ -149,7 +151,7 @@ export function LinkRequestForm({ authError }: { authError: boolean }) {
                   required
                   autoComplete="email"
                   placeholder="prenom@exemple.fr"
-                  className={inputClass}
+                  className="g-input"
                 />
               </Field>
               {mode === "signin" && (
@@ -162,7 +164,7 @@ export function LinkRequestForm({ authError }: { authError: boolean }) {
                     value={code}
                     onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
                     required
-                    className={inputClass}
+                    className="g-input"
                   />
                 </Field>
               )}

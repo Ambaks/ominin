@@ -41,7 +41,7 @@ export default async function EspaceLayout({ children }: { children: React.React
   if (!user.app_metadata.providers?.includes("google") && !user.user_metadata.commercial_code_set) {
     return (
       <CommercialShell email={email}>
-        <div className="mx-auto flex w-full max-w-sm flex-col gap-4 rounded-2xl border border-hairline bg-surface p-6">
+        <div className="mx-auto flex w-full max-w-sm flex-col gap-4 g-plate p-6">
           <div>
             <h1 className="font-display text-xl font-medium">Choisis ton code</h1>
             <p className="mt-1 text-sm text-muted">Tu te connecteras avec ton e-mail et ce code, notamment depuis l’application sur ton téléphone.</p>

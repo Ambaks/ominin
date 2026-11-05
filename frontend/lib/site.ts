@@ -88,6 +88,15 @@ export const agentsSiteUrl = agentsHost
   ? `${agentsHost.includes("localhost") ? "http" : "https"}://${agentsHost}`
   : `${siteUrl}/agents`;
 
+/**
+ * Origine publique d'Ominin Hôtels (landing seule pour l'instant). Même repli
+ * que menu : host absent ⇒ servi sur ominin.com/hotels.
+ */
+const hotelsHost = process.env.NEXT_PUBLIC_HOTELS_HOST;
+export const hotelsSiteUrl = hotelsHost
+  ? `${hotelsHost.includes("localhost") ? "http" : "https"}://${hotelsHost}`
+  : `${siteUrl}/hotels`;
+
 /*
  * Espace des commerciaux indépendants. Host absent ⇒ servi sur
  * ominin.com/commercial. Les liens de connexion envoyés par e-mail passent

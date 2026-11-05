@@ -1,6 +1,6 @@
-import Link from "next/link";
+import { StatTile } from "@/components/gestion/ui";
 
-/** Tuile de statistique — même recette que components/gestion/apercu/stat-card. */
+/** Tuile de statistique de l'admin : un cadre de verre du kit, chiffre sur plaque. */
 export function StatCard({
   label,
   value,
@@ -13,33 +13,8 @@ export function StatCard({
   /** Sans href, la tuile est purement informative. */
   href?: string;
   hint?: string;
-  /** Valeur en ember-3 (suivis en retard…). */
+  /** Valeur en problème (suivis en retard…). */
   alert?: boolean;
 }) {
-  const body = (
-    <>
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-faint">
-        {label}
-      </p>
-      <p
-        className={`font-display text-3xl font-medium ${alert ? "text-ember-3" : ""}`}
-      >
-        {value}
-      </p>
-      {hint && <p className="text-xs text-muted">{hint}</p>}
-    </>
-  );
-  const frame =
-    "flex flex-col gap-2 rounded-2xl border border-hairline bg-surface p-5";
-
-  return href ? (
-    <Link
-      href={href}
-      className={`${frame} transition-colors hover:border-ember-2/40`}
-    >
-      {body}
-    </Link>
-  ) : (
-    <div className={frame}>{body}</div>
-  );
+  return <StatTile label={label} value={value} href={href} baseline={hint} entity={alert ? "problem" : "none"} />;
 }

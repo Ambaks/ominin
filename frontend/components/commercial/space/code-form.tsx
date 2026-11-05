@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 import { createClient } from "@/lib/supabase/client";
 
 const CODE_LENGTH = 6;
@@ -44,7 +44,7 @@ export function CodeForm({ submitLabel, onDone }: { submitLabel: string; onDone?
           required
           value={code}
           onChange={(event) => setCode(event.target.value.replace(/\D/g, ""))}
-          className={inputClass}
+          className="g-input"
         />
       </Field>
       {error && (
@@ -55,7 +55,7 @@ export function CodeForm({ submitLabel, onDone }: { submitLabel: string; onDone?
       <button
         type="submit"
         disabled={busy || code.length !== CODE_LENGTH}
-        className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+        className="g-btn g-btn-primary g-press"
       >
         {submitLabel}
       </button>

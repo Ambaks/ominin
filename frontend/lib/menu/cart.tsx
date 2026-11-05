@@ -133,6 +133,8 @@ export interface CartConfig {
   tableFromUrl?: boolean;
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
+  /** « Commande bientôt » (réglé dans l'admin) : la carte se consulte, on n'y commande pas encore. */
+  orderingSoon?: boolean;
   /**
    * Fast food : le client retire au comptoir et reçoit un numéro du jour ;
    * la table du QR, s'il en scanne une, part avec la commande.
@@ -146,7 +148,7 @@ export interface CartConfig {
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
   /** Fournisseur qui encaisse le règlement par carte. */
-  paymentProvider: "stripe" | "sumup" | "square" | "demo";
+  paymentProvider: "stripe" | "sumup" | "square" | "demo" | "viva";
   /** Point de vente Square encaisseur, requis par le SDK carte en page. */
   squareLocationId: string | null;
   /** Programme de fidélité du restaurant ; absent ⇒ pas de points. */
@@ -484,6 +486,7 @@ export function CartProvider({
       fastFood,
       canOrder:
         config.orderingEnabled &&
+        !config.orderingSoon &&
         (fastFood || config.collect !== undefined || tableNumber !== null),
       lines,
       count,

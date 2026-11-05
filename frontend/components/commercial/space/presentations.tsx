@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Modal } from "@/components/ui/modal";
+import { Sheet } from "@/components/gestion/ui";
 import { plaquettePages, TYPE_DEMOS } from "@/lib/commercial/demos";
 import type { SignupKind } from "@/lib/commercial/signup-form";
 import { commercialPrefix } from "@/lib/site";
@@ -38,7 +38,7 @@ export function Presentations({ kinds }: { kinds: { kind: SignupKind; label: str
         ))}
       </ul>
       {open && demo && (
-        <Modal title={showDemo ? `Démo : ${demo.name}` : open.label} onClose={() => setOpen(null)}>
+        <Sheet title={showDemo ? `Démo : ${demo.name}` : open.label} onClose={() => setOpen(null)}>
           {showDemo ? (
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
@@ -61,7 +61,7 @@ export function Presentations({ kinds }: { kinds: { kind: SignupKind; label: str
               </button>
             </div>
           )}
-        </Modal>
+        </Sheet>
       )}
     </>
   );

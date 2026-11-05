@@ -108,6 +108,7 @@ export function HowItWorks() {
       eyebrow={howItWorks.eyebrow}
       title={howItWorks.title}
       steps={howItWorks.steps}
+      glass
       header={
         <p className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
           <span className="truncate">{order.restaurant}</span>

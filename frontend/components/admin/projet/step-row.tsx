@@ -63,7 +63,7 @@ function dueLabel(dueOn: string): string {
 const ACTION =
   "rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground";
 const FIELD =
-  "w-full rounded-lg border border-hairline bg-surface px-3 py-2 text-base focus:border-ember-2/50 focus:outline-none sm:text-sm";
+  "g-input";
 
 /**
  * Une étape. La pastille la fait avancer (à faire → en cours → fait), les

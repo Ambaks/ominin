@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmSheet } from "@/components/gestion/ui";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import { resign } from "@/lib/commercial/api";
 import { commercialName } from "@/lib/commercial/record";
@@ -83,9 +83,9 @@ export function AccountPanel() {
       </button>
 
       {confirming && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Résilier le contrat"
-          message={`Votre contrat prendra fin dans ${COMMERCIAL_NOTICE_MONTHS} mois (article 7.2). D’ici là, vous continuez à visiter et inscrire des restaurants ; après, ceux que vous suivez redeviennent libres.`}
+          text={`Votre contrat prendra fin dans ${COMMERCIAL_NOTICE_MONTHS} mois (article 7.2). D’ici là, vous continuez à visiter et inscrire des restaurants ; après, ceux que vous suivez redeviennent libres.`}
           confirmLabel="Résilier"
           destructive
           onClose={() => setConfirming(false)}

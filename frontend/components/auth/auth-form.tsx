@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
+import { Mesh } from "@/components/gestion/ui";
+import { Field } from "@/components/ui/field";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
 
@@ -165,12 +166,13 @@ export function AuthForm({
 
   if (pendingEmail) {
     return (
-      <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+      <div className="g-titres relative z-1 flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+        <Mesh />
         <ThemeToggle className="fixed right-4 top-4" />
         {header}
         {beforeCard}
 
-        <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6 text-center">
+        <div className="w-full max-w-sm g-plate p-6 text-center">
           <div className="ember-gradient mx-auto flex size-12 items-center justify-center rounded-full text-background">
             <MailIcon />
           </div>
@@ -201,12 +203,13 @@ export function AuthForm({
   }
 
   return (
-    <div className="flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+    <div className="g-titres relative z-1 flex min-h-dvh flex-col items-center justify-center gap-6 px-5 py-10">
+      <Mesh />
       <ThemeToggle className="fixed right-4 top-4" />
       {header}
       {beforeCard}
 
-      <div className="w-full max-w-sm rounded-2xl border border-hairline bg-surface p-6">
+      <div className="w-full max-w-sm g-plate p-6">
         <h1 className="font-display text-xl font-medium">
           {mode === "signin" ? "Connexion" : "Créer un compte"}
         </h1>
@@ -216,7 +219,7 @@ export function AuthForm({
           type="button"
           onClick={signInWithGoogle}
           disabled={busy}
-          className="mt-5 flex w-full items-center justify-center gap-2.5 rounded-xl border border-hairline px-4 py-2.5 text-sm font-medium transition-colors hover:border-ember-2/40 disabled:opacity-60"
+          className="g-btn g-btn-secondary g-press mt-5 w-full"
         >
           <GoogleIcon />
           Continuer avec Google
@@ -236,7 +239,7 @@ export function AuthForm({
               onChange={(event) => setEmail(event.target.value)}
               required
               autoComplete="email"
-              className={inputClass}
+              className="g-input"
             />
           </Field>
           <Field label="Mot de passe" required>
@@ -248,7 +251,7 @@ export function AuthForm({
               autoComplete={
                 mode === "signin" ? "current-password" : "new-password"
               }
-              className={inputClass}
+              className="g-input"
             />
           </Field>
 
@@ -257,7 +260,7 @@ export function AuthForm({
           <button
             type="submit"
             disabled={busy}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+            className="g-btn g-btn-primary g-press"
           >
             {mode === "signin" ? "Se connecter" : "Créer mon compte"}
           </button>

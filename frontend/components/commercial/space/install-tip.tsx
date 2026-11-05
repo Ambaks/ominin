@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useSyncExternalStore } from "react";
-import { Modal } from "@/components/ui/modal";
+import { Sheet } from "@/components/gestion/ui";
 import { primaryButton } from "./ui";
 
 const SEEN_KEY = "commercial:install-tip-seen";
@@ -37,7 +37,7 @@ export function InstallTip() {
   };
 
   return (
-    <Modal
+    <Sheet
       title="Mets l’espace sur ton écran d’accueil"
       onClose={close}
       footer={
@@ -54,6 +54,6 @@ export function InstallTip() {
       <p className="mt-3 text-sm text-muted">
         Ouvre ensuite l’application depuis son icône et connecte-toi : avec Google, ou ton e-mail et ton code à 6 chiffres.
       </p>
-    </Modal>
+    </Sheet>
   );
 }

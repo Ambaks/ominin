@@ -215,7 +215,7 @@ async function pushPayments(admin: Admin, row: Row, connection: Connection) {
   if (!hubriseOrderId) return;
   const { data: order } = await admin
     .from("orders")
-    .select("status, order_items (quantity, unit_price), order_payments (id, mode, amount, till_payment)")
+    .select("status, tip_amount, order_items (quantity, unit_price), order_payments (id, mode, amount, till_payment)")
     .eq("id", row.order_id)
     .maybeSingle();
   // Annulée : l'annulation part de son côté (order_cancel).
@@ -225,7 +225,7 @@ async function pushPayments(admin: Admin, row: Row, connection: Connection) {
       0
     );
     const legs = counterLegs(order.order_payments, goods);
-    await syncCounterPayments(admin, connection, hubriseOrderId, legs, goods);
+    await syncCounterPayments(admin, connection, hubriseOrderId, legs, goods, order.tip_amount);
   }
   await settle(admin, row, { status: "sent", last_error: null });
 }

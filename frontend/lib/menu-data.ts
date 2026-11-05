@@ -5,12 +5,13 @@ import type { Formule } from "@/lib/gestion/types";
 // registre dans son paquet.
 import { formatPrice, formatsLine } from "@/lib/menu/format";
 import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
+import { tarifKey } from "@/lib/menu/tarifs";
 import type { PairingNotes } from "@/lib/menu/pairings";
 import type { SaisonSpots } from "@/lib/menu/saison";
 import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
-import { veloursPalettes } from "@/components/menu/velours-palettes";
+import { ecussonVelours, veloursPalettes } from "@/components/menu/velours-palettes";
 import cafeRicheAccords from "@/lib/menu/accords/cafe-riche.json";
 import caffePanisAccords from "@/lib/menu/accords/caffe-panis.json";
 import allergenesDemo from "@/lib/menu/allergenes-demo.json";
@@ -822,6 +823,9 @@ const trattoriaLucia: Restaurant = {
  * crépuscule (actifs dans public/boho/). Source de vérité du profil :
  * demos/boho/profile.json.
  */
+/** Les petits mots de la suite du repas (AfterMeal) dans une maison française. */
+const KICKERS_FR = { finir: "Pour finir", encore: "Encore\u00a0?", merci: "Merci" };
+
 const boho: Restaurant = {
   slug: "boho",
   name: "BOHO",
@@ -879,7 +883,7 @@ const boho: Restaurant = {
     snacks: ["Nems poulet (x4)", "Assortiment BOHO"],
     drinkCategories: ["Cocktails", "Smoothies", "Milkshakes", "Boissons", "Boissons chaudes", "Chichas"],
     reviewUrl: "https://search.google.com/local/writereview?placeid=ChIJMfJl6rClrhIRPIs1uamYegE",
-    kickers: { finir: "Pour finir", encore: "Encore\u00a0?", merci: "Merci" },
+    kickers: KICKERS_FR,
   },
   categories: [
     {
@@ -3610,9 +3614,10 @@ const NOVELTY_ETUDIANTE_BOISSON = groupeChoix(
  * le deux-points (« 17h– / 23h » se lisait mal).
  */
 const NOVELTY_HAPPY_HOURS = "Happy\u00a0hours 17h\u2060–\u206023h";
-/** Les prix de l'affiche : sous chaque article concerné et dans le bandeau. */
-const NOVELTY_HH = { cocktail: "6", sansAlcool: "5,50", pinteKro: "4", pinteMonaco: "4,20" } as const;
-const noveltyHappyHour = (prix: string) => `${NOVELTY_HAPPY_HOURS}\u00a0: ${prix}\u00a0€`;
+/** Les prix de l'affiche : la happy hour de l'aperçu et le bandeau. */
+const NOVELTY_HH = { cocktail: 6, sansAlcool: 5.5, pinteKro: 4, pinteMonaco: 4.2 } as const;
+const noveltyEuros = (prix: number) =>
+  `${prix.toLocaleString("fr-FR", { minimumFractionDigits: Number.isInteger(prix) ? 0 : 2 })}\u00a0€`;
 // Une case à cocher plutôt qu'un choix obligatoire : le cocktail classique s'ajoute sans détour.
 const NOVELTY_XXL = groupeChoix("format", "Format", [["XXL", 3]], { multiple: true });
 // « XXL 7€ / 9€ » sur les sans alcool.
@@ -3623,11 +3628,11 @@ const noveltyCocktail = (
   name: string,
   description: string,
   price: number,
-  { parfum = false, happyHour = "" } = {}
+  { parfum = false } = {}
 ): MenuItem => ({
   id,
   name,
-  description: happyHour ? `${description}\n${noveltyHappyHour(happyHour)}` : description,
+  description,
   price,
   ...ALCOOL,
   options: parfum ? [NOVELTY_PARFUMS, NOVELTY_XXL] : [NOVELTY_XXL],
@@ -3637,11 +3642,11 @@ const noveltySansAlcool = (
   id: string,
   name: string,
   description: string,
-  { parfum = false, happyHour = "" } = {}
+  { parfum = false } = {}
 ): MenuItem => ({
   id,
   name,
-  description: happyHour ? `${description}\n${noveltyHappyHour(happyHour)}` : description,
+  description,
   price: 7,
   options: parfum ? [NOVELTY_PARFUMS, NOVELTY_XXL_SANS_ALCOOL] : [NOVELTY_XXL_SANS_ALCOOL],
 });
@@ -3649,12 +3654,6 @@ const noveltySansAlcool = (
 /** Une pression : 25 cl, 50 cl, 1 L. */
 const noveltyPression = (id: string, name: string, [demi, pinte, litre]: readonly [number, number, number]) =>
   articleFormats(id, name, [["25 cl", demi], ["50 cl", pinte], ["1 L", litre]], ALCOOL);
-
-/** La pinte de l'affiche happy hour, sous la description (le Monaco en a une). */
-const avecPinteHappyHour = (item: MenuItem, prix: string): MenuItem => {
-  const happyHour = noveltyHappyHour(`Pinte\u00a0${prix}`);
-  return { ...item, description: item.description ? `${item.description}\n${happyHour}` : happyHour };
-};
 
 const leNovelty: Restaurant = {
   slug: "le-novelty",
@@ -3668,17 +3667,37 @@ const leNovelty: Restaurant = {
   address: "10 Rue Saint-Guilhem, 34000 Montpellier",
   phone: "+33 4 34 35 36 28",
   hours: "Tous\u00a0les\u00a0jours 8h30–\u20601h",
-  // Les happy hours sont au bandeau et sous chaque article concerné.
+  // Les happy hours sont au bandeau ; leurs prix, sur la carte d'aperçu (demoHappyHour).
   highlights: ["Ouvert 7j/7 de 8h30 à 1h", "Cocktails en XXL", "Tapas et planches"],
   ticker: [
     {
-      text: `${NOVELTY_HAPPY_HOURS} tous les jours\u00a0: pinte de Kro ${NOVELTY_HH.pinteKro}\u00a0€, pinte de Monaco ${NOVELTY_HH.pinteMonaco}\u00a0€, Mojito, Spritz, Coco Bull, Planteur, Caïpirinha et Tête à l'Envers ${NOVELTY_HH.cocktail}\u00a0€, Virgin Mojito et Virgin Colada ${NOVELTY_HH.sansAlcool}\u00a0€`,
+      text: `${NOVELTY_HAPPY_HOURS} tous les jours\u00a0: pinte de Kro ${noveltyEuros(NOVELTY_HH.pinteKro)}, pinte de Monaco ${noveltyEuros(NOVELTY_HH.pinteMonaco)}, Mojito, Spritz, Coco Bull, Planteur, Caïpirinha et Tête à l'Envers ${noveltyEuros(NOVELTY_HH.cocktail)}, Virgin Mojito et Virgin Colada ${noveltyEuros(NOVELTY_HH.sansAlcool)}`,
       tone: "accent",
     },
     { text: "Café du matin à 1\u00a0€ de 9h à 12h", tone: "brand" },
     { text: "Formule Goûter 5\u00a0€ tous les jours" },
   ],
   pairings: leNoveltyAccords,
+  // Les articles de l'affiche happy hour, la pinte au format 50 cl.
+  demoHappyHour: {
+    name: "Happy hours",
+    prices: {
+      ...Object.fromEntries(
+        ["mojito", "caipirinha", "planteur", "coco-bull", "tete-a-l-envers", "spritz"].map((id) => [id, NOVELTY_HH.cocktail])
+      ),
+      "virgin-mojito": NOVELTY_HH.sansAlcool,
+      "virgin-colada": NOVELTY_HH.sansAlcool,
+      [tarifKey("kronenbourg", "volume-50-cl")]: NOVELTY_HH.pinteKro,
+      [tarifKey("monaco", "volume-50-cl")]: NOVELTY_HH.pinteMonaco,
+    },
+  },
+  // Un bar sans desserts à la carte : le café après manger, une tapas avec la tournée.
+  afterMeal: {
+    desserts: [],
+    coffees: ["cafe"],
+    snacks: ["panier-frites", "patatas-bravas", "sticks-mozzarella", "mini-saucissons"],
+    kickers: KICKERS_FR,
+  },
   loyaltyWheel: roueDuJour,
   demoLoyalty: {
     pointsPerEuro: 1,
@@ -3750,7 +3769,7 @@ const leNovelty: Restaurant = {
           "Mojito",
           "Mangue, fraise, framboise, passion ou pêche, rhum Bacardi Carta Oro, citron vert, cassonade, menthe fraîche, limonade",
           9,
-          { parfum: true, happyHour: NOVELTY_HH.cocktail }
+          { parfum: true }
         ),
         noveltyCocktail("cuba-libre", "Cuba Libre", "Rhum Bacardi Carta Oro, citron vert, Coca Cola", 9),
         { id: "ti-punch", name: "Ti-Punch", description: "Rhum Bacardi Carta Oro, cassonade, citron vert", price: 9, vatRate: 20 },
@@ -3759,14 +3778,14 @@ const leNovelty: Restaurant = {
           "Caïpirinha",
           "Mangue, fraise, framboise, passion ou pêche, Cachaça Aguacana, cassonade, citron vert",
           9,
-          { parfum: true, happyHour: NOVELTY_HH.cocktail }
+          { parfum: true }
         ),
         noveltyCocktail("caipiroska", "Caïpiroska", "Mangue, fraise, framboise, passion ou pêche, vodka Eristoff, cassonade, citron vert", 9, { parfum: true }),
         noveltyCocktail("cosmopolitan", "Cosmopolitan", "Vodka Eristoff, liqueur d'orange, citron vert, cranberry", 9),
         noveltyCocktail("daiquiri", "Daïquiri", "Mangue, fraise, framboise, passion ou pêche, rhum Bacardi Carta Oro, sucre de canne, citron vert", 9, { parfum: true }),
         noveltyCocktail("gin-tonic", "Gin Tonic", "Gin, Schweppes tonic, citron vert", 9),
-        noveltyCocktail("planteur", "Planteur", "Rhum Bacardi Carta Oro, ananas, orange, grenadine", 9, { happyHour: NOVELTY_HH.cocktail }),
-        noveltyCocktail("coco-bull", "Coco Bull", "Vodka, sirop de cerise, citron vert, Redbull", 9, { happyHour: NOVELTY_HH.cocktail }),
+        noveltyCocktail("planteur", "Planteur", "Rhum Bacardi Carta Oro, ananas, orange, grenadine", 9),
+        noveltyCocktail("coco-bull", "Coco Bull", "Vodka, sirop de cerise, citron vert, Redbull", 9),
         noveltyCocktail("gin-fizz", "Gin Fizz", "Gin Bombay Sapphire, sucre en poudre, jus de citron, limonade", 9),
         noveltyCocktail("margarita", "Margarita", "Tequila, triple sec, jus de citron", 9),
         noveltyCocktail("pina-colada", "Piña Colada", "Rhum Bacardi Carta Oro, crème de coco, ananas, vanille", 9),
@@ -3777,9 +3796,7 @@ const leNovelty: Restaurant = {
           "Vodka Eristoff, crème de pêche, crème de cerise, crème de melon, jus de cranberry, jus d'ananas",
           9
         ),
-        noveltyCocktail("tete-a-l-envers", "Tête à l'Envers", "Vodka Eristoff, Orangina, liqueur de Curaçao bleu", 9, {
-          happyHour: NOVELTY_HH.cocktail,
-        }),
+        noveltyCocktail("tete-a-l-envers", "Tête à l'Envers", "Vodka Eristoff, Orangina, liqueur de Curaçao bleu", 9),
         noveltyCocktail(
           "long-island",
           "Long Island",
@@ -3794,7 +3811,7 @@ const leNovelty: Restaurant = {
           11
         ),
         noveltyCocktail("expresso-martini", "Expresso Martini", "Vodka, liqueur café, sirop canne, expresso", 11),
-        noveltyCocktail("spritz", "Spritz", "Aperol, Prosecco, Perrier", 9.5, { happyHour: NOVELTY_HH.cocktail }),
+        noveltyCocktail("spritz", "Spritz", "Aperol, Prosecco, Perrier", 9.5),
         noveltyCocktail("jager-bomb", "Jager Bomb", "Jägermeister, Red Bull", 7),
       ],
     },
@@ -3825,9 +3842,9 @@ const leNovelty: Restaurant = {
           "virgin-mojito",
           "Virgin Mojito",
           "Mangue, fraise, framboise, passion ou pêche, menthe fraîche, citron vert, cassonade, limonade",
-          { parfum: true, happyHour: NOVELTY_HH.sansAlcool }
+          { parfum: true }
         ),
-        noveltySansAlcool("virgin-colada", "Virgin Colada", "Crème de coco, ananas, vanille", { happyHour: NOVELTY_HH.sansAlcool }),
+        noveltySansAlcool("virgin-colada", "Virgin Colada", "Crème de coco, ananas, vanille"),
       ],
     },
     {
@@ -3835,7 +3852,7 @@ const leNovelty: Restaurant = {
       name: "Bières pression",
       boissons: true,
       items: [
-        avecPinteHappyHour(noveltyPression("kronenbourg", "Kronenbourg Blonde\u00a04,5°", [3.6, 6, 11]), NOVELTY_HH.pinteKro),
+        noveltyPression("kronenbourg", "Kronenbourg Blonde\u00a04,5°", [3.6, 6, 11]),
         noveltyPression("chouffe", "Chouffe Blonde\u00a08°", [4.5, 8, 15]),
         noveltyPression("cherry-chouffe", "Cherry Chouffe\u00a08°", [4.5, 8, 15]),
         noveltyPression("bete-blanche", "La Bête Blanche\u00a05,2°", [4.5, 8, 15]),
@@ -3844,13 +3861,10 @@ const leNovelty: Restaurant = {
         noveltyPression("bete-rouge", "La Bête Rouge\u00a08°", [4.5, 8, 15]),
         noveltyPression("grimbergen", "Grimbergen Blonde\u00a06,7°", [4.5, 8, 15]),
         noveltyPression("fada-ipa", "Fada IPA\u00a05°", [4.5, 8, 15]),
-        avecPinteHappyHour(
-          articleFormats("monaco", "Monaco", [["25 cl", 3.7], ["50 cl", 6.2]], {
-            ...ALCOOL,
-            description: "Bière, grenadine, limonade",
-          }),
-          NOVELTY_HH.pinteMonaco
-        ),
+        articleFormats("monaco", "Monaco", [["25 cl", 3.7], ["50 cl", 6.2]], {
+          ...ALCOOL,
+          description: "Bière, grenadine, limonade",
+        }),
         articleFormats("picon-biere", "Picon Bière", [["25 cl", 4.2], ["50 cl", 7]], ALCOOL),
         articleFormats("biere-du-moment", "Bière du Moment", [["25 cl", 4.5], ["50 cl", 8]], ALCOOL),
       ],
@@ -4142,9 +4156,8 @@ const VICTORIA_BURGER = [
 const VICTORIA_GARNITURES_SUCREES = ["Nutella", "Coco", "Caramel beurre salé", "Banane"];
 const VICTORIA_SUPPLEMENT_SUCRE = 2;
 
-/** Les horaires du happy hour (site du groupe, Schlouk), un prix réduit ne s'affiche jamais sans eux. */
+/** Les horaires du happy hour (site du groupe, Schlouk), dans les points forts. */
 const VICTORIA_HAPPY_HOUR = "Happy hour 16h⁠–⁠1h";
-const victoriaHappyHour = (prix: string) => `${VICTORIA_HAPPY_HOUR} : ${prix} €`;
 
 const victoriaPizza = (
   id: string,
@@ -4216,6 +4229,18 @@ const leVictoria: Restaurant = {
   ],
   // Accords de l'aperçu, à revoir avec le gérant ; sans café à la carte, les desserts n'en ont pas.
   pairings: leVictoriaAccords,
+  // Les prix happy hour de Schlouk : cocktails du bar et pressions 50 cl.
+  demoHappyHour: {
+    name: "Happy hour",
+    prices: { mojito: 5.5, "cuba-libre": 5.5, jagerbomb: 5.5, kronenbourg: 3.5, monaco: 3.5, pietra: 5.5 },
+  },
+  // Pas de café à la carte : le dessert après le plat, une tapas avec la tournée.
+  afterMeal: {
+    desserts: ["moelleux-chocolat", "tarte-citron", "crepe-nutella", "gaufre-nutella"],
+    coffees: [],
+    snacks: ["frite-maison", "patatas-bravas", "croquetas-chorizo", "stick-mozzarella"],
+    kickers: KICKERS_FR,
+  },
   loyaltyWheel: roueDuJour,
   demoLoyalty: {
     pointsPerEuro: 1,
@@ -4317,15 +4342,14 @@ const leVictoria: Restaurant = {
       boissons: true,
       // Les « maison » sont les cocktails XXL de Deliveroo ; le prix happy hour
       // de Schlouk, donné sans volume, ne va qu'aux cocktails du bar.
-      tagline: "Prix happy hour sous les cocktails concernés",
       items: [
         { id: "punch", name: "Punch maison", price: 8, detail: "50 cl", vatRate: 20 },
         { id: "sangria", name: "Sangria maison", price: 8, detail: "50 cl", vatRate: 20 },
         { id: "sex-on-the-beach", name: "Sex on the beach maison", price: 8, vatRate: 20 },
         { id: "planteur", name: "Planteur", price: 8, detail: "50 cl", vatRate: 20 },
-        { id: "mojito", description: victoriaHappyHour("5,50"), name: "Mojito", price: 8, vatRate: 20 },
-        { id: "cuba-libre", description: victoriaHappyHour("5,50"), name: "Cuba Libre", price: 8, vatRate: 20 },
-        { id: "jagerbomb", description: victoriaHappyHour("5,50"), name: "Jagerbomb", price: 8, vatRate: 20 },
+        { id: "mojito", name: "Mojito", price: 8, vatRate: 20 },
+        { id: "cuba-libre", name: "Cuba Libre", price: 8, vatRate: 20 },
+        { id: "jagerbomb", name: "Jagerbomb", price: 8, vatRate: 20 },
       ],
     },
     {
@@ -4334,11 +4358,10 @@ const leVictoria: Restaurant = {
       boissons: true,
       // Pressions : le happy hour du groupe va aux « bières pression », et
       // Schlouk n'en donne le prix que pour ces trois 50 cl.
-      tagline: "Happy hour sur les pressions\u00a0: prix réduit sous chaque pression",
       items: [
-        { id: "kronenbourg", description: victoriaHappyHour("3,50"), name: "Kronenbourg", price: 5.8, detail: "pression 50 cl", vatRate: 20 },
-        { id: "monaco", description: victoriaHappyHour("3,50"), name: "Monaco", price: 5.8, detail: "pression 50 cl", vatRate: 20 },
-        { id: "pietra", description: victoriaHappyHour("5,50"), name: "Pietra", price: 6.5, detail: "pression 50 cl", vatRate: 20 },
+        { id: "kronenbourg", name: "Kronenbourg", price: 5.8, detail: "pression 50 cl", vatRate: 20 },
+        { id: "monaco", name: "Monaco", price: 5.8, detail: "pression 50 cl", vatRate: 20 },
+        { id: "pietra", name: "Pietra", price: 6.5, detail: "pression 50 cl", vatRate: 20 },
         { id: "heineken", name: "Heineken", price: 5, detail: "33 cl", vatRate: 20 },
         { id: "desperados", name: "Desperados", price: 6, detail: "33 cl", vatRate: 20 },
         { id: "corona", name: "Corona", price: 6, detail: "33 cl", vatRate: 20 },
@@ -4922,6 +4945,13 @@ const cafeDesArts: Restaurant = {
     { text: "Pizzas maison", tone: "accent" },
   ],
   pairings: cafeDesArtsAccords,
+  // Une brasserie sans tapas : les frites maison de l'extra garniture avec la tournée.
+  afterMeal: {
+    desserts: ["tiramisu", "moelleux-chocolat", "creme-brulee", "profiteroles-maison"],
+    coffees: ["cafe"],
+    snacks: ["garniture-frites"],
+    kickers: KICKERS_FR,
+  },
   loyaltyWheel: roueDuJour,
   // Les paliers de Caffè Panis, du même groupe (1 € = 1 point), sur cette carte.
   demoLoyalty: {
@@ -6004,10 +6034,14 @@ const cafeDesArts: Restaurant = {
   ],
 };
 
+const panisPlat = (file: string) => `/caffe-panis/plats/ciccio/${file}.webp`;
+
 /*
  * Caffè Panis — 3 place du Marché aux Fleurs. Les plats : leur carte hiver
- * (novembre 2026, texte transmis par le restaurant), sans photos ; le café
- * Illy de leur fiche TheFork (2022). Sources : demos/caffe-panis/docs/.
+ * (novembre 2026, texte transmis par le restaurant), avec les photos du
+ * shooting Ciccio Gang (Uber Eats, novembre 2025) pour les plats identiques et
+ * des visuels générés sur le même fond à motifs pour les nouveaux plats ; le
+ * café Illy de leur fiche TheFork (2022). Sources : demos/caffe-panis/docs/.
  */
 const caffePanis: Restaurant = {
   slug: "caffe-panis",
@@ -6120,15 +6154,17 @@ const caffePanis: Restaurant = {
           name: "La Parmigiana della Nonna",
           description: "Gratin d'aubergines, tomate, mozzarella, parmesan et basilic dans une casserolette.",
           price: 8,
+          image: panisPlat("parmigiana-della-nonna"),
         },
         {
           id: "burrata-bella-vita",
           name: "Burrata Bella Vita",
           description: "Burrata à la truffe, mortadelle, tomates colorées et crème balsamique à la truffe.",
           price: 8,
+          image: panisPlat("burrata-bella-vita"),
         },
-        { id: "camembert-roti", name: "Camembert rôti miel thym", price: 8 },
-        { id: "focaccia", name: "Focaccia", price: 8 },
+        { id: "camembert-roti", name: "Camembert rôti miel thym", price: 8, image: panisPlat("camembert-roti") },
+        { id: "focaccia", name: "Focaccia", price: 8, image: panisPlat("focaccia") },
       ],
     },
     {
@@ -6141,12 +6177,14 @@ const caffePanis: Restaurant = {
           name: "Ave César, Ragazzo !",
           description: "Poulet croustillant, parmesan, croûtons, œuf mollet et sauce César maison.",
           price: 17,
+          image: panisPlat("ave-cesar-ragazzo"),
         },
         {
           id: "la-super-bonita",
           name: "La Super Bonita",
           description: "Chèvre au miel, guanciale croustillant, œuf mollet et vinaigrette à la moutarde.",
           price: 18,
+          image: panisPlat("la-super-bonita"),
         },
       ],
     },
@@ -6161,12 +6199,14 @@ const caffePanis: Restaurant = {
           description:
             "Guanciale croustillant, jaune d'œuf, parmesan et poivre noir. Sans crème, comme à Roma.",
           price: 15,
+          image: panisPlat("pasta-carbonara"),
         },
         {
           id: "carbo-tartufo",
           name: "Carbo Tartufo",
           description: "Carbonara à la truffe, guanciale croustillant et copeaux de truffe.",
           price: 17,
+          image: panisPlat("carbo-tartufo"),
         },
         {
           id: "gnocchi-bella-cocotte",
@@ -6174,18 +6214,21 @@ const caffePanis: Restaurant = {
           description:
             "Gnocchi gratinés, mozzarella, tomate-basilic et parmesan, servis dans leur bol de pain croustillant.",
           price: 15,
+          image: panisPlat("gnocchi-bella-cocotte"),
         },
         {
           id: "paccheri-ragu-della-nonna",
           name: "Paccheri Ragù della Nonna",
           description: "Paccheri XXL, bœuf effiloché et ragù napolitain mijoté six heures.",
           price: 17,
+          image: panisPlat("paccheri-ragu-della-nonna"),
         },
         {
           id: "black-moon",
           name: "Black Moon",
           description: "Demi-lunes à l'encre de seiche, farce crémeuse aux crevettes et sauce saumon maison.",
           price: 19,
+          image: panisPlat("black-moon"),
         },
       ],
     },
@@ -6199,6 +6242,7 @@ const caffePanis: Restaurant = {
           name: "Polpette à la Casa",
           description: "Boulettes de bœuf à la tomate et spaghetti au pesto genovese.",
           price: 16,
+          image: panisPlat("polpette-a-la-casa"),
         },
         {
           id: "burger-bella-italia",
@@ -6206,18 +6250,21 @@ const caffePanis: Restaurant = {
           description:
             "Bœuf Angus, mozzarella di bufala, porchetta, pesto maison, tomates fraîches et frites.",
           price: 16,
+          image: panisPlat("burger-bella-italia"),
         },
         {
           id: "milanaise-de-veau",
           name: "Milanaise de veau",
           description: "Accompagnée de frites, salade et mayonnaise citronnée.",
           price: 17,
+          image: panisPlat("milanaise-de-veau"),
         },
         {
           id: "magret-de-canard",
           name: "Magret de canard",
           description: "Frites, salade et sauce crème balsamique thym.",
           price: 17,
+          image: panisPlat("magret-de-canard"),
         },
       ],
     },
@@ -6226,8 +6273,8 @@ const caffePanis: Restaurant = {
       name: "À partager",
       tagline: "Exclusivement lundi et mardi, 2 personnes minimum",
       items: [
-        { id: "fondue-italienne", name: "Fondue italienne", price: 22 },
-        { id: "raclette-francaise", name: "Raclette française", price: 25 },
+        { id: "fondue-italienne", name: "Fondue italienne", price: 22, image: panisPlat("fondue-italienne") },
+        { id: "raclette-francaise", name: "Raclette française", price: 25, image: panisPlat("raclette-francaise") },
       ],
     },
     {
@@ -6241,6 +6288,7 @@ const caffePanis: Restaurant = {
           description:
             "Une recette italienne différente chaque semaine. En ce moment : Lasagne della Nonna, lasagnes maison gratinées.",
           price: 16,
+          image: panisPlat("la-dolce-surprise"),
         },
       ],
     },
@@ -6255,12 +6303,14 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, ail émincé, origan calabrais, olives Taggiasche, basilic et huile d'olive. Sans mozzarella.",
           price: 8,
+          image: panisPlat("marinara"),
         },
         {
           id: "margherita",
           name: "Margherita",
           description: "Sauce tomate, parmesan râpé, mozzarella fior di latte, basilic et huile d'olive.",
           price: 9,
+          image: panisPlat("pizza-margherita"),
         },
         {
           id: "luna-rossa",
@@ -6268,12 +6318,14 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, mozzarella fior di latte, parmesan, filets d'anchois, olives Taggiasche, câpres, ail émincé, origan calabrais, basilic et huile d'olive.",
           price: 11,
+          image: panisPlat("luna-rossa"),
         },
         {
           id: "mama-king",
           name: "Mama King",
           description: "Sauce tomate, parmesan, jambon blanc, champignons, mozzarella fior di latte et basilic.",
           price: 14,
+          image: panisPlat("pizza-mama-king"),
         },
         {
           id: "bufala-kill",
@@ -6281,6 +6333,7 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, mozzarella fior di latte et parmesan. À la sortie du four : mozzarella di bufala Campana AOP, jambon sec, pesto maison, tomates cerises multicolores et basilic.",
           price: 18,
+          image: panisPlat("bufala-kill"),
         },
         {
           id: "puissance-4",
@@ -6288,6 +6341,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de ricotta, parmesan, mozzarella fior di latte, provola fumée, gorgonzola et copeaux de parmesan. Quatre fromages, zéro compromis.",
           price: 16,
+          image: panisPlat("pizza-puissance-4"),
         },
         {
           id: "mafia-blues",
@@ -6295,6 +6349,7 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, parmesan, mozzarella fior di latte et spianata calabraise piquante. En finition : burrata crémeuse des Pouilles, poivrons confits, tomates cerises multicolores, copeaux de parmesan et basilic.",
           price: 17,
+          image: panisPlat("mafia-blues"),
         },
         {
           id: "green-circle",
@@ -6302,6 +6357,7 @@ const caffePanis: Restaurant = {
           description:
             "Sauce tomate, courgettes à la plancha, dés d'aubergines panées, parmesan, mozzarella fior di latte et scamorza fumée. En finition : roquette, poivrons confits, tomates confites, copeaux de parmesan et basilic.",
           price: 16,
+          image: panisPlat("green-circle"),
         },
         {
           id: "charcu-three",
@@ -6309,6 +6365,7 @@ const caffePanis: Restaurant = {
           description:
             "Base huile d'olive, tomates cerises rôties, jambon blanc, spianata calabraise piquante, parmesan et mozzarella fior di latte. En finition : mortadelle, éclats de pistache et basilic.",
           price: 15,
+          image: panisPlat("charcu-three"),
         },
         {
           id: "mortazzza",
@@ -6316,6 +6373,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de ricotta, parmesan et mozzarella fior di latte. En finition : mortadelle et éclats de pistache.",
           price: 17,
+          image: panisPlat("mortazzza"),
         },
         {
           id: "viking-ring",
@@ -6323,6 +6381,7 @@ const caffePanis: Restaurant = {
           description:
             "Crème de ricotta, saumon fumé, mozzarella fior di latte, chips de courgettes, tomates confites, émulsion de yaourt au citron vert et billes de grenade.",
           price: 18,
+          image: panisPlat("viking-ring"),
         },
       ],
     },
@@ -6331,42 +6390,54 @@ const caffePanis: Restaurant = {
       name: "Sfiziomeni",
       tagline: "À picorer",
       items: [
-        { id: "gamberi-crunch", name: "Gamberi Crunch", description: "Crevettes croustillantes au panko.", price: 7 },
+        {
+          id: "gamberi-crunch",
+          name: "Gamberi Crunch",
+          description: "Crevettes croustillantes au panko.",
+          price: 7,
+          image: panisPlat("gamberi-crunch"),
+        },
         {
           id: "crocchette-messicane",
           name: "Crocchette Messicane",
           description: "Croquettes aux saveurs épicées.",
           price: 7,
+          image: panisPlat("crocchette-messicane"),
         },
         {
           id: "la-tavola-rital",
           name: "La Tavola Rital",
           description: "Planche de charcuteries italiennes.",
           price: 17,
+          image: panisPlat("la-tavola-rital"),
         },
         {
           id: "formaggi-e-basta",
           name: "Formaggi & Basta",
           description: "Sélection de fromages italiens.",
           price: 17,
+          image: panisPlat("formaggi-e-basta"),
         },
         {
           id: "aperitivo-mix",
           name: "Aperitivo Mix",
           description: "Planche mixte de charcuteries et fromages.",
           price: 17,
+          image: panisPlat("aperitivo-mix"),
         },
         {
           id: "petite-planche-charcuterie",
           name: "Petite planche charcuterie",
           description: "Assortiment de charcuterie italienne.",
           price: 7,
+          image: panisPlat("petite-planche-charcuterie"),
         },
         {
           id: "petite-planche-fromage",
           name: "Petite planche fromage",
           description: "Assortiment de fromages italiens.",
           price: 7,
+          image: panisPlat("petite-planche-fromage"),
         },
       ],
     },
@@ -6380,23 +6451,27 @@ const caffePanis: Restaurant = {
           name: "Tiramisù della Casa",
           description: "Café, mascarpone et cacao.",
           price: 6,
+          image: panisPlat("tiramisu-della-casa"),
         },
         {
           id: "brioche-perduta",
           name: "Brioche Perduta",
           description: "Brioche dorée, sucre et caramel.",
           price: 5,
+          image: panisPlat("brioche-perduta"),
         },
         {
           id: "caffe-gourmand",
           name: "Caffè Gourmand",
           description: "Café accompagné de petites douceurs.",
           price: 8,
+          image: panisPlat("caffe-gourmand"),
         },
         {
           id: "crepe",
           name: "Crêpe",
           price: 4,
+          image: panisPlat("crepe"),
           options: [
             groupeChoix("garniture", "Garniture", ["Nutella", "Coulis fruits rouges", "Coulis caramel"], {
               obligatoire: true,
@@ -6821,6 +6896,13 @@ const brasserieLaissac: Restaurant = {
     { text: "Salle climatisée" },
   ],
   pairings: brasserieLaissacAccords,
+  // Pas de café à la carte en ligne : le dessert après le plat, une tapas avec la tournée.
+  afterMeal: {
+    desserts: ["tiramisu", "moelleux", "tarte-citron", "tarte-tatin"],
+    coffees: [],
+    snacks: ["frites-maison", "sticks-mozzarella", "wings", "nuggets"],
+    kickers: KICKERS_FR,
+  },
   loyaltyWheel: roueDuJour,
   // Les paliers de Caffè Panis (1 € = 1 point), sur la carte de la brasserie.
   demoLoyalty: {
@@ -8262,6 +8344,12 @@ const cafeRiche: Restaurant = {
   highlights: ["Ouvert 7/7 de 7h à 1h", "Produits frais et de saison", "Terrasse sur la place de la Comédie"],
   // Accords écrits à la main sur leur carte, à relire avec eux.
   pairings: cafeRicheAccords,
+  afterMeal: {
+    desserts: ["profiteroles", "tiramisu", "pain-perdu", "creme-brulee"],
+    coffees: ["cafe-expresso"],
+    snacks: ["frites", "patatas-bravas", "accras-morue", "milanetas-poulet"],
+    kickers: KICKERS_FR,
+  },
   loyaltyWheel: roueDuJour,
   // Les paliers de Caffè Panis (1 € = 1 point) sur leur carte, à caler avec eux.
   demoLoyalty: {
@@ -10719,9 +10807,13 @@ export function restaurantThemeClass(slug: string): string | undefined {
   return themeClasses[slug];
 }
 
-/** Les cartes posées sur le velours animé (components/menu/panis-backdrop), à leurs teintes. */
+/**
+ * Les cartes publiées posées sur le velours (components/menu/panis-backdrop).
+ * Les quatre aperçus de l'Écusson ont une palette, montée seulement par
+ * /menu/demo : sinon le satin passerait sur la carte publiée et le click & collect.
+ */
 export function hasVelours(slug: string): boolean {
-  return slug in veloursPalettes;
+  return slug in veloursPalettes && !ecussonVelours.has(slug);
 }
 
 /**

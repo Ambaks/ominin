@@ -67,7 +67,7 @@ function CommercialSignupCard({ etablissementId, signup }: { etablissementId: st
     ["Contact", [signup.manager_phone, signup.manager_email].filter(Boolean).join(" · ") || "—"],
   ];
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-5 lg:col-span-2">
+    <section className="flex flex-col gap-3 g-plate p-5 lg:col-span-2">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h2 className="font-display text-lg font-medium">Inscrit avec un commercial</h2>
         {open === false && (
@@ -75,7 +75,7 @@ function CommercialSignupCard({ etablissementId, signup }: { etablissementId: st
             type="button"
             disabled={busy}
             onClick={() => void openSpace()}
-            className="ember-gradient rounded-full px-4 py-2 text-sm font-semibold text-background disabled:opacity-60"
+            className="g-btn g-btn-primary g-press"
           >
             Menu créé : ouvrir son espace
           </button>
@@ -122,7 +122,7 @@ export function ClientDemarrage({ etablissementId }: { etablissementId: string }
       .maybeSingle()
       .then(({ data }) => setSignup(data));
   }, [etablissementId]);
-  if (signup === undefined) return <div aria-busy className="shimmer h-64 rounded-2xl" />;
+  if (signup === undefined) return <div aria-busy className="g-shimmer h-64" />;
   return (
     <div className="flex flex-col gap-6">
       {signup && <CommercialSignupCard etablissementId={etablissementId} signup={signup} />}
@@ -157,7 +157,7 @@ function StarterSetup({ etablissementId, offered }: { etablissementId: string; o
   }, [etablissementId]);
 
   if (setup === undefined) {
-    return <div aria-busy className="shimmer h-64 rounded-2xl" />;
+    return <div aria-busy className="g-shimmer h-64" />;
   }
 
   if (setup === null) {
@@ -173,7 +173,7 @@ function StarterSetup({ etablissementId, offered }: { etablissementId: string; o
 
   return (
     <div className="grid gap-6 lg:grid-cols-2 lg:items-start">
-      <section className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5">
+      <section className="flex flex-col gap-4 g-plate p-5">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-lg font-medium">Sa salle</h2>
           <p className="text-xs text-faint">Répondu le {formatDate(setup.createdAt)}</p>
@@ -199,7 +199,7 @@ function StarterSetup({ etablissementId, offered }: { etablissementId: string; o
         </ul>
       </section>
 
-      <section className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5">
+      <section className="flex flex-col gap-4 g-plate p-5">
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="font-display text-lg font-medium">Sa commande</h2>
           <p className="text-xs text-faint">

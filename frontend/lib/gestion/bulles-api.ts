@@ -185,6 +185,11 @@ export async function cancelReservation(reservationId: string) {
   unwrap(await createClient().rpc("bulle_annuler_reservation", { p_reservation: reservationId }));
 }
 
+/** L'accueil ouvre (ou referme) la table d'une bulle sans réservation ; la fin vient des créneaux (ouvrir_table_bulle). */
+export async function openTable(bulleId: string, open: boolean) {
+  unwrap(await createClient().rpc("ouvrir_table_bulle", { p_bulle: bulleId, p_ouvrir: open }));
+}
+
 export type NewBulleReservation = {
   bulleId: string;
   startsAt: string;
@@ -221,6 +226,7 @@ export type BulleActions = {
   markArrival: (reservationId: string, arrived: boolean, tender?: BulleTender) => Promise<void>;
   cancelReservation: (reservationId: string) => Promise<void>;
   createReservation: (input: NewBulleReservation) => Promise<void>;
+  openTable: (bulleId: string, open: boolean) => Promise<void>;
   /** Absent sur la démonstration : sans compte, personne n'y est gérant. */
   changeSize?: (reservationId: string, partySize: number) => Promise<void>;
 };
@@ -229,6 +235,7 @@ export const BulleActionsContext = createContext<BulleActions>({
   markArrival,
   cancelReservation,
   createReservation,
+  openTable,
   changeSize,
 });
 

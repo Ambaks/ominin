@@ -19,7 +19,7 @@ export function DeckSlide({ slide }: { slide: Slide }) {
         <ul className="flex flex-col gap-2.5">
           {slide.demos.map((demo) => (
             <li key={demo.url}>
-              <a href={demo.url} target="_blank" rel="noopener" className="flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-surface p-4">
+              <a href={demo.url} target="_blank" rel="noopener" className="flex items-center justify-between gap-3 g-plate p-4">
                 <span className="min-w-0">
                   <span className="block font-medium">{demo.label}</span>
                   <span className="block text-sm text-muted">{demo.hint}</span>

@@ -41,6 +41,8 @@ const TIME = new Intl.DateTimeFormat("fr-FR", {
 export const formatNight = (iso: string) => DAY.format(new Date(iso));
 /** « sam. 24 oct. ». */
 export const formatNightShort = (iso: string) => DAY_SHORT.format(new Date(iso));
+/** « 23:00 ». */
+export const formatTime = (iso: string) => TIME.format(new Date(iso));
 /** « 23:00 – 06:00 ». */
 export const formatHours = (startsAt: string, endsAt: string) =>
   `${TIME.format(new Date(startsAt))} – ${TIME.format(new Date(endsAt))}`;

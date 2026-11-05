@@ -1,6 +1,7 @@
 import {
   BULLE_NO_REFUND,
   bulleManquePourConfirmer,
+  bullePlacesFacturees,
   bulleReste,
   capitalize,
   formatBulleNight,
@@ -57,8 +58,11 @@ function row(label: string, value: string, strong = false) {
 }
 
 function layout(mail: BulleMail, title: string, intro: string, cta: string, extra = "", refunded = false) {
-  // Une part qui complète un montant après un changement de taille ne compte aucune place.
-  const places = mail.places > 0 ? `${mail.places} place${mail.places > 1 ? "s" : ""}` : "le reste du groupe";
+  // Les places que paie le montant, comme sur le pass : seul, 29,80 € en paient
+  // deux. Un complément après un changement de taille n'en paie aucune.
+  const covered = mail.amountCents % mail.placeCents === 0 ? mail.amountCents / mail.placeCents : mail.places;
+  const places = covered > 0 ? `${covered} place${covered > 1 ? "s" : ""}` : "le reste du groupe";
+  const billed = bullePlacesFacturees(mail.partySize, mail.minBilledPlaces);
   return `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(title)}</title></head>
 <body style="margin:0;padding:0;background:#251b20;font-family:-apple-system,'Segoe UI',Helvetica,Arial,sans-serif;color:#251b20;">
@@ -74,7 +78,7 @@ function layout(mail: BulleMail, title: string, intro: string, cta: string, extr
 ${row("Bulle", escapeHtml(mail.bulle))}
 ${row("Soir", escapeHtml(capitalize(formatBulleNight(mail.startsAt, mail.dayEndHour))))}
 ${row("Créneau", escapeHtml(formatHours(mail.startsAt, mail.endsAt)))}
-${row("Groupe", `${mail.partySize} personne${mail.partySize > 1 ? "s" : ""}`)}
+${row("Groupe", `${mail.partySize} personne${mail.partySize > 1 ? "s" : ""}${mail.partySize < billed ? `, payé au prix de ${billed}` : ""}`)}
 ${row(refunded ? "Remboursé" : "Payé", `${formatCents(mail.amountCents)} · ${places}`, true)}
 </table></td></tr>
 ${extra}

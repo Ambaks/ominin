@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { inputClass } from "@/components/ui/field";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import { formatDay } from "@/lib/admin/format";
 import * as api from "@/lib/admin/social";
@@ -98,7 +97,7 @@ function ToPostCard({
   const { post, publication } = item;
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-4">
+    <div className="flex flex-col gap-4 g-plate p-4">
       <div className="flex flex-wrap items-center gap-3">
         <Heading item={item} />
         <button
@@ -181,7 +180,7 @@ function ViewsRow({
 
   return (
     <form
-      className="flex flex-wrap items-center gap-3 rounded-2xl border border-hairline bg-surface p-4"
+      className="flex flex-wrap items-center gap-3 g-plate p-4"
       onSubmit={(event) => {
         event.preventDefault();
         const value = Number(views);
@@ -194,7 +193,7 @@ function ViewsRow({
     >
       <Heading item={item} />
       <input
-        className={`${inputClass} w-28`}
+        className={`g-input w-28!`}
         inputMode="numeric"
         placeholder="Vues"
         value={views}

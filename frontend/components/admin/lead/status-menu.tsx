@@ -1,7 +1,7 @@
 "use client";
 
 import { CheckIcon } from "@/components/gestion/icons";
-import { Modal } from "@/components/ui/modal";
+import { Sheet } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 import { STATUS_LABELS, STATUS_ORDER } from "@/lib/admin/constants";
@@ -31,7 +31,7 @@ export function StatusMenu({
   };
 
   return (
-    <Modal title="Statut du lead" onClose={onClose}>
+    <Sheet title="Statut du lead" onClose={onClose}>
       <ul className="-my-2 flex flex-col">
         {STATUS_ORDER.map((status) => (
           <li key={status}>
@@ -49,6 +49,6 @@ export function StatusMenu({
           </li>
         ))}
       </ul>
-    </Modal>
+    </Sheet>
   );
 }

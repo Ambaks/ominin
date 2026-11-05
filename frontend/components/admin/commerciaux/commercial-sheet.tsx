@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Sheet } from "@/components/gestion/ui";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
   CONTRACT_END_LABELS,
@@ -140,7 +139,7 @@ export function CommercialSheet({
   };
 
   return (
-    <Modal title={who} onClose={onClose}>
+    <Sheet title={who} onClose={onClose}>
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-3">
           <div>
@@ -168,7 +167,7 @@ export function CommercialSheet({
 
         <section className="flex flex-col gap-2">
           <h3 className={SECTION_TITLE}>Réglages</h3>
-          <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+          <ul className="flex flex-col divide-y divide-hairline g-plate">
             {SETTING_FIELDS.map(({ key, label, unit, hint, required }) => (
               <li key={key} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
                 <label htmlFor={`commercial-${key}`} className="min-w-0 flex-1 text-sm">
@@ -185,7 +184,7 @@ export function CommercialSheet({
                     max={key === "commission_percent" ? 100 : undefined}
                     value={draft[key]}
                     onChange={(event) => setDraft({ ...draft, [key]: event.target.value })}
-                    className={`${inputClass} w-28`}
+                    className={`g-input w-28!`}
                   />
                   {unit}
                 </span>
@@ -207,7 +206,7 @@ export function CommercialSheet({
               const id = event.target.value || null;
               void run(row.id, () => setDiscordMember(row.id, id), id ? "Compte Discord relié." : "Compte Discord retiré.");
             }}
-            className={inputClass}
+            className="g-input"
           >
             <option value="">Pas relié</option>
             {Array.isArray(members) &&
@@ -225,13 +224,13 @@ export function CommercialSheet({
         <section className="flex flex-col gap-2">
           <h3 className={SECTION_TITLE}>Restaurants</h3>
           {places === null ? (
-            <div aria-busy className="shimmer h-16 rounded-2xl" />
+            <div aria-busy className="g-shimmer h-16" />
           ) : typeof places === "string" ? (
             <p className="text-sm text-ember-3">{places}</p>
           ) : places.length === 0 ? (
             <p className="text-sm text-muted">Aucun restaurant pour l’instant.</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+            <ul className="flex flex-col divide-y divide-hairline g-plate">
               {places.map((place) => (
                 <li key={place.id}>
                   <button
@@ -295,6 +294,6 @@ export function CommercialSheet({
           </section>
         )}
       </div>
-    </Modal>
+    </Sheet>
   );
 }

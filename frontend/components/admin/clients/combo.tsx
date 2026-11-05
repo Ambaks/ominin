@@ -51,7 +51,7 @@ export function ComboParfait({
   const topDish = Math.max(1, ...(stats?.top ?? []).map((entry) => entry.quantity));
 
   return (
-    <section className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5">
+    <section className="flex flex-col gap-4 g-plate p-5">
       <div>
         <h2 className="font-display text-lg font-medium">Le combo parfait</h2>
         <p className="mt-1 text-xs text-muted">
@@ -59,7 +59,7 @@ export function ComboParfait({
         </p>
       </div>
       {stats === null ? (
-        <div aria-busy className="shimmer h-52 rounded-2xl" />
+        <div aria-busy className="g-shimmer h-52" />
       ) : stats.lines === 0 ? (
         <p className="flex h-24 items-center justify-center rounded-2xl border border-dashed border-hairline text-sm text-muted">
           Aucune suggestion vendue sur la période.
