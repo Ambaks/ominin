@@ -95,7 +95,6 @@ export const heroScene: { src: string; alt: Localized }[] = [
 ];
 
 export const heroFeed = {
-  label: { fr: "Exemples de ce que fait Ominin au quotidien", en: "Examples of what Ominin does every day" },
   /** Une phrase pour les lecteurs d'écran, à la place des notifications. */
   caption: {
     fr: "Exemples : une commande payée à table, un retrait prêt au bar, des prospects trouvés, une commande de boutique, un retrait en cuisine, un clip publié.",

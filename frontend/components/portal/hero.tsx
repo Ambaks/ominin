@@ -76,10 +76,6 @@ function Scene() {
             </div>
           ))}
         </div>
-        <p className="absolute left-4 top-3 flex max-w-[72%] items-center sm:max-w-[60%] gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-muted sm:left-5 sm:top-4">
-          <span className="size-1.5 rounded-full bg-ember-1" aria-hidden />
-          {t(heroFeed.label)}
-        </p>
         <Toasts slots={1} className="sm:hidden" />
         <Toasts slots={DESKTOP_SLOTS} className="hidden sm:block" />
       </div>
