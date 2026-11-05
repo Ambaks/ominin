@@ -8,6 +8,7 @@ export function LandingNav() {
       links={nav.links}
       login={nav.login}
       cta={composerCta}
+      glass
     />
   );
 }

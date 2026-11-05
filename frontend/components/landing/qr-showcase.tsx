@@ -7,8 +7,7 @@ export function QrShowcase() {
   return (
     <section className="relative">
       <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:py-24">
-        <div className="relative overflow-hidden rounded-3xl border border-hairline bg-surface">
-          <div className="ember-glow pointer-events-none absolute inset-0" aria-hidden />
+        <div className="g-glass g-glass-hero overflow-hidden">
 
           <div className="relative grid lg:grid-cols-2">
             <div className="flex flex-col justify-center gap-6 p-7 sm:p-10 lg:p-14">
@@ -67,7 +66,7 @@ export function QrShowcase() {
               />
 
               <div className="absolute inset-0 flex items-center justify-center p-8">
-                <div className="relative w-52 rotate-2 rounded-2xl border border-hairline bg-surface-raised p-5 text-center shadow-2xl shadow-black/30 transition-transform duration-300 hover:rotate-0 sm:w-56">
+                <div className="g-glass w-52 rotate-2 p-5 text-center transition-transform duration-300 hover:rotate-0 sm:w-56">
                   <span className="ember-gradient absolute -right-3 -top-3 rotate-6 rounded-full px-3 py-1 text-[11px] font-bold text-background shadow-lg">
                     {qrShowcase.badge}
                   </span>

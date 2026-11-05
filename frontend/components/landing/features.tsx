@@ -15,6 +15,7 @@ export function Features() {
       eyebrow={featuresSection.eyebrow}
       title={featuresSection.title}
       items={featuresSection.features}
+      glass
       lead={
         <KitBars
           rows={[

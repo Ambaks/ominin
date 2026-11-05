@@ -6,11 +6,14 @@ export function KitFaq({
   eyebrow,
   title,
   items,
+  glass,
 }: {
   id: string;
   eyebrow: string;
   title: string;
   items: readonly { question: string; answer: string }[];
+  /** Cartes de verre ; l'ouverte prend l'anneau de braise. */
+  glass?: boolean;
 }) {
   return (
     <section id={id} className="scroll-mt-20">
@@ -22,7 +25,11 @@ export function KitFaq({
           {items.map((item) => (
             <details
               key={item.question}
-              className="kit-faq group rounded-2xl border border-hairline bg-surface px-5 transition-colors open:border-ember-2/40"
+              className={`kit-faq group px-5 ${
+                glass
+                  ? "g-glass"
+                  : "rounded-2xl border border-hairline bg-surface transition-colors open:border-ember-2/40"
+              }`}
             >
               <summary className="flex cursor-pointer items-center justify-between gap-4 py-5 text-base font-semibold">
                 {item.question}
@@ -33,7 +40,9 @@ export function KitFaq({
                   +
                 </span>
               </summary>
-              <p className="pb-5 pr-10 text-sm leading-relaxed text-muted">{item.answer}</p>
+              <p className="pb-5 pr-10 text-sm leading-relaxed text-muted">
+                {item.answer}
+              </p>
             </details>
           ))}
         </div>

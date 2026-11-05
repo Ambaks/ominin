@@ -14,38 +14,40 @@ function Relay() {
   return (
     <div className="kit-relay relative mx-auto w-full min-w-0 max-w-md pb-8 sm:pb-12 lg:max-w-none" aria-hidden>
       <div
-        className="relay-float relative z-10 w-[86%] rounded-[2rem] border border-hairline bg-surface p-4 shadow-2xl shadow-black/40 sm:w-[62%]"
+        className="relay-float g-glass g-glass-hero z-10 w-[86%] p-g-pad sm:w-[62%]"
         style={{ "--float-tilt": "-1.5deg" } as React.CSSProperties}
       >
-        <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
-          <span>{heroRelay.phoneLabel}</span>
-          <span className="size-1.5 rounded-full bg-ember-1" />
-        </div>
-        <p className="kit-display mt-3 text-2xl">{order.restaurant}</p>
-        <ul className="mt-4 flex flex-col gap-2">
-          {order.lines.map((line, i) => (
-            <li
-              key={line.id}
-              className="relay-line flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-background/60 px-3 py-2.5"
-              style={{ "--line-delay": `${i * 0.35}s` } as React.CSSProperties}
-            >
-              <span className="min-w-0">
-                <span className="block text-sm font-semibold leading-snug">{line.name}</span>
-                <span className="block truncate text-xs text-faint">{line.description}</span>
-              </span>
-              <span className="text-sm font-semibold tabular-nums">{formatPrice(line.price)}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="relative mt-4 flex items-center justify-between rounded-2xl bg-background/60 px-3 py-3">
-          <span className="text-sm text-muted">Total</span>
-          <span className="kit-display text-2xl tabular-nums">{formatPrice(order.total)}</span>
-          <span className="relay-stamp absolute -top-4 left-1/3 rounded-lg border-2 border-ember-2 px-2.5 py-0.5 text-sm font-black uppercase tracking-widest text-ember-2">
-            {heroRelay.stamp}
-          </span>
-        </div>
-        <div className="mt-3 h-1 overflow-hidden rounded-full bg-hairline">
-          <div className="relay-progress ember-gradient h-full rounded-full" />
+        <div className="g-plate p-4">
+          <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.2em] text-faint">
+            <span>{heroRelay.phoneLabel}</span>
+            <span className="size-1.5 rounded-full bg-ember-1" />
+          </div>
+          <p className="kit-display mt-3 text-2xl">{order.restaurant}</p>
+          <ul className="mt-4 flex flex-col gap-2">
+            {order.lines.map((line, i) => (
+              <li
+                key={line.id}
+                className="relay-line flex items-center justify-between gap-3 rounded-2xl border border-hairline bg-background/60 px-3 py-2.5"
+                style={{ "--line-delay": `${i * 0.35}s` } as React.CSSProperties}
+              >
+                <span className="min-w-0">
+                  <span className="block text-sm font-semibold leading-snug">{line.name}</span>
+                  <span className="block truncate text-xs text-faint">{line.description}</span>
+                </span>
+                <span className="text-sm font-semibold tabular-nums">{formatPrice(line.price)}</span>
+              </li>
+            ))}
+          </ul>
+          <div className="relative mt-4 flex items-center justify-between rounded-2xl bg-background/60 px-3 py-3">
+            <span className="text-sm text-muted">Total</span>
+            <span className="kit-display text-2xl tabular-nums">{formatPrice(order.total)}</span>
+            <span className="relay-stamp absolute -top-4 left-1/3 rounded-lg border-2 border-ember-2 px-2.5 py-0.5 text-sm font-black uppercase tracking-widest text-ember-2">
+              {heroRelay.stamp}
+            </span>
+          </div>
+          <div className="mt-3 h-1 overflow-hidden rounded-full bg-hairline">
+            <div className="relay-progress ember-gradient h-full rounded-full" />
+          </div>
         </div>
       </div>
 
@@ -84,7 +86,6 @@ export function Hero() {
   return (
     <section className="relative overflow-hidden">
       <div className="kit-grid absolute inset-0" aria-hidden />
-      <div className="kit-aura absolute inset-0 opacity-50 lg:opacity-100" aria-hidden />
       <div className="relative mx-auto grid w-full max-w-6xl items-center gap-12 px-4 pb-4 pt-8 sm:px-6 sm:pb-12 sm:pt-14 lg:grid-cols-[1.15fr_1fr] lg:gap-10 lg:px-10 lg:pb-24 lg:pt-14">
         <div className="min-w-0">
           <p className="kit-rise flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.3em] text-ember-1">
@@ -142,7 +143,7 @@ export function Hero() {
             </a>
             <a
               href={hero.secondaryCta.href}
-              className="group flex items-center gap-2 rounded-full border border-hairline px-6 py-3.5 text-sm font-semibold transition-colors hover:border-ember-2/50 lg:text-base"
+              className="g-glass g-glass-pill g-press group flex items-center gap-2 px-6 py-3.5 text-sm font-semibold lg:text-base"
             >
               {hero.secondaryCta.label}
               <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
