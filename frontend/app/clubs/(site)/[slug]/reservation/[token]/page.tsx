@@ -1,14 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { BookingWatch, PaidBurst, PassActions, QrZoom, ResumePayment } from "@/components/club/booking-live";
+import { BookingWatch, DepositRequest, PaidBurst, PassActions, QrZoom, ResumePayment } from "@/components/club/booking-live";
 import { SeatRing } from "@/components/club/seat-ring";
 import { ShareLink, ShareMeter } from "@/components/club/share-live";
 import { ClubFooter, ClubTop } from "@/components/club/chrome";
 import { EtoileMark } from "@/components/menu/etoile/logo";
 import { QrCode } from "@/components/pitch/qr-code";
 import { REFUND_RULE } from "@/lib/club/conditions";
-import { formatCents, formatHours, formatNight, formatNightShort } from "@/lib/club/format";
+import { formatCents, formatHours, formatNight, formatNightShort, formatTime } from "@/lib/club/format";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { bookingPath, clubHref, sharePath } from "@/lib/club/links";
 import { fetchBookingByToken, fetchClub, type BookingTicket } from "@/lib/club/public";
@@ -51,6 +51,14 @@ const DAY = new Intl.DateTimeFormat("fr-FR", { timeZone: "Europe/Paris", day: "n
 function statusCopy(view: View, booking: BookingTicket, eventCancelled: boolean) {
   const total = formatCents(booking.totalCents);
   const refunded = booking.refundedAt ? ` le ${DAY.format(new Date(booking.refundedAt))}` : "";
+  // Un acompte demandé par le club se dit d'abord, qu'une part soit déjà réglée ou non.
+  if (booking.depositRequestedCents !== null && (view === "sur_place" || view === "payee")) {
+    return {
+      pill: "Acompte demandé",
+      title: "Réglez l'acompte de votre table",
+      text: `Le club a noté votre réservation et vous demande un acompte de ${formatCents(booking.depositRequestedCents)}. Le reste se règle sur place.`,
+    };
+  }
   switch (view) {
     case "attente":
       return {
@@ -231,6 +239,19 @@ export default async function BookingPage({ params, searchParams }: { params: Pa
           )}
         </header>
 
+        {(view === "sur_place" || view === "payee") && booking.depositRequestedCents !== null && !eventOver && (
+          <DepositRequest
+            token={booking.token}
+            amountCents={booking.depositRequestedCents}
+            recap={[
+              formatNightShort(booking.event.startsAt).replace(/^./, (letter) => letter.toUpperCase()),
+              booking.table.zone,
+              `${booking.partySize} pers.`,
+              `acompte ${formatCents(booking.depositRequestedCents)}`,
+            ].join(" · ")}
+          />
+        )}
+
         {view === "attente" && booking.holdExpiresAt && booking.pendingPaymentId && (
           <ResumePayment
             paymentId={booking.pendingPaymentId}
@@ -322,6 +343,12 @@ export default async function BookingPage({ params, searchParams }: { params: Pa
               <dt>Personnes</dt>
               <dd className="club-mono">{booking.partySize}</dd>
             </div>
+            {booking.arrivalAt && (
+              <div>
+                <dt>Arrivée prévue</dt>
+                <dd className="club-mono">{formatTime(booking.arrivalAt)}</dd>
+              </div>
+            )}
             {booking.table.inclus && (
               <div className="club-pass-wide">
                 <dt>Inclus</dt>

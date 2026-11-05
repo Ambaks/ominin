@@ -249,11 +249,14 @@ export default function SoireesPage() {
               : "Les soirées du club. Ouvrez le plan du soir pour accueillir les tables."
           }
           right={
-            gerant ? (
-              <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
-                Nouvelle soirée
-              </GlassButton>
-            ) : undefined
+            <div className="flex flex-wrap items-center gap-3">
+              <GlassButton href="/gestion/soirees/notifications">Notifications</GlassButton>
+              {gerant && (
+                <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
+                  Nouvelle soirée
+                </GlassButton>
+              )}
+            </div>
           }
         />
       </div>
@@ -280,11 +283,12 @@ export default function SoireesPage() {
       ) : tab === "salle" ? (
         <div>
           <ZonesSettings
-            key={JSON.stringify([club.zones.map((zone) => zone.id), club.conditions])}
+            key={JSON.stringify([club.zones.map((zone) => zone.id), club.conditions, club.depositPercent, club.options])}
             zones={club.zones}
             tableCounts={tableCounts}
             conditions={club.conditions}
             depositPercent={club.depositPercent}
+            options={club.options}
           />
         </div>
       ) : shown.length === 0 ? (

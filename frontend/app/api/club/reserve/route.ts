@@ -20,6 +20,7 @@ export async function POST(request: Request) {
     email?: unknown;
     partySize?: unknown;
     shareCents?: unknown;
+    arrivalAt?: unknown;
     accepted?: unknown;
   } | null;
   const eventId = typeof body?.eventId === "string" ? body.eventId : "";
@@ -29,6 +30,7 @@ export async function POST(request: Request) {
     typeof body?.shareCents === "number" && Number.isFinite(body.shareCents)
       ? Math.round(body.shareCents)
       : null;
+  const arrivalAt = typeof body?.arrivalAt === "string" && !Number.isNaN(Date.parse(body.arrivalAt)) ? body.arrivalAt : null;
   const contact = body ? cleanContact(body) : null;
   if (!eventId || !zoneId || !contact || party < 1) {
     return NextResponse.json({ error: "Coordonnées incomplètes." }, { status: 400 });
@@ -63,6 +65,7 @@ export async function POST(request: Request) {
     p_party: party,
     p_hold_seconds: TABLE_HOLD_S,
     p_share_cents: shareCents,
+    p_arrivee: arrivalAt,
   });
   const reserved = data?.[0];
   if (error || !reserved) {

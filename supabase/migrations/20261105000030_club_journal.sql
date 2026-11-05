@@ -188,8 +188,12 @@ begin
   end if;
 
   -- Une attente de paiement en ligne qui tombe : rien ne s'est passé ;
-  -- qui aboutit : son paiement la raconte.
-  if old.status = 'en_attente' and old.hold_expires_at is not null and new.status in ('annulee', 'payee') then
+  -- qui aboutit, ou l'acompte demandé par le club qui se paie : son paiement
+  -- la raconte.
+  if old.status = 'en_attente' and (
+    (old.hold_expires_at is not null and new.status in ('annulee', 'payee'))
+    or (new.status = 'payee' and new.paid_cents > old.paid_cents)
+  ) then
     return null;
   end if;
 
@@ -219,6 +223,10 @@ begin
     'paid_cents', 'paid_at', 'arrived_at', 'seated_at', 'left_at', 'cancelled_at', 'refunded_at',
     'hold_expires_at', 'created_at'
   ]);
+  -- L'acompte demandé s'efface quand il est payé : le paiement le raconte déjà.
+  if new.acompte_demande_cents is null then
+    v_champs := nullif(v_champs - 'acompte_demande_cents', '{}'::jsonb);
+  end if;
   if v_champs is not null then
     perform club_journal_ecrire(
       new.etablissement_id, 'modification', false, new.event_id, new.id, null, new.name,

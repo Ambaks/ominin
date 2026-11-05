@@ -1,6 +1,6 @@
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { CLUB_DROITS, POSTE_LABELS, readDroits, CLUB_ROLES, type Poste } from "./droits";
-import { formatCents, formatDateTime, tableName } from "./format";
+import { formatCents, formatDateTime, formatTime, tableName } from "./format";
 import type { BookingSource, BookingStatus } from "./types";
 
 /*
@@ -79,6 +79,8 @@ const BOOKING_FIELDS: Record<string, string> = {
   phone: "Téléphone",
   email: "E-mail",
   party_size: "Personnes",
+  arrivee_prevue: "Heure d'arrivée",
+  acompte_demande_cents: "Acompte demandé",
   note: "Note",
   price_cents: "Prix",
   fee_cents: "Frais",
@@ -109,6 +111,7 @@ function value(key: string, raw: unknown): string {
   if (typeof raw === "boolean") return raw ? "oui" : "non";
   if (key.endsWith("_cents") && typeof raw === "number") return formatCents(raw);
   if (key.endsWith("_at") && typeof raw === "string") return formatDateTime(raw);
+  if (key === "arrivee_prevue" && typeof raw === "string") return formatTime(raw);
   if (key === "source") return SOURCES[raw as BookingSource] ?? String(raw);
   return String(raw);
 }

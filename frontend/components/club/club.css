@@ -544,6 +544,37 @@ html:has(.club) {
   animation: club-pop var(--c-slow) var(--c-spring) both;
 }
 
+/* L'heure d'arrivée : une pastille par créneau, la choisie allumée, une complète éteinte. */
+.club-arrival {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.club-arrival [role="radiogroup"] {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.club-arrival [aria-checked="true"] {
+  border-color: var(--c-gold);
+  background: color-mix(in srgb, var(--c-gold) 18%, rgba(12, 16, 41, 0.85));
+  color: #fff;
+}
+
+.club-arrival button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.club-arrival-full {
+  font-size: 12px;
+}
+
 @keyframes club-pop {
   from {
     opacity: 0;

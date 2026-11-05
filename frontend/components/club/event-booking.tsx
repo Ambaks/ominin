@@ -30,7 +30,7 @@ import { TablePayment } from "@/components/club/table-payment";
 import { CLUB_SHEET, CLUB_TIMING } from "@/components/club/timing";
 import { useMagnetic } from "@/components/club/use-magnetic";
 import { REFUND_RULE } from "@/lib/club/conditions";
-import { formatCents, formatNightShort } from "@/lib/club/format";
+import { formatCents, formatNightShort, formatTime } from "@/lib/club/format";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
 import { bookingPath, clubHref } from "@/lib/club/links";
 import { clubToken, phoneLayout, prefersReducedMotion as reducedMotion } from "@/lib/club/media";
@@ -138,10 +138,17 @@ export function EventBooking({
   // Les erreurs du formulaire ne s'affichent qu'après un premier essai de paiement.
   const [triedPay, setTriedPay] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
+  // L'heure d'arrivée, si la soirée propose des créneaux : un créneau qui a encore de la place.
+  const [arrivalAt, setArrivalAt] = useState<string | null>(null);
+  const slots = availability.slots;
+  const arrivalError =
+    slots.length > 0 && !slots.some((slot) => slot.startsAt === arrivalAt && slot.left > 0)
+      ? "Choisissez votre heure d'arrivée."
+      : undefined;
   const errors = contactErrors(contact, accepted);
-  const formValid = Object.keys(errors).length === 0;
+  const formValid = Object.keys(errors).length === 0 && !arrivalError;
   const shownErrors = triedPay ? errors : {};
-  const [mode, setModeState] = useState<Mode>("full");
+  const [chosenMode, setModeState] = useState<Mode>("full");
   // Le sens d'un changement (étape, mode de paiement) : ce qui arrive vient du bon côté.
   const [back, setBack] = useState(false);
   // Le curseur du montant est tenu : chiffres et places suivent sans animation.
@@ -168,16 +175,18 @@ export function EventBooking({
     club.depositPercent !== null ? Math.max(Math.ceil((tablePrice * club.depositPercent) / 100), floor) : null;
   const equalPart = Math.max(Math.ceil(tablePrice / people), floor);
   const part = deposit ?? equalPart;
+  // Ce que le club propose : la table entière, l'acompte, le partage — un mode coupé ne s'offre pas.
+  const modes: { id: Mode; label: string }[] = [
+    ...(club.options.fullTable ? [{ id: "full" as const, label: "Table complète" }] : []),
+    ...(deposit !== null ? [{ id: "deposit" as const, label: "Acompte" }] : []),
+    ...(club.options.sharing ? [{ id: "shared" as const, label: "Partager" }] : []),
+  ];
+  const mode = modes.some((item) => item.id === chosenMode) ? chosenMode : (modes[0]?.id ?? "full");
   const shared = mode === "shared";
   const share =
     mode === "deposit" && deposit !== null ? deposit : Math.min(tablePrice, Math.max(part, shareCents ?? equalPart));
   const partial = mode !== "full";
   const total = partial ? share : tablePrice;
-  const modes: { id: Mode; label: string }[] = [
-    { id: "full", label: "Table complète" },
-    ...(deposit !== null ? [{ id: "deposit" as const, label: "Acompte" }] : []),
-    { id: "shared", label: "Partager" },
-  ];
   const modeIndex = modes.findIndex((item) => item.id === mode);
   const setMode = (next: Mode) => {
     setBack(modes.findIndex((item) => item.id === next) < modeIndex);
@@ -405,7 +414,8 @@ export function EventBooking({
     if (!selected || submitting) return;
     if (!formValid) {
       setTriedPay(true);
-      focusFirstError(formRef.current, errors);
+      if (Object.keys(errors).length > 0) focusFirstError(formRef.current, errors);
+      else formRef.current?.querySelector<HTMLElement>(".club-arrival button:not([disabled])")?.focus();
       return;
     }
     setSubmitting(true);
@@ -422,6 +432,7 @@ export function EventBooking({
           partySize: people,
           accepted,
           ...(partial ? { shareCents: share } : {}),
+          ...(arrivalAt ? { arrivalAt } : {}),
         }),
       });
       const body = (await response.json().catch(() => ({}))) as Partial<Hold> & { error?: string };
@@ -796,6 +807,31 @@ export function EventBooking({
                       errors={shownErrors}
                       emailHint="Votre confirmation et votre QR code y arrivent."
                     />
+                    {slots.length > 0 && (
+                      <fieldset className="club-arrival" data-invalid={triedPay && arrivalError ? "" : undefined}>
+                        <legend className="club-label">Heure d&rsquo;arrivée</legend>
+                        <div role="radiogroup" aria-label="Heure d'arrivée">
+                          {slots.map((slot) => {
+                            const full = slot.left <= 0;
+                            return (
+                              <button
+                                key={slot.startsAt}
+                                type="button"
+                                role="radio"
+                                aria-checked={arrivalAt === slot.startsAt}
+                                disabled={full}
+                                className="club-chip-button club-mono"
+                                onClick={() => setArrivalAt(slot.startsAt)}
+                              >
+                                {formatTime(slot.startsAt)}
+                                {full && <span className="club-arrival-full"> · complet</span>}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {triedPay && arrivalError && <p className="club-field-error">{arrivalError}</p>}
+                      </fieldset>
+                    )}
                     <ConditionsBlock
                       conditions={conditions}
                       refund={REFUND_RULE}
