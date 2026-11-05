@@ -94,7 +94,7 @@ export default async function EventPage({ params }: { params: Params }) {
 
       {!cancelled && <EventBooking club={club} event={event} availability={availability} bookable={bookable} />}
 
-      {!cancelled && event.guestListOpen && (
+      {!cancelled && club.options.guestList && event.guestListOpen && (
         <GuestList eventId={event.id} maxParty={event.guestListMaxParty} initialLeft={availability.guestListLeft} />
       )}
 

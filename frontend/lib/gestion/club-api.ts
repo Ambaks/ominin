@@ -1,8 +1,11 @@
 import type { ClubDroits } from "@/lib/club/droits";
+import { rowToJournal, type JournalEntry } from "@/lib/club/journal";
 import { rowToBooking, rowToEvent } from "@/lib/club/mappers";
-import type { BookingSource, ClubBooking, ClubEvent, ClubGuest, ClubPayment } from "@/lib/club/types";
+import type { Rapport, RapportSoiree, RapportTotaux } from "@/lib/club/rapport";
+import type { ArrivalSlot, BookingSource, ClubBooking, ClubEvent, ClubGuest, ClubOptions, ClubPayment } from "@/lib/club/types";
 import { createClient } from "@/lib/supabase/client";
-import { check, must } from "@/lib/supabase/result";
+import { check, must, type ListPage } from "@/lib/supabase/result";
+import { notifyClub } from "./club-notifications";
 import type { NightStep } from "./club-selectors";
 import {
   commitClub,
@@ -80,6 +83,35 @@ export async function updateConditions(conditions: ClubConditions) {
   });
 }
 
+/** Ce que le club propose en ligne : table entière, partage, liste d'invités. */
+export async function updateOptions(options: ClubOptions) {
+  const { etablissementId } = getClub();
+  check(
+    await createClient()
+      .from("etablissements")
+      .update({
+        club_table_entiere: options.fullTable,
+        club_partage: options.sharing,
+        club_liste_invites: options.guestList,
+      })
+      .eq("id", etablissementId)
+  );
+  apply((draft) => {
+    draft.options = options;
+  });
+}
+
+/** L'acompte minimal d'une table en ligne, en % de son prix ; null : la table se paie entière. */
+export async function updateDepositPercent(percent: number | null) {
+  const { etablissementId } = getClub();
+  check(
+    await createClient().from("etablissements").update({ table_deposit_percent: percent }).eq("id", etablissementId)
+  );
+  apply((draft) => {
+    draft.depositPercent = percent;
+  });
+}
+
 /** Ce que chaque poste peut faire (direction seule, club_peut le relit à chaque geste). */
 export async function updateDroits(droits: ClubDroits) {
   const { etablissementId } = getClub();
@@ -107,6 +139,8 @@ interface EventInput {
   guestListMaxParty?: number;
   zones: EventZoneSetting[];
   blocked: string[];
+  /** Les créneaux d'arrivée ; vide : l'heure n'est pas demandée. */
+  slots: ArrivalSlot[];
 }
 
 /**
@@ -167,6 +201,18 @@ export async function saveEvent(eventId: string | null, input: EventInput): Prom
     );
   }
 
+  const slotStarts = input.slots.map((slot) => slot.startsAt);
+  let staleSlots = supabase.from("club_event_creneaux").delete().eq("event_id", id);
+  if (slotStarts.length > 0) staleSlots = staleSlots.not("starts_at", "in", `(${slotStarts.map((start) => `"${start}"`).join(",")})`);
+  check(await staleSlots);
+  if (input.slots.length > 0) {
+    check(
+      await supabase.from("club_event_creneaux").upsert(
+        input.slots.map((slot) => ({ event_id: id, starts_at: slot.startsAt, max_bookings: slot.maxBookings }))
+      )
+    );
+  }
+
   const event = rowToEvent(row);
   return apply((draft) => {
     const index = draft.events.findIndex((candidate) => candidate.id === id);
@@ -175,6 +221,7 @@ export async function saveEvent(eventId: string | null, input: EventInput): Prom
     draft.events.sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt));
     draft.eventZones[id] = input.zones;
     draft.blocked[id] = input.blocked;
+    draft.slots[id] = input.slots;
     return event;
   });
 }
@@ -216,7 +263,10 @@ export interface ClubBookingInput {
   tableId: string | null;
   name: string;
   phone: string;
+  email: string;
   partySize: number;
+  /** Un créneau de la soirée, ou null. */
+  arrivalAt: string | null;
   source: Exclude<BookingSource, "en_ligne">;
   /** Réglée à la saisie ; sinon à régler sur place, à l'arrivée. */
   paid: boolean;
@@ -231,13 +281,16 @@ export async function createClubBooking(input: ClubBookingInput): Promise<ClubBo
       p_table: input.tableId,
       p_name: input.name,
       p_phone: input.phone,
+      p_email: input.email,
       p_party: input.partySize,
+      p_arrivee: input.arrivalAt,
       p_source: input.source,
       p_paid: input.paid,
       p_note: input.note,
     })
   );
   const booking = rowToBooking(row);
+  notifyClub(booking.id);
   apply((draft) => {
     draft.nights[input.eventId]?.bookings.push(booking);
   });
@@ -273,6 +326,36 @@ export async function setBookingStatus(booking: ClubBooking, step: NightStep, pa
   });
   if (paid || result.error) await refreshNightNow(booking.eventId);
   if (result.error) throw new Error(result.error.message);
+}
+
+/** Ce qui se modifie d'une réservation sans toucher à l'argent. */
+export type BookingChanges = Pick<ClubBooking, "name" | "phone" | "email" | "partySize" | "note" | "arrivalAt">;
+
+export async function updateBooking(booking: ClubBooking, changes: BookingChanges) {
+  const row = must(
+    await createClient().rpc("club_modifier_reservation", {
+      p_booking: booking.id,
+      p_name: changes.name,
+      p_phone: changes.phone ?? "",
+      p_email: changes.email ?? "",
+      p_party: changes.partySize,
+      p_note: changes.note ?? "",
+      p_arrivee: changes.arrivalAt,
+    })
+  );
+  const next = rowToBooking(row);
+  apply((draft) => patchBooking(draft, booking, next));
+  // Un nombre de personnes changé sonne chez l'équipe : la file part maintenant.
+  if (next.partySize !== booking.partySize) notifyClub(booking.id);
+}
+
+/**
+ * Demande un acompte sur une réservation saisie par le club et envoie au
+ * client le lien de sa page, où il le paie. Renvoyer refait la demande.
+ */
+export async function requestDeposit(booking: ClubBooking, amountCents: number) {
+  await post("/api/club/acompte-lien", { bookingId: booking.id, amountCents: String(amountCents) });
+  apply((draft) => patchBooking(draft, booking, { depositRequestedCents: amountCents }));
 }
 
 /** Le caissier encaisse le reste d'une table, sans toucher à son statut. */
@@ -324,11 +407,14 @@ export async function placeBooking(booking: ClubBooking, tableId: string) {
     await refreshNightNow(booking.eventId);
     throw new Error(result.error.message);
   }
+  // Déplacer une réservation déjà placée prévient l'équipe ; la placer, non.
+  if (booking.tableId) notifyClub(booking.id);
 }
 
 /** Annule une réservation saisie par le club : la table redevient libre. */
 export async function cancelClubBooking(booking: ClubBooking) {
   check(await createClient().rpc("club_annuler_reservation", { p_booking: booking.id }));
+  notifyClub(booking.id);
   apply((draft) => {
     const night = draft.nights[booking.eventId];
     if (night) night.bookings = night.bookings.filter((candidate) => candidate.id !== booking.id);
@@ -352,4 +438,72 @@ export async function markGuest(guest: ClubGuest, arrived: boolean) {
     apply((draft) => patch(draft, guest.arrivedAt));
     throw new Error(result.error.message);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Rapports (direction)
+
+/** Le rapport financier d'une soirée, calculé en base (club_rapport). */
+export async function fetchRapport(eventId: string): Promise<Rapport> {
+  return must(await createClient().rpc("club_rapport", { p_event: eventId })) as unknown as Rapport;
+}
+
+/** L'historique des soirées commencées, la plus récente d'abord, page par page. */
+export async function fetchRapports(search: string, limit: number, offset: number): Promise<ListPage<RapportSoiree>> {
+  const rows = must(
+    await createClient().rpc("club_rapports", {
+      p_etablissement: getClub().etablissementId,
+      p_search: search,
+      p_limit: limit,
+      p_offset: offset,
+    })
+  );
+  return {
+    rows: rows.map((row) => ({
+      eventId: row.event_id,
+      title: row.title,
+      startsAt: row.starts_at,
+      cancelled: row.cancelled,
+      totaux: row.totaux as unknown as RapportTotaux,
+    })),
+    total: rows[0]?.total_count ?? 0,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Journal des actions (direction)
+
+/** Le journal du club, le plus récent d'abord, page par page : une soirée, ou toutes (null). */
+export async function fetchJournal(
+  eventId: string | null,
+  search: string,
+  limit: number,
+  offset: number
+): Promise<ListPage<JournalEntry>> {
+  const rows = must(
+    await createClient().rpc("club_journal_page", {
+      p_etablissement: getClub().etablissementId,
+      p_event: eventId,
+      p_search: search,
+      p_limit: limit,
+      p_offset: offset,
+    })
+  );
+  return { rows: rows.map(rowToJournal), total: rows[0]?.total_count ?? 0 };
+}
+
+/**
+ * L'historique d'une réservation, dans l'ordre. Pas de pages : une
+ * réservation ne vit qu'une soirée, son historique tient sur un écran.
+ */
+export async function fetchBookingJournal(bookingId: string): Promise<JournalEntry[]> {
+  const rows = must(
+    await createClient()
+      .from("club_journal")
+      .select("*")
+      .eq("booking_id", bookingId)
+      .order("created_at")
+      .order("id")
+  );
+  return rows.map(rowToJournal);
 }

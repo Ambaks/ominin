@@ -8,6 +8,8 @@ import {
   ClubLocked,
   ClubSkeleton,
 } from "@/components/gestion/soirees/club-states";
+import { JournalList } from "@/components/gestion/soirees/journal";
+import { RapportsHistorique } from "@/components/gestion/soirees/rapports-historique";
 import { ZonesSettings } from "@/components/gestion/soirees/zones-settings";
 import {
   Chip,
@@ -35,7 +37,7 @@ import { useNow } from "@/lib/gestion/use-now";
  * c'est là que l'œil se pose.
  */
 
-type Tab = "a_venir" | "passees" | "salle";
+type Tab = "a_venir" | "passees" | "rapports" | "journal" | "salle";
 
 /** Au-delà de ce rang, les cartes entrent ensemble : trente soirées passées n'attendent pas. */
 const MAX_RISE = 6;
@@ -114,9 +116,14 @@ function EventCard({
   const tonight = isTonight(event, now);
   const guestList = event.guestListOpen || stats.guests > 0;
   // Une seule destination par carte : le plan si la soirée a commencé (ou
-  // pour l'équipe), sa préparation sinon.
-  const href = tonight || !gerant ? `/gestion/soirees/${event.id}/live` : `/gestion/soirees/${event.id}`;
-  const action = href.endsWith("/live") ? "Plan du soir" : isPast(event, now) ? "Revoir" : "Préparer";
+  // pour l'équipe), son rapport une fois finie (direction), sa préparation sinon.
+  const href =
+    tonight || !gerant
+      ? `/gestion/soirees/${event.id}/live`
+      : isPast(event, now)
+        ? `/gestion/soirees/${event.id}/rapport`
+        : `/gestion/soirees/${event.id}`;
+  const action = href.endsWith("/live") ? "Plan du soir" : href.endsWith("/rapport") ? "Rapport" : "Préparer";
 
   const body = (
     <>
@@ -207,7 +214,7 @@ export default function SoireesPage() {
   const past = events.filter((event) => isPast(event, now)).reverse();
   const shown = tab === "passees" ? past : upcoming;
   const nextId = upcoming.find((event) => !event.cancelledAt)?.id;
-  useClubNights(tab === "salle" ? [] : shown.map((event) => event.id));
+  useClubNights(tab === "salle" || tab === "rapports" || tab === "journal" ? [] : shown.map((event) => event.id));
 
   if (!state) return null;
   if (!hasFeature("soirees")) return <ClubLocked />;
@@ -217,7 +224,13 @@ export default function SoireesPage() {
   const tabs = [
     { value: "a_venir" as const, label: upcoming.length > 0 ? `À venir · ${upcoming.length}` : "À venir" },
     { value: "passees" as const, label: "Passées" },
-    ...(gerant ? [{ value: "salle" as const, label: "Salle et prix" }] : []),
+    ...(gerant
+      ? [
+          { value: "rapports" as const, label: "Rapports" },
+          { value: "journal" as const, label: "Journal" },
+          { value: "salle" as const, label: "Salle et prix" },
+        ]
+      : []),
   ];
   const tableCounts = new Map<string, number>();
   for (const table of club.tables) {
@@ -236,11 +249,14 @@ export default function SoireesPage() {
               : "Les soirées du club. Ouvrez le plan du soir pour accueillir les tables."
           }
           right={
-            gerant ? (
-              <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
-                Nouvelle soirée
-              </GlassButton>
-            ) : undefined
+            <div className="flex flex-wrap items-center gap-3">
+              <GlassButton href="/gestion/soirees/notifications">Notifications</GlassButton>
+              {gerant && (
+                <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
+                  Nouvelle soirée
+                </GlassButton>
+              )}
+            </div>
           }
         />
       </div>
@@ -260,14 +276,19 @@ export default function SoireesPage() {
         />
       </div>
 
-      {tab === "salle" ? (
+      {tab === "rapports" ? (
+        <RapportsHistorique />
+      ) : tab === "journal" ? (
+        <JournalList />
+      ) : tab === "salle" ? (
         <div>
           <ZonesSettings
-            key={JSON.stringify([club.zones.map((zone) => zone.id), club.conditions])}
+            key={JSON.stringify([club.zones.map((zone) => zone.id), club.conditions, club.depositPercent, club.options])}
             zones={club.zones}
             tableCounts={tableCounts}
             conditions={club.conditions}
             depositPercent={club.depositPercent}
+            options={club.options}
           />
         </div>
       ) : shown.length === 0 ? (

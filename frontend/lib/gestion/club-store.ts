@@ -12,7 +12,9 @@ import {
   rowToZone,
 } from "@/lib/club/mappers";
 import type {
+  ArrivalSlot,
   BookingStatus,
+  ClubOptions,
   PaymentStatus,
   ClubBooking,
   ClubEvent,
@@ -58,6 +60,10 @@ export interface ClubState {
   droits: ClubDroits;
   /** Le poste du membre connecté (null : direction, ou pas de poste). */
   clubRole: ClubRole | null;
+  /** Table entière, partage, liste d'invités : ce que le club propose. */
+  options: ClubOptions;
+  /** Les créneaux d'arrivée de chaque soirée, dans l'ordre. */
+  slots: Record<string, ArrivalSlot[]>;
   zones: ClubZone[];
   tables: ClubTable[];
   events: ClubEvent[];
@@ -131,13 +137,13 @@ async function fetchBase(supabase: Client, etablissementId: string) {
     supabase.from("club_tables").select("*").eq("etablissement_id", etablissementId).then(must),
     supabase
       .from("club_events")
-      .select("*, club_event_zones(zone_id, price_cents), club_event_blocked_tables(table_id)")
+      .select("*, club_event_zones(zone_id, price_cents), club_event_blocked_tables(table_id), club_event_creneaux(starts_at, max_bookings)")
       .eq("etablissement_id", etablissementId)
       .order("starts_at", { ascending: true })
       .then(must),
     supabase
       .from("etablissements")
-      .select("club_min_age, club_dress_code, club_refused, table_deposit_percent, club_droits")
+      .select("club_min_age, club_dress_code, club_refused, table_deposit_percent, club_droits, club_table_entiere, club_partage, club_liste_invites")
       .eq("id", etablissementId)
       .single()
       .then(must),
@@ -161,6 +167,19 @@ async function fetchBase(supabase: Client, etablissementId: string) {
     depositPercent: conditions.table_deposit_percent,
     droits: readDroits(conditions.club_droits),
     clubRole: membership?.club_role ?? null,
+    options: {
+      fullTable: conditions.club_table_entiere,
+      sharing: conditions.club_partage,
+      guestList: conditions.club_liste_invites,
+    },
+    slots: Object.fromEntries(
+      events.map((event) => [
+        event.id,
+        event.club_event_creneaux
+          .map((slot) => ({ startsAt: slot.starts_at, maxBookings: slot.max_bookings }))
+          .sort((a, b) => Date.parse(a.startsAt) - Date.parse(b.startsAt)),
+      ])
+    ),
     zones: zones.map(rowToZone),
     tables: tables
       .map(rowToTable)

@@ -80,8 +80,8 @@ export interface PushPayload {
   tag: string;
   /** Ouverte au clic, relative au host de l'appareil (gestion partagée). */
   url: string;
-  /** « essai » : notification de test ; « projet » : suivi du projet (admin) ; « commercial » : espace commercial. */
-  event: PushEvent | "essai" | "projet" | "commercial";
+  /** « essai » : notification de test ; « projet » : suivi du projet (admin) ; « commercial » : espace commercial ; « club » : réservation d'un club. */
+  event: PushEvent | "essai" | "projet" | "commercial" | "club";
   /** Reste affichée jusqu'à un geste : une urgence, pas une information. */
   urgent?: boolean;
   /** Étape du suivi concernée, cible des boutons d'action. */

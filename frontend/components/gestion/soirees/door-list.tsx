@@ -6,7 +6,7 @@ import { CheckIcon, PhoneIcon } from "@/components/gestion/icons";
 import { EmptyState, GlassButton, Input, Plate, Segmented } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import type { ClubBooking, ClubDroit, ClubTable } from "@/lib/club/types";
-import { formatCents, tableName } from "@/lib/club/format";
+import { formatCents, formatTime, tableName } from "@/lib/club/format";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
   formatPhone,
@@ -229,6 +229,7 @@ function DoorRow({
           </span>
           <span className="flex flex-wrap items-center gap-2 text-g-label text-muted">
             {party(booking.partySize)}
+            {booking.arrivalAt && <span className="tabular-nums">· {formatTime(booking.arrivalAt)}</span>}
             {booking.shared && payers.length > 1 && (
               <span>
                 · {payers.length} payeur{payers.length > 1 ? "s" : ""}
@@ -314,7 +315,9 @@ export function DoorList({
     .map((entry) => ({ ...entry, state: staffTableState(entry.booking, true), gesture: nextGesture(entry.booking, droits) }))
     .filter(search);
   // Dans l'ordre de la soirée ; dans chaque temps, ce qui attend un geste
-  // de ce poste d'abord, puis la réservation la plus ancienne.
+  // de ce poste d'abord, puis l'heure d'arrivée prévue, puis la réservation
+  // la plus ancienne.
+  const arrivalKey = (entry: Entry) => (entry.booking.arrivalAt ? Date.parse(entry.booking.arrivalAt) : Number.POSITIVE_INFINITY);
   const sectionRank = (entry: Entry) => SECTIONS.findIndex((section) => section.value === SECTION_OF[entry.state]);
   const rows = entries
     .filter((entry) => filter === "toutes" || SECTION_OF[entry.state] === filter)
@@ -322,6 +325,7 @@ export function DoorList({
       (a, b) =>
         sectionRank(a) - sectionRank(b) ||
         Number(b.gesture !== null) - Number(a.gesture !== null) ||
+        arrivalKey(a) - arrivalKey(b) ||
         Date.parse(a.booking.createdAt) - Date.parse(b.booking.createdAt)
     );
   const left = departed

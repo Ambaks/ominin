@@ -10,7 +10,7 @@ import { createClient } from "@/lib/supabase/server";
  */
 export async function requireClubGerant(
   etablissementId: string
-): Promise<{ ok: true } | { ok: false; error: string; status: 401 | 403 }> {
+): Promise<{ ok: true; userId: string } | { ok: false; error: string; status: 401 | 403 }> {
   const supabase = await createClient();
   const {
     data: { user },
@@ -20,7 +20,7 @@ export async function requireClubGerant(
   if (role !== "gerant") {
     return { ok: false, error: "Réservé au gérant du club.", status: 403 };
   }
-  return { ok: true };
+  return { ok: true, userId: user.id };
 }
 
 /** Les champs d'un formulaire client, nettoyés ; null s'ils ne tiennent pas. */

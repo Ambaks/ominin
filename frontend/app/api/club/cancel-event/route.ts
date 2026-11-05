@@ -30,9 +30,11 @@ export async function POST(request: Request) {
   }
   const guard = await requireClubGerant(event.etablissement_id);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+  // Le journal nomme le gérant qui annule et rembourse.
+  const asGerant = createAdminClient(guard.userId);
 
   if (!event.cancelled_at) {
-    const { error } = await admin
+    const { error } = await asGerant
       .from("club_events")
       .update({ cancelled_at: new Date().toISOString(), guest_list_open: false })
       .eq("id", eventId);
@@ -71,7 +73,7 @@ export async function POST(request: Request) {
       const refunded: string[] = [];
       let outcome: Awaited<ReturnType<typeof refundBooking>> | "failed";
       try {
-        outcome = await refundBooking(admin, stripe, booking.id, {
+        outcome = await refundBooking(asGerant, stripe, booking.id, {
           notify: false,
           onRefunded: (paymentId) => refunded.push(paymentId),
         });
