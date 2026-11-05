@@ -67,7 +67,7 @@ export function ScrollStory({
 }: {
   id: string;
   eyebrow: string;
-  title: string;
+  title: ReactNode;
   steps: readonly StoryStep[];
   /** Un écran par étape, dans le même ordre. */
   screens: ReactNode[];
