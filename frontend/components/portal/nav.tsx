@@ -8,19 +8,17 @@ import { useLanguage } from "@/lib/portal/language";
 import { brand, nav } from "@/lib/portal-data";
 
 /*
- * Barre du portail : volontairement plus nue que celles des produits — pas de
- * liens de section, les quatre cubes sont tout le contenu.
+ * Barre du portail : une pilule de verre flottante (kit gestion), plus nue
+ * que celles des produits — pas de liens de section, la rangée des produits
+ * est tout le contenu.
  */
 export function PortalNav() {
   const { t } = useLanguage();
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-hairline bg-background/85 backdrop-blur-md">
-      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-3 sm:px-6 lg:px-10">
-        <Link
-          href="/"
-          className="ember-text flex items-center gap-2 font-display text-lg font-semibold"
-        >
+    <nav className="kit-glass-nav g-glass g-glass-pill mx-3 mt-(--g-frame-margin) sm:mx-6 xl:mx-auto xl:max-w-6xl">
+      <div className="flex items-center justify-between gap-3 py-2 pl-4 pr-2 sm:pl-5">
+        <Link href="/" className="ember-text flex items-center gap-2 font-display text-lg font-semibold">
           <Image src="/logo.png" alt="" width={28} height={28} />
           {brand}
         </Link>
@@ -28,10 +26,7 @@ export function PortalNav() {
         <div className="flex items-center gap-2">
           <LanguageToggle />
           <ThemeToggle />
-          <Link
-            href={nav.cta.href}
-            className="ember-gradient rounded-full px-4 py-2 text-xs font-semibold text-background lg:px-5 lg:py-2.5 lg:text-sm"
-          >
+          <Link href={nav.cta.href} className="g-btn g-btn-primary g-press">
             {t(nav.cta.label)}
           </Link>
         </div>

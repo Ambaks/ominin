@@ -4,13 +4,14 @@ import { KitFinalCta } from "@/components/landing-kit/final-cta";
 import { useLanguage } from "@/lib/portal/language";
 import { finalCta } from "@/lib/portal-data";
 
-/* Le portail se referme sur l'appel au sur-mesure, dans le bloc braise du kit. */
+/* Le portail se referme sur l'appel au sur-mesure : le bloc braise du kit, dans un cadre de verre. */
 export function PortalFinalCta() {
   const { t } = useLanguage();
 
   return (
     <KitFinalCta
       id="contact"
+      glass
       title={t(finalCta.titleLead)}
       subtitle={t(finalCta.body)}
       primary={{ label: t(finalCta.cta.label), href: finalCta.cta.href }}
