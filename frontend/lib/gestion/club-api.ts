@@ -4,6 +4,7 @@ import type { Rapport, RapportSoiree, RapportTotaux } from "@/lib/club/rapport";
 import type { BookingSource, ClubBooking, ClubEvent, ClubGuest, ClubPayment } from "@/lib/club/types";
 import { createClient } from "@/lib/supabase/client";
 import { check, must, type ListPage } from "@/lib/supabase/result";
+import { notifyClub } from "./club-notifications";
 import type { NightStep } from "./club-selectors";
 import {
   commitClub,
@@ -239,6 +240,7 @@ export async function createClubBooking(input: ClubBookingInput): Promise<ClubBo
     })
   );
   const booking = rowToBooking(row);
+  notifyClub(booking.id);
   apply((draft) => {
     draft.nights[input.eventId]?.bookings.push(booking);
   });
@@ -325,11 +327,14 @@ export async function placeBooking(booking: ClubBooking, tableId: string) {
     await refreshNightNow(booking.eventId);
     throw new Error(result.error.message);
   }
+  // Déplacer une réservation déjà placée prévient l'équipe ; la placer, non.
+  if (booking.tableId) notifyClub(booking.id);
 }
 
 /** Annule une réservation saisie par le club : la table redevient libre. */
 export async function cancelClubBooking(booking: ClubBooking) {
   check(await createClient().rpc("club_annuler_reservation", { p_booking: booking.id }));
+  notifyClub(booking.id);
   apply((draft) => {
     const night = draft.nights[booking.eventId];
     if (night) night.bookings = night.bookings.filter((candidate) => candidate.id !== booking.id);

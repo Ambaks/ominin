@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
 import type { TableState } from "@/components/club/floor-plan";
 import { XIcon } from "@/components/gestion/icons";
@@ -273,11 +273,13 @@ export default function LivePage() {
   const wide = useWide();
   const now = useNow(WAIT_TICK_MS).getTime();
   useClubNights([id]);
+  // Ouvert depuis une notification (?reservation=) : la fiche de la réservation, sur le plan.
+  const linked = useSearchParams().get("reservation");
   // Tant que personne n'a choisi : le soir même on ouvre sur la liste, sinon sur le plan.
-  const [chosenView, setView] = useState<View | null>(null);
+  const [chosenView, setView] = useState<View | null>(linked ? "plan" : null);
   const [side, setSide] = useState<"porte" | "invites">("porte");
   const [zoneId, setZoneId] = useState<string | null>(null);
-  const [selection, setSelection] = useState<Selection | null>(null);
+  const [selection, setSelection] = useState<Selection | null>(linked ? { kind: "booking", id: linked } : null);
 
   const tables = club?.tables;
   const clubZones = club?.zones;
@@ -335,7 +337,9 @@ export default function LivePage() {
       openZones.has(zone.id) ||
       club.tables.some((table) => table.zoneId === zone.id && byTable.has(table.id))
   );
-  const zone = zones.find((candidate) => candidate.id === zoneId) ?? zones[0];
+  const linkedTableId = linked ? night.bookings.find((booking) => booking.id === linked)?.tableId : null;
+  const linkedZoneId = club.tables.find((table) => table.id === linkedTableId)?.zoneId;
+  const zone = zones.find((candidate) => candidate.id === (zoneId ?? linkedZoneId)) ?? zones[0];
   const zoneTables = zone ? club.tables.filter((table) => table.zoneId === zone.id) : [];
   const states: Record<string, TableState> = Object.fromEntries(
     zoneTables.map((table) => [
@@ -532,6 +536,9 @@ export default function LivePage() {
             ) : undefined
           }
         />
+      )}
+      {linked && !night.bookings.some((booking) => booking.id === linked) && (
+        <Notice tone="info" title="Réservation annulée" text="Elle ne figure plus sur le plan du soir." />
       )}
       {gerant && <RefundRetries night={night} placeOf={placeOf} />}
       {!event.published && !event.cancelledAt && (

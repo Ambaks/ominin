@@ -247,11 +247,14 @@ export default function SoireesPage() {
               : "Les soirées du club. Ouvrez le plan du soir pour accueillir les tables."
           }
           right={
-            gerant ? (
-              <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
-                Nouvelle soirée
-              </GlassButton>
-            ) : undefined
+            <div className="flex flex-wrap items-center gap-3">
+              <GlassButton href="/gestion/soirees/notifications">Notifications</GlassButton>
+              {gerant && (
+                <GlassButton variant="primary" href="/gestion/soirees/nouvelle">
+                  Nouvelle soirée
+                </GlassButton>
+              )}
+            </div>
           }
         />
       </div>

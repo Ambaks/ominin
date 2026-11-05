@@ -1693,6 +1693,118 @@ export type Database = {
           },
         ]
       }
+      club_notif_prefs: {
+        Row: {
+          acompte: boolean
+          en_ligne: boolean
+          etablissement_id: string
+          manuelle: boolean
+          modification: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acompte: boolean
+          en_ligne: boolean
+          etablissement_id: string
+          manuelle: boolean
+          modification: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acompte?: boolean
+          en_ligne?: boolean
+          etablissement_id?: string
+          manuelle?: boolean
+          modification?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_notif_prefs_user_id_etablissement_id_fkey"
+            columns: ["user_id", "etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "memberships"
+            referencedColumns: ["user_id", "etablissement_id"]
+          },
+        ]
+      }
+      club_notifications: {
+        Row: {
+          actor: string | null
+          booking_id: string
+          created_at: string
+          dedup_key: string | null
+          details: Json
+          etablissement_id: string
+          event_id: string
+          id: string
+          kind: string
+          payment_id: string | null
+          recipients: string[] | null
+          sent_at: string | null
+        }
+        Insert: {
+          actor?: string | null
+          booking_id: string
+          created_at?: string
+          dedup_key?: string | null
+          details: Json
+          etablissement_id: string
+          event_id: string
+          id?: string
+          kind: string
+          payment_id?: string | null
+          recipients?: string[] | null
+          sent_at?: string | null
+        }
+        Update: {
+          actor?: string | null
+          booking_id?: string
+          created_at?: string
+          dedup_key?: string | null
+          details?: Json
+          etablissement_id?: string
+          event_id?: string
+          id?: string
+          kind?: string
+          payment_id?: string | null
+          recipients?: string[] | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "club_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_notifications_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_notifications_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "club_payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_payments: {
         Row: {
           amount_cents: number
@@ -8103,6 +8215,23 @@ export type Database = {
       club_marquer_invite: {
         Args: { p_arrived: boolean; p_guest: string }
         Returns: undefined
+      }
+      club_notifications_page: {
+        Args: {
+          p_etablissement: string
+          p_limit: number
+          p_offset: number
+          p_search: string
+        }
+        Returns: {
+          booking_id: string
+          created_at: string
+          details: Json
+          event_id: string
+          id: string
+          kind: string
+          total_count: number
+        }[]
       }
       club_offres: {
         Args: { p_event: string }

@@ -7,6 +7,7 @@ import {
   sendSharePaid,
   type BookingMail,
 } from "@/lib/club/mail";
+import { flushClubNotifications } from "@/lib/club/notify-server";
 import { connectedAccount, type SettleOutcome } from "@/lib/stripe/server";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
@@ -223,9 +224,14 @@ export async function settleClubIntent(
     console.error("[club] paiement remboursé : il ne pouvait plus compter", { paymentId });
     return "refunded";
   }
-  // Les e-mails partent après la réponse : la feuille du client n'attend
-  // pas Gmail pour afficher « Payé ».
-  after(() => announce(admin, paymentId));
+  // Les e-mails et l'alerte de l'équipe partent après la réponse : la
+  // feuille du client n'attend pas Gmail pour afficher « Payé ».
+  after(() =>
+    Promise.all([
+      announce(admin, paymentId),
+      payment && flushClubNotifications(admin, payment.etablissement_id),
+    ])
+  );
   return "paid";
 }
 
@@ -236,7 +242,7 @@ export async function settleClubIntent(
 export async function settleDemoPayment(admin: Admin, paymentId: string): Promise<boolean> {
   const { data: payment } = await admin
     .from("club_payments")
-    .select("status, total_cents, etablissements(payment_provider)")
+    .select("status, total_cents, etablissement_id, etablissements(payment_provider)")
     .eq("id", paymentId)
     .maybeSingle();
   if (!payment || payment.etablissements?.payment_provider !== "demo") return false;
@@ -248,7 +254,9 @@ export async function settleDemoPayment(admin: Admin, paymentId: string): Promis
   });
   if (error) throw new Error(error.message);
   if (outcome !== "paid") return outcome === "already_paid";
-  after(() => announce(admin, paymentId));
+  after(() =>
+    Promise.all([announce(admin, paymentId), flushClubNotifications(admin, payment.etablissement_id)])
+  );
   return true;
 }
 
@@ -357,7 +365,7 @@ export async function syncRefundedCharge(admin: Admin, charge: Stripe.Charge): P
   if (!paymentIntentId || !charge.refunded) return;
   const { data: payment } = await admin
     .from("club_payments")
-    .select("id, booking_id, organiser")
+    .select("id, booking_id, organiser, etablissement_id")
     .eq("stripe_payment_intent_id", paymentIntentId)
     .maybeSingle();
   if (!payment) return;
@@ -371,4 +379,5 @@ export async function syncRefundedCharge(admin: Admin, charge: Stripe.Charge): P
   }
   const { error } = await admin.rpc("club_rembourser_paiement", { p_payment: payment.id });
   if (error) throw new Error(error.message);
+  await flushClubNotifications(admin, payment.etablissement_id);
 }

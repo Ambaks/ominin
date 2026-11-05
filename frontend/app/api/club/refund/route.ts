@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
+import { flushClubNotifications } from "@/lib/club/notify-server";
 import { requireClubGerant } from "@/lib/club/server";
 import { refundBooking, refundPayment } from "@/lib/club/settle";
 import { getStripe } from "@/lib/stripe/server";
@@ -27,6 +28,8 @@ export async function POST(request: Request) {
   }
   const guard = await requireClubGerant(target.etablissement_id);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+  // L'équipe est prévenue une fois l'argent parti (ou rétabli, si Stripe refuse).
+  after(() => flushClubNotifications(admin, target.etablissement_id));
 
   if (paymentId) {
     if ("organiser" in target && target.organiser) {
