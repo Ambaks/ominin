@@ -80,6 +80,8 @@ export function rowToBooking(row: Tables<"club_bookings">): ClubBooking {
     arrivedAt: row.arrived_at,
     seatedAt: row.seated_at,
     leftAt: row.left_at,
+    arrivalAt: row.arrivee_prevue,
+    depositRequestedCents: row.acompte_demande_cents,
     createdAt: row.created_at,
   };
 }

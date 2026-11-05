@@ -50,7 +50,8 @@ function row(label: string, value: string, strong = false) {
   return `<tr><td style="padding:12px 0;color:#a9aed6;border-top:1px solid #262c55;">${label}</td><td style="padding:12px 0;text-align:right;color:#fff;border-top:1px solid #262c55;${strong ? "font-weight:700;" : ""}">${value}</td></tr>`;
 }
 
-type Ledger = "paid" | "refunded";
+/** Ce que dit la ligne du montant : payé, remboursé, ou acompte demandé (à payer). */
+type Ledger = "paid" | "refunded" | "requested";
 
 function layout(
   mail: BookingMail,
@@ -61,6 +62,7 @@ function layout(
   ledger: Ledger = "paid"
 ) {
   const refunded = ledger === "refunded";
+  const requested = ledger === "requested";
   const night = `${formatNight(mail.event.startsAt)} · ${formatHours(mail.event.startsAt, mail.event.endsAt)}`;
   return `<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>${escapeHtml(title)}</title></head>
@@ -78,8 +80,8 @@ ${row("Soirée", escapeHtml(mail.event.title))}
 ${row("Date", escapeHtml(night))}
 ${row("Table", `${escapeHtml(mail.zone)} · ${mail.partySize} pers.`)}
 ${mail.organiser && mail.amountCents !== mail.totalCents ? row("Prix de la table", formatCents(mail.totalCents)) : ""}
-${row(refunded ? "Remboursé" : mail.organiser ? "Payé" : "Votre part", formatCents(mail.amountCents), true)}
-${!refunded && mail.remainingCents > 0 ? row("Reste à régler", formatCents(mail.remainingCents)) : ""}
+${row(refunded ? "Remboursé" : requested ? "Acompte à payer" : mail.organiser ? "Payé" : "Votre part", formatCents(mail.amountCents), true)}
+${!refunded && !requested && mail.remainingCents > 0 ? row("Reste à régler", formatCents(mail.remainingCents)) : ""}
 </table></td></tr>
 ${extra}
 <tr><td style="padding:20px 32px 8px;text-align:center;"><a href="${linkOf(mail)}" style="display:inline-block;background:#fc6141;color:#160904;text-decoration:none;font-size:15px;font-weight:700;padding:15px 28px;border-radius:999px;">${escapeHtml(cta)}</a></td></tr>
@@ -119,6 +121,22 @@ export function sendBookingConfirmed(mail: BookingMail) {
         : `${escapeHtml(mail.name)}, présentez votre QR code à l'entrée : l'équipe vous accompagne à votre table.`,
       "Voir ma réservation",
       shareBlock(mail)
+    )
+  );
+}
+
+/** Le club demande un acompte sur une réservation qu'il a saisie : le lien de la page où le payer. */
+export function sendDepositRequest(mail: BookingMail) {
+  return send(
+    mail.to,
+    `Acompte de votre table · ${mail.event.title}`,
+    layout(
+      mail,
+      "Réglez l'acompte de votre table",
+      `${escapeHtml(mail.name)}, le club a noté votre réservation. Réglez l'acompte en ligne pour la confirmer ; le reste se paie sur place.`,
+      "Payer l'acompte",
+      "",
+      "requested"
     )
   );
 }

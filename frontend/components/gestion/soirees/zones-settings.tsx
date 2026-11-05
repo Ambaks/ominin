@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { AlertIcon } from "@/components/gestion/icons";
-import { EmptyState, Field, GlassButton, Input, Plate, SectionHeading, Select } from "@/components/gestion/ui";
+import { EmptyState, Field, GlassButton, Input, Plate, SectionHeading, Select, Switch } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { formatCents } from "@/lib/club/format";
-import type { ClubZone } from "@/lib/club/types";
+import type { ClubOptions, ClubZone } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
 import type { ClubConditions } from "@/lib/gestion/club-store";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
@@ -14,8 +14,9 @@ import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 
 /*
  * La salle et ses règles : le prix d'une table de chaque zone quand une
- * soirée n'en fixe pas d'autre, ce qu'elle comprend, et les conditions
- * d'entrée que le client accepte avant de payer. Un seul Enregistrer pour
+ * soirée n'en fixe pas d'autre, ce qu'elle comprend, les conditions
+ * d'entrée que le client accepte avant de payer, et ce que le club propose en
+ * ligne (acompte, table entière, partage, liste d'invités). Un seul Enregistrer pour
  * tout l'écran (DESIGN § 11) ; un prix manquant se dit au champ.
  * Le dessin de la salle, lui, se fait avec Ominin.
  */
@@ -32,9 +33,17 @@ interface Draft {
   minAge: number;
   dressCode: string;
   refused: string;
+  /** L'acompte en %, vide : pas d'acompte. */
+  deposit: string;
+  options: ClubOptions;
 }
 
-function initialDraft(zones: ClubZone[], conditions: ClubConditions): Draft {
+function initialDraft(
+  zones: ClubZone[],
+  conditions: ClubConditions,
+  depositPercent: number | null,
+  options: ClubOptions
+): Draft {
   return {
     zones: Object.fromEntries(
       zones.map((zone) => [zone.id, { price: eurosToInput(zone.priceCents), inclus: zone.inclus ?? "" }])
@@ -42,6 +51,8 @@ function initialDraft(zones: ClubZone[], conditions: ClubConditions): Draft {
     minAge: conditions.minAge,
     dressCode: conditions.dressCode ?? "",
     refused: conditions.refused ?? "",
+    deposit: depositPercent === null ? "" : String(depositPercent),
+    options,
   };
 }
 
@@ -50,14 +61,16 @@ export function ZonesSettings({
   tableCounts,
   conditions,
   depositPercent,
+  options,
 }: {
   zones: ClubZone[];
   tableCounts: Map<string, number>;
   conditions: ClubConditions;
   depositPercent: number | null;
+  options: ClubOptions;
 }) {
   const toast = useToast();
-  const [saved, setSaved] = useState(() => initialDraft(zones, conditions));
+  const [saved, setSaved] = useState(() => initialDraft(zones, conditions, depositPercent, options));
   const [draft, setDraft] = useState(saved);
   const [saving, setSaving] = useState(false);
   const [showErrors, setShowErrors] = useState(false);
@@ -77,8 +90,18 @@ export function ZonesSettings({
     draft.minAge !== saved.minAge ||
     draft.dressCode.trim() !== saved.dressCode.trim() ||
     draft.refused.trim() !== saved.refused.trim();
-  const dirty = changedZones.length > 0 || conditionsChanged;
-  const valid = !zones.some((zone) => priceError(zone));
+  const deposit = draft.deposit.trim() ? Number(draft.deposit.replace(",", ".")) : null;
+  const depositError =
+    deposit === null || (Number.isFinite(deposit) && deposit >= 1 && deposit <= 100)
+      ? !draft.options.fullTable && deposit === null
+        ? "Sans table payée entière, un acompte est nécessaire."
+        : undefined
+      : "Un pourcentage entre 1 et 100, ou vide.";
+  const depositChanged = draft.deposit.trim() !== saved.deposit.trim();
+  const optionsChanged = JSON.stringify(draft.options) !== JSON.stringify(saved.options);
+  const setOption = (patch: Partial<ClubOptions>) => setDraft({ ...draft, options: { ...draft.options, ...patch } });
+  const dirty = changedZones.length > 0 || conditionsChanged || depositChanged || optionsChanged;
+  const valid = !zones.some((zone) => priceError(zone)) && !depositError;
 
   const save = async () => {
     if (!valid) {
@@ -101,6 +124,8 @@ export function ZonesSettings({
               refused: draft.refused.trim() || null,
             })
           : Promise.resolve(),
+        depositChanged ? clubApi.updateDepositPercent(deposit) : Promise.resolve(),
+        optionsChanged ? clubApi.updateOptions(draft.options) : Promise.resolve(),
       ]);
       const normalized: Draft = {
         ...draft,
@@ -116,8 +141,8 @@ export function ZonesSettings({
       setShowErrors(false);
       toast.success(
         changedZones.length > 0
-          ? `${changedZones.map((zone) => `${zone.name} : ${formatCents(prices[zone.id] ?? 0)} la table`).join(" · ")}${conditionsChanged ? ". Conditions d'entrée enregistrées." : "."}`
-          : "Conditions d'entrée enregistrées."
+          ? `${changedZones.map((zone) => `${zone.name} : ${formatCents(prices[zone.id] ?? 0)} la table`).join(" · ")}.`
+          : "Réglages enregistrés."
       );
     } catch (error) {
       toast.error(describeError(error).message);
@@ -216,14 +241,50 @@ export function ZonesSettings({
               placeholder="Baskets de sport, casquettes"
             />
           </Field>
-          <p className="flex items-start gap-2 text-g-body text-muted">
-            <span className="etoile mt-1" aria-hidden />
-            <span>
-              {depositPercent
-                ? `Acompte en ligne : ${depositPercent} % de la table, frais compris ; le reste se règle à la porte. Réglé par Ominin.`
-                : "Les tables se paient en entier en ligne. Réglé par Ominin."}
-            </span>
-          </p>
+        </Plate>
+      </section>
+
+      <section className="flex flex-col gap-3">
+        <SectionHeading
+          title="Réservation en ligne"
+          sub="Ce que le client peut choisir en réservant sa table, et la liste d'invités des soirées."
+        />
+        <Plate className="flex flex-col gap-4 p-5">
+          <Field
+            label="Acompte"
+            hint="En % du prix de la table ; le reste se règle sur place. Vide : pas d'acompte en ligne."
+            error={showErrors ? depositError : undefined}
+          >
+            <Input
+              numeric
+              type="number"
+              inputMode="decimal"
+              min={1}
+              max={100}
+              value={draft.deposit}
+              onChange={(event) => setDraft({ ...draft, deposit: event.target.value })}
+              placeholder="10"
+              className="max-w-40"
+            />
+          </Field>
+          <Switch
+            checked={draft.options.fullTable}
+            onChange={(fullTable) => setOption({ fullTable })}
+            label="Payer la table entière en ligne"
+            hint="Coupé, le client ne paie que l'acompte."
+          />
+          <Switch
+            checked={draft.options.sharing}
+            onChange={(sharing) => setOption({ sharing })}
+            label="Partager la table entre amis"
+            hint="L'organisateur envoie un lien ; chacun paie sa part avant la soirée."
+          />
+          <Switch
+            checked={draft.options.guestList}
+            onChange={(guestList) => setOption({ guestList })}
+            label="Liste d'invités"
+            hint="Coupée, les soirées ne la proposent plus."
+          />
         </Plate>
       </section>
 
@@ -234,7 +295,7 @@ export function ZonesSettings({
           ) : showErrors && !valid ? (
             <>
               <AlertIcon className="size-4 shrink-0 text-ember-3" />
-              <span className="font-medium">Un prix est à corriger</span>
+              <span className="font-medium">Un champ est à corriger</span>
             </>
           ) : dirty ? (
             <>

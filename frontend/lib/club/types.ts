@@ -88,6 +88,7 @@ export type Club = {
   paymentProvider: Database["public"]["Enums"]["payment_provider"];
   onlinePayment: boolean;
   conditions: ClubConditions;
+  options: ClubOptions;
   zones: ClubZone[];
 };
 
@@ -120,7 +121,24 @@ export type ClubBooking = {
   arrivedAt: string | null;
   seatedAt: string | null;
   leftAt: string | null;
+  /** L'heure d'arrivée prévue : un créneau de la soirée, ou null. */
+  arrivalAt: string | null;
+  /** Acompte demandé par le club, à payer par le client depuis sa page ; null : aucun. */
+  depositRequestedCents: number | null;
   createdAt: string;
+};
+
+/** Un créneau d'arrivée d'une soirée et le nombre de réservations qu'il accepte. */
+export type ArrivalSlot = { startsAt: string; maxBookings: number };
+
+/** Ce que le club propose en ligne, réglé par la direction. */
+export type ClubOptions = {
+  /** La table peut se payer entière ; sinon, un acompte. */
+  fullTable: boolean;
+  /** Le partage entre amis. */
+  sharing: boolean;
+  /** La liste d'invités des soirées. */
+  guestList: boolean;
 };
 
 /** Le poste d'un membre du club ; la direction est le gérant. */
