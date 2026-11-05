@@ -10,6 +10,13 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Bulles : minimum facturé sous le seuil de groupe (2026-11-05, `bulles-minimum`, migration `20261105000010_bulle_minimum_sous_seuil` appliquée en production juste avant la fusion) :**
+>
+> - **La règle :** quand un tarif de petit groupe existe, le minimum facturé reste sous le seuil de groupe. Au Boho, c'est au plus 2.
+> - **Pourquoi :** à 3, un duo paierait 44,70 € contre 29,70 € pour un trio.
+> - **Où :** dans les réglages (`components/gestion/bulles/settings.tsx`), avec un message d'erreur, et en base par une contrainte. Les deux réglages en production la respectaient déjà.
+> - **Vérifié :** `tsc` et `eslint`.
+
 > **Bulles : réserver seul, groupe de départ, page de l'ami (2026-11-05, `bulles-solo-partage`, pas de migration) :**
 >
 > - **Groupe de départ :** la page de réservation démarre au minimum facturé (2 personnes au Boho) au lieu de 1.
