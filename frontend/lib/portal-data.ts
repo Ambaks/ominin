@@ -1,4 +1,3 @@
-import baiKoCaptures from "@/lib/pitch/bai-ko-captures.json";
 import type { screenSizes } from "@/lib/pitch/kit";
 import {
   agentsSiteUrl,
@@ -86,10 +85,12 @@ export const hero = {
  * exemple par produit, en notifications qui se relaient. Des exemples,
  * annoncés comme tels : pas un faux direct.
  */
+const deck = (name: string) => `/pitch/decks/${name}.webp`;
+
 export const heroScene: { src: string; alt: Localized }[] = [
-  { src: "/pitch/decks/phone-fidelite.webp", alt: { fr: "La carte de fidélité d'une brasserie", en: "A brasserie's loyalty card" } },
+  { src: deck("phone-boho"), alt: { fr: "La carte du BOHO, à Toulouse : son affiche, ses formules", en: "BOHO's menu in Toulouse: its poster, its set menus" } },
   { src: "/pitch/club/phone-menu.webp", alt: { fr: "La carte du club L'Étoile", en: "L'Étoile's club menu" } },
-  { src: `/pitch/bai-ko/${baiKoCaptures["phone-menu"]}`, alt: { fr: "La carte de Baï-Ko, ses bibimbaps en photo", en: "Baï-Ko's menu, its bibimbaps in photos" } },
+  { src: deck("phone-panis"), alt: { fr: "La carte du Caffè Panis, à Montpellier : ses antipasti en photo", en: "Caffè Panis's menu in Montpellier: its antipasti in photos" } },
   { src: "/social/screens/collect-commande.jpg", alt: { fr: "Une commande à emporter à la Trattoria Lucia", en: "A takeaway order at Trattoria Lucia" } },
   { src: "/shop/landing/vitrine-m.webp", alt: { fr: "La vitrine de la boutique MyBox", en: "The MyBox storefront" } },
 ];
@@ -169,7 +170,6 @@ export type Product = {
 };
 
 const ckl = (name: string) => `/pitch/groupe-ckl/${name}.jpg`;
-const deck = (name: string) => `/pitch/decks/${name}.webp`;
 const club = (name: string) => `/pitch/club/${name}.webp`;
 const shop = (name: string) => `/shop/landing/${name}.webp`;
 const social = (name: string) => `/social/screens/${name}.jpg`;
@@ -193,16 +193,16 @@ export const products: Product[] = [
       fr: "Menu digital derrière un QR code, commande et paiement à table, fidélité et analyses comprises. Sans application à installer pour le client.",
       en: "A digital menu behind a QR code, ordering and payment at the table, loyalty and analytics included. No app for the guest to install.",
     },
-    demo: { label: { fr: "La démo d'une brasserie", en: "A brasserie demo" }, href: `${menuSiteUrl}/demo/brasserie-laissac` },
+    demo: { label: { fr: "La carte du BOHO", en: "BOHO's menu" }, href: `${menuSiteUrl}/m/boho` },
     steps: [
       {
         kicker: { fr: "01 · Scanner", en: "01 · Scan" },
         title: { fr: "Scanner, choisir, commander.", en: "Scan, choose, order." },
         description: {
-          fr: "Un QR code sur la table : la carte s'ouvre, à vos couleurs, sans application. Le client compose, choisit sa cuisson, laisse un pourboire s'il le souhaite.",
-          en: "A QR code on the table: the menu opens in your colours, no app needed. The guest composes, picks the cooking, leaves a tip if they wish.",
+          fr: "Un QR code sur la table : la carte s'ouvre, à vos couleurs, sans application. Le client compose, choisit ses options, laisse un pourboire s'il le souhaite.",
+          en: "A QR code on the table: the menu opens in your colours, no app needed. The guest composes, picks their options, leaves a tip if they wish.",
         },
-        shot: image(ckl("parcours-choisir"), { fr: "Un burger choisi sur la carte du Café des Arts, la cuisson au choix", en: "A burger picked from the Café des Arts menu, cooking to choose" }),
+        shot: image(deck("phone-panis"), { fr: "La carte du Caffè Panis : les antipasti en photo, le prix, le bouton pour ajouter", en: "Caffè Panis's menu: antipasti in photos, the price, the add button" }),
       },
       {
         kicker: { fr: "02 · Payer", en: "02 · Pay" },
@@ -238,7 +238,7 @@ export const products: Product[] = [
           fr: "Vos couleurs, vos photos, vos formules, vos allergènes — modifiables en direct, depuis votre téléphone.",
           en: "Your colours, your photos, your set menus, your allergens — editable live, from your phone.",
         },
-        shot: image(`/pitch/bai-ko/${baiKoCaptures["phone-menu"]}`, { fr: "La carte de Baï-Ko : les bibimbaps en photo, les allergènes", en: "Baï-Ko's menu: bibimbaps in photos, allergens" }),
+        shot: image(deck("phone-boho"), { fr: "La carte du BOHO : son affiche d'automne, ses formules, à son identité", en: "BOHO's menu: its autumn poster, its set menus, in its own identity" }),
       },
       {
         kicker: { fr: "06 · Piloter", en: "06 · Run it" },
