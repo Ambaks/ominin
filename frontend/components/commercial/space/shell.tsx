@@ -2,15 +2,16 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { createContext, useContext, useEffect } from "react";
-import { Wordmark } from "@/components/brand/wordmark";
+import { createContext, useContext, useEffect, type CSSProperties } from "react";
 import { ChartIcon, MapPinIcon, PresentationIcon } from "@/components/admin/icons";
-import { PaymentsIcon } from "@/components/gestion/icons";
+import { LogoutIcon, PaymentsIcon, TeamIcon } from "@/components/gestion/icons";
+import { Mesh, Notice } from "@/components/gestion/ui";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import type { CommercialAccount } from "@/lib/commercial/api";
 import { frenchDate } from "@/lib/legal/format";
 import { commercialPrefix } from "@/lib/site";
+import { signOut } from "../shell";
 import { clearDeviceData } from "./device";
 import { COMMERCIAL_PUSH } from "./notifications";
 
@@ -40,19 +41,22 @@ const TABS: Tab[] = [
   { path: "/argent", label: "Argent", icon: PaymentsIcon, afterEnd: true },
 ];
 
-function Banner({ children, href }: { children: React.ReactNode; href?: string }) {
-  const body = (
-    <p className="rounded-2xl border border-ember-2/30 bg-ember-2/10 px-4 py-3 text-sm leading-relaxed">
-      {children}
-    </p>
+const COMPTE: Tab = { path: "/compte", label: "Mon compte", icon: TeamIcon, afterEnd: true };
+
+function Brand({ small = false }: { small?: boolean }) {
+  return (
+    <Link href={spaceHref("/tableau")} className={`g-brand ${small ? "g-brand-sm" : ""}`} title="Tableau">
+      <span className="ember-text font-display font-semibold">Ominin</span>
+      <small className={small ? "max-sm:hidden" : ""}>Commercial</small>
+    </Link>
   );
-  return href ? <Link href={href}>{body}</Link> : body;
 }
 
 /*
- * Coque de l'espace : en-tête (marque, compte), bandeaux du contrat, et la
- * barre du bas — l'outil se tient d'une main, dehors. Après la fin du
- * contrat, seuls l'argent et le compte restent (article 8).
+ * Coque de l'espace : rail de verre dès 1024 px, barre haute, bandeaux du
+ * contrat, et la barre d'onglets flottante au téléphone — l'outil se tient
+ * d'une main, dehors. Après la fin du contrat, seuls l'argent et le compte
+ * restent (article 8).
  */
 export function SpaceShell({
   account,
@@ -63,6 +67,7 @@ export function SpaceShell({
 }) {
   const pathname = usePathname();
   const tabs = TABS.filter((tab) => !account.ended || tab.afterEnd);
+  const name = [account.first_name, account.last_name].filter(Boolean).join(" ") || account.email;
   const initials =
     [account.first_name, account.last_name]
       .map((part) => part?.[0])
@@ -83,72 +88,122 @@ export function SpaceShell({
     const href = spaceHref(tab.path);
     return pathname === href || pathname.startsWith(`${href}/`);
   };
+  const activeIndex = [...tabs, COMPTE].findIndex(isActive);
+  // La pilule active glisse d'une entrée du rail à l'autre : sa position se
+  // calcule en jetons (hauteur d'entrée, gouttière, rangée « Compte »).
+  const pillStyle =
+    activeIndex >= 0
+      ? ({
+          "--g-nav-y": `calc(${activeIndex} * (var(--g-nav-h) + var(--g-nav-gap))${
+            activeIndex >= tabs.length ? " + var(--g-nav-group-h) + var(--g-nav-gap)" : ""
+          })`,
+        } as CSSProperties)
+      : undefined;
+
+  const railLink = (tab: Tab, index: number) => (
+    <Link
+      key={tab.path}
+      href={spaceHref(tab.path)}
+      aria-current={isActive(tab) ? "page" : undefined}
+      className="g-nav-item g-rise"
+      style={{ "--g-i": index } as CSSProperties}
+    >
+      <tab.icon />
+      {tab.label}
+    </Link>
+  );
 
   return (
     <AccountContext.Provider value={account}>
       <ToastProvider placement="top">
-        <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col px-4 pb-28">
-          <header className="sticky top-0 z-30 -mx-4 flex items-center justify-between gap-3 border-b border-hairline bg-background/90 px-4 py-3 backdrop-blur-md">
-            <Wordmark suffix="Commercial" />
-            <div className="flex items-center gap-2">
-              <ThemeToggle />
-              <Link href={spaceHref("/compte")} aria-label="Mon compte" className="-m-1 grid size-11 place-items-center">
-                <span className="ember-gradient grid size-9 place-items-center rounded-full text-xs font-bold text-background">
-                  {initials}
-                </span>
-              </Link>
+        <Mesh />
+        <div className="g-shell g-titres">
+          <aside className="g-rail g-glass">
+            <Brand />
+            <nav aria-label="Sections" className="g-nav">
+              {pillStyle && <span className="g-nav-pill" style={pillStyle} aria-hidden />}
+              {tabs.map(railLink)}
+              <div className="g-nav-group">
+                <span className="g-eyebrow">Compte</span>
+              </div>
+              {railLink(COMPTE, tabs.length + 1)}
+            </nav>
+            <div className="mt-auto grid gap-2 pt-3">
+              <button type="button" onClick={() => void signOut()} className="g-nav-item">
+                <LogoutIcon />
+                Se déconnecter
+              </button>
             </div>
-          </header>
+          </aside>
 
-          <div className="mt-4 flex flex-col gap-2 empty:hidden">
-            {account.ended ? (
-              <Banner>
-                Votre contrat est terminé. Vos relevés, vos paiements et votre
-                contrat restent ici ; les restaurants et leurs interlocuteurs ne
-                vous sont plus accessibles.
-              </Banner>
-            ) : (
-              <>
-                {!account.signed_in_force && (
-                  <Banner href={`${spaceHref("/compte")}#signer`}>
-                    Une nouvelle version du contrat est à signer.{" "}
-                    <span className="font-semibold underline">Lire et signer</span>
-                  </Banner>
-                )}
-                {account.notice_given_at && account.contract_end && (
-                  <Banner>
-                    Résiliation enregistrée : votre contrat prend fin le{" "}
-                    {frenchDate(account.contract_end)}. Vous travaillez vos
-                    restaurants jusque-là ; un restaurant qui devient client après cette date ne vous ouvre plus de commission.
-                  </Banner>
-                )}
-              </>
-            )}
-          </div>
-
-          <main className="mt-5 flex-1">{children}</main>
-        </div>
-
-        <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md">
-          <div className="mx-auto flex max-w-xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-            {tabs.map((tab) => {
-              const active = isActive(tab);
-              return (
-                <Link
-                  key={tab.path}
-                  href={spaceHref(tab.path)}
-                  aria-current={active ? "page" : undefined}
-                  className={`flex min-h-14 flex-1 flex-col items-center justify-center gap-1 py-2 text-[11px] font-medium ${
-                    active ? "text-ember-1" : "text-faint"
-                  }`}
-                >
-                  <tab.icon className="size-5" />
-                  {tab.label}
+          <div className="g-col">
+            <header className="g-topbar g-glass">
+              <div className="g-who">
+                <Link href={spaceHref("/compte")} aria-label="Mon compte" className="g-venue-logo ember-gradient text-background">
+                  {initials}
                 </Link>
-              );
-            })}
+                <b className="truncate font-display text-g-name">{name}</b>
+              </div>
+              <ThemeToggle />
+              <span className="lg:hidden max-sm:hidden">
+                <Brand small />
+              </span>
+            </header>
+
+            <main className="w-full min-w-0 max-w-xl flex-1 px-[var(--g-topbar-mx-sm)] pb-[calc(var(--g-tab-h)+2*var(--g-tabbar-pad-y)+var(--g-tabbar-bottom)+var(--g-gap))] pt-5 max-lg:mx-auto lg:px-[var(--g-topbar-mx)] lg:pb-16">
+              <div className="flex flex-col gap-g-gap empty:hidden">
+                {account.ended ? (
+                  <Notice
+                    tone="info"
+                    title="Contrat terminé"
+                    text="Vos relevés, vos paiements et votre contrat restent ici ; les restaurants et leurs interlocuteurs ne vous sont plus accessibles."
+                  />
+                ) : (
+                  <>
+                    {!account.signed_in_force && (
+                      <Notice
+                        tone="info"
+                        title="Nouvelle version du contrat"
+                        text="Une nouvelle version est à signer."
+                        action={
+                          <Link href={`${spaceHref("/compte")}#signer`} className="g-btn g-btn-primary g-press">
+                            Lire et signer
+                          </Link>
+                        }
+                      />
+                    )}
+                    {account.notice_given_at && account.contract_end && (
+                      <Notice
+                        tone="info"
+                        title="Résiliation enregistrée"
+                        text={`Votre contrat prend fin le ${frenchDate(account.contract_end)}. Vous travaillez vos restaurants jusque-là ; un restaurant qui devient client après cette date ne vous ouvre plus de commission.`}
+                      />
+                    )}
+                  </>
+                )}
+              </div>
+              <div className="mt-5 first:mt-0">{children}</div>
+            </main>
           </div>
-        </nav>
+
+          <nav
+            aria-label="Sections"
+            className="g-tabbar g-glass"
+            style={{ "--g-tabs": tabs.length } as CSSProperties}
+          >
+            {tabs.map((tab) => (
+              <Link
+                key={tab.path}
+                href={spaceHref(tab.path)}
+                aria-current={isActive(tab) ? "page" : undefined}
+                className="g-tab"
+              >
+                <tab.icon />
+                <span>{tab.label}</span>
+              </Link>
+            ))}
+          </nav>
+        </div>
       </ToastProvider>
     </AccountContext.Provider>
   );

@@ -60,12 +60,12 @@ export default function ActivitePage() {
   if (live === null) {
     return (
       <div aria-busy className="flex flex-col gap-4">
-        <div className="shimmer h-9 w-52 rounded-xl" />
+        <div className="g-shimmer h-9 w-52" />
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="shimmer h-24 rounded-2xl" />
-          <div className="shimmer h-24 rounded-2xl" />
+          <div className="g-shimmer h-24" />
+          <div className="g-shimmer h-24" />
         </div>
-        <div className="shimmer h-64 rounded-2xl" />
+        <div className="g-shimmer h-64" />
       </div>
     );
   }
@@ -92,7 +92,7 @@ export default function ActivitePage() {
       </div>
 
       {activeLive.length > 0 && (
-        <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+        <div className="overflow-x-auto g-plate">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-hairline text-left text-[10px] uppercase tracking-[0.18em] text-faint">
@@ -137,7 +137,7 @@ export default function ActivitePage() {
       )}
 
       {feed && feed.length > 0 ? (
-        <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+        <div className="overflow-x-auto g-plate">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-hairline text-left text-[10px] uppercase tracking-[0.18em] text-faint">

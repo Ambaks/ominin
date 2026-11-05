@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { ImportIcon } from "@/components/admin/icons";
 import { PillTabs } from "@/components/ui/pill-tabs";
-import { Toggle } from "@/components/ui/toggle";
+import { Switch } from "@/components/gestion/ui";
 import * as api from "@/lib/admin/api";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
@@ -291,7 +291,7 @@ export default function ImportPage() {
       )}
 
       {phase.name === "importing" && (
-        <div className="flex max-w-xl flex-col gap-3 rounded-2xl border border-hairline bg-surface p-6">
+        <div className="flex max-w-xl flex-col gap-3 g-plate p-6">
           <p className="text-sm font-medium">
             Import en cours… {phase.done} / {phase.total}
           </p>
@@ -307,7 +307,7 @@ export default function ImportPage() {
       )}
 
       {phase.name === "done" && (
-        <div className="flex max-w-xl flex-col gap-4 rounded-2xl border border-hairline bg-surface p-6">
+        <div className="flex max-w-xl flex-col gap-4 g-plate p-6">
           <p className="font-display text-lg font-medium">
             {phase.failedMessage ? "Import interrompu" : "Import terminé"}
           </p>
@@ -338,21 +338,21 @@ export default function ImportPage() {
                     phase.invalid
                   )
                 }
-                className="ember-gradient rounded-full px-4 py-2 text-sm font-semibold text-background"
+                className="g-btn g-btn-primary g-press"
               >
                 Réessayer les lignes restantes
               </button>
             )}
             <Link
               href={`${basePath}/restaurants`}
-              className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+              className="g-btn g-btn-secondary g-press"
             >
               Voir la liste
             </Link>
             <button
               type="button"
               onClick={() => setPhase({ name: "select" })}
-              className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+              className="g-btn g-btn-secondary g-press"
             >
               Nouvel import
             </button>
@@ -427,15 +427,15 @@ function PreviewStep({
         />
         <div className="flex items-center gap-2.5">
           <span className="text-sm text-muted">Importer aussi les doublons</span>
-          <Toggle
+          <Switch
             checked={includeDuplicates}
             onChange={onToggleDuplicates}
-            label="Importer aussi les doublons"
+            aria-label="Importer aussi les doublons"
           />
         </div>
       </div>
 
-      <div className="max-h-96 overflow-auto rounded-2xl border border-hairline bg-surface">
+      <div className="max-h-96 overflow-auto g-plate">
         <table className="w-full min-w-140 text-sm">
           <thead className="sticky top-0 bg-surface">
             <tr className="text-left text-xs font-semibold uppercase tracking-wider text-faint">
@@ -474,7 +474,7 @@ function PreviewStep({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+          className="g-btn g-btn-secondary g-press"
         >
           Annuler
         </button>
@@ -482,7 +482,7 @@ function PreviewStep({
           type="button"
           onClick={onConfirm}
           disabled={importCount === 0}
-          className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-50"
+          className="g-btn g-btn-primary g-press"
         >
           Importer {importCount} restaurant{importCount > 1 ? "s" : ""}
         </button>

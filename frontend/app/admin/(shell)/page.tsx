@@ -101,8 +101,8 @@ function Figure({
 function Loading() {
   return (
     <div aria-busy className="flex flex-col gap-3">
-      <div className="shimmer h-8 rounded-xl" />
-      <div className="shimmer h-8 rounded-xl" />
+      <div className="g-shimmer h-8" />
+      <div className="g-shimmer h-8" />
     </div>
   );
 }
@@ -242,7 +242,7 @@ export default function ApercuPage() {
         />
       </div>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <h2 className={`mb-3 ${SECTION_TITLE}`}>À faire maintenant</h2>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {todo.map((item) => (
@@ -267,7 +267,7 @@ export default function ApercuPage() {
       </section>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-hairline bg-surface p-5">
+        <section className="g-plate p-5">
           <h2 className={`mb-4 ${SECTION_TITLE}`}>Entonnoir de conversion</h2>
           <div className="flex flex-col gap-3">
             {funnel.map((stage) => (
@@ -282,7 +282,7 @@ export default function ApercuPage() {
           </div>
         </section>
 
-        <section className="rounded-2xl border border-hairline bg-surface p-5">
+        <section className="g-plate p-5">
           <h2 className={`mb-4 ${SECTION_TITLE}`}>Activité cette semaine</h2>
           {weeklyCounts === null ? (
             <Loading />
@@ -315,7 +315,7 @@ export default function ApercuPage() {
           }`}
         >
           {withProspection && (
-            <section className="rounded-2xl border border-hairline bg-surface p-5">
+            <section className="g-plate p-5">
               <div className="mb-4 flex items-baseline justify-between">
                 <h2 className={SECTION_TITLE}>Prospection</h2>
                 <Link href={`${basePath}/prospection`} className={SECTION_LINK}>
@@ -345,7 +345,7 @@ export default function ApercuPage() {
             </section>
           )}
           {withReseaux && (
-            <section className="rounded-2xl border border-hairline bg-surface p-5">
+            <section className="g-plate p-5">
               <div className="mb-4 flex items-baseline justify-between">
                 <h2 className={SECTION_TITLE}>Réseaux · 7 derniers jours</h2>
                 <Link href={`${basePath}/reseaux`} className={SECTION_LINK}>
@@ -373,7 +373,7 @@ export default function ApercuPage() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <section className="rounded-2xl border border-hairline bg-surface p-5">
+        <section className="g-plate p-5">
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className={SECTION_TITLE}>Prochains rendez-vous</h2>
             <Link href={restaurants} className={SECTION_LINK}>
@@ -405,7 +405,7 @@ export default function ApercuPage() {
           )}
         </section>
 
-        <section className="rounded-2xl border border-hairline bg-surface p-5">
+        <section className="g-plate p-5">
           <div className="mb-3 flex items-baseline justify-between">
             <h2 className={SECTION_TITLE}>Relances du jour</h2>
             <Link href={restaurants} className={SECTION_LINK}>

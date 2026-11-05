@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 import { useAdminBasePath } from "@/lib/admin/base-path";
@@ -101,7 +101,7 @@ export function CreateRestaurantModal({
   };
 
   return (
-    <Modal
+    <Sheet
       title="Nouveau restaurant"
       onClose={onClose}
       footer={
@@ -109,7 +109,7 @@ export function CreateRestaurantModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+            className="g-btn g-btn-secondary g-press"
           >
             Annuler
           </button>
@@ -117,7 +117,7 @@ export function CreateRestaurantModal({
             type="button"
             onClick={() => void submit()}
             disabled={busy}
-            className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-60"
+            className="g-btn g-btn-primary g-press"
           >
             {duplicates !== null && duplicates.length > 0
               ? "Créer quand même"
@@ -147,7 +147,7 @@ export function CreateRestaurantModal({
             type="text"
             value={name}
             onChange={(event) => setName(event.target.value)}
-            className={inputClass}
+            className="g-input"
           />
         </Field>
         <Field label="Catégorie">
@@ -156,7 +156,7 @@ export function CreateRestaurantModal({
             onChange={(event) =>
               setCategory(event.target.value as RestaurantCategory)
             }
-            className={inputClass}
+            className="g-input"
           >
             {(
               Object.entries(CATEGORY_LABELS) as [RestaurantCategory, string][]
@@ -172,7 +172,7 @@ export function CreateRestaurantModal({
             type="text"
             value={address}
             onChange={(event) => setAddress(event.target.value)}
-            className={inputClass}
+            className="g-input"
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
@@ -181,7 +181,7 @@ export function CreateRestaurantModal({
               type="text"
               value={city}
               onChange={(event) => setCity(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
           <Field label="Code postal">
@@ -189,7 +189,7 @@ export function CreateRestaurantModal({
               type="text"
               value={postalCode}
               onChange={(event) => setPostalCode(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
         </div>
@@ -200,7 +200,7 @@ export function CreateRestaurantModal({
               inputMode="decimal"
               value={latitude}
               onChange={(event) => setLatitude(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
           <Field label="Longitude" hint="3.87…">
@@ -209,7 +209,7 @@ export function CreateRestaurantModal({
               inputMode="decimal"
               value={longitude}
               onChange={(event) => setLongitude(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
         </div>
@@ -219,7 +219,7 @@ export function CreateRestaurantModal({
               type="tel"
               value={phone}
               onChange={(event) => setPhone(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
           <Field label="Email">
@@ -227,7 +227,7 @@ export function CreateRestaurantModal({
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
         </div>
@@ -236,7 +236,7 @@ export function CreateRestaurantModal({
             type="url"
             value={website}
             onChange={(event) => setWebsite(event.target.value)}
-            className={inputClass}
+            className="g-input"
           />
         </Field>
         <Field label="Propriétaire / décideur">
@@ -244,10 +244,10 @@ export function CreateRestaurantModal({
             type="text"
             value={ownerName}
             onChange={(event) => setOwnerName(event.target.value)}
-            className={inputClass}
+            className="g-input"
           />
         </Field>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

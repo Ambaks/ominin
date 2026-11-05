@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { inputClass } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useRunMutation } from "@/components/ui/toast";
@@ -111,7 +110,7 @@ export function PlaybookTab({
             </div>
           )}
 
-          <div className="rounded-2xl border border-hairline bg-surface p-4">
+          <div className="g-plate p-4">
             <div className="flex flex-wrap items-center gap-3">
               <p className={`${SECTION_TITLE} flex-1`}>
                 En vigueur · version {current.version} ·{" "}
@@ -153,7 +152,7 @@ export function PlaybookTab({
                   value={draft}
                   onChange={(event) => setDraft(event.target.value)}
                   rows={14}
-                  className={inputClass}
+                  className="g-input"
                 />
                 <div className="flex gap-2">
                   <button
@@ -180,7 +179,7 @@ export function PlaybookTab({
               {findings.map((section) => (
                 <div
                   key={section.title}
-                  className="rounded-2xl border border-hairline bg-surface p-4"
+                  className="g-plate p-4"
                 >
                   <p className={SECTION_TITLE}>{section.title}</p>
                   <ul className="mt-2 flex flex-col gap-1.5">
@@ -202,7 +201,7 @@ export function PlaybookTab({
               {history.map((playbook) => (
                 <div
                   key={playbook.id}
-                  className="rounded-2xl border border-hairline bg-surface"
+                  className="g-plate"
                 >
                   <div className="flex flex-wrap items-center gap-3 p-4">
                     <div className="min-w-0 flex-1">

@@ -258,7 +258,7 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-2xl border border-hairline bg-surface p-5">
+    <section className="g-plate p-5">
       <h2 className="font-display text-lg font-medium">{title}</h2>
       {hint && <p className="mt-1 text-xs text-muted">{hint}</p>}
       <div className="mt-4">{children}</div>
@@ -336,7 +336,7 @@ function StartDate({
       );
 
   return (
-    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-hairline bg-surface p-4 text-sm">
+    <div className="flex flex-wrap items-center gap-3 g-plate p-4 text-sm">
       <label htmlFor="pilotage-from" className="text-muted">
         Compter à partir du
       </label>
@@ -351,7 +351,7 @@ function StartDate({
         type="button"
         disabled={!draft}
         onClick={() => save(fromDatetimeLocalValue(draft))}
-        className="rounded-full border border-hairline px-4 py-2 font-medium disabled:opacity-50"
+        className="g-btn g-btn-secondary g-press"
       >
         Enregistrer
       </button>
@@ -506,7 +506,7 @@ export function ClientPilotage({
   }, [client.etablissement_id, days, reload]);
 
   if (data === null) {
-    return <div aria-busy className="shimmer h-96 rounded-2xl" />;
+    return <div aria-busy className="g-shimmer h-96" />;
   }
 
   const rows = buildRows(data, measures);

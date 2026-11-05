@@ -86,8 +86,8 @@ function ClientDetail() {
   if (client === undefined) {
     return (
       <div aria-busy className="flex flex-col gap-4">
-        <div className="shimmer h-9 w-52 rounded-xl" />
-        <div className="shimmer h-64 rounded-2xl" />
+        <div className="g-shimmer h-9 w-52" />
+        <div className="g-shimmer h-64" />
       </div>
     );
   }
@@ -100,7 +100,7 @@ function ClientDetail() {
         action={
           <Link
             href={`${basePath}/clients`}
-            className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+            className="g-btn g-btn-primary g-press"
           >
             Revenir à la liste
           </Link>
@@ -167,7 +167,7 @@ function ClientDetail() {
 
 export default function ClientDetailPage() {
   return (
-    <Suspense fallback={<div aria-busy className="shimmer h-96 rounded-2xl" />}>
+    <Suspense fallback={<div aria-busy className="g-shimmer h-96" />}>
       <ClientDetail />
     </Suspense>
   );

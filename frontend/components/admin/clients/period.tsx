@@ -84,12 +84,12 @@ export function ClientsSkeleton() {
   return (
     <div aria-busy className="flex flex-col gap-4">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="shimmer h-24 rounded-2xl" />
-        <div className="shimmer h-24 rounded-2xl" />
-        <div className="shimmer h-24 rounded-2xl" />
-        <div className="shimmer h-24 rounded-2xl" />
+        <div className="g-shimmer h-24" />
+        <div className="g-shimmer h-24" />
+        <div className="g-shimmer h-24" />
+        <div className="g-shimmer h-24" />
       </div>
-      <div className="shimmer h-64 rounded-2xl" />
+      <div className="g-shimmer h-64" />
     </div>
   );
 }

@@ -1,10 +1,9 @@
 "use client";
 
+import { ConfirmSheet, Sheet } from "@/components/gestion/ui";
 import { useCallback, useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import { formatDueDate } from "@/lib/admin/echeances";
 import {
@@ -88,7 +87,7 @@ function VendorForm({
 
   return (
     <>
-      <Modal
+      <Sheet
         title={vendor ? "Modifier le prestataire" : "Nouveau prestataire"}
         onClose={onClose}
         footer={
@@ -107,7 +106,7 @@ function VendorForm({
               type="button"
               disabled={busy || !name.trim()}
               onClick={save}
-              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+              className="g-btn g-btn-primary g-press"
             >
               Enregistrer
             </button>
@@ -120,7 +119,7 @@ function VendorForm({
             passe.
           </p>
           <Field label="Nom" required>
-            <input data-autofocus value={name} onChange={(event) => setName(event.target.value)} className={inputClass} />
+            <input data-autofocus value={name} onChange={(event) => setName(event.target.value)} className="g-input" />
           </Field>
           {TEXT_FIELDS.map((field) => (
             <Field key={field.key} label={field.label}>
@@ -129,15 +128,15 @@ function VendorForm({
                 onChange={(event) =>
                   setTexts((current) => ({ ...current, [field.key]: event.target.value }))
                 }
-                className={inputClass}
+                className="g-input"
               />
             </Field>
           ))}
           <Field label="Renouvellement" hint="Rejoint les échéances et leurs rappels.">
-            <input type="date" value={renewalOn} onChange={(event) => setRenewalOn(event.target.value)} className={inputClass} />
+            <input type="date" value={renewalOn} onChange={(event) => setRenewalOn(event.target.value)} className="g-input" />
           </Field>
           <Field label="Abonnement dans Finances">
-            <select value={subscriptionId} onChange={(event) => setSubscriptionId(event.target.value)} className={inputClass}>
+            <select value={subscriptionId} onChange={(event) => setSubscriptionId(event.target.value)} className="g-input">
               <option value="">Aucun</option>
               {subscriptions.map((subscription) => (
                 <option key={subscription.id} value={subscription.id}>
@@ -147,11 +146,11 @@ function VendorForm({
             </select>
           </Field>
         </div>
-      </Modal>
+      </Sheet>
       {confirming && vendor && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Supprimer ce prestataire ?"
-          message={`${vendor.name} sort de la liste. Son abonnement dans Finances reste.`}
+          text={`${vendor.name} sort de la liste. Son abonnement dans Finances reste.`}
           confirmLabel="Supprimer"
           destructive
           onClose={() => setConfirming(false)}
@@ -191,7 +190,7 @@ export default function PrestatairesPage() {
   }, [load]);
 
   if (loadError) return <EmptyState title="Chargement impossible" body={loadError} />;
-  if (!vendors) return <div aria-busy className="shimmer h-64 rounded-2xl" />;
+  if (!vendors) return <div aria-busy className="g-shimmer h-64" />;
 
   const subscriptionOf = (id: string | null) =>
     subscriptions.find((subscription) => subscription.id === id);
@@ -208,7 +207,7 @@ export default function PrestatairesPage() {
         </div>
         <button
           type="button"
-          className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background"
+          className="g-btn g-btn-primary g-press"
           onClick={() => setEditing({ row: null })}
         >
           Nouveau prestataire
@@ -222,7 +221,7 @@ export default function PrestatairesPage() {
           {vendors.map((vendor) => {
             const subscription = subscriptionOf(vendor.subscription_id);
             return (
-              <li key={vendor.id} className="flex flex-col gap-1 rounded-2xl border border-hairline bg-surface p-4">
+              <li key={vendor.id} className="flex flex-col gap-1 g-plate p-4">
                 <div className="flex items-center justify-between gap-3">
                   <button
                     type="button"

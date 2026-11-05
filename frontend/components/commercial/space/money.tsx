@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/commercial/api";
 import { euros, monthLabel } from "@/lib/commercial/labels";
@@ -120,7 +120,7 @@ function StatementCard({ statement, canAskDetail, onChange }: {
       </div>
 
       {contesting && (
-        <Modal
+        <Sheet
           title={`Contester le relevé de ${monthLabel(statement.month)}`}
           onClose={() => setContesting(false)}
           footer={
@@ -141,9 +141,9 @@ function StatementCard({ statement, canAskDetail, onChange }: {
           }
         >
           <Field label="Ce que vous contestez" required hint={`Possible jusqu’au ${frenchDate(statement.contest_until)} (article 5.4).`}>
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} className={`${inputClass} resize-none`} />
+            <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} className={`g-input resize-none`} />
           </Field>
-        </Modal>
+        </Sheet>
       )}
     </li>
   );

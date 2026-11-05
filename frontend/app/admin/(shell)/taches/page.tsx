@@ -5,7 +5,7 @@ import { PlusIcon } from "@/components/admin/icons";
 import { AddStep, ProgressBar, StepRow } from "@/components/admin/projet/step-row";
 import { BUTTON, FIELD } from "@/components/admin/projet/styles";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Modal } from "@/components/ui/modal";
+import { Sheet } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import { PRODUCT_LABELS, PRODUCTS, type Product } from "@/lib/admin/products";
@@ -84,7 +84,7 @@ function ChantierCard({ chantier, data, who }: { chantier: Chantier; data: Proje
     ? steps
     : steps.filter((step) => step.status !== "done").slice(0, FOLDED_STEPS);
   return (
-    <section className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4">
+    <section className="flex flex-col gap-3 g-plate p-4">
       <div className="flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-ember-1">
@@ -140,7 +140,7 @@ function NewChantierModal({
   const [scope, setScope] = useState<string>(product ?? "");
 
   return (
-    <Modal
+    <Sheet
       title="Nouvelle tâche"
       onClose={onClose}
       footer={
@@ -153,7 +153,7 @@ function NewChantierModal({
               onClose();
             }, "Tâche ajoutée")
           }
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+          className="g-btn g-btn-primary g-press"
         >
           Ajouter
         </button>
@@ -176,7 +176,7 @@ function NewChantierModal({
           ))}
         </select>
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -233,8 +233,8 @@ export default function TachesPage() {
           />
         ) : (
           <div aria-busy={loading} className="grid gap-4 lg:grid-cols-2">
-            <div className="shimmer h-64 rounded-2xl" />
-            <div className="shimmer h-64 rounded-2xl" />
+            <div className="g-shimmer h-64" />
+            <div className="g-shimmer h-64" />
           </div>
         )
       ) : chantiers.length === 0 ? (

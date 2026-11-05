@@ -11,7 +11,7 @@ const PROVIDER_LABELS: Record<string, string> = {
 
 export function ClientReglages({ client }: { client: ClientOverview }) {
   return (
-    <div className="rounded-2xl border border-hairline bg-surface">
+    <div className="g-plate">
       <dl className="divide-y divide-hairline text-sm">
         <Row
           label="Encaisseur"

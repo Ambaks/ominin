@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 import {
@@ -88,7 +88,7 @@ export function AppointmentFormModal({
   };
 
   return (
-    <Modal
+    <Sheet
       title="Nouveau rendez-vous"
       onClose={onClose}
       footer={
@@ -96,7 +96,7 @@ export function AppointmentFormModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+            className="g-btn g-btn-secondary g-press"
           >
             Annuler
           </button>
@@ -104,7 +104,7 @@ export function AppointmentFormModal({
             type="button"
             onClick={() => void submit()}
             disabled={busy}
-            className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-60"
+            className="g-btn g-btn-primary g-press"
           >
             Enregistrer
           </button>
@@ -123,7 +123,7 @@ export function AppointmentFormModal({
             value={title}
             onChange={(event) => setTitle(event.target.value)}
             placeholder="Démo menu digital…"
-            className={inputClass}
+            className="g-input"
           />
         </Field>
         <div className="grid grid-cols-2 gap-3">
@@ -132,14 +132,14 @@ export function AppointmentFormModal({
               type="datetime-local"
               value={startAt}
               onChange={(event) => setStartAt(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
           <Field label="Durée">
             <select
               value={duration}
               onChange={(event) => setDuration(Number(event.target.value))}
-              className={inputClass}
+              className="g-input"
             >
               {APPOINTMENT_DURATIONS_MIN.map((minutes) => (
                 <option key={minutes} value={minutes}>
@@ -158,7 +158,7 @@ export function AppointmentFormModal({
               onChange={(event) =>
                 setType(event.target.value as AppointmentType)
               }
-              className={inputClass}
+              className="g-input"
             >
               {(
                 Object.entries(APPOINTMENT_TYPE_LABELS) as [
@@ -176,7 +176,7 @@ export function AppointmentFormModal({
             <select
               value={contactId}
               onChange={(event) => setContactId(event.target.value)}
-              className={inputClass}
+              className="g-input"
             >
               <option value="">—</option>
               {(detail?.contacts ?? []).map((contact) => (
@@ -193,7 +193,7 @@ export function AppointmentFormModal({
               type="text"
               value={location}
               onChange={(event) => setLocation(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
             {restaurantAddress && location !== restaurantAddress && (
               <button
@@ -211,10 +211,10 @@ export function AppointmentFormModal({
             value={notes}
             onChange={(event) => setNotes(event.target.value)}
             rows={2}
-            className={`${inputClass} resize-none`}
+            className={`g-input resize-none`}
           />
         </Field>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

@@ -1,21 +1,21 @@
 /*
- * Briques de l'espace commercial, au style de l'admin : cartes à filet,
- * boutons pleins en braise pour l'action principale, contours pour le reste.
- * Cibles d'au moins 44 px : l'outil se tient d'une main.
+ * Briques de l'espace commercial, sur le kit ember glass de la gestion :
+ * plaques pour tout ce qui se lit, bouton plein en braise pour l'action
+ * principale, filets pour le reste. Cibles d'au moins 44 px : l'outil se
+ * tient d'une main.
  */
 
-export const primaryButton =
-  "ember-gradient inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-6 text-[15px] font-semibold text-background transition-opacity disabled:opacity-60";
-export const ghostButton =
-  "inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-hairline px-4 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-60";
-export const dangerButton =
-  "inline-flex min-h-11 items-center justify-center rounded-full border border-ember-3/50 bg-ember-3/10 px-4 text-sm font-semibold text-ember-3 transition-colors hover:bg-ember-3/20 disabled:opacity-60";
-export const cardClass = "rounded-2xl border border-hairline bg-surface p-4";
+import { Plate, Shimmer } from "@/components/gestion/ui";
+
+export const primaryButton = "g-btn g-btn-primary g-press";
+export const ghostButton = "g-btn g-btn-secondary g-press";
+export const dangerButton = "g-btn g-btn-danger g-press";
+export const cardClass = "g-plate p-4";
 
 export function SectionTitle({ children, aside }: { children: React.ReactNode; aside?: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-3">
-      <h2 className="text-[11px] font-semibold uppercase tracking-wider text-faint">{children}</h2>
+      <h2 className="g-eyebrow">{children}</h2>
       {aside}
     </div>
   );
@@ -24,31 +24,31 @@ export function SectionTitle({ children, aside }: { children: React.ReactNode; a
 export function PageTitle({ children, sub }: { children: React.ReactNode; sub?: React.ReactNode }) {
   return (
     <div>
-      <h1 className="font-display text-2xl font-medium tracking-tight">{children}</h1>
-      {sub && <p className="mt-1 text-sm text-muted">{sub}</p>}
+      <h1 className="font-display text-g-h2 tracking-tight">{children}</h1>
+      {sub && <p className="mt-1 text-g-body text-muted">{sub}</p>}
     </div>
   );
 }
 
 export function ErrorNote({ message, onRetry }: { message: string; onRetry?: () => void }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-hairline px-6 py-10 text-center">
-      <p className="text-sm text-muted">{message}</p>
+    <Plate className="flex flex-col items-center gap-3 border-dashed px-6 py-10 text-center">
+      <p className="text-g-body text-muted">{message}</p>
       {onRetry && (
         <button type="button" onClick={onRetry} className={ghostButton}>
           Réessayer
         </button>
       )}
-    </div>
+    </Plate>
   );
 }
 
 export function Skeleton() {
   return (
     <div aria-busy className="flex flex-col gap-3">
-      <div className="shimmer h-20 rounded-2xl" />
-      <div className="shimmer h-20 rounded-2xl" />
-      <div className="shimmer h-20 rounded-2xl" />
+      <Shimmer className="h-20" />
+      <Shimmer className="h-20" />
+      <Shimmer className="h-20" />
     </div>
   );
 }
@@ -72,13 +72,13 @@ export function FieldGroup({
   children: React.ReactNode;
 }) {
   return (
-    <div role="group" aria-label={label} className="flex flex-col gap-1.5">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">
+    <div role="group" aria-label={label} className="g-field">
+      <span className="g-field-label">
         {label}
-        {required && <span className="text-ember-2"> *</span>}
+        {required && <b aria-hidden>*</b>}
       </span>
       {children}
-      {hint && <span className="text-xs text-faint">{hint}</span>}
+      {hint && <span className="g-field-hint">{hint}</span>}
     </div>
   );
 }
@@ -103,9 +103,7 @@ export function Chips<T extends string>({
             type="button"
             aria-pressed={on}
             onClick={() => onChange(on ? value.filter((id) => id !== option.id) : [...value, option.id])}
-            className={`min-h-11 rounded-full border px-4 text-sm font-medium transition-colors ${
-              on ? "border-ember-2/60 bg-ember-2/10 text-foreground" : "border-hairline text-muted"
-            }`}
+            className={`g-btn g-press ${on ? "g-btn-primary" : "g-btn-secondary"}`}
           >
             {option.label}
           </button>

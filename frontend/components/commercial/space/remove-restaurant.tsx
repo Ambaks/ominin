@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { ConfirmSheet } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import { removeRestaurant } from "@/lib/commercial/api";
 import { spaceHref } from "./shell";
@@ -20,9 +20,9 @@ export function RemoveRestaurant({ id, name }: { id: string; name: string }) {
         Supprimer ce restaurant
       </button>
       {confirming && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Supprimer ce restaurant"
-          message={`${name} quitte ton tableau de bord et redevient libre pour tous les commerciaux. Ton passage reste visible sur la carte.`}
+          text={`${name} quitte ton tableau de bord et redevient libre pour tous les commerciaux. Ton passage reste visible sur la carte.`}
           confirmLabel="Supprimer"
           destructive
           onClose={() => setConfirming(false)}

@@ -1,10 +1,9 @@
 "use client";
 
+import { ConfirmSheet, Sheet } from "@/components/gestion/ui";
 import { useCallback, useEffect, useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import {
   RECURRENCE_LABELS,
@@ -74,7 +73,7 @@ function DeadlineForm({
 
   return (
     <>
-      <Modal
+      <Sheet
         title={deadline ? "Modifier l'échéance" : "Nouvelle échéance"}
         onClose={onClose}
         footer={
@@ -105,7 +104,7 @@ function DeadlineForm({
                   "Échéance enregistrée."
                 )
               }
-              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+              className="g-btn g-btn-primary g-press"
             >
               Enregistrer
             </button>
@@ -114,13 +113,13 @@ function DeadlineForm({
       >
         <div className="flex flex-col gap-4">
           <Field label="Intitulé" required>
-            <input data-autofocus value={title} onChange={(event) => setTitle(event.target.value)} className={inputClass} />
+            <input data-autofocus value={title} onChange={(event) => setTitle(event.target.value)} className="g-input" />
           </Field>
           <Field label="Date" required>
-            <input type="date" value={dueOn} onChange={(event) => setDueOn(event.target.value)} className={inputClass} />
+            <input type="date" value={dueOn} onChange={(event) => setDueOn(event.target.value)} className="g-input" />
           </Field>
           <Field label="Répétition">
-            <select value={recurrence} onChange={(event) => setRecurrence(event.target.value)} className={inputClass}>
+            <select value={recurrence} onChange={(event) => setRecurrence(event.target.value)} className="g-input">
               {(Object.keys(RECURRENCE_LABELS) as Recurrence[]).map((value) => (
                 <option key={value} value={value}>
                   {RECURRENCE_LABELS[value]}
@@ -129,17 +128,17 @@ function DeadlineForm({
             </select>
           </Field>
           <Field label="Catégorie">
-            <input value={category} onChange={(event) => setCategory(event.target.value)} className={inputClass} />
+            <input value={category} onChange={(event) => setCategory(event.target.value)} className="g-input" />
           </Field>
           <Field label="Note">
-            <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} className={inputClass} />
+            <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} className="g-input" />
           </Field>
         </div>
-      </Modal>
+      </Sheet>
       {confirming && deadline && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Supprimer cette échéance ?"
-          message={`${deadline.title} et ses prochains rappels seront supprimés.`}
+          text={`${deadline.title} et ses prochains rappels seront supprimés.`}
           confirmLabel="Supprimer"
           destructive
           onClose={() => setConfirming(false)}
@@ -236,7 +235,7 @@ export default function EcheancesPage() {
   };
 
   if (loadError) return <EmptyState title="Chargement impossible" body={loadError} />;
-  if (!rows) return <div aria-busy className="shimmer h-64 rounded-2xl" />;
+  if (!rows) return <div aria-busy className="g-shimmer h-64" />;
 
   return (
     <div className="flex flex-col gap-5">
@@ -250,7 +249,7 @@ export default function EcheancesPage() {
         </div>
         <button
           type="button"
-          className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background"
+          className="g-btn g-btn-primary g-press"
           onClick={() => setEditing({ row: null })}
         >
           Nouvelle échéance
@@ -260,7 +259,7 @@ export default function EcheancesPage() {
       {rows.length === 0 ? (
         <EmptyState title="Aucune échéance" body="Ajoutez la première, par exemple votre prochaine déclaration de TVA." />
       ) : (
-        <ul className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface px-4">
+        <ul className="divide-y divide-hairline g-plate px-4">
           {rows.map((row) => {
             const days = daysUntil(row.date, today);
             return (

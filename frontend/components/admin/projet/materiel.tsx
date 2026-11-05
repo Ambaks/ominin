@@ -48,7 +48,7 @@ export function ClientMaterielParEtablissement({
   }, [etablissementId]);
 
   if (projetClientId === undefined) {
-    return <div aria-busy className="shimmer h-64 rounded-2xl" />;
+    return <div aria-busy className="g-shimmer h-64" />;
   }
   if (projetClientId === null) {
     return (
@@ -137,12 +137,12 @@ export function ClientMateriel({ projetClientId }: { projetClientId: string }) {
   }
 
   if (!quantities) {
-    return <div aria-busy className="shimmer h-64 rounded-2xl" />;
+    return <div aria-busy className="g-shimmer h-64" />;
   }
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-4 rounded-2xl border border-hairline bg-surface px-4 py-3 text-sm">
+      <div className="flex items-center justify-between gap-4 g-plate px-4 py-3 text-sm">
         <label htmlFor="materiel-till" className="text-muted">
           Caisse qu&apos;il a déjà
         </label>
@@ -169,7 +169,7 @@ export function ClientMateriel({ projetClientId }: { projetClientId: string }) {
           </datalist>
         </div>
       </div>
-      <div className="rounded-2xl border border-hairline bg-surface">
+      <div className="g-plate">
         <ul className="divide-y divide-hairline text-sm">
           {MATERIEL_ITEMS.map((item) => {
             const quantity = quantities[item.id] ?? 0;

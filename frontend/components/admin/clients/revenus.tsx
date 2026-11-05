@@ -86,13 +86,13 @@ export function ClientRevenus({
         />
       </div>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <h2 className="font-display text-lg font-medium">Encaissé par jour</h2>
         <p className="mt-1 mb-4 text-xs text-muted">
           À la date du règlement, pourboires exclus.
         </p>
         {series === null ? (
-          <div aria-busy className="shimmer h-52 rounded-2xl" />
+          <div aria-busy className="g-shimmer h-52" />
         ) : (
           <BarSeries
             data={series.map(toPoint)}

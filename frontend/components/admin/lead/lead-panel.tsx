@@ -3,7 +3,6 @@
 import { useRef, useState } from "react";
 import { EditIcon } from "@/components/gestion/icons";
 import { useRunMutation } from "@/components/ui/toast";
-import { inputClass } from "@/components/ui/field";
 import * as api from "@/lib/admin/api";
 import { CATEGORY_LABELS } from "@/lib/admin/constants";
 import { contactName, formatDayTime, formatRelative, httpHref } from "@/lib/admin/format";
@@ -36,9 +35,9 @@ import { VisitedFlow } from "./visited-flow";
 function PanelSkeleton() {
   return (
     <div aria-busy className="flex flex-col gap-4 p-5">
-      <div className="shimmer h-8 w-2/3 rounded-xl" />
-      <div className="shimmer h-24 rounded-2xl" />
-      <div className="shimmer h-40 rounded-2xl" />
+      <div className="g-shimmer h-8 w-2/3" />
+      <div className="g-shimmer h-24" />
+      <div className="g-shimmer h-40" />
     </div>
   );
 }
@@ -124,7 +123,7 @@ export function LeadPanel({
           type="button"
           onClick={onClose}
           aria-label="Fermer la fiche"
-          className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
+          className="g-btn g-btn-icon g-press"
         >
           <ChevronLeftIcon className="size-4" />
         </button>
@@ -160,7 +159,7 @@ export function LeadPanel({
               <button
                 type="button"
                 onClick={retry}
-                className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
+                className="g-btn g-btn-primary g-press"
               >
                 Réessayer
               </button>
@@ -263,7 +262,7 @@ export function LeadPanel({
                     value={notesDraft}
                     onChange={(event) => setNotesDraft(event.target.value)}
                     rows={3}
-                    className={`${inputClass} resize-none`}
+                    className={`g-input resize-none`}
                   />
                   <div className="flex justify-end gap-2">
                     <button
@@ -284,7 +283,7 @@ export function LeadPanel({
                           setNotesDraft(null);
                         }, "Enregistré")
                       }
-                      className="ember-gradient rounded-full px-3.5 py-1.5 text-xs font-semibold text-background"
+                      className="g-btn g-btn-primary g-press"
                     >
                       Enregistrer
                     </button>

@@ -1,9 +1,8 @@
 "use client";
 
+import { ConfirmSheet, Sheet } from "@/components/gestion/ui";
 import { useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import {
   centsToInput,
@@ -77,7 +76,7 @@ export function ExpenseForm({
 
   return (
     <>
-      <Modal
+      <Sheet
         title={expense ? "Modifier la dépense" : "Nouvelle dépense"}
         onClose={onClose}
         footer={
@@ -96,7 +95,7 @@ export function ExpenseForm({
               type="button"
               disabled={busy || !valid}
               onClick={save}
-              className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+              className="g-btn g-btn-primary g-press"
             >
               Enregistrer
             </button>
@@ -105,34 +104,34 @@ export function ExpenseForm({
       >
         <div className="flex flex-col gap-4">
           <Field label="Libellé" required>
-            <input data-autofocus value={label} onChange={(event) => setLabel(event.target.value)} className={inputClass} />
+            <input data-autofocus value={label} onChange={(event) => setLabel(event.target.value)} className="g-input" />
           </Field>
           <Field label="Date du paiement" required>
-            <input type="date" value={spentOn} onChange={(event) => setSpentOn(event.target.value)} className={inputClass} />
+            <input type="date" value={spentOn} onChange={(event) => setSpentOn(event.target.value)} className="g-input" />
           </Field>
           <div className="grid grid-cols-2 gap-3">
             <Field label="Montant TTC (€)" required>
-              <input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className={inputClass} />
+              <input inputMode="decimal" value={amount} onChange={(event) => setAmount(event.target.value)} className="g-input" />
             </Field>
             <Field label="Dont TVA (€)">
-              <input inputMode="decimal" value={vat} onChange={(event) => setVat(event.target.value)} className={inputClass} />
+              <input inputMode="decimal" value={vat} onChange={(event) => setVat(event.target.value)} className="g-input" />
             </Field>
           </div>
           <Field label="Catégorie">
-            <input list="finance-categories" value={category} onChange={(event) => setCategory(event.target.value)} className={inputClass} />
+            <input list="finance-categories" value={category} onChange={(event) => setCategory(event.target.value)} className="g-input" />
           </Field>
           <Field label="Note">
-            <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} className={inputClass} />
+            <textarea rows={2} value={note} onChange={(event) => setNote(event.target.value)} className="g-input" />
           </Field>
           <Field label="Justificatif" hint={expense?.receipt_path ? "Un justificatif est déjà joint ; en choisir un autre le remplace." : undefined}>
             <input type="file" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="text-sm text-muted" />
           </Field>
         </div>
-      </Modal>
+      </Sheet>
       {confirming && expense && (
-        <ConfirmDialog
+        <ConfirmSheet
           title="Supprimer cette dépense ?"
-          message={`${expense.label} et son justificatif seront supprimés.`}
+          text={`${expense.label} et son justificatif seront supprimés.`}
           confirmLabel="Supprimer"
           destructive
           onClose={() => setConfirming(false)}

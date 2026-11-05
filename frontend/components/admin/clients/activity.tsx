@@ -58,10 +58,10 @@ export function ClientActivity({
     return (
       <div aria-busy className="flex flex-col gap-4">
         <div className="grid gap-4 sm:grid-cols-2">
-          <div className="shimmer h-24 rounded-2xl" />
-          <div className="shimmer h-24 rounded-2xl" />
+          <div className="g-shimmer h-24" />
+          <div className="g-shimmer h-24" />
         </div>
-        <div className="shimmer h-64 rounded-2xl" />
+        <div className="g-shimmer h-64" />
       </div>
     );
   }
@@ -90,7 +90,7 @@ export function ClientActivity({
           body="Les commandes récentes apparaîtront ici."
         />
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+        <div className="overflow-x-auto g-plate">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-hairline text-left text-[10px] uppercase tracking-[0.18em] text-faint">
