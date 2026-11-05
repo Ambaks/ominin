@@ -2,7 +2,7 @@ import Image from "next/image";
 import type { CSSProperties } from "react";
 import { BulleBooking } from "@/components/bulles/booking";
 import { HeroBubble } from "@/components/sites/boho/hero-bubble";
-import { BohoCanvas, KilimMark, Orb } from "@/components/sites/boho/marks";
+import { BohoCanvas, KilimMark, LogoFilet, Orb } from "@/components/sites/boho/marks";
 import { formatBulleTarifs, formatDuration } from "@/lib/bulles/format";
 import { carteUrl } from "@/lib/bulles/links";
 import type { BulleOffer } from "@/lib/bulles/public";
@@ -75,13 +75,16 @@ export function BohoSite({
             <Image src={bohoPhotos.domes.src} alt={bohoPhotos.domes.alt} fill priority sizes="100vw" />
           </div>
           <HeroBubble />
+          {/* Le logo du gérant, dans son ordre : le kilim, le nom, le filet, la signature. */}
           <div className="bo-hero-marque">
-            <p className="bo-script bo-hero-script" data-refract>
-              Côté Jardin
-            </p>
+            <KilimMark className="bo-hero-mark" />
             <h1 className="bo-hero-title" data-refract>
               BOHO
             </h1>
+            <LogoFilet className="bo-hero-filet" />
+            <p className="bo-script bo-hero-script" data-refract>
+              Côté Jardin
+            </p>
           </div>
           <div className="bo-hero-panel">
             <p className="bo-hero-lead">Dînez sous un dôme de verre, au fond du jardin.</p>
@@ -236,6 +239,7 @@ export function BohoSite({
               <a href={bohoLinks.tiktok}>TikTok {bohoLinks.tiktokHandle}</a>
             </div>
           </div>
+          {offer?.etablissement.vendeur && <p className="bo-footer-note">{offer.etablissement.vendeur}</p>}
           <p className="bo-footer-note">Site et réservations par Ominin</p>
         </div>
       </footer>

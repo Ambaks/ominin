@@ -24,12 +24,18 @@ export interface VisitInput {
   contact_email?: string;
 }
 
-/** Le contact d'un responsable absent, pour #inscriptions : seul salon où il part. */
-export function absentContactMessage(commercial: string, restaurant: string, address: string | null, visit: VisitInput): string {
+/** Tout ce que la visite a noté, pour #inscriptions : seul salon où part le contact. */
+export function visitDetails(commercial: string, restaurant: string, address: string | null, visit: VisitInput): string {
+  const contact = [visit.contact_name, visit.contact_phone, visit.contact_email].filter(Boolean).join(" · ");
+  const reason = REFUSAL_REASONS.find((entry) => entry.id === visit.reason)?.label;
   return [
-    `📞 **${restaurant}** : contact récupéré par ${commercial}`,
+    visit.outcome === "absent"
+      ? `📞 **${restaurant}** : contact récupéré par ${commercial}`
+      : `🚫 **${restaurant}** : pas intéressé, visité par ${commercial}`,
     ...(address ? [`Adresse : ${address}`] : []),
-    `Responsable : ${[visit.contact_name, visit.contact_phone, visit.contact_email].filter(Boolean).join(" · ")}`,
+    ...(reason ? [`Motif : ${reason}`] : []),
+    ...(visit.note?.trim() ? [`Arguments : ${visit.note.trim()}`] : []),
+    ...(contact ? [`Responsable : ${contact}`] : []),
   ].join("\n");
 }
 

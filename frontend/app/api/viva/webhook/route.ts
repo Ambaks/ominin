@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { publicRequestOrigin } from "@/lib/request-origin";
 import { createAdminClient } from "@/lib/supabase/admin";
 import {
   confirmVivaOrder,
+  onAccountEvent,
   parseViva,
   VivaAmountMismatch,
   VIVA_ORDER_COLUMNS,
@@ -10,9 +12,11 @@ import {
 
 /*
  * Webhook Viva : paiement créé (1796), paiement refusé (1798) et commande
- * mise à jour (4865, annulation). Viva ne signe pas ses notifications : le
- * payload n'est qu'un indice — la commande qu'il nomme est relue chez Viva et
- * réglée par le même chemin que le retour du client (confirmVivaOrder).
+ * mise à jour (4865, annulation, mode marchand) ; en mode ISV, compte
+ * connecté (8193) et vérification changée (8194). Viva ne signe pas ses
+ * notifications : le payload n'est qu'un indice — la commande qu'il nomme est
+ * relue chez Viva et réglée par le même chemin que le retour du client
+ * (confirmVivaOrder), le compte qu'il nomme relu par onAccountEvent.
  * C'est le filet durable : un client qui ferme l'onglet sur la page de Viva
  * ne repasse jamais par /api/viva/return.
  *
@@ -23,6 +27,9 @@ import {
 
 /** Événements qui peuvent dire qu'une commande a été payée, ou refusée. */
 const SETTLING_EVENTS = new Set([1796, 1798, 4865]);
+
+/** Événements d'un compte connecté : relié, vérification changée. */
+const ACCOUNT_EVENTS = new Set([8193, 8194]);
 
 /** Vérification de l'URL : Viva attend la clé de webhook du compte. */
 export async function GET() {
@@ -37,7 +44,7 @@ export async function GET() {
 
 interface VivaEvent {
   EventTypeId?: number;
-  EventData?: { OrderCode?: string; TransactionId?: string };
+  EventData?: { OrderCode?: string; TransactionId?: string; ConnectedAccountId?: string };
 }
 
 export async function POST(request: Request) {
@@ -47,12 +54,25 @@ export async function POST(request: Request) {
   } catch {
     // Corps illisible : rien à relire.
   }
+  const admin = createAdminClient();
+
+  const accountId = event?.EventData?.ConnectedAccountId;
+  if (event?.EventTypeId && ACCOUNT_EVENTS.has(event.EventTypeId) && accountId) {
+    try {
+      await onAccountEvent(admin, accountId, publicRequestOrigin(request));
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.error("[viva] compte connecté non relu", { accountId, message });
+      return NextResponse.json({ error: "Traitement impossible." }, { status: 500 });
+    }
+    return NextResponse.json({ received: true });
+  }
+
   const orderCode = event?.EventData?.OrderCode;
   if (!event?.EventTypeId || !SETTLING_EVENTS.has(event.EventTypeId) || !orderCode) {
     return NextResponse.json({ received: true });
   }
 
-  const admin = createAdminClient();
   const { data: order } = await admin
     .from("orders")
     .select(VIVA_ORDER_COLUMNS)

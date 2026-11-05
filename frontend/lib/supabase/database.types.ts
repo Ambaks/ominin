@@ -3258,6 +3258,7 @@ export type Database = {
           platform_fee_percent: number
           service_mode: Database["public"]["Enums"]["service_mode"]
           show_table_number: boolean
+          raison_sociale: string | null
           siret: string | null
           slug: string
           square_location_id: string | null
@@ -3303,6 +3304,7 @@ export type Database = {
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
           show_table_number?: boolean
+          raison_sociale?: string | null
           siret?: string | null
           slug: string
           square_location_id?: string | null
@@ -3348,6 +3350,7 @@ export type Database = {
           platform_fee_percent?: number
           service_mode?: Database["public"]["Enums"]["service_mode"]
           show_table_number?: boolean
+          raison_sociale?: string | null
           siret?: string | null
           slug?: string
           square_location_id?: string | null
@@ -7619,7 +7622,7 @@ export type Database = {
       viva_accounts: {
         Row: {
           etablissement_id: string
-          merchant_id: string
+          merchant_id: string | null
           source_code: string | null
           updated_at: string
           verified: boolean
@@ -7627,7 +7630,7 @@ export type Database = {
         }
         Insert: {
           etablissement_id: string
-          merchant_id: string
+          merchant_id?: string | null
           source_code?: string | null
           updated_at?: string
           verified?: boolean
@@ -7635,7 +7638,7 @@ export type Database = {
         }
         Update: {
           etablissement_id?: string
-          merchant_id?: string
+          merchant_id?: string | null
           source_code?: string | null
           updated_at?: string
           verified?: boolean

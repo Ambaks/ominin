@@ -259,10 +259,10 @@ export const cyprienFontVariables = [bodoniModa, barlowCondensed, barlow]
   .join(" ");
 
 /**
- * BOHO — la DA « automne bohème » de son site et de ses bulles : le serif à
- * fort contraste de son logo (Gloock), l'écriture des formules d'automne
- * (Corinthia, un mot à la fois), et les capitales espacées de « RESTAURANT »
- * pour le texte (Jost).
+ * BOHO — la DA « automne bohème » de son site et de ses bulles : les
+ * capitales romaines du nom dans son logo (Cinzel), le serif à fort contraste
+ * des titres (Gloock), l'écriture de « Côté Jardin » et des formules
+ * (Corinthia), et les capitales espacées de « RESTAURANT » pour le texte (Jost).
  */
 const gloock = Gloock({
   variable: "--font-gloock",
@@ -283,7 +283,7 @@ const jost = Jost({
   preload: false,
 });
 
-export const bohoFontVariables = [gloock, corinthia, jost]
+export const bohoFontVariables = [gloock, cinzel, corinthia, jost]
   .map((font) => font.variable)
   .join(" ");
 

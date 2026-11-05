@@ -29,6 +29,8 @@
   --bo-ease: cubic-bezier(0.22, 1, 0.36, 1);
 
   --bo-display: var(--font-gloock), Georgia, serif;
+  /* Les capitales romaines du nom, dans le logo du gérant. */
+  --bo-logo: var(--font-cinzel), "Trajan Pro", Georgia, serif;
   --bo-script: var(--font-corinthia), cursive;
   --bo-sans: var(--font-jost), system-ui, sans-serif;
 
@@ -391,9 +393,9 @@
   gap: 0.6rem;
   color: var(--bo-parchemin) !important;
   text-decoration: none;
-  font-family: var(--bo-display);
+  font-family: var(--bo-logo);
   font-size: 1.5rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 
 .bo-brand-mark {
@@ -502,19 +504,35 @@
   text-align: center;
 }
 
-.bo-hero-script {
-  font-size: clamp(3rem, 13vw, 6rem);
-  color: var(--bo-creme);
+/* Proportions du logo du gérant : le kilim fait les deux cinquièmes du nom, le filet sa largeur. */
+.bo-hero-mark {
+  width: min(26vw, 27svh);
+  height: min(26vw, 27svh);
+  color: var(--bo-or);
 }
 
 .bo-hero-title {
-  margin: 0;
-  font-family: var(--bo-display);
-  font-weight: 400;
-  font-size: min(29vw, 42svh);
-  line-height: 0.86;
-  letter-spacing: 0.02em;
+  margin: 0.15em 0 0;
+  font-family: var(--bo-logo);
+  font-weight: 500;
+  font-size: min(20vw, 21svh);
+  line-height: 0.9;
+  letter-spacing: 0.04em;
   color: var(--bo-or);
+}
+
+.bo-hero-filet {
+  width: min(64vw, 67svh);
+  height: auto;
+  margin-block: 0.4rem 0.1rem;
+  color: var(--bo-or);
+}
+
+.bo-hero-script {
+  font-size: clamp(2.75rem, min(11vw, 11svh), 6rem);
+  line-height: 1;
+  word-spacing: 0.15em;
+  color: var(--bo-creme);
 }
 
 .bo-hero-panel {
