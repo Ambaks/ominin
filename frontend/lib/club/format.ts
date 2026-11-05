@@ -37,6 +37,14 @@ const TIME = new Intl.DateTimeFormat("fr-FR", {
   minute: "2-digit",
 });
 
+const DATE_TIME = new Intl.DateTimeFormat("fr-FR", { timeZone: PARIS, dateStyle: "short", timeStyle: "short" });
+const ISO_DAY = new Intl.DateTimeFormat("fr-CA", { timeZone: PARIS });
+
+/** « 03/11/2026 23:15 » : un moment précis, dans un rapport ou un export. */
+export const formatDateTime = (iso: string | null) => (iso ? DATE_TIME.format(new Date(iso)) : "");
+/** « 2026-11-03 » : le jour d'une soirée dans un nom de fichier. */
+export const isoDay = (iso: string) => ISO_DAY.format(new Date(iso));
+
 /** « samedi 24 octobre ». */
 export const formatNight = (iso: string) => DAY.format(new Date(iso));
 /** « sam. 24 oct. ». */

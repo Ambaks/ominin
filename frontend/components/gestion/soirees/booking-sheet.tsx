@@ -14,8 +14,8 @@ import {
 } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { formatClock } from "@/lib/collect/hours";
-import { formatCents, tableName } from "@/lib/club/format";
-import type { ClubBooking, ClubDroit, ClubEvent, ClubPayment, ClubTable, ClubZone } from "@/lib/club/types";
+import { formatCents, formatTime, tableName } from "@/lib/club/format";
+import type { ArrivalSlot, ClubBooking, ClubDroit, ClubEvent, ClubPayment, ClubTable, ClubZone } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
   depositOf,
@@ -32,6 +32,8 @@ import {
 } from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
 import { describeError } from "@/lib/gestion/errors";
+import { BookingHistory } from "./journal";
+import { EurosInput, eurosToInput, parseEuros } from "./euros-input";
 import { PayerRing } from "./payer-ring";
 import { StatusChip } from "./night-plan";
 
@@ -68,6 +70,31 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
+/** L'heure d'arrivée : un créneau de la soirée, ou rien. Sans créneau, pas de champ. */
+function ArrivalField({
+  slots,
+  value,
+  onChange,
+}: {
+  slots: ArrivalSlot[];
+  value: string | null;
+  onChange: (value: string | null) => void;
+}) {
+  if (slots.length === 0) return null;
+  return (
+    <Field label="Heure d'arrivée">
+      <Select value={value ?? ""} onChange={(e) => onChange(e.target.value || null)}>
+        <option value="">Non précisée</option>
+        {slots.map((slot) => (
+          <option key={slot.startsAt} value={slot.startsAt}>
+            {formatTime(slot.startsAt)}
+          </option>
+        ))}
+      </Select>
+    </Field>
+  );
+}
+
 /** Les tables où une réservation peut aller, zone par zone. */
 export type MoveTarget = { zone: ClubZone; tables: ClubTable[] };
 
@@ -76,7 +103,7 @@ export type ReserveTarget = { zone: ClubZone; table: ClubTable | null; seats: nu
 
 /** Ce que dit l'annonce d'un retour en arrière, selon le temps retrouvé. */
 const UNDONE: Record<NightStep, string> = {
-  payee: "Arrivée annulée.",
+  payee: "Installation annulée.",
   arrivee: "Installation annulée.",
   assise: "Départ annulé.",
   partie: "",
@@ -216,6 +243,8 @@ function BookingCard({
   gerant,
   placeTargets,
   startPlacing,
+  slots,
+  depositPercent,
   onPlaced,
   onClose,
 }: {
@@ -227,10 +256,14 @@ function BookingCard({
   gerant: boolean;
   placeTargets: MoveTarget[];
   startPlacing: boolean;
+  slots: ArrivalSlot[];
+  depositPercent: number | null;
   onPlaced: (tableId: string) => void;
   onClose: () => void;
 }) {
   const toast = useToast();
+  const [editing, setEditing] = useState(false);
+  const [asking, setAsking] = useState(false);
   /** Le geste en cours (« suivi », « table » ou l'id d'une part) : son bouton dit qu'il travaille. */
   const [busy, setBusy] = useState<string | null>(null);
   const [confirm, setConfirm] = useState<"refund" | "cancel" | ClubPayment | null>(null);
@@ -298,7 +331,12 @@ function BookingCard({
   const showCollect = droits.has("assise") && remaining > 0 && !(next?.kind === "step" && next.collect > 0);
   const showRefund = gerant && online.length > 0 && booking.status !== "partie";
   const showCancel = droits.has("reserver") && clubEntered && booking.status !== "partie";
-  const others = !holding && !closed && (showPlace || showCollect || undo !== null || showRefund || showCancel);
+  const showEdit = droits.has("reserver") && booking.status !== "partie";
+  // Un acompte se demande sur une réservation saisie par le club, avant l'arrivée.
+  const showDeposit =
+    droits.has("reserver") && clubEntered && remaining > 0 && (booking.status === "en_attente" || booking.status === "payee");
+  const others =
+    !holding && !closed && (showEdit || showDeposit || showPlace || showCollect || undo !== null || showRefund || showCancel);
   const stepDone: Record<"arrivee" | "assise" | "partie", string> = {
     arrivee: `${booking.name} est entré${booking.partySize > 1 ? "s" : ""}.`,
     assise: `${name} : ${booking.name} installé${booking.partySize > 1 ? "s" : ""}.`,
@@ -466,6 +504,13 @@ function BookingCard({
                 )}
               </Row>
             )}
+            {booking.arrivalAt && <Row label="Arrivée prévue">{formatTime(booking.arrivalAt)}</Row>}
+            {booking.depositRequestedCents !== null && (
+              <Row label="Acompte demandé">
+                <span className="font-semibold tabular-nums">{formatCents(booking.depositRequestedCents)}</span>
+                <span className="block text-g-meta text-muted">Lien envoyé, en attente du client</span>
+              </Row>
+            )}
             <Row label="Réservée">
               {SOURCE_LABELS[booking.source]} à {formatClock(booking.createdAt)}
               <span className="block text-g-meta text-muted">Zone {zone.name}</span>
@@ -486,6 +531,16 @@ function BookingCard({
         {others && (
           <section aria-label="Autres actions" className="flex flex-col gap-2">
             <h3 className="g-eyebrow">Autres actions</h3>
+            {showEdit && (
+              <GlassButton disabled={working} onClick={() => setEditing(true)}>
+                Modifier la réservation
+              </GlassButton>
+            )}
+            {showDeposit && (
+              <GlassButton disabled={working} onClick={() => setAsking(true)}>
+                {booking.depositRequestedCents !== null ? "Renvoyer le lien de l'acompte" : "Demander un acompte"}
+              </GlassButton>
+            )}
             {showPlace && (
               <GlassButton disabled={working} onClick={() => setPlacing(true)}>
                 {busy === "placer" ? "Un instant…" : table ? "Déplacer sur une autre table" : "Placer sur une table"}
@@ -519,8 +574,21 @@ function BookingCard({
             )}
           </section>
         )}
+
+        {gerant && (
+          <BookingHistory
+            bookingId={booking.id}
+            version={JSON.stringify([booking, payments.map((payment) => payment.status)])}
+          />
+        )}
       </div>
 
+      {editing && (
+        <EditSheet booking={booking} slots={slots} maxParty={table?.seats ?? null} onClose={() => setEditing(false)} />
+      )}
+      {asking && (
+        <DepositSheet booking={booking} depositPercent={depositPercent} onClose={() => setAsking(false)} />
+      )}
       {placing && (
         <PlaceSheet
           booking={booking}
@@ -595,16 +663,174 @@ function BookingCard({
   );
 }
 
+/** Modifier ce qui ne touche pas à l'argent : nom, contact, personnes, heure, note. */
+function EditSheet({
+  booking,
+  slots,
+  maxParty,
+  onClose,
+}: {
+  booking: ClubBooking;
+  slots: ArrivalSlot[];
+  /** Les places de sa table ; null, à placer : la base borne à la plus grande table de la zone. */
+  maxParty: number | null;
+  onClose: () => void;
+}) {
+  const toast = useToast();
+  const [name, setName] = useState(booking.name);
+  const [phone, setPhone] = useState(booking.phone ?? "");
+  const [email, setEmail] = useState(booking.email ?? "");
+  const [party, setParty] = useState(String(booking.partySize));
+  const [arrival, setArrival] = useState(booking.arrivalAt);
+  const [note, setNote] = useState(booking.note ?? "");
+  const [saving, setSaving] = useState(false);
+  const partyCount = Number(party);
+  const partyError =
+    Number.isInteger(partyCount) && partyCount >= 1 && (maxParty === null || partyCount <= maxParty)
+      ? undefined
+      : maxParty === null
+        ? "Un nombre de personnes."
+        : `Entre 1 et ${maxParty} personnes à cette table.`;
+  const nameError = name.trim() ? undefined : "Indiquez le nom du client.";
+
+  const submit = async () => {
+    if (partyError || nameError) return;
+    setSaving(true);
+    try {
+      await clubApi.updateBooking(booking, {
+        name: name.trim(),
+        phone: phone.trim() || null,
+        email: email.trim() || null,
+        partySize: partyCount,
+        note: note.trim() || null,
+        arrivalAt: arrival,
+      });
+      toast.success(`Réservation de ${name.trim()} modifiée.`);
+      onClose();
+    } catch (error) {
+      toast.error(describeError(error).message);
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Sheet
+      title={`Modifier · ${booking.name}`}
+      description="Le prix et les paiements ne changent pas."
+      onClose={onClose}
+      footer={
+        <>
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" disabled={saving || Boolean(partyError || nameError)} onClick={() => void submit()}>
+            {saving ? "Enregistrement…" : "Enregistrer"}
+          </GlassButton>
+        </>
+      }
+    >
+      <div className="flex flex-col gap-4">
+        <Field label="Nom" required error={nameError}>
+          <Input value={name} maxLength={CLUB_LIMITS.name} onChange={(e) => setName(e.target.value)} />
+        </Field>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <Field label="Téléphone">
+            <Input type="tel" inputMode="tel" value={phone} maxLength={CLUB_LIMITS.phoneMax} onChange={(e) => setPhone(e.target.value)} />
+          </Field>
+          <Field label="E-mail">
+            <Input type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          </Field>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Personnes" error={partyError}>
+            <Input numeric type="number" inputMode="numeric" min={1} value={party} onChange={(e) => setParty(e.target.value)} />
+          </Field>
+          <ArrivalField slots={slots} value={arrival} onChange={setArrival} />
+        </div>
+        <Field label="Note" hint="Visible de l'équipe seulement.">
+          <Textarea value={note} maxLength={CLUB_LIMITS.note} onChange={(e) => setNote(e.target.value)} rows={2} />
+        </Field>
+      </div>
+    </Sheet>
+  );
+}
+
+/**
+ * Demander un acompte sur une réservation saisie par le club : le client
+ * reçoit par e-mail le lien de sa page, où il le paie. Proposé : l'acompte
+ * du club sur le prix de la table, sinon ce qu'il reste.
+ */
+function DepositSheet({
+  booking,
+  depositPercent,
+  onClose,
+}: {
+  booking: ClubBooking;
+  depositPercent: number | null;
+  onClose: () => void;
+}) {
+  const toast = useToast();
+  const suggested =
+    booking.depositRequestedCents ??
+    (depositPercent !== null
+      ? Math.min(Math.ceil((booking.priceCents * depositPercent) / 100), booking.remainingCents)
+      : booking.remainingCents);
+  const [amount, setAmount] = useState(eurosToInput(suggested));
+  const [sending, setSending] = useState(false);
+  const cents = parseEuros(amount);
+  const error =
+    cents !== null && cents >= 1 && cents <= booking.remainingCents
+      ? undefined
+      : `Entre 0,01 et ${formatCents(booking.remainingCents)}.`;
+
+  const send = async () => {
+    if (error || cents === null) return;
+    setSending(true);
+    try {
+      await clubApi.requestDeposit(booking, cents);
+      toast.success(`Lien de l'acompte envoyé à ${booking.email}.`);
+      onClose();
+    } catch (failure) {
+      toast.error(describeError(failure).message);
+      setSending(false);
+    }
+  };
+
+  return (
+    <Sheet
+      title={booking.depositRequestedCents !== null ? "Renvoyer le lien de l'acompte" : "Demander un acompte"}
+      description={
+        booking.email
+          ? `${booking.name} reçoit à ${booking.email} le lien de sa réservation, où il paie l'acompte en ligne. Le reste se règle sur place.`
+          : "Ajoutez d'abord l'e-mail du client (Modifier la réservation)."
+      }
+      onClose={onClose}
+      footer={
+        <>
+          <GlassButton onClick={onClose}>Annuler</GlassButton>
+          <GlassButton variant="primary" disabled={sending || !booking.email || Boolean(error)} onClick={() => void send()}>
+            {sending ? "Envoi…" : "Envoyer le lien"}
+          </GlassButton>
+        </>
+      }
+    >
+      <Field label="Montant de l'acompte" error={error} hint={`Reste à régler sur cette table : ${formatCents(booking.remainingCents)}.`}>
+        <EurosInput value={amount} onChange={setAmount} label="Montant de l'acompte" />
+      </Field>
+    </Sheet>
+  );
+}
+
 /** Une réservation prise au téléphone ou au comptoir : sur une table, ou à placer dans une zone. */
 function ReserveForm({
   event,
   targets,
+  slots,
   tonight,
   onClose,
 }: {
   event: ClubEvent;
   /** Une seule : la table touchée. Plusieurs : les zones où la réservation attendra sa table. */
   targets: ReserveTarget[];
+  slots: ArrivalSlot[];
   tonight: boolean;
   onClose: () => void;
 }) {
@@ -614,6 +840,8 @@ function ReserveForm({
   const [source, setSource] = useState<clubApi.ClubBookingInput["source"]>(tonight ? "sur_place" : "telephone");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
+  const [arrival, setArrival] = useState<string | null>(null);
   const [party, setParty] = useState(target.seats);
   const [paid, setPaid] = useState<"oui" | "non">("non");
   const [note, setNote] = useState("");
@@ -641,6 +869,8 @@ function ReserveForm({
         tableId: target.table?.id ?? null,
         name: name.trim(),
         phone: phoneTrim,
+        email: email.trim(),
+        arrivalAt: arrival,
         partySize: Math.min(party, target.seats),
         source,
         paid: paid === "oui",
@@ -723,6 +953,11 @@ function ReserveForm({
           </Field>
         </div>
 
+        <Field label="E-mail" hint="Pour lui envoyer plus tard le lien d'un acompte.">
+          <Input type="email" inputMode="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="off" />
+        </Field>
+        <ArrivalField slots={slots} value={arrival} onChange={setArrival} />
+
         <div className="flex">
           <Segmented label="Règlement" glass={false} options={PAID_OPTIONS} value={paid} onChange={setPaid} />
         </div>
@@ -749,6 +984,7 @@ function FreeTable({
   tonight,
   droits,
   waiting,
+  slots,
   onPlaced,
   onClose,
 }: {
@@ -759,6 +995,7 @@ function FreeTable({
   onSale: boolean;
   departed: ClubBooking | undefined;
   tonight: boolean;
+  slots: ArrivalSlot[];
   droits: Set<ClubDroit>;
   waiting: ClubBooking[];
   onPlaced: (tableId: string) => void;
@@ -776,6 +1013,7 @@ function FreeTable({
       <ReserveForm
         event={event}
         targets={[{ zone, table, seats: table.seats, price, onSale }]}
+        slots={slots}
         tonight={tonight}
         onClose={onClose}
       />
@@ -862,10 +1100,16 @@ export function BookingSheet({
   placeTargets,
   waiting,
   startPlacing = false,
+  slots,
+  depositPercent,
   onPlaced,
   onClose,
 }: {
   event: ClubEvent;
+  /** Les créneaux d'arrivée de la soirée. */
+  slots: ArrivalSlot[];
+  /** L'acompte du club en %, proposé quand on en demande un. */
+  depositPercent: number | null;
   /** Null : une réservation à placer. */
   table: ClubTable | null;
   zone: ClubZone;
@@ -901,6 +1145,8 @@ export function BookingSheet({
         gerant={gerant}
         placeTargets={placeTargets}
         startPlacing={startPlacing}
+        slots={slots}
+        depositPercent={depositPercent}
         onPlaced={onPlaced}
         onClose={onClose}
       />
@@ -918,6 +1164,7 @@ export function BookingSheet({
       tonight={tonight}
       droits={droits}
       waiting={waiting}
+      slots={slots}
       onPlaced={onPlaced}
       onClose={onClose}
     />
@@ -928,14 +1175,16 @@ export function BookingSheet({
 export function NewBookingSheet({
   event,
   targets,
+  slots,
   tonight,
   onClose,
 }: {
   event: ClubEvent;
   targets: ReserveTarget[];
+  slots: ArrivalSlot[];
   tonight: boolean;
   onClose: () => void;
 }) {
   if (targets.length === 0) return null;
-  return <ReserveForm event={event} targets={targets} tonight={tonight} onClose={onClose} />;
+  return <ReserveForm event={event} targets={targets} slots={slots} tonight={tonight} onClose={onClose} />;
 }

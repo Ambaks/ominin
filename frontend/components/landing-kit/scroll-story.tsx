@@ -7,8 +7,10 @@ import { useActiveIndex } from "./use-active-index";
 /*
  * Parcours raconté au défilement : les étapes défilent à droite, un
  * téléphone reste collé à gauche et montre l'écran de l'étape au milieu de
- * la vue. Sous lg, le téléphone reste collé en haut et les étapes passent
- * par-dessus en cartes givrées. Les écrans arrivent
+ * la vue. Il ne se décolle qu'une fois la dernière étape arrivée à sa
+ * mi-hauteur : la marge basse de la liste vaut un demi-téléphone, plus les
+ * points, moins une demi-étape. Sous lg, le téléphone reste collé en haut
+ * et les étapes passent par-dessus en cartes givrées. Les écrans arrivent
  * tout rendus (composants serveur) : ce composant ne fait que les choisir.
  */
 
@@ -100,7 +102,7 @@ export function ScrollStory({
             <div ref={cover} className="sticky top-20 col-start-1 row-start-1 self-start lg:hidden" aria-hidden>
               <Phone header={header} screen={screens[active]} screenKey={active} width="max-w-[15rem]" glass={glass} />
             </div>
-            <ol className="relative col-start-1 row-start-1 flex flex-col gap-[45svh] pb-6 pt-[19rem] lg:gap-[28vh] lg:pb-[4vh] lg:pt-[12vh]">
+            <ol className="relative col-start-1 row-start-1 flex flex-col gap-[45svh] pb-6 pt-[19rem] lg:gap-[28vh] lg:pb-56 lg:pt-[12vh]">
               {steps.map((step, i) => (
                 <li
                   key={step.title}

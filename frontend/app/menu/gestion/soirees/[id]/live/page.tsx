@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState, type CSSProperties } from "react";
 import type { TableState } from "@/components/club/floor-plan";
 import { XIcon } from "@/components/gestion/icons";
@@ -83,7 +83,7 @@ type View = "plan" | "porte" | "invites";
 /** Ce qui est ouvert en feuille : une table du plan, une réservation, ou une saisie à placer. */
 type Selection = { kind: "table"; id: string } | { kind: "booking"; id: string; placing?: boolean } | { kind: "nouvelle" };
 
-const LEGEND: TableState[] = ["libre", "payee", "attente", "arrivee", "assise", "liberee", "prise", "gardee"];
+const LEGEND: TableState[] = ["libre", "payee", "attente", "assise", "liberee", "prise", "gardee"];
 
 const rise = (index: number) => ({ "--g-i": index }) as CSSProperties;
 
@@ -273,11 +273,13 @@ export default function LivePage() {
   const wide = useWide();
   const now = useNow(WAIT_TICK_MS).getTime();
   useClubNights([id]);
+  // Ouvert depuis une notification (?reservation=) : la fiche de la réservation, sur le plan.
+  const linked = useSearchParams().get("reservation");
   // Tant que personne n'a choisi : le soir même on ouvre sur la liste, sinon sur le plan.
-  const [chosenView, setView] = useState<View | null>(null);
+  const [chosenView, setView] = useState<View | null>(linked ? "plan" : null);
   const [side, setSide] = useState<"porte" | "invites">("porte");
   const [zoneId, setZoneId] = useState<string | null>(null);
-  const [selection, setSelection] = useState<Selection | null>(null);
+  const [selection, setSelection] = useState<Selection | null>(linked ? { kind: "booking", id: linked } : null);
 
   const tables = club?.tables;
   const clubZones = club?.zones;
@@ -335,7 +337,9 @@ export default function LivePage() {
       openZones.has(zone.id) ||
       club.tables.some((table) => table.zoneId === zone.id && byTable.has(table.id))
   );
-  const zone = zones.find((candidate) => candidate.id === zoneId) ?? zones[0];
+  const linkedTableId = linked ? night.bookings.find((booking) => booking.id === linked)?.tableId : null;
+  const linkedZoneId = club.tables.find((table) => table.id === linkedTableId)?.zoneId;
+  const zone = zones.find((candidate) => candidate.id === (zoneId ?? linkedZoneId)) ?? zones[0];
   const zoneTables = zone ? club.tables.filter((table) => table.zoneId === zone.id) : [];
   const states: Record<string, TableState> = Object.fromEntries(
     zoneTables.map((table) => [
@@ -381,7 +385,7 @@ export default function LivePage() {
   const departed = night.bookings.filter((booking) => booking.status === "partie").map(entryOf);
   const expected = held.filter(({ booking }) => !hasArrived(booking) && isSold(booking)).length;
   const toReturn = event.cancelledAt ? held.filter(({ booking }) => isSold(booking)).length : 0;
-  const guestList = event.guestListOpen || night.guests.length > 0;
+  const guestList = (club.options.guestList && event.guestListOpen) || night.guests.length > 0;
   const peopleExpected = stats.people - stats.peopleArrived;
 
   // La feuille ouverte : une table du plan (et sa réservation), ou une réservation, placée ou non.
@@ -511,6 +515,7 @@ export default function LivePage() {
                   Nouvelle réservation
                 </GlassButton>
               )}
+              {gerant && <GlassButton href={`/gestion/soirees/${event.id}/rapport`}>Rapport</GlassButton>}
               {gerant && <GlassButton href={`/gestion/soirees/${event.id}`}>Modifier</GlassButton>}
             </div>
           }
@@ -532,6 +537,9 @@ export default function LivePage() {
           }
         />
       )}
+      {linked && !night.bookings.some((booking) => booking.id === linked) && (
+        <Notice tone="info" title="Réservation annulée" text="Elle ne figure plus sur le plan du soir." />
+      )}
       {gerant && <RefundRetries night={night} placeOf={placeOf} />}
       {!event.published && !event.cancelledAt && (
         <Notice
@@ -551,12 +559,12 @@ export default function LivePage() {
 
       {/* Un seul bandeau, les mêmes mots partout : des réservations (attendues, entrées), des personnes, de l'argent. */}
       <div className={`g-rise grid grid-cols-2 gap-3 sm:gap-g-gap ${money ? "xl:grid-cols-4" : ""}`} style={rise(1)}>
-        <Figure entity="orders" label="Tables arrivées" baseline={`${expected} attendue${expected > 1 ? "s" : ""}`}>
+        <Figure entity="orders" label="Tables installées" baseline={`${expected} attendue${expected > 1 ? "s" : ""}`}>
           {stats.arrived} / {stats.sold}
         </Figure>
         <Figure
           entity="orders"
-          label="Personnes entrées"
+          label="Personnes installées"
           baseline={`${peopleExpected} encore attendue${peopleExpected > 1 ? "s" : ""}`}
         >
           {stats.peopleArrived} / {stats.people}
@@ -636,7 +644,7 @@ export default function LivePage() {
               <p className="truncate font-display text-g-h2">{event.title}</p>
               <p className="mt-0.5 text-g-meta text-muted">
                 <span className="tabular-nums">{expected}</span> attendue{expected > 1 ? "s" : ""} ·{" "}
-                <span className="tabular-nums">{stats.arrived}</span> arrivée{stats.arrived > 1 ? "s" : ""}
+                <span className="tabular-nums">{stats.arrived}</span> installée{stats.arrived > 1 ? "s" : ""}
                 {waiting.length > 0 && (
                   <>
                     {" · "}
@@ -659,7 +667,13 @@ export default function LivePage() {
       )}
 
       {selection?.kind === "nouvelle" && (
-        <NewBookingSheet event={event} targets={reserveTargets} tonight={tonight} onClose={() => setSelection(null)} />
+        <NewBookingSheet
+          event={event}
+          targets={reserveTargets}
+          slots={club.slots[event.id] ?? []}
+          tonight={tonight}
+          onClose={() => setSelection(null)}
+        />
       )}
       {selection && selection.kind !== "nouvelle" && selectedZone && (selectedTable || selectedBooking) && (
         <BookingSheet
@@ -678,6 +692,8 @@ export default function LivePage() {
           placeTargets={placeTargets}
           waiting={waiting}
           startPlacing={selection.kind === "booking" && selection.placing === true}
+          slots={club.slots[event.id] ?? []}
+          depositPercent={club.depositPercent}
           onPlaced={(tableId) => {
             const table = tableById.get(tableId);
             if (table) setZoneId(table.zoneId);

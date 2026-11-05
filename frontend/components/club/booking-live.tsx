@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from "react"
 import { useSkyPause } from "@/components/club/club-sky";
 import { TablePayment } from "@/components/club/table-payment";
 import { CLUB_BURST, CLUB_TIMING } from "@/components/club/timing";
+import { formatCents } from "@/lib/club/format";
 import { clubToken, prefersReducedMotion } from "@/lib/club/media";
 import type { Club } from "@/lib/club/types";
 
@@ -88,6 +89,94 @@ export function ResumePayment({
         onPaid={onPaid}
         onExpired={onExpired}
       />
+    </div>
+  );
+}
+
+/**
+ * L'acompte que le club a demandé sur une réservation qu'il a saisie : un
+ * bouton le tient le temps de payer (/api/club/acompte), puis la même feuille
+ * de paiement qu'une table.
+ */
+export function DepositRequest({
+  token,
+  amountCents,
+  recap,
+}: {
+  token: string;
+  amountCents: number;
+  recap: string;
+}) {
+  const [held, setHeld] = useState<{
+    paymentId: string;
+    totalCents: number;
+    remainingMs: number;
+    provider: Club["paymentProvider"];
+  } | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const hold = async () => {
+    setBusy(true);
+    setError(null);
+    const sentAt = performance.now();
+    try {
+      const response = await fetch("/api/club/acompte", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+      const body = (await response.json().catch(() => ({}))) as {
+        paymentId?: string;
+        totalCents?: number;
+        holdExpiresAt?: string;
+        provider?: Club["paymentProvider"];
+        error?: string;
+      };
+      if (!response.ok || !body.paymentId || !body.holdExpiresAt || !body.provider) {
+        setError(body.error ?? "Paiement impossible pour le moment.");
+        return;
+      }
+      setHeld({
+        paymentId: body.paymentId,
+        totalCents: body.totalCents ?? amountCents,
+        // Le délai compté sur l'horloge de la page, jamais sur celle de l'appareil.
+        remainingMs: Date.parse(body.holdExpiresAt) - Date.now() - (performance.now() - sentAt),
+        provider: body.provider,
+      });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (held) {
+    return (
+      <ResumePayment
+        paymentId={held.paymentId}
+        provider={held.provider}
+        totalCents={held.totalCents}
+        remainingMs={held.remainingMs}
+        recap={recap}
+        payLabel="Payer l'acompte"
+      />
+    );
+  }
+  return (
+    <div className="club-resume flex flex-col gap-3">
+      <button
+        type="button"
+        className="club-button club-button-primary club-button-block"
+        disabled={busy}
+        aria-busy={busy || undefined}
+        onClick={() => void hold()}
+      >
+        {busy ? "Un instant…" : `Payer l'acompte · ${formatCents(amountCents)}`}
+      </button>
+      {error && (
+        <p className="club-error" role="alert">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

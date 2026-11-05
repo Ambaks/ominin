@@ -51,6 +51,7 @@ The template shows these in place, and `ominin-glass.css` has them all:
 - `table` with `class="glass"` and cells `.o`: a comparison where one column stands out dark.
 - `.steps`: numbered steps, with `class="glass"` on each `li`. Number things only when they are a real sequence. To continue numbering on a later page, add `style="counter-reset: s 2"` to the `ol`, where 2 is the number of steps already shown.
 - `.contact` with `.glass.solid`, `.line`, `.mail`, `.qr`: the contact block.
+- `.lift` on an element that sits directly on the page, a logo or a label: a soft shadow of its exact shape, computed into the background, so it reads as floating. It only shows where the background is lighter than the shadow, over the chevron or on `paper` pages.
 - `.hd`, `.kicker`, `.lead`, `.note`: page header, small label, intro, and sources at the bottom of the page.
 
 For QR codes, write a dark vector SVG and always decode it from the rendered PDF:

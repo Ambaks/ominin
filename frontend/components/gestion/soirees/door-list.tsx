@@ -6,7 +6,7 @@ import { CheckIcon, PhoneIcon } from "@/components/gestion/icons";
 import { EmptyState, GlassButton, Input, Plate, Segmented } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import type { ClubBooking, ClubDroit, ClubTable } from "@/lib/club/types";
-import { formatCents, tableName } from "@/lib/club/format";
+import { formatCents, formatTime, tableName } from "@/lib/club/format";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
   formatPhone,
@@ -23,10 +23,9 @@ import { usePresence } from "./use-presence";
 
 /*
  * Les réservations du soir en une liste, rangées par temps de la soirée :
- * celles qu'on attend (la plus ancienne en tête, signalée), celles arrivées
- * qu'il faut installer, celles assises ; les parties repliées dessous.
- * Chaque rangée porte le geste du poste qui la regarde — faire entrer,
- * placer, encaisser et installer, marquer le départ —, l'appel si un numéro
+ * celles qu'on attend (la plus ancienne en tête, signalée), celles assises ;
+ * les parties repliées dessous. Chaque rangée porte le geste du poste qui la
+ * regarde — placer, encaisser et installer, marquer le départ —, l'appel si un numéro
  * est laissé, et sa fiche. Un geste sans argent se fait aussi d'un glissé
  * vers la droite ; l'annonce qui suit permet de revenir dessus.
  */
@@ -70,35 +69,33 @@ function readHintSeen(): boolean {
   }
 }
 
-type Section = "attendues" | "arrivees" | "assises";
+type Section = "attendues" | "assises";
 type Filter = "toutes" | Section;
 
 const SECTION_OF: Partial<Record<TableState, Section>> = {
   payee: "attendues",
   attente: "attendues",
   prise: "attendues",
-  arrivee: "arrivees",
+  arrivee: "attendues",
   assise: "assises",
 };
 
 /** Les sections, dans l'ordre de la soirée. */
 const SECTIONS: { value: Section; label: string; entity: string }[] = [
   { value: "attendues", label: "Attendues", entity: "g-orders" },
-  { value: "arrivees", label: "Arrivées, à installer", entity: "g-money" },
   { value: "assises", label: "Assises", entity: "" },
 ];
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "toutes", label: "Toutes" },
   { value: "attendues", label: "Attendues" },
-  { value: "arrivees", label: "Arrivées" },
   { value: "assises", label: "Assises" },
 ];
 
 /** Ce que dit l'annonce d'un geste, et le temps d'avant pour revenir dessus. */
 const DONE: Record<Exclude<NightStep, "payee">, { text: (name: string) => string; back: NightStep }> = {
   arrivee: { text: (name) => `${name} est entré(e).`, back: "payee" },
-  assise: { text: (name) => `${name} est installé(e).`, back: "arrivee" },
+  assise: { text: (name) => `${name} est installé(e).`, back: "payee" },
   partie: { text: (name) => `${name} est parti(e), table libérée.`, back: "assise" },
 };
 
@@ -229,6 +226,7 @@ function DoorRow({
           </span>
           <span className="flex flex-wrap items-center gap-2 text-g-label text-muted">
             {party(booking.partySize)}
+            {booking.arrivalAt && <span className="tabular-nums">· {formatTime(booking.arrivalAt)}</span>}
             {booking.shared && payers.length > 1 && (
               <span>
                 · {payers.length} payeur{payers.length > 1 ? "s" : ""}
@@ -314,7 +312,9 @@ export function DoorList({
     .map((entry) => ({ ...entry, state: staffTableState(entry.booking, true), gesture: nextGesture(entry.booking, droits) }))
     .filter(search);
   // Dans l'ordre de la soirée ; dans chaque temps, ce qui attend un geste
-  // de ce poste d'abord, puis la réservation la plus ancienne.
+  // de ce poste d'abord, puis l'heure d'arrivée prévue, puis la réservation
+  // la plus ancienne.
+  const arrivalKey = (entry: Entry) => (entry.booking.arrivalAt ? Date.parse(entry.booking.arrivalAt) : Number.POSITIVE_INFINITY);
   const sectionRank = (entry: Entry) => SECTIONS.findIndex((section) => section.value === SECTION_OF[entry.state]);
   const rows = entries
     .filter((entry) => filter === "toutes" || SECTION_OF[entry.state] === filter)
@@ -322,6 +322,7 @@ export function DoorList({
       (a, b) =>
         sectionRank(a) - sectionRank(b) ||
         Number(b.gesture !== null) - Number(a.gesture !== null) ||
+        arrivalKey(a) - arrivalKey(b) ||
         Date.parse(a.booking.createdAt) - Date.parse(b.booking.createdAt)
     );
   const left = departed

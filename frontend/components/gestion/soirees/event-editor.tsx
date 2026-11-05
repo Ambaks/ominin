@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState, type CSSProperties, type ReactNode } from "react";
 import type { TableState } from "@/components/club/floor-plan";
-import { AlertIcon, ExternalLinkIcon } from "@/components/gestion/icons";
+import { AlertIcon, ExternalLinkIcon, XIcon } from "@/components/gestion/icons";
 import {
   ConfirmSheet,
   Field,
@@ -61,6 +61,8 @@ import { NightPlan, PlanLegend } from "./night-plan";
 const SLUG_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 type ZoneDraft = { on: boolean; price: string };
+/** Un créneau d'arrivée en saisie : son heure (« 23:30 ») et ce qu'il accepte de réservations. */
+type SlotDraft = { clock: string; max: string };
 
 interface Draft {
   title: string;
@@ -77,6 +79,7 @@ interface Draft {
   guestListOpen: boolean;
   guestCapacity: string;
   guestMaxParty: string;
+  slots: SlotDraft[];
 }
 
 /** « 23:59 » à Paris : la valeur d'un champ heure. */
@@ -86,8 +89,9 @@ function clockOf(iso: string): string {
 }
 
 /**
- * Une soirée existante telle quelle ; une nouvelle reprend l'horaire et la
- * liste d'invités de la dernière programmée — un club garde ses habitudes —,
+ * Une soirée existante telle quelle ; une nouvelle reprend l'horaire, les
+ * heures d'arrivée et la liste d'invités de la dernière programmée — un club
+ * garde ses habitudes —,
  * toutes ses zones en vente au prix de la zone.
  */
 function initialDraft(club: ClubState, event: ClubEvent | null): Draft {
@@ -119,6 +123,10 @@ function initialDraft(club: ClubState, event: ClubEvent | null): Draft {
     guestListOpen: template?.guestListOpen ?? false,
     guestCapacity: template?.guestListCapacity ? String(template.guestListCapacity) : "",
     guestMaxParty: template ? String(template.guestListMaxParty) : "",
+    slots: (template ? (club.slots[template.id] ?? []) : []).map((slot) => ({
+      clock: clockOf(slot.startsAt),
+      max: String(slot.maxBookings),
+    })),
   };
 }
 
@@ -130,7 +138,7 @@ function autoSlug(title: string, date: string): string {
 }
 
 /** Les champs qui vivent sous « Options » : une erreur de l'un d'eux les déplie. */
-const OPTION_FIELDS = new Set(["ticketUrl", "zones", "capacity", "maxParty"]);
+const OPTION_FIELDS = new Set(["ticketUrl", "zones", "capacity", "maxParty", "slots"]);
 
 /** Un bloc des options : titre, phrase, puis ses champs. */
 function Option({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
@@ -206,6 +214,19 @@ export function EventEditor({
       : null;
   const ticketUrl = draft.ticketUrl.trim();
   const capacity = draft.guestCapacity.trim() ? Number(draft.guestCapacity) : null;
+  // Une heure d'arrivée avant l'ouverture tombe le lendemain, comme la fermeture.
+  const slotInstant = (clock: string) =>
+    isCalendarDay(draft.date) && draft.start
+      ? parisInstant(toMinutes(clock) < toMinutes(draft.start) ? shiftDay(draft.date, 1) : draft.date, toMinutes(clock))
+      : null;
+  const slotError = (slot: SlotDraft, index: number) =>
+    !slot.clock
+      ? "Indiquez l'heure."
+      : draft.slots.findIndex((other) => other.clock === slot.clock) !== index
+        ? "Cette heure est déjà proposée."
+        : !(Number.isInteger(Number(slot.max)) && Number(slot.max) >= 1)
+          ? "Au moins une réservation."
+          : undefined;
   const maxParty = draft.guestMaxParty.trim() ? Number(draft.guestMaxParty) : null;
   const zonePrices = Object.fromEntries(
     club.zones.map((zone) => {
@@ -244,6 +265,7 @@ export function EventEditor({
         ? undefined
         : `Entre 1 et ${CLUB_LIMITS.guestMaxParty} personnes.`,
     zones: zonesOn.some((zone) => zoneError(zone.id)) ? "zones" : undefined,
+    slots: draft.slots.some((slot, index) => slotError(slot, index)) ? "slots" : undefined,
   };
   const valid = Object.values(errors).every((error) => !error) && startsAt !== null && endsAt !== null;
   const flagged = (Object.keys(errors) as (keyof typeof errors)[]).filter((key) => errors[key]);
@@ -295,13 +317,17 @@ export function EventEditor({
         description: draft.description.trim() || null,
         posterUrl: draft.posterUrl,
         ticketUrl: ticketUrl || null,
-        guestListOpen: draft.guestListOpen,
+        guestListOpen: guestsOn,
         guestListCapacity: capacity,
         guestListMaxParty: maxParty ?? undefined,
         zones: zonesOn.map((zone) => ({ zoneId: zone.id, priceCents: zonePrices[zone.id] })),
         blocked: draft.blocked.filter((id) =>
           onIds.has(club.tables.find((table) => table.id === id)?.zoneId ?? "")
         ),
+        slots: draft.slots.flatMap((slot) => {
+          const instant = slotInstant(slot.clock);
+          return instant ? [{ startsAt: instant.toISOString(), maxBookings: Number(slot.max) }] : [];
+        }),
       });
       if (publish !== undefined) {
         try {
@@ -399,7 +425,9 @@ export function EventEditor({
 
   const siteHost = clubSiteUrl.replace(/^https?:\/\//, "");
   const pageUrl = `${siteHost}/${clubSlug}/${draft.slug || "…"}`;
-  const guestsOn = draft.guestListOpen;
+  // Liste d'invités coupée par le club : l'option ne s'affiche plus.
+  const guestListOffered = club.options.guestList;
+  const guestsOn = guestListOffered && draft.guestListOpen;
   // Ce que les options contiennent, lu sans les déplier.
   const optionsSummary = [
     club.zones.length === 0
@@ -410,7 +438,8 @@ export function EventEditor({
     draft.blocked.length > 0 && `${draft.blocked.length} table${draft.blocked.length > 1 ? "s" : ""} gardée${draft.blocked.length > 1 ? "s" : ""}`,
     draft.posterUrl ? "affiche" : "sans affiche",
     ticketUrl && "billetterie",
-    guestsOn ? "liste d'invités ouverte" : "liste d'invités fermée",
+    draft.slots.length > 0 ? `${draft.slots.length} heure${draft.slots.length > 1 ? "s" : ""} d'arrivée` : "sans heure d'arrivée",
+    guestListOffered && (guestsOn ? "liste d'invités ouverte" : "liste d'invités fermée"),
   ].filter(Boolean);
 
   const status = event
@@ -687,6 +716,55 @@ export function EventEditor({
               </Option>
             )}
 
+            <Option
+              title="Heures d'arrivée"
+              hint="Le client choisit son heure parmi ces créneaux, chacun limité à un nombre de réservations. Sans créneau, l'heure n'est pas demandée. L'équipe peut toujours dépasser."
+            >
+              {draft.slots.length > 0 && (
+                <ul className="flex flex-col gap-3">
+                  {draft.slots.map((slot, index) => {
+                    const error = showErrors ? slotError(slot, index) : undefined;
+                    const update = (patch: Partial<SlotDraft>) =>
+                      set(
+                        "slots",
+                        draft.slots.map((other, position) => (position === index ? { ...other, ...patch } : other))
+                      );
+                    return (
+                      <li key={index} className="grid grid-cols-[1fr_1fr_auto] items-end gap-3">
+                        <Field label="Heure" error={error && !slot.clock ? error : undefined}>
+                          <Input type="time" value={slot.clock} onChange={(e) => update({ clock: e.target.value })} />
+                        </Field>
+                        <Field label="Réservations" error={error && slot.clock ? error : undefined}>
+                          <Input
+                            numeric
+                            type="number"
+                            inputMode="numeric"
+                            min={1}
+                            value={slot.max}
+                            onChange={(e) => update({ max: e.target.value })}
+                          />
+                        </Field>
+                        <GlassButton
+                          variant="icon"
+                          aria-label={`Retirer le créneau ${slot.clock || index + 1}`}
+                          onClick={() => set("slots", draft.slots.filter((_, position) => position !== index))}
+                        >
+                          <XIcon />
+                        </GlassButton>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+              <GlassButton
+                className="self-start"
+                onClick={() => set("slots", [...draft.slots, { clock: "", max: draft.slots.at(-1)?.max ?? "" }])}
+              >
+                Ajouter une heure d&rsquo;arrivée
+              </GlassButton>
+            </Option>
+
+            {guestListOffered && (
             <Option title="Liste d'invités" hint="Une inscription gratuite depuis la page de la soirée ; l'équipe coche les arrivées à la porte.">
               <Switch checked={guestsOn} onChange={(open) => set("guestListOpen", open)} label="Inscriptions ouvertes" />
               {guestsOn && (
@@ -715,6 +793,7 @@ export function EventEditor({
                 </div>
               )}
             </Option>
+            )}
           </div>
         )}
       </Plate>

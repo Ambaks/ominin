@@ -16,8 +16,10 @@ import { products, productsSection, type Product, type ProductId, type Shot } fr
  * produit choisi se raconte au défilement comme sur sa propre landing — les
  * étapes défilent à droite, un téléphone reste collé à gauche et montre
  * l'écran de l'étape au milieu de la vue (captures des démos, ou maquette
- * pour l'agent et le clipper). Sous lg, le téléphone reste collé en haut et
- * les étapes passent par-dessus en cartes de verre.
+ * pour l'agent et le clipper), jusqu'à ce que la dernière étape arrive à sa
+ * mi-hauteur (marge basse calculée comme dans landing-kit/scroll-story, sur
+ * le téléphone, moins les boutons qui suivent). Sous lg, le téléphone reste
+ * collé en haut et les étapes passent par-dessus en cartes de verre.
  *
  * Le produit choisi est dans le hash (#club) : un lien profond l'ouvre, et
  * changer de produit depuis le fond du parcours ramène la rangée en haut.
@@ -84,7 +86,7 @@ function Story({ product }: { product: Product }) {
             <p className="mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted">{t(product.body)}</p>
           </div>
 
-          <ol className="flex flex-col gap-[45svh] pb-6 pt-[30svh] lg:gap-[28vh] lg:pb-[4vh] lg:pt-[20vh]">
+          <ol className="flex flex-col gap-[45svh] pb-6 pt-[30svh] lg:gap-[28vh] lg:pb-52 lg:pt-[20vh]">
             {product.steps.map((s, i) => (
               <li
                 key={s.title.fr}

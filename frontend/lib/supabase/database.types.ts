@@ -75,6 +75,62 @@ export type Database = {
         Update: { category_id?: string; cost_percent?: number; etablissement_id?: string; updated_at?: string }
         Relationships: []
       }
+      club_journal: {
+        Row: {
+          acteur: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_id: string | null
+          acteur_nom: string | null
+          acteur_poste: string | null
+          action: Database["public"]["Enums"]["club_journal_action"]
+          booking_id: string | null
+          cible: string | null
+          created_at: string
+          details: Json
+          etablissement_id: string
+          event_id: string | null
+          id: number
+          membre_id: string | null
+        }
+        Insert: {
+          acteur: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_id?: string | null
+          acteur_nom?: string | null
+          acteur_poste?: string | null
+          action: Database["public"]["Enums"]["club_journal_action"]
+          booking_id?: string | null
+          cible?: string | null
+          created_at?: string
+          details?: Json
+          etablissement_id: string
+          event_id?: string | null
+          id?: number
+          membre_id?: string | null
+        }
+        Update: {
+          acteur?: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_id?: string | null
+          acteur_nom?: string | null
+          acteur_poste?: string | null
+          action?: Database["public"]["Enums"]["club_journal_action"]
+          booking_id?: string | null
+          cible?: string | null
+          created_at?: string
+          details?: Json
+          etablissement_id?: string
+          event_id?: string | null
+          id?: number
+          membre_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_journal_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       item_costs: {
         Row: { etablissement_id: string; item_id: string; unit_cost: number; updated_at: string }
         Insert: { etablissement_id: string; item_id: string; unit_cost: number; updated_at?: string }
@@ -1394,7 +1450,9 @@ export type Database = {
       }
       club_bookings: {
         Row: {
+          acompte_demande_cents: number | null
           arrived_at: string | null
+          arrivee_prevue: string | null
           cancelled_at: string | null
           created_at: string
           email: string | null
@@ -1423,7 +1481,9 @@ export type Database = {
           zone_id: string
         }
         Insert: {
+          acompte_demande_cents?: number | null
           arrived_at?: string | null
+          arrivee_prevue?: string | null
           cancelled_at?: string | null
           created_at?: string
           email?: string | null
@@ -1452,7 +1512,9 @@ export type Database = {
           zone_id: string
         }
         Update: {
+          acompte_demande_cents?: number | null
           arrived_at?: string | null
+          arrivee_prevue?: string | null
           cancelled_at?: string | null
           created_at?: string
           email?: string | null
@@ -1537,6 +1599,20 @@ export type Database = {
             columns: ["table_id"]
             isOneToOne: false
             referencedRelation: "club_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_event_creneaux: {
+        Row: { event_id: string; max_bookings: number; starts_at: string }
+        Insert: { event_id: string; max_bookings: number; starts_at: string }
+        Update: { event_id?: string; max_bookings?: number; starts_at?: string }
+        Relationships: [
+          {
+            foreignKeyName: "club_event_creneaux_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
             referencedColumns: ["id"]
           },
         ]
@@ -1689,6 +1765,118 @@ export type Database = {
             columns: ["event_id"]
             isOneToOne: false
             referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_notif_prefs: {
+        Row: {
+          acompte: boolean
+          en_ligne: boolean
+          etablissement_id: string
+          manuelle: boolean
+          modification: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          acompte: boolean
+          en_ligne: boolean
+          etablissement_id: string
+          manuelle: boolean
+          modification: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          acompte?: boolean
+          en_ligne?: boolean
+          etablissement_id?: string
+          manuelle?: boolean
+          modification?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_notif_prefs_user_id_etablissement_id_fkey"
+            columns: ["user_id", "etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "memberships"
+            referencedColumns: ["user_id", "etablissement_id"]
+          },
+        ]
+      }
+      club_notifications: {
+        Row: {
+          actor: string | null
+          booking_id: string
+          created_at: string
+          dedup_key: string | null
+          details: Json
+          etablissement_id: string
+          event_id: string
+          id: string
+          kind: string
+          payment_id: string | null
+          recipients: string[] | null
+          sent_at: string | null
+        }
+        Insert: {
+          actor?: string | null
+          booking_id: string
+          created_at?: string
+          dedup_key?: string | null
+          details: Json
+          etablissement_id: string
+          event_id: string
+          id?: string
+          kind: string
+          payment_id?: string | null
+          recipients?: string[] | null
+          sent_at?: string | null
+        }
+        Update: {
+          actor?: string | null
+          booking_id?: string
+          created_at?: string
+          dedup_key?: string | null
+          details?: Json
+          etablissement_id?: string
+          event_id?: string
+          id?: string
+          kind?: string
+          payment_id?: string | null
+          recipients?: string[] | null
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "club_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_notifications_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_notifications_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_notifications_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "club_payments"
             referencedColumns: ["id"]
           },
         ]
@@ -3039,8 +3227,11 @@ export type Database = {
           category_layout: string
           club_dress_code: string | null
           club_droits: Json
+          club_liste_invites: boolean
           club_min_age: number
+          club_partage: boolean
           club_refused: string | null
+          club_table_entiere: boolean
           collect_fee_percent: number | null
           collect_slot_capacity: number
           collect_slot_minutes: number
@@ -3082,8 +3273,11 @@ export type Database = {
           category_layout?: string
           club_dress_code?: string | null
           club_droits?: Json
+          club_liste_invites?: boolean
           club_min_age?: number
+          club_partage?: boolean
           club_refused?: string | null
+          club_table_entiere?: boolean
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number
@@ -3125,8 +3319,11 @@ export type Database = {
           category_layout?: string
           club_dress_code?: string | null
           club_droits?: Json
+          club_liste_invites?: boolean
           club_min_age?: number
+          club_partage?: boolean
           club_refused?: string | null
+          club_table_entiere?: boolean
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number
@@ -7592,6 +7789,31 @@ export type Database = {
           restaurant_name: string
         }[]
       }
+      club_journal_page: {
+        Args: {
+          p_etablissement: string
+          p_event: string | null
+          p_limit: number
+          p_offset: number
+          p_search: string
+        }
+        Returns: {
+          acteur: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_nom: string
+          acteur_poste: string
+          action: Database["public"]["Enums"]["club_journal_action"]
+          booking_id: string
+          cible: string
+          created_at: string
+          details: Json
+          event_id: string
+          event_starts_at: string
+          event_title: string
+          id: number
+          membre_id: string
+          total_count: number
+        }[]
+      }
       gestion_analyses: {
         Args: {
           p_day_end_hour: number
@@ -8092,6 +8314,18 @@ export type Database = {
         Args: { p_booking: string }
         Returns: Database["public"]["Enums"]["club_booking_status"]
       }
+      club_creneau_valide: {
+        Args: { p_arrivee: string; p_event: string }
+        Returns: boolean
+      }
+      club_creneaux: {
+        Args: { p_event: string }
+        Returns: { restant: number; starts_at: string }[]
+      }
+      club_demander_acompte: {
+        Args: { p_amount: number; p_booking: string }
+        Returns: Database["public"]["Tables"]["club_bookings"]["Row"]
+      }
       club_encaisser: { Args: { p_booking: string }; Returns: undefined }
       club_encaisser_reste: { Args: { p_booking: string }; Returns: undefined }
       club_frais: {
@@ -8106,6 +8340,35 @@ export type Database = {
       club_marquer_invite: {
         Args: { p_arrived: boolean; p_guest: string }
         Returns: undefined
+      }
+      club_notifications_page: {
+        Args: {
+          p_etablissement: string
+          p_limit: number
+          p_offset: number
+          p_search: string
+        }
+        Returns: {
+          booking_id: string
+          created_at: string
+          details: Json
+          event_id: string
+          id: string
+          kind: string
+          total_count: number
+        }[]
+      }
+      club_modifier_reservation: {
+        Args: {
+          p_arrivee: string | null
+          p_booking: string
+          p_email: string
+          p_name: string
+          p_note: string
+          p_party: number
+          p_phone: string
+        }
+        Returns: Database["public"]["Tables"]["club_bookings"]["Row"]
       }
       club_offres: {
         Args: { p_event: string }
@@ -8135,6 +8398,47 @@ export type Database = {
       club_prix_table: {
         Args: { p_event: string; p_table: string }
         Returns: number
+      }
+      club_rapport: { Args: { p_event: string }; Returns: Json }
+      club_rapport_lignes: {
+        Args: { p_event: string }
+        Returns: {
+          arrived_at: string
+          booking_id: string
+          created_at: string
+          en_attente_cents: number
+          en_ligne_cents: number
+          etat: string
+          frais_cents: number
+          name: string
+          party_size: number
+          price_cents: number
+          rembourse_cents: number
+          reste_cents: number
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status: Database["public"]["Enums"]["club_booking_status"]
+          sur_place_cents: number
+          table_label: string
+          zone_id: string
+          zone_name: string
+        }[]
+      }
+      club_rapport_totaux: { Args: { p_lignes: Json }; Returns: Json }
+      club_rapports: {
+        Args: {
+          p_etablissement: string
+          p_limit: number
+          p_offset: number
+          p_search: string
+        }
+        Returns: {
+          cancelled: boolean
+          event_id: string
+          starts_at: string
+          title: string
+          total_count: number
+          totaux: Json
+        }[]
       }
       club_rembourser_paiement: {
         Args: { p_payment: string }
@@ -8517,12 +8821,16 @@ export type Database = {
           p_paid: boolean
           p_party: number
           p_phone: string
+          p_arrivee: string | null
+          p_email: string
           p_source: Database["public"]["Enums"]["club_booking_source"]
           p_table: string | null
           p_zone: string | null
         }
         Returns: {
+          acompte_demande_cents: number | null
           arrived_at: string | null
+          arrivee_prevue: string | null
           cancelled_at: string | null
           created_at: string
           email: string | null
@@ -9074,6 +9382,10 @@ export type Database = {
         Args: { p_key: string; p_max: number; p_window_seconds: number }
         Returns: boolean
       }
+      payer_acompte_demande: {
+        Args: { p_hold_seconds: number; p_token: string }
+        Returns: { hold_expires_at: string; payment_id: string; total_cents: number }[]
+      }
       regler_paiement: {
         Args: { p_intent: string | null; p_payment: string; p_total: number }
         Returns: string
@@ -9115,6 +9427,7 @@ export type Database = {
           p_name: string
           p_party: number
           p_phone: string
+          p_arrivee?: string | null
           p_share_cents?: number | null
           p_zone: string
         }
@@ -9259,6 +9572,26 @@ export type Database = {
         | "partie"
         | "annulee"
         | "remboursee"
+      club_journal_acteur: "membre" | "client" | "systeme"
+      club_journal_action:
+        | "reservation"
+        | "modification"
+        | "statut"
+        | "placement"
+        | "annulation"
+        | "remboursement"
+        | "encaissement"
+        | "paiement"
+        | "paiement_rembourse"
+        | "paiement_retabli"
+        | "soiree"
+        | "soiree_modifiee"
+        | "publication"
+        | "depublication"
+        | "soiree_annulee"
+        | "prix"
+        | "poste"
+        | "droits"
       club_payment_method: "en_ligne" | "sur_place"
       club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
       club_role: "accueil" | "caissier" | "chef_de_rang"
@@ -9568,6 +9901,27 @@ export const Constants = {
         "partie",
         "annulee",
         "remboursee",
+      ],
+      club_journal_acteur: ["membre", "client", "systeme"],
+      club_journal_action: [
+        "reservation",
+        "modification",
+        "statut",
+        "placement",
+        "annulation",
+        "remboursement",
+        "encaissement",
+        "paiement",
+        "paiement_rembourse",
+        "paiement_retabli",
+        "soiree",
+        "soiree_modifiee",
+        "publication",
+        "depublication",
+        "soiree_annulee",
+        "prix",
+        "poste",
+        "droits",
       ],
       club_payment_method: ["en_ligne", "sur_place"],
       club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],
