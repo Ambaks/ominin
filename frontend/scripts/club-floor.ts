@@ -1,6 +1,7 @@
 /*
- * La salle de L'Étoile telle qu'elle est dessinée sur Fourvenues (5 zones,
- * 64 tables, mêmes numéros, mêmes places) et l'écriture des soirées à l'heure
+ * La salle de L'Étoile telle que la donne son plan des zones (5 zones,
+ * 70 tables, mêmes numéros ; places et prix relevés sur Fourvenues, ceux de
+ * la VIP Scène encore à confirmer) et l'écriture des soirées à l'heure
  * de Paris : partagées par la base locale (seed-club) et la démo (club-demo).
  */
 
@@ -20,9 +21,11 @@ export type ZoneSpec = {
   tables: TableSpec[];
   /** Tables de la zone qui n'ont pas le nombre de places par défaut. */
   seatsByLabel?: Record<string, number>;
+  /** Tables de la zone qui n'ont pas la forme par défaut. */
+  shapeByLabel?: Record<string, "carre" | "rond">;
 };
 
-// Coordonnées relevées sur le plan Fourvenues du club, en unités de plan.
+// Coordonnées relevées sur le plan des zones du club, en unités de plan.
 export const ZONES: ZoneSpec[] = [
   {
     name: "Rooftop",
@@ -54,26 +57,7 @@ export const ZONES: ZoneSpec[] = [
       ["306", 517, 269], ["307", 517, 313], ["308", 517, 363], ["309", 517, 406],
       ["311", 425, 435], ["310", 474, 435],
     ],
-  },
-  {
-    name: "Bar",
-    priceCents: 30_000,
-    inclus: "1 bouteille 70 cl",
-    seats: 4,
-    shape: "carre",
-    layout: {
-      w: 600,
-      h: 220,
-      walls: [[[10, 20], [590, 20]]],
-      marks: [
-        { kind: "bar", x: 20, y: 130, w: 560, h: 34, label: "Bar central" },
-        { kind: "piste", x: 20, y: 180, w: 560, h: 30, label: "Piste" },
-      ],
-    },
-    tables: [
-      ["1B", 36, 75], ["2B", 94, 75], ["3B", 151, 75], ["4B", 209, 75], ["5B", 266, 75],
-      ["6B", 324, 75], ["7B", 381, 75], ["8B", 438, 75], ["9B", 496, 75], ["10B", 553, 75],
-    ],
+    shapeByLabel: { "312": "rond", "313": "rond", "314": "rond" },
   },
   {
     name: "VIP Balcon",
@@ -103,7 +87,7 @@ export const ZONES: ZoneSpec[] = [
     ],
   },
   {
-    name: "VIP Salon Rouge",
+    name: "Salon Rouge",
     priceCents: 100_000,
     inclus: "2 bouteilles 70 cl, softs à volonté",
     seats: 8,
@@ -124,7 +108,39 @@ export const ZONES: ZoneSpec[] = [
     ],
   },
   {
+    // Tables 41 à 56, entre le DJ et la piste. Places et prix à confirmer avec le club.
     name: "VIP Scène",
+    priceCents: 200_000,
+    inclus: "2 bouteilles 70 cl et 1 champagne",
+    seats: 8,
+    shape: "carre",
+    layout: {
+      w: 560,
+      h: 420,
+      tone: "or",
+      walls: [
+        [[57, 67], [57, 372], [507, 372], [449, 172], [397, 172]],
+        [[182, 67], [182, 215]],
+        [[334, 67], [334, 215]],
+      ],
+      marks: [
+        { kind: "rambarde", x: 182, y: 67, w: 152 },
+        { kind: "dj", x: 82, y: 22, w: 80, h: 26, label: "DJ" },
+        { kind: "entree", x: 182, y: 262, rotate: 180 },
+        { kind: "entree", x: 369, y: 175, rotate: 90 },
+        { kind: "entree", x: 261, y: 207, rotate: -90 },
+      ],
+    },
+    tables: [
+      ["50", 104, 113], ["49", 104, 183], ["48", 104, 254], ["47", 107, 325],
+      ["53", 221, 102], ["52", 221, 144], ["51", 221, 183],
+      ["54", 297, 102], ["55", 297, 144], ["56", 297, 183],
+      ["46", 203, 320], ["45", 270, 320], ["44", 338, 320], ["43", 400, 320], ["42", 446, 320],
+      ["41", 421, 249],
+    ],
+  },
+  {
+    name: "VIP Scène · Loge artiste",
     priceCents: 250_000,
     inclus: "1 magnum de champagne et 2 bouteilles 70 cl, accès loge artiste",
     seats: 5,
@@ -211,7 +227,7 @@ export async function insertFloor(
           seats: zone.seatsByLabel?.[label] ?? zone.seats,
           x,
           y,
-          shape: zone.shape,
+          shape: zone.shapeByLabel?.[label] ?? zone.shape,
         }))
       )
     );
