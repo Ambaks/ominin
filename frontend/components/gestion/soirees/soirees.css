@@ -707,9 +707,9 @@ html:has(.soirees-barre) {
 }
 
 /* ---------------------------------------------------------------------------
-   La porte : « Faire entrer » est écrit sur chaque rangée ; le glissé vers
-   la droite reste un raccourci. Une entrée est le seul moment qui mérite
-   un peu de fête : la coche bondit, son onde s'élargit, la rangée part. */
+   La liste : le geste du poste est écrit sur chaque rangée ; le glissé vers
+   la droite reste un raccourci. Un geste fait mérite un peu de fête : la
+   coche bondit, son onde s'élargit, la rangée part. */
 
 .porte-rangee {
   position: relative;

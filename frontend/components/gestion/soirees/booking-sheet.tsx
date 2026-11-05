@@ -103,7 +103,7 @@ export type ReserveTarget = { zone: ClubZone; table: ClubTable | null; seats: nu
 
 /** Ce que dit l'annonce d'un retour en arrière, selon le temps retrouvé. */
 const UNDONE: Record<NightStep, string> = {
-  payee: "Arrivée annulée.",
+  payee: "Installation annulée.",
   arrivee: "Installation annulée.",
   assise: "Départ annulé.",
   partie: "",

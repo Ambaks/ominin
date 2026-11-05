@@ -17,7 +17,7 @@ export const CLUB_ROLE_LABELS: Record<ClubRole, string> = {
 };
 
 export const CLUB_ROLE_TAGLINES: Record<ClubRole, string> = {
-  accueil: "Accueille les clients et valide leur arrivée.",
+  accueil: "Accueille les clients et retrouve leur réservation.",
   caissier: "Encaisse les tables et installe les clients.",
   chef_de_rang: "Suit ses tables et signale les départs.",
 };
@@ -48,7 +48,6 @@ export function posteToMembership(poste: Poste): { role: Role; club_role: ClubRo
 export const CLUB_DROITS: { droit: ClubDroit; label: string }[] = [
   { droit: "reserver", label: "Saisir et annuler des réservations" },
   { droit: "placer", label: "Placer et déplacer les tables" },
-  { droit: "arrivee", label: "Faire entrer (Arrivé)" },
   { droit: "assise", label: "Encaisser et installer (Assis)" },
   { droit: "partie", label: "Marquer le départ (Parti)" },
   { droit: "acomptes", label: "Voir les acomptes et l'argent" },

@@ -83,7 +83,7 @@ type View = "plan" | "porte" | "invites";
 /** Ce qui est ouvert en feuille : une table du plan, une réservation, ou une saisie à placer. */
 type Selection = { kind: "table"; id: string } | { kind: "booking"; id: string; placing?: boolean } | { kind: "nouvelle" };
 
-const LEGEND: TableState[] = ["libre", "payee", "attente", "arrivee", "assise", "liberee", "prise", "gardee"];
+const LEGEND: TableState[] = ["libre", "payee", "attente", "assise", "liberee", "prise", "gardee"];
 
 const rise = (index: number) => ({ "--g-i": index }) as CSSProperties;
 
@@ -559,12 +559,12 @@ export default function LivePage() {
 
       {/* Un seul bandeau, les mêmes mots partout : des réservations (attendues, entrées), des personnes, de l'argent. */}
       <div className={`g-rise grid grid-cols-2 gap-3 sm:gap-g-gap ${money ? "xl:grid-cols-4" : ""}`} style={rise(1)}>
-        <Figure entity="orders" label="Tables arrivées" baseline={`${expected} attendue${expected > 1 ? "s" : ""}`}>
+        <Figure entity="orders" label="Tables installées" baseline={`${expected} attendue${expected > 1 ? "s" : ""}`}>
           {stats.arrived} / {stats.sold}
         </Figure>
         <Figure
           entity="orders"
-          label="Personnes entrées"
+          label="Personnes installées"
           baseline={`${peopleExpected} encore attendue${peopleExpected > 1 ? "s" : ""}`}
         >
           {stats.peopleArrived} / {stats.people}
@@ -644,7 +644,7 @@ export default function LivePage() {
               <p className="truncate font-display text-g-h2">{event.title}</p>
               <p className="mt-0.5 text-g-meta text-muted">
                 <span className="tabular-nums">{expected}</span> attendue{expected > 1 ? "s" : ""} ·{" "}
-                <span className="tabular-nums">{stats.arrived}</span> arrivée{stats.arrived > 1 ? "s" : ""}
+                <span className="tabular-nums">{stats.arrived}</span> installée{stats.arrived > 1 ? "s" : ""}
                 {waiting.length > 0 && (
                   <>
                     {" · "}

@@ -23,10 +23,9 @@ import { usePresence } from "./use-presence";
 
 /*
  * Les réservations du soir en une liste, rangées par temps de la soirée :
- * celles qu'on attend (la plus ancienne en tête, signalée), celles arrivées
- * qu'il faut installer, celles assises ; les parties repliées dessous.
- * Chaque rangée porte le geste du poste qui la regarde — faire entrer,
- * placer, encaisser et installer, marquer le départ —, l'appel si un numéro
+ * celles qu'on attend (la plus ancienne en tête, signalée), celles assises ;
+ * les parties repliées dessous. Chaque rangée porte le geste du poste qui la
+ * regarde — placer, encaisser et installer, marquer le départ —, l'appel si un numéro
  * est laissé, et sa fiche. Un geste sans argent se fait aussi d'un glissé
  * vers la droite ; l'annonce qui suit permet de revenir dessus.
  */
@@ -70,35 +69,33 @@ function readHintSeen(): boolean {
   }
 }
 
-type Section = "attendues" | "arrivees" | "assises";
+type Section = "attendues" | "assises";
 type Filter = "toutes" | Section;
 
 const SECTION_OF: Partial<Record<TableState, Section>> = {
   payee: "attendues",
   attente: "attendues",
   prise: "attendues",
-  arrivee: "arrivees",
+  arrivee: "attendues",
   assise: "assises",
 };
 
 /** Les sections, dans l'ordre de la soirée. */
 const SECTIONS: { value: Section; label: string; entity: string }[] = [
   { value: "attendues", label: "Attendues", entity: "g-orders" },
-  { value: "arrivees", label: "Arrivées, à installer", entity: "g-money" },
   { value: "assises", label: "Assises", entity: "" },
 ];
 
 const FILTERS: { value: Filter; label: string }[] = [
   { value: "toutes", label: "Toutes" },
   { value: "attendues", label: "Attendues" },
-  { value: "arrivees", label: "Arrivées" },
   { value: "assises", label: "Assises" },
 ];
 
 /** Ce que dit l'annonce d'un geste, et le temps d'avant pour revenir dessus. */
 const DONE: Record<Exclude<NightStep, "payee">, { text: (name: string) => string; back: NightStep }> = {
   arrivee: { text: (name) => `${name} est entré(e).`, back: "payee" },
-  assise: { text: (name) => `${name} est installé(e).`, back: "arrivee" },
+  assise: { text: (name) => `${name} est installé(e).`, back: "payee" },
   partie: { text: (name) => `${name} est parti(e), table libérée.`, back: "assise" },
 };
 

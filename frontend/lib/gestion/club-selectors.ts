@@ -100,17 +100,16 @@ export type Gesture =
   | { kind: "placer"; label: string };
 
 /**
- * Le geste suivant d'une réservation pour ce poste, s'il en a un : faire
- * entrer, installer (en encaissant le reste), marquer le départ. Une
- * réservation à placer s'installe une fois sur une table.
+ * Le geste suivant d'une réservation pour ce poste, s'il en a un : installer
+ * (en encaissant le reste), marquer le départ. Une réservation à placer
+ * s'installe une fois sur une table. Il n'y a plus d'étape « arrivée » ; une
+ * réservation qui l'a déjà s'installe de même.
  */
 export function nextGesture(booking: ClubBooking, droits: Set<ClubDroit>): Gesture | null {
   if (booking.status === "en_attente" && booking.holdExpiresAt !== null) return null;
   const remaining = booking.remainingCents;
-  if ((booking.status === "payee" || booking.status === "en_attente") && droits.has("arrivee")) {
-    return { kind: "step", to: "arrivee", label: "Faire entrer", collect: 0 };
-  }
-  if (booking.status === "arrivee" && booking.tableId && droits.has("assise")) {
+  const reserved = booking.status === "payee" || booking.status === "en_attente" || booking.status === "arrivee";
+  if (reserved && booking.tableId && droits.has("assise")) {
     return {
       kind: "step",
       to: "assise",
@@ -129,8 +128,7 @@ export function nextGesture(booking: ClubBooking, droits: Set<ClubDroit>): Gestu
 
 /** Revenir d'un cran, après une erreur : le temps d'avant et le geste qui le dit. */
 export function undoGesture(booking: ClubBooking, droits: Set<ClubDroit>): { to: NightStep; label: string } | null {
-  if (booking.status === "arrivee" && droits.has("arrivee")) return { to: "payee", label: "Annuler l’arrivée" };
-  if (booking.status === "assise" && droits.has("assise")) return { to: "arrivee", label: "Annuler l’installation" };
+  if (booking.status === "assise" && droits.has("assise")) return { to: "payee", label: "Annuler l’installation" };
   if (booking.status === "partie" && droits.has("partie")) return { to: "assise", label: "Annuler le départ" };
   return null;
 }
