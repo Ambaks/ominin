@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { startVelours } from "@/components/menu/panis-backdrop";
 import { Sheet, useNoSheet } from "@/components/menu/sheet";
-import { veloursPalettes } from "@/components/menu/velours-palettes";
+import { ecussonVelours, veloursPalettes } from "@/components/menu/velours-palettes";
 import { httpHref } from "@/lib/admin/format";
 import { AFTER_MEAL_EXPIRY_MS } from "@/lib/gestion/constants";
 import {
@@ -74,12 +74,12 @@ const KICKER_OF: Record<AfterMealMoment, keyof NonNullable<AfterMealOffer["kicke
 /** Les noms et accords de la carte gardent l'apostrophe droite : on l'affiche typographique. */
 const typo = (text: string) => text.replaceAll("'", "’");
 
-/** Le satin de la carte, repris dans la feuille : le même tissu, sous la même question. */
+/** Le satin de la carte, repris dans la feuille : le même tissu, sous la même question. Les aperçus de l'Écusson gardent leur feuille sans satin : un contexte WebGL de moins. */
 function Satin() {
   const { slug } = useCart();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const palette = veloursPalettes[slug];
+    const palette = ecussonVelours.has(slug) ? undefined : veloursPalettes[slug];
     return ref.current && palette ? startVelours(ref.current, palette) : undefined;
   }, [slug]);
   return <div ref={ref} aria-hidden className="after-meal-satin" />;

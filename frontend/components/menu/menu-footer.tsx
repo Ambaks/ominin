@@ -154,7 +154,7 @@ export function MenuFooter({
           {restaurant.allergensNote && <p>{restaurant.allergensNote}</p>}
           <p>Prix nets en euros, service compris.</p>
           {hasPhotos && <p>Photos non contractuelles.</p>}
-          <p className="mt-1 flex items-center justify-center gap-2">
+          <p className="footer-signature mt-1 flex items-center justify-center gap-2">
             <span>
               Propulsé par <span className="ember-text font-semibold">Ominin</span>
             </span>

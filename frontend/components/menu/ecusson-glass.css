@@ -3,31 +3,75 @@
   (panis-backdrop). Le flou d'arrière-plan ne va qu'aux surfaces fixes ou
   posées par-dessus : un flou sur chaque fiche, ou sur les disques de la
   roue, se recalculerait à chaque image du satin. Les fiches ont le même
-  verre, sans flou. Réglages par maison, plus bas : le propriétaire les
-  ajuste sans réécrire la recette.
+  verre, sans flou. Les réglages communs viennent d'abord, puis ceux de
+  chaque maison, qui les remplacent ; le bloc partagé qui suit les maisons
+  a la même spécificité qu'elles et ne porte donc que des valeurs dérivées.
 */
+
+/* Les réglages communs ; chaque maison remplace les siens plus bas. */
+[data-menu-root]:is(
+    .theme-le-novelty,
+    .theme-le-victoria,
+    .theme-cafe-des-arts,
+    .theme-brasserie-laissac
+  ):has(> .panis-backdrop) {
+  --eg-blur: 18px;
+  /* Couverture des feuilles, puis de leurs bandeaux fixes et du papier du ticket : la liste qui défile sous un bandeau ne doit pas s'y lire. */
+  --eg-alpha-feuille: 0.9;
+  --eg-alpha-bande: 0.98;
+  /* L'accueil fidélité ; le Victoria le couvre davantage, sur sa bande crème. */
+  --eg-alpha-accueil: var(--eg-alpha);
+  /* Les deux bouts du voile de la roue. */
+  --eg-voile-fort: 0.78;
+  --eg-voile-faible: 0.5;
+  /* Le bandeau défilant porte la pastille fidélité : plus couvert que le verre. */
+  --eg-alpha-bandeau: 0.7;
+  /* Pastilles d'adresse du héros, fondu du quai à tickets, fondu bas de photo. */
+  --eg-alpha-pastille: 0.42;
+  --eg-alpha-quai: 0.45;
+  --eg-fondu: 0.72;
+  /* Bords du pied, de la barre et du rail ; plus clairs sur pastilles et jetons. */
+  --eg-bord: 0.3;
+  --eg-bord-clair: 0.4;
+  /* Ombre sous les disques de la roue ; verre un cran plus couvert au survol. */
+  --eg-ombre-disque: 0.75;
+  --eg-survol: 0.08;
+  /* Ombres portées de l'enseigne et de son logo ; voile du héros, atténué pour que le satin se lise. */
+  --eg-ombre-texte: 0.8;
+  --eg-ombre-logo: 0.55;
+  --eg-derive: 0.35;
+  /* Trait des prix barrés. */
+  --eg-barre: 1.5px;
+  /* Filet et liseré adoucis, pour les surfaces secondaires (bandeaux, bandes, disques, tapis). */
+  --eg-doux: 0.5;
+  --eg-doux-lisere: 0.6;
+  /* Le tapis de la roue du jour, voilé sous le verre ; le rayon du ticket est celui de ses morceaux (rounded-2xl). */
+  --eg-tapis: 70%;
+  --eg-rayon-ticket: 1rem;
+}
 
 /* Le Novelty : feutre noir, filet d'or. */
 [data-menu-root].theme-le-novelty:has(> .panis-backdrop) {
-  --eg-tint: 12 10 6;
-  --eg-alpha: 0.68;
+  --eg-tint: 16 13 7;
+  --eg-alpha: 0.6;
   --eg-sheen: 232 201 106;
   --eg-rim: 201 168 76;
-  --eg-wash: 0.07;
+  --eg-wash: 0.11;
   --eg-reflet: 0.95;
-  --eg-lisere: 0.7;
-  --eg-halo: 0.28;
+  /* Le liseré plus discret que le filet : deux traits égaux lisaient comme un cadre. */
+  --eg-lisere: 0.45;
+  --eg-halo: 0.4;
   --eg-fond: 0.14;
   --eg-ombre: 0.62;
-  --eg-blur: 18px;
   --eg-saturate: 1.25;
   --eg-metal: var(--nv-gold);
   --eg-metal-voile: 88%;
   --eg-struck: #e6d7b4;
   --eg-price: var(--nv-gold-light);
-  --eg-radius: 0px;
-  --muted: #cfc4b2;
-  --faint: #c0b4a0;
+  /* L'écart entre les fiches : le satin passe entre les verres. */
+  --eg-ecart: 0.75rem;
+  --muted: #e6ddcb;
+  --faint: #e0d6c2;
 }
 
 /* Le Victoria : noir rouge, liseré de laiton, éclat de pierre. */
@@ -42,13 +86,15 @@
   --eg-halo: 0.24;
   --eg-fond: 0.18;
   --eg-ombre: 0.66;
-  --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--vc-red);
-  --eg-metal-voile: 90%;
+  --eg-metal-voile: 80%;
   --eg-struck: #f3eadc;
   --eg-price: #f2a3ab;
-  --eg-radius: 1.25rem;
+  /* L'accueil fidélité tombe sur la bande crème du héros : plus couvert, sinon il se brouille. */
+  --eg-alpha-accueil: 0.9;
+  /* Le bandeau noir de l'enseigne : le satin passe faiblement derrière. */
+  --eg-alpha-enseigne: 0.8;
   --muted: #d4cbbd;
   --faint: #c4b9a8;
 }
@@ -65,13 +111,11 @@
   --eg-halo: 0.26;
   --eg-fond: 0.18;
   --eg-ombre: 0.68;
-  --eg-blur: 18px;
   --eg-saturate: 1.3;
   --eg-metal: var(--ca-magenta-ink);
-  --eg-metal-voile: 90%;
+  --eg-metal-voile: 82%;
   --eg-struck: #f2e4ec;
   --eg-price: #ff7aba;
-  --eg-radius: 1.25rem;
   --muted: #d4d4d8;
   --faint: #c6c6cc;
 }
@@ -88,15 +132,13 @@
   --eg-halo: 0.26;
   --eg-fond: 0.16;
   --eg-ombre: 0.64;
-  --eg-blur: 18px;
   --eg-saturate: 1.22;
   --eg-metal: var(--lc-or);
-  --eg-metal-voile: 88%;
+  --eg-metal-voile: 80%;
   --eg-struck: #f3e6cf;
   --eg-price: var(--lc-or-clair);
-  --eg-radius: 1.25rem;
-  --muted: #d5cbbd;
-  --faint: #c4b8a6;
+  --muted: #ebe2d0;
+  --faint: #e6dcc9;
 }
 
 [data-menu-root]:is(
@@ -133,21 +175,26 @@
 
   /* Le voile du héros reste, atténué : le satin doit se lire derrière l'enseigne. */
   & .hero-gradient-drift {
-    opacity: 0.35;
+    opacity: var(--eg-derive);
   }
 
   & :is(.hero-name, .hero-tagline, .category-heading, .hero-cue) {
-    text-shadow: 0 1px 16px rgb(0 0 0 / 0.8);
+    text-shadow: 0 1px 16px rgb(0 0 0 / var(--eg-ombre-texte));
   }
 
   & .hero-logo img {
-    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.55));
+    filter: drop-shadow(0 10px 18px rgb(0 0 0 / var(--eg-ombre-logo)));
+  }
+
+  /* Le bandeau du titre du Victoria était un aplat noir. */
+  &.theme-le-victoria .hero-lockup {
+    background-color: rgb(var(--eg-tint) / var(--eg-alpha-enseigne));
   }
 
   /* Pastilles d'adresse : verre sans flou, elles défilent sur le satin. */
   & .hero-contact a {
     border-color: transparent;
-    background: rgb(var(--eg-tint) / 0.42);
+    background: rgb(var(--eg-tint) / var(--eg-alpha-pastille));
     box-shadow:
       inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
       inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere));
@@ -157,9 +204,9 @@
 
   & .menu-ticker {
     border-color: transparent;
-    background: rgb(var(--eg-tint) / 0.5);
+    background: rgb(var(--eg-tint) / var(--eg-alpha-bandeau));
     box-shadow:
-      inset 0 -1px 0 rgb(var(--eg-rim) / calc(var(--eg-lisere) * 0.6));
+      inset 0 -1px 0 rgb(var(--eg-rim) / calc(var(--eg-lisere) * var(--eg-doux-lisere)));
   }
 
   & .menu-ticker-pause {
@@ -200,13 +247,20 @@
 
   /* Au Novelty les fiches se touchaient par un filet d'or : chaque verre se détache, le satin passe entre elles. */
   &:is(.theme-le-novelty) .dish-grid {
-    gap: 0.75rem;
+    gap: var(--eg-ecart);
     border: 0;
+  }
+
+  /* Le cerne d'or du survol et de l'appui entourait la fiche sur ses quatre côtés : il suit le filet et le liseré. */
+  &.theme-le-novelty .dish-grid > article::after {
+    box-shadow:
+      inset 0 1px 0 var(--nv-gold),
+      inset 0 -1px 0 var(--nv-gold);
   }
 
   /* Le fondu ne couvre que le bas de la photo : le plat reste lisible. */
   & .dish-photo-fade {
-    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.72) 0%, rgb(var(--eg-tint) / 0) 42%);
+    background: linear-gradient(to top, rgb(var(--eg-tint) / var(--eg-fondu)) 0%, rgb(var(--eg-tint) / 0) 42%);
   }
 
   & .dish-price {
@@ -219,20 +273,25 @@
     --ember-2: var(--eg-price);
   }
 
+  /* Le magenta des Arts et le rouge du Victoria font moins de 4,5:1 en petit corps sur le verre : les mentions passent au rose des prix ; les aplats et les grands prix gardent leur couleur. */
+  &:is(.theme-cafe-des-arts, .theme-le-victoria) :is(.loyalty-greeting, [role="dialog"]) .text-ember-1:not(.font-display, svg) {
+    color: var(--eg-price);
+  }
+
   & :is(.line-through, .offer-price s, .formule-tile s) {
     color: var(--eg-struck);
     text-decoration-color: var(--eg-struck);
-    text-decoration-thickness: 1.5px;
+    text-decoration-thickness: var(--eg-barre);
   }
 
   & > footer {
-    border-color: rgb(var(--eg-rim) / 0.28);
+    border-color: rgb(var(--eg-rim) / var(--eg-bord));
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
   }
 
   /* L'aperçu est la carte du lieu : la signature Ominin ne s'y lit pas. */
-  & > footer .text-xs > p:last-child {
+  & > footer .footer-signature {
     display: none;
   }
 
@@ -240,9 +299,9 @@
   & [data-category-wheel] > div:first-child {
     background: linear-gradient(
       to left,
-      rgb(var(--eg-tint) / 0.78),
-      rgb(var(--eg-tint) / 0.55) 55%,
-      rgb(var(--eg-tint) / 0.28)
+      rgb(var(--eg-tint) / var(--eg-voile-fort)),
+      rgb(var(--eg-tint) / calc((var(--eg-voile-fort) + var(--eg-voile-faible)) / 2)) 55%,
+      rgb(var(--eg-tint) / var(--eg-voile-faible))
     );
     -webkit-backdrop-filter: var(--eg-flou);
     backdrop-filter: var(--eg-flou);
@@ -260,22 +319,33 @@
     box-shadow:
       inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
       inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
-      0 8px 16px -10px rgb(0 0 0 / 0.75);
+      inset 0 10px 14px -8px rgb(var(--eg-sheen) / calc(var(--eg-halo) * var(--eg-doux))),
+      0 8px 16px -10px rgb(0 0 0 / var(--eg-ombre-disque));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
   /* Barre et rail : ils défilent avec la carte, donc sans flou. */
   & :is([data-category-nav], [data-category-rail]) {
-    border-color: rgb(var(--eg-rim) / 0.3);
+    border-color: rgb(var(--eg-rim) / var(--eg-bord));
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
-  & :is(.cart-bar, .offer-pill, .loyalty-pill, .loyalty-greeting) {
-    border-color: rgb(var(--eg-sheen) / 0.4);
+  /* Le groupe reste à une classe de spécificité : le panier et l'accueil, plus bas, le recouvrent. */
+  & :is(.cart-bar, .offer-pill, .loyalty-greeting) {
+    border-color: rgb(var(--eg-sheen) / var(--eg-bord-clair));
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: var(--eg-flou);
+    backdrop-filter: var(--eg-flou);
+  }
+
+  /* La pastille rangée garde son fond plein (data-docked), comme sur Panis. */
+  & .loyalty-pill:not([data-docked]) {
+    border-color: rgb(var(--eg-sheen) / var(--eg-bord-clair));
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
     -webkit-backdrop-filter: var(--eg-flou);
@@ -287,6 +357,11 @@
     background: var(--eg-metal-verre);
   }
 
+  /* L'accueil se lit d'un coup, même sur la pierre claire du héros du Victoria : plus couvert que les pastilles. */
+  & .loyalty-greeting {
+    background: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha-accueil));
+  }
+
   & .ticket-dock {
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
@@ -295,48 +370,115 @@
   }
 
   & .ticket-dock::before {
-    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.45), rgb(var(--eg-tint) / 0));
+    background: linear-gradient(to top, rgb(var(--eg-tint) / var(--eg-alpha-quai)), rgb(var(--eg-tint) / 0));
   }
 
   & .ticket-chip:not([data-ready]) {
-    border-color: rgb(var(--eg-sheen) / 0.4);
+    border-color: rgb(var(--eg-sheen) / var(--eg-bord-clair));
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
   }
 
-  /* La feuille se lit : plus couverte que les fiches, le filet dit encore le verre. */
-  & [role="dialog"] {
+  /* La feuille se lit : plus couverte que les fiches, le filet dit encore le verre. La suite du repas garde sa palette (after-meal.css). */
+  & [role="dialog"]:not(:has(> .after-meal)) {
     border-color: transparent;
-    background: var(--eg-glace), rgb(var(--eg-tint) / 0.9);
+    background: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha-feuille));
     box-shadow: var(--eg-relief);
     -webkit-backdrop-filter: var(--eg-flou);
     backdrop-filter: var(--eg-flou);
   }
 
-  /* La feuille d'offres et la roue apportent leur propre fond : le verre est le cadre. */
+  /* Les bandes fixes des feuilles (en-tête et pied du panier, prix de la fiche, sortie du ticket) : le verre de la feuille, sans flou, la feuille floute déjà. */
+  & :is(.cart-head, .cart-foot, .order-ticket-exit, [role="dialog"] > div:has(> .dish-sheet-add)) {
+    border-color: transparent;
+    background: rgb(var(--eg-tint) / var(--eg-alpha-bande));
+  }
+
+  & .cart-head {
+    box-shadow: inset 0 1px 0 rgb(var(--eg-sheen) / calc(var(--eg-reflet) * var(--eg-doux)));
+  }
+
+  & :is(.cart-foot, .order-ticket-exit, [role="dialog"] > div:has(> .dish-sheet-add)) {
+    box-shadow: inset 0 -1px 0 rgb(var(--eg-rim) / calc(var(--eg-lisere) * var(--eg-doux-lisere)));
+  }
+
+  & .order-ticket-exit::before {
+    background: linear-gradient(to top, rgb(var(--eg-tint) / var(--eg-alpha-bande)), rgb(var(--eg-tint) / 0));
+  }
+
+  /* Le ticket est un seul verre : ses trois morceaux (tête, déchirure, pied) s'effacent devant lui. */
+  & .order-ticket {
+    border-radius: var(--eg-rayon-ticket);
+    background: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha-bande));
+    box-shadow: var(--eg-relief);
+  }
+
+  & :is(.order-ticket-head, .order-ticket-tear, .order-ticket-foot) {
+    border-color: transparent;
+    background: transparent;
+  }
+
+  /* « Bon appétit » : au Novelty le double cadre posait un anneau plein sur le verre et lisait comme un cadre, le filet et le liseré de la feuille suffisent ; au Victoria la bande lettrée du store prend le verre de la bande. */
+  &.theme-le-novelty .serve-box {
+    box-shadow: none;
+  }
+
+  &.theme-le-victoria .serve-box::before {
+    background: rgb(var(--eg-tint) / var(--eg-alpha-bande));
+  }
+
+  /* La feuille d'offres apporte son propre fond : le verre est le cadre. */
   & .offer-sheet {
     background: transparent;
   }
 
   & .offer-head {
     box-shadow:
-      inset 0 1px 0 rgb(255 255 255 / 0.55),
-      inset 0 -1px 0 rgb(var(--eg-rim) / 0.45);
+      inset 0 1px 0 rgb(var(--eg-sheen) / calc(var(--eg-reflet) * var(--eg-doux))),
+      inset 0 -1px 0 rgb(var(--eg-rim) / calc(var(--eg-lisere) * var(--eg-doux-lisere)));
   }
 
+  /* Au Victoria le filet crème du « + » entourait sa zone de toucher, qui mord sur les prix de l'offre : il passe au bord du rond. */
+  &.theme-le-victoria .offer-list .dish-action > button.ember-gradient {
+    box-shadow: inset 0 0 0 1px rgb(var(--eg-sheen) / calc(var(--eg-reflet) * var(--eg-doux)));
+  }
+
+  /* Le tapis de la roue laisse voir la feuille : le même tapis, voilé, sous le verre. Sa couleur de fond, voilée de même, reste lisible par liquid-sheet (teinte du liquide). */
   & .wheel-stage {
+    background-color: color-mix(in srgb, color-mix(in srgb, var(--felt-1) 45%, var(--felt-2)) var(--eg-tapis), transparent);
+    background-image:
+      var(--eg-glace),
+      radial-gradient(60% 34% at 50% 50%, color-mix(in srgb, var(--gold-1) 16%, transparent), transparent 70%),
+      radial-gradient(130% 90% at 50% 34%, color-mix(in srgb, var(--felt-1) var(--eg-tapis), transparent), color-mix(in srgb, var(--felt-2) var(--eg-tapis), transparent));
     box-shadow:
-      inset 0 1px 0 rgb(var(--eg-sheen) / 0.45),
-      inset 0 -1px 0 rgb(var(--eg-rim) / 0.4);
+      inset 0 1px 0 rgb(var(--eg-sheen) / calc(var(--eg-reflet) * var(--eg-doux))),
+      inset 0 -1px 0 rgb(var(--eg-rim) / calc(var(--eg-lisere) * var(--eg-doux-lisere)));
+  }
+
+  /* Le Café des Arts n'a pas de --felt-1 : sa teinte de liquide est la sienne, sinon le mélange tire au magenta. */
+  &.theme-cafe-des-arts .wheel-stage {
+    background-color: color-mix(in srgb, color-mix(in srgb, var(--felt-2) 45%, #000) var(--eg-tapis), transparent);
+    background-image:
+      var(--eg-glace),
+      radial-gradient(60% 34% at 50% 50%, color-mix(in srgb, var(--ca-magenta) 16%, transparent), transparent 70%),
+      radial-gradient(130% 90% at 50% 34%, color-mix(in srgb, var(--felt-2) var(--eg-tapis), transparent), color-mix(in srgb, #000 var(--eg-tapis), transparent));
+  }
+
+  & .wheel-stage[data-golden] {
+    background-color: color-mix(in srgb, color-mix(in srgb, var(--felt-golden-1) 45%, var(--felt-golden-2)) var(--eg-tapis), transparent);
+    background-image:
+      var(--eg-glace),
+      radial-gradient(70% 40% at 50% 50%, color-mix(in srgb, var(--gold-1) 30%, transparent), transparent 70%),
+      radial-gradient(130% 90% at 50% 34%, color-mix(in srgb, var(--felt-golden-1) var(--eg-tapis), transparent), color-mix(in srgb, var(--felt-golden-2) var(--eg-tapis), transparent));
   }
 }
 
 /* Le survol du Novelty repeint la fiche en aplat : on garde le verre, un cran plus couvert. */
 @media (hover: hover) {
   [data-menu-root].theme-le-novelty:has(> .panis-backdrop) .dish-grid > article:hover {
-    background: var(--eg-glace), rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.08));
+    background: var(--eg-glace), rgb(var(--eg-tint) / calc(var(--eg-alpha) + var(--eg-survol)));
   }
 }
 
@@ -349,6 +491,15 @@
       .theme-brasserie-laissac
     ):has(> .panis-backdrop) {
     --eg-alpha: 1;
+    --eg-alpha-feuille: 1;
+    --eg-alpha-bande: 1;
+    --eg-alpha-accueil: 1;
+    --eg-alpha-enseigne: 1;
+    --eg-tapis: 100%;
+    --eg-voile-fort: 1;
+    --eg-voile-faible: 1;
+    --eg-alpha-bandeau: 1;
+    --eg-alpha-pastille: 1;
     --eg-metal-voile: 100%;
     --eg-flou: none;
   }
@@ -362,6 +513,15 @@
       .theme-brasserie-laissac
     ):has(> .panis-backdrop) {
     --eg-alpha: 0.94;
+    --eg-alpha-feuille: 1;
+    --eg-alpha-bande: 1;
+    --eg-alpha-accueil: 1;
+    --eg-alpha-enseigne: 1;
+    --eg-tapis: 100%;
+    --eg-voile-fort: 1;
+    --eg-voile-faible: 1;
+    --eg-alpha-bandeau: 1;
+    --eg-alpha-pastille: 1;
     --eg-metal-voile: 100%;
     --eg-flou: none;
   }
@@ -375,7 +535,11 @@
       .theme-cafe-des-arts,
       .theme-brasserie-laissac
     ):has(> .panis-backdrop) {
-    & :is(.cart-bar, .theme-le-victoria .menu-highlights, .theme-brasserie-laissac .menu-highlights) {
+    & .cart-bar {
+      background: var(--eg-metal);
+    }
+
+    &:is(.theme-le-victoria, .theme-brasserie-laissac) .menu-highlights {
       background: var(--eg-metal);
     }
   }
