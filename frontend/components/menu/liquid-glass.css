@@ -12,15 +12,18 @@
    là où le verre s'épaissit. */
 [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
   --eg-tint: 251 248 238;
-  --eg-alpha: 0.78;
+  --eg-alpha: 0.94;
   --eg-sheen: 255 255 255;
   --eg-rim: 15 75 37;
   --eg-wash: 0.45;
   --eg-reflet: 1;
-  --eg-lisere: 0.5;
+  --eg-lisere: 0.45;
   --eg-halo: 0.3;
-  --eg-fond: 0.12;
-  --eg-ombre: 0.55;
+  --eg-fond: 0.16;
+  --eg-ombre: 0.7;
+  --eg-lumiere: 0.75;
+  --eg-ombre-rgb: 6 40 20;
+  --eg-radius: 1.5rem;
   --eg-blur: 18px;
   --eg-saturate: 1.1;
   --eg-metal: var(--cp-green);
@@ -34,16 +37,19 @@
 /* Le BOHO : la nuit prune de la terrasse, un reflet rosé, le liseré des
    lampes en rotin. */
 [data-menu-root].theme-boho:has(> .panis-backdrop) {
-  --eg-tint: 37 27 32;
-  --eg-alpha: 0.66;
+  --eg-tint: 46 30 44;
+  --eg-alpha: 0.72;
   --eg-sheen: 246 233 230;
   --eg-rim: 229 176 114;
   --eg-wash: 0.06;
-  --eg-reflet: 0.6;
+  --eg-reflet: 0.8;
   --eg-lisere: 0.6;
   --eg-halo: 0.22;
-  --eg-fond: 0.14;
+  --eg-fond: 0.22;
   --eg-ombre: 0.7;
+  --eg-lumiere: 0.3;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
   --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--ember-2);
@@ -66,6 +72,9 @@
   --eg-halo: 0.28;
   --eg-fond: 0.14;
   --eg-ombre: 0.62;
+  --eg-lumiere: 0.14;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
   --eg-blur: 18px;
   --eg-saturate: 1.25;
   --eg-metal: var(--nv-gold);
@@ -88,6 +97,9 @@
   --eg-halo: 0.24;
   --eg-fond: 0.18;
   --eg-ombre: 0.66;
+  --eg-lumiere: 0.16;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
   --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--vc-red);
@@ -110,6 +122,9 @@
   --eg-halo: 0.26;
   --eg-fond: 0.18;
   --eg-ombre: 0.68;
+  --eg-lumiere: 0.14;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
   --eg-blur: 18px;
   --eg-saturate: 1.3;
   --eg-metal: var(--ca-magenta-ink);
@@ -132,6 +147,9 @@
   --eg-halo: 0.26;
   --eg-fond: 0.16;
   --eg-ombre: 0.64;
+  --eg-lumiere: 0.14;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
   --eg-blur: 18px;
   --eg-saturate: 1.22;
   --eg-metal: var(--lc-or);
@@ -165,6 +183,13 @@
     inset 0 -26px 32px -16px rgb(var(--eg-rim) / var(--eg-halo)),
     0 16px 32px -22px rgb(0 0 0 / var(--eg-ombre));
   --eg-flou: blur(var(--eg-blur)) saturate(var(--eg-saturate));
+  /* Le corps d'une fiche : une lumière en haut à gauche, la teinte de la
+     tranche en bas à droite, la dalle entre les deux, un peu plus couverte
+     vers le bas. */
+  --eg-corps:
+    radial-gradient(90% 50% at 0% 0%, rgb(var(--eg-sheen) / var(--eg-lumiere)), transparent 60%),
+    radial-gradient(90% 60% at 100% 100%, rgb(var(--eg-rim) / var(--eg-fond)), transparent 70%),
+    linear-gradient(160deg, rgb(var(--eg-tint) / var(--eg-alpha)), rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.06)));
   --eg-verre: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha));
   --eg-metal-verre: var(--eg-glace), color-mix(in srgb, var(--eg-metal) var(--eg-metal-voile), transparent);
 
@@ -231,12 +256,52 @@
     box-shadow: none;
   }
 
+  /* Une fiche est une dalle de verre, photo comprise : le corps, un éclat
+     serré en haut à gauche, la tranche sombre en bas à droite, l'ombre de
+     contact puis l'ombre portée à la couleur de la maison. Sans flou : elles
+     défilent sur le satin. */
   & :is(.dish-grid > article, .dish-mini, .formule-tile) {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    contain: paint;
     border-color: transparent;
-    background: var(--eg-verre);
-    box-shadow: var(--eg-relief);
+    border-radius: var(--eg-radius);
+    background: var(--eg-corps);
+    box-shadow:
+      inset 2px 2px 3px -1px rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset -2px -2px 3px -1px rgb(var(--eg-ombre-rgb) / var(--eg-lisere)),
+      0 1px 2px rgb(var(--eg-ombre-rgb) / 0.35),
+      0 18px 28px -16px rgb(var(--eg-ombre-rgb) / var(--eg-ombre));
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
+  }
+
+  & .dish-mini {
+    border-radius: calc(var(--eg-radius) * 0.75);
+  }
+
+  /* Le filet fait le tour, par-dessus la photo comme le corps : clair où la
+     lumière arrive, à la couleur de la tranche en bas à droite. */
+  & :is(.dish-grid > article, .dish-mini, .formule-tile)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgb(var(--eg-sheen) / var(--eg-reflet)),
+      rgb(var(--eg-sheen) / 0.08) 32%,
+      rgb(var(--eg-rim) / 0.08) 68%,
+      rgb(var(--eg-rim) / var(--eg-lisere))
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
   }
 
   & .dish-grid {
@@ -249,9 +314,29 @@
     border: 0;
   }
 
-  /* Le fondu ne couvre que le bas de la photo : le plat reste lisible. */
+  /* La photo va jusqu'au bord, sans filet, et se fond dans le corps sur son
+     bas : une seule dalle, pas une photo posée sur un panneau. */
+  & .dish-photo {
+    border: 0;
+    background-color: rgb(var(--eg-tint) / var(--eg-alpha));
+  }
+
   & .dish-photo-fade {
-    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.72) 0%, rgb(var(--eg-tint) / 0) 42%);
+    --eg-fondu: rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.06));
+    display: block;
+    background: linear-gradient(
+      to top,
+      var(--eg-fondu) 0%,
+      var(--eg-fondu) 10%,
+      color-mix(in srgb, var(--eg-fondu) 55%, transparent) 30%,
+      color-mix(in srgb, var(--eg-fondu) 20%, transparent) 46%,
+      transparent 62%
+    );
+  }
+
+  /* Le prix ne touche pas le « + ». */
+  & .dish-grid > article:has(.dish-action > button) .dish-body {
+    column-gap: 1.25rem;
   }
 
   & .dish-price {
@@ -384,7 +469,11 @@
    dépoli ; le pied de page garde le vert des portes et la mosaïque du sol,
    l'ivoire de ses textes vient du thème. */
 [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
-  & :is(.dish-grid > article, .dish-mini, .formule-tile, .menu-highlights) {
+  & :is(.dish-grid > article, .dish-mini, .formule-tile) {
+    background: var(--cp-grain), var(--eg-corps);
+  }
+
+  & .menu-highlights {
     background: var(--cp-grain), var(--eg-verre);
   }
 
@@ -398,10 +487,10 @@
   }
 }
 
-/* Le survol du Novelty repeint la fiche en aplat : on garde le verre, un cran plus couvert. */
+/* Le survol du Novelty repeignait la fiche en aplat : la lumière monte sur le verre. */
 @media (hover: hover) {
   [data-menu-root].theme-le-novelty:has(> .panis-backdrop) .dish-grid > article:hover {
-    background: var(--eg-glace), rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.08));
+    --eg-lumiere: 0.3;
   }
 }
 
