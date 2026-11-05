@@ -7422,7 +7422,7 @@ export type Database = {
       viva_accounts: {
         Row: {
           etablissement_id: string
-          merchant_id: string
+          merchant_id: string | null
           source_code: string | null
           updated_at: string
           verified: boolean
@@ -7430,7 +7430,7 @@ export type Database = {
         }
         Insert: {
           etablissement_id: string
-          merchant_id: string
+          merchant_id?: string | null
           source_code?: string | null
           updated_at?: string
           verified?: boolean
@@ -7438,7 +7438,7 @@ export type Database = {
         }
         Update: {
           etablissement_id?: string
-          merchant_id?: string
+          merchant_id?: string | null
           source_code?: string | null
           updated_at?: string
           verified?: boolean

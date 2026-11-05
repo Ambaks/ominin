@@ -1,6 +1,7 @@
 import { raiseAlert } from "@/lib/admin/alerts";
 import { markPaymentRefused, recordPaymentCard, type PaymentCard } from "@/lib/menu/payment-attempts";
 import { dispatchOrderEvent } from "@/lib/push/server";
+import { siteUrl } from "@/lib/site";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -165,8 +166,193 @@ export async function vivaAccount(admin: Admin, etablissementId: string): Promis
     .select("merchant_id, source_code, verified")
     .eq("etablissement_id", etablissementId)
     .maybeSingle();
-  if (!data?.verified || !data.source_code) return null;
+  if (!data?.verified || !data.merchant_id || !data.source_code) return null;
   return { merchantId: data.merchant_id, sourceCode: data.source_code };
+}
+
+/*
+ * Ouverture du compte (mode ISV). Ominin crée le compte connecté et donne au
+ * restaurant le lien d'ouverture de Viva, qui mène tout le KYC. Le compte
+ * marchand n'existe qu'au bout de ce parcours ; une fois Viva satisfait, la
+ * source de paiement du restaurant est créée, avec /api/viva/return pour
+ * retour : alors seulement le menu peut proposer la carte. En mode marchand,
+ * le compte se relie à la main.
+ */
+export const VIVA_SELF_ONBOARDING = MODE === "isv";
+
+/** Le chemin où la page de paiement de Viva renvoie le client, payé ou non. */
+const RETURN_PATH = "api/viva/return";
+
+const ACCOUNT_COLUMNS = "etablissement_id, viva_account_id, merchant_id, verified, source_code";
+
+interface VivaAccountRow {
+  etablissement_id: string;
+  viva_account_id: string | null;
+  merchant_id: string | null;
+  verified: boolean;
+  source_code: string | null;
+}
+
+interface VivaConnectedAccount {
+  merchantId?: string | null;
+  verified?: boolean;
+  acquiringEnabled?: boolean;
+  invitation?: { redirectUrl?: string } | null;
+}
+
+function connectedAccount(accountId: string): Promise<VivaConnectedAccount> {
+  return bearerApi<VivaConnectedAccount>(`/isv/v1/accounts/${encodeURIComponent(accountId)}`);
+}
+
+/**
+ * Le lien d'ouverture du compte Viva du restaurant ; le compte connecté est
+ * créé au premier appel. Nul quand le marchand a déjà fait le parcours.
+ */
+export async function vivaOnboardingLink(
+  admin: Admin,
+  input: { etablissementId: string; email: string; returnUrl: string }
+): Promise<string | null> {
+  const { data: existing } = await admin
+    .from("viva_accounts")
+    .select("viva_account_id, merchant_id")
+    .eq("etablissement_id", input.etablissementId)
+    .maybeSingle();
+  if (existing?.merchant_id) return null;
+  if (existing?.viva_account_id) {
+    const account = await connectedAccount(existing.viva_account_id);
+    if (account.merchantId) return null;
+    if (!account.invitation?.redirectUrl) throw new VivaError("Viva n'a pas rendu de lien d'ouverture.", 502);
+    return account.invitation.redirectUrl;
+  }
+
+  const created = await bearerApi<{ accountId?: string; invitation?: { redirectUrl?: string } }>(
+    "/isv/v1/accounts",
+    {
+      method: "POST",
+      body: JSON.stringify({
+        email: input.email,
+        returnUrl: input.returnUrl,
+        // Dit optionnel, refusé sans logo (« Invalid LogoUrl ») : le
+        // parcours d'ouverture de Viva affiche Ominin.
+        branding: { partnerName: "Ominin", logoUrl: `${siteUrl}/logo.png` },
+      }),
+    }
+  );
+  if (!created?.accountId || !created.invitation?.redirectUrl) {
+    throw new VivaError("Viva n'a pas rendu de lien d'ouverture.", 502);
+  }
+  const { error } = await admin
+    .from("viva_accounts")
+    .insert({ etablissement_id: input.etablissementId, viva_account_id: created.accountId });
+  if (error) throw new Error(error.message);
+  return created.invitation.redirectUrl;
+}
+
+/** L'état du compte Viva, tel que le réglage d'encaissement l'affiche. */
+export interface VivaStatus {
+  /** Une ligne existe : compte connecté créé, ou compte relié à la main. */
+  connected: boolean;
+  /** Le restaurant a fini le parcours d'ouverture : le compte marchand existe. */
+  onboarded: boolean;
+  /** Viva l'a vérifié et sa source de paiement existe : il peut encaisser. */
+  verified: boolean;
+}
+
+/**
+ * L'état du compte, relu chez Viva tant qu'il ne peut pas encaisser. origin
+ * est l'hôte qui sert /api/viva/return, où pointera la source de paiement.
+ */
+export async function vivaStatus(admin: Admin, etablissementId: string, origin: string): Promise<VivaStatus> {
+  const { data } = await admin
+    .from("viva_accounts")
+    .select(ACCOUNT_COLUMNS)
+    .eq("etablissement_id", etablissementId)
+    .maybeSingle();
+  if (!data) return { connected: false, onboarded: false, verified: false };
+  const row = data.verified && data.source_code ? data : await syncConnectedAccount(admin, data, origin);
+  return {
+    connected: true,
+    onboarded: Boolean(row.merchant_id),
+    verified: Boolean(row.verified && row.merchant_id && row.source_code),
+  };
+}
+
+/**
+ * Un webhook de compte (connecté, vérification changée) : le compte qu'il
+ * nomme, s'il est l'un des nôtres, est relu chez Viva.
+ */
+export async function onAccountEvent(admin: Admin, vivaAccountId: string, origin: string): Promise<void> {
+  const { data } = await admin
+    .from("viva_accounts")
+    .select(ACCOUNT_COLUMNS)
+    .eq("viva_account_id", vivaAccountId)
+    .maybeSingle();
+  if (data) await syncConnectedAccount(admin, data, origin);
+}
+
+/**
+ * Relit le compte connecté chez Viva — jamais le payload d'un webhook — et
+ * l'inscrit. Vérifié pour la première fois : la source de paiement est
+ * créée. Son code dérive de l'établissement : un appel concurrent (retour du
+ * gérant et webhook ensemble) retombe sur la même source, que Viva dit déjà
+ * existante. Un compte relié à la main n'a rien à relire.
+ */
+async function syncConnectedAccount(admin: Admin, row: VivaAccountRow, origin: string): Promise<VivaAccountRow> {
+  if (!VIVA_SELF_ONBOARDING || !row.viva_account_id) return row;
+  const account = await connectedAccount(row.viva_account_id);
+  const merchantId = account.merchantId ?? null;
+  const verified = Boolean(merchantId && account.verified && account.acquiringEnabled !== false);
+  const synced = {
+    ...row,
+    merchant_id: merchantId,
+    verified,
+    source_code: merchantId === row.merchant_id ? row.source_code : null,
+  };
+  // Inscrit avant la source : un refus de Viva sur celle-ci ne perd pas l'état du compte.
+  await saveAccount(admin, synced);
+  if (!verified || !merchantId || synced.source_code) return synced;
+  const { data: etab } = await admin.from("etablissements").select("name").eq("id", row.etablissement_id).single();
+  synced.source_code = await createSource(merchantId, row.etablissement_id, etab?.name ?? "Ominin", origin);
+  await saveAccount(admin, synced);
+  return synced;
+}
+
+async function saveAccount(admin: Admin, row: VivaAccountRow): Promise<void> {
+  const { error } = await admin
+    .from("viva_accounts")
+    .update({
+      merchant_id: row.merchant_id,
+      verified: row.verified,
+      source_code: row.source_code,
+      updated_at: new Date().toISOString(),
+    })
+    .eq("etablissement_id", row.etablissement_id);
+  if (error) throw new Error(error.message);
+}
+
+/** Code de source de l'établissement : stable, pour qu'une relance retombe dessus. */
+const sourceCodeOf = (etablissementId: string) => etablissementId.replaceAll("-", "").slice(0, 8);
+
+/** Crée la source de paiement en ligne du marchand ; « déjà existante » (409) vaut succès. */
+async function createSource(merchantId: string, etablissementId: string, name: string, origin: string): Promise<string> {
+  const sourceCode = sourceCodeOf(etablissementId);
+  const { host, protocol } = new URL(origin);
+  try {
+    await basicApi(merchantId, "/api/sources", {
+      method: "POST",
+      body: JSON.stringify({
+        name,
+        sourceCode,
+        domain: host,
+        isSecure: protocol === "https:",
+        pathSuccess: RETURN_PATH,
+        pathFail: RETURN_PATH,
+      }),
+    });
+  } catch (error) {
+    if (!(error instanceof VivaError && error.status === 409)) throw error;
+  }
+  return sourceCode;
 }
 
 /** La commission Ominin ne part qu'en mode ISV : en mode marchand, rien ne la porte. */

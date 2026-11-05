@@ -15,9 +15,9 @@ import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
  * Réglage « paiement à table en ligne » (gérant). Trois encaisseurs possibles,
  * au choix de l'établissement : Stripe, dont le compte Express se crée par
  * l'onboarding hébergé, Square, dont le restaurant relie SON compte
- * existant, ou Viva, dont Ominin ouvre et relie le compte (rien à faire ici
- * tant que l'ouverture en ligne n'existe pas) — dans tous les cas l'argent
- * des additions lui va directement.
+ * existant, ou Viva, dont le restaurant ouvre le compte par le lien que lui
+ * donne Ominin (mode ISV ; en mode marchand, Ominin le relie à la main) —
+ * dans tous les cas l'argent des additions lui va directement.
  * Le choix se verrouille visuellement dès qu'un compte est relié ; le gérant
  * peut le rouvrir via « Changer d'encaisseur » — la bascule coupe le
  * paiement par carte et le rallume si le nouveau fournisseur peut déjà
@@ -56,17 +56,20 @@ interface SquareStatus {
 
 interface VivaStatus {
   connected: boolean;
+  onboarded: boolean;
   verified: boolean;
+  /** Le restaurant ouvre lui-même son compte (mode ISV). */
+  selfServe: boolean;
 }
 
 const NO_STRIPE: StripeStatus = { connected: false, chargesEnabled: false };
 const NO_SQUARE: SquareStatus = { connected: false };
-const NO_VIVA: VivaStatus = { connected: false, verified: false };
+const NO_VIVA: VivaStatus = { connected: false, onboarded: false, verified: false, selfServe: false };
 
 const PROVIDERS = [
   ["stripe", "Stripe", "Compte créé pendant la configuration."],
   ["square", "Square", "Vous reliez votre compte Square existant."],
-  ["viva", "Viva", "Compte ouvert et relié par Ominin."],
+  ["viva", "Viva", "Compte ouvert en ligne, relié à Ominin."],
 ] as const;
 
 const PROVIDER_LABELS: Record<Provider, string> = { stripe: "Stripe", square: "Square", viva: "Viva" };
@@ -77,7 +80,7 @@ const errorParam = (provider: Provider) => `${provider}_error`;
 /** L'URL porte un retour d'onboarding, que takeReturn lira. */
 export function hasProviderReturn(search: string): boolean {
   const params = new URLSearchParams(search);
-  return (["stripe", "square"] satisfies Provider[]).some(
+  return (["stripe", "square", "viva"] satisfies Provider[]).some(
     (provider) => params.has(provider) || params.has(errorParam(provider))
   );
 }
@@ -230,6 +233,7 @@ export function PaymentSettings({
   useEffect(() => {
     const fromStripe = takeReturn("stripe");
     const fromSquare = takeReturn("square");
+    const fromViva = takeReturn("viva");
 
     void (async () => {
       const [stripeStatus, squareStatus, vivaStatus] = await Promise.all([
@@ -266,6 +270,14 @@ export function PaymentSettings({
         );
       } else if (fromSquare.outcome === "retour") {
         await enable("Compte Square relié — vos clients peuvent payer par carte sur le menu.");
+      } else if (fromViva.outcome === "retour" && !vivaStatus.onboarded) {
+        toast.error("L'ouverture du compte Viva n'est pas terminée — reprenez-la ici.");
+      } else if (fromViva.outcome === "retour" && !vivaStatus.verified) {
+        toast.success(
+          "Compte Viva ouvert. Dès que Viva aura vérifié vos informations, activez ici le paiement par carte."
+        );
+      } else if (fromViva.outcome === "retour") {
+        await enable("Compte Viva relié — vos clients peuvent payer par carte sur le menu.");
       }
     })();
   }, [toast, enable]);
@@ -273,7 +285,7 @@ export function PaymentSettings({
   const connect = async () => {
     setBusy(true);
     try {
-      const path = provider === "square" ? "/api/square/connect" : "/api/stripe/connect";
+      const path = `/api/${provider}/connect`;
       const response = await fetch(path, { method: "POST" });
       const body = (await response.json()) as { url?: string; error?: string };
       if (!response.ok || !body.url) {
@@ -363,6 +375,8 @@ export function PaymentSettings({
   const canCharge = canChargeWith(provider);
   const needsLocation = Boolean(provider === "square" && square?.connected && !square.locationId);
   const providerLabel = PROVIDER_LABELS[provider];
+  // Un compte créé dont le parcours reste à finir chez le fournisseur.
+  const started = provider === "viva" ? Boolean(viva?.connected) : Boolean(stripe?.connected);
 
   return (
     <Plate className="flex max-w-xl flex-col gap-4 p-5">
@@ -477,7 +491,7 @@ export function PaymentSettings({
                 <p className="text-muted">Aucun point de vente lisible sur ce compte Square.</p>
               )}
             </div>
-          ) : provider === "viva" ? (
+          ) : provider === "viva" && !(viva?.selfServe && !viva.onboarded) ? (
             !canCharge && (
               <p className="text-muted">
                 {viva?.connected
@@ -489,16 +503,20 @@ export function PaymentSettings({
             !canCharge && (
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <p className="text-muted">
-                  {stripe?.connected
-                    ? "Compte Stripe créé — finalisez la vérification pour encaisser."
-                    : "Aucun compte de paiement relié."}
+                  {!started
+                    ? "Aucun compte de paiement relié."
+                    : provider === "viva"
+                      ? "Compte Viva créé — terminez son ouverture pour encaisser."
+                      : "Compte Stripe créé — finalisez la vérification pour encaisser."}
                 </p>
                 <GlassButton variant="primary" onClick={() => void connect()} disabled={busy}>
                   {busy
                     ? "Redirection…"
-                    : stripe?.connected
+                    : started
                       ? "Reprendre la configuration"
-                      : `Relier mon compte ${providerLabel}`}
+                      : provider === "viva"
+                        ? "Ouvrir mon compte Viva"
+                        : `Relier mon compte ${providerLabel}`}
                 </GlassButton>
               </div>
             )
