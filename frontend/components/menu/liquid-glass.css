@@ -51,7 +51,9 @@
   --eg-lumiere: 0.45;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
-  --eg-feuille: 0.78;
+  --eg-feuille: 0.62;
+  /* La brique du dégradé, un ton plus clair : l'encre sombre y reste lisible. */
+  --ember-3: #c0583f;
   --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--ember-2);
@@ -60,6 +62,11 @@
   --eg-price: var(--ember-1);
   --muted: #e3cdc8;
   --faint: #a98f90;
+}
+
+/* Le BOHO : dans la feuille, les filets des boutons fantômes en rotin, lisibles. */
+[data-menu-root].theme-boho:has(> .panis-backdrop) [role="dialog"] {
+  --hairline: rgb(229 176 114 / 0.4);
 }
 
 /* Le Novelty : feutre noir, filet d'or. */
@@ -77,7 +84,7 @@
   --eg-lumiere: 0.14;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
-  --eg-feuille: 0.9;
+  --eg-feuille: 0.84;
   --eg-blur: 18px;
   --eg-saturate: 1.25;
   --eg-metal: var(--nv-gold);
@@ -103,7 +110,7 @@
   --eg-lumiere: 0.16;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
-  --eg-feuille: 0.9;
+  --eg-feuille: 0.84;
   --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--vc-red);
@@ -129,7 +136,7 @@
   --eg-lumiere: 0.14;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
-  --eg-feuille: 0.9;
+  --eg-feuille: 0.84;
   --eg-blur: 18px;
   --eg-saturate: 1.3;
   --eg-metal: var(--ca-magenta-ink);
@@ -155,7 +162,7 @@
   --eg-lumiere: 0.14;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
-  --eg-feuille: 0.9;
+  --eg-feuille: 0.84;
   --eg-blur: 18px;
   --eg-saturate: 1.22;
   --eg-metal: var(--lc-or);
@@ -332,8 +339,8 @@
   & .dish-photo {
     border: 0;
     background-color: transparent;
-    -webkit-mask-image: linear-gradient(to bottom, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
-    mask-image: linear-gradient(to bottom, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
+    mask-image: linear-gradient(to bottom, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
   }
 
   & .dish-photo-fade {
@@ -467,11 +474,26 @@
       rgb(var(--eg-tint) / var(--eg-feuille));
     box-shadow:
       inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
-      inset 0 0 0 1px rgb(var(--eg-rim) / 0.25),
+      inset 0 0 0 1px rgb(var(--eg-sheen) / 0.14),
       inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
       0 -1.5rem 4rem -1rem rgb(0 0 0 / 0.55);
     -webkit-backdrop-filter: var(--eg-flou);
     backdrop-filter: var(--eg-flou);
+  }
+
+  /* Les barres collées d'une feuille (en-tête, pied) : du verre aussi, un
+     flou court sur les rangées qui passent dessous, sans couture. */
+  & [role="dialog"] :is(.cart-head.sticky, .options-head, .cart-foot, .options-foot) {
+    background: rgb(var(--eg-tint) / 0.72);
+    -webkit-backdrop-filter: var(--eg-flou-pastille);
+    backdrop-filter: var(--eg-flou-pastille);
+  }
+
+  /* Les encadrés d'une feuille (fidélité, résumé) : un voile clair, pas un aplat. */
+  & [role="dialog"] .loyalty-box {
+    border-color: rgb(var(--eg-rim) / 0.35);
+    background: linear-gradient(180deg, rgb(var(--eg-sheen) / 0.08), rgb(var(--eg-sheen) / 0.02));
+    box-shadow: inset 0 1px 0 rgb(var(--eg-sheen) / 0.22);
   }
 
   /* La feuille d'offres et la roue apportent leur propre fond : le verre est le cadre. */
@@ -549,6 +571,7 @@
        elle-même laisse voir le satin. */
     --surface: rgb(8 46 24 / 0.97);
     --surface-raised: rgb(14 62 33 / 0.97);
+    --eg-feuille: 0.64;
     --foreground: #eeeac7;
     --muted: rgb(238 234 199 / 0.84);
     --faint: rgb(238 234 199 / 0.7);
@@ -559,26 +582,32 @@
     --ember-3: #eeeac7;
     /* Recalculés ici : définis à la racine, ils garderaient le crème. */
     --cp-trait: color-mix(in srgb, var(--cp-green) 70%, transparent);
-    --cp-bord: color-mix(in srgb, var(--cp-green) 45%, transparent);
+    --cp-bord: color-mix(in srgb, var(--cp-green) 55%, transparent);
     /* L'orange de l'Apérol, assombri pour l'ivoire posé dessus ; les prix de
        l'offre s'éclaircissent sur le vert. */
     --offer: #9a3d16;
     --offer-light: #c4542a;
-    --cp-chaud: color-mix(in srgb, var(--cp-laiton) 18%, var(--surface));
+    --cp-chaud: color-mix(in srgb, var(--cp-laiton) 14%, rgb(238 234 199 / 0.05));
     color: var(--foreground);
     background:
       radial-gradient(90% 40% at 0% 0%, rgb(var(--eg-sheen) / 0.2), transparent 60%),
       linear-gradient(180deg, rgb(var(--eg-sheen) / 0.08), rgb(var(--eg-sheen) / 0) 36%, rgb(var(--eg-rim) / 0.16) 100%),
-      rgb(var(--eg-tint) / 0.72);
+      rgb(var(--eg-tint) / var(--eg-feuille));
     box-shadow:
       inset 0 1px 0 rgb(var(--eg-sheen) / 0.7),
-      inset 0 0 0 1px rgb(var(--eg-rim) / 0.3),
+      inset 0 0 0 1px rgb(var(--eg-sheen) / 0.14),
       inset 0 -1px 0 rgb(var(--eg-rim) / 0.7),
       0 -1.5rem 4rem -1rem rgb(0 0 0 / 0.55);
   }
 
   & [role="dialog"] .offer-price b {
     color: #ffa070;
+  }
+
+  /* L'en-tête de la happy hour : l'orange en verre, qui s'éteint vers la liste. */
+  & [role="dialog"] .offer-head {
+    background: linear-gradient(135deg, rgb(160 62 22 / 0.9), rgb(138 48 18 / 0.78));
+    box-shadow: inset 0 -1px 0 rgb(201 162 75 / 0.35);
   }
 
   /* Le voile sous une feuille de verre : plus profond, la carte derrière se calme. */
@@ -609,8 +638,8 @@
 /* Dès la tablette, la photo de Panis est à gauche du texte : elle s'efface vers la droite. */
 @media (min-width: 48rem) {
   [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) .dish-grid > article .dish-photo {
-    -webkit-mask-image: linear-gradient(to right, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
-    mask-image: linear-gradient(to right, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
+    -webkit-mask-image: linear-gradient(to right, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
+    mask-image: linear-gradient(to right, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
   }
 }
 
