@@ -2,6 +2,7 @@
 
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { useEffect, useSyncExternalStore } from "react";
+import { readDroits, type ClubDroits } from "@/lib/club/droits";
 import {
   rowToBooking,
   rowToPayment,
@@ -17,6 +18,7 @@ import type {
   ClubEvent,
   ClubGuest,
   ClubPayment,
+  ClubRole,
   ClubTable,
   ClubZone,
 } from "@/lib/club/types";
@@ -41,7 +43,7 @@ export type EventZoneSetting = { zoneId: string; priceCents: number | null };
 /** Une soirée vue de la porte : ses réservations, leurs paiements (parts d'amis, encaissements sur place) et ses invités. */
 export type ClubNight = { bookings: ClubBooking[]; payments: ClubPayment[]; guests: ClubGuest[] };
 
-/** Une table payée en ligne par un client pendant que l'écran était ouvert. */
+/** Une réservation payée en ligne par un client pendant que l'écran était ouvert. */
 type ClubArrival = { booking: ClubBooking; eventId: string };
 
 /** Les conditions d'entrée du club, montrées au client avant de payer sa table. */
@@ -52,6 +54,10 @@ export interface ClubState {
   conditions: ClubConditions;
   /** Acompte en ligne, en % de la table frais compris ; null : table payée en entier. Réglé par Ominin. */
   depositPercent: number | null;
+  /** Ce que chaque poste peut faire, réglé par la direction. */
+  droits: ClubDroits;
+  /** Le poste du membre connecté (null : direction, ou pas de poste). */
+  clubRole: ClubRole | null;
   zones: ClubZone[];
   tables: ClubTable[];
   events: ClubEvent[];
@@ -66,11 +72,12 @@ export interface ClubState {
 }
 
 /*
- * Ce que l'équipe a à voir d'une soirée : les tables tenues, et celles
- * remboursées (le gérant y retrouve son geste). Les annulations — attentes
- * de paiement abandonnées surtout — s'accumulent et n'ont rien à montrer.
+ * Ce que l'équipe a à voir d'une soirée : les réservations tenues, celles
+ * parties (la table libérée) et celles remboursées (le gérant y retrouve son
+ * geste). Les annulations — attentes de paiement abandonnées surtout —
+ * s'accumulent et n'ont rien à montrer.
  */
-const NIGHT_STATUSES: BookingStatus[] = ["en_attente", "payee", "arrivee", "remboursee"];
+const NIGHT_STATUSES: BookingStatus[] = ["en_attente", "payee", "arrivee", "assise", "partie", "remboursee"];
 const PAYMENT_STATUSES: PaymentStatus[] = ["payee", "remboursee"];
 
 let state: ClubState | null = null;
@@ -111,7 +118,10 @@ async function readAll<T extends Row>(
 }
 
 async function fetchBase(supabase: Client, etablissementId: string) {
-  const [zones, tables, events, conditions] = await Promise.all([
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const [zones, tables, events, conditions, membership] = await Promise.all([
     supabase
       .from("club_zones")
       .select("*")
@@ -127,10 +137,20 @@ async function fetchBase(supabase: Client, etablissementId: string) {
       .then(must),
     supabase
       .from("etablissements")
-      .select("club_min_age, club_dress_code, club_refused, table_deposit_percent")
+      .select("club_min_age, club_dress_code, club_refused, table_deposit_percent, club_droits")
       .eq("id", etablissementId)
       .single()
       .then(must),
+    supabase
+      .from("memberships")
+      .select("club_role")
+      .eq("etablissement_id", etablissementId)
+      .eq("user_id", session?.user.id ?? "")
+      .maybeSingle()
+      .then(({ data, error }) => {
+        if (error) throw new Error(error.message);
+        return data;
+      }),
   ]);
   return {
     conditions: {
@@ -139,6 +159,8 @@ async function fetchBase(supabase: Client, etablissementId: string) {
       refused: conditions.club_refused,
     },
     depositPercent: conditions.table_deposit_percent,
+    droits: readDroits(conditions.club_droits),
+    clubRole: membership?.club_role ?? null,
     zones: zones.map(rowToZone),
     tables: tables
       .map(rowToTable)
@@ -243,8 +265,8 @@ const refreshBase = coalescedBy("des soirées", async () => {
 });
 
 /**
- * Remplace les soirées relues ; signale les tables qu'un client vient de
- * payer en ligne (une attente de paiement peut encore être abandonnée).
+ * Remplace les soirées relues ; signale les réservations qu'un client vient
+ * de payer en ligne (une attente de paiement peut encore être abandonnée).
  */
 function mergeNights(fresh: Record<string, ClubNight>) {
   if (!state) return;
@@ -253,7 +275,7 @@ function mergeNights(fresh: Record<string, ClubNight>) {
     const before = state.nights[eventId];
     if (!before) continue;
     const paid = new Set(
-      before.bookings.filter((b) => b.status === "payee" || b.status === "arrivee").map((b) => b.id)
+      before.bookings.filter((b) => b.status !== "en_attente").map((b) => b.id)
     );
     for (const booking of night.bookings) {
       if (booking.source === "en_ligne" && booking.status === "payee" && !paid.has(booking.id)) {
@@ -429,7 +451,7 @@ export function retryClubLoad() {
   notify();
 }
 
-/** Prévient à chaque table réservée en direct par un client ; renvoie le désabonnement. */
+/** Prévient à chaque réservation payée en direct par un client ; renvoie le désabonnement. */
 export function onClubArrival(listener: (arrival: ClubArrival) => void): () => void {
   arrivalListeners.add(listener);
   return () => {

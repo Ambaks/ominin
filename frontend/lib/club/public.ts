@@ -158,11 +158,11 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_tables(club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, offre), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
+      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_zones(name, inclus), club_events(*), etablissements(slug, name, address, payment_provider, offre), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
     )
     .eq("token", token)
     .maybeSingle();
-  if (!data?.club_tables?.club_zones || !data.club_events || !data.etablissements) return null;
+  if (!data?.club_zones || !data.club_events || !data.etablissements) return null;
   const pending = data.club_payments.find(
     (payment) => payment.organiser && payment.status === "en_attente"
   );
@@ -191,8 +191,8 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
       .reduce((sum, payment) => sum + payment.total_cents, 0),
     payers: sharePayers(data.club_payments),
     table: {
-      zone: data.club_tables.club_zones.name,
-      inclus: data.club_tables.club_zones.inclus,
+      zone: data.club_zones.name,
+      inclus: data.club_zones.inclus,
     },
     event: rowToEvent(data.club_events),
     club: {
@@ -246,11 +246,11 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, status, name, party_size, price_cents, total_cents, paid_cents, share_token, club_tables(club_zones(name, inclus)), club_events(*), etablissements(slug, name, address, payment_provider, club_min_age, club_dress_code, club_refused), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
+      "id, status, name, party_size, price_cents, total_cents, paid_cents, share_token, club_zones(name, inclus), club_events(*), etablissements(slug, name, address, payment_provider, club_min_age, club_dress_code, club_refused), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
     )
     .eq("share_token", shareToken)
     .maybeSingle();
-  if (!data?.share_token || !data.club_tables?.club_zones || !data.club_events || !data.etablissements) {
+  if (!data?.share_token || !data.club_zones || !data.club_events || !data.etablissements) {
     return null;
   }
   const { data: state } = await admin.rpc("club_partage_etat", { p_booking: data.id });
@@ -270,12 +270,12 @@ export async function fetchShareByToken(shareToken: string): Promise<ShareTable 
     seatsLeft: state?.[0]?.seats_left ?? 0,
     minimumCents: state?.[0]?.minimum_cents ?? 0,
     open:
-      (data.status === "payee" || data.status === "arrivee") &&
+      (data.status === "payee" || data.status === "arrivee" || data.status === "assise") &&
       !event.cancelledAt &&
       Date.parse(event.startsAt) > now,
     table: {
-      zone: data.club_tables.club_zones.name,
-      inclus: data.club_tables.club_zones.inclus,
+      zone: data.club_zones.name,
+      inclus: data.club_zones.inclus,
     },
     event,
     club: {

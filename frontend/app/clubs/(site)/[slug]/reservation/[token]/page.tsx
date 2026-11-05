@@ -34,7 +34,10 @@ function viewOf(booking: BookingTicket, now: number): View {
       return Date.parse(booking.holdExpiresAt) > now ? "attente" : "expiree";
     case "payee":
       return "payee";
+    // Assise ou partie : pour le client, il est entré.
     case "arrivee":
+    case "assise":
+    case "partie":
       return "arrivee";
     case "remboursee":
       return "remboursee";

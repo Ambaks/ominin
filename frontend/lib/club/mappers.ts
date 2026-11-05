@@ -58,6 +58,7 @@ export function rowToBooking(row: Tables<"club_bookings">): ClubBooking {
   return {
     id: row.id,
     eventId: row.event_id,
+    zoneId: row.zone_id,
     tableId: row.table_id,
     name: row.name,
     phone: row.phone,
@@ -77,6 +78,8 @@ export function rowToBooking(row: Tables<"club_bookings">): ClubBooking {
     note: row.note,
     paidAt: row.paid_at,
     arrivedAt: row.arrived_at,
+    seatedAt: row.seated_at,
+    leftAt: row.left_at,
     createdAt: row.created_at,
   };
 }
@@ -142,9 +145,9 @@ export function rowToGuest(row: Tables<"club_guests">): ClubGuest {
   };
 }
 
-/** Une réservation qui tient sa table (même règle que club_booking_holds). */
+/** Une réservation qui tient sa place (même règle que club_booking_holds). */
 export function bookingHolds(booking: ClubBooking, now = Date.now()): boolean {
-  if (booking.status === "payee" || booking.status === "arrivee") return true;
+  if (booking.status === "payee" || booking.status === "arrivee" || booking.status === "assise") return true;
   if (booking.status !== "en_attente") return false;
   return booking.holdExpiresAt === null || Date.parse(booking.holdExpiresAt) > now;
 }

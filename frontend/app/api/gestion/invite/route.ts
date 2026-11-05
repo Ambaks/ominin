@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { CLUB_ROLES } from "@/lib/club/droits";
+import type { ClubRole } from "@/lib/club/types";
 import { sendInviteEmail } from "@/lib/gestion/invite-notify";
 import { rateLimit } from "@/lib/rate-limit/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -22,6 +24,8 @@ export async function POST(request: Request) {
   const body = (await request.json().catch(() => null)) as {
     email?: string;
     role?: Role;
+    /** Le poste dans un club (accueil, caissier, chef de rang) ; absent ailleurs. */
+    club_role?: ClubRole | null;
     etablissement_id?: string;
   } | null;
   if (!body?.email || !body.role || !body.etablissement_id) {
@@ -33,6 +37,7 @@ export async function POST(request: Request) {
 
   const email = body.email.trim().toLowerCase();
   const { role, etablissement_id } = body;
+  const club_role = body.club_role && role !== "gerant" && CLUB_ROLES.includes(body.club_role) ? body.club_role : null;
 
   const { data: membership } = await supabase
     .from("memberships")
@@ -65,7 +70,7 @@ export async function POST(request: Request) {
 
   const { data: invitation, error: insertError } = await admin
     .from("invitations")
-    .insert({ etablissement_id, email, role })
+    .insert({ etablissement_id, email, role, club_role })
     .select("token")
     .single();
   if (insertError) {
@@ -118,7 +123,7 @@ export async function POST(request: Request) {
       type: "email",
       next: `/menu/invitation?token=${invitation.token}`,
     }).toString();
-    await sendInviteEmail(email, etablissement.name, role, verifyUrl.toString());
+    await sendInviteEmail(email, etablissement.name, role, verifyUrl.toString(), false, club_role);
   } catch (emailError) {
     console.error("Invitation email error:", emailError);
     const reason =

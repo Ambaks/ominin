@@ -30,8 +30,11 @@
   --etat-attente: var(--c-state-attente);
   --etat-payee: var(--c-state-payee);
   --etat-arrivee: var(--c-state-arrivee);
+  /* Assise : la table est occupée. Libérée : partie, à reprendre. */
+  --etat-assise: #b49cff;
+  --etat-liberee: var(--c-state-annulee);
   --etat-gardee: var(--c-state-fermee);
-  /* Le numéro posé sur une table pleine (payée, arrivée). */
+  /* Le numéro posé sur une table pleine (payée, arrivée, assise). */
   --etat-encre: var(--c-ink);
   font-family: var(--c-sans);
 }
@@ -46,6 +49,8 @@ html.light .soirees {
   --etat-attente: #b8391b;
   --etat-payee: #2a2f57;
   --etat-arrivee: #1d7a52;
+  --etat-assise: #5a3fb0;
+  --etat-liberee: #5b6190;
   --etat-gardee: rgba(34, 27, 19, 0.45);
   --etat-encre: #ffffff;
 }
@@ -329,6 +334,14 @@ html:has(.soirees-barre) {
   --statut: var(--etat-gardee);
 }
 
+.statut[data-state="assise"] {
+  --statut: var(--etat-assise);
+}
+
+.statut[data-state="liberee"] {
+  --statut: var(--etat-liberee);
+}
+
 /* La pastille d'un statut : l'étoile du client, à la couleur de l'état. */
 .plan-legende {
   display: inline-block;
@@ -358,6 +371,14 @@ html:has(.soirees-barre) {
 
 .plan-legende[data-state="gardee"] {
   background: var(--etat-gardee);
+}
+
+.plan-legende[data-state="assise"] {
+  background: var(--etat-assise);
+}
+
+.plan-legende[data-state="liberee"] {
+  background: var(--etat-liberee);
 }
 
 /* ---------------------------------------------------------------------------
@@ -515,7 +536,12 @@ html:has(.soirees-barre) {
   stroke: var(--etat-arrivee);
 }
 
-.gestion-plan :is([data-state="payee"], [data-state="arrivee"]) .plan-numero {
+.gestion-plan [data-state="assise"] .plan-forme {
+  fill: var(--etat-assise);
+  stroke: var(--etat-assise);
+}
+
+.gestion-plan :is([data-state="payee"], [data-state="arrivee"], [data-state="assise"]) .plan-numero {
   fill: var(--etat-encre);
 }
 
@@ -541,6 +567,12 @@ html:has(.soirees-barre) {
 
 .gestion-plan [data-state="gardee"] .plan-numero {
   fill: var(--muted);
+}
+
+.gestion-plan [data-state="liberee"] .plan-forme {
+  stroke: var(--etat-liberee);
+  stroke-width: 2;
+  stroke-dasharray: 6 3;
 }
 
 /* Calque posé sur le plan, dans son repère : signes des statuts et halos. */
@@ -655,8 +687,16 @@ html:has(.soirees-barre) {
   --tuile: var(--etat-gardee);
 }
 
+.tuile[data-state="assise"] {
+  --tuile: var(--etat-assise);
+}
+
+.tuile[data-state="liberee"] {
+  --tuile: var(--etat-liberee);
+}
+
 /* Une table tenue se remplit de la couleur de son état ; une table libre reste sobre. */
-.tuile:is([data-state="payee"], [data-state="attente"], [data-state="arrivee"], [data-state="prise"]) {
+.tuile:is([data-state="payee"], [data-state="attente"], [data-state="arrivee"], [data-state="assise"], [data-state="prise"]) {
   border-color: color-mix(in srgb, var(--tuile) 60%, transparent);
   background: color-mix(in srgb, var(--tuile) 22%, var(--surface));
 }

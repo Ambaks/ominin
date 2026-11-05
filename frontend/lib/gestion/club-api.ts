@@ -1,7 +1,9 @@
+import type { ClubDroits } from "@/lib/club/droits";
 import { rowToBooking, rowToEvent } from "@/lib/club/mappers";
 import type { BookingSource, ClubBooking, ClubEvent, ClubGuest, ClubPayment } from "@/lib/club/types";
 import { createClient } from "@/lib/supabase/client";
 import { check, must } from "@/lib/supabase/result";
+import type { NightStep } from "./club-selectors";
 import {
   commitClub,
   getClub,
@@ -75,6 +77,15 @@ export async function updateConditions(conditions: ClubConditions) {
   );
   apply((draft) => {
     draft.conditions = conditions;
+  });
+}
+
+/** Ce que chaque poste peut faire (direction seule, club_peut le relit à chaque geste). */
+export async function updateDroits(droits: ClubDroits) {
+  const { etablissementId } = getClub();
+  check(await createClient().from("etablissements").update({ club_droits: droits }).eq("id", etablissementId));
+  apply((draft) => {
+    draft.droits = droits;
   });
 }
 
@@ -200,7 +211,9 @@ export async function notifyEventChanged(eventId: string): Promise<number> {
 
 export interface ClubBookingInput {
   eventId: string;
-  tableId: string;
+  zoneId: string;
+  /** Null : à placer dans la zone. */
+  tableId: string | null;
   name: string;
   phone: string;
   partySize: number;
@@ -214,6 +227,7 @@ export async function createClubBooking(input: ClubBookingInput): Promise<ClubBo
   const row = must(
     await createClient().rpc("creer_reservation_club", {
       p_event: input.eventId,
+      p_zone: input.zoneId,
       p_table: input.tableId,
       p_name: input.name,
       p_phone: input.phone,
@@ -232,31 +246,39 @@ export async function createClubBooking(input: ClubBookingInput): Promise<ClubBo
   return booking;
 }
 
+const STEP_RANK: Record<NightStep, number> = { payee: 0, arrivee: 1, assise: 2, partie: 3 };
+
 /**
- * L'équipe pointe une arrivée, la défait, ou encaisse à la porte (paid) ce
- * qui reste de la table — tout le prix d'une table saisie par le club, la fin
- * d'une table partagée —, avec ou sans l'arrivée. Une arrivée n'entre que
- * table réglée ; la défaire ne touche pas au règlement (club_marquer_arrivee).
- * Affichée tout de suite, relue ensuite : l'encaissement crée son paiement.
+ * Le suivi du soir : faire entrer, installer (paid : encaisser d'abord le
+ * reste), marquer le départ, ou revenir d'un cran. Chaque poste n'a que ses
+ * gestes (club_statut_reservation). Affiché tout de suite, relu ensuite :
+ * l'encaissement crée son paiement.
  */
-export async function markArrival(booking: ClubBooking, arrived: boolean, paid = false) {
+export async function setBookingStatus(booking: ClubBooking, step: NightStep, paid = false) {
   const now = new Date().toISOString();
-  const settled = paid || booking.remainingCents === 0;
+  const rank = STEP_RANK[step];
   apply((draft) =>
     patchBooking(draft, booking, {
-      status: arrived ? "arrivee" : settled ? "payee" : booking.status,
-      arrivedAt: arrived ? (booking.arrivedAt ?? now) : null,
-      paidAt: booking.paidAt ?? (paid ? now : null),
-      ...(paid ? { paidCents: booking.priceCents, remainingCents: 0 } : {}),
+      status: rank > 0 ? step : booking.paidAt ? "payee" : "en_attente",
+      arrivedAt: rank >= 1 ? (booking.arrivedAt ?? now) : null,
+      seatedAt: rank >= 2 ? (booking.seatedAt ?? now) : null,
+      leftAt: rank === 3 ? (booking.leftAt ?? now) : null,
+      ...(paid ? { paidCents: booking.priceCents, remainingCents: 0, paidAt: booking.paidAt ?? now } : {}),
     })
   );
-  const result = await createClient().rpc("club_marquer_arrivee", {
+  const result = await createClient().rpc("club_statut_reservation", {
     p_booking: booking.id,
-    p_arrived: arrived,
+    p_status: step,
     p_paid: paid,
   });
   if (paid || result.error) await refreshNightNow(booking.eventId);
   if (result.error) throw new Error(result.error.message);
+}
+
+/** Le caissier encaisse le reste d'une table, sans toucher à son statut. */
+export async function collectRemaining(booking: ClubBooking) {
+  check(await createClient().rpc("club_encaisser", { p_booking: booking.id }));
+  await refreshNightNow(booking.eventId);
 }
 
 /** Rembourse toute la table : chaque part payée en ligne, frais compris ; chaque payeur est prévenu. */
@@ -285,12 +307,16 @@ export async function refundPayment(booking: ClubBooking, payment: ClubPayment) 
 }
 
 /**
- * Déplace une réservation sur une autre table libre ce soir-là (gérant) :
- * la base vérifie qu'elle est libre et qu'elle accueille le groupe.
+ * Place une réservation sur une table libre ce soir-là, ou la déplace : la
+ * base vérifie que la table est libre et qu'elle accueille le groupe. La
+ * zone de la réservation suit la table.
  */
-export async function moveBooking(booking: ClubBooking, tableId: string) {
-  apply((draft) => patchBooking(draft, booking, { tableId }));
-  const result = await createClient().rpc("club_deplacer_reservation", {
+export async function placeBooking(booking: ClubBooking, tableId: string) {
+  apply((draft) => {
+    const zoneId = draft.tables.find((table) => table.id === tableId)?.zoneId ?? booking.zoneId;
+    patchBooking(draft, booking, { tableId, zoneId });
+  });
+  const result = await createClient().rpc("club_placer_reservation", {
     p_booking: booking.id,
     p_table: tableId,
   });

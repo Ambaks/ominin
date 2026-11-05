@@ -43,7 +43,7 @@ export default async function SharePage({ params, searchParams }: { params: Para
   const pending = table.status === "en_attente";
   const cancelled = eventCancelled || voided;
   // Confirmée, ni annulée ni complète, mais fermée : la soirée a commencé.
-  const started = !cancelled && !table.open && (table.status === "payee" || table.status === "arrivee");
+  const started = !cancelled && !table.open && (table.status === "payee" || table.status === "arrivee" || table.status === "assise");
   const joinable = table.open && !complete && table.seatsLeft > 0 && !yours;
   const night = capitalize(formatNight(table.event.startsAt));
   const where = table.table.zone;
