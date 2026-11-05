@@ -12,6 +12,8 @@ PX_MM = 1800 / 216
 CSS_PX_MM = 96 / 25.4
 # Ombre sous les appareils, en mm : décalage vers le bas, écart type du flou.
 SHADOW_DROP, SHADOW_BLUR, SHADOW_ALPHA, SHADOW_COLOR = 7, 8, 0.42, (10, 4, 6)
+# Ombre des éléments .lift, en mm : décalage vers le bas, écart type du flou.
+LIFT_DROP, LIFT_BLUR, LIFT_ALPHA = 0.8, 1.2, 0.7
 CHEVRONS = [
     [(256, 107), (396, 247), (396, 281), (256, 141), (116, 281), (116, 247)],
     [(256, 170), (396, 310), (396, 344), (256, 204), (116, 344), (116, 310)],
@@ -127,6 +129,15 @@ def add_device_shadow(img, rect, scale):
     img[:] = img * (1 - shadow) + np.array(SHADOW_COLOR, float) * shadow
 
 
+def add_lift_shadow(img, mask_file):
+    """L'ombre des éléments posés à même la page, tirée de leur silhouette relevée par measure.cjs."""
+    h, w = img.shape[:2]
+    mask = np.asarray(Image.open(mask_file).convert("L").resize((w, h), Image.LANCZOS), float) > 40
+    mask = np.roll(mask.astype(float), round(LIFT_DROP * PX_MM), axis=0)
+    shadow = gaussian_filter(mask, LIFT_BLUR * PX_MM)[..., None] * LIFT_ALPHA
+    img[:] = img * (1 - shadow) + np.array(SHADOW_COLOR, float) * shadow
+
+
 def main(folder):
     out = folder / "bg"
     out.mkdir(exist_ok=True)
@@ -140,6 +151,8 @@ def main(folder):
             add_panel(img, rect, page["theme"], scale)
         for rect in page["devices"]:
             add_device_shadow(img, rect, scale)
+        if (out / f"lift-{n}.png").exists():
+            add_lift_shadow(img, out / f"lift-{n}.png")
         img = np.clip(img + rng.normal(0, 1.1, img.shape[:2])[..., None], 0, 255)
         Image.fromarray(img.astype("uint8")).save(out / f"p{n}.jpg", quality=92, subsampling=0)
         css.append(f".page:nth-of-type({n}) {{ background-image: url(bg/p{n}.jpg); }}")
