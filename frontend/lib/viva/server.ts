@@ -387,7 +387,9 @@ export async function createOrder(account: VivaAccount, order: VivaOrderRequest)
 
 /** La page de paiement hébergée d'une commande Viva. */
 export function checkoutUrl(orderCode: string): string {
-  return `${settings().checkoutUrl}/web/checkout?ref=${orderCode}`;
+  // Couleur de la page de paiement (hexa sans #) ; absente, celle de Viva.
+  const color = process.env.VIVA_BRAND_COLOR;
+  return `${settings().checkoutUrl}/web/checkout?ref=${orderCode}${color ? `&color=${color}` : ""}`;
 }
 
 /** Une transaction relue chez Viva. amount en euros, comme Viva le rend. */
