@@ -10,6 +10,12 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Boho : le vrai logo (2026-11-05, `boho-logo`, pas de migration) :** à la demande du gérant, d'après son logo.
+>
+> - **Le symbole kilim** (`KilimMark` et `public/boho/logo.svg`) est relevé sur le logo du gérant : deux traits par côté prolongés aux angles, une branche vers l'extérieur au milieu de chaque côté, un carré au centre, angles vifs. Il change partout : site, page de réservation des bulles, carte QR, gestion.
+> - **Le haut du site** reprend la composition du logo : symbole, « BOHO » en Cinzel (capitales romaines, déjà chargée pour d'autres marques), filet avec un losange (`LogoFilet`), puis « Côté Jardin » en écriture. Les textes restent du vrai texte, que la bulle du haut de page continue de réfracter. La marque du bandeau passe aussi en Cinzel.
+> - **Vérifié :** `tsc`, `eslint`, et une maquette du logo photographiée sur téléphone et sur ordinateur. La base locale n'étant pas à jour, la vraie page n'a pas été rendue en local.
+
 > **Bulles : rétractation et vendeur avant de payer (2026-11-05, `boho-vendeur`, migration `20261105000020_etablissement_raison_sociale` appliquée en production juste avant la fusion) :** version légère des conditions de vente, à la place d'une page de CGV.
 >
 > - **Rétractation :** la mention de non-remboursement, affichée au-dessus de chaque paiement et dans les mails, ajoute qu'il n'y a pas de droit de rétractation (prestation de loisirs à date fixe, art. L221-28 du Code de la consommation).
