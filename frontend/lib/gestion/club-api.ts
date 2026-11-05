@@ -1,8 +1,9 @@
 import type { ClubDroits } from "@/lib/club/droits";
 import { rowToBooking, rowToEvent } from "@/lib/club/mappers";
+import type { Rapport, RapportSoiree, RapportTotaux } from "@/lib/club/rapport";
 import type { BookingSource, ClubBooking, ClubEvent, ClubGuest, ClubPayment } from "@/lib/club/types";
 import { createClient } from "@/lib/supabase/client";
-import { check, must } from "@/lib/supabase/result";
+import { check, must, type ListPage } from "@/lib/supabase/result";
 import type { NightStep } from "./club-selectors";
 import {
   commitClub,
@@ -352,4 +353,34 @@ export async function markGuest(guest: ClubGuest, arrived: boolean) {
     apply((draft) => patch(draft, guest.arrivedAt));
     throw new Error(result.error.message);
   }
+}
+
+// ---------------------------------------------------------------------------
+// Rapports (direction)
+
+/** Le rapport financier d'une soirée, calculé en base (club_rapport). */
+export async function fetchRapport(eventId: string): Promise<Rapport> {
+  return must(await createClient().rpc("club_rapport", { p_event: eventId })) as unknown as Rapport;
+}
+
+/** L'historique des soirées commencées, la plus récente d'abord, page par page. */
+export async function fetchRapports(search: string, limit: number, offset: number): Promise<ListPage<RapportSoiree>> {
+  const rows = must(
+    await createClient().rpc("club_rapports", {
+      p_etablissement: getClub().etablissementId,
+      p_search: search,
+      p_limit: limit,
+      p_offset: offset,
+    })
+  );
+  return {
+    rows: rows.map((row) => ({
+      eventId: row.event_id,
+      title: row.title,
+      startsAt: row.starts_at,
+      cancelled: row.cancelled,
+      totaux: row.totaux as unknown as RapportTotaux,
+    })),
+    total: rows[0]?.total_count ?? 0,
+  };
 }

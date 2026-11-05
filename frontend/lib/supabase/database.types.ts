@@ -8133,6 +8133,47 @@ export type Database = {
         Args: { p_event: string; p_table: string }
         Returns: number
       }
+      club_rapport: { Args: { p_event: string }; Returns: Json }
+      club_rapport_lignes: {
+        Args: { p_event: string }
+        Returns: {
+          arrived_at: string
+          booking_id: string
+          created_at: string
+          en_attente_cents: number
+          en_ligne_cents: number
+          etat: string
+          frais_cents: number
+          name: string
+          party_size: number
+          price_cents: number
+          rembourse_cents: number
+          reste_cents: number
+          source: Database["public"]["Enums"]["club_booking_source"]
+          status: Database["public"]["Enums"]["club_booking_status"]
+          sur_place_cents: number
+          table_label: string
+          zone_id: string
+          zone_name: string
+        }[]
+      }
+      club_rapport_totaux: { Args: { p_lignes: Json }; Returns: Json }
+      club_rapports: {
+        Args: {
+          p_etablissement: string
+          p_limit: number
+          p_offset: number
+          p_search: string
+        }
+        Returns: {
+          cancelled: boolean
+          event_id: string
+          starts_at: string
+          title: string
+          total_count: number
+          totaux: Json
+        }[]
+      }
       club_rembourser_paiement: {
         Args: { p_payment: string }
         Returns: {

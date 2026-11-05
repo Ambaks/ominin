@@ -511,6 +511,7 @@ export default function LivePage() {
                   Nouvelle réservation
                 </GlassButton>
               )}
+              {gerant && <GlassButton href={`/gestion/soirees/${event.id}/rapport`}>Rapport</GlassButton>}
               {gerant && <GlassButton href={`/gestion/soirees/${event.id}`}>Modifier</GlassButton>}
             </div>
           }
