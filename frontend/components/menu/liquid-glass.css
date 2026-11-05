@@ -183,13 +183,6 @@
     inset 0 -26px 32px -16px rgb(var(--eg-rim) / var(--eg-halo)),
     0 16px 32px -22px rgb(0 0 0 / var(--eg-ombre));
   --eg-flou: blur(var(--eg-blur)) saturate(var(--eg-saturate));
-  /* Le corps d'une fiche : une lumière en haut à gauche, la teinte de la
-     tranche en bas à droite, la dalle entre les deux, un peu plus couverte
-     vers le bas. */
-  --eg-corps:
-    radial-gradient(90% 50% at 0% 0%, rgb(var(--eg-sheen) / var(--eg-lumiere)), transparent 60%),
-    radial-gradient(90% 60% at 100% 100%, rgb(var(--eg-rim) / var(--eg-fond)), transparent 70%),
-    linear-gradient(160deg, rgb(var(--eg-tint) / var(--eg-alpha)), rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.06)));
   --eg-verre: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha));
   --eg-metal-verre: var(--eg-glace), color-mix(in srgb, var(--eg-metal) var(--eg-metal-voile), transparent);
 
@@ -261,6 +254,14 @@
      contact puis l'ombre portée à la couleur de la maison. Sans flou : elles
      défilent sur le satin. */
   & :is(.dish-grid > article, .dish-mini, .formule-tile) {
+    /* Le corps : une lumière en haut à gauche, la teinte de la tranche en
+       bas à droite, la dalle entre les deux, un peu plus couverte vers le
+       bas. Calculé sur la fiche : une maison y change sa teinte sans toucher
+       à ses feuilles ni à ses pastilles. */
+    --eg-corps:
+      radial-gradient(90% 50% at 0% 0%, rgb(var(--eg-sheen) / var(--eg-lumiere)), transparent 60%),
+      radial-gradient(90% 60% at 100% 100%, rgb(var(--eg-rim) / var(--eg-fond)), transparent 70%),
+      linear-gradient(160deg, rgb(var(--eg-tint) / var(--eg-alpha)), rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.06)));
     position: relative;
     isolation: isolate;
     overflow: hidden;
@@ -465,20 +466,95 @@
   }
 }
 
-/* Caffè Panis : le grain de sa carte imprimée reste sur le verre, comme un
-   dépoli ; le pied de page garde le vert des portes et la mosaïque du sol,
-   l'ivoire de ses textes vient du thème. */
+/* Caffè Panis : les fiches sont le verre peint de la devanture, vert des
+   portes et lettrage ivoire, le satin au travers ; un liseré de laiton en
+   bas à droite. Le crème reste aux feuilles, aux pastilles et au store. Le
+   pied de page garde le vert et la mosaïque du sol. */
 [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
   & :is(.dish-grid > article, .dish-mini, .formule-tile) {
-    background: var(--cp-grain), var(--eg-corps);
+    --eg-tint: 8 46 24;
+    --eg-alpha: 0.56;
+    --eg-sheen: 238 234 199;
+    --eg-rim: 201 162 75;
+    --eg-lumiere: 0.22;
+    --eg-reflet: 0.7;
+    --eg-lisere: 0.7;
+    --eg-fond: 0.2;
+    --eg-ombre-rgb: 0 0 0;
+    --eg-ombre: 0.75;
+    --eg-price: var(--cp-ivory);
+    --eg-struck: #cfc9a8;
+    --foreground: var(--cp-ivory);
+    --muted: rgb(238 234 199 / 0.84);
+    --faint: rgb(238 234 199 / 0.7);
+    --hairline: rgb(238 234 199 / 0.22);
+    /* Le « + » en ivoire, sa croix en vert : l'encre de l'enseigne. */
+    --ember-1: var(--cp-ivory);
+    --ember-2: var(--cp-ivory);
+    --ember-3: var(--cp-ivory);
+    --background: var(--cp-green-deep);
+    color: var(--foreground);
+  }
+
+  & :is(.dish-grid > article, .dish-mini) .reward-hint-bar {
+    background: rgb(238 234 199 / 0.25);
   }
 
   & .menu-highlights {
     background: var(--cp-grain), var(--eg-verre);
   }
 
-  & [role="dialog"].bg-surface {
-    background: var(--cp-grain) local, var(--eg-glace), rgb(var(--eg-tint) / 0.9);
+  /* Les feuilles aussi en verre vert (panier, options, règlement, fiche d'un
+     plat, ticket) : le vert et l'ivoire s'échangent dans la feuille, le
+     laiton et la mosaïque restent, chaque contrôle garde sa logique
+     (panis-sheets.css). La roue, l'après-repas, la carte de fidélité et le
+     « Bon appétit » ont déjà leur vert. */
+  & [role="dialog"].bg-surface:not(:has(.wheel-stage, .after-meal-satin, .loyalty-card-enter, .serve-box)) {
+    --eg-tint: 8 46 24;
+    --eg-sheen: 238 234 199;
+    --eg-rim: 201 162 75;
+    --cp-green: #eeeac7;
+    --cp-green-deep: #e4dfb8;
+    --cp-ivory: #0f4b25;
+    --eg-price: #eeeac7;
+    --eg-struck: #cfc9a8;
+    --cp-grain: none;
+    --surface: rgb(8 46 24 / 0.92);
+    --surface-raised: rgb(14 62 33 / 0.95);
+    --foreground: #eeeac7;
+    --muted: rgb(238 234 199 / 0.84);
+    --faint: rgb(238 234 199 / 0.7);
+    --hairline: rgb(238 234 199 / 0.22);
+    --background: #0b3a1c;
+    --ember-1: #eeeac7;
+    --ember-2: #eeeac7;
+    --ember-3: #eeeac7;
+    /* Recalculés ici : définis à la racine, ils garderaient le crème. */
+    --cp-trait: color-mix(in srgb, var(--cp-green) 70%, transparent);
+    --cp-bord: color-mix(in srgb, var(--cp-green) 28%, transparent);
+    --cp-chaud: color-mix(in srgb, var(--cp-laiton) 18%, var(--surface));
+    color: var(--foreground);
+    background:
+      linear-gradient(180deg, rgb(var(--eg-sheen) / 0.12), rgb(var(--eg-sheen) / 0) 36%, rgb(var(--eg-rim) / 0.16) 100%),
+      rgb(var(--eg-tint) / 0.86);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / 0.7),
+      inset 0 -1px 0 rgb(var(--eg-rim) / 0.7),
+      0 -1.5rem 4rem -1rem rgb(0 0 0 / 0.55);
+  }
+
+  /* La carte bancaire de la démo, vert sur le vert de la feuille, se perdait :
+     elle passe à l'ivoire, l'écrit au vert, la puce et la mosaïque inchangées. */
+  & [role="dialog"] .payment-card {
+    color: var(--cp-ivory);
+    background:
+      var(--cp-mosaic) 0 100% / 0.375rem 0.375rem repeat-x,
+      radial-gradient(120% 90% at 0% 0%, rgb(255 255 255 / 0.5), transparent 55%),
+      linear-gradient(145deg, #f6f2dd, #e3deb8);
+  }
+
+  & [role="dialog"] .payment-card .text-muted {
+    color: rgb(15 75 37 / 0.72);
   }
 
   & > footer {
