@@ -6,6 +6,7 @@ import {
   agentsSiteUrl,
   clipSiteUrl,
   collectSiteUrl,
+  hotelsSiteUrl,
   menuSiteUrl,
   shopSiteUrl,
   siteUrl,
@@ -29,6 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: clipSiteUrl, changeFrequency: "weekly", priority: 0.9 },
     { url: shopSiteUrl, changeFrequency: "weekly", priority: 0.9 },
     { url: agentsSiteUrl, changeFrequency: "weekly", priority: 0.9 },
+    { url: hotelsSiteUrl, changeFrequency: "weekly", priority: 0.9 },
     // Documents contractuels : servis sur tous les hôtes, mais une seule
     // adresse canonique sur le domaine principal — d'où une entrée par
     // document et non une par host. Ils ne changent qu'à la publication
