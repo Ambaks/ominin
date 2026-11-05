@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { commercialAccount } from "@/lib/commercial/session";
-import { absentContactMessage, visitMessage, type VisitInput } from "@/lib/commercial/visit";
+import { visitDetails, visitMessage, type VisitInput } from "@/lib/commercial/visit";
 import { postDiscord } from "@/lib/discord";
 import type { Json } from "@/lib/supabase/database.types";
 import { createClient } from "@/lib/supabase/server";
 
 /*
  * Enregistre une visite (commercial_visit vérifie le compte et le restaurant),
- * puis l'annonce dans #terrain ; le contact d'un responsable absent part dans
+ * puis l'annonce dans #terrain ; tout ce qu'elle a noté part dans
  * #inscriptions. Un Discord muet ne défait pas la visite.
  */
 export async function POST(request: Request) {
@@ -28,10 +28,10 @@ export async function POST(request: Request) {
   ]);
   if (account && place) {
     const commercial = account.first_name ?? account.email;
-    const posts = [postDiscord("terrain", visitMessage(commercial, place.name, body.visit.outcome))];
-    if (body.visit.outcome === "absent") {
-      posts.push(postDiscord("inscriptions", absentContactMessage(commercial, place.name, place.address, body.visit)));
-    }
+    const posts = [
+      postDiscord("terrain", visitMessage(commercial, place.name, body.visit.outcome)),
+      postDiscord("inscriptions", visitDetails(commercial, place.name, place.address, body.visit)),
+    ];
     for (const result of await Promise.allSettled(posts)) {
       if (result.status === "rejected") console.error("[discord] visite non annoncée", result.reason);
     }
