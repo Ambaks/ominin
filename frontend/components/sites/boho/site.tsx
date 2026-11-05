@@ -236,6 +236,7 @@ export function BohoSite({
               <a href={bohoLinks.tiktok}>TikTok {bohoLinks.tiktokHandle}</a>
             </div>
           </div>
+          {offer?.etablissement.vendeur && <p className="bo-footer-note">{offer.etablissement.vendeur}</p>}
           <p className="bo-footer-note">Site et réservations par Ominin</p>
         </div>
       </footer>
