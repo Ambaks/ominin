@@ -1,0 +1,245 @@
+/*
+  La démo client d'Ominin Hôtels, sur les jetons de la landing (hotels.css) :
+  lignes posées sur l'aura, pastilles de choix, titres des feuilles en
+  Cormorant. Aucune teinte nouvelle.
+*/
+
+/* Dans la couche components : les utilitaires Tailwind posés sur ces classes gagnent. */
+@layer components {
+  .hd-row {
+    border-radius: var(--g-radius-card);
+    background: color-mix(in srgb, var(--foreground) 5%, transparent);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+
+  .hd-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: var(--g-control);
+    padding: 0 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--muted);
+    box-shadow: inset 0 0 0 1px var(--hairline);
+  }
+  .hd-chip-sm {
+    min-height: 2rem;
+    padding: 0 0.75rem;
+    font-size: 0.75rem;
+  }
+  .hd-chip[aria-pressed="true"] {
+    background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+    color: var(--background);
+    box-shadow: none;
+  }
+  .hd-chip:disabled {
+    opacity: 0.35;
+    text-decoration: line-through;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .hd-chip:not([aria-pressed="true"]):not(:disabled):hover {
+      color: var(--foreground);
+      box-shadow: inset 0 0 0 1px var(--g-ring-hover);
+    }
+  }
+  :is(.hd-chip, .hd-row):focus-visible {
+    outline: 2px solid var(--ember-1);
+    outline-offset: 2px;
+  }
+
+  .hd-scroller {
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+  .hd-scroller::-webkit-scrollbar {
+    display: none;
+  }
+  .hd-scroller > * {
+    scroll-snap-align: start;
+  }
+
+  .hd-details summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+/* Les feuilles : titre Cormorant comme les sections, verre plus dense — on y
+   lit une carte entière, la page ne doit pas transparaître. Hors couche, pour
+   passer devant font-display. */
+.hotels .g-dialog {
+  --g-scrim: 72%;
+  --g-plate: 70%;
+}
+.hotels .g-dialog-head h2 {
+  font-family: var(--font-hotels-serif), serif;
+  font-weight: 500;
+  font-size: 1.75rem;
+  line-height: 1.1;
+}
+
+/* Le plan 3D : les étiquettes posées sur la maquette, suivies image par image
+   (transform seul). La liste des chambres reste le chemin accessible. */
+.hd-beacon,
+.hd-staff-tag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  will-change: transform;
+  white-space: nowrap;
+  border-radius: 9999px;
+}
+.hd-beacon {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.3rem 0.7rem;
+  font-size: 12px;
+  line-height: 1.25;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  box-shadow:
+    inset 0 0 0 1.5px var(--ember-3),
+    0 8px 20px -10px rgb(0 0 0 / 0.7);
+  cursor: pointer;
+}
+.hd-beacon b {
+  font-weight: 700;
+}
+.hd-beacon span {
+  color: var(--muted);
+}
+.hd-beacon[data-dot] {
+  width: 0.875rem;
+  height: 0.875rem;
+  padding: 0;
+}
+.hd-beacon[data-dot] > * {
+  display: none;
+}
+.hd-beacon:not([data-real]) span:empty,
+.hd-beacon[data-state="pending"]:not([data-real]) span {
+  display: none;
+}
+.hd-beacon[data-state="pending"] {
+  animation: hd-beacon 1.6s ease-in-out infinite;
+}
+.hd-beacon[data-state="doing"] {
+  box-shadow:
+    inset 0 0 0 1.5px var(--ember-1),
+    0 8px 20px -10px rgb(0 0 0 / 0.7);
+}
+.hd-beacon[data-real] {
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-2) 55%, var(--ember-3));
+  color: var(--background);
+  box-shadow: 0 10px 24px -10px color-mix(in srgb, var(--ember-2) 80%, transparent);
+}
+.hd-beacon[data-real] span {
+  color: color-mix(in srgb, var(--background) 75%, transparent);
+}
+@keyframes hd-beacon {
+  50% {
+    box-shadow:
+      inset 0 0 0 1.5px var(--ember-3),
+      0 0 0 6px color-mix(in srgb, var(--ember-3) 25%, transparent);
+  }
+}
+.hd-staff-tag {
+  padding: 0.1rem 0.45rem;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--ember-1);
+  background: color-mix(in srgb, var(--background) 90%, transparent);
+}
+.hd-legend {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.875rem;
+  font-size: 11px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--background) 72%, transparent);
+}
+.hd-beacon-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 9999px;
+  box-shadow: inset 0 0 0 1.5px var(--ember-3);
+}
+.hd-beacon-dot[data-state="doing"] {
+  box-shadow: inset 0 0 0 1.5px var(--ember-1);
+}
+.hd-beacon-dot[data-real] {
+  background-image: linear-gradient(100deg, var(--ember-1), var(--ember-3));
+  box-shadow: none;
+}
+/* La maquette tient entière entre la barre du haut et celle des onglets : on peut toujours la voir en entier. */
+.hd-plate {
+  --hd-plate-top: calc(var(--g-topbar-h) + 2 * var(--g-frame-margin));
+  --hd-plate-room: calc(100svh - var(--hd-plate-top) - var(--gestion-barre-bas, 0px));
+  aspect-ratio: 6 / 5;
+  max-height: var(--hd-plate-room);
+  scroll-margin-top: var(--hd-plate-top);
+  scroll-margin-bottom: var(--gestion-barre-bas, 0px);
+}
+@media (min-width: 640px) {
+  .hd-plate {
+    aspect-ratio: auto;
+    height: min(62svh, var(--hd-plate-room));
+  }
+}
+@media (min-width: 1024px) {
+  .hd-plate {
+    height: 40rem;
+    max-height: none;
+  }
+}
+.hd-goto {
+  --hd-fade: 2.5rem;
+}
+.hd-goto[data-end] {
+  mask-image: linear-gradient(to right, #000 calc(100% - var(--hd-fade)), transparent);
+}
+.hd-goto[data-start] {
+  mask-image: linear-gradient(to right, transparent, #000 var(--hd-fade));
+}
+.hd-goto[data-start][data-end] {
+  mask-image: linear-gradient(to right, transparent, #000 var(--hd-fade), #000 calc(100% - var(--hd-fade)), transparent);
+}
+@media (min-width: 1024px) {
+  .hd-goto[data-start],
+  .hd-goto[data-end] {
+    mask-image: none;
+  }
+}
+.hd-goto-btn[aria-pressed="true"] {
+  color: var(--ember-1);
+  box-shadow: inset 0 0 0 1.5px var(--ember-1);
+}
+.hd-legend-toggle summary {
+  display: grid;
+  place-items: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 9999px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--foreground);
+  background: color-mix(in srgb, var(--background) 72%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--hairline);
+  list-style: none;
+  cursor: pointer;
+}
+.hd-legend-toggle summary::-webkit-details-marker {
+  display: none;
+}
+.hd-legend-toggle[open] summary {
+  box-shadow: inset 0 0 0 1.5px var(--ember-1);
+}
+@media (prefers-reduced-motion: reduce) {
+  .hd-beacon[data-state="pending"] {
+    animation: none;
+  }
+}

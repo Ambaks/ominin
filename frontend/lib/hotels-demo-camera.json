@@ -1,0 +1,9 @@
+{
+  "fov": 26,
+  "direction": [-40, 42, 50.5],
+  "fill": 0.92,
+  "exposure": 0.85,
+  "environment": { "blur": 0.04, "intensity": 0.3 },
+  "hemisphere": { "sky": "#dfe8ff", "ground": "#b9a98c", "intensity": 0.75 },
+  "sun": { "color": "#fff1dc", "intensity": 2.1, "offset": [-0.7, 1.2, 0.9], "radius": 3, "bias": -0.0004, "normalBias": 0.04 }
+}
