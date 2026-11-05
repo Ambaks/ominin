@@ -166,7 +166,7 @@ async function main() {
     check(
       await db.from("club_event_zones").insert(
         zoneIds
-          .filter((_, index) => !(showcase && ZONES[index].name === "VIP Scène"))
+          .filter((_, index) => !(showcase && ZONES[index].name === "VIP Scène · Loge artiste"))
           .map((zoneId) => ({ event_id: row.id, zone_id: zoneId }))
       )
     );
