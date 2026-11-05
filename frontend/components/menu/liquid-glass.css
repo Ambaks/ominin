@@ -1,0 +1,722 @@
+/*
+  Verre liquide des cartes posées sur le velours (panis-backdrop) : Caffè
+  Panis, le BOHO et les quatre aperçus de l'Écusson. Le flou d'arrière-plan
+  ne va qu'aux surfaces fixes ou posées par-dessus : un flou sur chaque
+  fiche, ou sur les disques de la roue, se recalculerait à chaque image du
+  satin. Les fiches ont le même verre, sans flou. Réglages par maison, plus
+  bas : le propriétaire les ajuste sans réécrire la recette.
+*/
+
+/* Caffè Panis : la toile crème de la devanture en verre dépoli sur le vert
+   des portes. Le filet blanc en haut ; le liseré et la lueur du bas au vert,
+   là où le verre s'épaissit. */
+[data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
+  --eg-tint: 251 248 238;
+  --eg-alpha: 0.88;
+  --eg-sheen: 255 255 255;
+  --eg-rim: 15 75 37;
+  --eg-wash: 0.45;
+  --eg-reflet: 1;
+  --eg-lisere: 0.6;
+  --eg-halo: 0.3;
+  --eg-fond: 0.22;
+  --eg-ombre: 0.8;
+  --eg-lumiere: 0.75;
+  --eg-ombre-rgb: 6 40 20;
+  --eg-radius: 1.5rem;
+  --eg-feuille: 0.9;
+  --eg-blur: 18px;
+  --eg-saturate: 1.1;
+  --eg-metal: var(--cp-green);
+  --eg-metal-voile: 86%;
+  --eg-struck: #6f7d72;
+  --eg-price: var(--cp-green);
+  --muted: #34402f;
+  --faint: #52605a;
+}
+
+/* Le BOHO : la nuit prune de la terrasse, un reflet rosé, le liseré des
+   lampes en rotin. */
+[data-menu-root].theme-boho:has(> .panis-backdrop) {
+  --eg-tint: 52 32 54;
+  --eg-alpha: 0.72;
+  --eg-sheen: 246 233 230;
+  --eg-rim: 229 176 114;
+  --eg-wash: 0.06;
+  --eg-reflet: 1;
+  --eg-lisere: 0.8;
+  --eg-halo: 0.22;
+  --eg-fond: 0.22;
+  --eg-ombre: 0.85;
+  --eg-lumiere: 0.45;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
+  --eg-feuille: 0.7;
+  /* La brique du dégradé, un ton plus clair : l'encre sombre y reste lisible. */
+  --ember-3: #c0583f;
+  --eg-blur: 18px;
+  --eg-saturate: 1.2;
+  --eg-metal: var(--ember-2);
+  --eg-metal-voile: 88%;
+  --eg-struck: #e9d5ce;
+  --eg-price: var(--ember-1);
+  --muted: #e3cdc8;
+  --faint: #a98f90;
+}
+
+/* Le BOHO : dans la feuille, les filets des boutons fantômes en rotin, lisibles. */
+[data-menu-root].theme-boho:has(> .panis-backdrop) [role="dialog"] {
+  --hairline: rgb(229 176 114 / 0.62);
+  --muted: #ecd9d4;
+}
+
+/* Le Novelty : feutre noir, filet d'or. */
+[data-menu-root].theme-le-novelty:has(> .panis-backdrop) {
+  --eg-tint: 12 10 6;
+  --eg-alpha: 0.68;
+  --eg-sheen: 232 201 106;
+  --eg-rim: 201 168 76;
+  --eg-wash: 0.07;
+  --eg-reflet: 0.95;
+  --eg-lisere: 0.7;
+  --eg-halo: 0.28;
+  --eg-fond: 0.14;
+  --eg-ombre: 0.62;
+  --eg-lumiere: 0.14;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
+  --eg-feuille: 0.84;
+  --eg-blur: 18px;
+  --eg-saturate: 1.25;
+  --eg-metal: var(--nv-gold);
+  --eg-metal-voile: 88%;
+  --eg-struck: #e6d7b4;
+  --eg-price: var(--nv-gold-light);
+  --muted: #cfc4b2;
+  --faint: #c0b4a0;
+}
+
+/* Le Victoria : noir rouge, liseré de laiton, éclat de pierre. */
+[data-menu-root].theme-le-victoria:has(> .panis-backdrop) {
+  --eg-tint: 28 12 14;
+  --eg-alpha: 0.7;
+  --eg-sheen: 233 223 201;
+  --eg-rim: 168 131 74;
+  --eg-wash: 0.06;
+  --eg-reflet: 0.9;
+  --eg-lisere: 0.72;
+  --eg-halo: 0.24;
+  --eg-fond: 0.18;
+  --eg-ombre: 0.66;
+  --eg-lumiere: 0.16;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
+  --eg-feuille: 0.84;
+  --eg-blur: 18px;
+  --eg-saturate: 1.2;
+  --eg-metal: var(--vc-red);
+  --eg-metal-voile: 90%;
+  --eg-struck: #f3eadc;
+  --eg-price: #f2a3ab;
+  --muted: #d4cbbd;
+  --faint: #c4b9a8;
+}
+
+/* Café des Arts : noir magenta. */
+[data-menu-root].theme-cafe-des-arts:has(> .panis-backdrop) {
+  --eg-tint: 22 6 16;
+  --eg-alpha: 0.7;
+  --eg-sheen: 255 210 232;
+  --eg-rim: 230 0 126;
+  --eg-wash: 0.07;
+  --eg-reflet: 0.9;
+  --eg-lisere: 0.75;
+  --eg-halo: 0.26;
+  --eg-fond: 0.18;
+  --eg-ombre: 0.68;
+  --eg-lumiere: 0.14;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
+  --eg-feuille: 0.84;
+  --eg-blur: 18px;
+  --eg-saturate: 1.3;
+  --eg-metal: var(--ca-magenta-ink);
+  --eg-metal-voile: 90%;
+  --eg-struck: #f2e4ec;
+  --eg-price: #ff7aba;
+  --muted: #d4d4d8;
+  --faint: #c6c6cc;
+}
+
+/* Brasserie Laissac : noir chaud, or de fleuron. */
+[data-menu-root].theme-brasserie-laissac:has(> .panis-backdrop) {
+  --eg-tint: 18 14 10;
+  --eg-alpha: 0.68;
+  --eg-sheen: 245 220 160;
+  --eg-rim: 214 165 86;
+  --eg-wash: 0.07;
+  --eg-reflet: 0.92;
+  --eg-lisere: 0.68;
+  --eg-halo: 0.26;
+  --eg-fond: 0.16;
+  --eg-ombre: 0.64;
+  --eg-lumiere: 0.14;
+  --eg-ombre-rgb: 0 0 0;
+  --eg-radius: 1.5rem;
+  --eg-feuille: 0.84;
+  --eg-blur: 18px;
+  --eg-saturate: 1.22;
+  --eg-metal: var(--lc-or);
+  --eg-metal-voile: 88%;
+  --eg-struck: #f3e6cf;
+  --eg-price: var(--lc-or-clair);
+  --muted: #d5cbbd;
+  --faint: #c4b8a6;
+}
+
+[data-menu-root]:is(
+    .theme-caffe-panis,
+    .theme-boho,
+    .theme-le-novelty,
+    .theme-le-victoria,
+    .theme-cafe-des-arts,
+    .theme-brasserie-laissac
+  ):has(> .panis-backdrop) {
+  /* Le dégradé du verre et son relief, tirés des réglages. */
+  --eg-glace: linear-gradient(
+    180deg,
+    rgb(var(--eg-sheen) / var(--eg-wash)) 0%,
+    rgb(var(--eg-sheen) / 0) 36%,
+    rgb(var(--eg-rim) / var(--eg-fond)) 100%
+  );
+  /* Le filet est en haut, le liseré en bas : pas de contour sur les quatre côtés, qui lisait comme un cadre. */
+  --eg-relief:
+    inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+    inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
+    inset 0 22px 28px -14px rgb(var(--eg-sheen) / var(--eg-halo)),
+    inset 0 -26px 32px -16px rgb(var(--eg-rim) / var(--eg-halo)),
+    0 16px 32px -22px rgb(0 0 0 / var(--eg-ombre));
+  --eg-flou: blur(var(--eg-blur)) saturate(var(--eg-saturate));
+  /* Les pastilles et le panier flottent sur le satin en permanence : un flou
+     plus court, sans saturation, que la feuille qui ne s'ouvre qu'un moment. */
+  --eg-blur-pastille: 12px;
+  --eg-flou-pastille: blur(var(--eg-blur-pastille));
+  --eg-verre: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha));
+  --eg-metal-verre: var(--eg-glace), color-mix(in srgb, var(--eg-metal) var(--eg-metal-voile), transparent);
+
+  isolation: isolate;
+  background-color: transparent;
+
+  & > header.logo-hero,
+  & > header.logo-hero > .bg-background {
+    background: transparent;
+  }
+
+  /* Le voile du héros reste, atténué : le satin doit se lire derrière l'enseigne. */
+  & .hero-gradient-drift {
+    opacity: 0.35;
+  }
+
+  & :is(.hero-name, .hero-tagline, .category-heading, .hero-cue) {
+    text-shadow: 0 1px 16px rgb(0 0 0 / 0.8);
+  }
+
+  & .hero-logo img {
+    filter: drop-shadow(0 10px 18px rgb(0 0 0 / 0.55));
+  }
+
+  /* Pastilles d'adresse : verre sans flou, elles défilent sur le satin. */
+  & .hero-contact a {
+    border-color: transparent;
+    background: rgb(var(--eg-tint) / 0.42);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & .menu-ticker {
+    border-color: transparent;
+    background: rgb(var(--eg-tint) / 0.5);
+    box-shadow:
+      inset 0 -1px 0 rgb(var(--eg-rim) / calc(var(--eg-lisere) * 0.6));
+  }
+
+  & .menu-ticker-pause {
+    background: linear-gradient(to left, rgb(var(--eg-tint)) 62%, rgb(var(--eg-tint) / 0));
+  }
+
+  & .menu-highlights {
+    border-color: transparent;
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+  }
+
+  /* Le bandeau rouge du Victoria et le bandeau d'or de Laissac : le métal, en verre. */
+  &:is(.theme-le-victoria, .theme-brasserie-laissac) .menu-highlights {
+    background: var(--eg-metal-verre);
+  }
+
+  /* Le titre de rubrique est une légende sur le satin, pas une fiche de plus. */
+  & .category-head {
+    margin-bottom: 0.15rem;
+    padding: 0.2rem 0.1rem 0.45rem;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  /* Une fiche est une dalle de verre, photo comprise : le corps, un éclat
+     serré en haut à gauche, la tranche sombre en bas à droite, l'ombre de
+     contact puis l'ombre portée à la couleur de la maison. Sans flou : elles
+     défilent sur le satin. */
+  & :is(.dish-grid > article, .dish-mini, .formule-tile) {
+    /* Le corps : une lumière en haut à gauche, la teinte de la tranche en
+       bas à droite, la dalle entre les deux, un peu plus couverte vers le
+       bas. Calculé sur la fiche : une maison y change sa teinte sans toucher
+       à ses feuilles ni à ses pastilles. */
+    --eg-corps:
+      radial-gradient(90% 50% at 0% 0%, rgb(var(--eg-sheen) / var(--eg-lumiere)), transparent 60%),
+      radial-gradient(90% 60% at 100% 100%, rgb(var(--eg-rim) / calc(var(--eg-fond) * 1.4)), transparent 70%),
+      linear-gradient(160deg, rgb(var(--eg-tint) / var(--eg-alpha)), rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.06)));
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    contain: paint;
+    border-color: transparent;
+    border-radius: var(--eg-radius);
+    background: var(--eg-corps);
+    box-shadow:
+      inset 2px 2px 3px -1px rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset -2px -2px 3px -1px rgb(var(--eg-ombre-rgb) / var(--eg-lisere)),
+      inset 0 0 0 1px rgb(var(--eg-rim) / 0.18),
+      0 1px 2px rgb(var(--eg-ombre-rgb) / 0.35),
+      0 18px 28px -16px rgb(var(--eg-ombre-rgb) / var(--eg-ombre));
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & .dish-mini {
+    border-radius: calc(var(--eg-radius) * 0.75);
+  }
+
+  /* Le filet fait le tour, par-dessus la photo comme le corps : clair où la
+     lumière arrive, à la couleur de la tranche en bas à droite. */
+  & :is(.dish-grid > article, .dish-mini, .formule-tile)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+      135deg,
+      rgb(var(--eg-sheen) / var(--eg-reflet)),
+      rgb(var(--eg-sheen) / 0.25) 40%,
+      rgb(var(--eg-rim) / 0.15) 70%,
+      rgb(var(--eg-rim) / var(--eg-lisere))
+    );
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  & .dish-grid {
+    background: transparent;
+  }
+
+  /* Au Novelty les fiches se touchaient par un filet d'or : chaque verre se détache, le satin passe entre elles. */
+  &:is(.theme-le-novelty) .dish-grid {
+    gap: 0.75rem;
+    border: 0;
+  }
+
+  /* La photo va jusqu'au bord, sans filet, et s'efface sur sa moitié basse
+     par un masque : c'est le corps de la fiche lui-même qui paraît dessous,
+     donc aucune couture possible. Le voile du composant n'a plus d'objet. */
+  & .dish-photo {
+    border: 0;
+    background-color: transparent;
+    -webkit-mask-image: linear-gradient(to bottom, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
+    mask-image: linear-gradient(to bottom, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
+  }
+
+  & .dish-photo-fade {
+    display: block;
+    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.42), rgb(var(--eg-tint) / 0) 45%);
+  }
+
+  /* La description : un cran plus posée et plus serrée, lisible d'un coup d'œil en service. */
+  & .dish-body > :is(p, .dish-lines).text-muted {
+    font-weight: 500;
+    line-height: 1.45;
+  }
+
+  /* Le prix ne touche pas le « + ». */
+  & .dish-grid > article:has(.dish-action > button) .dish-body {
+    column-gap: 1.25rem;
+  }
+
+  & .dish-price {
+    color: var(--eg-price);
+  }
+
+  /* Le « + » et ses filets : la couleur d'enseigne, éclaircie là où elle se perd sur le satin. */
+  & .dish-action {
+    --ember-1: var(--eg-price);
+    --ember-2: var(--eg-price);
+  }
+
+  & :is(.line-through, .offer-price s, .formule-tile s) {
+    color: var(--eg-struck);
+    text-decoration-color: var(--eg-struck);
+    text-decoration-thickness: 1.5px;
+  }
+
+  & > footer {
+    border-color: rgb(var(--eg-rim) / 0.28);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+  }
+
+  /* L'aperçu est la carte du lieu : la signature Ominin ne s'y lit pas. */
+  &:is(.theme-le-novelty, .theme-le-victoria, .theme-cafe-des-arts, .theme-brasserie-laissac) > footer .text-xs > p:last-child {
+    display: none;
+  }
+
+  /* La roue : un seul flou, sur le voile. Les disques restent pleins. */
+  & [data-category-wheel] > div:first-child {
+    background: linear-gradient(
+      to left,
+      rgb(var(--eg-tint) / 0.78),
+      rgb(var(--eg-tint) / 0.55) 55%,
+      rgb(var(--eg-tint) / 0.28)
+    );
+    -webkit-backdrop-filter: var(--eg-flou);
+    backdrop-filter: var(--eg-flou);
+  }
+
+  /* Repliée, la roue ne floute pas : le voile est invisible, le satin défile derrière. */
+  & [data-category-wheel].pointer-events-none > div:first-child {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & [data-category-wheel] [data-wheel-item] > div:first-child {
+    border-color: transparent;
+    background: var(--eg-verre);
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
+      0 8px 16px -10px rgb(0 0 0 / 0.75);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* Barre et rail : ils défilent avec la carte, donc sans flou. */
+  & :is([data-category-nav], [data-category-rail]) {
+    border-color: rgb(var(--eg-rim) / 0.3);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  & :is(.cart-bar, .offer-pill, .loyalty-pill, .loyalty-greeting) {
+    border-color: rgb(var(--eg-sheen) / 0.4);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: var(--eg-flou-pastille);
+    backdrop-filter: var(--eg-flou-pastille);
+  }
+
+  /* Le panier garde le métal de la maison : l'encre posée dessus ne change pas. */
+  & .cart-bar {
+    background: var(--eg-metal-verre);
+  }
+
+  & .ticket-dock {
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: var(--eg-flou-pastille);
+    backdrop-filter: var(--eg-flou-pastille);
+  }
+
+  & .ticket-dock::before {
+    background: linear-gradient(to top, rgb(var(--eg-tint) / 0.45), rgb(var(--eg-tint) / 0));
+  }
+
+  & .ticket-chip:not([data-ready]) {
+    border-color: rgb(var(--eg-sheen) / 0.4);
+    background: var(--eg-verre);
+    box-shadow: var(--eg-relief);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  /* Une feuille ouverte : les pastilles, le panier et le quai s'effacent,
+     ils transparaissaient dans son verre. La pastille dont naît la feuille de
+     fidélité reste, la feuille sort d'elle. */
+  &:has(.sheet-overlay) :is(.offer-pill, .loyalty-pill:not([data-liquid-source]), .loyalty-greeting, .cart-bar, .ticket-dock) {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  /* La feuille se lit : plus couverte que les fiches, le filet dit encore le
+     verre. .bg-surface dans le sélecteur : la feuille de Panis
+     (panis-sheets.css) la vise ainsi, le verre doit passer devant. */
+  & [role="dialog"].bg-surface {
+    border-color: transparent;
+    background:
+      radial-gradient(90% 40% at 0% 0%, rgb(var(--eg-sheen) / calc(var(--eg-lumiere) * 0.9)), transparent 60%),
+      var(--eg-glace),
+      rgb(var(--eg-tint) / var(--eg-feuille));
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset 0 0 0 1px rgb(var(--eg-sheen) / 0.14),
+      inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
+      0 -1.5rem 4rem -1rem rgb(0 0 0 / 0.55);
+    -webkit-backdrop-filter: var(--eg-flou);
+    backdrop-filter: var(--eg-flou);
+  }
+
+  /* Les barres collées d'une feuille (en-tête, pied) : du verre aussi, un
+     flou court sur les rangées qui passent dessous, sans couture. */
+  & [role="dialog"] :is(.cart-head.sticky, .options-head, .cart-foot, .options-foot) {
+    background: rgb(var(--eg-tint) / 0.86);
+    box-shadow: inset 0 1px 0 rgb(var(--eg-sheen) / 0.18);
+    -webkit-backdrop-filter: var(--eg-flou-pastille);
+    backdrop-filter: var(--eg-flou-pastille);
+  }
+
+  /* Les rangées se fondent sous le pied au lieu d'y être tranchées. */
+  & [role="dialog"] :is(.cart-foot, .options-foot)::before {
+    content: "";
+    position: absolute;
+    inset: auto 0 100%;
+    height: 1.5rem;
+    background: linear-gradient(transparent, rgb(var(--eg-tint) / 0.86));
+    pointer-events: none;
+  }
+
+  /* Les encadrés d'une feuille (fidélité, résumé) : un voile clair, pas un aplat. */
+  & [role="dialog"] .loyalty-box {
+    border-color: rgb(var(--eg-rim) / 0.35);
+    background: linear-gradient(180deg, rgb(var(--eg-sheen) / 0.08), rgb(var(--eg-sheen) / 0.02));
+    box-shadow: inset 0 1px 0 rgb(var(--eg-sheen) / 0.22);
+  }
+
+  /* La feuille d'offres et la roue apportent leur propre fond : le verre est le cadre. */
+  & .offer-sheet {
+    background: transparent;
+  }
+
+  & .offer-head {
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.55),
+      inset 0 -1px 0 rgb(var(--eg-rim) / 0.45);
+  }
+
+  & .wheel-stage {
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / 0.45),
+      inset 0 -1px 0 rgb(var(--eg-rim) / 0.4);
+  }
+}
+
+/* Caffè Panis : les fiches sont le verre peint de la devanture, vert des
+   portes et lettrage ivoire, le satin au travers ; un liseré de laiton en
+   bas à droite. Le crème reste aux feuilles, aux pastilles et au store. Le
+   pied de page garde le vert et la mosaïque du sol. */
+[data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
+  & :is(.dish-grid > article, .dish-mini, .formule-tile) {
+    --eg-tint: 8 46 24;
+    --eg-alpha: 0.56;
+    --eg-sheen: 238 234 199;
+    --eg-rim: 201 162 75;
+    --eg-lumiere: 0.22;
+    --eg-reflet: 0.7;
+    --eg-lisere: 0.7;
+    --eg-fond: 0.2;
+    --eg-ombre-rgb: 2 22 10;
+    --eg-ombre: 0.9;
+    --eg-price: var(--cp-ivory);
+    --eg-struck: #cfc9a8;
+    --foreground: var(--cp-ivory);
+    --muted: rgb(238 234 199 / 0.84);
+    --faint: rgb(238 234 199 / 0.7);
+    --hairline: rgb(238 234 199 / 0.22);
+    /* Le « + » en ivoire, sa croix en vert : l'encre de l'enseigne. */
+    --ember-1: var(--cp-ivory);
+    --ember-2: var(--cp-ivory);
+    --ember-3: var(--cp-ivory);
+    --background: var(--cp-green-deep);
+    color: var(--foreground);
+  }
+
+  & :is(.dish-grid > article, .dish-mini) .reward-hint-bar {
+    background: rgb(238 234 199 / 0.32);
+  }
+
+  & .menu-highlights {
+    background: var(--cp-grain), var(--eg-verre);
+  }
+
+  /* Les feuilles aussi en verre vert (panier, options, règlement, fiche d'un
+     plat, ticket) : le vert et l'ivoire s'échangent dans la feuille, le
+     laiton et la mosaïque restent, chaque contrôle garde sa logique
+     (panis-sheets.css). La roue, l'après-repas, la carte de fidélité et le
+     « Bon appétit » ont déjà leur vert. */
+  & [role="dialog"].bg-surface:not(:has(.wheel-stage, .after-meal-satin, .loyalty-card-enter, .serve-box)) {
+    --eg-tint: 8 46 24;
+    --eg-sheen: 238 234 199;
+    --eg-rim: 201 162 75;
+    --cp-green: #eeeac7;
+    --cp-green-deep: #e4dfb8;
+    --cp-ivory: #0f4b25;
+    --eg-price: #eeeac7;
+    --eg-struck: #cfc9a8;
+    --cp-grain: none;
+    /* Les barres collées (en-tête, pied) restent couvrantes : la feuille
+       elle-même laisse voir le satin. */
+    --surface: rgb(8 46 24 / 0.97);
+    --surface-raised: rgb(14 62 33 / 0.97);
+    --eg-feuille: 0.64;
+    --foreground: #eeeac7;
+    --muted: rgb(238 234 199 / 0.84);
+    --faint: rgb(238 234 199 / 0.7);
+    --hairline: rgb(238 234 199 / 0.22);
+    --background: #0b3a1c;
+    --ember-1: #eeeac7;
+    --ember-2: #eeeac7;
+    --ember-3: #eeeac7;
+    /* Recalculés ici : définis à la racine, ils garderaient le crème. */
+    --cp-trait: color-mix(in srgb, var(--cp-green) 70%, transparent);
+    --cp-bord: color-mix(in srgb, var(--cp-green) 65%, transparent);
+    /* L'orange de l'Apérol, assombri pour l'ivoire posé dessus ; les prix de
+       l'offre s'éclaircissent sur le vert. */
+    --offer: #9a3d16;
+    --offer-light: #c4542a;
+    --cp-chaud: color-mix(in srgb, var(--cp-laiton) 14%, rgb(238 234 199 / 0.05));
+    color: var(--foreground);
+    background:
+      radial-gradient(90% 40% at 0% 0%, rgb(var(--eg-sheen) / 0.2), transparent 60%),
+      linear-gradient(180deg, rgb(var(--eg-sheen) / 0.08), rgb(var(--eg-sheen) / 0) 36%, rgb(var(--eg-rim) / 0.16) 100%),
+      rgb(var(--eg-tint) / var(--eg-feuille));
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / 0.7),
+      inset 0 0 0 1px rgb(var(--eg-sheen) / 0.14),
+      inset 0 -1px 0 rgb(var(--eg-rim) / 0.7),
+      0 -1.5rem 4rem -1rem rgb(0 0 0 / 0.55);
+  }
+
+  & [role="dialog"] .offer-price b {
+    color: #ffa070;
+  }
+
+  /* La mosaïque du sol reste en haut des en-têtes, sur leur verre. */
+  & [role="dialog"] :is(.cart-head.sticky, .options-head) {
+    background:
+      var(--cp-mosaic) 0 0 / 0.375rem 0.375rem repeat-x,
+      rgb(var(--eg-tint) / 0.72);
+  }
+
+  /* L'en-tête de la happy hour : l'orange en verre, qui s'éteint vers la liste. */
+  & [role="dialog"] .offer-head {
+    background:
+      radial-gradient(120% 90% at 0% 0%, rgb(255 190 140 / 0.28), transparent 60%),
+      linear-gradient(135deg, rgb(176 72 30 / 0.9), rgb(146 54 20 / 0.8));
+    box-shadow: inset 0 -1px 0 rgb(201 162 75 / 0.35);
+  }
+
+  /* Le voile sous une feuille de verre : plus profond, la carte derrière se calme. */
+  & .sheet-overlay.items-end[class*="bg-black"] {
+    background-color: rgb(3 26 13 / 0.7);
+  }
+
+  /* La carte bancaire de la démo, vert sur le vert de la feuille, se perdait :
+     elle passe à l'ivoire, l'écrit au vert, la puce et la mosaïque inchangées. */
+  & [role="dialog"] .payment-card {
+    color: var(--cp-ivory);
+    background:
+      var(--cp-mosaic) 0 100% / 0.375rem 0.375rem repeat-x,
+      radial-gradient(120% 90% at 0% 0%, rgb(255 255 255 / 0.5), transparent 55%),
+      linear-gradient(145deg, #f6f2dd, #e3deb8);
+  }
+
+  & [role="dialog"] .payment-card .text-muted {
+    color: rgb(15 75 37 / 0.72);
+  }
+
+  & > footer {
+    border-color: transparent;
+    background: var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x, var(--eg-metal-verre);
+  }
+}
+
+/* Dès la tablette, la photo de Panis est à gauche du texte : elle s'efface vers la droite. */
+@media (min-width: 48rem) {
+  [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) .dish-grid > article .dish-photo {
+    -webkit-mask-image: linear-gradient(to right, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
+    mask-image: linear-gradient(to right, #000 45%, rgb(0 0 0 / 0.8) 68%, rgb(0 0 0 / 0.35) 85%, transparent);
+  }
+}
+
+/* Le survol du Novelty repeignait la fiche en aplat : la lumière monte sur le verre. */
+@media (hover: hover) {
+  [data-menu-root].theme-le-novelty:has(> .panis-backdrop) .dish-grid > article:hover {
+    --eg-lumiere: 0.3;
+  }
+}
+
+/* Sans transparence : les mêmes contrastes, sur un aplat. */
+@media (prefers-reduced-transparency: reduce) {
+  [data-menu-root]:is(
+      .theme-caffe-panis,
+      .theme-boho,
+      .theme-le-novelty,
+      .theme-le-victoria,
+      .theme-cafe-des-arts,
+      .theme-brasserie-laissac
+    ):has(> .panis-backdrop) {
+    --eg-alpha: 1;
+    --eg-metal-voile: 100%;
+    --eg-flou: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  [data-menu-root]:is(
+      .theme-caffe-panis,
+      .theme-boho,
+      .theme-le-novelty,
+      .theme-le-victoria,
+      .theme-cafe-des-arts,
+      .theme-brasserie-laissac
+    ):has(> .panis-backdrop) {
+    --eg-alpha: 0.94;
+    --eg-metal-voile: 100%;
+    --eg-flou: none;
+  }
+}
+
+/* Trop ancien pour color-mix : le métal du panier, des bandeaux et du pied de Panis redevient plein. */
+@supports not (color: color-mix(in srgb, red 50%, transparent)) {
+  [data-menu-root]:is(
+      .theme-caffe-panis,
+      .theme-boho,
+      .theme-le-novelty,
+      .theme-le-victoria,
+      .theme-cafe-des-arts,
+      .theme-brasserie-laissac
+    ):has(> .panis-backdrop) {
+    & .cart-bar,
+    &:is(.theme-le-victoria, .theme-brasserie-laissac) .menu-highlights,
+    &.theme-caffe-panis > footer {
+      background: var(--eg-metal);
+    }
+  }
+}

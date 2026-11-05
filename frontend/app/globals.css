@@ -5074,6 +5074,12 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   --dock-width: 39.5rem;
 }
 
+/* Une table de bulle fermée (components/bulles/table-gate) : la page de la
+   bulle remplace la carte, qui reste montée. */
+[data-menu-root]:has(> .bulle-gate) > :not(.bulle-gate) {
+  display: none;
+}
+
 .ticket-dock {
   padding-inline: 1.25rem;
 }
