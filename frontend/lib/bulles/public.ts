@@ -1,9 +1,10 @@
-import type { BullePricing } from "@/lib/bulles/format";
+import { formatVendeur, type BullePricing } from "@/lib/bulles/format";
 import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
 import { createPublicClient } from "@/lib/supabase/public";
 
 export type BulleOffer = BullePricing & {
-  etablissement: { id: string; slug: string; name: string };
+  /** vendeur : « Vendu par … » (formatVendeur), null tant que la raison sociale manque. */
+  etablissement: { id: string; slug: string; name: string; vendeur: string | null };
   minParty: number;
   maxParty: number;
   durationMinutes: number;
@@ -24,7 +25,7 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
   const { data, error } = await createPublicClient()
     .from("etablissements")
     .select(
-      "id, slug, name, bulle_reglages(place_cents, small_group_place_cents, group_threshold, min_billed_places, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features, day_end_hour)"
+      "id, slug, name, raison_sociale, siret, bulle_reglages(place_cents, small_group_place_cents, group_threshold, min_billed_places, min_party, max_party, duration_minutes, booking_days), bulles(id, name, color, sort, active), bulle_creneaux(weekday), etablissement_settings(features, day_end_hour)"
     )
     .eq("slug", slug)
     .order("sort", { referencedTable: "bulles", ascending: true })
@@ -34,7 +35,7 @@ export async function fetchBulleOffer(slug: string): Promise<BulleOffer | null> 
   const features = data?.etablissement_settings?.features as { bulles?: boolean } | null | undefined;
   if (!data || !reglages || features?.bulles !== true) return null;
   return {
-    etablissement: { id: data.id, slug: data.slug, name: data.name },
+    etablissement: { id: data.id, slug: data.slug, name: data.name, vendeur: formatVendeur(data.raison_sociale, data.siret) },
     placeCents: reglages.place_cents,
     smallGroupPlaceCents: reglages.small_group_place_cents,
     groupThreshold: reglages.group_threshold,

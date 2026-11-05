@@ -251,6 +251,7 @@ export function BullePayment({
         </div>
         <HoldCountdown remainingMs={remainingMs} totalMs={TABLE_HOLD_S * 1000} onExpire={onExpire} what="vos places" />
       </header>
+      {checkout.vendeur && <p className="bo-muted bo-small">{checkout.vendeur}.</p>}
       {checkout.provider === "square" ? (
         <SquareForm
           partId={partId}

@@ -141,7 +141,13 @@ export function formatSoloPrice(pricing: BullePricing): string {
 
 /** Ce que voit toute personne juste avant de payer : la règle de bulle_rembourser_part. */
 export const BULLE_NO_REFUND =
-  "Les sommes payées, acomptes compris, ne sont pas remboursées, sauf si la bulle ne peut pas être tenue.";
+  "Les sommes payées, acomptes compris, ne sont pas remboursées, sauf si la bulle ne peut pas être tenue. Pas de droit de rétractation : prestation de loisirs à date fixe (art. L221-28 du Code de la consommation).";
+
+/** Qui vend, dit avant de payer et sur le site : null tant que la raison sociale n'est pas renseignée. */
+export function formatVendeur(raisonSociale: string | null, siret: string | null): string | null {
+  if (!raisonSociale) return null;
+  return `Vendu par ${raisonSociale}${siret ? `, SIRET ${siret.replace(/^(\d{3})(\d{3})(\d{3})(\d{5})$/, "$1 $2 $3 $4")}` : ""}`;
+}
 
 /** Ce que voit, juste avant de payer, le groupe d'une réservation en attente. */
 export const BULLE_NOT_RESERVED =

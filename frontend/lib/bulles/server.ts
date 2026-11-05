@@ -1,8 +1,12 @@
+import { formatVendeur } from "@/lib/bulles/format";
 import type { createAdminClient } from "@/lib/supabase/admin";
 
 type Admin = ReturnType<typeof createAdminClient>;
 
-export type BulleCheckout = { provider: "demo" } | { provider: "square"; locationId: string };
+export type BulleCheckout = ({ provider: "demo" } | { provider: "square"; locationId: string }) & {
+  /** « Vendu par … », dit au-dessus du paiement (formatVendeur). */
+  vendeur: string | null;
+};
 
 /**
  * Le restaurant peut-il encaisser une place en ligne ? Démonstration, ou
@@ -14,7 +18,7 @@ export async function bulleCheckout(admin: Admin, etablissementId: string): Prom
   const [{ data: etab }, { data: account }] = await Promise.all([
     admin
       .from("etablissements")
-      .select("payment_provider, online_payment, square_location_id")
+      .select("payment_provider, online_payment, square_location_id, raison_sociale, siret")
       .eq("id", etablissementId)
       .maybeSingle(),
     admin
@@ -23,14 +27,15 @@ export async function bulleCheckout(admin: Admin, etablissementId: string): Prom
       .eq("etablissement_id", etablissementId)
       .maybeSingle(),
   ]);
-  if (etab?.payment_provider === "demo") return { provider: "demo" };
+  const vendeur = etab ? formatVendeur(etab.raison_sociale, etab.siret) : null;
+  if (etab?.payment_provider === "demo") return { provider: "demo", vendeur };
   if (
     etab?.payment_provider === "square" &&
     etab.online_payment &&
     etab.square_location_id &&
     account
   ) {
-    return { provider: "square", locationId: etab.square_location_id };
+    return { provider: "square", locationId: etab.square_location_id, vendeur };
   }
   return null;
 }

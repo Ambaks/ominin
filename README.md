@@ -10,6 +10,13 @@ tracking, forecasting, invoice processing, and back-office automation.
 
 ## Project status
 
+> **Bulles : rétractation et vendeur avant de payer (2026-11-05, `boho-vendeur`, migration `20261105000020_etablissement_raison_sociale` appliquée en production juste avant la fusion) :** version légère des conditions de vente, à la place d'une page de CGV.
+>
+> - **Rétractation :** la mention de non-remboursement, affichée au-dessus de chaque paiement et dans les mails, ajoute qu'il n'y a pas de droit de rétractation (prestation de loisirs à date fixe, art. L221-28 du Code de la consommation).
+> - **Vendeur :** nouvelle colonne `etablissements.raison_sociale`. Avec le `siret`, elle donne « Vendu par …, SIRET … » (`formatVendeur`, `lib/bulles/format.ts`), sur l'écran de paiement d'une bulle et dans le pied de page du site du Boho. Rien ne s'affiche tant qu'elle est vide.
+> - **À faire :** renseigner la raison sociale et le SIRET du Boho.
+> - **Vérifié :** `tsc`, `eslint` et le format du texte. Pas regardé dans un navigateur.
+
 > **Ominin Hôtels : photos de luxe pour la piscine, la plage et le spa (2026-11-05, `hotels-espaces-photos`, pas de migration) :** dans « Les espaces » de hotels.ominin.com, trois photos Unsplash (licence gratuite) remplacent celles jugées pas assez luxueuses : maison blanche et piscine miroir au crépuscule, cabanes à rideaux sur pontons dans une crique de pins (étalonnage légèrement réchauffé), bassin de spa à cascade éclairé de nuit. Fichiers `public/hotels/{pool,beach,spa}.webp` remplacés en place (piscine recadrée dans le fichier pour garder l'eau au-dessus de la légende), textes alternatifs dans `lib/hotels-landing-data.ts`, et `.hotels-scrim-card` assombrit maintenant le haut de chaque carte pour que la pastille reste lisible sur un ciel clair. Choix fait en deux tours de notation par des agents indépendants (section ~8/10 contre ~6 avant), vérifié au navigateur en bureau et en téléphone ; dernier choix du spa non renoté.
 
 > **Bulles : minimum facturé sous le seuil de groupe (2026-11-05, `bulles-minimum`, migration `20261105000010_bulle_minimum_sous_seuil` appliquée en production juste avant la fusion) :**
