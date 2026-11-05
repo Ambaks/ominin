@@ -414,27 +414,35 @@ export function retrieveTransaction(account: VivaAccount, transactionId: string)
   );
 }
 
-/** Les transactions abouties d'une commande Viva (l'API n'y liste pas les refus). */
-async function orderTransactions(account: VivaAccount, orderCode: string): Promise<{ TransactionId: string; StatusId?: string }[]> {
-  const body = await basicApi<{ Transactions?: { TransactionId: string; StatusId?: string }[] }>(
+interface VivaOrderTransaction {
+  TransactionId: string;
+  StatusId?: string;
+  /** La transaction qu'elle annule ou rembourse ; nul pour un paiement. */
+  ParentId?: string | null;
+}
+
+/**
+ * Les paiements d'une commande Viva, refus compris. Un remboursement y figure
+ * aussi, avec le statut F que perd le paiement remboursé : il est écarté.
+ */
+async function orderPayments(account: VivaAccount, orderCode: string): Promise<VivaOrderTransaction[]> {
+  const body = await basicApi<{ Transactions?: VivaOrderTransaction[] }>(
     account.merchantId,
     `/api/transactions/?ordercode=${orderCode}`
   );
-  return body?.Transactions ?? [];
+  return (body?.Transactions ?? []).filter((transaction) => !transaction.ParentId);
 }
 
 /**
  * Annule une commande Viva encore ouverte : elle ne pourra plus être payée.
- * Rend faux si Viva refuse (commande payée, expirée ou déjà annulée) — à
- * l'appelant de relire ce qu'il en est.
+ * Viva répond succès même sur une commande déjà payée, qui le reste : la
+ * réponse ne dit rien du règlement, à l'appelant de le relire.
  */
-export async function cancelOrder(account: VivaAccount, orderCode: string): Promise<boolean> {
+async function cancelOrder(account: VivaAccount, orderCode: string): Promise<void> {
   try {
     await basicApi(account.merchantId, `/api/orders/${orderCode}`, { method: "DELETE" });
-    return true;
   } catch (error) {
-    if (error instanceof VivaError && error.status < 500) return false;
-    throw error;
+    if (!(error instanceof VivaError && error.status < 500)) throw error;
   }
 }
 
@@ -598,7 +606,7 @@ export async function confirmVivaOrder(
   if (transactionHint && (await settleTransaction(admin, account, order, transactionHint))) {
     return true;
   }
-  const transactions = await orderTransactions(account, order.viva_order_code);
+  const transactions = await orderPayments(account, order.viva_order_code);
   for (const transaction of transactions) {
     if (transaction.TransactionId === transactionHint) continue;
     if (transaction.StatusId === "F" && (await settleTransaction(admin, account, order, transaction.TransactionId))) {
@@ -611,13 +619,13 @@ export async function confirmVivaOrder(
 /**
  * La commande Viva ne sera pas payée en ligne : elle est annulée chez Viva,
  * pour qu'un retour arrière sur la page de paiement ne puisse plus la débiter
- * pendant que la salle encaisse l'addition. Annulation refusée : Viva l'a
- * peut-être vue payée entre-temps, elle est relue. Vrai si elle était payée.
+ * pendant que la salle encaisse l'addition. Payée avant l'annulation, elle le
+ * reste : ses paiements sont toujours relus. Vrai si elle était payée.
  */
 export async function closeVivaOrder(admin: Admin, order: VivaOrder): Promise<boolean> {
   const account = await vivaAccount(admin, order.etablissement_id);
   if (!account) throw new Error("Compte Viva délié : commande Viva impossible à annuler.");
-  if (await cancelOrder(account, order.viva_order_code)) return false;
+  await cancelOrder(account, order.viva_order_code);
   return confirmVivaOrder(admin, order);
 }
 
