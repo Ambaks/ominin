@@ -57,7 +57,7 @@ function LeadCard({
         if (event.key === "Enter") onOpen();
       }}
       style={{ touchAction: "pan-y" }}
-      className={`cursor-grab select-none rounded-2xl border border-hairline bg-surface p-3 transition-opacity ${
+      className={`cursor-grab select-none g-plate p-3 transition-opacity ${
         dragging ? "opacity-40" : ""
       }`}
     >

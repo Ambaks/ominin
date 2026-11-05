@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { BellIcon } from "@/components/gestion/icons";
-import { Modal } from "@/components/ui/modal";
+import { GlassButton, Sheet } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import { PUSH_OWNER_STORAGE_KEY } from "@/lib/admin/constants";
 import { isOwner, OWNER_LABELS, OWNERS, type Owner } from "@/lib/admin/owners";
@@ -21,10 +21,8 @@ import {
  */
 
 const API = "/api/admin/push/subscriptions";
-const BUTTON =
-  "rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground";
-const PRIMARY =
-  "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50";
+const BUTTON = "g-btn g-btn-secondary g-press";
+const PRIMARY = "g-btn g-btn-primary g-press";
 
 function readOwner(): Owner | null {
   try {
@@ -55,7 +53,7 @@ function NotificationsPanel({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <Modal title="Notifications" onClose={onClose}>
+    <Sheet title="Notifications" onClose={onClose}>
       <div className="flex flex-col gap-4 text-sm">
         {status === "needs-install" ? (
           <div className="flex flex-col gap-2 text-muted">
@@ -74,7 +72,7 @@ function NotificationsPanel({ onClose }: { onClose: () => void }) {
             réglages du navigateur (sur iPhone : Réglages → Notifications → Admin).
           </p>
         ) : status === null ? (
-          <div aria-busy className="shimmer h-24 rounded-xl" />
+          <div aria-busy className="g-shimmer h-24" />
         ) : (
           <>
             <div className="flex flex-col gap-2">
@@ -154,7 +152,7 @@ function NotificationsPanel({ onClose }: { onClose: () => void }) {
           </>
         )}
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -162,15 +160,9 @@ export function NotificationsButton() {
   const [open, setOpen] = useState(false);
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        title="Notifications"
-        aria-label="Notifications"
-        className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-      >
-        <BellIcon className="size-3.5" />
-      </button>
+      <GlassButton variant="icon" onClick={() => setOpen(true)} title="Notifications" aria-label="Notifications">
+        <BellIcon />
+      </GlassButton>
       {open && <NotificationsPanel onClose={() => setOpen(false)} />}
     </>
   );

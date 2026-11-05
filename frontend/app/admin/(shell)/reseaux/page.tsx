@@ -144,7 +144,7 @@ export default function SocialPage() {
   ).length;
   const unassigned = (accounts ?? []).filter((a) => a.brand === null).length;
 
-  const loading = <div className="shimmer h-44 rounded-2xl" />;
+  const loading = <div className="g-shimmer h-44" />;
 
   return (
     <div className="flex flex-col gap-5">

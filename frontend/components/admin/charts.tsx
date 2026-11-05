@@ -16,7 +16,7 @@ export function StatTile({
   hint?: string;
 }) {
   return (
-    <div className="rounded-2xl border border-hairline bg-surface p-4">
+    <div className="g-plate p-4">
       <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-faint">
         {label}
       </p>

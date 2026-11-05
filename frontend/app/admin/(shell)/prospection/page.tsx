@@ -5,8 +5,7 @@ import { useRouter } from "next/navigation";
 import { BotIcon } from "@/components/admin/icons";
 import { StatCard } from "@/components/admin/stat-card";
 import { EmptyState } from "@/components/ui/empty-state";
-import { inputClass } from "@/components/ui/field";
-import { ListPager } from "@/components/ui/list-pager";
+import { ListPager } from "@/components/gestion/ui";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
@@ -108,7 +107,7 @@ const VARIANT_ORDER: Record<VariantStatus, number> = {
 };
 
 const PRIMARY_BUTTON =
-  "ember-gradient rounded-full px-3 py-1.5 text-xs font-semibold text-background";
+  "g-btn g-btn-primary g-press";
 const SECONDARY_BUTTON =
   "rounded-full border border-hairline px-3 py-1.5 text-xs font-medium text-muted transition-colors hover:text-foreground";
 const SECTION_TITLE =
@@ -470,7 +469,7 @@ export default function ProspectionPage() {
                     key={email.id}
                     type="button"
                     onClick={() => openLead(email.restaurantId)}
-                    className="flex items-center gap-3 rounded-xl border border-hairline bg-surface p-3 text-left transition-colors hover:bg-surface-raised"
+                    className="flex items-center gap-3 g-plate p-3 text-left transition-colors hover:bg-surface-raised"
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block text-sm font-medium">
@@ -513,7 +512,7 @@ export default function ProspectionPage() {
               return (
                 <div
                   key={email.id}
-                  className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4"
+                  className="flex flex-col gap-3 g-plate p-4"
                 >
                   <div className="flex flex-wrap items-center gap-2">
                     <button
@@ -542,7 +541,7 @@ export default function ProspectionPage() {
                   )}
 
                   <input
-                    className={inputClass}
+                    className="g-input"
                     value={edited.subject}
                     onChange={(event) =>
                       setDrafts((current) => ({
@@ -552,7 +551,7 @@ export default function ProspectionPage() {
                     }
                   />
                   <textarea
-                    className={`${inputClass} min-h-56 font-mono text-sm`}
+                    className={`g-input min-h-56 font-mono text-sm`}
                     value={edited.bodyText}
                     onChange={(event) =>
                       setDrafts((current) => ({
@@ -566,14 +565,14 @@ export default function ProspectionPage() {
                     <button
                       type="button"
                       onClick={() => reject(email)}
-                      className="rounded-full border border-hairline px-4 py-2 text-sm font-medium text-muted transition-colors hover:text-foreground"
+                      className="g-btn g-btn-secondary g-press"
                     >
                       Rejeter
                     </button>
                     <button
                       type="button"
                       onClick={() => approve(email)}
-                      className="ember-gradient rounded-full px-4 py-2 text-sm font-semibold text-background"
+                      className="g-btn g-btn-primary g-press"
                     >
                       Approuver
                     </button>
@@ -636,7 +635,7 @@ export default function ProspectionPage() {
           <div className="flex flex-col gap-3">
             <p className={SECTION_TITLE}>Règles de rédaction</p>
             {variants === null ? (
-              <div className="shimmer h-32 rounded-2xl" />
+              <div className="g-shimmer h-32" />
             ) : (
               <div className="flex flex-col gap-3">
                 {!promotedBaseline && (
@@ -679,7 +678,7 @@ export default function ProspectionPage() {
           <div className="flex flex-col gap-3">
             <p className={SECTION_TITLE}>Dernière analyse</p>
             {research === undefined ? (
-              <div className="shimmer h-32 rounded-2xl" />
+              <div className="g-shimmer h-32" />
             ) : research ? (
               <FindingsCard research={research} />
             ) : (
@@ -693,7 +692,7 @@ export default function ProspectionPage() {
       )}
 
       {tab === "runs" && (
-        <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+        <div className="overflow-x-auto g-plate">
           <table className="w-full min-w-125 text-left text-sm">
             <thead>
               <tr className={SECTION_TITLE}>
@@ -764,7 +763,7 @@ function VariantCard({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="rounded-2xl border border-hairline bg-surface">
+    <div className="g-plate">
       <div className="flex flex-wrap items-center gap-3 p-4">
         <div className="min-w-0 flex-1">
           <p className="font-medium">{name}</p>
@@ -834,7 +833,7 @@ function FindingsCard({ research }: { research: ResearchRun }) {
         {sections.map((section) => (
           <div
             key={section.title}
-            className="rounded-2xl border border-hairline bg-surface p-4"
+            className="g-plate p-4"
           >
             <p className={SECTION_TITLE}>{section.title}</p>
             <ul className="mt-2 flex flex-col gap-1.5">
@@ -931,7 +930,7 @@ function ProspectsPanel({
           : "Prospects les plus récents — cliquer une tuile pour lister tout un verdict."}
       </p>
 
-      <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+      <div className="overflow-x-auto g-plate">
         <table className="w-full min-w-200 text-left text-sm">
           <thead>
             <tr className={SECTION_TITLE}>
@@ -1039,7 +1038,7 @@ function EmailTable({
   dateOf: (email: OutreachEmail) => string;
 }) {
   return (
-    <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+    <div className="overflow-x-auto g-plate">
       <table className="w-full min-w-125 text-left text-sm">
         <thead>
           <tr className={SECTION_TITLE}>

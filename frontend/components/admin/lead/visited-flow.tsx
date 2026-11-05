@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 import { FOLLOW_UP_QUICK_OPTIONS } from "@/lib/admin/constants";
@@ -64,7 +64,7 @@ export function VisitedFlow({
   };
 
   return (
-    <Modal
+    <Sheet
       title={`Visité — ${lead.name}`}
       onClose={onClose}
       footer={
@@ -72,7 +72,7 @@ export function VisitedFlow({
           type="button"
           onClick={() => void submit()}
           disabled={busy}
-          className="ember-gradient w-full rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+          className="g-btn g-btn-primary g-press w-full"
         >
           Enregistrer la visite
         </button>
@@ -85,7 +85,7 @@ export function VisitedFlow({
             onChange={(event) => setNote(event.target.value)}
             rows={3}
             placeholder="Facultatif"
-            className={`${inputClass} resize-none`}
+            className={`g-input resize-none`}
           />
         </Field>
 
@@ -123,11 +123,11 @@ export function VisitedFlow({
               type="datetime-local"
               value={customDate}
               onChange={(event) => setCustomDate(event.target.value)}
-              className={inputClass}
+              className="g-input"
             />
           )}
         </div>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

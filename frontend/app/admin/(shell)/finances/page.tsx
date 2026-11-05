@@ -38,7 +38,7 @@ const dayLabel = (date: string) => date.slice(8, 10) + "/" + date.slice(5, 7);
 type Editing<T> = { row: T | null } | null;
 
 const BUTTON =
-  "rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground";
+  "g-btn g-btn-secondary g-press";
 
 export default function FinancesPage() {
   const toast = useToast();
@@ -108,8 +108,8 @@ export default function FinancesPage() {
   if (!expenses) {
     return (
       <div aria-busy className="flex flex-col gap-3">
-        <div className="shimmer h-9 w-44 rounded-xl" />
-        <div className="shimmer h-64 rounded-2xl" />
+        <div className="g-shimmer h-9 w-44" />
+        <div className="g-shimmer h-64" />
       </div>
     );
   }
@@ -158,7 +158,7 @@ export default function FinancesPage() {
           </button>
           <button
             type="button"
-            className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background"
+            className="g-btn g-btn-primary g-press"
             onClick={() => setEditExpense({ row: null })}
           >
             Nouvelle dépense
@@ -198,7 +198,7 @@ export default function FinancesPage() {
         />
       </div>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <div className="mb-4 flex items-center justify-between gap-3">
           <h2 className="font-display text-lg font-medium capitalize">{monthTitle(month)}</h2>
           <div className="flex gap-2">
@@ -216,7 +216,7 @@ export default function FinancesPage() {
         <PaymentCalendar month={month} today={today} entries={entries} />
       </section>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-display text-lg font-medium">Dépenses du mois</h2>
           <p className="text-sm tabular-nums text-muted">
@@ -262,7 +262,7 @@ export default function FinancesPage() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
           <h2 className="font-display text-lg font-medium">Recettes du mois</h2>
           <p className="text-sm tabular-nums text-muted">{shown(received(month))}</p>
@@ -288,7 +288,7 @@ export default function FinancesPage() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <h2 className="mb-4 font-display text-lg font-medium">Recettes par mois</h2>
         <BarSeries
           data={(revenue ?? []).map((row) => ({
@@ -303,7 +303,7 @@ export default function FinancesPage() {
         />
       </section>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <h2 className="mb-3 font-display text-lg font-medium">Abonnements</h2>
         {subscriptions.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted">
@@ -336,7 +336,7 @@ export default function FinancesPage() {
         )}
       </section>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <h2 className="mb-4 font-display text-lg font-medium">Dépenses par mois</h2>
         <BarSeries
           data={totals.map((total) => ({

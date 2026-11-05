@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { inputClass } from "@/components/ui/field";
 import { useRunMutation } from "@/components/ui/toast";
 import * as api from "@/lib/admin/social";
 import type { MetaCheck, SocialAccount } from "@/lib/admin/social";
@@ -61,7 +60,7 @@ export function AccountsTab({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-hairline bg-surface p-4">
+      <div className="flex flex-wrap items-center gap-3 g-plate p-4">
         <div className="min-w-60 flex-1">
           <p className="font-medium">Instagram &amp; Facebook</p>
           <p className="mt-0.5 text-sm text-muted">
@@ -100,7 +99,7 @@ export function AccountsTab({
                 {account.handle}
               </span>
               <select
-                className={`${inputClass} w-auto`}
+                className={`g-input w-auto!`}
                 defaultValue=""
                 onChange={(event) => {
                   const brand = event.target.value as Brand["id"];
@@ -135,7 +134,7 @@ export function AccountsTab({
         {brands.map((brand) => (
           <div
             key={brand.id}
-            className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4"
+            className="flex flex-col gap-3 g-plate p-4"
           >
             <div>
               <p className="font-display text-lg font-medium">{brand.name}</p>
@@ -209,7 +208,7 @@ function AccountRow({
             }}
           >
             <input
-              className={`${inputClass} min-w-0 flex-1`}
+              className={`g-input min-w-0 flex-1`}
               placeholder="Nom du compte"
               value={handle}
               onChange={(event) => setHandle(event.target.value)}

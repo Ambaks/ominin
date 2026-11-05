@@ -6,7 +6,7 @@ import { TillFees } from "@/components/commercial/signup/till-fees";
 import { FieldGroup, Choice, cardClass, errorMessage, ghostButton, primaryButton } from "@/components/commercial/space/ui";
 import { ConnectComposer } from "@/components/composer/connect-composer";
 import { AcceptTerms, useContract } from "@/components/legal/accept-terms";
-import { Field, inputClass } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 import { PASSWORD_MIN_LENGTH, SIGNUP_KINDS, type SignupAccountInput, type SignupKind, type SignupProgress } from "@/lib/commercial/signup-form";
 import type { Answers } from "@/lib/composer";
 import { compressPhoto } from "@/lib/gestion/photo";
@@ -96,7 +96,7 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
   const undoLater = (what: "stripe" | "hubrise") => () => void later(what, false);
 
   if (loadError) return <Shell step="Inscription">{title(loadError)}</Shell>;
-  if (!progress) return <Shell step="Inscription"><div aria-busy className="shimmer h-40 rounded-2xl" /></Shell>;
+  if (!progress) return <Shell step="Inscription"><div aria-busy className="g-shimmer h-40" /></Shell>;
 
   const set = (key: keyof Draft) => (event: React.ChangeEvent<HTMLInputElement>) => setDraft({ ...draft, [key]: event.target.value });
   const errorNote = error && <p className="text-sm text-ember-3">{error}</p>;
@@ -125,10 +125,10 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
           {title("Créons votre compte Ominin.")}
           <p className="text-muted">C’est avec lui que vous gérerez votre restaurant ensuite.</p>
           <Field label="E-mail" required>
-            <input type="email" autoComplete="email" value={draft.email} onChange={set("email")} className={inputClass} />
+            <input type="email" autoComplete="email" value={draft.email} onChange={set("email")} className="g-input" />
           </Field>
           <Field label={`Mot de passe (${PASSWORD_MIN_LENGTH} caractères au moins)`} required>
-            <input type="password" autoComplete="new-password" value={draft.password} onChange={set("password")} className={inputClass} />
+            <input type="password" autoComplete="new-password" value={draft.password} onChange={set("password")} className="g-input" />
           </Field>
           {reason && (draft.email || draft.password) && <p className="text-sm text-ember-3">{reason}</p>}
           <button type="button" disabled={reason !== null} onClick={() => setStep("restaurant")} className={primaryButton}>
@@ -142,7 +142,7 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
         <Shell step="2 · Le restaurant" onBack={back("compte")}>
           {title("Votre restaurant")}
           <Field label="Nom du restaurant" required>
-            <input value={draft.name} onChange={set("name")} className={inputClass} />
+            <input value={draft.name} onChange={set("name")} className="g-input" />
           </Field>
           <FieldGroup label="Type d’établissement" required>
             <Choice options={SIGNUP_KINDS} value={draft.kind} onChange={(kind) => setDraft({ ...draft, kind })} />
@@ -158,13 +158,13 @@ export function SignupQuestionnaire({ id, hubriseManagerUrl }: { id: string; hub
         <Shell step="3 · Le responsable" onBack={back("restaurant")}>
           {title("Qui suivra la mise en place avec nous ?")}
           <Field label="Nom du gérant ou du responsable" required>
-            <input value={draft.managerName} onChange={set("managerName")} className={inputClass} />
+            <input value={draft.managerName} onChange={set("managerName")} className="g-input" />
           </Field>
           <Field label="Téléphone" required>
-            <input type="tel" inputMode="tel" value={draft.managerPhone} onChange={set("managerPhone")} className={inputClass} />
+            <input type="tel" inputMode="tel" value={draft.managerPhone} onChange={set("managerPhone")} className="g-input" />
           </Field>
           <Field label="Ou e-mail, à défaut">
-            <input type="email" value={draft.managerEmail} onChange={set("managerEmail")} placeholder={draft.email} className={inputClass} />
+            <input type="email" value={draft.managerEmail} onChange={set("managerEmail")} placeholder={draft.email} className="g-input" />
           </Field>
           <button
             type="button"

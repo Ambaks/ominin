@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import {
   adjustStatement,
@@ -26,7 +26,7 @@ import { formatDate, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { euros, monthLabel } from "@/lib/commercial/labels";
 import { GHOST_BUTTON } from "./commercial-sheet";
 
-const PRIMARY = "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50";
+const PRIMARY = "g-btn g-btn-primary g-press";
 
 const STATUS: Record<string, string> = {
   draft: "Brouillon",
@@ -67,7 +67,7 @@ export function RelevesTab() {
     }
   };
 
-  if (!rows) return <div aria-busy className="shimmer h-40 rounded-2xl" />;
+  if (!rows) return <div aria-busy className="g-shimmer h-40" />;
   const lastMonth = new Date();
   lastMonth.setDate(1);
   lastMonth.setMonth(lastMonth.getMonth() - 1);
@@ -100,7 +100,7 @@ export function RelevesTab() {
             value={month || previousMonth.slice(0, 7)}
             max={previousMonth.slice(0, 7)}
             onChange={(event) => setMonth(event.target.value)}
-            className={`${inputClass} w-44`}
+            className={`g-input w-44!`}
           />
         </label>
         {commerciaux.map((commercial) => (
@@ -126,7 +126,7 @@ export function RelevesTab() {
       ) : (
         <ul className="flex flex-col gap-3">
           {rows.map((row) => (
-            <li key={row.id} className="flex flex-col gap-2 rounded-2xl border border-hairline bg-surface p-4 text-sm">
+            <li key={row.id} className="flex flex-col gap-2 g-plate p-4 text-sm">
               <div className="flex flex-wrap items-baseline justify-between gap-3">
                 <span>
                   <span className="font-medium capitalize">{monthLabel(row.month)}</span>
@@ -223,7 +223,7 @@ function AdjustModal({ row, onClose, onDone }: { row: StatementRow; onClose: () 
     }
   };
   return (
-    <Modal
+    <Sheet
       title={`Régularisation · ${monthLabel(row.month)}`}
       onClose={onClose}
       footer={
@@ -234,13 +234,13 @@ function AdjustModal({ row, onClose, onDone }: { row: StatementRow; onClose: () 
     >
       <div className="flex flex-col gap-4">
         <Field label="Motif" required hint="Remboursement d’une commande Menu, impayé, contestation de paiement… (art. 4.9)">
-          <input value={label} onChange={(event) => setLabel(event.target.value)} className={inputClass} />
+          <input value={label} onChange={(event) => setLabel(event.target.value)} className="g-input" />
         </Field>
         <Field label="Commission en euros" required hint="Négative pour une déduction.">
-          <input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" className={inputClass} />
+          <input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" className="g-input" />
         </Field>
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -257,7 +257,7 @@ function ResolveModal({ row, onClose, onDone }: { row: StatementRow; onClose: ()
     }
   };
   return (
-    <Modal
+    <Sheet
       title={`Contestation · ${monthLabel(row.month)}`}
       onClose={onClose}
       footer={
@@ -269,10 +269,10 @@ function ResolveModal({ row, onClose, onDone }: { row: StatementRow; onClose: ()
       <div className="flex flex-col gap-4">
         <p className="text-sm text-muted">{row.contest_note}</p>
         <Field label="Réponse au commercial" required hint="Lue dans son espace. Une correction passe par une régularisation sur le relevé suivant.">
-          <textarea value={resolution} onChange={(event) => setResolution(event.target.value)} rows={4} className={`${inputClass} resize-none`} />
+          <textarea value={resolution} onChange={(event) => setResolution(event.target.value)} rows={4} className={`g-input resize-none`} />
         </Field>
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -297,7 +297,7 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
     }
   };
   return (
-    <Modal
+    <Sheet
       title="Encaissement hors Stripe"
       onClose={onClose}
       footer={
@@ -309,7 +309,7 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
       <div className="flex flex-col gap-4">
         <p className="text-sm text-muted">Commission facturée mensuellement et encaissée hors Stripe : elle entre dans l’assiette du commercial.</p>
         <Field label="Client" required>
-          <select value={place} onChange={(event) => setPlace(event.target.value)} className={inputClass}>
+          <select value={place} onChange={(event) => setPlace(event.target.value)} className="g-input">
             <option value="">—</option>
             {places.map((entry) => (
               <option key={`${entry.kind}:${entry.id}`} value={`${entry.kind}:${entry.id}`}>
@@ -319,15 +319,15 @@ function PaymentModal({ onClose }: { onClose: () => void }) {
           </select>
         </Field>
         <Field label="Montant hors taxes en euros" required>
-          <input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" className={inputClass} />
+          <input value={amount} onChange={(event) => setAmount(event.target.value)} inputMode="decimal" className="g-input" />
         </Field>
         <Field label="Encaissé le" required>
-          <input type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} className={inputClass} />
+          <input type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} className="g-input" />
         </Field>
         <Field label="Description" required>
-          <input value={note} onChange={(event) => setNote(event.target.value)} className={inputClass} />
+          <input value={note} onChange={(event) => setNote(event.target.value)} className="g-input" />
         </Field>
       </div>
-    </Modal>
+    </Sheet>
   );
 }

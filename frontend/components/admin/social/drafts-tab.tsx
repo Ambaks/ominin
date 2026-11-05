@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useId, useState } from "react";
-import { inputClass } from "@/components/ui/field";
 import { EmptyState } from "@/components/ui/empty-state";
 import { useRunMutation } from "@/components/ui/toast";
 import { formatDayTime } from "@/lib/admin/format";
@@ -134,7 +133,7 @@ function DraftCard({
   };
 
   return (
-    <div className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-4">
+    <div className="flex flex-col gap-4 g-plate p-4">
       <div className="flex flex-wrap items-start gap-3">
         <div className="min-w-0 flex-1">
           <p className="text-xs text-faint">
@@ -313,7 +312,7 @@ function RedraftForm({
         onChange={(event) => setFeedback(event.target.value)}
         rows={3}
         placeholder="Ex. : accroche plus percutante, montre le paiement à table, moins de texte."
-        className={inputClass}
+        className="g-input"
         autoFocus
       />
       <div className="flex gap-2">
@@ -397,14 +396,14 @@ function EditForm({
               placeholder="Étiquette"
               value={slide.kicker}
               onChange={(event) => setSlide(index, { kicker: event.target.value })}
-              className={inputClass}
+              className="g-input"
             />
             <input
               aria-label="Titre"
               placeholder="Titre"
               value={slide.title}
               onChange={(event) => setSlide(index, { title: event.target.value })}
-              className={inputClass}
+              className="g-input"
             />
           </div>
           <textarea
@@ -413,13 +412,13 @@ function EditForm({
             value={slide.body}
             onChange={(event) => setSlide(index, { body: event.target.value })}
             rows={2}
-            className={inputClass}
+            className="g-input"
           />
           <select
             aria-label="Capture"
             value={slide.screen ?? ""}
             onChange={(event) => setSlide(index, { screen: event.target.value })}
-            className={inputClass}
+            className="g-input"
           >
             <option value="">Sans capture</option>
             {screens.map((screen) => (
@@ -442,7 +441,7 @@ function EditForm({
               }))
             }
             rows={platform.id === "snapchat" ? 1 : 4}
-            className={inputClass}
+            className="g-input"
           />
         </label>
       ))}
@@ -505,7 +504,7 @@ function ReelEditor({
               placeholder="Texte à l'écran"
               value={scene.caption}
               onChange={(event) => setScene(index, { caption: event.target.value })}
-              className={inputClass}
+              className="g-input"
             />
             <textarea
               aria-label="Voix off"
@@ -513,7 +512,7 @@ function ReelEditor({
               value={scene.voiceover}
               onChange={(event) => setScene(index, { voiceover: event.target.value })}
               rows={2}
-              className={inputClass}
+              className="g-input"
             />
             <div className="grid gap-2 sm:grid-cols-[12rem_1fr]">
               <select
@@ -525,7 +524,7 @@ function ReelEditor({
                     media: "",
                   })
                 }
-                className={inputClass}
+                className="g-input"
               >
                 {VISUALS.map((visual) => (
                   <option key={visual.id} value={visual.id}>
@@ -539,7 +538,7 @@ function ReelEditor({
                   value={scene.media}
                   required
                   onChange={(event) => setScene(index, { media: event.target.value })}
-                  className={inputClass}
+                  className="g-input"
                 >
                   <option value="" disabled>
                     Choisir…
@@ -560,7 +559,7 @@ function ReelEditor({
         <input
           value={reel.cta}
           onChange={(event) => onChange({ ...reel, cta: event.target.value })}
-          className={inputClass}
+          className="g-input"
         />
       </label>
       <label className="flex flex-col gap-1">
@@ -568,7 +567,7 @@ function ReelEditor({
         <select
           value={reel.music}
           onChange={(event) => onChange({ ...reel, music: event.target.value })}
-          className={inputClass}
+          className="g-input"
         >
           <option value="">Sans musique</option>
           {MUSIC.map((track) => (

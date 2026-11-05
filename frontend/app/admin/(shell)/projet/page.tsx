@@ -6,7 +6,7 @@ import { PlusIcon } from "@/components/admin/icons";
 import { ProgressBar, StatusDot } from "@/components/admin/projet/step-row";
 import { BUTTON, FIELD, SECTION_TITLE } from "@/components/admin/projet/styles";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Modal } from "@/components/ui/modal";
+import { Sheet } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import { formatEuros } from "@/lib/admin/format";
@@ -63,7 +63,7 @@ function ClientCard({
   return (
     <Link
       href={href}
-      className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4 transition-colors hover:border-ember-2/40"
+      className="flex flex-col gap-3 g-plate p-4 transition-colors hover:border-ember-2/40"
     >
       <div className="flex items-baseline justify-between gap-3">
         <h3 className="truncate font-display text-lg font-medium">{client.name}</h3>
@@ -118,7 +118,7 @@ function NewClientModal({
     }, "Client ajouté au suivi");
 
   return (
-    <Modal
+    <Sheet
       title="Nouveau client à interfacer"
       onClose={onClose}
       footer={
@@ -126,7 +126,7 @@ function NewClientModal({
           type="button"
           disabled={!name.trim()}
           onClick={submit}
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+          className="g-btn g-btn-primary g-press"
         >
           Ajouter
         </button>
@@ -163,7 +163,7 @@ function NewClientModal({
           La pipeline type (prospection, intégration, suivi) est créée avec le client.
         </p>
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -183,7 +183,7 @@ export default function IntegrationPage() {
         <button
           type="button"
           onClick={() => setAdding(true)}
-          className="ember-gradient flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-background"
+          className="g-btn g-btn-primary g-press flex items-center gap-2"
         >
           <PlusIcon className="size-4" />
           Client
@@ -203,8 +203,8 @@ export default function IntegrationPage() {
           />
         ) : (
           <div aria-busy={loading} className="grid gap-4 lg:grid-cols-2">
-            <div className="shimmer h-64 rounded-2xl" />
-            <div className="shimmer h-64 rounded-2xl" />
+            <div className="g-shimmer h-64" />
+            <div className="g-shimmer h-64" />
           </div>
         )
       ) : (

@@ -1,15 +1,26 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense, useSyncExternalStore } from "react";
+import {
+  Fragment,
+  Suspense,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { ToastProvider } from "@/components/ui/toast";
 import {
   ApercuIcon,
   LogoutIcon,
+  XIcon,
   type IconProps,
 } from "@/components/gestion/icons";
+import { Chip, GlassButton, Mesh, Plate, Shimmer } from "@/components/gestion/ui";
 import {
   adminHref,
   adminLoginPath,
@@ -58,18 +69,19 @@ interface Section {
 }
 
 /*
- * Quatre questions, quatre onglets. Marketing va chercher des restaurants ;
- * Clients regarde ceux qui ont signé ; Projet suit ce qui reste pour finir
- * les offres (Tâches) et les clients à interfacer (Intégration) ; Entreprise
- * tient ce qui concerne Ominin elle-même, tous produits confondus (Comptes,
- * Finances, Prestataires, Échéances, Documents), d'où l'absence de barre produit. L'écran des fiches de prospection (crm_restaurants) prend le
+ * Quatre questions, quatre groupes du rail. Marketing va chercher des
+ * restaurants ; Clients regarde ceux qui ont signé ; Projet suit ce qui reste
+ * pour finir les offres (Tâches) et les clients à interfacer (Intégration) ;
+ * Entreprise tient ce qui concerne Ominin elle-même, tous produits confondus
+ * (Comptes, Finances, Prestataires, Échéances, Documents), d'où l'absence de
+ * barre produit. L'écran des fiches de prospection (crm_restaurants) prend le
  * nom de qui l'on prospecte pour le produit (Restaurants, Boutiques,
  * Clippeurs, Entreprises) ; côté Clients, ce sont des établissements.
  *
- * Sous les onglets, la barre produit : la vue d'ensemble montre tout, la vue
+ * Sous la barre haute, les produits : la vue d'ensemble montre tout, la vue
  * d'un produit ne garde que les écrans qui le concernent, filtrés sur lui.
  *
- * Un seul groupe de routes porte le tout, sinon changer d'onglet ou de
+ * Un seul groupe de routes porte le tout, sinon changer de section ou de
  * produit démonterait AdminShell et rechargerait le store à chaque bascule.
  */
 const SECTIONS: Section[] = [
@@ -147,6 +159,9 @@ const SECTIONS: Section[] = [
   },
 ];
 
+/** Places fixes de la barre d'onglets ; le reste de la section et les autres sections vont dans « Plus ». */
+const PRIMARY_SLOTS = 4;
+
 function isActive(localPath: string, item: NavItem): boolean {
   if (item.href === "/") return localPath === item.href;
   return [item.href, ...(item.subPaths ?? [])].some(
@@ -154,7 +169,7 @@ function isActive(localPath: string, item: NavItem): boolean {
   );
 }
 
-/** L'onglet suit l'URL : rien à mémoriser, un lien profond ouvre le bon. */
+/** La section suit l'URL : rien à mémoriser, un lien profond ouvre la bonne. */
 function sectionOf(localPath: string): Section {
   return (
     SECTIONS.find(
@@ -196,37 +211,63 @@ async function signOut() {
 
 function ShellSkeleton() {
   return (
-    <div aria-busy className="flex flex-col gap-4">
-      <div className="shimmer h-9 w-44 rounded-xl" />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="shimmer h-28 rounded-2xl" />
-        <div className="shimmer h-28 rounded-2xl" />
-        <div className="shimmer h-28 rounded-2xl" />
-        <div className="shimmer h-28 rounded-2xl" />
+    <div aria-busy className="grid gap-g-gap">
+      <Shimmer className="h-10 w-44" />
+      <div className="grid gap-g-gap sm:grid-cols-2 lg:grid-cols-4">
+        <Shimmer className="h-28" />
+        <Shimmer className="h-28" />
+        <Shimmer className="h-28" />
+        <Shimmer className="h-28" />
       </div>
-      <div className="shimmer h-44 rounded-2xl" />
+      <Shimmer className="h-44" />
     </div>
   );
 }
 
 function LoadError({ message }: { message: string }) {
   return (
-    <div className="mx-auto flex max-w-md flex-col items-center gap-4 rounded-2xl border border-hairline bg-surface p-8 text-center">
-      <p className="ember-text text-[10px] font-semibold uppercase tracking-[0.28em]">
-        Erreur
-      </p>
-      <h1 className="font-display text-xl font-medium">
-        Chargement impossible
-      </h1>
-      <p className="text-sm text-muted">{message}</p>
-      <button
-        type="button"
-        onClick={() => retryLoad()}
-        className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background"
-      >
+    <Plate className="mx-auto flex max-w-md flex-col items-center gap-4 p-8 text-center">
+      <p className="g-eyebrow g-problem text-g-entity">Erreur</p>
+      <h1 className="font-display text-g-h2">Chargement impossible</h1>
+      <p className="text-g-body text-muted">{message}</p>
+      <GlassButton variant="primary" onClick={() => retryLoad()}>
         Réessayer
-      </button>
-    </div>
+      </GlassButton>
+    </Plate>
+  );
+}
+
+function Brand({ href, small = false }: { href: string; small?: boolean }) {
+  return (
+    <Link href={href} className={`g-brand ${small ? "g-brand-sm" : ""}`} title="Aperçu">
+      <span className="ember-text font-display font-semibold">Ominin</span>
+      <small className={small ? "max-sm:hidden" : ""}>Admin</small>
+    </Link>
+  );
+}
+
+function Count({ value }: { value: number }) {
+  return value > 0 ? <span className="g-count">{value}</span> : null;
+}
+
+/** Feuille « Plus » : les autres écrans, toutes sections confondues. */
+function PlusSheet({ onClose, children }: { onClose: () => void; children: ReactNode }) {
+  const ref = useRef<HTMLDialogElement>(null);
+  useEffect(() => {
+    ref.current?.showModal();
+  }, []);
+  return (
+    <dialog
+      ref={ref}
+      aria-label="Plus"
+      className="g-sheet g-glass"
+      onClose={onClose}
+      onClick={(event) => {
+        if (event.target === ref.current) onClose();
+      }}
+    >
+      <div className="g-sheet-body">{children}</div>
+    </dialog>
   );
 }
 
@@ -235,7 +276,7 @@ const subscribeNever = () => () => {};
 /*
  * Les pages de l'admin sont prérendues : servies par réécriture (/restaurants,
  * /menu/restaurants), leur HTML a été produit pour /admin/restaurants. Tout ce que le
- * shell déduit du chemin — liens, onglet et produit actifs, écrans proposés —
+ * shell déduit du chemin — liens, section et produit actifs, écrans proposés —
  * attend donc la fin de l'hydratation, sans quoi React garderait les
  * attributs du serveur. Le contenu, lui, attend déjà le store.
  */
@@ -247,18 +288,18 @@ function useHydrated(): boolean {
   );
 }
 
-const ACTION_LINK =
-  "ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background";
-
 export function AdminShell({ children }: { children: React.ReactNode }) {
   const state = useProductAdmin();
   const loadError = useAdminLoadError();
   const hydrated = useHydrated();
   const { rootPath, basePath, localPath, product } = useAdminBasePath();
+  const [moreOpen, setMoreOpen] = useState(false);
   const section = sectionOf(localPath);
   const current = section.items.find((item) => isActive(localPath, item));
   const items = section.items.filter((item) => availableIn(item, product));
   const pendingDrafts = state?.pendingDrafts ?? 0;
+  const primary = items.slice(0, PRIMARY_SLOTS);
+  const closeMore = () => setMoreOpen(false);
 
   /** Changer de produit garde l'écran courant s'il le concerne. */
   const productHref = (target: Product | null) => {
@@ -272,20 +313,50 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
   const badgeCount = (item: NavItem) =>
     item.href === "/prospection" ? pendingDrafts : 0;
 
-  const badge = (item: NavItem, compact: boolean) => {
-    const count = badgeCount(item);
-    return count > 0 ? (
-      <span
-        className={
-          compact
-            ? "absolute right-1/2 top-1 -mr-6 flex size-4 items-center justify-center rounded-full bg-ember-3 text-[9px] font-bold text-background"
-            : "ml-auto flex size-5 items-center justify-center rounded-full bg-ember-3 text-[10px] font-bold text-background"
-        }
-      >
-        {count}
-      </span>
-    ) : null;
-  };
+  /*
+   * Le rail liste toutes les sections ouvertes au produit, chacune sous son
+   * surtitre ; la pilule active glisse d'une entrée à l'autre, sa position
+   * se calcule en jetons (hauteur d'entrée, gouttière, rangée de groupe).
+   */
+  const groups = SECTIONS.map((group) => ({
+    ...group,
+    items: group.items.filter((item) => availableIn(item, product)),
+  })).filter((group) => group.items.length > 0);
+  let railRows = 0;
+  let railGroups = 0;
+  let pillStyle: CSSProperties | undefined;
+  const rail = groups.map((group) => {
+    railGroups += 1;
+    const links = group.items.map((item) => {
+      const index = railRows++;
+      if (item === current) {
+        pillStyle = {
+          "--g-nav-y": `calc(${index} * (var(--g-nav-h) + var(--g-nav-gap)) + ${railGroups} * (var(--g-nav-group-h) + var(--g-nav-gap)))`,
+        } as CSSProperties;
+      }
+      return (
+        <Link
+          key={item.href}
+          href={adminHref(basePath, item.href)}
+          aria-current={item === current ? "page" : undefined}
+          className="g-nav-item g-rise"
+          style={{ "--g-i": index } as CSSProperties}
+        >
+          <item.icon />
+          {labelOf(item, product)}
+          <Count value={badgeCount(item)} />
+        </Link>
+      );
+    });
+    return (
+      <Fragment key={group.id}>
+        <div className="g-nav-group">
+          <span className="g-eyebrow">{group.label}</span>
+        </div>
+        {links}
+      </Fragment>
+    );
+  });
 
   const unavailable = (screen: NavItem, target: Product) => {
     const fallback = items[0];
@@ -293,12 +364,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
       <EmptyState
         title={`${labelOf(screen, product)} ne concerne pas ${PRODUCT_LABELS[target]}`}
         action={
-          <Link
-            href={adminHref(basePath, fallback.href)}
-            className={ACTION_LINK}
-          >
+          <GlassButton variant="primary" href={adminHref(basePath, fallback.href)}>
             {labelOf(fallback, product)}
-          </Link>
+          </GlassButton>
         }
       />
     ) : (
@@ -306,9 +374,9 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         title={`Rien côté ${section.label} pour ${PRODUCT_LABELS[target]}`}
         body="Aucun écran de cette section ne suit encore ce produit."
         action={
-          <Link href={productHref(null)} className={ACTION_LINK}>
+          <GlassButton variant="primary" href={productHref(null)}>
             Vue d&apos;ensemble
-          </Link>
+          </GlassButton>
         }
       />
     );
@@ -326,109 +394,67 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
     children
   );
 
+  const home = adminHref(basePath, "/");
+
   return (
     <ToastProvider>
-      <div className="flex min-h-dvh w-full flex-col">
-        <header className="sticky top-0 z-40 border-b border-hairline bg-background/85 backdrop-blur-md">
-          <div className="mx-auto w-full max-w-2xl px-5 lg:max-w-6xl lg:px-10">
-            <div className="flex items-center justify-between gap-4 py-3">
-              <div className="flex min-w-0 flex-col gap-1.5">
-                <p className="truncate font-display text-lg font-medium leading-none">
-                  Ominin Admin
-                </p>
-                <nav className="no-scrollbar flex h-6.5 gap-1 overflow-x-auto">
-                  {hydrated &&
-                    SECTIONS.map((item) => {
-                      const active = item.id === section.id;
-                      return (
-                        <Link
-                          key={item.id}
-                          href={adminHref(
-                            basePath,
-                            landingOf(item, product).href,
-                          )}
-                          aria-current={active ? "page" : undefined}
-                          // Sur téléphone, l'onglet actif peut naître hors champ.
-                          ref={active ? (link) => link?.scrollIntoView({ block: "nearest", inline: "nearest" }) : undefined}
-                          className={`shrink-0 rounded-full px-3 py-1 text-xs font-semibold transition-colors ${
-                            active
-                              ? "ember-gradient text-background"
-                              : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-                          }`}
-                        >
-                          {item.label}
-                        </Link>
-                      );
-                    })}
-                </nav>
-              </div>
-              <div className="ml-auto flex shrink-0 items-center gap-1.5">
-                <NotificationsButton />
-                <ThemeToggle />
-                <button
-                  type="button"
-                  onClick={() => void signOut()}
-                  title="Se déconnecter"
-                  aria-label="Se déconnecter"
-                  className="rounded-full border border-hairline p-2 text-muted transition-colors hover:border-ember-2/40 hover:text-foreground"
-                >
-                  <LogoutIcon className="size-3.5" />
-                </button>
-              </div>
+      <Mesh />
+      <div className="g-shell g-titres">
+        <aside className="g-rail g-glass">
+          <Brand href={home} />
+          <nav aria-label="Sections" className="g-nav">
+            {hydrated && pillStyle && <span className="g-nav-pill" style={pillStyle} aria-hidden />}
+            {hydrated && rail}
+          </nav>
+          <div className="mt-auto grid gap-2 pt-3">
+            <button type="button" onClick={() => void signOut()} className="g-nav-item">
+              <LogoutIcon />
+              Se déconnecter
+            </button>
+          </div>
+        </aside>
+
+        <div className="g-col">
+          <header className="g-topbar g-glass">
+            <div className="g-who">
+              <b className="truncate font-display text-g-name">
+                {hydrated ? section.label : "Admin"}
+              </b>
+              {hydrated && product && (
+                <span className="max-sm:hidden">
+                  <Chip>{PRODUCT_LABELS[product]}</Chip>
+                </span>
+              )}
             </div>
+            <NotificationsButton />
+            <ThemeToggle />
+            <span className="lg:hidden max-sm:hidden">
+              <Brand href={home} small />
+            </span>
+          </header>
+
+          {hydrated && section.id !== "entreprise" && (
             <nav
               aria-label="Produit"
-              className="no-scrollbar -mx-5 -mb-px flex h-7.5 gap-5 overflow-x-auto px-5 lg:mx-0 lg:px-0"
+              className="no-scrollbar mt-3 flex gap-2 overflow-x-auto px-[var(--g-topbar-mx-sm)] lg:px-[var(--g-topbar-mx)]"
             >
-              {hydrated &&
-                section.id !== "entreprise" &&
-                [null, ...PRODUCTS].map((target) => {
-                  const active = target === product;
-                  return (
-                    <Link
-                      key={target ?? "ensemble"}
-                      href={productHref(target)}
-                      aria-current={active ? "page" : undefined}
-                      className={`shrink-0 border-b-2 pb-2 text-sm font-medium transition-colors ${
-                        active
-                          ? "border-ember-1 text-foreground"
-                          : "border-transparent text-muted hover:text-foreground"
-                      }`}
-                    >
-                      {target ? PRODUCT_LABELS[target] : "Vue d'ensemble"}
-                    </Link>
-                  );
-                })}
-            </nav>
-          </div>
-        </header>
-
-        <div className="mx-auto flex w-full max-w-2xl flex-1 items-start gap-10 px-5 lg:max-w-6xl lg:px-10">
-          <aside className="sticky top-28 hidden w-44 shrink-0 flex-col gap-1 pt-10 lg:flex">
-            {hydrated &&
-              items.map((item) => {
-                const active = item === current;
+              {[null, ...PRODUCTS].map((target) => {
+                const active = target === product;
                 return (
                   <Link
-                    key={item.href}
-                    href={adminHref(basePath, item.href)}
-                    className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-sm font-medium transition-colors ${
-                      active
-                        ? "border border-hairline bg-surface text-foreground"
-                        : "text-muted hover:text-foreground"
-                    }`}
+                    key={target ?? "ensemble"}
+                    href={productHref(target)}
+                    aria-current={active ? "page" : undefined}
+                    className={`g-btn ${active ? "g-btn-primary" : "g-btn-secondary"} g-press shrink-0`}
                   >
-                    <item.icon
-                      className={`size-4.5 ${active ? "text-ember-1" : ""}`}
-                    />
-                    {labelOf(item, product)}
-                    {badge(item, false)}
+                    {target ? PRODUCT_LABELS[target] : "Vue d'ensemble"}
                   </Link>
                 );
               })}
-          </aside>
+            </nav>
+          )}
 
-          <main className="w-full min-w-0 flex-1 pb-28 pt-6 lg:pb-16 lg:pt-10">
+          <main className="w-full min-w-0 flex-1 px-[var(--g-topbar-mx-sm)] pb-[calc(var(--g-tab-h)+2*var(--g-tabbar-pad-y)+var(--g-tabbar-bottom)+var(--g-gap))] pt-6 lg:px-[var(--g-topbar-mx)] lg:pb-16">
             {content}
           </main>
         </div>
@@ -439,27 +465,76 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
           </Suspense>
         )}
 
-        {hydrated && items.length > 0 && (
-          <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-hairline bg-background/90 backdrop-blur-md lg:hidden">
-            <div className="mx-auto flex max-w-2xl items-stretch justify-around px-2 pb-[env(safe-area-inset-bottom)]">
-              {items.map((item) => {
-                const active = item === current;
-                return (
-                  <Link
-                    key={item.href}
-                    href={adminHref(basePath, item.href)}
-                    className={`relative flex flex-1 flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-                      active ? "text-ember-1" : "text-faint"
-                    }`}
-                  >
-                    <item.icon className="size-5" />
-                    {labelOf(item, product)}
-                    {badge(item, true)}
-                  </Link>
-                );
-              })}
-            </div>
+        {hydrated && (
+          <nav
+            aria-label="Sections"
+            className="g-tabbar g-glass"
+            style={{ "--g-tabs": primary.length + 1 } as CSSProperties}
+          >
+            {primary.map((item) => (
+              <Link
+                key={item.href}
+                href={adminHref(basePath, item.href)}
+                aria-current={item === current ? "page" : undefined}
+                className="g-tab"
+              >
+                <item.icon />
+                <span>{labelOf(item, product)}</span>
+                <Count value={badgeCount(item)} />
+              </Link>
+            ))}
+            <button
+              type="button"
+              aria-expanded={moreOpen}
+              aria-haspopup="dialog"
+              onClick={() => setMoreOpen(true)}
+              className="g-tab"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+                <circle cx="6" cy="12" r="1.6" />
+                <circle cx="12" cy="12" r="1.6" />
+                <circle cx="18" cy="12" r="1.6" />
+              </svg>
+              <span>Plus</span>
+            </button>
           </nav>
+        )}
+
+        {moreOpen && (
+          <PlusSheet onClose={closeMore}>
+            <div className="flex items-center justify-between gap-3 pl-2">
+              <h2 className="font-display text-g-h2">Plus</h2>
+              <GlassButton variant="icon" aria-label="Fermer" onClick={closeMore}>
+                <XIcon />
+              </GlassButton>
+            </div>
+            {groups.map((group) => (
+              <Fragment key={group.id}>
+                <p className="g-eyebrow pl-2">{group.label}</p>
+                <div className="g-sheet-grid">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.href}
+                      href={adminHref(basePath, item.href)}
+                      aria-current={item === current ? "page" : undefined}
+                      onClick={closeMore}
+                      className="g-sheet-item"
+                    >
+                      <item.icon />
+                      <span>{labelOf(item, product)}</span>
+                      <Count value={badgeCount(item)} />
+                    </Link>
+                  ))}
+                </div>
+              </Fragment>
+            ))}
+            <div className="grid">
+              <button type="button" className="g-sheet-row" onClick={() => void signOut()}>
+                <LogoutIcon />
+                Se déconnecter
+              </button>
+            </div>
+          </PlusSheet>
         )}
       </div>
     </ToastProvider>

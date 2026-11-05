@@ -50,7 +50,7 @@ export function PostsTab({ posts }: { posts: SocialPost[] }) {
         return (
           <div
             key={post.id}
-            className="rounded-2xl border border-hairline bg-surface"
+            className="g-plate"
           >
             <div className="flex gap-4 p-4">
               <PostThumb post={post} />

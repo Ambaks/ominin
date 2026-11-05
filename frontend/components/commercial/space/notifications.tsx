@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Toggle } from "@/components/ui/toggle";
+import { Switch } from "@/components/gestion/ui";
 import { useRunMutation } from "@/components/ui/toast";
 import { setPushPrefs, type PushEventKey } from "@/lib/commercial/api";
 import { PUSH_EVENT_LABELS } from "@/lib/commercial/push-labels";
@@ -63,14 +63,14 @@ export function Notifications() {
         {(Object.keys(PUSH_EVENT_LABELS) as PushEventKey[]).map((key) => (
           <label key={key} className="flex min-h-11 cursor-pointer items-center justify-between gap-3">
             <span>{PUSH_EVENT_LABELS[key]}</span>
-            <Toggle
+            <Switch
               checked={prefs[key] !== false}
               onChange={(checked) => {
                 const next = { ...prefs, [key]: checked };
                 setPrefs(next);
                 void run(() => setPushPrefs(next));
               }}
-              label={PUSH_EVENT_LABELS[key]}
+              aria-label={PUSH_EVENT_LABELS[key]}
             />
           </label>
         ))}

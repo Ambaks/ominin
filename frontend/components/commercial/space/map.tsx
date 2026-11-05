@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { MapCanvas } from "@/components/admin/carte/map-canvas";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import { STATUS_MAP_COLORS } from "@/lib/admin/status";
 import type { GeoPoint, LeadLite, LeadStatus, MapBounds } from "@/lib/admin/types";
@@ -162,7 +162,7 @@ function AddRestaurant({ position, onClose, onAdded }: { position: GeoPoint; onC
   };
 
   return (
-    <Modal
+    <Sheet
       title="Ajouter un restaurant"
       onClose={onClose}
       footer={
@@ -173,12 +173,12 @@ function AddRestaurant({ position, onClose, onAdded }: { position: GeoPoint; onC
     >
       <div className="flex flex-col gap-3">
         <Field label="Nom du restaurant" required>
-          <input value={name} onChange={(event) => setName(event.target.value)} autoFocus className={inputClass} />
+          <input value={name} onChange={(event) => setName(event.target.value)} autoFocus className="g-input" />
         </Field>
         <p className="text-sm text-muted">Il est placé à ta position actuelle.</p>
         {error && <p className="text-sm text-ember-3">{error}</p>}
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
@@ -232,10 +232,10 @@ function MapSearchBox({
         onChange={(event) => setQuery(event.target.value)}
         placeholder={located ? "Chercher un établissement autour de toi" : "Chercher autour du centre de la carte"}
         aria-label="Chercher un établissement par son nom"
-        className={inputClass}
+        className="g-input"
       />
       {term && (failed || search) && (
-        <div className="absolute inset-x-0 top-full mt-1 max-h-72 overflow-y-auto rounded-2xl border border-hairline bg-surface shadow-lg">
+        <div className="absolute inset-x-0 top-full mt-1 max-h-72 overflow-y-auto g-plate shadow-lg">
           {failed ? (
             <p className="px-4 py-3 text-sm text-ember-3">{failed}</p>
           ) : search!.results.length === 0 ? (
@@ -393,7 +393,7 @@ export function MapScreen() {
                 }}
               />
             ) : (
-              <div className={`${cardClass} shimmer h-32 w-full shadow-lg lg:w-72`} />
+              <div className={`${cardClass} g-shimmer h-32 w-full shadow-lg lg:w-72`} />
             )
           }
         />

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Toggle } from "@/components/ui/toggle";
+import { Switch } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import {
   clientFeatures,
@@ -13,7 +13,6 @@ import {
   saveSaison,
   type Client,
 } from "@/lib/admin/clients";
-import { inputClass } from "@/components/ui/field";
 import { activeSaison, type Saison } from "@/lib/menu/saison";
 import {
   ORDER_TAB_HINTS,
@@ -67,11 +66,11 @@ function Row({
         </div>
         <p className="mt-0.5 text-xs leading-relaxed text-faint">{hint}</p>
       </div>
-      <Toggle
+      <Switch
         checked={checked}
         disabled={disabled || !onChange}
         onChange={(value) => onChange?.(value)}
-        label={label}
+        aria-label={label}
       />
     </div>
   );
@@ -132,7 +131,7 @@ function OrderTabsCard({
           règle pas.
         </p>
       </div>
-      <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+      <div className="divide-y divide-hairline g-plate">
         {kept.map((tab, index) => (
           <div key={tab} className="flex items-center gap-3 px-4 py-3">
             <span className="w-5 shrink-0 text-center font-display text-sm text-faint">
@@ -483,14 +482,14 @@ function SaisonCard({
                 if (event.key === "Enter") commitFin(event.currentTarget);
               }}
               onBlur={(event) => commitFin(event.currentTarget)}
-              className={inputClass}
+              className="g-input"
             />
           </label>
           {fin && (
             <button
               type="button"
               onClick={() => persist(client.saison, null)}
-              className="rounded-full border border-hairline px-4 py-2.5 text-sm font-semibold transition-colors hover:border-ember-2/40"
+              className="g-btn g-btn-secondary g-press"
             >
               Sans date de fin
             </button>
@@ -586,7 +585,7 @@ export function Capabilities({
             type="button"
             onClick={() => void reset()}
             disabled={saving}
-            className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            className="g-btn g-btn-secondary g-press"
           >
             Revenir à l&rsquo;offre
           </button>
@@ -600,7 +599,7 @@ export function Capabilities({
         </p>
       )}
 
-      <div className="divide-y divide-hairline rounded-2xl border border-hairline bg-surface px-5">
+      <div className="divide-y divide-hairline g-plate px-5">
         {VIEWS.map((view) => {
           const open = view.id == null || features[view.id];
           return (
