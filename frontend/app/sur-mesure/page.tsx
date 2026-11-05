@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import { Mesh } from "@/components/gestion/ui";
+import { kitFont } from "@/components/landing-kit/font";
+import "@/components/landing-kit/kit.css";
 import { PortalFooter } from "@/components/portal/footer";
 import { PortalNav } from "@/components/portal/nav";
 import { SurMesure } from "@/components/portal/sur-mesure";
@@ -26,9 +29,14 @@ export const metadata: Metadata = {
 export default function SurMesurePage() {
   return (
     <LanguageProvider>
-      <PortalNav />
-      <SurMesure />
-      <PortalFooter />
+      <div className={`kit-landing g-titres ${kitFont.variable}`}>
+        <Mesh />
+        <div className="relative z-1">
+          <PortalNav />
+          <SurMesure />
+          <PortalFooter />
+        </div>
+      </div>
     </LanguageProvider>
   );
 }
