@@ -108,9 +108,11 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
   const [planningError, setPlanningError] = useState(false);
   const [reload, setReload] = useState(0);
   const [choice, setChoice] = useState<{ startsAt: string; endsAt: string; bulleId: string } | null>(null);
-  const [party, setParty] = useState(minParty);
+  // On part du minimum facturé (deux au Boho) : le groupe le plus courant, et le prix payé de toute façon.
+  const startParty = Math.min(Math.max(minParty, offer.minBilledPlaces), maxParty);
+  const [party, setParty] = useState(startParty);
   // Les places payées maintenant, comptées sur les places facturées : seul, on en paie deux au Boho.
-  const [places, setPlaces] = useState(bullePlacesFacturees(minParty, offer.minBilledPlaces));
+  const [places, setPlaces] = useState(bullePlacesFacturees(startParty, offer.minBilledPlaces));
   const [payingShare, setPayingShare] = useState(false);
   const [step, setStep] = useState<"choix" | "infos" | "paiement" | "rendue">("choix");
   const [refunded, setRefunded] = useState<NonNullable<PartResult["refunded"]> | null>(null);
@@ -175,7 +177,10 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
   const changeParty = (next: number) => {
     const nextBilled = bullePlacesFacturees(next, offer.minBilledPlaces);
     // Qui payait tout le groupe continue de le faire.
-    setPlaces((current) => (current === billed ? nextBilled : Math.min(current, nextBilled)));
+    // Seul, on paie toute la bulle : il n'y a pas de part à laisser aux amis.
+    const solo = next === 1;
+    if (solo) setPayingShare(false);
+    setPlaces((current) => (solo || current === billed ? nextBilled : Math.min(current, nextBilled)));
     setParty(next);
   };
 
@@ -433,19 +438,23 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
             />
           )}
         </div>
-        <button
-          type="button"
-          className="bo-link-button bo-link-button--start"
-          onClick={() => {
-            if (payingShare) setPlaces(billed);
-            setPayingShare(!payingShare);
-          }}
-        >
-          {payingShare ? "Je paie pour tout le groupe" : "Je ne paie que ma part"}
-        </button>
+        {party > 1 && (
+          <button
+            type="button"
+            className="bo-link-button bo-link-button--start"
+            onClick={() => {
+              if (payingShare) setPlaces(billed);
+              setPayingShare(!payingShare);
+            }}
+          >
+            {payingShare ? "Je paie pour tout le groupe" : "Je ne paie que ma part"}
+          </button>
+        )}
         <p className="bo-muted bo-small">
           {places >= billed
-            ? `Vous payez pour tout le groupe : la bulle est réservée dès le paiement.`
+            ? party > 1
+              ? `Vous payez pour tout le groupe : la bulle est réservée dès le paiement.`
+              : `Vous payez la bulle : elle est réservée dès le paiement.`
             : places >= confirmPlaces
               ? `La bulle est réservée dès le paiement ; vos amis paient les ${billed - places} autres places par un lien, ou à l'accueil, avant de commander.`
               : `Votre bulle n'est pas encore réservée après ce paiement : elle le sera dès que ${confirmPlaces} places sont payées. Vos amis paient leur place par un lien.`}

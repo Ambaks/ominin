@@ -28,7 +28,7 @@ export default async function BullePartagePage({ params }: PageProps<"/menu/w/[s
     <div className="bo-bulle-page bo-stack-sm">
       <TicketWatch live={live} />
       <p className="bo-muted-night bo-text-center">{ticket.organiser} vous invite dans sa bulle.</p>
-      <Ticket ticket={ticket} />
+      <Ticket ticket={ticket} guest />
       {open ? (
         <Contribute
           target={{ shareToken }}

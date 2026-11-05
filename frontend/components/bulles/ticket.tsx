@@ -28,12 +28,14 @@ export function ticketState(ticket: BulleTicket) {
   return { ended, left, leftCents, live: open && !ended };
 }
 
-function headline(ticket: BulleTicket, missing: number) {
+function headline(ticket: BulleTicket, missing: number, guest: boolean) {
   switch (ticket.status) {
     case "en_attente":
       return {
         pill: "Pas encore réservée",
-        title: "Votre bulle n'est pas encore réservée",
+        title: guest
+          ? `La bulle de ${ticket.organiser} n'est pas encore réservée`
+          : "Votre bulle n'est pas encore réservée",
         text: `Elle le sera dès que ${ticket.confirmPlaces} places sont payées : encore ${missing}. Si un autre groupe la confirme avant, vous passez sur une bulle libre du créneau ; s'il n'en reste plus, chacun est remboursé.`,
       };
     case "confirmee":
@@ -58,10 +60,17 @@ function headline(ticket: BulleTicket, missing: number) {
   }
 }
 
-export function Ticket({ ticket }: { ticket: BulleTicket }) {
+export function Ticket({
+  ticket,
+  guest = false,
+}: {
+  ticket: BulleTicket;
+  /** Lu par un ami, depuis le lien de partage : la bulle est celle de l'organisateur. */
+  guest?: boolean;
+}) {
   const missing = bulleManquePourConfirmer(ticket, ticket.confirmPlaces);
   const { cents: leftCents } = bulleReste(ticket);
-  const copy = headline(ticket, missing);
+  const copy = headline(ticket, missing, guest);
   const confirmed = ticket.status === "confirmee" || ticket.status === "arrivee";
   // Seul au Boho, on paie deux places : les sièges disent les places facturées.
   const seats = bullePlacesFacturees(ticket.partySize, ticket.minBilledPlaces);
