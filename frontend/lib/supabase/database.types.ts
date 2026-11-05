@@ -1693,6 +1693,62 @@ export type Database = {
           },
         ]
       }
+      club_journal: {
+        Row: {
+          acteur: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_id: string | null
+          acteur_nom: string | null
+          acteur_poste: string | null
+          action: Database["public"]["Enums"]["club_journal_action"]
+          booking_id: string | null
+          cible: string | null
+          created_at: string
+          details: Json
+          etablissement_id: string
+          event_id: string | null
+          id: number
+          membre_id: string | null
+        }
+        Insert: {
+          acteur: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_id?: string | null
+          acteur_nom?: string | null
+          acteur_poste?: string | null
+          action: Database["public"]["Enums"]["club_journal_action"]
+          booking_id?: string | null
+          cible?: string | null
+          created_at?: string
+          details?: Json
+          etablissement_id: string
+          event_id?: string | null
+          id?: number
+          membre_id?: string | null
+        }
+        Update: {
+          acteur?: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_id?: string | null
+          acteur_nom?: string | null
+          acteur_poste?: string | null
+          action?: Database["public"]["Enums"]["club_journal_action"]
+          booking_id?: string | null
+          cible?: string | null
+          created_at?: string
+          details?: Json
+          etablissement_id?: string
+          event_id?: string | null
+          id?: number
+          membre_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "club_journal_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       club_payments: {
         Row: {
           amount_cents: number
@@ -8096,6 +8152,31 @@ export type Database = {
         Returns: number
       }
       club_guest_list_restant: { Args: { p_event: string }; Returns: number }
+      club_journal_page: {
+        Args: {
+          p_etablissement: string
+          p_event: string | null
+          p_limit: number
+          p_offset: number
+          p_search: string
+        }
+        Returns: {
+          acteur: Database["public"]["Enums"]["club_journal_acteur"]
+          acteur_nom: string
+          acteur_poste: string
+          action: Database["public"]["Enums"]["club_journal_action"]
+          booking_id: string
+          cible: string
+          created_at: string
+          details: Json
+          event_id: string
+          event_starts_at: string
+          event_title: string
+          id: number
+          membre_id: string
+          total_count: number
+        }[]
+      }
       club_liberer_attentes: {
         Args: { p_event: string; p_table: string }
         Returns: undefined
@@ -9297,6 +9378,26 @@ export type Database = {
         | "partie"
         | "annulee"
         | "remboursee"
+      club_journal_acteur: "membre" | "client" | "systeme"
+      club_journal_action:
+        | "reservation"
+        | "modification"
+        | "statut"
+        | "placement"
+        | "annulation"
+        | "remboursement"
+        | "encaissement"
+        | "paiement"
+        | "paiement_rembourse"
+        | "paiement_retabli"
+        | "soiree"
+        | "soiree_modifiee"
+        | "publication"
+        | "depublication"
+        | "soiree_annulee"
+        | "prix"
+        | "poste"
+        | "droits"
       club_payment_method: "en_ligne" | "sur_place"
       club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
       club_role: "accueil" | "caissier" | "chef_de_rang"
@@ -9606,6 +9707,27 @@ export const Constants = {
         "partie",
         "annulee",
         "remboursee",
+      ],
+      club_journal_acteur: ["membre", "client", "systeme"],
+      club_journal_action: [
+        "reservation",
+        "modification",
+        "statut",
+        "placement",
+        "annulation",
+        "remboursement",
+        "encaissement",
+        "paiement",
+        "paiement_rembourse",
+        "paiement_retabli",
+        "soiree",
+        "soiree_modifiee",
+        "publication",
+        "depublication",
+        "soiree_annulee",
+        "prix",
+        "poste",
+        "droits",
       ],
       club_payment_method: ["en_ligne", "sur_place"],
       club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],

@@ -27,6 +27,8 @@ export async function POST(request: Request) {
   }
   const guard = await requireClubGerant(target.etablissement_id);
   if (!guard.ok) return NextResponse.json({ error: guard.error }, { status: guard.status });
+  // Le journal nomme le gérant qui rembourse.
+  const asGerant = createAdminClient(guard.userId);
 
   if (paymentId) {
     if ("organiser" in target && target.organiser) {
@@ -35,13 +37,13 @@ export async function POST(request: Request) {
         { status: 409 }
       );
     }
-    const refunded = await refundPayment(admin, getStripe(), paymentId, { notify: true });
+    const refunded = await refundPayment(asGerant, getStripe(), paymentId, { notify: true });
     if (!refunded) {
       return NextResponse.json({ error: "Cette part n'est plus à rembourser." }, { status: 409 });
     }
     return NextResponse.json({ outcome: "refunded" });
   }
-  const outcome = await refundBooking(admin, getStripe(), bookingId!, { notify: true });
+  const outcome = await refundBooking(asGerant, getStripe(), bookingId!, { notify: true });
   if (outcome === "not_refundable") {
     return NextResponse.json({ error: "Cette réservation n'est plus active." }, { status: 409 });
   }

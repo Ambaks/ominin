@@ -32,6 +32,7 @@ import {
 } from "@/lib/gestion/club-selectors";
 import { CLUB_LIMITS } from "@/lib/gestion/constants";
 import { describeError } from "@/lib/gestion/errors";
+import { BookingHistory } from "./journal";
 import { PayerRing } from "./payer-ring";
 import { StatusChip } from "./night-plan";
 
@@ -518,6 +519,13 @@ function BookingCard({
               </GlassButton>
             )}
           </section>
+        )}
+
+        {gerant && (
+          <BookingHistory
+            bookingId={booking.id}
+            version={JSON.stringify([booking, payments.map((payment) => payment.status)])}
+          />
         )}
       </div>
 

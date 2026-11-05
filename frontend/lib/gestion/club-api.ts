@@ -1,4 +1,5 @@
 import type { ClubDroits } from "@/lib/club/droits";
+import { rowToJournal, type JournalEntry } from "@/lib/club/journal";
 import { rowToBooking, rowToEvent } from "@/lib/club/mappers";
 import type { Rapport, RapportSoiree, RapportTotaux } from "@/lib/club/rapport";
 import type { BookingSource, ClubBooking, ClubEvent, ClubGuest, ClubPayment } from "@/lib/club/types";
@@ -383,4 +384,42 @@ export async function fetchRapports(search: string, limit: number, offset: numbe
     })),
     total: rows[0]?.total_count ?? 0,
   };
+}
+
+// ---------------------------------------------------------------------------
+// Journal des actions (direction)
+
+/** Le journal du club, le plus récent d'abord, page par page : une soirée, ou toutes (null). */
+export async function fetchJournal(
+  eventId: string | null,
+  search: string,
+  limit: number,
+  offset: number
+): Promise<ListPage<JournalEntry>> {
+  const rows = must(
+    await createClient().rpc("club_journal_page", {
+      p_etablissement: getClub().etablissementId,
+      p_event: eventId,
+      p_search: search,
+      p_limit: limit,
+      p_offset: offset,
+    })
+  );
+  return { rows: rows.map(rowToJournal), total: rows[0]?.total_count ?? 0 };
+}
+
+/**
+ * L'historique d'une réservation, dans l'ordre. Pas de pages : une
+ * réservation ne vit qu'une soirée, son historique tient sur un écran.
+ */
+export async function fetchBookingJournal(bookingId: string): Promise<JournalEntry[]> {
+  const rows = must(
+    await createClient()
+      .from("club_journal")
+      .select("*")
+      .eq("booking_id", bookingId)
+      .order("created_at")
+      .order("id")
+  );
+  return rows.map(rowToJournal);
 }

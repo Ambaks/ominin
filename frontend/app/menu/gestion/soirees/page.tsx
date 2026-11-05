@@ -8,6 +8,7 @@ import {
   ClubLocked,
   ClubSkeleton,
 } from "@/components/gestion/soirees/club-states";
+import { JournalList } from "@/components/gestion/soirees/journal";
 import { RapportsHistorique } from "@/components/gestion/soirees/rapports-historique";
 import { ZonesSettings } from "@/components/gestion/soirees/zones-settings";
 import {
@@ -36,7 +37,7 @@ import { useNow } from "@/lib/gestion/use-now";
  * c'est là que l'œil se pose.
  */
 
-type Tab = "a_venir" | "passees" | "rapports" | "salle";
+type Tab = "a_venir" | "passees" | "rapports" | "journal" | "salle";
 
 /** Au-delà de ce rang, les cartes entrent ensemble : trente soirées passées n'attendent pas. */
 const MAX_RISE = 6;
@@ -213,7 +214,7 @@ export default function SoireesPage() {
   const past = events.filter((event) => isPast(event, now)).reverse();
   const shown = tab === "passees" ? past : upcoming;
   const nextId = upcoming.find((event) => !event.cancelledAt)?.id;
-  useClubNights(tab === "salle" || tab === "rapports" ? [] : shown.map((event) => event.id));
+  useClubNights(tab === "salle" || tab === "rapports" || tab === "journal" ? [] : shown.map((event) => event.id));
 
   if (!state) return null;
   if (!hasFeature("soirees")) return <ClubLocked />;
@@ -226,6 +227,7 @@ export default function SoireesPage() {
     ...(gerant
       ? [
           { value: "rapports" as const, label: "Rapports" },
+          { value: "journal" as const, label: "Journal" },
           { value: "salle" as const, label: "Salle et prix" },
         ]
       : []),
@@ -273,6 +275,8 @@ export default function SoireesPage() {
 
       {tab === "rapports" ? (
         <RapportsHistorique />
+      ) : tab === "journal" ? (
+        <JournalList />
       ) : tab === "salle" ? (
         <div>
           <ZonesSettings
