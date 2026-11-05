@@ -18,7 +18,9 @@ export type TableState =
   // Suivi du soir
   | "payee"
   | "arrivee"
+  | "assise"
   | "attente"
+  | "liberee"
   | "gardee";
 
 const TABLE = 34;

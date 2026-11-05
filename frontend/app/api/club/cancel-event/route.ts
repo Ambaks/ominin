@@ -49,7 +49,7 @@ export async function POST(request: Request) {
       .from("club_bookings")
       .select("id")
       .eq("event_id", eventId)
-      .or(`status.in.(payee,arrivee),and(status.eq.en_attente,or(hold_expires_at.is.null,hold_expires_at.gt.${now}))`),
+      .or(`status.in.(payee,arrivee,assise),and(status.eq.en_attente,or(hold_expires_at.is.null,hold_expires_at.gt.${now}))`),
     admin
       .from("club_payments")
       .select("booking_id, club_bookings!inner(event_id)")

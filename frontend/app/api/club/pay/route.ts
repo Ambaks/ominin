@@ -24,7 +24,7 @@ export async function POST(request: Request) {
   const { data: payment } = await admin
     .from("club_payments")
     .select(
-      "id, etablissement_id, method, status, total_cents, fee_cents, hold_expires_at, stripe_payment_intent_id, organiser, club_bookings(id, club_tables(label), club_events(title)), etablissements(name, payment_provider, online_payment)"
+      "id, etablissement_id, method, status, total_cents, fee_cents, hold_expires_at, stripe_payment_intent_id, organiser, club_bookings(id, club_zones(name), club_events(title)), etablissements(name, payment_provider, online_payment)"
     )
     .eq("id", paymentId)
     .maybeSingle();
@@ -98,7 +98,7 @@ export async function POST(request: Request) {
           amount: payment.total_cents,
           currency: "eur",
           payment_method_types: ["card"],
-          description: `${payment.organiser ? "Table" : "Part de la table"} ${booking?.club_tables?.label ?? ""} — ${booking?.club_events?.title ?? ""} — ${etab.name}`,
+          description: `${payment.organiser ? "Table" : "Part de la table"} ${booking?.club_zones?.name ?? ""} — ${booking?.club_events?.title ?? ""} — ${etab.name}`,
           metadata: { payment_id: payment.id, booking_id: booking?.id ?? "" },
           ...(payment.fee_cents > 0 ? { application_fee_amount: payment.fee_cents } : {}),
         },

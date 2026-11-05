@@ -1379,6 +1379,7 @@ export type Database = {
           fee_cents: number
           hold_expires_at: string | null
           id: string
+          left_at: string | null
           name: string
           note: string | null
           paid_at: string | null
@@ -1387,13 +1388,15 @@ export type Database = {
           phone: string | null
           price_cents: number
           refunded_at: string | null
+          seated_at: string | null
           share_token: string | null
           shared: boolean
           source: Database["public"]["Enums"]["club_booking_source"]
           status: Database["public"]["Enums"]["club_booking_status"]
-          table_id: string
+          table_id: string | null
           token: string
           total_cents: number
+          zone_id: string
         }
         Insert: {
           arrived_at?: string | null
@@ -1405,6 +1408,7 @@ export type Database = {
           fee_cents?: number
           hold_expires_at?: string | null
           id?: string
+          left_at?: string | null
           name: string
           note?: string | null
           paid_at?: string | null
@@ -1413,13 +1417,15 @@ export type Database = {
           phone?: string | null
           price_cents: number
           refunded_at?: string | null
+          seated_at?: string | null
           share_token?: string | null
           shared?: boolean
           source: Database["public"]["Enums"]["club_booking_source"]
           status?: Database["public"]["Enums"]["club_booking_status"]
-          table_id: string
+          table_id?: string | null
           token?: string
           total_cents: number
+          zone_id: string
         }
         Update: {
           arrived_at?: string | null
@@ -1431,6 +1437,7 @@ export type Database = {
           fee_cents?: number
           hold_expires_at?: string | null
           id?: string
+          left_at?: string | null
           name?: string
           note?: string | null
           paid_at?: string | null
@@ -1439,13 +1446,15 @@ export type Database = {
           phone?: string | null
           price_cents?: number
           refunded_at?: string | null
+          seated_at?: string | null
           share_token?: string | null
           shared?: boolean
           source?: Database["public"]["Enums"]["club_booking_source"]
           status?: Database["public"]["Enums"]["club_booking_status"]
-          table_id?: string
+          table_id?: string | null
           token?: string
           total_cents?: number
+          zone_id?: string
         }
         Relationships: [
           {
@@ -1467,6 +1476,13 @@ export type Database = {
             columns: ["table_id"]
             isOneToOne: false
             referencedRelation: "club_tables"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "club_bookings_zone_id_fkey"
+            columns: ["zone_id"]
+            isOneToOne: false
+            referencedRelation: "club_zones"
             referencedColumns: ["id"]
           },
         ]
@@ -2986,6 +3002,7 @@ export type Database = {
           bar_pickup: boolean
           category_layout: string
           club_dress_code: string | null
+          club_droits: Json
           club_min_age: number
           club_refused: string | null
           collect_fee_percent: number | null
@@ -3027,6 +3044,7 @@ export type Database = {
           bar_pickup?: boolean
           category_layout?: string
           club_dress_code?: string | null
+          club_droits?: Json
           club_min_age?: number
           club_refused?: string | null
           collect_fee_percent?: number | null
@@ -3068,6 +3086,7 @@ export type Database = {
           bar_pickup?: boolean
           category_layout?: string
           club_dress_code?: string | null
+          club_droits?: Json
           club_min_age?: number
           club_refused?: string | null
           collect_fee_percent?: number | null
@@ -3457,6 +3476,7 @@ export type Database = {
       }
       invitations: {
         Row: {
+          club_role: Database["public"]["Enums"]["club_role"] | null
           created_at: string
           email: string
           etablissement_id: string
@@ -3465,6 +3485,7 @@ export type Database = {
           token: string
         }
         Insert: {
+          club_role?: Database["public"]["Enums"]["club_role"] | null
           created_at?: string
           email: string
           etablissement_id: string
@@ -3473,6 +3494,7 @@ export type Database = {
           token?: string
         }
         Update: {
+          club_role?: Database["public"]["Enums"]["club_role"] | null
           created_at?: string
           email?: string
           etablissement_id?: string
@@ -3900,6 +3922,7 @@ export type Database = {
       }
       memberships: {
         Row: {
+          club_role: Database["public"]["Enums"]["club_role"] | null
           created_at: string
           display_name: string | null
           email: string
@@ -3908,6 +3931,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          club_role?: Database["public"]["Enums"]["club_role"] | null
           created_at?: string
           display_name?: string | null
           email: string
@@ -3916,6 +3940,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          club_role?: Database["public"]["Enums"]["club_role"] | null
           created_at?: string
           display_name?: string | null
           email?: string
@@ -7907,10 +7932,7 @@ export type Database = {
         Args: { p_booking: string }
         Returns: Database["public"]["Enums"]["club_booking_status"]
       }
-      club_deplacer_reservation: {
-        Args: { p_booking: string; p_table: string }
-        Returns: undefined
-      }
+      club_encaisser: { Args: { p_booking: string }; Returns: undefined }
       club_encaisser_reste: { Args: { p_booking: string }; Returns: undefined }
       club_frais: {
         Args: { p_amount: number; p_etablissement: string }
@@ -7919,10 +7941,6 @@ export type Database = {
       club_guest_list_restant: { Args: { p_event: string }; Returns: number }
       club_liberer_attentes: {
         Args: { p_event: string; p_table: string }
-        Returns: undefined
-      }
-      club_marquer_arrivee: {
-        Args: { p_arrived: boolean; p_booking: string; p_paid?: boolean }
         Returns: undefined
       }
       club_marquer_invite: {
@@ -7945,6 +7963,14 @@ export type Database = {
           remaining_cents: number
           seats_left: number
         }[]
+      }
+      club_peut: {
+        Args: { p_droit: string; p_etablissement: string }
+        Returns: boolean
+      }
+      club_placer_reservation: {
+        Args: { p_booking: string; p_table: string }
+        Returns: undefined
       }
       club_prix_table: {
         Args: { p_event: string; p_table: string }
@@ -7981,6 +8007,18 @@ export type Database = {
       club_retablir_paiement: {
         Args: { p_payment: string }
         Returns: undefined
+      }
+      club_statut_reservation: {
+        Args: {
+          p_booking: string
+          p_paid?: boolean
+          p_status: Database["public"]["Enums"]["club_booking_status"]
+        }
+        Returns: undefined
+      }
+      club_zone_prises: {
+        Args: { p_event: string; p_zone: string }
+        Returns: number
       }
       collect_full_slots: {
         Args: { p_from: string; p_slug: string; p_to: string }
@@ -8319,7 +8357,8 @@ export type Database = {
           p_party: number
           p_phone: string
           p_source: Database["public"]["Enums"]["club_booking_source"]
-          p_table: string
+          p_table: string | null
+          p_zone: string | null
         }
         Returns: {
           arrived_at: string | null
@@ -8331,6 +8370,7 @@ export type Database = {
           fee_cents: number
           hold_expires_at: string | null
           id: string
+          left_at: string | null
           name: string
           note: string | null
           paid_at: string | null
@@ -8339,13 +8379,15 @@ export type Database = {
           phone: string | null
           price_cents: number
           refunded_at: string | null
+          seated_at: string | null
           share_token: string | null
           shared: boolean
           source: Database["public"]["Enums"]["club_booking_source"]
           status: Database["public"]["Enums"]["club_booking_status"]
-          table_id: string
+          table_id: string | null
           token: string
           total_cents: number
+          zone_id: string
         }
         SetofOptions: {
           from: "*"
@@ -9046,10 +9088,13 @@ export type Database = {
         | "en_attente"
         | "payee"
         | "arrivee"
+        | "assise"
+        | "partie"
         | "annulee"
         | "remboursee"
       club_payment_method: "en_ligne" | "sur_place"
       club_payment_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      club_role: "accueil" | "caissier" | "chef_de_rang"
       crm_activity_type:
         | "note"
         | "call"
@@ -9351,11 +9396,14 @@ export const Constants = {
         "en_attente",
         "payee",
         "arrivee",
+        "assise",
+        "partie",
         "annulee",
         "remboursee",
       ],
       club_payment_method: ["en_ligne", "sur_place"],
       club_payment_status: ["en_attente", "payee", "remboursee", "annulee"],
+      club_role: ["accueil", "caissier", "chef_de_rang"],
       crm_activity_type: [
         "note",
         "call",
