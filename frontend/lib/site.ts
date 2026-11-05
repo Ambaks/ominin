@@ -96,6 +96,8 @@ const hotelsHost = process.env.NEXT_PUBLIC_HOTELS_HOST;
 export const hotelsSiteUrl = hotelsHost
   ? `${hotelsHost.includes("localhost") ? "http" : "https"}://${hotelsHost}`
   : `${siteUrl}/hotels`;
+/** Préfixe des liens internes : rien sur le host hôtels, /hotels sur le domaine principal. */
+export const hotelsPrefix = hotelsHost ? "" : "/hotels";
 
 /*
  * Espace des commerciaux indépendants. Host absent ⇒ servi sur
