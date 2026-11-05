@@ -19,9 +19,10 @@ export type BulleReglages = Tables["bulle_reglages"]["Row"];
 export type Bulle = Tables["bulles"]["Row"];
 export type BulleCreneau = Tables["bulle_creneaux"]["Row"];
 export type BulleSource = Database["public"]["Enums"]["bulle_reservation_source"];
+export type BulleTender = Database["public"]["Enums"]["bulle_part_tender"];
 
 export type BulleReservation = Tables["bulle_reservations"]["Row"] & {
-  bulle_parts: Pick<Tables["bulle_parts"]["Row"], "id" | "name" | "places" | "amount_cents" | "method" | "status" | "organiser">[];
+  bulle_parts: Pick<Tables["bulle_parts"]["Row"], "id" | "name" | "places" | "amount_cents" | "method" | "tender" | "status" | "organiser">[];
 };
 
 export type BulleSetup = { reglages: BulleReglages | null; bulles: Bulle[]; creneaux: BulleCreneau[] };
@@ -56,7 +57,7 @@ async function loadDay(etablissementId: string, date: string, dayEndHour: number
   return unwrap(
     await createClient()
       .from("bulle_reservations")
-      .select("*, bulle_parts(id, name, places, amount_cents, method, status, organiser)")
+      .select("*, bulle_parts(id, name, places, amount_cents, method, tender, status, organiser)")
       .eq("etablissement_id", etablissementId)
       .gte("starts_at", from)
       .lt("starts_at", to)
@@ -165,18 +166,28 @@ export function useBulleDay(etablissementId: string | undefined, date: string, d
   return { reservations: day?.key === key ? day.reservations : null, upcoming, error, refresh };
 }
 
-export async function markArrival(reservationId: string, arrived: boolean, paid: boolean) {
+export async function markArrival(reservationId: string, arrived: boolean, tender?: BulleTender) {
   unwrap(
     await createClient().rpc("bulle_marquer_arrivee", {
       p_reservation: reservationId,
       p_arrived: arrived,
-      p_paid: paid,
+      p_tender: tender,
     })
   );
 }
 
+/** Le gérant change le nombre de personnes ; le prix suit la nouvelle taille (bulle_changer_taille). */
+export async function changeSize(reservationId: string, partySize: number) {
+  unwrap(await createClient().rpc("bulle_changer_taille", { p_reservation: reservationId, p_party: partySize }));
+}
+
 export async function cancelReservation(reservationId: string) {
   unwrap(await createClient().rpc("bulle_annuler_reservation", { p_reservation: reservationId }));
+}
+
+/** L'accueil ouvre (ou referme) la table d'une bulle sans réservation ; la fin vient des créneaux (ouvrir_table_bulle). */
+export async function openTable(bulleId: string, open: boolean) {
+  unwrap(await createClient().rpc("ouvrir_table_bulle", { p_bulle: bulleId, p_ouvrir: open }));
 }
 
 export type NewBulleReservation = {
@@ -187,6 +198,8 @@ export type NewBulleReservation = {
   partySize: number;
   source: Exclude<BulleSource, "en_ligne">;
   note: string;
+  /** Réglée tout de suite, de cette façon ; absente, elle se paiera plus tard. */
+  tender?: BulleTender;
 };
 
 export async function createReservation(input: NewBulleReservation) {
@@ -199,6 +212,7 @@ export async function createReservation(input: NewBulleReservation) {
       p_party: input.partySize,
       p_source: input.source,
       p_note: input.note,
+      p_tender: input.tender,
     })
   );
 }
@@ -209,12 +223,21 @@ export async function createReservation(input: NewBulleReservation) {
  * serveur, sans compte).
  */
 export type BulleActions = {
-  markArrival: (reservationId: string, arrived: boolean, paid: boolean) => Promise<void>;
+  markArrival: (reservationId: string, arrived: boolean, tender?: BulleTender) => Promise<void>;
   cancelReservation: (reservationId: string) => Promise<void>;
   createReservation: (input: NewBulleReservation) => Promise<void>;
+  openTable: (bulleId: string, open: boolean) => Promise<void>;
+  /** Absent sur la démonstration : sans compte, personne n'y est gérant. */
+  changeSize?: (reservationId: string, partySize: number) => Promise<void>;
 };
 
-export const BulleActionsContext = createContext<BulleActions>({ markArrival, cancelReservation, createReservation });
+export const BulleActionsContext = createContext<BulleActions>({
+  markArrival,
+  cancelReservation,
+  createReservation,
+  openTable,
+  changeSize,
+});
 
 export const useBulleActions = () => useContext(BulleActionsContext);
 

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
-import { Field, inputClass } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 import { acceptanceStatement } from "@/lib/commercial/record";
 import type { CommercialIdentity } from "@/lib/legal/commercial";
 
@@ -102,7 +102,7 @@ export function SignForm({
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-12">
-      <section className="flex flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5 sm:p-6">
+      <section className="flex flex-col gap-4 g-plate p-5 sm:p-6">
         <div>
           <h2 className="font-display text-lg font-medium">Votre identité</h2>
           <p className="mt-1 text-sm text-muted">
@@ -132,14 +132,14 @@ export function SignForm({
                   title={field.title}
                   type={field.type}
                   readOnly={busy}
-                  className={inputClass}
+                  className="g-input"
                 />
               </Field>
             </div>
           ))}
           <div className="sm:col-span-2">
             <Field label="E-mail" hint="L’adresse de votre invitation.">
-              <input value={email} readOnly disabled className={inputClass} />
+              <input value={email} readOnly disabled className="g-input" />
             </Field>
           </div>
         </div>
@@ -151,7 +151,7 @@ export function SignForm({
 
       <section
         id={anchor}
-        className="flex scroll-mt-8 flex-col gap-4 rounded-2xl border border-hairline bg-surface p-5 sm:p-6 print:hidden"
+        className="flex scroll-mt-8 flex-col gap-4 g-plate p-5 sm:p-6 print:hidden"
       >
         <label className="flex cursor-pointer items-start gap-2.5 text-sm leading-relaxed text-muted">
           <input
@@ -172,7 +172,7 @@ export function SignForm({
           type="submit"
           disabled={busy || !accepted}
           aria-busy={busy}
-          className="ember-gradient self-start rounded-full px-6 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+          className="g-btn g-btn-primary g-press self-start"
         >
           {busy ? "Signature en cours…" : "Signer le contrat"}
         </button>

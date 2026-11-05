@@ -8,13 +8,15 @@ import type { Database } from "@/lib/supabase/database.types";
 
 /*
  * La gestion des bulles de la démonstration (/demo/boho/gestion), sans
- * compte : le serveur lit le soir et fait les gestes de l'accueil avec la clé
+ * compte : le serveur lit le soir et fait les gestes de l'accueil (dont ouvrir
+ * la table d'une bulle) avec la clé
  * de service, sur l'établissement de démonstration seulement — la base
  * refuse ces gestes partout ailleurs (bulle_demo_service, 20261027000002).
  */
 
 type Admin = ReturnType<typeof createAdminClient>;
 type Source = Exclude<Database["public"]["Enums"]["bulle_reservation_source"], "en_ligne">;
+type Tender = Database["public"]["Enums"]["bulle_part_tender"];
 
 async function demoEtablissement(admin: Admin) {
   const { data } = await admin
@@ -44,7 +46,7 @@ export async function GET(request: Request) {
     admin.from("tables").select("id, number").eq("etablissement_id", etab.id).order("number"),
     admin
       .from("bulle_reservations")
-      .select("*, bulle_parts(id, name, places, amount_cents, method, status, organiser)")
+      .select("*, bulle_parts(id, name, places, amount_cents, method, tender, status, organiser)")
       .eq("etablissement_id", etab.id)
       .gte("starts_at", parisInstant(date, dayEndHour * 60).toISOString())
       .lt("starts_at", parisInstant(addDays(date, 1), dayEndHour * 60).toISOString())
@@ -69,8 +71,9 @@ export async function POST(request: Request) {
   const etab = await demoEtablissement(admin);
   if (!etab || !body) return NextResponse.json({ error: "Démonstration introuvable." }, { status: 404 });
 
+  const tender: Tender | undefined = body.tender === "carte" || body.tender === "especes" ? body.tender : undefined;
   let result: { error: { code?: string; message: string } | null };
-  if (body.action === "creer") {
+  if (body.action === "creer" || body.action === "table") {
     const { data: bulle } = await admin
       .from("bulles")
       .select("id")
@@ -78,15 +81,19 @@ export async function POST(request: Request) {
       .eq("etablissement_id", etab.id)
       .maybeSingle();
     if (!bulle) return NextResponse.json({ error: "Bulle introuvable." }, { status: 404 });
-    result = await admin.rpc("creer_reservation_bulle", {
-      p_bulle: bulle.id,
-      p_starts_at: String(body.startsAt),
-      p_name: String(body.name ?? ""),
-      p_phone: String(body.phone ?? ""),
-      p_party: Number(body.partySize),
-      p_source: (body.source === "sur_place" ? "sur_place" : "telephone") satisfies Source,
-      p_note: String(body.note ?? ""),
-    });
+    result =
+      body.action === "table"
+        ? await admin.rpc("ouvrir_table_bulle", { p_bulle: bulle.id, p_ouvrir: body.open === true })
+        : await admin.rpc("creer_reservation_bulle", {
+            p_bulle: bulle.id,
+            p_starts_at: String(body.startsAt),
+            p_name: String(body.name ?? ""),
+            p_phone: String(body.phone ?? ""),
+            p_party: Number(body.partySize),
+            p_source: (body.source === "sur_place" ? "sur_place" : "telephone") satisfies Source,
+            p_note: String(body.note ?? ""),
+            p_tender: tender,
+          });
   } else {
     const { data: reservation } = await admin
       .from("bulle_reservations")
@@ -100,7 +107,7 @@ export async function POST(request: Request) {
         ? await admin.rpc("bulle_marquer_arrivee", {
             p_reservation: reservation.id,
             p_arrived: body.arrived === true,
-            p_paid: body.paid === true,
+            p_tender: tender,
           })
         : body.action === "annuler"
           ? await admin.rpc("bulle_annuler_reservation", { p_reservation: reservation.id })

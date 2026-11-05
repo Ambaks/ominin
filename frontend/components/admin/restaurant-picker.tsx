@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { inputClass } from "@/components/ui/field";
 import { emptyFilters } from "@/lib/admin/filters";
 import { fetchLeadsPage } from "@/lib/admin/leads-page";
 import { LIST_SEARCH_DEBOUNCE_MS } from "@/lib/gestion/constants";
@@ -97,7 +96,7 @@ export function RestaurantPicker({
           if (event.key === "Escape") setOpen(false);
         }}
         placeholder="Chercher un restaurant…"
-        className={inputClass}
+        className="g-input"
       />
       {open && suggestions.length > 0 && (
         <ul className="absolute inset-x-0 top-full z-10 mt-1 max-h-56 overflow-y-auto rounded-xl border border-hairline bg-surface-raised py-1 shadow-lg">

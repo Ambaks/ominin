@@ -6,6 +6,7 @@ export interface PillTab {
   count?: number;
 }
 
+/** Onglets en pilules du kit : pleine pour l'actif, filet pour les autres. */
 export function PillTabs({
   tabs,
   activeId,
@@ -28,18 +29,14 @@ export function PillTabs({
             type="button"
             aria-pressed={active}
             onClick={() => onSelect(tab.id)}
-            className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
-              active
-                ? "ember-gradient text-background shadow-[0_0_18px_rgba(226,118,75,0.35)]"
-                : "border border-hairline text-muted hover:border-ember-2/40 hover:text-foreground"
-            }`}
+            className={`g-btn g-press shrink-0 ${active ? "g-btn-primary" : "g-btn-secondary"}`}
           >
             {tab.label}
             {/* Pastille pleine, aux couleurs du texte de la page : lisible
                 sur le dégradé de l'onglet actif, en sombre comme en clair. */}
             {tab.count !== undefined && tab.count > 0 && (
               <span
-                className={`ml-1.5 inline-block min-w-6 rounded-full px-1.5 py-0.5 text-center text-xs font-semibold tabular-nums ${
+                className={`inline-block min-w-6 rounded-full px-1.5 py-0.5 text-center text-g-meta font-semibold tabular-nums ${
                   active ? "bg-background text-foreground" : "bg-surface-raised text-muted"
                 }`}
               >

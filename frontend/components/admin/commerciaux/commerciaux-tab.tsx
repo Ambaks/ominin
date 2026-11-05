@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import {
   CONTRACT_END_LABELS,
@@ -19,7 +19,6 @@ import {
 import { formatEuros, fromDatetimeLocalValue } from "@/lib/admin/format";
 import { commercialSiteUrl } from "@/lib/site";
 import { CommercialSheet, contractLine } from "./commercial-sheet";
-import { CommonSettings } from "./reglages-communs";
 
 /** Commission estimée du mois en cours (même calcul que le relevé). */
 function MonthCommission({ commercialId }: { commercialId: string }) {
@@ -52,7 +51,7 @@ function EndContractModal({
     }
   };
   return (
-    <Modal
+    <Sheet
       title={`Fin de contrat · ${row.name ?? row.email}`}
       onClose={onClose}
       footer={
@@ -60,7 +59,7 @@ function EndContractModal({
           type="button"
           disabled={!when}
           onClick={() => void submit()}
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-50"
+          className="g-btn g-btn-primary g-press"
         >
           Enregistrer
         </button>
@@ -68,10 +67,10 @@ function EndContractModal({
     >
       <div className="flex flex-col gap-4">
         <Field label="Date de fin" required>
-          <input type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} className={inputClass} />
+          <input type="datetime-local" value={when} onChange={(event) => setWhen(event.target.value)} className="g-input" />
         </Field>
         <Field label="Motif">
-          <select value={reason} onChange={(event) => setReason(event.target.value as EndReason)} className={inputClass}>
+          <select value={reason} onChange={(event) => setReason(event.target.value as EndReason)} className="g-input">
             {(Object.keys(CONTRACT_END_LABELS) as EndReason[]).map((key) => (
               <option key={key} value={key}>
                 {CONTRACT_END_LABELS[key]}
@@ -83,12 +82,12 @@ function EndContractModal({
           À cette date, ses réservations sont libérées et son espace se réduit à l’argent, aux relevés et au contrat.
         </p>
       </div>
-    </Modal>
+    </Sheet>
   );
 }
 
 /*
- * Commerciaux invités, ouverts chacun sur sa fiche, et les réglages communs.
+ * Commerciaux invités, ouverts chacun sur sa fiche, qui porte ses réglages.
  * L'invitation envoie le lien d'accès à l'espace, où le commercial lit et
  * signe son contrat.
  */
@@ -147,7 +146,7 @@ export function CommerciauxTab() {
       </p>
       <form
         onSubmit={onInvite}
-        className="flex flex-col gap-3 rounded-2xl border border-hairline bg-surface p-4 sm:flex-row sm:items-end"
+        className="flex flex-col gap-3 g-plate p-4 sm:flex-row sm:items-end"
       >
         <div className="flex-1">
           <Field label="E-mail du commercial" required>
@@ -158,14 +157,14 @@ export function CommerciauxTab() {
               required
               autoComplete="off"
               disabled={busy === "invite"}
-              className={inputClass}
+              className="g-input"
             />
           </Field>
         </div>
         <button
           type="submit"
           disabled={busy === "invite"}
-          className="ember-gradient rounded-full px-5 py-2.5 text-sm font-semibold text-background disabled:opacity-60"
+          className="g-btn g-btn-primary g-press"
         >
           {busy === "invite" ? "Envoi…" : "Inviter"}
         </button>
@@ -175,12 +174,11 @@ export function CommerciauxTab() {
         <EmptyState title="Chargement impossible" body={error} />
       ) : !rows || !settings ? (
         <div aria-busy className="flex flex-col gap-3">
-          <div className="shimmer h-20 rounded-2xl" />
-          <div className="shimmer h-20 rounded-2xl" />
+          <div className="g-shimmer h-20" />
+          <div className="g-shimmer h-20" />
         </div>
       ) : (
-        <>
-          {rows.length === 0 ? (
+        rows.length === 0 ? (
             <EmptyState title="Aucun commercial" body="Les commerciaux invités apparaissent ici, avec l'état de leur contrat." />
           ) : (
             <ul className="flex flex-col gap-3">
@@ -189,7 +187,7 @@ export function CommerciauxTab() {
                   <button
                     type="button"
                     onClick={() => setOpenId(row.id)}
-                    className="w-full rounded-2xl border border-hairline bg-surface p-4 text-left transition-colors hover:border-ember-2/40"
+                    className="w-full g-plate p-4 text-left transition-colors hover:border-ember-2/40"
                   >
                     <p className="truncate font-medium">{row.name ?? row.email}</p>
                     {row.name && <p className="truncate text-sm text-muted">{row.email}</p>}
@@ -197,7 +195,7 @@ export function CommerciauxTab() {
                       {contractLine(row)}
                     </p>
                     <p className="mt-1 text-xs text-muted">
-                      {(row.commissionPercent ?? settings.commission_percent).toLocaleString("fr-FR")} %
+                      {row.settings.commission_percent.toLocaleString("fr-FR")} %
                       {row.signed && (
                         <>
                           {" · "}
@@ -212,9 +210,7 @@ export function CommerciauxTab() {
                 </li>
               ))}
             </ul>
-          )}
-          <CommonSettings settings={settings} onSaved={load} />
-        </>
+          )
       )}
       {open && settings && rows && (
         <CommercialSheet

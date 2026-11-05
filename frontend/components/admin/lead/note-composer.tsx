@@ -1,7 +1,6 @@
 "use client";
 
 import { forwardRef, useState } from "react";
-import { inputClass } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 
@@ -37,14 +36,14 @@ export const NoteComposer = forwardRef<
         onChange={(event) => setNote(event.target.value)}
         rows={2}
         placeholder="Ajouter une note…"
-        className={`${inputClass} resize-none`}
+        className={`g-input resize-none`}
       />
       {note.trim() && (
         <button
           type="button"
           onClick={() => void submit()}
           disabled={busy}
-          className="ember-gradient self-end rounded-full px-4 py-2 text-sm font-semibold text-background disabled:opacity-60"
+          className="g-btn g-btn-primary g-press self-end"
         >
           Ajouter la note
         </button>

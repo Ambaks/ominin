@@ -1,9 +1,8 @@
 "use client";
 
+import { ConfirmSheet, Sheet } from "@/components/gestion/ui";
 import { useEffect, useState } from "react";
-import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import {
   ACCESS_KIND_LABELS,
@@ -26,7 +25,7 @@ import {
 import { formatDayTime } from "@/lib/admin/format";
 
 const OUTLINE_BUTTON =
-  "rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-50";
+  "g-btn g-btn-secondary g-press";
 
 interface Pending {
   title: string;
@@ -116,7 +115,7 @@ export function AccountPanel({
 
   return (
     <>
-      <Modal title={label} onClose={onClose}>
+      <Sheet title={label} onClose={onClose}>
         <div className="flex flex-col gap-6">
           <p className="text-xs text-muted">
             {account.email && account.phone ? `${account.phone} · ` : ""}
@@ -146,7 +145,7 @@ export function AccountPanel({
                   value={access.role}
                   disabled={busy || isSelf}
                   onChange={(event) => changeRole(access, event.target.value)}
-                  className={`${inputClass} w-auto`}
+                  className={`g-input w-auto!`}
                 >
                   {ROLE_OPTIONS[access.kind].map((option) => (
                     <option key={option.value} value={option.value}>
@@ -184,7 +183,7 @@ export function AccountPanel({
                     setNewScope(event.target.value);
                     setNewRole("");
                   }}
-                  className={inputClass}
+                  className="g-input"
                 >
                   <option value="">Choisir…</option>
                   {available.map((candidate) => (
@@ -199,7 +198,7 @@ export function AccountPanel({
                   <select
                     value={newRole}
                     onChange={(event) => setNewRole(event.target.value)}
-                    className={inputClass}
+                    className="g-input"
                   >
                     <option value="">Choisir…</option>
                     {ROLE_OPTIONS[scope.kind as RoleKind].map((option) => (
@@ -286,7 +285,7 @@ export function AccountPanel({
           <section className="flex flex-col gap-2">
             <h3 className="text-sm font-semibold">Journal</h3>
             {events === null ? (
-              <div aria-busy className="shimmer h-12 rounded-xl" />
+              <div aria-busy className="g-shimmer h-12" />
             ) : events.length === 0 ? (
               <p className="text-sm text-muted">Aucune action enregistrée.</p>
             ) : (
@@ -303,12 +302,12 @@ export function AccountPanel({
             )}
           </section>
         </div>
-      </Modal>
+      </Sheet>
 
       {pending && (
-        <ConfirmDialog
+        <ConfirmSheet
           title={pending.title}
-          message={pending.message}
+          text={pending.message}
           confirmLabel={pending.confirmLabel}
           destructive={pending.destructive}
           onClose={() => setPending(null)}

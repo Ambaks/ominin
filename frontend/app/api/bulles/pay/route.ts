@@ -2,8 +2,9 @@ import { NextResponse } from "next/server";
 import { raiseAlert } from "@/lib/admin/alerts";
 import { bulleCheckout } from "@/lib/bulles/server";
 import { settlePart } from "@/lib/bulles/settle";
-import { formatHours, formatNightShort } from "@/lib/club/format";
-import { DEFAULT_VAT_RATE } from "@/lib/gestion/constants";
+import { formatBulleNight } from "@/lib/bulles/format";
+import { formatHours } from "@/lib/club/format";
+import { DEFAULT_DAY_END_HOUR, DEFAULT_VAT_RATE } from "@/lib/gestion/constants";
 import { SQUARE_CURRENCY as CURRENCY } from "@/lib/square/config";
 import {
   capturedTender,
@@ -41,7 +42,7 @@ export async function POST(request: Request) {
   const { data: part } = await admin
     .from("bulle_parts")
     .select(
-      "id, etablissement_id, method, status, places, amount_cents, hold_expires_at, square_order_id, bulle_reservations(starts_at, ends_at, place_cents, bulles(name)), etablissements(name, platform_fee_percent, bulle_reglages(vat_rate))"
+      "id, etablissement_id, method, status, places, amount_cents, hold_expires_at, square_order_id, bulle_reservations(starts_at, ends_at, place_cents, bulles(name)), etablissements(name, platform_fee_percent, bulle_reglages(vat_rate), etablissement_settings(day_end_hour))"
     )
     .eq("id", partId)
     .maybeSingle();
@@ -83,8 +84,12 @@ export async function POST(request: Request) {
   const reservation = part.bulle_reservations;
   const etabName = part.etablissements?.name ?? "";
   const vatRate = part.etablissements?.bulle_reglages?.vat_rate ?? DEFAULT_VAT_RATE;
+  // Une part au prix plein se lit place par place ; un reste après un changement
+  // de taille, ou une part prise au tarif d'avant, d'un seul montant.
+  const perPlace =
+    reservation !== null && part.places > 0 && part.amount_cents === part.places * reservation.place_cents;
   const label = reservation
-    ? `${reservation.bulles?.name ?? "Bulle"} · ${formatNightShort(reservation.starts_at)} ${formatHours(reservation.starts_at, reservation.ends_at)}`
+    ? `${reservation.bulles?.name ?? "Bulle"} · ${formatBulleNight(reservation.starts_at, part.etablissements?.etablissement_settings?.day_end_hour ?? DEFAULT_DAY_END_HOUR, true)} ${formatHours(reservation.starts_at, reservation.ends_at)}`
     : "Bulle";
 
   try {
@@ -131,9 +136,9 @@ export async function POST(request: Request) {
             line_items: [
               {
                 name: label,
-                quantity: String(part.places),
+                quantity: perPlace ? String(part.places) : "1",
                 base_price_money: {
-                  amount: reservation?.place_cents ?? part.amount_cents / part.places,
+                  amount: perPlace && reservation ? reservation.place_cents : part.amount_cents,
                   currency: CURRENCY,
                 },
                 applied_taxes: [{ tax_uid: "tva" }],

@@ -5074,6 +5074,12 @@ html:not(.light) [data-menu-root]:not([class*="theme-"]) .order-ticket:not([data
   --dock-width: 39.5rem;
 }
 
+/* Une table de bulle fermée (components/bulles/table-gate) : la page de la
+   bulle remplace la carte, qui reste montée. */
+[data-menu-root]:has(> .bulle-gate) > :not(.bulle-gate) {
+  display: none;
+}
+
 .ticket-dock {
   padding-inline: 1.25rem;
 }
@@ -7991,6 +7997,25 @@ html:has([data-menu-root].theme-caffe-panis) body {
 .dish-mini .dish-action > span {
   padding: 0.125rem 0.5rem;
   font-size: 0.6875rem;
+}
+
+/* « Commande bientôt » (réglé dans l'admin) : « Bientôt »
+   sous le « + » grisé. */
+:is(.dish-action, .dish-sheet-add):has(> .order-soon) {
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3125rem;
+}
+
+:is(.dish-action, .dish-sheet-add) > span.order-soon {
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.5625rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  line-height: 1;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 /* La roue des catégories ne passe que sur la colonne de droite : à gauche,

@@ -24,6 +24,15 @@ export interface VisitInput {
   contact_email?: string;
 }
 
+/** Le contact d'un responsable absent, pour #inscriptions : seul salon où il part. */
+export function absentContactMessage(commercial: string, restaurant: string, address: string | null, visit: VisitInput): string {
+  return [
+    `📞 **${restaurant}** : contact récupéré par ${commercial}`,
+    ...(address ? [`Adresse : ${address}`] : []),
+    `Responsable : ${[visit.contact_name, visit.contact_phone, visit.contact_email].filter(Boolean).join(" · ")}`,
+  ].join("\n");
+}
+
 /** La phrase de #terrain : jamais de numéro ni de nom du gérant. */
 export function visitMessage(commercial: string, restaurant: string, outcome: VisitOutcome): string {
   return outcome === "absent"

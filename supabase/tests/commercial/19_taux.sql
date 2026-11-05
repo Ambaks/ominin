@@ -1,5 +1,5 @@
--- Contrat v3, art. 4.6 : le taux propre à chaque commercial. Relevé, jamais
--- baissé ; une hausse vaut pour les relevés à venir, pas pour ceux envoyés.
+-- Le taux propre à chaque commercial, réglé sur sa fiche : il peut monter ou
+-- baisser ; un changement vaut pour les relevés à venir, pas pour ceux envoyés.
 begin;
 \i /work/tests/fixtures.inc
 
@@ -16,7 +16,7 @@ insert into public.ominin_invoice_payments (etablissement_id, eligible_ht_cents,
   (:'e', 10000, now(), 'ce mois-ci');
 
 select (public.commercial_cfg()).commission_percent as base \gset
-select pg_temp.ok(public.commercial_rate(:'a') = :base, 'sans taux propre : le taux de base');
+select pg_temp.ok(public.commercial_rate(:'a') = :base, 'une fiche naît au taux des réglages communs');
 
 -- Juillet relevé au taux de base.
 select pg_temp.act(:'admin');
@@ -26,19 +26,18 @@ select pg_temp.reset();
 select pg_temp.ok(commission_percent = :base and total_cents = round(10000 * :base / 100), 'juillet : relevé au taux de base')
 from public.commercial_statements where id = :'st7';
 
--- Ni le commercial ni personne ne baisse un taux.
+-- Seul l'admin règle un taux, entre 0 et 100 %, à la hausse comme à la baisse.
 select pg_temp.act(:'a_user');
-select pg_temp.ok(pg_temp.fails(format('select public.admin_set_commission_percent(%L, 50)', :'a')), 'le commercial ne règle pas son taux');
-select pg_temp.act(:'admin');
-select pg_temp.ok(pg_temp.fails(format('select public.admin_set_commission_percent(%L, %s)', :'b', :base - 1)), 'jamais sous le taux de base');
-select public.admin_set_commission_percent(:'a', :base + 5);
-select pg_temp.ok(pg_temp.fails(format('select public.admin_set_commission_percent(%L, %s)', :'a', :base + 2)), 'une hausse ne se reprend pas');
-select pg_temp.ok(pg_temp.fails(format('select public.admin_set_commission_percent(%L, null)', :'a')), 'retour à la base refusé après une hausse');
-select pg_temp.ok(pg_temp.fails(format('update public.commerciaux set commission_percent = %s where id = %L', :base + 1, :'a')),
-  'la RLS admin ne contourne pas la règle');
-select pg_temp.ok(pg_temp.fails(format('select public.admin_set_commission_percent(%L, 101)', :'a')), 'au plus 100 %');
+update public.commerciaux set commission_percent = 50 where id = :'a';
 select pg_temp.reset();
-select pg_temp.ok(public.commercial_rate(:'a') = :base + 5 and public.commercial_rate(:'b') = :base, 'la hausse ne touche que A');
+select pg_temp.ok(public.commercial_rate(:'a') = :base, 'le commercial ne règle pas son taux');
+select pg_temp.act(:'admin');
+update public.commerciaux set commission_percent = :base + 8 where id = :'a';
+update public.commerciaux set commission_percent = :base + 5 where id = :'a';
+select pg_temp.ok(pg_temp.fails(format('update public.commerciaux set commission_percent = 101 where id = %L', :'a')), 'au plus 100 %');
+select pg_temp.ok(pg_temp.fails(format('update public.commerciaux set commission_percent = null where id = %L', :'a')), 'jamais sans taux');
+select pg_temp.reset();
+select pg_temp.ok(public.commercial_rate(:'a') = :base + 5 and public.commercial_rate(:'b') = :base, 'la baisse corrige, et ne touche que A');
 
 -- Août au nouveau taux ; juillet, envoyé, ne bouge pas.
 select pg_temp.act(:'admin');

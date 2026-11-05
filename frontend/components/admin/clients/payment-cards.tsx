@@ -54,14 +54,14 @@ const GROUPS: {
  */
 export function PaymentCards({ rows }: { rows: PaymentCardRow[] | null }) {
   return (
-    <section className="rounded-2xl border border-hairline bg-surface p-5">
+    <section className="g-plate p-5">
       <h2 className="font-display text-lg font-medium">Cartes</h2>
       <p className="mt-1 mb-4 text-xs text-muted">
         Tentatives terminées dont la carte est connue. Square ne donne que le
         type et la marque, Stripe aussi le pays et le 3-D Secure.
       </p>
       {rows === null ? (
-        <div aria-busy className="shimmer h-40 rounded-2xl" />
+        <div aria-busy className="g-shimmer h-40" />
       ) : rows.length === 0 ? (
         <p className="flex h-24 items-center justify-center rounded-2xl border border-dashed border-hairline text-sm text-muted">
           Aucune carte connue sur la période.

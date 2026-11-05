@@ -3,7 +3,7 @@ import type { CSSProperties } from "react";
 import { BulleBooking } from "@/components/bulles/booking";
 import { HeroBubble } from "@/components/sites/boho/hero-bubble";
 import { BohoCanvas, KilimMark, Orb } from "@/components/sites/boho/marks";
-import { formatDuration } from "@/lib/bulles/format";
+import { formatBulleTarifs, formatDuration } from "@/lib/bulles/format";
 import { carteUrl } from "@/lib/bulles/links";
 import type { BulleOffer } from "@/lib/bulles/public";
 import { formatCents } from "@/lib/club/format";
@@ -116,7 +116,7 @@ export function BohoSite({
                 <h2 className="bo-h2">Choisissez votre soir.</h2>
                 {offer ? (
                   <p className="bo-lead">
-                    {formatCents(offer.placeCents)} par personne, {formatDuration(offer.durationMinutes)}, de{" "}
+                    {formatBulleTarifs(offer, offer.minParty)} · {formatDuration(offer.durationMinutes)} · de{" "}
                     {offer.minParty} à {offer.maxParty} personnes.
                   </p>
                 ) : (
@@ -168,7 +168,7 @@ export function BohoSite({
                 </li>
                 <li>
                   <span className="bo-step-number">3</span>
-                  <strong>Dès {offer.minParty} places payées, c&rsquo;est confirmé</strong>
+                  <strong>Dès {offer.groupThreshold} places payées, ou tout le groupe, c&rsquo;est confirmé</strong>
                   <span>
                     Votre pass arrive par e-mail. Dans la bulle, la carte s&rsquo;ouvre une fois toutes les places payées.
                   </span>

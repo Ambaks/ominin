@@ -37,7 +37,7 @@ function isToday(day: Date): boolean {
   return day.toDateString() === new Date().toDateString();
 }
 
-function Arrow({ left = false }: { left?: boolean }) {
+export function Arrow({ left = false }: { left?: boolean }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
       <path d={left ? "M15 6l-6 6 6 6" : "M9 6l6 6-6 6"} />

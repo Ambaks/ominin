@@ -74,91 +74,93 @@ function PathPanel({ path }: { path: InstallPath }) {
   const inverse = path.id === "caisse";
   return (
     <article
-      className={`relative flex h-full min-w-0 flex-col gap-6 overflow-hidden rounded-3xl border p-6 sm:p-8 ${
+      className={
         inverse
-          ? "border-transparent bg-foreground text-background"
-          : "border-ember-2/30 bg-surface shadow-lg shadow-ember-2/5"
-      }`}
+          ? "relative flex h-full min-w-0 flex-col gap-6 overflow-hidden rounded-3xl bg-foreground p-6 text-background sm:p-8"
+          : "g-glass flex h-full min-w-0 p-g-pad"
+      }
     >
-      {inverse ? (
-        <PartnerZone className="flex flex-col gap-6">
-          <PartnerLockup
-            brand={brand}
-            names={integrations.names}
-            icons={integrations.icons}
-            spoken={integrations.spoken}
-            controls={integrations.controls}
-          />
-          {/* Les illustrations tiennent dès 360 px ; en deçà, le texte et
-              l'addition suffisent. */}
-          <div className="max-[359px]:hidden">
-            <TillScene />
-          </div>
-        </PartnerZone>
-      ) : (
-        <>
-          {/* Même poids que « Ominin × … » en face : les deux panneaux
-              s'ouvrent sur leur nom. */}
-          <p className="ember-text kit-display flex h-8 items-center text-lg font-semibold">
-            {path.label}
-          </p>
-          <div className="max-[359px]:hidden">
-            <OmilinkScene />
-          </div>
-        </>
-      )}
-
-      <div>
-        <h3 className="kit-display text-balance text-2xl font-medium tracking-tight">
-          {path.title}
-        </h3>
-        <p
-          className={`mt-3 text-sm leading-relaxed ${
-            inverse ? "text-background/70" : "text-muted"
-          }`}
-        >
-          {path.lead}
-        </p>
-      </div>
-
-      <ul className="flex flex-col gap-4">
-        {path.points.map((point) => (
-          <li key={point.title} className="flex gap-3.5">
-            <span
-              className={`mt-1.5 size-1.5 shrink-0 rounded-[1px] ${
-                inverse ? "bg-background" : "ember-gradient"
-              }`}
-              aria-hidden
+      <div className={inverse ? "contents" : "g-plate flex min-w-0 flex-1 flex-col gap-6 p-6 sm:p-8"}>
+        {inverse ? (
+          <PartnerZone className="flex flex-col gap-6">
+            <PartnerLockup
+              brand={brand}
+              names={integrations.names}
+              icons={integrations.icons}
+              spoken={integrations.spoken}
+              controls={integrations.controls}
             />
-            <div>
-              <p className="text-sm font-medium">{point.title}</p>
-              <p
-                className={`mt-0.5 text-[13px] leading-relaxed ${
-                  inverse ? "text-background/65" : "text-muted"
-                }`}
-              >
-                {point.description}
-              </p>
+            {/* Les illustrations tiennent dès 360 px ; en deçà, le texte et
+                l'addition suffisent. */}
+            <div className="max-[359px]:hidden">
+              <TillScene />
             </div>
-          </li>
-        ))}
-      </ul>
+          </PartnerZone>
+        ) : (
+          <>
+            {/* Même poids que « Ominin × … » en face : les deux panneaux
+                s'ouvrent sur leur nom. */}
+            <p className="ember-text kit-display flex h-8 items-center text-lg font-semibold">
+              {path.label}
+            </p>
+            <div className="max-[359px]:hidden">
+              <OmilinkScene />
+            </div>
+          </>
+        )}
 
-      {path.cta && (
-        <a
-          href={path.cta.href}
-          className={`-mt-2 self-start text-sm font-medium underline underline-offset-4 transition-colors ${
-            inverse
-              ? "decoration-background/30 hover:decoration-background"
-              : "decoration-hairline hover:decoration-foreground"
-          }`}
-        >
-          {path.cta.label}{" "}
-          <span className="whitespace-nowrap">{path.cta.action}</span>
-        </a>
-      )}
+        <div>
+          <h3 className="kit-display text-balance text-2xl font-medium tracking-tight">
+            {path.title}
+          </h3>
+          <p
+            className={`mt-3 text-sm leading-relaxed ${
+              inverse ? "text-background/70" : "text-muted"
+            }`}
+          >
+            {path.lead}
+          </p>
+        </div>
 
-      <Bill path={path} inverse={inverse} />
+        <ul className="flex flex-col gap-4">
+          {path.points.map((point) => (
+            <li key={point.title} className="flex gap-3.5">
+              <span
+                className={`mt-1.5 size-1.5 shrink-0 rounded-[1px] ${
+                  inverse ? "bg-background" : "ember-gradient"
+                }`}
+                aria-hidden
+              />
+              <div>
+                <p className="text-sm font-medium">{point.title}</p>
+                <p
+                  className={`mt-0.5 text-[13px] leading-relaxed ${
+                    inverse ? "text-background/65" : "text-muted"
+                  }`}
+                >
+                  {point.description}
+                </p>
+              </div>
+            </li>
+          ))}
+        </ul>
+
+        {path.cta && (
+          <a
+            href={path.cta.href}
+            className={`-mt-2 self-start text-sm font-medium underline underline-offset-4 transition-colors ${
+              inverse
+                ? "decoration-background/30 hover:decoration-background"
+                : "decoration-hairline hover:decoration-foreground"
+            }`}
+          >
+            {path.cta.label}{" "}
+            <span className="whitespace-nowrap">{path.cta.action}</span>
+          </a>
+        )}
+
+        <Bill path={path} inverse={inverse} />
+      </div>
     </article>
   );
 }
@@ -183,7 +185,7 @@ export function Install() {
           intervalMs={integrations.intervalMs}
         >
           <Reveal className="mt-12 flex flex-col items-center lg:mt-16">
-            <div className="flex items-center gap-3 rounded-full border border-hairline bg-surface py-2 pl-3 pr-4 text-sm">
+            <div className="g-glass g-glass-pill flex items-center gap-3 py-2 pl-3 pr-4 text-sm">
               <span className="relative flex size-2.5">
                 <span className="pulse-ring ember-gradient absolute inset-0 rounded-full" />
                 <span className="ember-gradient relative size-2.5 rounded-full" />

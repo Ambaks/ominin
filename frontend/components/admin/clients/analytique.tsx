@@ -98,13 +98,13 @@ export function ClientAnalytique({
         />
       </div>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <h2 className="font-display text-lg font-medium">Entonnoir</h2>
         <p className="mt-1 mb-4 text-xs text-muted">
           Part des visites ayant atteint chaque étape.
         </p>
         {funnel === null ? (
-          <div aria-busy className="shimmer h-40 rounded-2xl" />
+          <div aria-busy className="g-shimmer h-40" />
         ) : (
           <Funnel
             steps={[
@@ -119,7 +119,7 @@ export function ClientAnalytique({
         )}
       </section>
 
-      <section className="rounded-2xl border border-hairline bg-surface p-5">
+      <section className="g-plate p-5">
         <h2 className="font-display text-lg font-medium">
           Consulté contre vendu
         </h2>
@@ -132,7 +132,7 @@ export function ClientAnalytique({
             : "Aucune fiche comptée pour l’instant."}
         </p>
         {items === null ? (
-          <div aria-busy className="shimmer h-52 rounded-2xl" />
+          <div aria-busy className="g-shimmer h-52" />
         ) : ranked.length === 0 ? (
           <p className="flex h-40 items-center justify-center rounded-2xl border border-dashed border-hairline text-sm text-muted">
             Aucun plat consulté, ajouté ou vendu sur la période.
@@ -192,7 +192,7 @@ export function ClientAnalytique({
 function PaymentAttempts({ measures }: { measures: Measures | null }) {
   const failure = measures && paymentFailure(measures);
   return (
-    <section className="rounded-2xl border border-hairline bg-surface p-5">
+    <section className="g-plate p-5">
       <h2 className="font-display text-lg font-medium">Paiement en ligne</h2>
       <p className="mt-1 mb-4 text-xs text-muted">
         Une tentative expirée ou échouée supprime sa commande, souvent repassée
@@ -205,7 +205,7 @@ function PaymentAttempts({ measures }: { measures: Measures | null }) {
           : null}
       </p>
       {measures === null || failure === null ? (
-        <div aria-busy className="shimmer h-24 rounded-2xl" />
+        <div aria-busy className="g-shimmer h-24" />
       ) : failure.closed === 0 ? (
         <p className="flex h-24 items-center justify-center rounded-2xl border border-dashed border-hairline text-sm text-muted">
           Aucune tentative terminée sur la période.

@@ -5,7 +5,7 @@ import { PhotoField } from "@/components/gestion/photo-field";
 import { Field, GlassButton, Input, Select, Sheet, Textarea } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { DEFAULT_VAT_RATE, VAT_RATES } from "@/lib/gestion/constants";
+import { CUISINE_OPTIONS, DEFAULT_VAT_RATE, VAT_RATES } from "@/lib/gestion/constants";
 import { describeError } from "@/lib/gestion/errors";
 import { parsePriceInput, priceToInput } from "@/lib/gestion/format";
 import { isPickupShop } from "@/lib/gestion/selectors";
@@ -13,7 +13,7 @@ import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { AllergenIcon } from "@/components/menu/allergen-icon";
 import { isDrinkCategory } from "@/lib/menu/category-icons";
 import { ALLERGEN_LABELS, BADGE_LABELS } from "@/lib/menu/format";
-import { type Allergen, type Badge, type MenuCategory, type MenuItem } from "@/lib/menu-data";
+import { type Allergen, type Badge, type ItemCuisine, type MenuCategory, type MenuItem } from "@/lib/menu-data";
 import {
   OptionsEditor,
   draftToOptions,
@@ -61,6 +61,7 @@ export function ItemFormModal({
   const [allergens, setAllergens] = useState<Allergen[] | null>(item?.allergens ?? null);
   const [pairing, setPairing] = useState(item?.pairing ?? "");
   const [vatRate, setVatRate] = useState(String(item?.vatRate ?? DEFAULT_VAT_RATE));
+  const [cuisine, setCuisine] = useState<ItemCuisine | "">(item?.cuisine ?? "");
   const [categoryId, setCategoryId] = useState(initialCategoryId);
   // Une boisson ne montre pas d'allergènes sur le menu : rien à saisir.
   const current = categories.find((entry) => entry.id === categoryId);
@@ -111,6 +112,7 @@ export function ItemFormModal({
       categoryId,
       vatRate: Number(vatRate),
       noticeHours: parsedNotice,
+      cuisine: cuisine || null,
     };
     setSaving(true);
     try {
@@ -130,6 +132,7 @@ export function ItemFormModal({
 
   const menuOpen = Boolean(description || detail || pairing || badges.length);
   const kitchenOpen = Boolean(
+    cuisine ||
     printName || stock || (item && item.vatRate != null && item.vatRate !== DEFAULT_VAT_RATE)
   );
 
@@ -251,6 +254,23 @@ export function ItemFormModal({
             )}
 
             <Group title={pickupShop ? "En préparation" : "En cuisine"} open={kitchenOpen}>
+              {hasFeature("commandes") && (
+                <Field
+                  label="Fermeture cuisine"
+                  hint="Ce que coupe le bouton « Fermeture cuisine » d’Aujourd’hui. Hors cuisine, il reste commandable."
+                >
+                  <Select
+                    value={cuisine}
+                    onChange={(event) => setCuisine(event.target.value as ItemCuisine | "")}
+                  >
+                    {CUISINE_OPTIONS.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </Select>
+                </Field>
+              )}
               {hasFeature("terminaux") && (
                 <Field
                   label="Nom sur le ticket"

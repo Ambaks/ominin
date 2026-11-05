@@ -30,7 +30,7 @@ export type EncaissementMode = Extract<
 /** Mode d'une jambe de règlement : « mixte », c'est deux jambes, jamais une. */
 export type PaymentLeg = Exclude<PaymentMode, "mixte">;
 /** Fournisseur du paiement à table, au choix du gérant. */
-export type PaymentProvider = "stripe" | "sumup" | "square" | "demo";
+export type PaymentProvider = "stripe" | "sumup" | "square" | "demo" | "viva";
 /**
  * Restaurant : le client commande depuis sa table, la salle la lui apporte.
  * Fast food : il retire au comptoir et reçoit un numéro du jour ; la table
@@ -189,6 +189,29 @@ export interface OrderPayment {
   cashChange?: number;
   paidAt: string;
 }
+
+/**
+ * Une part de bulle payée (vue bulle_encaissements) : elle compte dans
+ * l'encaissé comme une commande, sans en être une. Seul l'état « encaissee »
+ * compte ; les autres restent visibles dans Paiements.
+ */
+export interface BulleEncaissement {
+  id: string;
+  bulleName: string;
+  /** Qui a payé : l'organisateur, ou l'ami qui a pris sa place. */
+  name: string;
+  places: number;
+  amount: number;
+  mode: PaymentLeg;
+  paidAt: string;
+  refundedAt?: string;
+  etat: "encaissee" | "remboursee" | "a_rembourser" | "annulee";
+}
+
+/** Une ligne de Paiements : une commande encaissée, ou une part de bulle. */
+export type Paiement =
+  | { kind: "commande"; order: Order }
+  | { kind: "bulle"; part: BulleEncaissement };
 
 export interface Order {
   id: string;
@@ -354,11 +377,13 @@ export interface GestionState {
   closures: Closure[];
   tables: Table[];
   orders: Order[];
+  /** Parts de bulle payées sur la même fenêtre que les commandes. */
+  bulleEncaissements: BulleEncaissement[];
 }
 
-/** Sens de l'écart : le prix monte ou il descend. */
-export type PriceRuleDirection = "majoration" | "remise";
-/** L'écart s'exprime en euros ou en pourcentage du prix de base. */
+/** Le prix monte, il descend, ou il est donné tel quel (`prix_fixe`, toujours en euros). */
+export type PriceRuleDirection = "majoration" | "remise" | "prix_fixe";
+/** En euros, ou en pourcentage du prix de base. */
 export type PriceRuleUnit = "montant" | "pourcentage";
 
 /**
@@ -373,9 +398,9 @@ export type MenuTarget =
   | { kind: "item"; id: string; choiceId?: string };
 
 /**
- * Un tarif planifié : un écart de prix qui revient chaque semaine, les jours
- * dits, sur les articles visés. Le prix de la carte ne bouge pas — l'écart se
- * calcule à la lecture, et cesse dès que la règle s'arrête.
+ * Un tarif planifié : un prix qui revient chaque semaine, les jours dits, sur
+ * les articles visés. Le prix de la carte ne bouge pas — le tarif se calcule à
+ * la lecture, et cesse dès que la règle s'arrête.
  */
 export interface PriceRule {
   id: string;
@@ -423,4 +448,10 @@ export interface Closure {
   /** Heure de service où le forçage cède à l'horaire, "2026-10-13T19:00:00". */
   overrideUntil: string | null;
   targets: MenuTarget[];
+  /**
+   * Fermeture réservée du bouton « Fermeture cuisine », null pour celles de
+   * Réglages. chaud, froid : coupe les articles qui portent ce marqueur ;
+   * choix : coupe ses cibles.
+   */
+  cuisine: "chaud" | "froid" | "choix" | null;
 }

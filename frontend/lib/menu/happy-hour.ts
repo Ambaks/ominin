@@ -7,10 +7,11 @@ import { fitsVignette } from "./compact-preview";
 import { cents, type TarifMap } from "./tarifs";
 
 /*
- * La happy hour en cours : les remises à heures fixes que les tarifs planifiés
- * appliquent en ce moment (tarifs_actifs). Rien ne la déclare : une remise
- * avec des heures en est une ; une majoration (le tarif week-end) ou une
- * remise de toute la journée n'en sont pas. Elle se lit sur la carte déjà
+ * La happy hour en cours : les baisses à heures fixes que les tarifs planifiés
+ * appliquent en ce moment (tarifs_actifs). Rien ne la déclare : un prix baissé
+ * avec des heures, en pourcentage, en euros ou par un prix fixe, en est une ;
+ * une hausse (le tarif week-end) ou une baisse de toute la journée n'en sont
+ * pas. Elle se lit sur la carte déjà
  * aux prix du moment : ce qu'elle annonce est ce que place_order facturera.
  * Les formules à heures (le petit déjeuner de 9 h à 10 h 30) s'y rangent
  * aussi : elles n'existent que pendant leur créneau.

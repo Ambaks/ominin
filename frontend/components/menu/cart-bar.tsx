@@ -23,11 +23,13 @@ import { collectHref, normalizePhone, previewOrderKey, type PreviewCollectOrder 
 import { rememberOrder, takeAppearance } from "@/lib/menu/after-meal";
 import { trackAfterMeal } from "@/lib/menu/analytics/tracker";
 import { useCart, type CartLine } from "@/lib/menu/cart";
+import { KITCHEN_CLOSED_LABEL } from "@/lib/menu/fermetures";
 import { counterWords, formatPrice } from "@/lib/menu/format";
 import { fallBackToCounter, type CardPhase } from "@/lib/menu/online-payment";
 import { cardNotices, useTickets, type TicketLine } from "@/lib/menu/tickets";
 import { pointsEarned } from "@/lib/menu/loyalty";
 import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
+import { useQueryParam } from "@/lib/menu/use-query-param";
 import { CART_LINES_SHOWN } from "@/lib/gestion/constants";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
@@ -297,6 +299,67 @@ export function CartBar() {
     setPreviewPayment(null);
     tickets?.show(orderId, { notices });
   };
+  // Retour de la page de paiement Viva : /api/viva/return a relu le
+  // règlement chez Viva et ramène ici (?paiement=succes|annule|attente
+  // &commande=<id>). Les paramètres sont retirés aussitôt : un rechargement
+  // ne rejoue pas l'issue. Le panier relu (cart.ready) d'abord, sans quoi sa
+  // relecture le rétablirait après qu'on l'a vidé.
+  const returnOutcome = useQueryParam("paiement");
+  const returnedOrder = useQueryParam("commande");
+  // Viva n'a pas pu être relu au retour : le webhook tranchera.
+  const [paymentUnconfirmed, setPaymentUnconfirmed] = useState(false);
+  const { ready: cartReady, clear: clearCart } = cart;
+  useEffect(() => {
+    const outcome =
+      returnOutcome === "succes" || returnOutcome === "annule" || returnOutcome === "attente"
+        ? returnOutcome
+        : null;
+    if (!outcome || !returnedOrder || !cartReady) return;
+    const url = new URL(window.location.href);
+    url.searchParams.delete("paiement");
+    url.searchParams.delete("commande");
+    window.history.replaceState(null, "", url);
+    // Click & collect : réglée, la page de suivi ; sinon la commande n'est pas
+    // passée et le panier attend, avec l'erreur.
+    if (cart.collect) {
+      if (outcome === "annule") {
+        /* eslint-disable react-hooks/set-state-in-effect -- une issue venue d'une autre page, lue une fois */
+        setState("error");
+        setError("Le paiement n’a pas abouti : votre commande n’est pas passée.");
+        setOpen(true);
+      } else {
+        clearCart();
+        window.location.replace(
+          `${cart.collect.confirmationPath ?? `${collectHref(cart.slug)}/confirmation`}?commande=${returnedOrder}`
+        );
+      }
+      return;
+    }
+    // Ailleurs, la commande est passée, payée ou non : son panier ne revient
+    // pas. Non payée, /api/viva/return l'a déjà passée au comptoir.
+    clearCart();
+    setStep("commande");
+    setPayment("carte");
+    setTipChoice(null);
+    setCustomTip("");
+    if (cart.fastFood && tickets) {
+      tickets.add(returnedOrder);
+      if (outcome === "annule") tickets.patch(returnedOrder, { paying: false });
+      handOff(
+        returnedOrder,
+        outcome === "annule" && !cart.barPickup ? [cardNotices(false).declined] : []
+      );
+      return;
+    }
+    setSentPayment("carte");
+    setCardFailed(outcome === "annule");
+    setPaymentUnconfirmed(outcome === "attente");
+    setState("sent");
+    setOpen(true);
+    /* eslint-enable react-hooks/set-state-in-effect */
+    // Une fois, au retour : les autres dépendances ne changent pas l'issue.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [returnOutcome, returnedOrder, cartReady]);
   // Où en est le règlement par carte dans la feuille.
   const cardPhase = useRef<CardPhase>("form");
   // Changée, la feuille du panier se remonte (sur la confirmation).
@@ -380,23 +443,33 @@ export function CartBar() {
     .reduce((sum, line) => sum + line.quantity, 0);
   // Une ligne coupée : ce qui l'est, et comment repartir. Une formule ne perd
   // pas un choix en silence, elle se recompose.
+  const closedNow = (line: CartLine) => {
+    const label = cart.closedLineLabel(line);
+    return label === KITCHEN_CLOSED_LABEL ? label : `${label} en ce moment`;
+  };
   const closedNotice = () => {
     if (closedLines.length > 1) {
+      if (closedLines.every((line) => cart.closedLineLabel(line) === KITCHEN_CLOSED_LABEL)) {
+        return cart.collect
+          ? `${KITCHEN_CLOSED_LABEL} à l’heure du retrait pour certains articles\u00a0: choisissez un autre créneau ou un autre jour, ou retirez-les.`
+          : `${KITCHEN_CLOSED_LABEL} pour certains articles\u00a0: retirez-les pour envoyer la commande.`;
+      }
       return cart.collect
         ? "Certains articles ne sont plus servis à l’heure du retrait\u00a0: choisissez un autre créneau ou un autre jour, ou retirez-les."
         : "Certains articles ne sont plus servis\u00a0: retirez-les pour envoyer la commande.";
     }
     const [line] = closedLines;
     const name = `«\u00a0${line.name}\u00a0»`;
+    const label = closedNow(line);
     if (line.formule) {
       const dish = lineClosed(line);
       return cart.collect
-        ? `Plus servi à l’heure du retrait\u00a0: ${dish}. Choisissez un autre créneau ou un autre jour, ou retirez ${name} et recomposez-la.`
-        : `Plus servi en ce moment\u00a0: ${dish}. Retirez ${name}, puis recomposez-la si elle est encore proposée.`;
+        ? `${cart.closedLineLabel(line)} à l’heure du retrait\u00a0: ${dish}. Choisissez un autre créneau ou un autre jour, ou retirez ${name} et recomposez-la.`
+        : `${label}\u00a0: ${dish}. Retirez ${name}, puis recomposez-la si elle est encore proposée.`;
     }
     return cart.collect
-      ? `Plus servi à l’heure du retrait\u00a0: choisissez un autre créneau ou un autre jour, ou retirez ${name}.`
-      : `Plus servi en ce moment\u00a0: retirez ${name} pour envoyer la commande.`;
+      ? `${cart.closedLineLabel(line)} à l’heure du retrait\u00a0: choisissez un autre créneau ou un autre jour, ou retirez ${name}.`
+      : `${label}\u00a0: retirez ${name} pour envoyer la commande.`;
   };
   // Le message d'un envoi refusé s'efface dès qu'on corrige ce qui le
   // causait : l'heure de retrait, ou la ligne retirée.
@@ -565,6 +638,7 @@ export function CartBar() {
     setState("sending");
     setError(null);
     setCardFailed(false);
+    setPaymentUnconfirmed(false);
     const supabase = createClient();
     const payload = cart.lines.map((line) =>
       line.formule
@@ -710,6 +784,33 @@ export function CartBar() {
           tipAmount,
         });
       } else {
+        fail();
+      }
+    }
+
+    if (payment === "carte" && cart.paymentProvider === "viva") {
+      // La carte se saisit sur la page de paiement hébergée par Viva : la
+      // commande Viva se crée côté serveur (montant relu en base), puis le
+      // client y part, et revient ici par /api/viva/return. Le panier reste
+      // gardé jusque-là : à emporter, un paiement qui n'aboutit pas le
+      // retrouve.
+      try {
+        const response = await fetch("/api/viva/pay", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            orderId,
+            returnUrl: window.location.href,
+            ...(tipAmount > 0 && { tipAmount }),
+          }),
+        });
+        const body = (await response.json()) as { url?: string };
+        if (response.ok && body.url) {
+          window.location.assign(body.url);
+          return;
+        }
+        fail();
+      } catch {
         fail();
       }
     }
@@ -989,7 +1090,14 @@ export function CartBar() {
                     Commande envoyée&nbsp;!
                   </h3>
                   <p className="text-sm leading-relaxed text-muted">
-                    {sentPayment === "carte" && !cardFailed ? (
+                    {paymentUnconfirmed ? (
+                      <>
+                        Votre commande est enregistrée pour la table{" "}
+                        {cart.tableNumber}. Le paiement est en cours de
+                        confirmation&nbsp;: elle part en cuisine dès qu&rsquo;il
+                        est confirmé.
+                      </>
+                    ) : sentPayment === "carte" && !cardFailed ? (
                       <>
                         Paiement reçu&nbsp;: votre commande part en cuisine pour
                         la table {cart.tableNumber}. Un serveur vous
@@ -1388,10 +1496,10 @@ export function CartBar() {
                                 {dish && (
                                   <p className="mt-1 text-xs font-semibold text-ember-3">
                                     {line.formule
-                                      ? `Plus servi\u00a0: ${dish}`
+                                      ? `${cart.closedLineLabel(line)}\u00a0: ${dish}`
                                       : cart.collect
-                                        ? "Plus servi à l’heure du retrait"
-                                        : "Plus servi en ce moment"}
+                                        ? `${cart.closedLineLabel(line)} à l’heure du retrait`
+                                        : closedNow(line)}
                                   </p>
                                 )}
                               </div>

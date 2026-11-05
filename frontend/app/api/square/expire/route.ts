@@ -13,6 +13,7 @@ import {
   settlePaymentIntent,
 } from "@/lib/stripe/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { closeVivaOrder } from "@/lib/viva/server";
 
 /*
  * Tentatives de paiement en ligne abandonnées (workflow square-expire.yml).
@@ -24,8 +25,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * Passé ONLINE_PAYMENT_TTL_S, la tentative est écartée
  * (discard_stale_online_payment). Celle qui a atteint un encaisseur est
  * d'abord relue chez lui : réglée, elle est close comme par le webhook ; un
- * Payment Intent inachevé est annulé avant, pour qu'il ne puisse plus être
- * débité. Invérifiable (compte délié, API en panne), elle est laissée en
+ * Payment Intent inachevé, comme une commande Viva encore ouverte, est
+ * annulé avant, pour qu'il ne puisse plus être débité. Invérifiable (compte délié, API en panne), elle est laissée en
  * place et signalée, jamais supprimée à l'aveugle. Les sessions Checkout
  * encore ouvertes au passage au paiement dans la page expirent d'elles-mêmes
  * (webhook connecté).
@@ -90,7 +91,7 @@ export async function POST(request: Request) {
   const admin = createAdminClient();
   const { data: candidates, error } = await admin
     .from("orders")
-    .select("id, etablissement_id, square_order_id, stripe_session_id, stripe_payment_intent_id, sumup_checkout_id, etablissements(payment_provider)")
+    .select("id, etablissement_id, type, square_order_id, stripe_session_id, stripe_payment_intent_id, sumup_checkout_id, viva_order_code, viva_tip, etablissements(payment_provider)")
     .eq("status", "en_attente")
     .eq("paid_online", false)
     .lt("online_payment_started_at", startedBefore);
@@ -98,12 +99,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
   // Une session Checkout expire d'elle-même (webhook connecté), SumUp a son
-  // propre suivi : passent ici les tentatives Square, les Payment Intents
-  // Stripe, et celles qui n'ont atteint personne.
+  // propre suivi : passent ici les tentatives Square et Viva, les Payment
+  // Intents Stripe, et celles qui n'ont atteint personne.
   const stale = candidates.filter(
     (order) =>
       order.etablissements?.payment_provider === "square" ||
-      (!order.stripe_session_id && !order.square_order_id && !order.sumup_checkout_id)
+      order.etablissements?.payment_provider === "viva" ||
+      (!order.stripe_session_id && !order.square_order_id && !order.sumup_checkout_id && !order.viva_order_code)
   );
 
   let discarded = 0;
@@ -112,12 +114,18 @@ export async function POST(request: Request) {
   // En série : quelques commandes par passage, chacune relue puis écrite.
   for (const order of stale) {
     try {
-      const { square_order_id: squareOrderId, stripe_payment_intent_id: intentId } = order;
+      const { square_order_id: squareOrderId, stripe_payment_intent_id: intentId, viva_order_code: vivaOrderCode } = order;
       if (squareOrderId && (await settledAtSquare(admin, { ...order, square_order_id: squareOrderId }))) {
         settled += 1;
         continue;
       }
       if (intentId && (await settledAtStripe(admin, { ...order, stripe_payment_intent_id: intentId }))) {
+        settled += 1;
+        continue;
+      }
+      // Viva : relue, payée elle est close ; sinon annulée chez Viva avant
+      // d'être écartée ici.
+      if (vivaOrderCode && (await closeVivaOrder(admin, { ...order, viva_order_code: vivaOrderCode }))) {
         settled += 1;
         continue;
       }

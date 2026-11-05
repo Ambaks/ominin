@@ -63,8 +63,8 @@ export default function CapacitesPage() {
   if (!clients) {
     return (
       <div aria-busy className="flex flex-col gap-3">
-        <div className="shimmer h-9 w-44 rounded-xl" />
-        <div className="shimmer h-64 rounded-2xl" />
+        <div className="g-shimmer h-9 w-44" />
+        <div className="g-shimmer h-64" />
       </div>
     );
   }

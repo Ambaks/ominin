@@ -22,7 +22,7 @@ import { fetchAllLeadIds, fetchLeadsPage, type LeadQuery } from "@/lib/admin/lea
 import type { LeadSortKey } from "@/lib/admin/selectors";
 import type { LeadLite } from "@/lib/admin/types";
 import { usePagedList } from "@/lib/use-paged-list";
-import { ListPager } from "@/components/ui/list-pager";
+import { ListPager } from "@/components/gestion/ui";
 import { useAdmin } from "@/lib/admin/store";
 
 /*
@@ -185,7 +185,7 @@ export default function RestaurantsPage() {
         <div className="flex items-center gap-2">
           <Link
             href={`${basePath}/import`}
-            className="hidden rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground lg:block"
+            className="g-btn g-btn-secondary g-press max-lg:hidden!"
           >
             Importer
           </Link>
@@ -193,14 +193,14 @@ export default function RestaurantsPage() {
             type="button"
             onClick={() => void exportCsv()}
             disabled={exporting || total === 0}
-            className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:border-ember-2/40 hover:text-foreground disabled:opacity-50"
+            className="g-btn g-btn-secondary g-press"
           >
             {exporting ? "Export…" : `Exporter (${total})`}
           </button>
           <button
             type="button"
             onClick={() => setCreating(true)}
-            className="ember-gradient flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold text-background"
+            className="g-btn g-btn-primary g-press flex items-center gap-2"
           >
             <PlusIcon className="size-4" />
             Nouveau
@@ -234,7 +234,7 @@ export default function RestaurantsPage() {
         />
       ) : (
         <div className="flex flex-col gap-3">
-        <div className="overflow-x-auto rounded-2xl border border-hairline bg-surface">
+        <div className="overflow-x-auto g-plate">
           <table className="w-full min-w-160 text-sm">
             <thead>
               <tr className="text-left">

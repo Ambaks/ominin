@@ -12,7 +12,7 @@ import {
 } from "react";
 import type { OpeningHours } from "@/lib/collect/hours";
 import type { ServiceMode } from "@/lib/gestion/types";
-import { fetchClosedItems } from "@/lib/menu/fermetures";
+import { fetchClosedItems, KITCHEN_CLOSED_LABEL } from "@/lib/menu/fermetures";
 import { lineName } from "@/lib/menu/format";
 import type { MenuItem } from "@/lib/menu-data";
 import type { Database } from "@/lib/supabase/database.types";
@@ -133,6 +133,8 @@ export interface CartConfig {
   tableFromUrl?: boolean;
   /** L'offre de l'établissement autorise la commande à table (Smart/Connect). */
   orderingEnabled: boolean;
+  /** « Commande bientôt » (réglé dans l'admin) : la carte se consulte, on n'y commande pas encore. */
+  orderingSoon?: boolean;
   /**
    * Fast food : le client retire au comptoir et reçoit un numéro du jour ;
    * la table du QR, s'il en scanne une, part avec la commande.
@@ -146,7 +148,7 @@ export interface CartConfig {
   /** Le restaurant propose le règlement par carte à la commande. */
   onlinePayment: boolean;
   /** Fournisseur qui encaisse le règlement par carte. */
-  paymentProvider: "stripe" | "sumup" | "square" | "demo";
+  paymentProvider: "stripe" | "sumup" | "square" | "demo" | "viva";
   /** Point de vente Square encaisseur, requis par le SDK carte en page. */
   squareLocationId: string | null;
   /** Programme de fidélité du restaurant ; absent ⇒ pas de points. */
@@ -160,6 +162,8 @@ export interface CartConfig {
   etablissementId?: string;
   /** Articles coupés au rendu de la page. */
   closedItems?: string[];
+  /** Ceux d'entre eux que le bouton « Fermeture cuisine » coupe. */
+  kitchenClosedItems?: string[];
   /** L'accord du chef, par id de plat ; absent ⇒ rien n'est proposé. */
   pairings?: Record<string, Pairing[]>;
   /** Les formules que l'accord du chef propose de compléter. */
@@ -255,6 +259,12 @@ interface CartContextValue extends CartConfig {
   closedAt: string | null;
   /** Le plat d'une ligne du panier qu'une fermeture coupe, s'il y en a un. */
   closedDish: (line: CartLine) => string | undefined;
+  /** Coupés par le bouton « Fermeture cuisine » : le client lit « Cuisine fermée ». */
+  kitchenClosed: ReadonlySet<string>;
+  /** Le mot pour un article coupé. */
+  closedLabel: (itemId: string) => string;
+  /** Le mot pour une ligne du panier coupée. */
+  closedLineLabel: (line: CartLine) => string;
   /** Les demandes d'ouvrir le panier venues d'ailleurs que sa barre (AfterMeal). */
   openRequests: number;
   requestOpen: () => void;
@@ -395,6 +405,9 @@ export function CartProvider({
   const [closed, setClosed] = useState<ReadonlySet<string>>(
     () => new Set(config.closedItems)
   );
+  const [kitchenClosed, setKitchenClosed] = useState<ReadonlySet<string>>(
+    () => new Set(config.kitchenClosedItems)
+  );
   const etablissementId = config.etablissementId;
   const [closedAt, setClosedAt] = useState<string | null>(null);
   const closedAtRef = useRef<string | null>(null);
@@ -410,7 +423,8 @@ export function CartProvider({
       fetchClosedItems(createClient(), etablissementId, judged ?? undefined).then(
         (items) => {
           if (request !== closedRequest.current) return;
-          setClosed(new Set(items));
+          setClosed(new Set(items.closed));
+          setKitchenClosed(new Set(items.kitchen));
           setClosedAt(judged);
         },
         // Réseau perdu : l'état connu reste, place_order a le dernier mot.
@@ -472,6 +486,7 @@ export function CartProvider({
       fastFood,
       canOrder:
         config.orderingEnabled &&
+        !config.orderingSoon &&
         (fastFood || config.collect !== undefined || tableNumber !== null),
       lines,
       count,
@@ -495,6 +510,15 @@ export function CartProvider({
           : closed.has(line.itemId)
             ? line.name
             : undefined,
+      kitchenClosed,
+      closedLabel: (itemId) =>
+        kitchenClosed.has(itemId) ? KITCHEN_CLOSED_LABEL : "Plus servi",
+      closedLineLabel: (line) =>
+        (line.formule
+          ? line.formule.items?.some((item) => closed.has(item.id) && kitchenClosed.has(item.id))
+          : kitchenClosed.has(line.itemId))
+          ? KITCHEN_CLOSED_LABEL
+          : "Plus servi",
       openRequests,
       requestOpen,
     };
@@ -512,6 +536,7 @@ export function CartProvider({
     restoredKey,
     storageKey,
     closed,
+    kitchenClosed,
     refreshClosed,
     closedAt,
     openRequests,

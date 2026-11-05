@@ -22,9 +22,9 @@ import {
 } from "@/components/gestion/ui";
 import { useRunMutation, useToast } from "@/components/ui/toast";
 import * as api from "@/lib/gestion/api";
-import { WAIT_TICK_MS } from "@/lib/gestion/constants";
+import { CUISINE_OPTIONS, WAIT_TICK_MS } from "@/lib/gestion/constants";
 import { describeError } from "@/lib/gestion/errors";
-import { closedItems, serviceClock } from "@/lib/gestion/fermetures";
+import { closedItems, kitchenClosedItems, serviceClock } from "@/lib/gestion/fermetures";
 import { isPickupShop } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import {
@@ -37,7 +37,7 @@ import type { Formule } from "@/lib/gestion/types";
 import { useNow } from "@/lib/gestion/use-now";
 import { isDrinkCategory } from "@/lib/menu/category-icons";
 import { effectiveTarif, fetchActiveTarifs, type TarifMap } from "@/lib/menu/tarifs";
-import type { MenuItem } from "@/lib/menu-data";
+import type { ItemCuisine, MenuItem } from "@/lib/menu-data";
 import { moved } from "@/lib/move";
 import { createClient } from "@/lib/supabase/client";
 
@@ -170,6 +170,18 @@ export default function MenuPage() {
     serviceClock(now, state.dayEndHour),
     state.dayEndHour
   );
+  const closedByKitchen = kitchenClosedItems(
+    state.closures,
+    categories,
+    serviceClock(now, state.dayEndHour),
+    state.dayEndHour
+  );
+  const categoryMarked = category?.items.filter((item) => item.cuisine).length ?? 0;
+  // Tous pareils : leur marqueur ; sinon la liste dit « Mélangé ».
+  const categoryCuisine =
+    category && new Set(category.items.map((item) => item.cuisine ?? "")).size === 1
+      ? (category.items[0].cuisine ?? "")
+      : null;
   const itemCount = categories.reduce((sum, c) => sum + c.items.length, 0);
   const sansAllergenes = categories
     .filter((c) => !isDrinkCategory(c))
@@ -324,9 +336,10 @@ export default function MenuPage() {
                           category.tagline && "une note",
                           categoryRules.length > 0 &&
                             `${categoryRules.length} tarif${categoryRules.length > 1 ? "s" : ""} planifié${categoryRules.length > 1 ? "s" : ""}`,
+                          categoryMarked > 0 && `${categoryMarked} marqué${categoryMarked > 1 ? "s" : ""} cuisine`,
                         ]
                           .filter(Boolean)
-                          .join(" · ") || "note, tarifs planifiés"}
+                          .join(" · ") || "note, tarifs planifiés, cuisine"}
                       </span>
                     </summary>
                     <div className="flex flex-col gap-3 pt-3">
@@ -347,6 +360,35 @@ export default function MenuPage() {
                           }}
                         />
                       </Field>
+                      {hasFeature("commandes") && category.items.length > 0 && (
+                        <Field
+                          label="Fermeture cuisine"
+                          hint="Marque tous les articles de la catégorie d’un coup, pour le bouton d’Aujourd’hui."
+                          className="max-w-xl"
+                        >
+                          <Select
+                            value={categoryCuisine ?? "melange"}
+                            onChange={(event) => {
+                              const value = event.target.value as ItemCuisine | "";
+                              void run(
+                                () => api.setCategoryCuisine(category.id, value || null),
+                                "Catégorie marquée."
+                              );
+                            }}
+                          >
+                            {categoryCuisine === null && (
+                              <option value="melange" disabled>
+                                Mélangé
+                              </option>
+                            )}
+                            {CUISINE_OPTIONS.map((option) => (
+                              <option key={option.value} value={option.value}>
+                                {option.label}
+                              </option>
+                            ))}
+                          </Select>
+                        </Field>
+                      )}
                       {/* Un tarif posé ici vaut pour toute la catégorie, articles
                           ajoutés plus tard compris. */}
                       <TarifsInline
@@ -393,6 +435,7 @@ export default function MenuPage() {
                         />
                       }
                       closedBy={closed.get(item.id)}
+                      closedKitchen={closedByKitchen.has(item.id)}
                       onMove={canEditMenu ? (delta) => moveItem(index, delta) : undefined}
                       onEdit={() => setEditingItem(item)}
                       onDelete={() => setDeletingItem(item)}

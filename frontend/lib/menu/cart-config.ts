@@ -16,6 +16,7 @@ export function menuCartConfig(slug: string, data: PublicMenu): CartConfig {
     tableNumber: null,
     tableFromUrl: true,
     orderingEnabled,
+    orderingSoon: data.orderingSoon,
     serviceMode: data.serviceMode,
     barPickup: fastFood && data.barPickup,
     restaurantName: data.restaurant.name,
@@ -29,6 +30,7 @@ export function menuCartConfig(slug: string, data: PublicMenu): CartConfig {
     // Sans commande, rien à fermer : pas de relecture.
     etablissementId: orderingEnabled ? data.id : undefined,
     closedItems: orderingEnabled ? data.closedItems : undefined,
+    kitchenClosedItems: orderingEnabled ? data.kitchenClosedItems : undefined,
     pairings: data.pairings,
     formuleOffers: data.formuleOffers,
   };

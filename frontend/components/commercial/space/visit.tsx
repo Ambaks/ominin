@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
+import { Field } from "@/components/ui/field";
 import { useToast } from "@/components/ui/toast";
 import type { MapRestaurant } from "@/lib/commercial/api";
 import { SIGNUP_KINDS } from "@/lib/commercial/signup-form";
@@ -116,7 +116,7 @@ export function VisitScreen({ place }: { place: MapRestaurant }) {
             <Choice options={REFUSAL_REASONS} value={reason} onChange={setReason} />
           </FieldGroup>
           <Field label="Ses arguments, avec tes mots">
-            <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} className={inputClass} />
+            <textarea value={note} onChange={(event) => setNote(event.target.value)} rows={4} className="g-input" />
           </Field>
           <button type="submit" disabled={!reason} className={primaryButton}>
             Voir le récap
@@ -137,13 +137,13 @@ export function VisitScreen({ place }: { place: MapRestaurant }) {
           }}
         >
           <Field label="Téléphone du responsable ou du gérant">
-            <input type="tel" inputMode="tel" value={contact.phone} onChange={(event) => setContact({ ...contact, phone: event.target.value })} className={inputClass} />
+            <input type="tel" inputMode="tel" value={contact.phone} onChange={(event) => setContact({ ...contact, phone: event.target.value })} className="g-input" />
           </Field>
           <Field label="Ou son e-mail, à défaut">
-            <input type="email" value={contact.email} onChange={(event) => setContact({ ...contact, email: event.target.value })} className={inputClass} />
+            <input type="email" value={contact.email} onChange={(event) => setContact({ ...contact, email: event.target.value })} className="g-input" />
           </Field>
           <Field label="Son nom (facultatif)">
-            <input value={contact.name} onChange={(event) => setContact({ ...contact, name: event.target.value })} className={inputClass} />
+            <input value={contact.name} onChange={(event) => setContact({ ...contact, name: event.target.value })} className="g-input" />
           </Field>
           <button type="submit" disabled={!contact.phone.trim() && !contact.email.trim()} className={primaryButton}>
             Voir le récap
@@ -180,7 +180,11 @@ export function VisitScreen({ place }: { place: MapRestaurant }) {
           <div className="flex flex-col gap-1.5">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-faint">Message envoyé sur Discord</span>
             <p className={`${cardClass} text-sm`}>{visitMessage(account.first_name ?? account.email, place.name, visit.outcome)}</p>
-            <span className="text-xs text-faint">Le contact et le nom du gérant ne partent jamais sur Discord.</span>
+            <span className="text-xs text-faint">
+              {visit.outcome === "absent"
+                ? "Le contact part seulement dans #inscriptions, que voit l’équipe."
+                : "Le nom du gérant ne part jamais sur Discord."}
+            </span>
           </div>
           {error && <p className="text-sm text-ember-3">{error}</p>}
           <button type="button" disabled={busy} onClick={() => void send()} className={primaryButton}>

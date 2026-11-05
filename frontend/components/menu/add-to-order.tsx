@@ -345,7 +345,7 @@ function shared(names: string[]): string {
  * `format` y coche d'avance ce format (l'offre de happy hour : le 50 cl).
  */
 export function AddToOrder({ item, format }: { item: MenuItem; format?: string }) {
-  const { orderingEnabled, canOrder, addLine, track, lines, closed, closedAt, collect } =
+  const { orderingEnabled, orderingSoon, canOrder, addLine, track, lines, closed, closedAt, closedLabel, collect } =
     useCart();
   const [modalOpen, setModalOpen] = useState(false);
   const [added, setAdded] = useState(false);
@@ -377,21 +377,24 @@ export function AddToOrder({ item, format }: { item: MenuItem; format?: string }
           isUnavailable(item) ? "text-faint" : "text-muted"
         }`}
       >
-        {isUnavailable(item) ? "Indisponible" : "Plus servi"}
+        {isUnavailable(item) ? "Indisponible" : closedLabel(item.id)}
       </span>
     );
   }
 
   if (!canOrder) {
     return (
-      <button
-        type="button"
-        disabled
-        title="Scannez le Cachet de votre table pour commander"
-        className="ember-gradient shrink-0 cursor-not-allowed rounded-full px-5 py-2.5 text-sm font-semibold text-background opacity-45"
-      >
-        + Ajouter
-      </button>
+      <>
+        <button
+          type="button"
+          disabled
+          title={orderingSoon ? undefined : "Scannez le Cachet de votre table pour commander"}
+          className="ember-gradient shrink-0 cursor-not-allowed rounded-full px-5 py-2.5 text-sm font-semibold text-background opacity-45"
+        >
+          + Ajouter
+        </button>
+        {orderingSoon && <span className="order-soon">Bientôt</span>}
+      </>
     );
   }
 
@@ -420,8 +423,8 @@ export function AddToOrder({ item, format }: { item: MenuItem; format?: string }
       {collect && closed.has(item.id) && (
         <span className="mr-3 self-center text-xs text-muted">
           {closedAt
-            ? "Plus servi à l’heure choisie"
-            : "Plus servi maintenant · possible pour un retrait plus tard"}
+            ? `${closedLabel(item.id)} à l’heure choisie`
+            : `${closedLabel(item.id)} maintenant · possible pour un retrait plus tard`}
         </span>
       )}
       <button

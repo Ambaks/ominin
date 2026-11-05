@@ -23,15 +23,27 @@ function Phone({
   screen,
   screenKey,
   width,
+  glass,
 }: {
   header: ReactNode;
   screen: ReactNode;
   screenKey: number;
   width: string;
+  glass?: boolean;
 }) {
   return (
-    <div className={`relative mx-auto w-full rounded-[2.6rem] ${width} border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10`}>
-      <div className="relative flex aspect-[9/18] flex-col overflow-hidden rounded-[2.1rem] bg-background px-4 pb-5 pt-3">
+    <div
+      className={`mx-auto w-full ${width} ${
+        glass
+          ? "g-glass kit-phone p-g-pad"
+          : "relative rounded-[2.6rem] border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10"
+      }`}
+    >
+      <div
+        className={`relative flex aspect-[9/18] flex-col overflow-hidden px-4 pb-5 pt-3 ${
+          glass ? "g-plate" : "rounded-[2.1rem] bg-background"
+        }`}
+      >
         <div className="mx-auto mb-4 h-5 w-20 shrink-0 rounded-full bg-surface" aria-hidden />
         <div className="mb-4 shrink-0">{header}</div>
         <div key={screenKey} className="flex flex-1 flex-col">
@@ -51,6 +63,7 @@ export function ScrollStory({
   steps,
   screens,
   header,
+  glass,
 }: {
   id: string;
   eyebrow: string;
@@ -60,17 +73,19 @@ export function ScrollStory({
   screens: ReactNode[];
   /** En-tête du téléphone, commun à tous les écrans. */
   header: ReactNode;
+  /** Téléphone et étapes en verre (kit gestion), sans bande de section. */
+  glass?: boolean;
 }) {
   const { active, itemRef, cover } = useActiveIndex<HTMLLIElement>();
 
   return (
-    <section id={id} className="scroll-mt-20 border-y border-hairline bg-surface/40">
+    <section id={id} className={`scroll-mt-20 ${glass ? "" : "border-y border-hairline bg-surface/40"}`}>
       <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24 lg:px-10 lg:pb-10 lg:pt-24">
         <KitHeading eyebrow={eyebrow} title={title} />
         <div className="mt-16 grid gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-20">
           <div className="hidden lg:block">
             <div className="sticky top-[calc(50vh-12rem)]">
-              <Phone header={header} screen={screens[active]} screenKey={active} width="max-w-[17.5rem]" />
+              <Phone header={header} screen={screens[active]} screenKey={active} width="max-w-[17.5rem]" glass={glass} />
               <div className="mt-6 flex justify-center gap-2" aria-hidden>
                 {steps.map((_, i) => (
                   <span
@@ -83,18 +98,24 @@ export function ScrollStory({
           </div>
           <div className="grid">
             <div ref={cover} className="sticky top-20 col-start-1 row-start-1 self-start lg:hidden" aria-hidden>
-              <Phone header={header} screen={screens[active]} screenKey={active} width="max-w-[15rem]" />
+              <Phone header={header} screen={screens[active]} screenKey={active} width="max-w-[15rem]" glass={glass} />
             </div>
             <ol className="relative col-start-1 row-start-1 flex flex-col gap-[45svh] pb-6 pt-[19rem] lg:gap-[28vh] lg:pb-[4vh] lg:pt-[12vh]">
               {steps.map((step, i) => (
                 <li
                   key={step.title}
                   ref={itemRef(i)}
-                  className={`rounded-3xl border border-hairline bg-background/80 p-6 shadow-[0_20px_60px_-30px_var(--ember-2)] backdrop-blur-xl transition-opacity duration-500 lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:opacity-45 lg:shadow-none lg:backdrop-blur-none ${i === active ? "lg:opacity-100" : ""}`}
+                  className={`transition-opacity duration-500 lg:opacity-45 ${
+                    glass
+                      ? ""
+                      : "rounded-3xl border border-hairline bg-background/80 p-6 shadow-[0_20px_60px_-30px_var(--ember-2)] backdrop-blur-xl lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none lg:backdrop-blur-none"
+                  } ${i === active ? "lg:opacity-100" : ""}`}
                 >
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember-1">{step.kicker}</p>
-                  <h3 className="kit-display mt-3 text-balance text-3xl lg:text-5xl">{step.title}</h3>
-                  <p className="mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted">{step.description}</p>
+                  <div className={glass ? "kit-story-step g-glass p-6 lg:p-0" : "contents"}>
+                    <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-ember-1">{step.kicker}</p>
+                    <h3 className="kit-display mt-3 text-balance text-3xl lg:text-5xl">{step.title}</h3>
+                    <p className="mt-4 max-w-lg text-pretty text-base leading-relaxed text-muted">{step.description}</p>
+                  </div>
                 </li>
               ))}
             </ol>

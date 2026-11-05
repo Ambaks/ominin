@@ -2,8 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Sheet } from "@/components/gestion/ui";
 import { useAdminBasePath } from "@/lib/admin/base-path";
 import {
   CONTRACT_END_LABELS,
@@ -12,8 +11,9 @@ import {
   fetchDiscordMembers,
   inviteCommercial,
   removeCommercial,
-  setCommissionPercent,
   setDiscordMember,
+  updateCommercialSettings,
+  type CommercialOwnSettings,
   type CommercialPlace,
   type CommercialPlaceStatus,
   type CommercialRow,
@@ -26,6 +26,43 @@ export const GHOST_BUTTON =
   "rounded-full border border-hairline px-3 py-1.5 text-xs font-semibold text-muted transition-colors hover:text-foreground disabled:opacity-60";
 
 const SECTION_TITLE = "text-[11px] font-semibold uppercase tracking-wider text-faint";
+
+type SettingKey = keyof CommercialOwnSettings;
+
+/* Les réglages d'un commercial, saisis par l'admin : aucune valeur n'est écrite dans le code. */
+const SETTING_FIELDS: { key: SettingKey; label: string; unit: string; hint: string; required: boolean }[] = [
+  {
+    key: "commission_percent",
+    label: "Commission",
+    unit: "%",
+    hint: "Part de ce qu’Ominin gagne sur chaque restaurant qu’il signe. Un relevé déjà envoyé garde son taux.",
+    required: true,
+  },
+  {
+    key: "term_months",
+    label: "Durée de la commission",
+    unit: "mois",
+    hint: "À partir de l’inscription de chaque restaurant. C’est aussi la durée de son contrat.",
+    required: true,
+  },
+  {
+    key: "visit_request_days",
+    label: "Délai d’une demande de visite",
+    unit: "jours",
+    hint: "Sans réponse, ou refusée sans que le restaurant avance, un restaurant qu’il suit est libéré pour tous. Vide : jamais libéré.",
+    required: false,
+  },
+  {
+    key: "search_radius_km",
+    label: "Rayon de recherche sur la carte",
+    unit: "km",
+    hint: "Il ne trouve par son nom qu’un établissement à cette distance de lui.",
+    required: true,
+  },
+];
+
+const settingsDraft = (settings: CommercialOwnSettings) =>
+  Object.fromEntries(SETTING_FIELDS.map(({ key }) => [key, settings[key]?.toString() ?? ""])) as Record<SettingKey, string>;
 
 const PLACE_LABELS: Record<Exclude<CommercialPlaceStatus, "signed">, string> = {
   waiting: "Inscription en cours",
@@ -50,8 +87,8 @@ export function contractLine(row: CommercialRow): string {
 }
 
 /*
- * La fiche d'un commercial : son taux, son compte Discord, ses restaurants et
- * son contrat. Les gestes passent par `run`, qui recharge la liste.
+ * La fiche d'un commercial : ses réglages, son compte Discord, ses restaurants
+ * et son contrat. Les gestes passent par `run`, qui recharge la liste.
  */
 export function CommercialSheet({
   row,
@@ -72,7 +109,7 @@ export function CommercialSheet({
 }) {
   const router = useRouter();
   const { basePath, localPath } = useAdminBasePath();
-  const [draft, setDraft] = useState("");
+  const [draft, setDraft] = useState(() => settingsDraft(row.settings));
   const [members, setMembers] = useState<DiscordMember[] | string | null>(null);
   const [places, setPlaces] = useState<CommercialPlace[] | string | null>(null);
 
@@ -86,17 +123,23 @@ export function CommercialSheet({
   }, [row.id]);
 
   const who = row.name ?? row.email;
-  const current = row.commissionPercent ?? settings.commission_percent;
   const taken = new Set(rows.filter((other) => other.id !== row.id).map((other) => other.discordUserId));
+  const saved = settingsDraft(row.settings);
+  const incomplete = SETTING_FIELDS.some(({ key, required }) => required && draft[key] === "");
+  const unchanged = SETTING_FIELDS.every(({ key }) => draft[key] === saved[key]);
 
-  const raise = async () => {
-    const percent = Number(draft);
-    if (!window.confirm(`Porter le taux de ${who} à ${percent.toLocaleString("fr-FR")} % ? Il ne pourra plus baisser. Prévenez-le par e-mail.`)) return;
-    if (await run(row.id, () => setCommissionPercent(row.id, percent), `Taux de ${who} enregistré.`)) setDraft("");
+  const saveSettings = () => {
+    const next = Object.fromEntries(
+      SETTING_FIELDS.map(({ key }) => [key, draft[key] === "" ? null : Number(draft[key])])
+    ) as CommercialOwnSettings;
+    const from = row.settings.commission_percent.toLocaleString("fr-FR");
+    const to = next.commission_percent.toLocaleString("fr-FR");
+    if (from !== to && !window.confirm(`Passer le taux de ${who} de ${from} % à ${to} % ? Prévenez-le par e-mail.`)) return;
+    void run(row.id, () => updateCommercialSettings(row.id, next), `Réglages de ${who} enregistrés.`);
   };
 
   return (
-    <Modal title={who} onClose={onClose}>
+    <Sheet title={who} onClose={onClose}>
       <div className="flex flex-col gap-6">
         <section className="flex flex-col gap-3">
           <div>
@@ -123,30 +166,34 @@ export function CommercialSheet({
         </section>
 
         <section className="flex flex-col gap-2">
-          <h3 className={SECTION_TITLE}>Commission</h3>
-          <label htmlFor="commercial-rate" className="text-sm">
-            {row.commissionPercent === null ? "Taux de base" : "Taux propre"} : {current.toLocaleString("fr-FR")} %
-            <span className="block text-xs text-faint">
-              Sur chaque restaurant, pendant {settings.term_months} mois à partir de son inscription. Le taux ne fait que monter.
-            </span>
-          </label>
-          <span className="flex items-center gap-2 text-sm text-muted">
-            <input
-              id="commercial-rate"
-              type="number"
-              step="any"
-              min={current}
-              max={100}
-              placeholder={current.toString()}
-              value={draft}
-              onChange={(event) => setDraft(event.target.value)}
-              className={`${inputClass} w-28`}
-            />
-            %
-            <button type="button" disabled={busy || draft === "" || Number(draft) <= current} onClick={() => void raise()} className={GHOST_BUTTON}>
-              Relever
-            </button>
-          </span>
+          <h3 className={SECTION_TITLE}>Réglages</h3>
+          <ul className="flex flex-col divide-y divide-hairline g-plate">
+            {SETTING_FIELDS.map(({ key, label, unit, hint, required }) => (
+              <li key={key} className="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-3">
+                <label htmlFor={`commercial-${key}`} className="min-w-0 flex-1 text-sm">
+                  {label}
+                  {required && <span className="text-ember-2"> *</span>}
+                  <span className="block text-xs text-faint">{hint}</span>
+                </label>
+                <span className="flex items-center gap-2 text-sm text-muted">
+                  <input
+                    id={`commercial-${key}`}
+                    type="number"
+                    step={key === "commission_percent" ? "any" : 1}
+                    min={key === "commission_percent" ? 0 : 1}
+                    max={key === "commission_percent" ? 100 : undefined}
+                    value={draft[key]}
+                    onChange={(event) => setDraft({ ...draft, [key]: event.target.value })}
+                    className={`g-input w-28!`}
+                  />
+                  {unit}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <button type="button" disabled={busy || incomplete || unchanged} onClick={saveSettings} className={`${GHOST_BUTTON} self-start`}>
+            Enregistrer
+          </button>
         </section>
 
         <section className="flex flex-col gap-2">
@@ -159,7 +206,7 @@ export function CommercialSheet({
               const id = event.target.value || null;
               void run(row.id, () => setDiscordMember(row.id, id), id ? "Compte Discord relié." : "Compte Discord retiré.");
             }}
-            className={inputClass}
+            className="g-input"
           >
             <option value="">Pas relié</option>
             {Array.isArray(members) &&
@@ -177,13 +224,13 @@ export function CommercialSheet({
         <section className="flex flex-col gap-2">
           <h3 className={SECTION_TITLE}>Restaurants</h3>
           {places === null ? (
-            <div aria-busy className="shimmer h-16 rounded-2xl" />
+            <div aria-busy className="g-shimmer h-16" />
           ) : typeof places === "string" ? (
             <p className="text-sm text-ember-3">{places}</p>
           ) : places.length === 0 ? (
             <p className="text-sm text-muted">Aucun restaurant pour l’instant.</p>
           ) : (
-            <ul className="flex flex-col divide-y divide-hairline rounded-2xl border border-hairline bg-surface">
+            <ul className="flex flex-col divide-y divide-hairline g-plate">
               {places.map((place) => (
                 <li key={place.id}>
                   <button
@@ -208,7 +255,7 @@ export function CommercialSheet({
             <h3 className={SECTION_TITLE}>Contrat</h3>
             {row.signed && !row.optionExercisedAt && (
               <p className="text-xs text-faint">
-                Sans prolongation, le contrat s’arrête seul au bout de {settings.term_months} mois. Ominin peut le prolonger une fois de {settings.option_years} ans, au plus
+                Sans prolongation, le contrat s’arrête seul au bout de {row.settings.term_months} mois. Ominin peut le prolonger une fois de {settings.option_years} ans, au plus
                 tard un mois avant la fin (article 3).
               </p>
             )}
@@ -247,6 +294,6 @@ export function CommercialSheet({
           </section>
         )}
       </div>
-    </Modal>
+    </Sheet>
   );
 }

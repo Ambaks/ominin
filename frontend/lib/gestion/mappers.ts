@@ -1,9 +1,10 @@
 import type { OpeningHours } from "@/lib/collect/hours";
 import { byWindowOrder } from "./fermetures";
-import type { CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import type { CategoryLayout, ItemCuisine, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import type { Json, Tables } from "@/lib/supabase/database.types";
 import type {
   Affiche,
+  BulleEncaissement,
   Closure,
   Etablissement,
   Etape,
@@ -69,6 +70,7 @@ export function rowToMenuItem(row: Tables<"items">): MenuItem {
     pairing: row.pairing ?? undefined,
     detail: row.detail ?? undefined,
     printName: row.print_name ?? undefined,
+    cuisine: (row.cuisine as ItemCuisine | null) ?? undefined,
     disponible: row.disponible,
     stock: row.stock ?? undefined,
     options: options.length ? options : undefined,
@@ -145,6 +147,20 @@ export function rowToMember(row: Tables<"memberships">): Member {
     email: row.email,
     role: row.role,
     displayName: row.display_name,
+  };
+}
+
+export function rowToBulleEncaissement(row: Tables<"bulle_encaissements">): BulleEncaissement {
+  return {
+    id: row.id!,
+    bulleName: row.bulle_name!,
+    name: row.name!,
+    places: row.places!,
+    amount: Number(row.amount),
+    mode: row.mode as BulleEncaissement["mode"],
+    paidAt: row.paid_at!,
+    refundedAt: row.refunded_at ?? undefined,
+    etat: row.etat as BulleEncaissement["etat"],
   };
 }
 
@@ -252,5 +268,6 @@ export function rowToClosure(
     overrideClosed: row.override_closed,
     overrideUntil: row.override_until,
     targets: row.closure_targets.map(rowToTarget),
+    cuisine: row.cuisine as Closure["cuisine"],
   };
 }

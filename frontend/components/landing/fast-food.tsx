@@ -13,8 +13,8 @@ const { ticket } = fastFoodSection;
 function Ticket() {
   return (
     <div className="kit-ticket relay-float relative mx-auto w-full max-w-[19rem]" aria-hidden>
-      <div className="rounded-[2.4rem] border border-ember-2/25 bg-surface p-2.5 shadow-[0_30px_80px_-30px_var(--ember-2)] ring-1 ring-foreground/10">
-        <div className="relative overflow-hidden rounded-[1.9rem] bg-background px-5 pb-6 pt-3">
+      <div className="g-glass kit-phone p-g-pad">
+        <div className="g-plate relative overflow-hidden px-5 pb-6 pt-3">
           <div className="mx-auto mb-5 h-5 w-20 rounded-full bg-surface" />
           <p className="flex items-center justify-center gap-2 text-sm font-semibold">
             <Image src="/logo.png" alt="" width={22} height={22} />
@@ -77,10 +77,11 @@ export function FastFood() {
                 key={point.title}
                 as="li"
                 delay={i * 90}
-                className="kit-card rounded-2xl border border-hairline bg-surface p-5"
               >
-                <p className="text-sm font-bold">{point.title}</p>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted">{point.description}</p>
+                <div className="g-glass h-full p-5">
+                  <p className="text-sm font-bold">{point.title}</p>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">{point.description}</p>
+                </div>
               </Reveal>
             ))}
           </ul>

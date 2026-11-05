@@ -506,7 +506,7 @@ export default function EtablissementPage() {
             )}
             {hasFeature("commandes") && (
               <FermeturesSettings
-                closures={state.closures}
+                closures={state.closures.filter((closure) => closure.cuisine === null)}
                 categories={state.categories}
                 dayEndHour={state.dayEndHour}
               />
@@ -542,7 +542,9 @@ export default function EtablissementPage() {
                 initialEnabled={etablissement.onlinePayment}
                 initialMinOrder={etablissement.onlineMinOrder}
                 initialProvider={
-                  etablissement.paymentProvider === "square" ? "square" : "stripe"
+                  etablissement.paymentProvider === "square" || etablissement.paymentProvider === "viva"
+                    ? etablissement.paymentProvider
+                    : "stripe"
                 }
               />
             )}

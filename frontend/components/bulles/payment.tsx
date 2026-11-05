@@ -11,6 +11,7 @@ import {
 } from "@/components/payment/use-square-payments";
 import type { BulleCheckout } from "@/lib/bulles/server";
 import { TABLE_HOLD_S } from "@/lib/club/hold";
+import { BULLE_NO_REFUND, BULLE_NOT_RESERVED } from "@/lib/bulles/format";
 import { formatCents } from "@/lib/club/format";
 
 /*
@@ -35,6 +36,16 @@ export function refundMessage(reason: NonNullable<PartResult["refunded"]>): stri
     : reason === "full"
       ? "Les places du groupe venaient d'être toutes payées : votre paiement vous est remboursé."
       : "Ce paiement ne correspondait plus à votre place : il vous est remboursé.";
+}
+
+/** Les mentions posées au-dessus de chaque bouton Payer. */
+export function BeforePay({ notReserved }: { notReserved: boolean }) {
+  return (
+    <>
+      {notReserved && <p className="bo-muted bo-small">{BULLE_NOT_RESERVED}</p>}
+      <p className="bo-muted bo-small">{BULLE_NO_REFUND}</p>
+    </>
+  );
 }
 
 /** Le formulaire carte vit dans une iframe Square : les couleurs du parchemin lui sont passées. */
@@ -71,11 +82,13 @@ function SquareForm({
   partId,
   amountCents,
   locationId,
+  notReserved,
   onResult,
 }: {
   partId: string;
   amountCents: number;
   locationId: string;
+  notReserved: boolean;
   onResult: (result: PartResult) => void;
 }) {
   const square = useSquarePayments({
@@ -155,6 +168,7 @@ function SquareForm({
           {error}
         </p>
       )}
+      <BeforePay notReserved={notReserved} />
       <button type="button" className="bo-button bo-button--block" onClick={() => void pay("card")} disabled={!ready}>
         {paying ? "Paiement en cours…" : square.status === "loading" ? "Préparation du paiement…" : `Payer ${formatCents(amountCents)}`}
       </button>
@@ -163,7 +177,17 @@ function SquareForm({
   );
 }
 
-function DemoForm({ partId, amountCents, onResult }: { partId: string; amountCents: number; onResult: (result: PartResult) => void }) {
+function DemoForm({
+  partId,
+  amountCents,
+  notReserved,
+  onResult,
+}: {
+  partId: string;
+  amountCents: number;
+  notReserved: boolean;
+  onResult: (result: PartResult) => void;
+}) {
   const [paying, setPaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const pay = async () => {
@@ -181,6 +205,7 @@ function DemoForm({ partId, amountCents, onResult }: { partId: string; amountCen
           {error}
         </p>
       )}
+      <BeforePay notReserved={notReserved} />
       <button type="button" className="bo-button bo-button--block" onClick={() => void pay()} disabled={paying}>
         {paying ? "Paiement en cours…" : `Payer ${formatCents(amountCents)}`}
       </button>
@@ -195,6 +220,7 @@ export function BullePayment({
   places,
   holdExpiresAt,
   checkout,
+  notReserved,
   onResult,
   onExpire,
 }: {
@@ -203,6 +229,8 @@ export function BullePayment({
   places: number;
   holdExpiresAt: string;
   checkout: BulleCheckout;
+  /** La réservation attend encore son minimum de places. */
+  notReserved: boolean;
   onResult: (result: PartResult) => void;
   onExpire: () => void;
 }) {
@@ -218,15 +246,21 @@ export function BullePayment({
             {formatCents(amountCents)}
           </h2>
           <p className="bo-pay-detail">
-            {places} place{places > 1 ? "s" : ""}, gardée{places > 1 ? "s" : ""} le temps de payer
+            {places > 0 ? `${places} place${places > 1 ? "s" : ""}, gardée${places > 1 ? "s" : ""} le temps de payer` : "Le reste du groupe"}
           </p>
         </div>
         <HoldCountdown remainingMs={remainingMs} totalMs={TABLE_HOLD_S * 1000} onExpire={onExpire} what="vos places" />
       </header>
       {checkout.provider === "square" ? (
-        <SquareForm partId={partId} amountCents={amountCents} locationId={checkout.locationId} onResult={onResult} />
+        <SquareForm
+          partId={partId}
+          amountCents={amountCents}
+          locationId={checkout.locationId}
+          notReserved={notReserved}
+          onResult={onResult}
+        />
       ) : (
-        <DemoForm partId={partId} amountCents={amountCents} onResult={onResult} />
+        <DemoForm partId={partId} amountCents={amountCents} notReserved={notReserved} onResult={onResult} />
       )}
     </section>
   );

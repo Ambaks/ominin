@@ -1,4 +1,4 @@
-import type { Allergen, Badge, CategoryLayout, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
+import type { Allergen, Badge, CategoryLayout, ItemCuisine, MenuCategory, MenuItem, OptionGroup } from "@/lib/menu-data";
 import { syncTill } from "@/lib/hubrise/kick";
 import { notifyOrderEvent } from "@/lib/push/events";
 import { createClient } from "@/lib/supabase/client";
@@ -90,6 +90,8 @@ export interface ItemInput {
   vatRate: number;
   /** Délai de commande en heures ; null ⇒ sans délai. */
   noticeHours: number | null;
+  /** null ⇒ hors cuisine. */
+  cuisine: ItemCuisine | null;
 }
 
 function itemColumns(
@@ -110,6 +112,7 @@ function itemColumns(
     options: toJson(input.options),
     vat_rate: input.vatRate,
     notice_hours: input.noticeHours,
+    cuisine: input.cuisine,
   };
 }
 
@@ -174,6 +177,20 @@ export async function updateItem(
       target.items.push(next);
     }
     return next;
+  });
+}
+
+/** Marque d'un coup tous les articles d'une catégorie. */
+export async function setCategoryCuisine(
+  categoryId: string,
+  cuisine: ItemCuisine | null
+): Promise<void> {
+  const supabase = createClient();
+  check(await supabase.from("items").update({ cuisine }).eq("category_id", categoryId));
+  apply((draft) => {
+    for (const item of draft.categories.find((c) => c.id === categoryId)?.items ?? []) {
+      item.cuisine = cuisine ?? undefined;
+    }
   });
 }
 
@@ -1151,7 +1168,7 @@ export async function updateEtablissement(
  * façon si le nouveau fournisseur n'est pas encore capable d'encaisser.
  */
 export async function setPaymentProvider(
-  provider: "stripe" | "square"
+  provider: "stripe" | "square" | "viva"
 ): Promise<void> {
   const supabase = createClient();
   const dbValue = provider === "stripe" ? null : provider;
@@ -1465,6 +1482,41 @@ export async function toggleClosure(
     closure.overrideClosed = row.override_closed;
     closure.overrideUntil = row.override_until;
     return closure;
+  });
+}
+
+export type CuisinePartie = NonNullable<Closure["cuisine"]>;
+
+/**
+ * Le bouton « Fermeture cuisine » (gérant ou cuisinier) : la base crée ses
+ * fermetures réservées à la première pression. `articles` : la sélection de
+ * « choix ».
+ */
+export async function basculerCuisine(
+  parties: CuisinePartie[],
+  closed: boolean,
+  articles: string[] = []
+): Promise<void> {
+  const supabase = createClient();
+  const rows = must(
+    await supabase.rpc("basculer_cuisine", {
+      p_etablissement: etablissementId(),
+      p_parties: parties,
+      p_fermee: closed,
+      p_articles: articles,
+    })
+  );
+  apply((draft) => {
+    for (const row of rows) {
+      const closure = rowToClosure({ ...row, closure_windows: [], closure_targets: [] });
+      if (closure.cuisine === "choix" && closed) {
+        closure.targets = articles.map((id) => ({ kind: "item", id }));
+      }
+      // La relecture realtime a pu la poser avant cette réponse.
+      const index = draft.closures.findIndex((c) => c.id === closure.id);
+      if (index === -1) draft.closures.push(closure);
+      else draft.closures[index] = { ...closure, targets: closed ? closure.targets : draft.closures[index].targets };
+    }
   });
 }
 

@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ShareBox, TicketWatch } from "@/components/bulles/live";
 import { Ticket, ticketState } from "@/components/bulles/ticket";
+import { formatBulleNight } from "@/lib/bulles/format";
 import { bulleUrl, isReservationToken, partageUrl } from "@/lib/bulles/links";
 import { fetchBulleTicket } from "@/lib/bulles/reservation";
-import { formatHours, formatNight } from "@/lib/club/format";
+import { formatHours } from "@/lib/club/format";
 
 /* Le statut change sans l'organisateur (un ami paie, la bulle se confirme) : relu à chaque visite. */
 export const dynamic = "force-dynamic";
@@ -20,7 +21,7 @@ export default async function BulleReservationPage({ params }: PageProps<"/menu/
   const ticket = await fetchBulleTicket({ token });
   if (!ticket || ticket.slug !== slug) notFound();
   const { live, left, ended } = ticketState(ticket);
-  const shareText = `Rejoins-moi dans ${ticket.bulle.name} au ${ticket.etablissement}, ${formatNight(ticket.startsAt)} · ${formatHours(ticket.startsAt, ticket.endsAt)}. Paie ta place ici :`;
+  const shareText = `Rejoins-moi dans ${ticket.bulle.name} au ${ticket.etablissement}, ${formatBulleNight(ticket.startsAt, ticket.dayEndHour)} · ${formatHours(ticket.startsAt, ticket.endsAt)}. Paie ta place ici :`;
 
   return (
     <div className="bo-bulle-page bo-stack-sm">

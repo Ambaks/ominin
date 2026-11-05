@@ -10,6 +10,7 @@ export function FinalCta() {
       primary={composerCta}
       secondary={{ label: finalCta.contactLabel, href: `mailto:${contactEmail}` }}
       microcopy={finalCta.microcopy}
+      glass
     />
   );
 }

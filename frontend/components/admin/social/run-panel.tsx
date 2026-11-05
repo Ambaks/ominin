@@ -91,7 +91,7 @@ export function RunPanel({ onRefresh }: { onRefresh: () => void }) {
         return (
           <div
             key={job.id}
-            className="flex flex-wrap items-center gap-3 rounded-2xl border border-hairline bg-surface p-4"
+            className="flex flex-wrap items-center gap-3 g-plate p-4"
           >
             <div className="min-w-40 flex-1">
               <p className="text-sm font-medium">{job.label}</p>

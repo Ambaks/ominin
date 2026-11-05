@@ -116,6 +116,13 @@ const VISITES: Record<string, Visite> = {
         body: `Les commandes en cours et le chiffre d’affaires encaissé du jour se mettent à jour en direct. Plus bas, la section Analytique détaille vos ventes sur ${ANALYTICS_PERIOD_DAYS.join(" ou ")} jours.`,
       },
       {
+        target: "fermeture-cuisine",
+        when: avecCommandes,
+        title: "Fermer d’un geste",
+        body: (state) =>
+          `Quand la cuisine s’arrête, fermez ici les plats chauds, les plats froids, tout, ou ce que vous choisissez : vos clients voient « Cuisine fermée ». Une table arrive tard ? Rouvrez ; sinon tout rouvre seul, au plus tard à ${dayEndLabel(state.dayEndHour)}.`,
+      },
+      {
         target: "nav",
         side: true,
         title: "Vos onglets",
@@ -187,12 +194,6 @@ const VISITES: Record<string, Visite> = {
   "/gestion/commandes": {
     id: "commandes",
     steps: [
-      {
-        target: "commandes-fermetures",
-        title: "Fermer d’un geste",
-        body: (state) =>
-          `Quand la cuisine s’arrête, fermez ici ce qu’elle ne sert plus : vos clients le voient « Plus servi ». Une table arrive tard ? Rouvrez ; sinon tout rouvre seul à l’heure prévue, au plus tard à ${dayEndLabel(state.dayEndHour)}.`,
-      },
       {
         target: "commandes-etapes",
         title: "Le service, étape par étape",
@@ -322,7 +323,7 @@ const VISITES: Record<string, Visite> = {
         target: "etablissement-fermetures",
         when: avecCommandes,
         title: "Fermer la cuisine",
-        body: "Choisissez ce qui n’est plus servi — les plats, le bar — à quelles heures et quels jours. Pendant le service, Commandes a un bouton pour fermer ou rouvrir d’un geste ; l’horaire reprend la main à son prochain changement.",
+        body: "Choisissez ce qui n’est plus servi — les plats, le bar — à quelles heures et quels jours. Pendant le service, Aujourd’hui a un bouton pour fermer ou rouvrir d’un geste ; l’horaire reprend la main à son prochain changement.",
       },
       {
         target: "etablissement-paiement",

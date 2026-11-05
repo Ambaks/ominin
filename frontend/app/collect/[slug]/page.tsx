@@ -82,6 +82,7 @@ export default async function CollectPage({
     onlinePayment,
     onlineMinOrder,
     closedItems,
+    kitchenClosedItems,
     paymentProvider,
     squareLocationId,
     loyalty,
@@ -90,12 +91,13 @@ export default async function CollectPage({
     collectSlotMinutes,
   } = data;
 
-  // Payée à la commande : sans encaisseur en ligne (Stripe, Square, ou la
-  // démonstration, sans débit) ni horaires, rien ne peut se commander.
+  // Payée à la commande : sans encaisseur en ligne (Stripe, Square, Viva, ou
+  // la démonstration, sans débit) ni horaires, rien ne peut se commander.
   const payable =
     onlinePayment &&
     (paymentProvider === "stripe" ||
       paymentProvider === "demo" ||
+      paymentProvider === "viva" ||
       (paymentProvider === "square" && squareLocationId !== null));
   if (!data.active || !payable || !openingHours) {
     return <Unavailable name={restaurant.name} phone={restaurant.phone ?? null} />;
@@ -115,6 +117,7 @@ export default async function CollectPage({
         onlineMinOrder,
         etablissementId: id,
         closedItems,
+        kitchenClosedItems,
         collect: { hours: openingHours, slotMinutes: collectSlotMinutes },
       }}
       restaurant={restaurant}

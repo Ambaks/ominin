@@ -3,8 +3,7 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 import { BulleBooking } from "@/components/bulles/booking";
 import { fetchBulleOffer } from "@/lib/bulles/public";
-import { formatDuration } from "@/lib/bulles/format";
-import { formatCents } from "@/lib/club/format";
+import { formatBulleTarifs, formatDuration } from "@/lib/bulles/format";
 
 /*
  * Réserver sa bulle. Réglages, bulles et jours ouverts sont rendus puis
@@ -24,7 +23,7 @@ export async function generateMetadata({ params }: PageProps<"/menu/w/[slug]/bul
   if (!offer) notFound();
   return {
     title: `Réserver une bulle · ${offer.etablissement.name}`,
-    description: `${formatCents(offer.placeCents)} par personne, ${formatDuration(offer.durationMinutes)}, dès ${offer.minParty} personnes.`,
+    description: `${formatBulleTarifs(offer, offer.minParty)}, ${formatDuration(offer.durationMinutes)}, dès ${offer.minParty} personne${offer.minParty > 1 ? "s" : ""}.`,
     robots: { index: false, follow: false },
   };
 }
@@ -38,7 +37,7 @@ export default async function BullePage({ params }: PageProps<"/menu/w/[slug]/bu
       <div className="bo-bulle-intro">
         <h1 className="bo-script bo-bulle-title">Votre bulle</h1>
         <p className="bo-muted-night">
-          {formatCents(offer.placeCents)} par personne · {formatDuration(offer.durationMinutes)} · de{" "}
+          {formatBulleTarifs(offer, offer.minParty)} · {formatDuration(offer.durationMinutes)} · de{" "}
           {offer.minParty} à {offer.maxParty} personnes
         </p>
       </div>

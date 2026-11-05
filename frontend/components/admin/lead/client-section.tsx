@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { inputClass } from "@/components/ui/field";
 import { useRunMutation } from "@/components/ui/toast";
 import {
   cancelClientDeparture,
@@ -75,7 +74,7 @@ export function ClientSection({ detail }: { detail: LeadDetail }) {
         </div>
       ) : (
         <div className="flex flex-wrap items-center gap-2">
-          <select value={choice} onChange={(event) => setChoice(event.target.value)} className={`${inputClass} flex-1`}>
+          <select value={choice} onChange={(event) => setChoice(event.target.value)} className={`g-input flex-1`}>
             <option value="">Pas client — relier à…</option>
             {(places ?? [])
               .filter((place) => !place.restaurant_id)

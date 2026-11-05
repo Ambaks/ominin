@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { startVelours } from "@/components/menu/panis-backdrop";
 import { Sheet, useNoSheet } from "@/components/menu/sheet";
-import { veloursPalettes } from "@/components/menu/velours-palettes";
+import { ecussonVelours, veloursPalettes } from "@/components/menu/velours-palettes";
 import { httpHref } from "@/lib/admin/format";
 import { AFTER_MEAL_EXPIRY_MS } from "@/lib/gestion/constants";
 import {
@@ -74,12 +74,12 @@ const KICKER_OF: Record<AfterMealMoment, keyof NonNullable<AfterMealOffer["kicke
 /** Les noms et accords de la carte gardent l'apostrophe droite : on l'affiche typographique. */
 const typo = (text: string) => text.replaceAll("'", "’");
 
-/** Le satin de la carte, repris dans la feuille : le même tissu, sous la même question. */
+/** Le satin de la carte, repris dans la feuille : le même tissu, sous la même question. Les aperçus de l'Écusson gardent leur feuille sans satin : un contexte WebGL de moins. */
 function Satin() {
   const { slug } = useCart();
   const ref = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    const palette = veloursPalettes[slug];
+    const palette = ecussonVelours.has(slug) ? undefined : veloursPalettes[slug];
     return ref.current && palette ? startVelours(ref.current, palette) : undefined;
   }, [slug]);
   return <div ref={ref} aria-hidden className="after-meal-satin" />;
@@ -165,9 +165,14 @@ function AfterMealCard({
         className="after-meal-card"
       >
         <span className="after-meal-photo">
-          {item.image && (
+          {item.image ? (
             // eslint-disable-next-line @next/next/no-img-element -- photo servie telle quelle, comme au panier
             <img src={item.image} alt="" />
+          ) : (
+            // Sans photo à la carte : son initiale, comme dans la feuille happy hour.
+            <span aria-hidden className="after-meal-initial">
+              {lineName(item).charAt(0)}
+            </span>
           )}
           {coffee && (
             <span aria-hidden className="after-meal-vapour">
@@ -382,12 +387,15 @@ function AfterMealSheet({
 /** Une commande telle que la suite la lit : du ticket en aperçu, de order_ticket en production. */
 type WatchedOrder = Pick<Ticket, "id" | "status" | "lines"> & { servedAt?: string | null };
 
-/** Le ticket du retrait au bar, dans l'aperçu : le scan se joue sous les yeux. */
+/**
+ * Les tickets de l'aperçu, qui se jouent sous les yeux : le scan du retrait au
+ * bar, ou le service à table. Le ticket numéroté du fast food n'a pas de suite.
+ */
 export function AfterMeal({ offer }: { offer: AfterMealOffer }) {
   const tickets = useTickets();
   return <AfterMealFlow
       offer={offer}
-      enabled={Boolean(tickets?.barPickup)}
+      enabled={Boolean(tickets && (tickets.barPickup || tickets.table !== null))}
       orders={tickets?.tickets}
       tracked={false}
     />;

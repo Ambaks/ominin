@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Field, inputClass } from "@/components/ui/field";
-import { Modal } from "@/components/ui/modal";
+import { Field } from "@/components/ui/field";
+import { Sheet } from "@/components/gestion/ui";
 import { useToast } from "@/components/ui/toast";
 import * as api from "@/lib/admin/api";
 import { PRIORITY_LABELS } from "@/lib/admin/constants";
@@ -73,7 +73,7 @@ export function TaskFormModal({
   };
 
   return (
-    <Modal
+    <Sheet
       title={task ? "Modifier la tâche" : "Nouvelle tâche"}
       onClose={onClose}
       footer={
@@ -81,7 +81,7 @@ export function TaskFormModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full border border-hairline px-4 py-2 text-sm font-semibold text-muted transition-colors hover:text-foreground"
+            className="g-btn g-btn-secondary g-press"
           >
             Annuler
           </button>
@@ -89,7 +89,7 @@ export function TaskFormModal({
             type="button"
             onClick={() => void submit()}
             disabled={busy}
-            className="ember-gradient rounded-full px-5 py-2 text-sm font-semibold text-background disabled:opacity-60"
+            className="g-btn g-btn-primary g-press"
           >
             Enregistrer
           </button>
@@ -102,7 +102,7 @@ export function TaskFormModal({
             type="text"
             value={title}
             onChange={(event) => setTitle(event.target.value)}
-            className={inputClass}
+            className="g-input"
           />
         </Field>
         <Field label="Description">
@@ -110,7 +110,7 @@ export function TaskFormModal({
             value={description}
             onChange={(event) => setDescription(event.target.value)}
             rows={2}
-            className={`${inputClass} resize-none`}
+            className={`g-input resize-none`}
           />
         </Field>
         <Field label="Échéance">
@@ -118,7 +118,7 @@ export function TaskFormModal({
             type="datetime-local"
             value={dueAt}
             onChange={(event) => setDueAt(event.target.value)}
-            className={inputClass}
+            className="g-input"
           />
         </Field>
         <div className="flex flex-col gap-1.5">
@@ -150,6 +150,6 @@ export function TaskFormModal({
           </Field>
         )}
       </div>
-    </Modal>
+    </Sheet>
   );
 }

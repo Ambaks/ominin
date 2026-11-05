@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/client";
 import type { Tables } from "@/lib/supabase/database.types";
 import { check, must } from "@/lib/supabase/result";
 import { menuSiteUrl } from "@/lib/site";
+import { HOURS_REPORT_READ_ROWS } from "./constants";
 import { serviceDate } from "./selectors";
 import type { Staff } from "./types";
 
@@ -96,7 +97,7 @@ export function workedMinutes(entries: EntrySpan[], now: Date): number {
   );
 }
 
-export function plannedMinutes(shifts: Shift[]): number {
+export function plannedMinutes(shifts: Pick<Shift, "startsAt" | "endsAt">[]): number {
   return shifts.reduce(
     (sum, shift) => sum + minutesBetween(shift.startsAt, shift.endsAt),
     0
@@ -204,6 +205,79 @@ export async function loadWeek(
       note: row.note ?? undefined,
     })),
     entries: must(entries).map(rowToEntry),
+  };
+}
+
+/** Ce qu'un rapport d'heures lit d'un badgeage : le nom pour une fiche retirée, jamais la signature. */
+export interface ReportEntry extends EntrySpan {
+  memberName: string;
+}
+
+export interface ReportData {
+  shifts: Pick<Shift, "id" | "staffId" | "startsAt" | "endsAt">[];
+  entries: ReportEntry[];
+}
+
+/** Toutes les lignes d'une lecture, page par page : un mois peut dépasser le plafond de PostgREST. */
+async function readAll<Row>(
+  read: (from: number, to: number) => PromiseLike<{ data: Row[] | null; error: { message: string } | null }>
+): Promise<Row[]> {
+  const rows: Row[] = [];
+  for (;;) {
+    const batch = must(await read(rows.length, rows.length + HOURS_REPORT_READ_ROWS - 1));
+    rows.push(...batch);
+    if (batch.length < HOURS_REPORT_READ_ROWS) return rows;
+  }
+}
+
+/**
+ * Les créneaux et badgeages qui commencent dans la période : un service de
+ * nuit compte en entier là où il commence, et jamais sur la période d'après.
+ */
+export async function loadReportData(
+  etablissementId: string,
+  from: Date,
+  to: Date
+): Promise<ReportData> {
+  const supabase = createClient();
+  const [shifts, entries] = await Promise.all([
+    readAll((first, last) =>
+      supabase
+        .from("shifts")
+        .select("id, staff_id, starts_at, ends_at")
+        .eq("etablissement_id", etablissementId)
+        .gte("starts_at", from.toISOString())
+        .lt("starts_at", to.toISOString())
+        .order("starts_at")
+        .order("id")
+        .range(first, last)
+    ),
+    readAll((first, last) =>
+      supabase
+        .from("time_entries")
+        .select("id, staff_id, member_name, started_at, ended_at")
+        .eq("etablissement_id", etablissementId)
+        .gte("started_at", from.toISOString())
+        .lt("started_at", to.toISOString())
+        .order("started_at")
+        .order("id")
+        .range(first, last)
+    ),
+  ]);
+  return {
+    shifts: shifts.map((row) => ({
+      id: row.id,
+      staffId: row.staff_id,
+      startsAt: row.starts_at,
+      endsAt: row.ends_at,
+    })),
+    entries: entries.map((row) => ({
+      id: row.id,
+      staffId: row.staff_id,
+      memberName: row.member_name,
+      startedAt: row.started_at,
+      endedAt: row.ended_at ?? undefined,
+    })),
   };
 }
 

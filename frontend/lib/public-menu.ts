@@ -74,7 +74,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   offre: string | null;
   onlinePayment: boolean;
   /** Fournisseur du paiement à table ; non choisi ⇒ Stripe (historique). */
-  paymentProvider: "stripe" | "sumup" | "square" | "demo";
+  paymentProvider: "stripe" | "sumup" | "square" | "demo" | "viva";
   /** Point de vente Square encaisseur — public par conception (SDK carte). */
   squareLocationId: string | null;
   /** Menu QR ouvert : ferme, la page publique n'existe pas pour ce client. */
@@ -97,12 +97,16 @@ export async function fetchRestaurant(slug: string): Promise<{
    * menu les filtre d'après l'état relu (components/menu/formules.tsx).
    */
   closedItems: string[];
+  /** Ceux d'entre eux que le bouton « Fermeture cuisine » coupe. */
+  kitchenClosedItems: string[];
   /** L'accord du chef, par id de plat ; absent ⇒ le restaurant n'en propose pas. */
   pairings: Record<string, Pairing[]> | undefined;
   /** Les formules que l'accord du chef propose de compléter ; absent avec lui. */
   formuleOffers: FormuleOffer[] | undefined;
   /** L'habillage de saison posé par l'admin, s'il n'a pas passé sa date de fin. */
   saison: Saison | null;
+  /** « Commande bientôt », posé par l'admin : la carte se consulte, on n'y commande pas encore. */
+  orderingSoon: boolean;
   /** Horaires structurés : les créneaux de retrait du click & collect. */
   openingHours: OpeningHours | null;
   collectSlotMinutes: number;
@@ -114,7 +118,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   // sur la page la plus consultée (chaque scan de QR code).
   const { data: etablissement, error } = await supabase
     .from("etablissements")
-    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour, saison, saison_fin), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*), affiches(*)")
+    .select("*, categories(*), items!items_etablissement_id_fkey(*), etablissement_settings(features, day_end_hour, saison, saison_fin, ordering_soon), loyalty_rewards(id, label, points, loyalty_reward_items(item_id)), formules(*), affiches(*)")
     .eq("slug", slug)
     .order("position", { referencedTable: "categories", ascending: true })
     .order("position", { referencedTable: "items", ascending: true })
@@ -127,7 +131,7 @@ export async function fetchRestaurant(slug: string): Promise<{
   // Tarifs planifiés en cours. Un second aller-retour, mais la page est mise
   // en cache : c'est la revalidation qui le paie, pas le scan du client. Le
   // prix affiché est ainsi celui que place_order figera sur la commande.
-  const [tarifs, closedItems] = await Promise.all([
+  const [tarifs, closedNow] = await Promise.all([
     fetchActiveTarifs(supabase, etablissement.id),
     fetchClosedItems(supabase, etablissement.id),
   ]);
@@ -246,7 +250,8 @@ export async function fetchRestaurant(slug: string): Promise<{
       etablissement.online_min_order === null
         ? null
         : Number(etablissement.online_min_order),
-    closedItems,
+    closedItems: closedNow.closed,
+    kitchenClosedItems: closedNow.kitchen,
     paymentProvider: etablissement.payment_provider ?? "stripe",
     squareLocationId: etablissement.square_location_id ?? null,
     qrMenu: features?.qr !== false,
@@ -260,6 +265,7 @@ export async function fetchRestaurant(slug: string): Promise<{
     pairings: resolvePairings(categories, staticData?.pairings),
     formuleOffers: staticData?.pairings ? resolveFormuleOffers(formules, categories) : undefined,
     saison: activeSaison(settings?.saison ?? null, settings?.saison_fin ?? null, dayEndHour),
+    orderingSoon: settings?.ordering_soon === true,
     openingHours: etablissement.opening_hours as OpeningHours | null,
     collectSlotMinutes: etablissement.collect_slot_minutes,
     restaurant: {

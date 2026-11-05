@@ -190,7 +190,9 @@ function DishDetails({
             </span>
           )}
         </span>
-        <AddToOrder item={item} />
+        <span className="dish-sheet-add flex items-center">
+          <AddToOrder item={item} />
+        </span>
       </div>
     </>
   );

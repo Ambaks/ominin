@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AccountPanel } from "@/components/admin/comptes/account-panel";
 import { EmptyState } from "@/components/ui/empty-state";
-import { inputClass } from "@/components/ui/field";
 import { PillTabs } from "@/components/ui/pill-tabs";
 import { useToast } from "@/components/ui/toast";
 import {
@@ -77,8 +76,8 @@ export default function ComptesPage() {
   if (!accounts) {
     return (
       <div aria-busy className="flex flex-col gap-3">
-        <div className="shimmer h-9 w-44 rounded-xl" />
-        <div className="shimmer h-64 rounded-2xl" />
+        <div className="g-shimmer h-9 w-44" />
+        <div className="g-shimmer h-64" />
       </div>
     );
   }
@@ -108,7 +107,7 @@ export default function ComptesPage() {
         value={search}
         onChange={(event) => setSearch(event.target.value)}
         placeholder="Chercher un e-mail, un téléphone, un restaurant…"
-        className={inputClass}
+        className="g-input"
       />
       <PillTabs tabs={tabs} activeId={filter} onSelect={setFilter} />
 
@@ -121,7 +120,7 @@ export default function ComptesPage() {
               <button
                 type="button"
                 onClick={() => setSelectedId(account.user_id)}
-                className="flex w-full flex-col gap-1 rounded-2xl border border-hairline bg-surface p-4 text-left transition-colors hover:border-ember-2/40"
+                className="flex w-full flex-col gap-1 g-plate p-4 text-left transition-colors hover:border-ember-2/40"
               >
                 <span className="flex flex-wrap items-center gap-2">
                   <span className="min-w-0 truncate text-sm font-semibold">

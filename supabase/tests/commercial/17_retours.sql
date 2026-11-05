@@ -5,7 +5,7 @@ begin;
 
 update public.crm_restaurants set latitude = 43.61, longitude = 3.87 where id in (:'r1', :'r2');
 update public.commerciaux set discord_user_id = 'discord-bruno' where id = :'b';
-update public.commercial_settings set visit_request_days = 30;
+update public.commerciaux set visit_request_days = 30;
 
 select pg_temp.act(:'a_user');
 select public.commercial_start_signup(:'r1') as s1 \gset

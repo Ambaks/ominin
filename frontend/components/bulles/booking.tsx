@@ -3,7 +3,18 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
 import { BullePayment, refundMessage, type PartResult } from "@/components/bulles/payment";
 import { ContactFields, contactErrors, emptyContact, type Contact } from "@/components/bulles/contact-fields";
-import { addDays, formatDuration, isoWeekday } from "@/lib/bulles/format";
+import {
+  addDays,
+  BULLE_NO_REFUND,
+  bulleConfirmPlaces,
+  bullePlaceCents,
+  bullePlacesFacturees,
+  formatBulleNight,
+  formatBulleTarifs,
+  formatDuration,
+  formatSoloPrice,
+  isoWeekday,
+} from "@/lib/bulles/format";
 import { reservationUrl } from "@/lib/bulles/links";
 import type { BulleOffer } from "@/lib/bulles/public";
 import type { BulleCheckout } from "@/lib/bulles/server";
@@ -75,7 +86,7 @@ function Stepper({
 const noSubscription = () => () => {};
 
 export function BulleBooking({ offer }: { offer: BulleOffer }) {
-  const { etablissement, placeCents, minParty, maxParty } = offer;
+  const { etablissement, minParty, maxParty, groupThreshold } = offer;
   const bullesById = useMemo(() => new Map(offer.bulles.map((bulle) => [bulle.id, bulle])), [offer.bulles]);
 
   // Les soirs ouverts de la fenêtre de réservation, à l'heure de Paris. Lu
@@ -98,7 +109,8 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
   const [reload, setReload] = useState(0);
   const [choice, setChoice] = useState<{ startsAt: string; endsAt: string; bulleId: string } | null>(null);
   const [party, setParty] = useState(minParty);
-  const [places, setPlaces] = useState(minParty);
+  // Les places payées maintenant, comptées sur les places facturées : seul, on en paie deux au Boho.
+  const [places, setPlaces] = useState(bullePlacesFacturees(minParty, offer.minBilledPlaces));
   const [payingShare, setPayingShare] = useState(false);
   const [step, setStep] = useState<"choix" | "infos" | "paiement" | "rendue">("choix");
   const [refunded, setRefunded] = useState<NonNullable<PartResult["refunded"]> | null>(null);
@@ -155,11 +167,15 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
           slot.bulles.some((bulle) => bulle.id === choice.bulleId && bulle.free)
       )
   );
+  const placeCents = bullePlaceCents(offer, party);
   const amountCents = places * placeCents;
+  const billed = bullePlacesFacturees(party, offer.minBilledPlaces);
+  const confirmPlaces = bulleConfirmPlaces(billed, groupThreshold);
 
   const changeParty = (next: number) => {
+    const nextBilled = bullePlacesFacturees(next, offer.minBilledPlaces);
     // Qui payait tout le groupe continue de le faire.
-    setPlaces((current) => (current === party ? next : Math.min(current, next)));
+    setPlaces((current) => (current === billed ? nextBilled : Math.min(current, nextBilled)));
     setParty(next);
   };
 
@@ -249,13 +265,14 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
   if (step === "paiement" && part && choice && chosenBulle) {
     return (
       <div className="bo-stack-sm">
-        <Recap bulle={chosenBulle} choice={choice} party={party} date={date} />
+        <Recap bulle={chosenBulle} choice={choice} party={party} dayEndHour={offer.dayEndHour} />
         <BullePayment
           partId={part.partId}
           amountCents={part.amountCents}
           places={part.places}
           holdExpiresAt={part.holdExpiresAt}
           checkout={part.checkout}
+          notReserved={part.places < confirmPlaces}
           onResult={onPaid}
           onExpire={onExpire}
         />
@@ -273,7 +290,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
           void reserve();
         }}
       >
-        <Recap bulle={chosenBulle} choice={choice} party={party} date={date} />
+        <Recap bulle={chosenBulle} choice={choice} party={party} dayEndHour={offer.dayEndHour} />
         <section className="bo-panel bo-stack-sm" aria-labelledby="bo-infos-title">
           <h2 id="bo-infos-title" className="bo-h3">
             Vos coordonnées
@@ -285,10 +302,12 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
             </p>
           )}
           <p className="bo-note">
-            Une place payée ne s&rsquo;annule pas et ne se rembourse pas, sauf si toutes les bulles du créneau
-            sont confirmées par d&rsquo;autres groupes avant le vôtre. Dans la bulle, la carte s&rsquo;ouvre une fois
-            toutes les places du groupe payées.
+            {places >= confirmPlaces
+              ? "Votre bulle est réservée dès ce paiement."
+              : `Votre bulle n'est pas encore réservée : elle le sera dès que ${confirmPlaces} places sont payées.`}{" "}
+            Dans la bulle, la carte s&rsquo;ouvre une fois toutes les places du groupe payées.
           </p>
+          <p className="bo-muted bo-small">{BULLE_NO_REFUND}</p>
           <button type="submit" className="bo-button bo-button--block" disabled={sending}>
             {sending ? "Un instant…" : `Payer ${formatCents(amountCents)}`}
           </button>
@@ -408,7 +427,7 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
               noun="place"
               value={places}
               min={1}
-              max={party}
+              max={billed}
               unit={(value) => (value > 1 ? "places payées maintenant" : "place payée maintenant")}
               onChange={setPlaces}
             />
@@ -418,19 +437,26 @@ export function BulleBooking({ offer }: { offer: BulleOffer }) {
           type="button"
           className="bo-link-button bo-link-button--start"
           onClick={() => {
-            if (payingShare) setPlaces(party);
+            if (payingShare) setPlaces(billed);
             setPayingShare(!payingShare);
           }}
         >
           {payingShare ? "Je paie pour tout le groupe" : "Je ne paie que ma part"}
         </button>
         <p className="bo-muted bo-small">
-          {places >= party
-            ? `Vous payez pour tout le groupe : la bulle est confirmée dès le paiement.`
-            : places >= minParty
-              ? `La bulle est confirmée dès le paiement ; vos amis paient les ${party - places} autres places par un lien, ou à l'accueil, avant de commander.`
-              : `Vos amis paient leur place par un lien. La bulle est confirmée dès ${minParty} places payées.`}
+          {places >= billed
+            ? `Vous payez pour tout le groupe : la bulle est réservée dès le paiement.`
+            : places >= confirmPlaces
+              ? `La bulle est réservée dès le paiement ; vos amis paient les ${billed - places} autres places par un lien, ou à l'accueil, avant de commander.`
+              : `Votre bulle n'est pas encore réservée après ce paiement : elle le sera dès que ${confirmPlaces} places sont payées. Vos amis paient leur place par un lien.`}
         </p>
+        {/* Les tarifs commencent déjà par le prix seul : une ligne ou l'autre. */}
+        {party < billed ? (
+          <p className="bo-muted bo-small">{formatSoloPrice(offer)}.</p>
+        ) : (
+          offer.smallGroupPlaceCents !== null &&
+          minParty < groupThreshold && <p className="bo-muted bo-small">{formatBulleTarifs(offer, minParty)}.</p>
+        )}
       </section>
 
       <div className="bo-total">
@@ -460,21 +486,21 @@ function Recap({
   bulle,
   choice,
   party,
-  date,
+  dayEndHour,
 }: {
   bulle: { name: string; color: string };
   choice: { startsAt: string; endsAt: string };
   party: number;
-  date: string | null;
+  dayEndHour: number;
 }) {
   return (
     <div className="bo-recap" style={{ "--orb": bulle.color } as CSSProperties}>
       <span className="bo-orb bo-recap-orb" aria-hidden />
       <div>
-        <p className="bo-eyebrow">{date ? DAY_LONG.format(asUtc(date)) : ""}</p>
+        <p className="bo-eyebrow">{formatBulleNight(choice.startsAt, dayEndHour)}</p>
         <p className="bo-recap-title">{bulle.name}</p>
         <p className="bo-recap-detail">
-          {formatHours(choice.startsAt, choice.endsAt)} · {party} personnes
+          {formatHours(choice.startsAt, choice.endsAt)} · {party} personne{party > 1 ? "s" : ""}
         </p>
       </div>
     </div>

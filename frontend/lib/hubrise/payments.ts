@@ -12,7 +12,8 @@ type Admin = ReturnType<typeof createAdminClient>;
  * « ominin:<jambe> » : on les retrouve, on les remplace après une correction,
  * on ne les ajoute jamais deux fois. Encaissée à la caisse, ses règlements
  * (sans cette marque) reviennent dans Ominin, qui la dit réglée — et ne les
- * renvoie pas (order_payments.till_payment).
+ * renvoie pas (order_payments.till_payment). Le pourboire laissé au comptoir
+ * suit les jambes : une charge, et le règlement qui la couvre.
  */
 
 /** Une jambe de règlement au comptoir encaissée dans Ominin. */
@@ -27,6 +28,14 @@ interface HubrisePayment {
   id: string;
   ref: string | null;
   amount: string;
+  private_ref: string | null;
+  deleted?: boolean;
+}
+
+/** Une charge telle que HubRise la rend. */
+interface HubriseCharge {
+  id: string;
+  price: string;
   private_ref: string | null;
   deleted?: boolean;
 }
@@ -55,11 +64,44 @@ export function counterLegs<T extends PaymentRow>(payments: T[], goods: number):
   return cents(paid) >= cents(goods) ? legs : [];
 }
 
+/** Le pourboire n'est pas une ligne du registre : sa jambe porte cet id. */
+const TIP_LEG_ID = "tip";
+
+/**
+ * Le pourboire laissé au comptoir (orders.tip_amount), en jambe : il ne part
+ * qu'avec des jambes qui règlent la marchandise. L'encaissement fait couvrir
+ * la marchandise aux espèces d'abord, la carte prend le reste — pourboire
+ * compris dès qu'une jambe carte existe.
+ */
+export function counterTip(legs: CounterLeg[], tip: number | null): CounterLeg | null {
+  if (!legs.length || !tip || cents(tip) <= 0) return null;
+  return {
+    id: TIP_LEG_ID,
+    mode: legs.some((leg) => leg.mode === "carte") ? "carte" : "especes",
+    amount: tip,
+  };
+}
+
 const privateRef = (leg: CounterLeg) => `${HUBRISE.paymentPrivateRefPrefix}${leg.id}`;
-const isOurs = (payment: HubrisePayment) =>
-  payment.private_ref?.startsWith(HUBRISE.paymentPrivateRefPrefix) ?? false;
+const isOurs = (element: { private_ref: string | null }) =>
+  element.private_ref?.startsWith(HUBRISE.paymentPrivateRefPrefix) ?? false;
 const sum = (payments: HubrisePayment[]) =>
   payments.reduce((total, payment) => total + (parseMoney(payment.amount) ?? 0), 0);
+const sameMoney = (a: string, b: string) => cents(parseMoney(a) ?? 0) === cents(parseMoney(b) ?? 0);
+
+/**
+ * La charge du pourboire. Laissé au comptoir, elle porte la marque d'Ominin
+ * (la synchronisation des règlements la retrouve) ; en ligne, elle part
+ * une fois avec la commande et n'est plus touchée.
+ */
+export function tipCharge(amount: number, connection: Connection, counter: boolean) {
+  return {
+    name: HUBRISE.labels.tip,
+    price: money(amount),
+    ...(connection.tip_charge_ref ? { ref: connection.tip_charge_ref } : {}),
+    ...(counter ? { private_ref: `${HUBRISE.paymentPrivateRefPrefix}${TIP_LEG_ID}` } : {}),
+  };
+}
 
 /** La jambe telle que la caisse la lit : son mode à elle, s'il est réglé. */
 export function counterPayment(leg: CounterLeg, connection: Connection) {
@@ -73,52 +115,79 @@ export function counterPayment(leg: CounterLeg, connection: Connection) {
   };
 }
 
-async function remotePayments(
+async function remoteOrder(
   admin: Admin,
   connection: Connection,
   hubriseOrderId: string
-): Promise<HubrisePayment[]> {
-  const order = await callHubrise<{ payments?: HubrisePayment[] }>(
+): Promise<{ payments: HubrisePayment[]; charges: HubriseCharge[] }> {
+  const order = await callHubrise<{ payments?: HubrisePayment[]; charges?: HubriseCharge[] }>(
     admin,
     connection,
     `/location/orders/${hubriseOrderId}`
   );
-  return (order.payments ?? []).filter((payment) => !payment.deleted);
+  return {
+    payments: (order.payments ?? []).filter((payment) => !payment.deleted),
+    charges: (order.charges ?? []).filter((charge) => !charge.deleted),
+  };
 }
 
 /**
- * Aligne chez HubRise les règlements d'Ominin sur ses jambes : ajoute ceux qui
- * manquent, retire ceux qu'une correction a remplacés. Rien n'est ajouté si
- * la caisse a déjà encaissé la commande de son côté (total couvert) : elle
- * serait réglée deux fois.
+ * Ce qu'Ominin a porté chez HubRise face à ce qu'il veut y voir : HubRise ne
+ * modifie pas un élément, il le retire et en ajoute un autre. Un même
+ * private_ref au montant changé (pourboire d'un second règlement) est donc
+ * retiré puis renvoyé.
+ */
+function reconcile<R extends { id: string; private_ref: string | null }, W extends { private_ref?: string }>(
+  remote: R[],
+  wanted: W[],
+  same: (remote: R, wanted: W) => boolean
+) {
+  const ours = remote.filter(isOurs);
+  return {
+    stale: ours.filter((element) => !wanted.some((want) => same(element, want))),
+    missing: wanted.filter((want) => !ours.some((element) => same(element, want))),
+  };
+}
+
+/**
+ * Aligne chez HubRise les règlements d'Ominin sur ses jambes, pourboire
+ * compris : ajoute ce qui manque, retire ce qu'une correction a remplacé.
+ * Rien n'est ajouté si la caisse a déjà encaissé la commande de son côté
+ * (marchandise couverte) : elle serait réglée deux fois.
  */
 export async function syncCounterPayments(
   admin: Admin,
   connection: Connection,
   hubriseOrderId: string,
   legs: CounterLeg[],
-  total: number
+  goods: number,
+  tip: number | null
 ): Promise<void> {
-  const remote = await remotePayments(admin, connection, hubriseOrderId);
-  const ours = remote.filter(isOurs);
-  const wanted = legs.map((leg) => counterPayment(leg, connection));
-  const stale = ours.filter(
-    (payment) => !wanted.some((want) => want.private_ref === payment.private_ref)
+  const remote = await remoteOrder(admin, connection, hubriseOrderId);
+  const tipLeg = counterTip(legs, tip);
+  const payments = reconcile(
+    remote.payments,
+    (tipLeg ? [...legs, tipLeg] : legs).map((leg) => counterPayment(leg, connection)),
+    (payment, want) => payment.private_ref === want.private_ref && sameMoney(payment.amount, want.amount)
   );
-  const missing = wanted.filter(
-    (want) => !ours.some((payment) => payment.private_ref === want.private_ref)
+  const charges = reconcile(
+    remote.charges,
+    tipLeg ? [tipCharge(tipLeg.amount, connection, true)] : [],
+    (charge, want) => charge.private_ref === want.private_ref && sameMoney(charge.price, want.price)
   );
-  const tillPaid = cents(sum(remote.filter((payment) => !isOurs(payment)))) >= cents(total);
-  const additions = tillPaid ? [] : missing;
-  if (!stale.length && !additions.length) return;
+  const tillPaid = cents(sum(remote.payments.filter((payment) => !isOurs(payment)))) >= cents(goods);
+  const deletions = (elements: { id: string }[]) =>
+    elements.map((element) => ({ id: element.id, deleted: true }));
+  const patch = {
+    payments: [...deletions(payments.stale), ...(tillPaid ? [] : payments.missing)],
+    charges: [...deletions(charges.stale), ...(tillPaid ? [] : charges.missing)],
+  };
+  if (!patch.payments.length && !patch.charges.length) return;
   await callHubrise(admin, connection, `/location/orders/${hubriseOrderId}`, {
     method: "PATCH",
-    body: JSON.stringify({
-      payments: [
-        ...stale.map((payment) => ({ id: payment.id, deleted: true })),
-        ...additions,
-      ],
-    }),
+    body: JSON.stringify(
+      Object.fromEntries(Object.entries(patch).filter(([, elements]) => elements.length))
+    ),
   });
 }
 
@@ -140,7 +209,7 @@ export async function recordTillPayments(
 ): Promise<boolean> {
   let remote: HubrisePayment[];
   try {
-    remote = await remotePayments(admin, connection, hubriseOrderId);
+    remote = (await remoteOrder(admin, connection, hubriseOrderId)).payments;
   } catch (error) {
     if (error instanceof HubriseError && error.status >= 400 && error.status < 500 && error.status !== 429) {
       console.error("[hubrise] règlements illisibles", { orderId, status: error.status });

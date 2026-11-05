@@ -48,7 +48,7 @@ export default function ProjetClientPage() {
   );
 
   if (!data) {
-    return <div aria-busy className="shimmer h-96 rounded-2xl" />;
+    return <div aria-busy className="g-shimmer h-96" />;
   }
 
   const client = data.clients.find((candidate) => candidate.id === params.id);
@@ -236,7 +236,7 @@ export default function ProjetClientPage() {
               }
             }}
             placeholder="Contexte, contacts, ce qui bloque…"
-            className="w-full rounded-2xl border border-hairline bg-surface px-4 py-3 text-base focus:border-ember-2/50 focus:outline-none"
+            className="w-full g-plate px-4 py-3 text-base focus:border-ember-2/50 focus:outline-none"
           />
         </section>
       </div>

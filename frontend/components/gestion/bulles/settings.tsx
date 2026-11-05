@@ -29,7 +29,7 @@ import {
  */
 
 /** Les valeurs proposées à un établissement qui n'a rien réglé (UX-SIMPLICITE § 3.13). */
-const PROPOSED = { durationMinutes: 90, minParty: 2, maxParty: 6, bookingDays: 30 } as const;
+const PROPOSED = { durationMinutes: 90, minParty: 2, maxParty: 6, bookingDays: 30, minBilledPlaces: 1 } as const;
 /** Le préréglage de créneaux : du jeudi au samedi, de 20 h à 2 h. */
 const PRESET = { weekdays: [4, 5, 6], fromMinutes: 20 * 60, toMinutes: 26 * 60 } as const;
 
@@ -54,23 +54,41 @@ function ReglagesForm({
   const run = useRunMutation();
   const current = setup.reglages;
   const [price, setPrice] = useState(current ? priceToInput(current.place_cents / 100) : "");
+  const [smallPrice, setSmallPrice] = useState(
+    current?.small_group_place_cents ? priceToInput(current.small_group_place_cents / 100) : ""
+  );
+  const [threshold, setThreshold] = useState(String(current?.group_threshold ?? PROPOSED.minParty));
   const [minParty, setMinParty] = useState(String(current?.min_party ?? PROPOSED.minParty));
   const [maxParty, setMaxParty] = useState(String(current?.max_party ?? PROPOSED.maxParty));
+  const [minBilled, setMinBilled] = useState(String(current?.min_billed_places ?? PROPOSED.minBilledPlaces));
   const [duration, setDuration] = useState(String(current?.duration_minutes ?? PROPOSED.durationMinutes));
   const [days, setDays] = useState(String(current?.booking_days ?? PROPOSED.bookingDays));
   const [vatRate, setVatRate] = useState(String(current?.vat_rate ?? DEFAULT_VAT_RATE));
   const [busy, setBusy] = useState(false);
 
   const euros = parsePriceInput(price);
+  const smallEuros = parsePriceInput(smallPrice);
   const values = {
     place_cents: euros !== null ? Math.round(euros * 100) : null,
+    small_group_place_cents: smallEuros !== null ? Math.round(smallEuros * 100) : null,
+    group_threshold: integer(threshold),
     min_party: integer(minParty),
     max_party: integer(maxParty),
+    min_billed_places: integer(minBilled),
     duration_minutes: integer(duration),
     booking_days: integer(days),
   };
   const errors = {
     price: values.place_cents === null || values.place_cents <= 0 ? "Un prix par personne, au-dessus de zéro." : undefined,
+    smallPrice:
+      smallPrice.trim() && (values.small_group_place_cents === null || values.small_group_place_cents <= 0)
+        ? "Un prix au-dessus de zéro, ou rien."
+        : undefined,
+    threshold: within(values.group_threshold, BULLE_LIMITS.party)
+      ? values.max_party !== null && values.group_threshold > values.max_party
+        ? "Au plus le maximum."
+        : undefined
+      : `De ${BULLE_LIMITS.party.min} à ${BULLE_LIMITS.party.max} personnes.`,
     duration: within(values.duration_minutes, BULLE_LIMITS.durationMinutes)
       ? undefined
       : `De ${BULLE_LIMITS.durationMinutes.min} à ${BULLE_LIMITS.durationMinutes.max} minutes.`,
@@ -82,16 +100,27 @@ function ReglagesForm({
     max: within(values.max_party, BULLE_LIMITS.party)
       ? undefined
       : `De ${BULLE_LIMITS.party.min} à ${BULLE_LIMITS.party.max} personnes.`,
+    minBilled: within(values.min_billed_places, BULLE_LIMITS.party)
+      ? values.max_party !== null && values.min_billed_places > values.max_party
+        ? "Au plus le maximum."
+        : undefined
+      : `De ${BULLE_LIMITS.party.min} à ${BULLE_LIMITS.party.max} places.`,
     days: within(values.booking_days, BULLE_LIMITS.bookingDays)
       ? undefined
       : `De ${BULLE_LIMITS.bookingDays.min} à ${BULLE_LIMITS.bookingDays.max} jours.`,
   };
   const missing = errors.price
     ? "Indiquez un prix pour enregistrer."
+    : errors.smallPrice
+      ? "Corrigez le prix du petit groupe pour enregistrer."
+    : errors.threshold
+      ? "Corrigez le seuil de groupe pour enregistrer."
     : errors.duration
       ? "Corrigez la durée pour enregistrer."
       : errors.min || errors.max
         ? "Corrigez le minimum et le maximum pour enregistrer."
+      : errors.minBilled
+        ? "Corrigez le minimum facturé pour enregistrer."
         : errors.days
           ? "Corrigez le délai pour enregistrer."
           : null;
@@ -99,8 +128,11 @@ function ReglagesForm({
   const unchanged =
     current !== null &&
     values.place_cents === current.place_cents &&
+    values.small_group_place_cents === current.small_group_place_cents &&
+    values.group_threshold === current.group_threshold &&
     values.min_party === current.min_party &&
     values.max_party === current.max_party &&
+    values.min_billed_places === current.min_billed_places &&
     values.duration_minutes === current.duration_minutes &&
     values.booking_days === current.booking_days &&
     Number(vatRate) === Number(current.vat_rate);
@@ -117,8 +149,11 @@ function ReglagesForm({
           () =>
             saveReglages(etablissementId, {
               place_cents: values.place_cents!,
+              small_group_place_cents: values.small_group_place_cents,
+              group_threshold: values.group_threshold!,
               min_party: values.min_party!,
               max_party: values.max_party!,
+              min_billed_places: values.min_billed_places!,
               duration_minutes: values.duration_minutes!,
               booking_days: values.booking_days!,
               vat_rate: Number(vatRate),
@@ -130,9 +165,9 @@ function ReglagesForm({
       }}
     >
       <h3 className={TITLE}>La réservation</h3>
-      <p className={SUB}>Une bulle est un espace qu&rsquo;un groupe réserve pour un créneau, au prix de la place ; elle lui est tenue dès que le minimum de places est payé.</p>
+      <p className={SUB}>Une bulle est un espace qu&rsquo;un groupe réserve pour un créneau, au prix de la place ; elle lui est tenue dès que le seuil de places est payé, ou tout le groupe s&rsquo;il est plus petit.</p>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Field label="Prix par personne" required hint="Le prix d'une place." error={price.trim() ? errors.price : undefined}>
+        <Field label="Prix par personne" required hint="Le prix d'une place, à partir du seuil de groupe." error={price.trim() ? errors.price : undefined}>
           <Input
             numeric
             unit="€"
@@ -142,14 +177,35 @@ function ReglagesForm({
             onBlur={() => euros !== null && setPrice(priceToInput(euros))}
           />
         </Field>
+        <Field label="Prix du petit groupe" hint="Par personne, en dessous du seuil. Vide : le même prix." error={errors.smallPrice}>
+          <Input
+            numeric
+            unit="€"
+            placeholder="0,00"
+            value={smallPrice}
+            onChange={(event) => setSmallPrice(event.target.value)}
+            onBlur={() => smallEuros !== null && setSmallPrice(priceToInput(smallEuros))}
+          />
+        </Field>
+        <Field label="Seuil de groupe" required hint="Places payées pour tenir la bulle ; un groupe plus petit paie toutes les siennes." error={errors.threshold}>
+          <Input numeric unit="pers." inputMode="numeric" value={threshold} onChange={(event) => setThreshold(event.target.value)} />
+        </Field>
         <Field label="Durée d'un créneau" required error={errors.duration} hint={values.duration_minutes ? formatDuration(values.duration_minutes) : undefined}>
           <Input numeric unit="min" inputMode="numeric" value={duration} onChange={(event) => setDuration(event.target.value)} />
         </Field>
-        <Field label="Minimum de personnes" required hint="Places payées pour tenir la bulle." error={errors.min}>
+        <Field label="Minimum de personnes" required hint="Le plus petit groupe qu'on réserve." error={errors.min}>
           <Input numeric inputMode="numeric" value={minParty} onChange={(event) => setMinParty(event.target.value)} />
         </Field>
         <Field label="Maximum de personnes" required error={errors.max}>
           <Input numeric inputMode="numeric" value={maxParty} onChange={(event) => setMaxParty(event.target.value)} />
+        </Field>
+        <Field
+          label="Minimum facturé"
+          required
+          hint="Un groupe plus petit paie quand même ces places, au prix de sa taille. 1 : chacun paie la sienne."
+          error={errors.minBilled}
+        >
+          <Input numeric unit="places" inputMode="numeric" value={minBilled} onChange={(event) => setMinBilled(event.target.value)} />
         </Field>
         <Field label="Réservable jusqu'à" required hint="Combien de jours à l'avance." error={errors.days}>
           <Input numeric unit="jours" inputMode="numeric" value={days} onChange={(event) => setDays(event.target.value)} />

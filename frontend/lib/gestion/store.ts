@@ -3,7 +3,7 @@
 import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
 import { useMemo, useSyncExternalStore } from "react";
 import { createClient } from "@/lib/supabase/client";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database, Tables } from "@/lib/supabase/database.types";
 import { offreTrialEnd } from "@/lib/offre/trial";
 import { must, mustPage, type ListPage } from "@/lib/supabase/result";
 import { useAdminUnlocked } from "./admin-lock";
@@ -13,12 +13,12 @@ import {
   HISTORY_ORDER_STATUSES,
   OPEN_ORDER_STATUSES,
   ORDER_TABS,
-  PAID_ORDER_STATUSES,
   TABLE_FEATURES,
 } from "./constants";
 import {
   assembleCategories,
   rowToAffiche,
+  rowToBulleEncaissement,
   rowToClosure,
   rowToEtablissement,
   rowToFormule,
@@ -27,6 +27,7 @@ import {
   rowToPriceRule,
   rowToStaff,
   rowToTable,
+  type OrderRow,
 } from "./mappers";
 import { can, resolveFeatures } from "./permissions";
 import { activeProducts, dayStart } from "./selectors";
@@ -34,11 +35,13 @@ import { parseVisitesVues } from "./visites";
 import type {
   Action,
   ActiveProducts,
+  BulleEncaissement,
   Feature,
   GestionState,
   Order,
+  Paiement,
+  PaymentLeg,
   Role,
-  PaymentMode,
 } from "./types";
 
 type Client = SupabaseClient<Database>;
@@ -121,6 +124,33 @@ async function fetchWindow(supabase: Client, etablissementId: string) {
   return orders;
 }
 
+/** Parts de bulle payées dans la fenêtre, lues par pages comme les commandes. */
+async function fetchBulleEncaissements(supabase: Client, etablissementId: string) {
+  const parts: BulleEncaissement[] = [];
+  let after = windowStart();
+  for (;;) {
+    const page = must(
+      await supabase
+        .from("bulle_encaissements")
+        .select("*")
+        .eq("etablissement_id", etablissementId)
+        .gt("paid_at", after)
+        .order("paid_at", { ascending: true })
+    );
+    if (page.length === 0) return parts;
+    parts.push(...page.map(rowToBulleEncaissement));
+    after = page[page.length - 1].paid_at!;
+  }
+}
+
+const refreshBulleEncaissements = coalesced("des bulles", async (supabase, etablissementId) => {
+  const bulleEncaissements = await fetchBulleEncaissements(supabase, etablissementId);
+  if (state) {
+    state = { ...state, bulleEncaissements };
+    notify();
+  }
+});
+
 /** Page d'historique (commandes clôturées), de la plus récente à la plus ancienne. */
 export async function fetchOrderHistory(
   orderNumber: number | null,
@@ -142,35 +172,36 @@ export async function fetchOrderHistory(
   return { rows: page.rows.map(rowToOrder), total: page.total };
 }
 
+type PaiementRow =
+  | { kind: "commande"; order: OrderRow }
+  | { kind: "bulle"; part: Tables<"bulle_encaissements"> };
+
 /**
- * Page de paiements (commandes encaissées), de la plus récente à la plus
- * ancienne. Un mode filtre sur une seconde jointure : celle que la commande
- * affiche garde tous ses règlements.
+ * Page de paiements, commandes encaissées et parts de bulle mêlées, de la plus
+ * récente à la plus ancienne (gestion_paiements). Un mode filtre sur l'un des
+ * règlements : la commande affichée les garde tous.
  */
-export async function fetchPaidOrders(
-  mode: PaymentMode | null,
+export async function fetchPaiements(
+  mode: PaymentLeg | null,
   limit: number,
   offset: number
-): Promise<ListPage<Order>> {
-  const supabase = createClient();
-  const orders = () =>
-    supabase.from("orders").select("*, order_items(*), order_payments(*)", { count: "exact" });
-  const query = mode
-    ? (supabase
-        .from("orders")
-        .select("*, order_items(*), order_payments(*), mode_leg:order_payments!inner(mode)", { count: "exact" })
-        .eq("mode_leg.mode", mode) as unknown as ReturnType<typeof orders>)
-    : orders();
-  const page = mustPage(
-    await query
-      .eq("etablissement_id", getState().etablissement.id)
-      // Payée en ligne puis refusée par la caisse : remboursée, ou à rembourser.
-      .or(`status.in.(${PAID_ORDER_STATUSES.join(",")}),and(status.eq.annulee,paid_online.is.true)`)
-      .order("created_at", { ascending: false })
-      .order("id")
-      .range(offset, offset + limit - 1)
-  );
-  return { rows: page.rows.map(rowToOrder), total: page.total };
+): Promise<ListPage<Paiement>> {
+  const page = must(
+    await createClient().rpc("gestion_paiements", {
+      p_etablissement_id: getState().etablissement.id,
+      p_mode: mode,
+      p_limit: limit,
+      p_offset: offset,
+    })
+  ) as unknown as { total: number; rows: PaiementRow[] };
+  return {
+    total: page.total,
+    rows: page.rows.map((row) =>
+      row.kind === "commande"
+        ? { kind: "commande", order: rowToOrder(row.order) }
+        : { kind: "bulle", part: rowToBulleEncaissement(row.part) }
+    ),
+  };
 }
 
 /*
@@ -321,7 +352,9 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
     void requestOrders(supabase, etablissementId);
     void refreshTables(supabase, etablissementId);
     void refreshClosures(supabase, etablissementId);
+    void refreshBulleEncaissements(supabase, etablissementId);
   };
+  const onBulles = () => void refreshBulleEncaissements(supabase, etablissementId);
   const changed = (orderId: string | undefined) => {
     if (orderId) void requestOrders(supabase, etablissementId, [orderId]);
   };
@@ -380,6 +413,27 @@ function subscribeOrders(supabase: Client, etablissementId: string) {
         filter: `etablissement_id=eq.${etablissementId}`,
       },
       () => void refreshClosures(supabase, etablissementId)
+    )
+    // Une part payée ou remboursée, une réservation annulée : l'encaissé bouge.
+    .on(
+      "postgres_changes",
+      {
+        event: "*",
+        schema: "public",
+        table: "bulle_parts",
+        filter: `etablissement_id=eq.${etablissementId}`,
+      },
+      onBulles
+    )
+    .on(
+      "postgres_changes",
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: "bulle_reservations",
+        filter: `etablissement_id=eq.${etablissementId}`,
+      },
+      onBulles
     )
     .subscribe((status) => {
       const live = status === "SUBSCRIBED";
@@ -471,6 +525,7 @@ async function load(): Promise<void> {
     closures,
     tables,
     orders,
+    bulleEncaissements,
     members,
     staff,
     settings,
@@ -522,6 +577,7 @@ async function load(): Promise<void> {
         .order("number", { ascending: true })
         .then(must),
       fetchWindow(supabase, etablissementId),
+      fetchBulleEncaissements(supabase, etablissementId),
       supabase
         .from("memberships")
         .select("*")
@@ -566,6 +622,7 @@ async function load(): Promise<void> {
     closures: closures.map(rowToClosure),
     tables: tables.map(rowToTable),
     orders,
+    bulleEncaissements,
   };
   featureOverrides = (settings?.features ?? {}) as Partial<
     Record<Feature, boolean>

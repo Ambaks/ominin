@@ -67,6 +67,11 @@ export function PortalFooter() {
                   )}
                 </li>
               ))}
+              <li>
+                <Link href="/sur-mesure" className="text-sm text-muted transition-colors hover:text-foreground">
+                  {t(footer.custom)}
+                </Link>
+              </li>
             </ul>
           </nav>
 

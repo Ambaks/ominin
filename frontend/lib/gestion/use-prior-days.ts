@@ -38,7 +38,12 @@ export function usePriorDays(state: GestionState | null, days: number, enabled: 
         const points = Array.from({ length: days }, (_, index) => {
           const date = dayStart(days * 2 - 1 - index, dayEndHour);
           const row = byDate.get(isoDate(date));
-          return { ...emptyDayPoint(date), revenue: Number(row?.revenue ?? 0), orders: row?.orders ?? 0 };
+          return {
+            ...emptyDayPoint(date),
+            revenue: Number(row?.revenue ?? 0),
+            orders: row?.orders ?? 0,
+            bulles: Number(row?.bulles ?? 0),
+          };
         });
         setLoaded({ key, points });
       },

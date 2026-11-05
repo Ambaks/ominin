@@ -856,6 +856,7 @@ export type Database = {
           square_payment_id: string | null
           square_refund_id: string | null
           status: Database["public"]["Enums"]["bulle_part_status"]
+          tender: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Insert: {
           amount_cents: number
@@ -878,6 +879,7 @@ export type Database = {
           square_payment_id?: string | null
           square_refund_id?: string | null
           status?: Database["public"]["Enums"]["bulle_part_status"]
+          tender?: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Update: {
           amount_cents?: number
@@ -900,6 +902,7 @@ export type Database = {
           square_payment_id?: string | null
           square_refund_id?: string | null
           status?: Database["public"]["Enums"]["bulle_part_status"]
+          tender?: Database["public"]["Enums"]["bulle_part_tender"] | null
         }
         Relationships: [
           {
@@ -923,27 +926,36 @@ export type Database = {
           booking_days: number
           duration_minutes: number
           etablissement_id: string
+          group_threshold: number
           max_party: number
+          min_billed_places: number
           min_party: number
           place_cents: number
+          small_group_place_cents: number | null
           vat_rate: number
         }
         Insert: {
           booking_days: number
           duration_minutes: number
           etablissement_id: string
+          group_threshold: number
           max_party: number
+          min_billed_places?: number
           min_party: number
           place_cents: number
+          small_group_place_cents?: number | null
           vat_rate?: number
         }
         Update: {
           booking_days?: number
           duration_minutes?: number
           etablissement_id?: string
+          group_threshold?: number
           max_party?: number
+          min_billed_places?: number
           min_party?: number
           place_cents?: number
+          small_group_place_cents?: number | null
           vat_rate?: number
         }
         Relationships: [
@@ -967,8 +979,10 @@ export type Database = {
           ends_at: string
           etablissement_id: string
           id: string
+          min_billed_places: number
           name: string
           note: string | null
+          paid_cents: number
           party_size: number
           phone: string | null
           place_cents: number
@@ -989,8 +1003,10 @@ export type Database = {
           ends_at: string
           etablissement_id: string
           id?: string
+          min_billed_places?: number
           name: string
           note?: string | null
+          paid_cents?: number
           party_size: number
           phone?: string | null
           place_cents: number
@@ -1011,8 +1027,10 @@ export type Database = {
           ends_at?: string
           etablissement_id?: string
           id?: string
+          min_billed_places?: number
           name?: string
           note?: string | null
+          paid_cents?: number
           party_size?: number
           phone?: string | null
           place_cents?: number
@@ -1050,6 +1068,7 @@ export type Database = {
           name: string
           sort: number
           table_id: string | null
+          table_ouverte_jusqua: string | null
         }
         Insert: {
           active?: boolean
@@ -1060,6 +1079,7 @@ export type Database = {
           name: string
           sort?: number
           table_id?: string | null
+          table_ouverte_jusqua?: string | null
         }
         Update: {
           active?: boolean
@@ -1070,6 +1090,7 @@ export type Database = {
           name?: string
           sort?: number
           table_id?: string | null
+          table_ouverte_jusqua?: string | null
         }
         Relationships: [
           {
@@ -1333,6 +1354,7 @@ export type Database = {
       closures: {
         Row: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -1342,6 +1364,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          cuisine?: string | null
           etablissement_id: string
           id?: string
           name: string
@@ -1351,6 +1374,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          cuisine?: string | null
           etablissement_id?: string
           id?: string
           name?: string
@@ -2393,7 +2417,7 @@ export type Database = {
       commerciaux: {
         Row: {
           address: string | null
-          commission_percent: number | null
+          commission_percent: number
           discord_user_id: string | null
           email: string
           end_reason: string | null
@@ -2407,12 +2431,15 @@ export type Database = {
           option_reminded_at: string | null
           phone: string | null
           push_prefs: Json
+          search_radius_km: number
           siret: string | null
+          term_months: number
           user_id: string | null
+          visit_request_days: number | null
         }
         Insert: {
           address?: string | null
-          commission_percent?: number | null
+          commission_percent?: number
           discord_user_id?: string | null
           email: string
           end_reason?: string | null
@@ -2426,12 +2453,15 @@ export type Database = {
           option_reminded_at?: string | null
           phone?: string | null
           push_prefs?: Json
+          search_radius_km?: number
           siret?: string | null
+          term_months?: number
           user_id?: string | null
+          visit_request_days?: number | null
         }
         Update: {
           address?: string | null
-          commission_percent?: number | null
+          commission_percent?: number
           discord_user_id?: string | null
           email?: string
           end_reason?: string | null
@@ -2445,8 +2475,11 @@ export type Database = {
           option_reminded_at?: string | null
           phone?: string | null
           push_prefs?: Json
+          search_radius_km?: number
           siret?: string | null
+          term_months?: number
           user_id?: string | null
+          visit_request_days?: number | null
         }
         Relationships: []
       }
@@ -2961,6 +2994,7 @@ export type Database = {
           features: Json
           order_number_reset_hour: number
           order_tabs: Database["public"]["Enums"]["order_tab"][]
+          ordering_soon: boolean
           saison: Database["public"]["Enums"]["saison"] | null
           saison_fin: string | null
           updated_at: string
@@ -2971,6 +3005,7 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          ordering_soon?: boolean
           saison?: Database["public"]["Enums"]["saison"] | null
           saison_fin?: string | null
           updated_at?: string
@@ -2981,6 +3016,7 @@ export type Database = {
           features?: Json
           order_number_reset_hour?: number
           order_tabs?: Database["public"]["Enums"]["order_tab"][]
+          ordering_soon?: boolean
           saison?: Database["public"]["Enums"]["saison"] | null
           saison_fin?: string | null
           updated_at?: string
@@ -3580,6 +3616,7 @@ export type Database = {
           image: string | null
           name: string
           notice_hours: number | null
+          cuisine: string | null
           options: Json
           pairing: string | null
           position: number
@@ -3601,6 +3638,7 @@ export type Database = {
           image?: string | null
           name: string
           notice_hours?: number | null
+          cuisine?: string | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -3622,6 +3660,7 @@ export type Database = {
           image?: string | null
           name?: string
           notice_hours?: number | null
+          cuisine?: string | null
           options?: Json
           pairing?: string | null
           position?: number
@@ -4739,6 +4778,10 @@ export type Database = {
           table_id: string | null
           tip_amount: number | null
           type: Database["public"]["Enums"]["order_type"]
+          viva_order_code: string | null
+          viva_return_url: string | null
+          viva_tip: number | null
+          viva_transaction_id: string | null
         }
         Insert: {
           cash_change?: number | null
@@ -4779,6 +4822,10 @@ export type Database = {
           table_id?: string | null
           tip_amount?: number | null
           type?: Database["public"]["Enums"]["order_type"]
+          viva_order_code?: string | null
+          viva_return_url?: string | null
+          viva_tip?: number | null
+          viva_transaction_id?: string | null
         }
         Update: {
           cash_change?: number | null
@@ -4819,6 +4866,10 @@ export type Database = {
           table_id?: string | null
           tip_amount?: number | null
           type?: Database["public"]["Enums"]["order_type"]
+          viva_order_code?: string | null
+          viva_return_url?: string | null
+          viva_tip?: number | null
+          viva_transaction_id?: string | null
         }
         Relationships: [
           {
@@ -7368,8 +7419,59 @@ export type Database = {
           },
         ]
       }
+      viva_accounts: {
+        Row: {
+          etablissement_id: string
+          merchant_id: string
+          source_code: string | null
+          updated_at: string
+          verified: boolean
+          viva_account_id: string | null
+        }
+        Insert: {
+          etablissement_id: string
+          merchant_id: string
+          source_code?: string | null
+          updated_at?: string
+          verified?: boolean
+          viva_account_id?: string | null
+        }
+        Update: {
+          etablissement_id?: string
+          merchant_id?: string
+          source_code?: string | null
+          updated_at?: string
+          verified?: boolean
+          viva_account_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "viva_accounts_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
+      bulle_encaissements: {
+        Row: {
+          amount: number | null
+          bulle_name: string | null
+          etablissement_id: string | null
+          etat: string | null
+          id: string | null
+          mode: string | null
+          name: string | null
+          paid_at: string | null
+          places: number | null
+          refunded_at: string | null
+          reservation_id: string | null
+        }
+        Relationships: []
+      }
       shop_customer_stats: {
         Row: {
           email: string | null
@@ -7517,7 +7619,16 @@ export type Database = {
           p_from: string
           p_to: string
         }
-        Returns: { day: string; orders: number; revenue: number }[]
+        Returns: { bulles: number; day: string; orders: number; revenue: number }[]
+      }
+      gestion_paiements: {
+        Args: {
+          p_etablissement_id: string
+          p_limit: number
+          p_mode: string | null
+          p_offset: number
+        }
+        Returns: Json
       }
       admin_combo_parfait: {
         Args: {
@@ -7699,10 +7810,6 @@ export type Database = {
         Args: { p_ended_at: string; p_restaurant: string }
         Returns: undefined
       }
-      admin_set_commission_percent: {
-        Args: { p_commercial: string; p_percent: number }
-        Returns: undefined
-      }
       admin_set_pilotage_from: {
         Args: { p_etab: string; p_from: string | null }
         Returns: undefined
@@ -7754,6 +7861,13 @@ export type Database = {
         Args: { p_at?: string; p_etablissement: string }
         Returns: string[]
       }
+      articles_fermes_detail: {
+        Args: { p_at?: string; p_etablissement: string }
+        Returns: {
+          cuisine: boolean
+          id: string
+        }[]
+      }
       auth_account_state: {
         Args: { p_email: string }
         Returns: {
@@ -7763,10 +7877,35 @@ export type Database = {
           invited: boolean
         }[]
       }
+      basculer_cuisine: {
+        Args: {
+          p_articles?: string[]
+          p_etablissement: string
+          p_fermee: boolean
+          p_parties: string[]
+        }
+        Returns: {
+          created_at: string
+          cuisine: string | null
+          etablissement_id: string
+          id: string
+          name: string
+          open_windows: boolean
+          override_closed: boolean | null
+          override_until: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "closures"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       basculer_fermeture: {
         Args: { p_closure: string; p_fermee: boolean }
         Returns: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -7785,12 +7924,14 @@ export type Database = {
         Args: { p_idempotency_key: string; p_order_id: string }
         Returns: boolean
       }
+      begin_viva_payment: { Args: { p_order_id: string }; Returns: boolean }
       bulle_annuler_reservation: {
         Args: { p_reservation: string }
         Returns: undefined
       }
       bulle_commande_ouverte: {
         Args: {
+          p_bulle: Database["public"]["Tables"]["bulles"]["Row"]
           p_reservation: Database["public"]["Tables"]["bulle_reservations"]["Row"]
         }
         Returns: boolean
@@ -7800,14 +7941,23 @@ export type Database = {
         Args: { p_date: string; p_start_minutes: number }
         Returns: string
       }
+      bulle_changer_taille: {
+        Args: { p_party: number; p_reservation: string }
+        Returns: Database["public"]["Tables"]["bulle_reservations"]["Row"]
+      }
       bulle_deloger: { Args: { p_reservation: string }; Returns: string[] }
       bulle_fermer: { Args: { p_reservation: string }; Returns: string[] }
+      bulle_fin_ouverture: { Args: { p_etab: string }; Returns: string }
       bulle_libre: {
         Args: { p_bulle: string; p_ends_at: string; p_starts_at: string }
         Returns: boolean
       }
       bulle_marquer_arrivee: {
-        Args: { p_arrived: boolean; p_paid?: boolean; p_reservation: string }
+        Args: {
+          p_arrived: boolean
+          p_reservation: string
+          p_tender?: Database["public"]["Enums"]["bulle_part_tender"]
+        }
         Returns: undefined
       }
       bulle_prendre: { Args: { p_reservation: string }; Returns: boolean }
@@ -7881,14 +8031,21 @@ export type Database = {
         Returns: {
           bulle_color: string
           bulle_name: string
+          can_pay: boolean
           ends_at: string
           ordering: boolean
+          ouverte: boolean
           party_size: number
+          place_cents: number
           places_paid: number
           reservation_status: Database["public"]["Enums"]["bulle_reservation_status"]
-          share_token: string
+          reste_cents: number
           starts_at: string
         }[]
+      }
+      bulle_table_partage: {
+        Args: { p_slug: string; p_table: number }
+        Returns: string
       }
       bulle_verrou: {
         Args: { p_etab: string; p_starts_at: string }
@@ -8318,6 +8475,7 @@ export type Database = {
           p_phone: string
           p_source: Database["public"]["Enums"]["bulle_reservation_source"]
           p_starts_at: string
+          p_tender?: Database["public"]["Enums"]["bulle_part_tender"]
         }
         Returns: {
           arrived_at: string | null
@@ -8452,6 +8610,7 @@ export type Database = {
         }
         Returns: {
           created_at: string
+          cuisine: string | null
           etablissement_id: string
           id: string
           name: string
@@ -8845,6 +9004,10 @@ export type Database = {
           variant_id: string
         }[]
       }
+      ouvrir_table_bulle: {
+        Args: { p_bulle: string; p_ouvrir: boolean }
+        Returns: string
+      }
       pay_order_items: {
         Args: {
           p_cash_amount?: number | null
@@ -9075,6 +9238,7 @@ export type Database = {
       badge: "maison" | "top" | "nouveau"
       bulle_part_method: "en_ligne" | "sur_place"
       bulle_part_status: "en_attente" | "payee" | "remboursee" | "annulee"
+      bulle_part_tender: "carte" | "especes"
       bulle_reservation_source: "en_ligne" | "telephone" | "sur_place"
       bulle_reservation_status:
         | "en_attente"
@@ -9191,8 +9355,8 @@ export type Database = {
         | "failed"
         | "cancelled"
       payment_mode: "especes" | "carte" | "en_ligne" | "mixte" | "caisse"
-      payment_provider: "stripe" | "sumup" | "square" | "demo"
-      price_rule_direction: "majoration" | "remise"
+      payment_provider: "stripe" | "sumup" | "square" | "demo" | "viva"
+      price_rule_direction: "majoration" | "remise" | "prix_fixe"
       price_rule_unit: "montant" | "pourcentage"
       print_job_kind: "order" | "test"
       print_job_status: "pending" | "printed" | "cancelled"
@@ -9382,6 +9546,7 @@ export const Constants = {
       badge: ["maison", "top", "nouveau"],
       bulle_part_method: ["en_ligne", "sur_place"],
       bulle_part_status: ["en_attente", "payee", "remboursee", "annulee"],
+      bulle_part_tender: ["carte", "especes"],
       bulle_reservation_source: ["en_ligne", "telephone", "sur_place"],
       bulle_reservation_status: [
         "en_attente",
@@ -9510,8 +9675,8 @@ export const Constants = {
         "cancelled",
       ],
       payment_mode: ["especes", "carte", "en_ligne", "mixte", "caisse"],
-      payment_provider: ["stripe", "sumup", "square", "demo"],
-      price_rule_direction: ["majoration", "remise"],
+      payment_provider: ["stripe", "sumup", "square", "demo", "viva"],
+      price_rule_direction: ["majoration", "remise", "prix_fixe"],
       price_rule_unit: ["montant", "pourcentage"],
       print_job_kind: ["order", "test"],
       print_job_status: ["pending", "printed", "cancelled"],
