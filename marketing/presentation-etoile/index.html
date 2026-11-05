@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ominin Club pour L’Étoile</title>
+<link rel="stylesheet" href="fonts/instrument.css">
+<link rel="stylesheet" href="ominin-glass.css">
+<link rel="stylesheet" href="bg.css">
+<style>
+  .shot { margin-top: 7mm; }
+  .shot .tablet { width: 100%; }
+  .below { margin-top: 7mm; }
+  .below ul { grid-template-columns: 1fr 1fr; column-gap: 7mm; row-gap: 2.4mm; }
+  .row.duo-row { grid-template-columns: 1.15fr 1fr; }
+  .duo { display: flex; align-items: center; }
+  .duo .phone { width: 58mm; }
+  .duo .phone.behind { width: 48mm; margin-left: -14mm; }
+  .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6mm; margin-top: 9mm; }
+  .trio figure.phone { width: 56mm; margin: 0 auto; }
+  .trio .glass { margin-top: 5mm; }
+  .trio .glass p { margin-top: 1.5mm; }
+  .steps.four li { padding-top: 4.5mm; padding-bottom: 4.5mm; }
+  .steps.four li span { display: block; font-size: 9.4pt; margin-top: 1mm; color: var(--lead); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; margin-top: 5mm; }
+  .statement { margin-top: 8mm; }
+  .statement h3 { font-size: 22pt; }
+</style>
+</head>
+<body>
+
+<!-- Le chevron et son dégradé, partagés par toutes les pages. Ne pas retirer. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f0b35b"/><stop offset=".55" stop-color="#e2764b"/><stop offset="1" stop-color="#c94f5e"/></linearGradient><symbol id="mark" viewBox="116 107 280 300"><path d="M256 107 L396 247 V281 L256 141 L116 281 V247 Z" fill="url(#g)"/><path d="M256 170 L396 310 V344 L256 204 L116 344 V310 Z" fill="url(#g)"/><path d="M256 233 L396 373 V407 L256 267 L116 407 V373 Z" fill="url(#g)"/></symbol></defs></svg>
+
+<section class="page" data-theme="dark" data-chevron="158,142,240" data-clear="66,303">
+  <div class="inner">
+    <div class="cover-title lift">
+      <svg class="mark" aria-hidden="true"><use href="#mark"/></svg>
+      <h1>Ominin Club</h1>
+    </div>
+    <p class="cover-lead">Vos tables VIP, de la réservation au départ. L’outil construit sur le cahier des charges de L’Étoile pour remplacer Fourvenues.</p>
+    <div class="stagger">
+      <article class="glass"><h3>Le client réserve une zone</h3><p>Prix tout compris, heure d’arrivée, paiement en ligne.</p></article>
+      <article class="glass"><h3>Vous placez la table</h3><p>Les réservations arrivent « à placer » sur le plan du soir.</p></article>
+      <article class="glass"><h3>Chaque poste a son geste</h3><p>Accueil, caissier, chef de rang : un bouton chacun.</p></article>
+      <article class="glass"><h3>Vous suivez l’argent</h3><p>Rapport par soirée, notifications, journal des actions.</p></article>
+    </div>
+    <div class="cover-stage">
+      <figure class="tablet"><img src="img/plan.jpg" alt=""></figure>
+      <figure class="phone"><img src="img/client-offres.jpg" alt=""></figure>
+    </div>
+  </div>
+</section>
+
+<section class="page" data-theme="paper" data-chevron="182,236,175" data-clear="150,272">
+  <div class="inner">
+    <header class="hd"><span class="brand lift"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Votre cahier des charges</span><span class="num">2</span></header>
+    <h2>Six chantiers pour remplacer Fourvenues, cinq déjà construits.</h2>
+    <p class="lead">Nous avons repris votre cahier point par point. Le dernier chantier se fait avec vous : il part de votre vraie salle.</p>
+    <div class="grid2">
+      <div class="glass tight"><span class="kicker">Construit</span><h3>Réservations à placer</h3><p>Statuts Arrivée, Assise et Partie. Quatre postes et leurs droits.</p></div>
+      <div class="glass tight"><span class="kicker">Construit</span><h3>Rapport financier</h3><p>Les acomptes de chaque soirée, export Excel et PDF.</p></div>
+      <div class="glass tight"><span class="kicker">Construit</span><h3>Heures et modifications</h3><p>Créneaux d’arrivée, réservation modifiable, lien de paiement.</p></div>
+      <div class="glass tight"><span class="kicker">Construit</span><h3>Notifications</h3><p>Chaque réservation sonne sur le téléphone du bon poste.</p></div>
+      <div class="glass tight"><span class="kicker">Construit</span><h3>Journal des actions</h3><p>Qui a fait quoi, à quelle heure, dans quelle soirée.</p></div>
+      <div class="glass tight"><span class="kicker">Avec vous</span><h3>Votre club en ligne</h3><p>Plan, zones, tables, prix, votre adresse et le bouton Shotgun.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" data-theme="dark" data-chevron="40,232,190" data-clear="150,276">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Côté client</span><span class="num">3</span></header>
+    <h2>Le client réserve une zone, le club choisit la table.</h2>
+    <p class="lead">Bar, Rooftop, salons VIP : il voit chaque zone avec son prix et ce qu’elle comprend, puis réserve depuis son téléphone.</p>
+    <div class="row duo-row">
+      <div class="visual duo">
+        <figure class="phone"><img src="img/client-offres.jpg" alt=""></figure>
+        <figure class="phone behind"><img src="img/client-heure.jpg" alt=""></figure>
+      </div>
+      <div class="glass">
+        <span class="kicker">Ce que voit le client</span>
+        <h3>Un prix tout compris, une heure d’arrivée, un paiement en ligne.</h3>
+        <ul>
+          <li>Le prix affiché est le prix payé : aucun frais ajouté.</li>
+          <li>Il choisit son créneau ; un créneau plein s’affiche complet.</li>
+          <li>Il paie l’acompte ou la table entière, et reçoit sa confirmation et son QR code par e-mail.</li>
+          <li>Partage entre amis et paiement de la table entière : des options que vous activez ou non.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="page" data-theme="paper" data-chevron="150,246,190" data-clear="196,276">
+  <div class="inner">
+    <header class="hd"><span class="brand lift"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Le plan du soir</span><span class="num">4</span></header>
+    <h2>Les réservations arrivent « à placer », vous attribuez les tables.</h2>
+    <p class="lead">Une zone se vend tant qu’il y reste des tables : pas de surréservation. La table, c’est votre équipe qui la donne.</p>
+    <div class="shot"><figure class="tablet"><img src="img/plan.jpg" alt=""></figure></div>
+    <div class="glass below">
+      <span class="kicker">Sur le plan</span>
+      <h3>La soirée en un coup d’œil.</h3>
+      <ul>
+        <li>Touchez une table libre : elle propose les réservations qui y tiennent.</li>
+        <li>« Nouvelle réservation » enregistre une table prise au téléphone.</li>
+        <li>Tables arrivées, personnes entrées, encaissé et reste à encaisser, en direct.</li>
+        <li>La liste d’invités est dans le même écran, et se coupe si vous n’en voulez pas.</li>
+      </ul>
+    </div>
+    <p class="note">Écrans réels d’Ominin Club sur une base de test : noms et chiffres fictifs.</p>
+  </div>
+</section>
+
+<section class="page" data-theme="dark" data-chevron="120,238,230" data-clear="200,276">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">La soirée</span><span class="num">5</span></header>
+    <h2>Quatre temps dans la soirée, un geste chacun.</h2>
+    <p class="lead">C’est le déroulé de votre cahier : l’accueil fait entrer sans attendre le paiement, le caissier encaisse, le chef de rang libère la table.</p>
+    <ol class="steps four" style="margin-top: 6mm">
+      <li class="glass"><b>Réservée.</b> Le client réserve en ligne, ou votre équipe le saisit au téléphone, puis il est placé.<span>Statut posé à la réservation.</span></li>
+      <li class="glass"><b>Arrivée.</b> L’accueil fait entrer, même si la table n’est pas encore réglée.<span>Sans voir les montants.</span></li>
+      <li class="glass"><b>Assise.</b> Le caissier encaisse le reste et installe la table.<span>Un seul bouton : « Encaisser et installer ».</span></li>
+      <li class="glass"><b>Partie.</b> Le chef de rang marque le départ : la table se libère.<span>Elle reprend une réservation à placer dans la même soirée.</span></li>
+    </ol>
+    <div class="pair">
+      <div class="glass tight"><h3>Une table libérée se revend</h3><p>Le plan la montre « libérée » et propose les réservations qui y tiennent.</p></div>
+      <div class="glass tight"><h3>Une erreur se rattrape</h3><p>Chaque geste se défait d’un cran, par le poste qui en a le droit.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="page" data-theme="paper" data-chevron="40,250,190" data-clear="214,276">
+  <div class="inner">
+    <header class="hd"><span class="brand lift"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Sur le téléphone de l’équipe</span><span class="num">6</span></header>
+    <h2>Chaque poste ne voit que son bouton.</h2>
+    <p class="lead">Un écran par poste, et le geste suivant mis en avant. Le client à traiter ensuite est marqué « Suivant ».</p>
+    <div class="trio">
+      <div>
+        <figure class="phone"><img src="img/accueil.jpg" alt=""></figure>
+        <div class="glass tight"><h4>Accueil</h4><p>« Faire entrer », sans voir l’argent.</p></div>
+      </div>
+      <div>
+        <figure class="phone"><img src="img/caissier.jpg" alt=""></figure>
+        <div class="glass tight"><h4>Caissier</h4><p>« Encaisser et installer », le montant affiché.</p></div>
+      </div>
+      <div>
+        <figure class="phone"><img src="img/rang.jpg" alt=""></figure>
+        <div class="glass tight"><h4>Chef de rang</h4><p>« Marquer le départ », avec un retour possible.</p></div>
+      </div>
+    </div>
+    <p class="note">Écrans réels d’Ominin Club sur une base de test : noms et chiffres fictifs.</p>
+  </div>
+</section>
+
+<section class="page" data-theme="dark" data-chevron="70,246,190" data-clear="196,276">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Postes et droits</span><span class="num">7</span></header>
+    <h2>Chacun voit ce dont il a besoin, la direction règle le reste.</h2>
+    <p class="lead">Quatre postes : Direction, Accueil, Caissier, Chef de rang. Le poste se choisit en invitant la personne.</p>
+    <div class="shot"><figure class="tablet"><img src="img/equipe.jpg" alt=""></figure></div>
+    <div class="glass below">
+      <span class="kicker">Les droits</span>
+      <h3>Réglés par la direction, vérifiés à chaque geste.</h3>
+      <ul>
+        <li>Par défaut, ceux de votre cahier : l’accueil fait entrer, le caissier encaisse, le chef de rang marque le départ.</li>
+        <li>Un changement vaut tout de suite, sur tous les téléphones.</li>
+        <li>Les montants ne s’affichent qu’aux postes qui en ont le droit.</li>
+        <li>Le serveur vérifie les droits : cacher un bouton ne suffit pas, le geste est refusé.</li>
+      </ul>
+    </div>
+    <p class="note">Écrans réels d’Ominin Club sur une base de test : noms et chiffres fictifs.</p>
+  </div>
+</section>
+
+<section class="page" data-theme="paper" data-chevron="166,246,190" data-clear="196,276">
+  <div class="inner">
+    <header class="hd"><span class="brand lift"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Réservations au téléphone</span><span class="num">8</span></header>
+    <h2>Une table prise au téléphone se paie quand même en ligne.</h2>
+    <p class="lead">Un habitué appelle : vous saisissez sa réservation, fixez l’acompte, il reçoit le lien et paie. Le reste se règle sur place.</p>
+    <div class="shot"><figure class="tablet"><img src="img/acompte.jpg" alt=""></figure></div>
+    <div class="glass below">
+      <span class="kicker">Depuis la fiche</span>
+      <h3>Acompte, modification, créneaux.</h3>
+      <ul>
+        <li>Vous fixez l’acompte, le client reçoit le lien de paiement par e-mail.</li>
+        <li>Personnes, heure d’arrivée, coordonnées et note pour l’équipe se modifient.</li>
+        <li>Une modification ne touche ni au prix ni aux paiements déjà faits.</li>
+        <li>Vous réglez les heures d’arrivée proposées à chaque soirée.</li>
+      </ul>
+    </div>
+    <p class="note">Écrans réels d’Ominin Club sur une base de test : noms et chiffres fictifs.</p>
+  </div>
+</section>
+
+<section class="page" data-theme="dark" data-chevron="40,246,190" data-clear="196,276">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Rapport financier</span><span class="num">9</span></header>
+    <h2>Chaque soirée a ses comptes, prêts à exporter.</h2>
+    <p class="lead">Le rapport compte depuis les paiements enregistrés, chaque paiement une seule fois. Il couvre les tables ; le bar reste dans votre caisse.</p>
+    <div class="shot"><figure class="tablet"><img src="img/rapport.jpg" alt=""></figure></div>
+    <div class="glass below">
+      <span class="kicker">Par soirée</span>
+      <h3>Les acomptes et le reste à encaisser.</h3>
+      <ul>
+        <li>Acomptes encaissés, remboursés, nets et en attente.</li>
+        <li>Prix des tables prévu, déjà encaissé, reste à encaisser.</li>
+        <li>Le détail par zone et par réservation.</li>
+        <li>Export Excel et PDF, réservé à la direction.</li>
+      </ul>
+    </div>
+    <p class="note">Écrans réels d’Ominin Club sur une base de test : noms et chiffres fictifs.</p>
+  </div>
+</section>
+
+<section class="page" data-theme="paper" data-chevron="176,246,190" data-clear="196,276">
+  <div class="inner">
+    <header class="hd"><span class="brand lift"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Notifications</span><span class="num">10</span></header>
+    <h2>Une table réservée, le bon téléphone sonne.</h2>
+    <p class="lead">Les réservations qui arrivent, changent ou s’annulent s’affichent sur le téléphone de l’équipe, même écran verrouillé.</p>
+    <div class="shot"><figure class="tablet"><img src="img/notifications.jpg" alt=""></figure></div>
+    <div class="glass below">
+      <span class="kicker">Qui reçoit quoi</span>
+      <h3>Chacun ce qui concerne son poste.</h3>
+      <ul>
+        <li>Réservée en ligne, saisie, déplacée ou annulée : l’équipe est prévenue.</li>
+        <li>La direction ajuste ce que reçoit chaque membre.</li>
+        <li>L’accueil est prévenu sans voir les montants ; la caisse les voit.</li>
+        <li>Toucher la notification ouvre la fiche de la réservation.</li>
+      </ul>
+    </div>
+    <p class="note">Écrans réels d’Ominin Club sur une base de test : noms et chiffres fictifs.</p>
+  </div>
+</section>
+
+<section class="page" data-theme="dark" data-chevron="56,246,190" data-clear="196,276">
+  <div class="inner">
+    <header class="hd"><span class="brand"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">Journal des actions</span><span class="num">11</span></header>
+    <h2>Qui a fait quoi, et à quelle heure.</h2>
+    <p class="lead">Le lendemain d’une soirée, un client conteste : vous voyez qui l’a fait entrer, qui a encaissé, et quand.</p>
+    <div class="shot"><figure class="tablet"><img src="img/journal.jpg" alt=""></figure></div>
+    <div class="glass below">
+      <span class="kicker">Tenu tout seul</span>
+      <h3>Chaque geste de l’équipe, noté.</h3>
+      <ul>
+        <li>Placement, entrée, encaissement, départ, remboursement, droits modifiés.</li>
+        <li>Personne n’a rien à remplir : il s’écrit à chaque action.</li>
+        <li>Recherche par client ou par membre, filtre par soirée.</li>
+        <li>Le caissier n’y a pas accès.</li>
+      </ul>
+    </div>
+    <p class="note">Écrans réels d’Ominin Club sur une base de test : noms et chiffres fictifs.</p>
+  </div>
+</section>
+
+<section class="page" data-theme="paper" data-chevron="108,212,170" data-clear="176,240">
+  <div class="inner">
+    <header class="hd"><span class="brand lift"><svg class="mark" aria-hidden="true"><use href="#mark"/></svg>Ominin</span><span class="sec">La mise en place</span><span class="num">12</span></header>
+    <h2>Ce qu’il nous faut pour ouvrir vos réservations.</h2>
+    <div class="glass statement"><h3>Le prix affiché est le prix payé.</h3><p>Aucun frais de service ajouté au client sur sa réservation.</p></div>
+    <ol class="steps" style="margin-top: 5mm">
+      <li class="glass"><b>Votre plan de salle.</b> Zones, tables, places et prix de chaque zone.</li>
+      <li class="glass"><b>Le paiement en ligne.</b> Le moyen de paiement, choisi ensemble.</li>
+      <li class="glass"><b>Votre adresse.</b> Votre page de réservation, avec le bouton Shotgun.</li>
+      <li class="glass"><b>Votre équipe.</b> Un compte et un poste par personne, alertes activées.</li>
+    </ol>
+    <div class="glass solid contact" style="margin-top: auto; grid-template-columns: 1fr">
+      <div>
+        <h3>Marwan Al Masri et Ambaka Le Grégam</h3>
+        <p>Cofondateurs d’Ominin</p>
+        <p class="mail">support@ominin.com</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+</body>
+</html>
