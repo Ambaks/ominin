@@ -24,6 +24,7 @@
   --eg-lumiere: 0.75;
   --eg-ombre-rgb: 6 40 20;
   --eg-radius: 1.5rem;
+  --eg-feuille: 0.9;
   --eg-blur: 18px;
   --eg-saturate: 1.1;
   --eg-metal: var(--cp-green);
@@ -37,7 +38,7 @@
 /* Le BOHO : la nuit prune de la terrasse, un reflet rosé, le liseré des
    lampes en rotin. */
 [data-menu-root].theme-boho:has(> .panis-backdrop) {
-  --eg-tint: 46 30 44;
+  --eg-tint: 52 32 54;
   --eg-alpha: 0.72;
   --eg-sheen: 246 233 230;
   --eg-rim: 229 176 114;
@@ -50,6 +51,7 @@
   --eg-lumiere: 0.45;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
+  --eg-feuille: 0.78;
   --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--ember-2);
@@ -75,6 +77,7 @@
   --eg-lumiere: 0.14;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
+  --eg-feuille: 0.9;
   --eg-blur: 18px;
   --eg-saturate: 1.25;
   --eg-metal: var(--nv-gold);
@@ -100,6 +103,7 @@
   --eg-lumiere: 0.16;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
+  --eg-feuille: 0.9;
   --eg-blur: 18px;
   --eg-saturate: 1.2;
   --eg-metal: var(--vc-red);
@@ -125,6 +129,7 @@
   --eg-lumiere: 0.14;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
+  --eg-feuille: 0.9;
   --eg-blur: 18px;
   --eg-saturate: 1.3;
   --eg-metal: var(--ca-magenta-ink);
@@ -150,6 +155,7 @@
   --eg-lumiere: 0.14;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
+  --eg-feuille: 0.9;
   --eg-blur: 18px;
   --eg-saturate: 1.22;
   --eg-metal: var(--lc-or);
@@ -183,6 +189,10 @@
     inset 0 -26px 32px -16px rgb(var(--eg-rim) / var(--eg-halo)),
     0 16px 32px -22px rgb(0 0 0 / var(--eg-ombre));
   --eg-flou: blur(var(--eg-blur)) saturate(var(--eg-saturate));
+  /* Les pastilles et le panier flottent sur le satin en permanence : un flou
+     plus court, sans saturation, que la feuille qui ne s'ouvre qu'un moment. */
+  --eg-blur-pastille: 12px;
+  --eg-flou-pastille: blur(var(--eg-blur-pastille));
   --eg-verre: var(--eg-glace), rgb(var(--eg-tint) / var(--eg-alpha));
   --eg-metal-verre: var(--eg-glace), color-mix(in srgb, var(--eg-metal) var(--eg-metal-voile), transparent);
 
@@ -272,6 +282,7 @@
     box-shadow:
       inset 2px 2px 3px -1px rgb(var(--eg-sheen) / var(--eg-reflet)),
       inset -2px -2px 3px -1px rgb(var(--eg-ombre-rgb) / var(--eg-lisere)),
+      inset 0 0 0 1px rgb(var(--eg-rim) / 0.18),
       0 1px 2px rgb(var(--eg-ombre-rgb) / 0.35),
       0 18px 28px -16px rgb(var(--eg-ombre-rgb) / var(--eg-ombre));
     -webkit-backdrop-filter: none;
@@ -294,8 +305,8 @@
     background: linear-gradient(
       135deg,
       rgb(var(--eg-sheen) / var(--eg-reflet)),
-      rgb(var(--eg-sheen) / 0.08) 32%,
-      rgb(var(--eg-rim) / 0.08) 68%,
+      rgb(var(--eg-sheen) / 0.25) 40%,
+      rgb(var(--eg-rim) / 0.15) 70%,
       rgb(var(--eg-rim) / var(--eg-lisere))
     );
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -321,8 +332,8 @@
   & .dish-photo {
     border: 0;
     background-color: transparent;
-    -webkit-mask-image: linear-gradient(to bottom, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
-    mask-image: linear-gradient(to bottom, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
+    mask-image: linear-gradient(to bottom, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
   }
 
   & .dish-photo-fade {
@@ -409,8 +420,8 @@
     border-color: rgb(var(--eg-sheen) / 0.4);
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
-    -webkit-backdrop-filter: var(--eg-flou);
-    backdrop-filter: var(--eg-flou);
+    -webkit-backdrop-filter: var(--eg-flou-pastille);
+    backdrop-filter: var(--eg-flou-pastille);
   }
 
   /* Le panier garde le métal de la maison : l'encre posée dessus ne change pas. */
@@ -421,8 +432,8 @@
   & .ticket-dock {
     background: var(--eg-verre);
     box-shadow: var(--eg-relief);
-    -webkit-backdrop-filter: var(--eg-flou);
-    backdrop-filter: var(--eg-flou);
+    -webkit-backdrop-filter: var(--eg-flou-pastille);
+    backdrop-filter: var(--eg-flou-pastille);
   }
 
   & .ticket-dock::before {
@@ -437,13 +448,28 @@
     backdrop-filter: none;
   }
 
+  /* Une feuille ouverte : les pastilles, le panier et le quai s'effacent,
+     ils transparaissaient dans son verre. La pastille dont naît la feuille de
+     fidélité reste, la feuille sort d'elle. */
+  &:has(.sheet-overlay) :is(.offer-pill, .loyalty-pill:not([data-liquid-source]), .loyalty-greeting, .cart-bar, .ticket-dock) {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
   /* La feuille se lit : plus couverte que les fiches, le filet dit encore le
      verre. .bg-surface dans le sélecteur : la feuille de Panis
      (panis-sheets.css) la vise ainsi, le verre doit passer devant. */
   & [role="dialog"].bg-surface {
     border-color: transparent;
-    background: var(--eg-glace), rgb(var(--eg-tint) / 0.9);
-    box-shadow: var(--eg-relief);
+    background:
+      radial-gradient(90% 40% at 0% 0%, rgb(var(--eg-sheen) / calc(var(--eg-lumiere) * 0.6)), transparent 60%),
+      var(--eg-glace),
+      rgb(var(--eg-tint) / var(--eg-feuille));
+    box-shadow:
+      inset 0 1px 0 rgb(var(--eg-sheen) / var(--eg-reflet)),
+      inset 0 0 0 1px rgb(var(--eg-rim) / 0.25),
+      inset 0 -1px 0 rgb(var(--eg-rim) / var(--eg-lisere)),
+      0 -1.5rem 4rem -1rem rgb(0 0 0 / 0.55);
     -webkit-backdrop-filter: var(--eg-flou);
     backdrop-filter: var(--eg-flou);
   }
@@ -480,8 +506,8 @@
     --eg-reflet: 0.7;
     --eg-lisere: 0.7;
     --eg-fond: 0.2;
-    --eg-ombre-rgb: 0 0 0;
-    --eg-ombre: 0.75;
+    --eg-ombre-rgb: 2 22 10;
+    --eg-ombre: 0.9;
     --eg-price: var(--cp-ivory);
     --eg-struck: #cfc9a8;
     --foreground: var(--cp-ivory);
@@ -519,8 +545,10 @@
     --eg-price: #eeeac7;
     --eg-struck: #cfc9a8;
     --cp-grain: none;
-    --surface: rgb(8 46 24 / 0.92);
-    --surface-raised: rgb(14 62 33 / 0.95);
+    /* Les barres collées (en-tête, pied) restent couvrantes : la feuille
+       elle-même laisse voir le satin. */
+    --surface: rgb(8 46 24 / 0.97);
+    --surface-raised: rgb(14 62 33 / 0.97);
     --foreground: #eeeac7;
     --muted: rgb(238 234 199 / 0.84);
     --faint: rgb(238 234 199 / 0.7);
@@ -531,16 +559,31 @@
     --ember-3: #eeeac7;
     /* Recalculés ici : définis à la racine, ils garderaient le crème. */
     --cp-trait: color-mix(in srgb, var(--cp-green) 70%, transparent);
-    --cp-bord: color-mix(in srgb, var(--cp-green) 28%, transparent);
+    --cp-bord: color-mix(in srgb, var(--cp-green) 45%, transparent);
+    /* L'orange de l'Apérol, assombri pour l'ivoire posé dessus ; les prix de
+       l'offre s'éclaircissent sur le vert. */
+    --offer: #9a3d16;
+    --offer-light: #c4542a;
     --cp-chaud: color-mix(in srgb, var(--cp-laiton) 18%, var(--surface));
     color: var(--foreground);
     background:
-      linear-gradient(180deg, rgb(var(--eg-sheen) / 0.12), rgb(var(--eg-sheen) / 0) 36%, rgb(var(--eg-rim) / 0.16) 100%),
-      rgb(var(--eg-tint) / 0.86);
+      radial-gradient(90% 40% at 0% 0%, rgb(var(--eg-sheen) / 0.2), transparent 60%),
+      linear-gradient(180deg, rgb(var(--eg-sheen) / 0.08), rgb(var(--eg-sheen) / 0) 36%, rgb(var(--eg-rim) / 0.16) 100%),
+      rgb(var(--eg-tint) / 0.72);
     box-shadow:
       inset 0 1px 0 rgb(var(--eg-sheen) / 0.7),
+      inset 0 0 0 1px rgb(var(--eg-rim) / 0.3),
       inset 0 -1px 0 rgb(var(--eg-rim) / 0.7),
       0 -1.5rem 4rem -1rem rgb(0 0 0 / 0.55);
+  }
+
+  & [role="dialog"] .offer-price b {
+    color: #ffa070;
+  }
+
+  /* Le voile sous une feuille de verre : plus profond, la carte derrière se calme. */
+  & .sheet-overlay.items-end[class*="bg-black"] {
+    background-color: rgb(3 26 13 / 0.7);
   }
 
   /* La carte bancaire de la démo, vert sur le vert de la feuille, se perdait :
@@ -566,8 +609,8 @@
 /* Dès la tablette, la photo de Panis est à gauche du texte : elle s'efface vers la droite. */
 @media (min-width: 48rem) {
   [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) .dish-grid > article .dish-photo {
-    -webkit-mask-image: linear-gradient(to right, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
-    mask-image: linear-gradient(to right, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
+    -webkit-mask-image: linear-gradient(to right, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
+    mask-image: linear-gradient(to right, #000 40%, rgb(0 0 0 / 0.55) 62%, rgb(0 0 0 / 0.12) 82%, transparent 94%);
   }
 }
 
