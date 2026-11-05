@@ -27,7 +27,8 @@ import {
   toMinutes,
 } from "@/lib/collect/hours";
 import { formatCents, formatNight, formatNightShort, tableName } from "@/lib/club/format";
-import type { ClubEvent } from "@/lib/club/types";
+import { bookingHolds } from "@/lib/club/mappers";
+import type { ClubBooking, ClubEvent } from "@/lib/club/types";
 import * as clubApi from "@/lib/gestion/club-api";
 import {
   bookingsByTable,
@@ -248,15 +249,17 @@ export function EventEditor({
   const flagged = (Object.keys(errors) as (keyof typeof errors)[]).filter((key) => errors[key]);
   const dirty = JSON.stringify(draft) !== JSON.stringify(saved);
   const ended = event ? isPast(event, now) : false;
-  // Soirée annulée dont des tables tiennent encore : un remboursement a
-  // échoué, ou le passage a été interrompu.
+  // Soirée annulée dont des réservations, placées ou non, tiennent encore :
+  // un remboursement a échoué, ou le passage a été interrompu.
   const pending = event?.cancelledAt
-    ? [...byTable.values()].filter((booking) => isSold(booking) || failed.includes(booking.id))
+    ? (night?.bookings ?? []).filter(
+        (booking) => bookingHolds(booking, now) && (isSold(booking) || failed.includes(booking.id))
+      )
     : [];
-  const labelOf = (tableId: string) => {
-    const table = club.tables.find((candidate) => candidate.id === tableId);
-    const zone = club.zones.find((candidate) => candidate.id === table?.zoneId);
-    return table && zone ? tableName(zone.name, table.label) : "?";
+  const labelOf = (booking: ClubBooking) => {
+    const table = club.tables.find((candidate) => candidate.id === booking.tableId);
+    const zone = club.zones.find((candidate) => candidate.id === booking.zoneId);
+    return table && zone ? tableName(zone.name, table.label) : (zone?.name ?? "?");
   };
   const shownError = (key: keyof typeof errors) => (showErrors ? errors[key] : undefined);
 
@@ -463,7 +466,7 @@ export function EventEditor({
           {pending.map((booking) => (
             <div key={booking.id} className="flex min-h-g-control items-center justify-between gap-3 px-4 py-2 text-g-body">
               <span className="min-w-0 truncate">
-                {labelOf(booking.tableId)} · {booking.name}
+                {labelOf(booking)} · {booking.name}
               </span>
               <span className="shrink-0 text-muted tabular-nums">
                 {formatCents(booking.totalCents)}

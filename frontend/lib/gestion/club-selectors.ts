@@ -1,6 +1,7 @@
 import type { TableState } from "@/components/club/floor-plan";
+import { formatCents } from "@/lib/club/format";
 import { bookingHolds } from "@/lib/club/mappers";
-import type { ClubBooking, ClubEvent, ClubPayment, ClubTable } from "@/lib/club/types";
+import type { ClubBooking, ClubDroit, ClubEvent, ClubPayment, ClubTable } from "@/lib/club/types";
 import type { ClubNight, ClubState } from "./club-store";
 
 /* Lectures des soirées d'un club pour la gestion : ventes, plan, arrivées. */
@@ -15,22 +16,44 @@ export const isTonight = (event: ClubEvent, now: number) =>
   Date.parse(event.startsAt) <= now && !isPast(event, now);
 
 /**
- * Réglée, arrivée, ou à régler sur place : la table est vendue. Un paiement
- * en ligne en cours la tient sans être une vente.
+ * Réglée, à régler sur place, arrivée, assise ou partie : la réservation est
+ * vendue. Un paiement en ligne en cours la tient sans être une vente.
  */
 export function isSold(booking: ClubBooking): boolean {
   return (
     booking.status === "payee" ||
     booking.status === "arrivee" ||
+    booking.status === "assise" ||
+    booking.status === "partie" ||
     (booking.status === "en_attente" && booking.holdExpiresAt === null)
   );
 }
+
+/** Entrée dans le club : arrivée, assise ou partie depuis. */
+export const hasArrived = (booking: ClubBooking) =>
+  booking.status === "arrivee" || booking.status === "assise" || booking.status === "partie";
 
 /** La réservation qui tient chaque table ce soir-là. */
 export function bookingsByTable(night: ClubNight | undefined, now: number): Map<string, ClubBooking> {
   const map = new Map<string, ClubBooking>();
   for (const booking of night?.bookings ?? []) {
-    if (bookingHolds(booking, now)) map.set(booking.tableId, booking);
+    if (booking.tableId && bookingHolds(booking, now)) map.set(booking.tableId, booking);
+  }
+  return map;
+}
+
+/** Les réservations à placer : une zone, pas encore de table. Les plus anciennes d'abord. */
+export function unplacedBookings(night: ClubNight | undefined, now: number): ClubBooking[] {
+  return (night?.bookings ?? []).filter((booking) => booking.tableId === null && bookingHolds(booking, now));
+}
+
+/** Le dernier départ de chaque table ce soir-là : libérée, elle se reprend. */
+export function departuresByTable(night: ClubNight | undefined): Map<string, ClubBooking> {
+  const map = new Map<string, ClubBooking>();
+  for (const booking of night?.bookings ?? []) {
+    if (booking.status !== "partie" || !booking.tableId) continue;
+    const last = map.get(booking.tableId);
+    if (!last || Date.parse(booking.leftAt ?? "") > Date.parse(last.leftAt ?? "")) map.set(booking.tableId, booking);
   }
   return map;
 }
@@ -54,15 +77,62 @@ export function tablePrice(club: ClubState, eventId: string, table: ClubTable): 
 }
 
 /**
- * L'état d'une table sur le plan de l'équipe. Une table tenue dont il reste
- * à encaisser (saisie par le club, ou partagée et pas encore réglée en
- * entier) est « à régler sur place » : c'est à la porte que le reste se paie.
+ * L'état d'une table, ou d'une réservation, pour l'équipe. Réservée, elle
+ * est « reste à encaisser » tant que son prix n'est pas réglé (saisie par le
+ * club, acompte, table partagée) : le caissier encaisse en l'installant. Une
+ * table dont les clients sont partis est « libérée ».
  */
-export function staffTableState(booking: ClubBooking | undefined, onSale: boolean): TableState {
-  if (!booking) return onSale ? "libre" : "gardee";
+export function staffTableState(booking: ClubBooking | undefined, onSale: boolean, departed = false): TableState {
+  if (!booking) return departed ? "liberee" : onSale ? "libre" : "gardee";
+  if (booking.status === "partie") return "liberee";
+  if (booking.status === "assise") return "assise";
   if (booking.status === "arrivee") return "arrivee";
   if (booking.status === "en_attente" && booking.holdExpiresAt !== null) return "prise";
   return booking.remainingCents > 0 ? "attente" : "payee";
+}
+
+/** Les temps de la soirée ; « payee » ramène une réservation à réservée. */
+export type NightStep = "payee" | "arrivee" | "assise" | "partie";
+
+/** Le geste attendu d'une réservation : passer au temps suivant, ou la placer. */
+export type Gesture =
+  | { kind: "step"; to: Exclude<NightStep, "payee">; label: string; collect: number }
+  | { kind: "placer"; label: string };
+
+/**
+ * Le geste suivant d'une réservation pour ce poste, s'il en a un : faire
+ * entrer, installer (en encaissant le reste), marquer le départ. Une
+ * réservation à placer s'installe une fois sur une table.
+ */
+export function nextGesture(booking: ClubBooking, droits: Set<ClubDroit>): Gesture | null {
+  if (booking.status === "en_attente" && booking.holdExpiresAt !== null) return null;
+  const remaining = booking.remainingCents;
+  if ((booking.status === "payee" || booking.status === "en_attente") && droits.has("arrivee")) {
+    return { kind: "step", to: "arrivee", label: "Faire entrer", collect: 0 };
+  }
+  if (booking.status === "arrivee" && booking.tableId && droits.has("assise")) {
+    return {
+      kind: "step",
+      to: "assise",
+      label: remaining > 0 ? `Encaisser ${formatCents(remaining)} et installer` : "Installer",
+      collect: remaining,
+    };
+  }
+  if (booking.status === "assise") {
+    return droits.has("partie") ? { kind: "step", to: "partie", label: "Marquer le départ", collect: 0 } : null;
+  }
+  if (!booking.tableId && bookingHolds(booking) && droits.has("placer")) {
+    return { kind: "placer", label: "Placer sur une table" };
+  }
+  return null;
+}
+
+/** Revenir d'un cran, après une erreur : le temps d'avant et le geste qui le dit. */
+export function undoGesture(booking: ClubBooking, droits: Set<ClubDroit>): { to: NightStep; label: string } | null {
+  if (booking.status === "arrivee" && droits.has("arrivee")) return { to: "payee", label: "Annuler l’arrivée" };
+  if (booking.status === "assise" && droits.has("assise")) return { to: "arrivee", label: "Annuler l’installation" };
+  if (booking.status === "partie" && droits.has("partie")) return { to: "assise", label: "Annuler le départ" };
+  return null;
 }
 
 /** Les paiements d'une réservation, dans l'ordre où ils sont arrivés. */
@@ -133,9 +203,11 @@ export const refundableOnline = (payments: ClubPayment[]) =>
 export const TABLE_STATE_LABELS: Partial<Record<TableState, string>> = {
   libre: "Libre",
   prise: "Paiement en ligne en cours",
-  payee: "Payée",
-  attente: "À encaisser",
+  payee: "Réservée",
+  attente: "Réservée, reste à encaisser",
   arrivee: "Arrivée",
+  assise: "Assise",
+  liberee: "Libérée",
   gardee: "Gardée, hors vente",
 };
 
@@ -162,7 +234,7 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
   const onSale = onSaleTableIds(club, eventId);
   const stats: NightStats = {
     sold: sold.length,
-    capacity: new Set([...onSale, ...sold.map((booking) => booking.tableId)]).size,
+    capacity: new Set([...onSale, ...sold.flatMap((booking) => (booking.tableId ? [booking.tableId] : []))]).size,
     arrived: 0,
     people: 0,
     peopleArrived: 0,
@@ -175,7 +247,7 @@ export function nightStats(club: ClubState, eventId: string): NightStats {
   };
   for (const booking of sold) {
     stats.people += booking.partySize;
-    if (booking.status === "arrivee") {
+    if (hasArrived(booking)) {
       stats.arrived += 1;
       stats.peopleArrived += booking.partySize;
     }

@@ -4,6 +4,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { FeatureLocked } from "@/components/gestion/feature-locked";
 import { ChevronDownIcon, TrashIcon } from "@/components/gestion/icons";
+import { ClubDroitsEditor, PosteCards } from "@/components/gestion/soirees/club-postes";
 import { BadgeagesLog } from "@/components/gestion/temps/badgeages-log";
 import { Badgeuse } from "@/components/gestion/temps/badgeuse";
 import { HoursReportSheet } from "@/components/gestion/temps/hours-report-sheet";
@@ -15,7 +16,9 @@ import { Chip, ConfirmSheet, ErrorNotice, Field, GlassButton, Input, Notice, Pla
 import { useToast } from "@/components/ui/toast";
 import { describeError } from "@/lib/gestion/errors";
 import { DEFAULT_DAY_END_HOUR } from "@/lib/gestion/constants";
-import { isPickupShop, roleLabels } from "@/lib/gestion/selectors";
+import { POSTE_LABELS, posteOf, posteToMembership, type Poste } from "@/lib/club/droits";
+import type { ClubRole } from "@/lib/club/types";
+import { isClub, isPickupShop, roleLabels } from "@/lib/gestion/selectors";
 import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import { weekStart } from "@/lib/gestion/temps";
 import { useOpenEntries, useWeek } from "@/lib/gestion/use-week";
@@ -26,9 +29,14 @@ import type { Tables } from "@/lib/supabase/database.types";
 /*
  * Équipe (gérant) : qui travaille ici et ce que chacun peut faire. Les
  * membres d'abord, l'invitation dans une feuille ; le rôle se choisit sur
- * trois cartes qui disent ce qu'il ouvre. Le planning et le pointage ont
- * leur volet quand le restaurant les a.
+ * trois cartes qui disent ce qu'il ouvre — dans un club, le poste (accueil,
+ * caissier, chef de rang, direction), et la direction règle les droits de
+ * chaque poste. Le planning et le pointage ont leur volet quand le
+ * restaurant les a.
  */
+
+/** Ce qu'un membre ou une invitation porte : son poste dans un club, son rôle ailleurs. */
+type Access = { role: Role; club_role: ClubRole | null };
 
 function Block({ i, className = "", children }: { i: number; className?: string; children: ReactNode }) {
   return (
@@ -49,16 +57,19 @@ function PeopleIcon() {
 
 function InviteSheet({
   etablissementId,
+  club,
   onClose,
   onSent,
 }: {
   etablissementId: string;
+  club: boolean;
   onClose: () => void;
   onSent: () => Promise<void>;
 }) {
   const toast = useToast();
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<Role>("serveur");
+  const [poste, setPoste] = useState<Poste>("accueil");
   const [busy, setBusy] = useState(false);
 
   const invite = async (event: React.FormEvent) => {
@@ -69,7 +80,11 @@ function InviteSheet({
       const response = await fetch("/api/gestion/invite", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ etablissement_id: etablissementId, email: address, role }),
+        body: JSON.stringify({
+          etablissement_id: etablissementId,
+          email: address,
+          ...(club ? posteToMembership(poste) : { role }),
+        }),
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error);
@@ -122,8 +137,12 @@ function InviteSheet({
             autoCapitalize="none"
           />
         </Field>
-        <Field label="Rôle">
-          <RoleCards value={role} onChange={setRole} disabled={busy} />
+        <Field label={club ? "Poste" : "Rôle"}>
+          {club ? (
+            <PosteCards value={poste} onChange={setPoste} disabled={busy} />
+          ) : (
+            <RoleCards value={role} onChange={setRole} disabled={busy} />
+          )}
         </Field>
       </form>
     </Sheet>
@@ -132,37 +151,48 @@ function InviteSheet({
 
 function RoleSheet({
   member,
+  club,
   onClose,
   onChoose,
 }: {
   member: Tables<"memberships">;
+  club: boolean;
   onClose: () => void;
-  onChoose: (role: Role) => Promise<void>;
+  onChoose: (access: Access) => Promise<void>;
 }) {
+  const current = posteOf(member.role, member.club_role);
   const [role, setRole] = useState<Role>(member.role);
+  const [poste, setPoste] = useState<Poste | null>(current);
   const [busy, setBusy] = useState(false);
+  const word = club ? "poste" : "rôle";
+  const unchanged = club ? poste === current || poste === null : role === member.role;
   return (
     <Sheet
-      title={`Rôle de ${member.display_name ?? member.email}`}
+      title={`${club ? "Poste" : "Rôle"} de ${member.display_name ?? member.email}`}
       onClose={onClose}
       footer={
         <>
-          {role === member.role && <p role="status">Choisissez un autre rôle pour changer.</p>}
+          {unchanged && <p role="status">Choisissez un autre {word} pour changer.</p>}
           <GlassButton onClick={onClose}>Annuler</GlassButton>
           <GlassButton
             variant="primary"
-            disabled={busy || role === member.role}
+            disabled={busy || unchanged}
             onClick={() => {
               setBusy(true);
-              void onChoose(role).finally(() => setBusy(false));
+              const access = club && poste ? posteToMembership(poste) : { role, club_role: member.club_role };
+              void onChoose(access).finally(() => setBusy(false));
             }}
           >
-            Changer le rôle
+            Changer le {word}
           </GlassButton>
         </>
       }
     >
-      <RoleCards value={role} onChange={setRole} disabled={busy} label={`Rôle de ${member.email}`} />
+      {club ? (
+        <PosteCards value={poste ?? "accueil"} onChange={setPoste} disabled={busy} label={`Poste de ${member.email}`} />
+      ) : (
+        <RoleCards value={role} onChange={setRole} disabled={busy} label={`Rôle de ${member.email}`} />
+      )}
     </Sheet>
   );
 }
@@ -171,6 +201,12 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
   const toast = useToast();
   const state = useGestion();
   const roleLabel = roleLabels(state);
+  const club = isClub(state);
+  // Dans un club, le poste ; un membre sans poste garde le libellé de son rôle.
+  const labelOf = (access: Access) => {
+    const poste = club ? posteOf(access.role, access.club_role) : null;
+    return poste ? POSTE_LABELS[poste] : roleLabel[access.role];
+  };
   const pickup = isPickupShop(state);
   const [userId, setUserId] = useState<string | null>(null);
   const [loadError, setLoadError] = useState<unknown>(null);
@@ -214,18 +250,18 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
     reload();
   }, [reload]);
 
-  const changeRole = async (member: Tables<"memberships">, role: Role) => {
+  const changeRole = async (member: Tables<"memberships">, access: Access) => {
     try {
       const supabase = createClient();
       const { error } = await supabase
         .from("memberships")
-        .update({ role })
+        .update(access)
         .eq("user_id", member.user_id)
         .eq("etablissement_id", etablissementId);
       if (error) throw new Error(error.message);
       await load();
       setChanging(null);
-      toast.success(`${member.email} a maintenant le rôle ${roleLabel[role]}.`);
+      toast.success(`${member.email} : ${labelOf(access)}.`);
     } catch (error) {
       toast.error(
         describeError(error).message
@@ -315,14 +351,14 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
                   )}
                 </div>
                 {isSelf ? (
-                  <Chip>{roleLabel[member.role]}</Chip>
+                  <Chip>{labelOf(member)}</Chip>
                 ) : (
                   <div className="flex shrink-0 items-center gap-2">
                     <GlassButton
                       onClick={() => setChanging(member)}
-                      aria-label={`Changer le rôle de ${member.email}, ${roleLabel[member.role]}`}
+                      aria-label={`Changer le ${club ? "poste" : "rôle"} de ${member.email}, ${labelOf(member)}`}
                     >
-                      {roleLabel[member.role]}
+                      {labelOf(member)}
                       <ChevronDownIcon />
                     </GlassButton>
                     <GlassButton
@@ -353,7 +389,7 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
                 <div className="min-w-0">
                   <p className="truncate text-g-label font-semibold">{invitation.email}</p>
                   <p className="text-g-meta text-muted">
-                    {roleLabel[invitation.role]} · en attente de sa réponse
+                    {labelOf(invitation)} · en attente de sa réponse
                   </p>
                 </div>
                 <GlassButton onClick={() => void cancelInvitation(invitation)}>Annuler</GlassButton>
@@ -363,14 +399,17 @@ function TeamManager({ etablissementId }: { etablissementId: string }) {
         </section>
       )}
 
+      {club && <ClubDroitsEditor />}
+
       {inviting && (
-        <InviteSheet etablissementId={etablissementId} onClose={() => setInviting(false)} onSent={load} />
+        <InviteSheet etablissementId={etablissementId} club={club} onClose={() => setInviting(false)} onSent={load} />
       )}
       {changing && (
         <RoleSheet
           member={changing}
+          club={club}
           onClose={() => setChanging(null)}
-          onChoose={(role) => changeRole(changing, role)}
+          onChoose={(access) => changeRole(changing, access)}
         />
       )}
       {toRemove && (
@@ -451,9 +490,11 @@ function EquipeScreen() {
           level={1}
           title="Équipe"
           sub={
-            active === "membres" && isPickupShop(state)
-              ? "Votre équipe, et ce que chacun peut faire."
-              : PANE_TAGLINES[active]
+            active === "membres" && isClub(state)
+              ? "Votre équipe, le poste de chacun, et ce que chaque poste peut faire."
+              : active === "membres" && isPickupShop(state)
+                ? "Votre équipe, et ce que chacun peut faire."
+                : PANE_TAGLINES[active]
           }
           right={
             role === "gerant" && panes.length > 1 ? (

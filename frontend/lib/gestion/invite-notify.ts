@@ -1,4 +1,5 @@
 import { sendEmail } from "@/lib/gmail";
+import type { ClubRole } from "@/lib/club/types";
 import type { Role } from "./types";
 
 export const escapeHtml = (value: string) =>
@@ -108,15 +109,35 @@ const PICKUP_ROLE_INVITE: Record<Role, RoleInvite> = {
   },
 };
 
+/** Dans un club, le poste de l'invité dit ce qu'il fera de ses soirées. */
+const CLUB_ROLE_INVITE: Record<ClubRole, RoleInvite> = {
+  accueil: {
+    verb: "à",
+    title: "l’accueil",
+    body: "vous accueillerez les clients et validerez leur arrivée depuis votre téléphone",
+  },
+  caissier: {
+    verb: "comme",
+    title: "caissier",
+    body: "vous encaisserez les tables et installerez les clients",
+  },
+  chef_de_rang: {
+    verb: "comme",
+    title: "chef de rang",
+    body: "vous suivrez vos tables et signalerez les départs",
+  },
+};
+
 export async function sendInviteEmail(
   email: string,
   restaurantName: string,
   role: Role,
   actionLink: string,
   pickup = false,
+  clubRole: ClubRole | null = null,
 ) {
   const name = escapeHtml(restaurantName);
-  const invite = (pickup ? PICKUP_ROLE_INVITE : ROLE_INVITE)[role];
+  const invite = clubRole ? CLUB_ROLE_INVITE[clubRole] : (pickup ? PICKUP_ROLE_INVITE : ROLE_INVITE)[role];
   await sendEmail(
     email,
     `${restaurantName} vous invite ${invite.verb} ${invite.title}`,

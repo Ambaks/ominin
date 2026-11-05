@@ -23,7 +23,7 @@ type Admin = ReturnType<typeof createAdminClient>;
  */
 
 const MAIL_SELECT =
-  "name, email, token, share_token, party_size, price_cents, total_cents, paid_cents, club_tables(club_zones(name)), club_events(title, starts_at, ends_at), etablissements(slug, name, address), club_payments(total_cents, organiser, status, method)";
+  "name, email, token, share_token, party_size, price_cents, total_cents, paid_cents, club_zones(name), club_events(title, starts_at, ends_at), etablissements(slug, name, address), club_payments(total_cents, organiser, status, method)";
 
 type MailBooking = {
   name: string;
@@ -34,7 +34,7 @@ type MailBooking = {
   price_cents: number;
   total_cents: number;
   paid_cents: number;
-  club_tables: { club_zones: { name: string } | null } | null;
+  club_zones: { name: string } | null;
   club_events: { title: string; starts_at: string; ends_at: string } | null;
   etablissements: { slug: string; name: string; address: string | null } | null;
   club_payments: { total_cents: number; organiser: boolean; status: string; method: string }[];
@@ -44,7 +44,7 @@ type Payer = { name: string; email: string | null; amountCents: number; organise
 
 function mailFor(data: MailBooking, payer?: Payer): BookingMail | null {
   const to = payer ? payer.email : data.email;
-  if (!to || !data.club_tables?.club_zones || !data.club_events || !data.etablissements) {
+  if (!to || !data.club_zones || !data.club_events || !data.etablissements) {
     return null;
   }
   return {
@@ -60,7 +60,7 @@ function mailFor(data: MailBooking, payer?: Payer): BookingMail | null {
       startsAt: data.club_events.starts_at,
       endsAt: data.club_events.ends_at,
     },
-    zone: data.club_tables.club_zones.name,
+    zone: data.club_zones.name,
     partySize: data.party_size,
     // L'organisateur : ce qu'il a payé en ligne (acompte ou part, frais
     // compris), à défaut la table entière.
@@ -343,7 +343,7 @@ export async function refundBooking(
     }
   }
   if (refunded > 0) return "refunded";
-  const wasActive = ["en_attente", "payee", "arrivee"].includes(before.status);
+  const wasActive = ["en_attente", "payee", "arrivee", "assise"].includes(before.status);
   return wasActive ? (status === "remboursee" ? "refunded" : "cancelled") : "not_refundable";
 }
 

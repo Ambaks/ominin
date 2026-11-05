@@ -94,7 +94,10 @@ export type Club = {
 export type ClubBooking = {
   id: string;
   eventId: string;
-  tableId: string;
+  /** La zone réservée, ou celle de la table où l'équipe l'a placée. */
+  zoneId: string;
+  /** Null : à placer. Le client réserve une zone, l'équipe choisit la table. */
+  tableId: string | null;
   name: string;
   phone: string | null;
   email: string | null;
@@ -115,8 +118,20 @@ export type ClubBooking = {
   note: string | null;
   paidAt: string | null;
   arrivedAt: string | null;
+  seatedAt: string | null;
+  leftAt: string | null;
   createdAt: string;
 };
+
+/** Le poste d'un membre du club ; la direction est le gérant. */
+export type ClubRole = Database["public"]["Enums"]["club_role"];
+
+/**
+ * Ce qu'un poste peut faire, réglé par la direction (etablissements.club_droits,
+ * vérifié en base par club_peut) : saisir et annuler, placer, faire entrer,
+ * encaisser et installer, marquer le départ, voir l'argent.
+ */
+export type ClubDroit = "reserver" | "placer" | "arrivee" | "assise" | "partie" | "acomptes";
 
 export type PaymentStatus = Database["public"]["Enums"]["club_payment_status"];
 
