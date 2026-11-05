@@ -12,15 +12,15 @@
    là où le verre s'épaissit. */
 [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) {
   --eg-tint: 251 248 238;
-  --eg-alpha: 0.94;
+  --eg-alpha: 0.88;
   --eg-sheen: 255 255 255;
   --eg-rim: 15 75 37;
   --eg-wash: 0.45;
   --eg-reflet: 1;
-  --eg-lisere: 0.45;
+  --eg-lisere: 0.6;
   --eg-halo: 0.3;
-  --eg-fond: 0.16;
-  --eg-ombre: 0.7;
+  --eg-fond: 0.22;
+  --eg-ombre: 0.8;
   --eg-lumiere: 0.75;
   --eg-ombre-rgb: 6 40 20;
   --eg-radius: 1.5rem;
@@ -30,7 +30,7 @@
   --eg-metal-voile: 86%;
   --eg-struck: #6f7d72;
   --eg-price: var(--cp-green);
-  --muted: #3f4a42;
+  --muted: #34402f;
   --faint: #52605a;
 }
 
@@ -42,12 +42,12 @@
   --eg-sheen: 246 233 230;
   --eg-rim: 229 176 114;
   --eg-wash: 0.06;
-  --eg-reflet: 0.8;
-  --eg-lisere: 0.6;
+  --eg-reflet: 1;
+  --eg-lisere: 0.8;
   --eg-halo: 0.22;
   --eg-fond: 0.22;
-  --eg-ombre: 0.7;
-  --eg-lumiere: 0.3;
+  --eg-ombre: 0.85;
+  --eg-lumiere: 0.45;
   --eg-ombre-rgb: 0 0 0;
   --eg-radius: 1.5rem;
   --eg-blur: 18px;
@@ -56,7 +56,7 @@
   --eg-metal-voile: 88%;
   --eg-struck: #e9d5ce;
   --eg-price: var(--ember-1);
-  --muted: #d2b8b3;
+  --muted: #e3cdc8;
   --faint: #a98f90;
 }
 
@@ -314,24 +314,24 @@
     border: 0;
   }
 
-  /* La photo va jusqu'au bord, sans filet, et se fond dans le corps sur son
-     bas : une seule dalle, pas une photo posée sur un panneau. */
+  /* La photo va jusqu'au bord, sans filet, et s'efface sur sa moitié basse
+     par un masque : c'est le corps de la fiche lui-même qui paraît dessous,
+     donc aucune couture possible. Le voile du composant n'a plus d'objet. */
   & .dish-photo {
     border: 0;
-    background-color: rgb(var(--eg-tint) / var(--eg-alpha));
+    background-color: transparent;
+    -webkit-mask-image: linear-gradient(to bottom, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
+    mask-image: linear-gradient(to bottom, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
   }
 
   & .dish-photo-fade {
-    --eg-fondu: rgb(var(--eg-tint) / calc(var(--eg-alpha) + 0.06));
-    display: block;
-    background: linear-gradient(
-      to top,
-      var(--eg-fondu) 0%,
-      var(--eg-fondu) 10%,
-      color-mix(in srgb, var(--eg-fondu) 55%, transparent) 30%,
-      color-mix(in srgb, var(--eg-fondu) 20%, transparent) 46%,
-      transparent 62%
-    );
+    display: none;
+  }
+
+  /* La description : un cran plus posée et plus serrée, lisible d'un coup d'œil en service. */
+  & .dish-body > :is(p, .dish-lines).text-muted {
+    font-weight: 500;
+    line-height: 1.45;
   }
 
   /* Le prix ne touche pas le « + ». */
@@ -484,6 +484,14 @@
   & > footer {
     border-color: transparent;
     background: var(--cp-mosaic) top / 0.75rem 0.75rem repeat-x, var(--eg-metal-verre);
+  }
+}
+
+/* Dès la tablette, la photo de Panis est à gauche du texte : elle s'efface vers la droite. */
+@media (min-width: 48rem) {
+  [data-menu-root].theme-caffe-panis:has(> .panis-backdrop) .dish-grid > article .dish-photo {
+    -webkit-mask-image: linear-gradient(to right, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
+    mask-image: linear-gradient(to right, #000 48%, rgb(0 0 0 / 0.6) 72%, rgb(0 0 0 / 0.2) 90%, transparent);
   }
 }
 
