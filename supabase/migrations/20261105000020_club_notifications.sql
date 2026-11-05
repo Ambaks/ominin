@@ -112,10 +112,8 @@ create policy "direction or recipient read" on public.club_notifications
 -- Contenu
 
 -- Ce que dit une notification de réservation : le client, la soirée, la
--- zone et la table, le nombre de personnes, l'acompte, et le payeur d'une
--- part. L'heure d'arrivée prévue s'ajoutera ici quand la réservation la
--- portera (étape « heure d'arrivée ») : clé « arrivee_prevue », déjà lue par
--- l'application.
+-- zone et la table, le nombre de personnes, l'heure d'arrivée prévue,
+-- l'acompte, et le payeur d'une part.
 create function public.club_notif_details(p_booking uuid, p_payment uuid)
 returns jsonb
 language sql
@@ -130,6 +128,7 @@ as $$
     'zone', z.name,
     'table', t.label,
     'personnes', b.party_size,
+    'arrivee_prevue', b.arrivee_prevue,
     'statut', b.status,
     'source', b.source,
     'prix_cents', b.price_cents,
@@ -253,9 +252,12 @@ set search_path = public
 as $$
 begin
   if old.status = 'en_attente' and new.status = 'payee' and new.method = 'en_ligne' then
-    -- Le paiement de l'organisateur confirme la table ; celui d'un ami est
-    -- une part de plus.
-    if new.organiser then
+    -- Le paiement de l'organisateur confirme une table réservée en ligne ;
+    -- celui d'un ami, ou l'acompte demandé sur une réservation saisie par le
+    -- club, est un acompte de plus (un par paiement).
+    if new.organiser and exists (
+      select 1 from club_bookings b where b.id = new.booking_id and b.source = 'en_ligne'
+    ) then
       perform club_notif_noter(new.booking_id, new.id, 'confirmee', 'confirmee:' || new.booking_id);
     else
       perform club_notif_noter(new.booking_id, new.id, 'acompte', 'acompte:' || new.id);

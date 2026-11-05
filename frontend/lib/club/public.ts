@@ -15,7 +15,7 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
   const db = createPublicClient();
   const { data: etab } = await db
     .from("etablissements")
-    .select("id, slug, name, tagline, address, phone, table_fee_percent, table_deposit_percent, payment_provider, online_payment, club_min_age, club_dress_code, club_refused")
+    .select("id, slug, name, tagline, address, phone, table_fee_percent, table_deposit_percent, payment_provider, online_payment, club_min_age, club_dress_code, club_refused, club_table_entiere, club_partage, club_liste_invites")
     .eq("slug", slug)
     .maybeSingle();
   if (!etab) return null;
@@ -41,6 +41,7 @@ export const fetchClub = cache(async (slug: string): Promise<Club | null> => {
       dress: etab.club_dress_code,
       refused: etab.club_refused,
     },
+    options: { fullTable: etab.club_table_entiere, sharing: etab.club_partage, guestList: etab.club_liste_invites },
     zones: zones.map(rowToZone),
   };
 });
@@ -82,8 +83,13 @@ export type EventOffer = {
   maxParty: number;
 };
 
+/** Un créneau d'arrivée et ce qu'il lui reste de réservations. */
+export type ArrivalSlotLeft = { startsAt: string; left: number };
+
 export type EventAvailability = {
   offers: EventOffer[];
+  /** Les heures d'arrivée proposées ; vide : l'heure n'est pas demandée. */
+  slots: ArrivalSlotLeft[];
   /** Places restantes sur la liste d'invités ; null : sans plafond. */
   guestListLeft: number | null;
 };
@@ -91,9 +97,10 @@ export type EventAvailability = {
 /** Les offres du soir et la liste d'invités. Jamais mis en cache. */
 export async function fetchAvailability(eventId: string): Promise<EventAvailability> {
   const db = createPublicClient();
-  const [{ data: offers }, { data: left }] = await Promise.all([
+  const [{ data: offers }, { data: left }, { data: slots }] = await Promise.all([
     db.rpc("club_offres", { p_event: eventId }),
     db.rpc("club_guest_list_restant", { p_event: eventId }),
+    db.rpc("club_creneaux", { p_event: eventId }),
   ]);
   return {
     offers: (offers ?? []).map((offer) => ({
@@ -102,6 +109,7 @@ export async function fetchAvailability(eventId: string): Promise<EventAvailabil
       available: offer.available,
       maxParty: offer.max_party,
     })),
+    slots: (slots ?? []).map((slot) => ({ startsAt: slot.starts_at, left: slot.restant })),
     guestListLeft: left ?? null,
   };
 }
@@ -127,6 +135,10 @@ export type BookingTicket = {
   shareToken: string | null;
   paidCents: number;
   remainingCents: number;
+  /** L'heure d'arrivée prévue, si la soirée en propose. */
+  arrivalAt: string | null;
+  /** Acompte demandé par le club, à payer depuis cette page ; null : aucun. */
+  depositRequestedCents: number | null;
   /** Le paiement de l'organisateur encore en cours, à reprendre depuis cette page, et son montant. */
   pendingPaymentId: string | null;
   pendingTotalCents: number | null;
@@ -158,7 +170,7 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
   const { data } = await admin
     .from("club_bookings")
     .select(
-      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, club_zones(name, inclus), club_events(*), etablissements(slug, name, address, payment_provider, offre), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
+      "id, token, status, name, party_size, price_cents, fee_cents, total_cents, hold_expires_at, paid_at, refunded_at, cancelled_at, shared, share_token, paid_cents, arrivee_prevue, acompte_demande_cents, club_zones(name, inclus), club_events(*), etablissements(slug, name, address, payment_provider, offre), club_payments(id, name, total_cents, organiser, paid_at, status, method)"
     )
     .eq("token", token)
     .maybeSingle();
@@ -183,6 +195,8 @@ export async function fetchBookingByToken(token: string): Promise<BookingTicket 
     shareToken: data.share_token,
     paidCents: data.paid_cents,
     remainingCents: data.price_cents - data.paid_cents,
+    arrivalAt: data.arrivee_prevue,
+    depositRequestedCents: data.acompte_demande_cents,
     pendingPaymentId: pending?.id ?? null,
     pendingTotalCents: pending?.total_cents ?? null,
     paidTotalCents: paidTotal(data.club_payments),

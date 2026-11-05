@@ -279,11 +279,12 @@ export default function SoireesPage() {
       ) : tab === "salle" ? (
         <div>
           <ZonesSettings
-            key={JSON.stringify([club.zones.map((zone) => zone.id), club.conditions])}
+            key={JSON.stringify([club.zones.map((zone) => zone.id), club.conditions, club.depositPercent, club.options])}
             zones={club.zones}
             tableCounts={tableCounts}
             conditions={club.conditions}
             depositPercent={club.depositPercent}
+            options={club.options}
           />
         </div>
       ) : shown.length === 0 ? (

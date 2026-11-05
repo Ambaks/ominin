@@ -29,14 +29,14 @@ export const NOTIF_PREFS: NotifPref[] = ["en_ligne", "manuelle", "acompte", "mod
 export const NOTIF_PREF_LABELS: Record<NotifPref, string> = {
   en_ligne: "Réservations en ligne",
   manuelle: "Réservations saisies",
-  acompte: "Parts payées",
+  acompte: "Acomptes et parts payés",
   modification: "Changements et annulations",
 };
 
 export const NOTIF_PREF_HINTS: Record<NotifPref, string> = {
   en_ligne: "Une table est réservée et son acompte payé en ligne.",
   manuelle: "Un membre de l'équipe saisit une réservation (téléphone, porte).",
-  acompte: "Un ami paie sa part d'une table partagée.",
+  acompte: "Un client règle l'acompte demandé par le club, ou un ami paie sa part d'une table partagée.",
   modification: "Une réservation est annulée, remboursée, change de table ou de nombre de personnes.",
 };
 
@@ -106,7 +106,7 @@ export interface NotifDetails {
   ancienne_zone?: string | null;
   /** Changement du nombre de personnes. */
   anciennes_personnes?: number;
-  /** L'heure d'arrivée prévue, quand la réservation la portera (étape suivante du cahier). */
+  /** L'heure d'arrivée prévue, si la soirée propose des créneaux. */
   arrivee_prevue?: string | null;
 }
 
@@ -133,7 +133,8 @@ function changeLine(kind: NotifKind, d: NotifDetails, money: boolean): string | 
     case "manuelle":
       return SOURCE_LABELS[d.source] ?? null;
     case "acompte":
-      return `Part de ${d.payeur ?? "un ami"} payée${part}`;
+      // Une réservation saisie par le club : l'acompte qu'il a demandé ; en ligne : la part d'un ami.
+      return d.source !== "en_ligne" ? `Acompte payé en ligne${part}` : `Part de ${d.payeur ?? "un ami"} payée${part}`;
     case "part_remboursee":
       return `Part de ${d.payeur ?? "un ami"} remboursée${part}`;
     case "deplacee":

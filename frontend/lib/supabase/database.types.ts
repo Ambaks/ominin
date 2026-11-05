@@ -1394,7 +1394,9 @@ export type Database = {
       }
       club_bookings: {
         Row: {
+          acompte_demande_cents: number | null
           arrived_at: string | null
+          arrivee_prevue: string | null
           cancelled_at: string | null
           created_at: string
           email: string | null
@@ -1423,7 +1425,9 @@ export type Database = {
           zone_id: string
         }
         Insert: {
+          acompte_demande_cents?: number | null
           arrived_at?: string | null
+          arrivee_prevue?: string | null
           cancelled_at?: string | null
           created_at?: string
           email?: string | null
@@ -1452,7 +1456,9 @@ export type Database = {
           zone_id: string
         }
         Update: {
+          acompte_demande_cents?: number | null
           arrived_at?: string | null
+          arrivee_prevue?: string | null
           cancelled_at?: string | null
           created_at?: string
           email?: string | null
@@ -1537,6 +1543,20 @@ export type Database = {
             columns: ["table_id"]
             isOneToOne: false
             referencedRelation: "club_tables"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      club_event_creneaux: {
+        Row: { event_id: string; max_bookings: number; starts_at: string }
+        Insert: { event_id: string; max_bookings: number; starts_at: string }
+        Update: { event_id?: string; max_bookings?: number; starts_at?: string }
+        Relationships: [
+          {
+            foreignKeyName: "club_event_creneaux_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "club_events"
             referencedColumns: ["id"]
           },
         ]
@@ -3151,8 +3171,11 @@ export type Database = {
           category_layout: string
           club_dress_code: string | null
           club_droits: Json
+          club_liste_invites: boolean
           club_min_age: number
+          club_partage: boolean
           club_refused: string | null
+          club_table_entiere: boolean
           collect_fee_percent: number | null
           collect_slot_capacity: number
           collect_slot_minutes: number
@@ -3193,8 +3216,11 @@ export type Database = {
           category_layout?: string
           club_dress_code?: string | null
           club_droits?: Json
+          club_liste_invites?: boolean
           club_min_age?: number
+          club_partage?: boolean
           club_refused?: string | null
+          club_table_entiere?: boolean
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number
@@ -3235,8 +3261,11 @@ export type Database = {
           category_layout?: string
           club_dress_code?: string | null
           club_droits?: Json
+          club_liste_invites?: boolean
           club_min_age?: number
+          club_partage?: boolean
           club_refused?: string | null
+          club_table_entiere?: boolean
           collect_fee_percent?: number | null
           collect_slot_capacity?: number
           collect_slot_minutes?: number
@@ -8201,6 +8230,18 @@ export type Database = {
         Args: { p_booking: string }
         Returns: Database["public"]["Enums"]["club_booking_status"]
       }
+      club_creneau_valide: {
+        Args: { p_arrivee: string; p_event: string }
+        Returns: boolean
+      }
+      club_creneaux: {
+        Args: { p_event: string }
+        Returns: { restant: number; starts_at: string }[]
+      }
+      club_demander_acompte: {
+        Args: { p_amount: number; p_booking: string }
+        Returns: Database["public"]["Tables"]["club_bookings"]["Row"]
+      }
       club_encaisser: { Args: { p_booking: string }; Returns: undefined }
       club_encaisser_reste: { Args: { p_booking: string }; Returns: undefined }
       club_frais: {
@@ -8232,6 +8273,18 @@ export type Database = {
           kind: string
           total_count: number
         }[]
+      }
+      club_modifier_reservation: {
+        Args: {
+          p_arrivee: string | null
+          p_booking: string
+          p_email: string
+          p_name: string
+          p_note: string
+          p_party: number
+          p_phone: string
+        }
+        Returns: Database["public"]["Tables"]["club_bookings"]["Row"]
       }
       club_offres: {
         Args: { p_event: string }
@@ -8684,12 +8737,16 @@ export type Database = {
           p_paid: boolean
           p_party: number
           p_phone: string
+          p_arrivee: string | null
+          p_email: string
           p_source: Database["public"]["Enums"]["club_booking_source"]
           p_table: string | null
           p_zone: string | null
         }
         Returns: {
+          acompte_demande_cents: number | null
           arrived_at: string | null
+          arrivee_prevue: string | null
           cancelled_at: string | null
           created_at: string
           email: string | null
@@ -9241,6 +9298,10 @@ export type Database = {
         Args: { p_key: string; p_max: number; p_window_seconds: number }
         Returns: boolean
       }
+      payer_acompte_demande: {
+        Args: { p_hold_seconds: number; p_token: string }
+        Returns: { hold_expires_at: string; payment_id: string; total_cents: number }[]
+      }
       regler_paiement: {
         Args: { p_intent: string | null; p_payment: string; p_total: number }
         Returns: string
@@ -9282,6 +9343,7 @@ export type Database = {
           p_name: string
           p_party: number
           p_phone: string
+          p_arrivee?: string | null
           p_share_cents?: number | null
           p_zone: string
         }

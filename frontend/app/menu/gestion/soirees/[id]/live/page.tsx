@@ -385,7 +385,7 @@ export default function LivePage() {
   const departed = night.bookings.filter((booking) => booking.status === "partie").map(entryOf);
   const expected = held.filter(({ booking }) => !hasArrived(booking) && isSold(booking)).length;
   const toReturn = event.cancelledAt ? held.filter(({ booking }) => isSold(booking)).length : 0;
-  const guestList = event.guestListOpen || night.guests.length > 0;
+  const guestList = (club.options.guestList && event.guestListOpen) || night.guests.length > 0;
   const peopleExpected = stats.people - stats.peopleArrived;
 
   // La feuille ouverte : une table du plan (et sa réservation), ou une réservation, placée ou non.
@@ -667,7 +667,13 @@ export default function LivePage() {
       )}
 
       {selection?.kind === "nouvelle" && (
-        <NewBookingSheet event={event} targets={reserveTargets} tonight={tonight} onClose={() => setSelection(null)} />
+        <NewBookingSheet
+          event={event}
+          targets={reserveTargets}
+          slots={club.slots[event.id] ?? []}
+          tonight={tonight}
+          onClose={() => setSelection(null)}
+        />
       )}
       {selection && selection.kind !== "nouvelle" && selectedZone && (selectedTable || selectedBooking) && (
         <BookingSheet
@@ -686,6 +692,8 @@ export default function LivePage() {
           placeTargets={placeTargets}
           waiting={waiting}
           startPlacing={selection.kind === "booking" && selection.placing === true}
+          slots={club.slots[event.id] ?? []}
+          depositPercent={club.depositPercent}
           onPlaced={(tableId) => {
             const table = tableById.get(tableId);
             if (table) setZoneId(table.zoneId);
