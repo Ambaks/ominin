@@ -653,6 +653,7 @@ export function CartBar() {
             quantity: line.quantity,
             choices: line.choices,
             ...(line.reward && { reward_id: line.reward.id }),
+            ...(line.reward?.voucher && { voucher_id: line.reward.voucher }),
             ...(line.accord && { accord: line.accord }),
           }
     );
@@ -844,6 +845,7 @@ export function CartBar() {
       earned: loyaltyPoints,
       spent: cart.pointsSpent,
       rewards: cart.lines.filter((line) => line.reward).map((line) => line.name).join(", ") || null,
+      vouchers: cart.lines.flatMap((line) => (line.reward?.voucher ? [line.reward.voucher] : [])),
       table: cart.tableNumber,
     });
     // Comme après une vraie commande : le champ ne se vide qu'une fois le téléphone retenu.
@@ -1465,7 +1467,7 @@ export function CartBar() {
                                       <span className="cart-line-price font-display text-sm font-semibold text-ember-1">
                                         Offert{" "}
                                         <span className="font-sans text-xs font-medium normal-case text-muted">
-                                          {line.reward.points * line.quantity}&nbsp;pts
+                                          {line.reward.voucher ? "bon de la roue" : `${line.reward.points * line.quantity}\u00a0pts`}
                                           {line.unitPrice > 0 &&
                                             ` + ${formatPrice(line.unitPrice * line.quantity)}`}
                                         </span>
@@ -1541,6 +1543,7 @@ export function CartBar() {
                                       dish !== undefined ||
                                       (line.stock != null &&
                                         line.quantity >= line.stock) ||
+                                      line.reward?.voucher !== undefined ||
                                       (line.reward != null &&
                                         ((member ? member.points : balance) ?? 0) - cart.pointsSpent <
                                           line.reward.points)

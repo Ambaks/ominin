@@ -3531,17 +3531,35 @@ const ALCOOL = { vatRate: 20 } as const;
 
 /** La roue du jour de Caffè Panis, reprise telle quelle par les aperçus de l'Écusson et Rosemarie. */
 const roueDuJour: LoyaltyWheelConfig = {
-  // Environ 13 points le tour : les petites parts reviennent souvent, +50 rarement.
+  // Environ 7 points le tour, pour des commandes d'une dizaine d'euros : les
+  // petites parts reviennent souvent, +50 rarement. Dix-huit cases, poids
+  // sur 20 000 : chaque lot partage sa chance entre ses copies — +2 29,1 %,
+  // +4 27,16 %, +6 19,4 %, +10 12,61 %, +20 5,82 %, +50 2,91 %, et le café
+  // 3 % (un bon pour le palier à 50 points, valable 14 jours) —, et deux
+  // cases voisines ne portent jamais le même lot.
   slices: [
-    { points: 5, weight: 32 },
-    { points: 10, weight: 26 },
-    { points: 15, weight: 20 },
-    { points: 20, weight: 12 },
-    { points: 30, weight: 6 },
-    { points: 50, weight: 4 },
+    { points: 50, weight: 582 },
+    { points: 4, weight: 1358 },
+    { points: 2, weight: 1455 },
+    { points: 6, weight: 970 },
+    { points: 10, weight: 1261 },
+    { points: 50, weight: 300, voucher: { label: "Café", days: 14 } },
+    { points: 4, weight: 1358 },
+    { points: 2, weight: 1455 },
+    { points: 6, weight: 970 },
+    { points: 20, weight: 1164 },
+    { points: 4, weight: 1358 },
+    { points: 2, weight: 1455 },
+    { points: 6, weight: 970 },
+    { points: 10, weight: 1261 },
+    { points: 50, weight: 300, voucher: { label: "Café", days: 14 } },
+    { points: 4, weight: 1358 },
+    { points: 2, weight: 1455 },
+    { points: 6, weight: 970 },
   ],
-  // Provisoire, à valider : le 7e jour d'affilée, les points du tour doublent.
-  golden: { every: 7, multiplier: 2 },
+  minOrder: 5,
+  // Le 5e tour de la carte, puis tous les 5 : points doublés.
+  golden: { every: 5, multiplier: 2 },
 };
 
 /*
@@ -3748,11 +3766,11 @@ const leNovelty: Restaurant = {
       firstName: "Camille",
       history: [
         { kind: "gain", points: 2, table: 4, rewards: null, daysAgo: 1 },
-        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 4, table: null, rewards: null, daysAgo: 1 },
         { kind: "gain", points: 4, table: 9, rewards: null, daysAgo: 2 },
         { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
         { kind: "gain", points: 17, table: 3, rewards: null, daysAgo: 6 },
-        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 6, table: null, rewards: null, daysAgo: 6 },
         { kind: "gain", points: 22, table: 7, rewards: null, daysAgo: 13 },
       ],
     },
@@ -4308,11 +4326,11 @@ const leVictoria: Restaurant = {
       firstName: "Mathilde",
       history: [
         { kind: "gain", points: 8, table: 4, rewards: null, daysAgo: 1 },
-        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 4, table: null, rewards: null, daysAgo: 1 },
         { kind: "gain", points: 11, table: 2, rewards: null, daysAgo: 2 },
         { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
         { kind: "gain", points: 12, table: 6, rewards: null, daysAgo: 6 },
-        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 6, table: null, rewards: null, daysAgo: 6 },
         { kind: "gain", points: 18, table: 3, rewards: null, daysAgo: 13 },
       ],
     },
@@ -5056,11 +5074,11 @@ const cafeDesArts: Restaurant = {
       firstName: "Léonie",
       history: [
         { kind: "gain", points: 4, table: 5, rewards: null, daysAgo: 1 },
-        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 4, table: null, rewards: null, daysAgo: 1 },
         { kind: "gain", points: 8, table: 2, rewards: null, daysAgo: 2 },
         { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
         { kind: "gain", points: 17, table: 6, rewards: null, daysAgo: 6 },
-        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 6, table: null, rewards: null, daysAgo: 6 },
         { kind: "gain", points: 24, table: 3, rewards: null, daysAgo: 13 },
       ],
     },
@@ -6131,14 +6149,14 @@ const caffePanis: Restaurant = {
     member: {
       contact: "0612345678",
       firstName: "Giulia",
-      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      // Trois tours déjà joués, chacun après sa commande : le gérant voit la piste avancer vers la roue dorée.
       history: [
         { kind: "gain", points: 3, table: 4, rewards: null, daysAgo: 1 },
-        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 4, table: null, rewards: null, daysAgo: 1 },
         { kind: "gain", points: 5, table: 9, rewards: null, daysAgo: 2 },
         { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
         { kind: "gain", points: 22, table: 3, rewards: null, daysAgo: 6 },
-        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 6, table: null, rewards: null, daysAgo: 6 },
         { kind: "gain", points: 25, table: 7, rewards: null, daysAgo: 13 },
       ],
     },
@@ -6966,11 +6984,11 @@ const brasserieLaissac: Restaurant = {
       firstName: "Hugo",
       history: [
         { kind: "gain", points: 9, table: 5, rewards: null, daysAgo: 1 },
-        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 4, table: null, rewards: null, daysAgo: 1 },
         { kind: "gain", points: 6, table: 2, rewards: null, daysAgo: 2 },
         { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
         { kind: "gain", points: 18, table: 8, rewards: null, daysAgo: 6 },
-        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 6, table: null, rewards: null, daysAgo: 6 },
         { kind: "gain", points: 24, table: 3, rewards: null, daysAgo: 13 },
       ],
     },
@@ -8407,14 +8425,14 @@ const cafeRiche: Restaurant = {
     member: {
       contact: "0623456789",
       firstName: "Mathilde",
-      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      // Trois tours déjà joués, chacun après sa commande : le gérant voit la piste avancer vers la roue dorée.
       history: [
         { kind: "gain", points: 4, table: 12, rewards: null, daysAgo: 1 },
         { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 1 },
         { kind: "gain", points: 16, table: 5, rewards: null, daysAgo: 2 },
-        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 2 },
+        { kind: "roue", points: 4, table: null, rewards: null, daysAgo: 2 },
         { kind: "gain", points: 29, table: 21, rewards: null, daysAgo: 6 },
-        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 6 },
+        { kind: "roue", points: 6, table: null, rewards: null, daysAgo: 6 },
         { kind: "gain", points: 9, table: 3, rewards: null, daysAgo: 13 },
       ],
     },
@@ -10377,14 +10395,14 @@ const rosemarie: Restaurant = {
     member: {
       contact: "0612345678",
       firstName: "Margaux",
-      // Deux jours d'affilée : la série se joue sous les yeux du gérant.
+      // Trois tours déjà joués, chacun après sa commande : le gérant voit la piste avancer vers la roue dorée.
       history: [
         { kind: "gain", points: 4, table: 6, rewards: null, daysAgo: 1 },
-        { kind: "roue", points: 5, table: null, rewards: null, daysAgo: 1 },
+        { kind: "roue", points: 4, table: null, rewards: null, daysAgo: 1 },
         { kind: "gain", points: 7, table: 12, rewards: null, daysAgo: 2 },
         { kind: "roue", points: 10, table: null, rewards: null, daysAgo: 2 },
         { kind: "gain", points: 31, table: 3, rewards: null, daysAgo: 8 },
-        { kind: "roue", points: 15, table: null, rewards: null, daysAgo: 8 },
+        { kind: "roue", points: 6, table: null, rewards: null, daysAgo: 8 },
         { kind: "gain", points: 24, table: 9, rewards: null, daysAgo: 15 },
       ],
     },

@@ -88,7 +88,7 @@ const shots = {
   clubNight: { src: deckShot("phone-soiree"), alt: "La page de la soirée Orbite à L’Étoile : la date, l’ambiance, le bouton Choisir ma table", caption: "L’Étoile · soirées" },
   clubTables: { src: deckShot("phone-tables"), alt: "Choisissez votre table : le bar, le rooftop, le salon VIP, chacun avec son prix et ses bouteilles", caption: "L’Étoile · soirées" },
   loyaltyCard: { src: deckShot("phone-fidelite"), alt: "Ma carte, à la Brasserie Laissac : 87 points, le prochain palier, les récompenses", caption: "Brasserie Laissac · démo" },
-  wheel: { src: deckShot("phone-roue"), alt: "La roue du jour de la Brasserie Laissac : deux jours d’affilée, lancer la roue", caption: "Brasserie Laissac · démo" },
+  wheel: { src: deckShot("phone-roue"), alt: "La roue du jour de la Brasserie Laissac : la piste vers la roue dorée, lancer la roue", caption: "Brasserie Laissac · démo" },
   happyHour: { src: deckShot("phone-happy-hour"), alt: "La carte du Caffè Panis, la pastille « Happy hour jusqu’à 22 h » en bas de l’écran", caption: "Caffè Panis · démo" },
   bakery: { src: deckShot("phone-boulangerie"), alt: "La carte de la Boulangerie Cyprien : son nom, ses gâteaux à partager", caption: "Boulangerie Cyprien · démo" },
 } satisfies Record<string, Shot>;

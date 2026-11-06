@@ -4159,6 +4159,65 @@ export type Database = {
           },
         ]
       }
+      loyalty_vouchers: {
+        Row: {
+          created_at: string
+          customer_id: string
+          entry_id: string
+          expires_at: string
+          id: string
+          reward_id: string
+          used_order_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          customer_id: string
+          entry_id: string
+          expires_at: string
+          id?: string
+          reward_id: string
+          used_order_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string
+          entry_id?: string
+          expires_at?: string
+          id?: string
+          reward_id?: string
+          used_order_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_vouchers_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_vouchers_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: true
+            referencedRelation: "loyalty_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_vouchers_reward_id_fkey"
+            columns: ["reward_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_rewards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_vouchers_used_order_id_fkey"
+            columns: ["used_order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       memberships: {
         Row: {
           club_role: Database["public"]["Enums"]["club_role"] | null
@@ -9152,6 +9211,15 @@ export type Database = {
         }
         Returns: undefined
       }
+      loyalty_device_vouchers: {
+        Args: { p_slug: string; p_token_hash: string }
+        Returns: {
+          expires_at: string
+          id: string
+          label: string
+          reward_id: string
+        }[]
+      }
       loyalty_erase_customer: {
         Args: { p_customer_id: string; p_etablissement_id: string }
         Returns: undefined
@@ -9183,10 +9251,15 @@ export type Database = {
         Args: { p_slug: string; p_token_hash: string }
         Returns: string
       }
+      loyalty_wheel_order: {
+        Args: { p_customer: string; p_day: string; p_min_order: number }
+        Returns: string
+      }
       loyalty_wheel_spin: {
         Args: {
           p_golden_every?: number | null
           p_golden_multiplier?: number | null
+          p_min_order: number
           p_slices: Json
           p_slug: string
           p_token_hash: string
@@ -9194,19 +9267,18 @@ export type Database = {
         Returns: {
           points: number
           slice: number
-          streak: number
+          spins: number
+          voucher: string
+          voucher_expires_at: string
         }[]
       }
       loyalty_wheel_state: {
-        Args: { p_slug: string; p_token_hash: string }
+        Args: { p_min_order: number; p_slug: string; p_token_hash: string }
         Returns: {
           played_today: boolean
-          streak: number
+          ready: boolean
+          spins: number
         }[]
-      }
-      loyalty_wheel_streak: {
-        Args: { p_customer: string; p_from: string }
-        Returns: number
       }
       mark_demo_order_paid: {
         Args: { p_order_id: string; p_tip?: number | null }

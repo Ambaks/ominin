@@ -6,34 +6,43 @@ import {
   drawSlice,
   type LoyaltyHistoryEntry,
   type LoyaltyMember,
+  type LoyaltyVoucher,
   type LoyaltyWheelConfig,
+  type WheelDay,
 } from "./loyalty";
 import {
   greetedKey,
   LoyaltyMemberValueProvider,
   type LoyaltyMemberValue,
   type PreviewLoyaltyOrder,
+  type WheelWin,
 } from "./loyalty-member";
 
 /*
  * La fidélité d'une carte d'aperçu (/menu/demo), sans base : les cartes et le
  * téléphone retenu vivent dans le navigateur (localStorage, comme le cookie
  * d'un an du vrai menu). Les tours de roue sont des lignes de la carte : un
- * par jour, la série se lit dans l'historique. Chaque jour, l'aperçu repart
- * de l'habitué du registre : sa série d'hier tient toujours. Le gérant voit tout le
- * parcours — l'habitué accueilli, la roue, « Ma carte », les points d'une
- * commande, puis « Ce n'est pas moi » et un nouveau client retenu — et peut
- * rejouer le tour du jour. Rien ne part chez le vrai établissement.
+ * par jour, leur compte mène à la roue dorée. Sur le vrai menu, une commande
+ * réglée ouvre le tour ; l'aperçu fait comme si l'habitué venait de régler la
+ * sienne, et le tour l'attend dès l'ouverture. Chaque jour, l'aperçu repart
+ * de l'habitué du registre. Le gérant voit tout le parcours — l'habitué
+ * accueilli, la roue, « Ma carte », les points d'une commande, puis « Ce
+ * n'est pas moi » et un nouveau client retenu — et peut rejouer le tour du
+ * jour. Rien ne part chez le vrai établissement.
  */
 
 /** Une ligne de la carte ; filler : un tour ajouté pour montrer la roue dorée. */
 type DemoEntry = LoyaltyHistoryEntry & { filler?: true };
+
+/** Un bon de la roue ; wonAt : le tour qui l'a gagné, que « rejouer » reprend. */
+type DemoVoucher = LoyaltyVoucher & { wonAt: string; used?: true };
 
 interface DemoCard {
   firstName: string | null;
   since: string;
   /** Du plus récent au plus ancien ; le solde en est la somme. */
   history: DemoEntry[];
+  vouchers?: DemoVoucher[];
 }
 
 interface DemoState {
@@ -54,16 +63,14 @@ function localDay(at: string | number): number {
   return Math.floor((date.getTime() - date.getTimezoneOffset() * 60_000) / DAY_MS);
 }
 
-/** Les tours de la carte : joué aujourd'hui, et jours d'affilée jusqu'à hier ou aujourd'hui. */
-function spins(card: DemoCard | undefined): { today: boolean; streak: number } {
-  const days = new Set(
-    (card?.history ?? []).filter((entry) => entry.kind === "roue").map((entry) => localDay(entry.at))
-  );
+const isSpin = (entry: DemoEntry) => entry.kind === "roue";
+
+/** Le tour du jour de la carte : à jouer tant qu'il ne l'est pas, et les tours joués. */
+function wheelDayOf(card: DemoCard | undefined): WheelDay {
+  const turns = (card?.history ?? []).filter(isSpin);
   const today = localDay(Date.now());
-  const played = days.has(today);
-  let streak = 0;
-  while (days.has((played ? today : today - 1) - streak)) streak++;
-  return { today: played, streak };
+  const played = turns.some((entry) => localDay(entry.at) === today);
+  return { ready: !played, played, spins: turns.length };
 }
 
 /** loyalty_contact, dans le navigateur : l'email en minuscules, le numéro en chiffres. */
@@ -121,7 +128,8 @@ function readState(key: string): DemoState | null {
       Object.values(cards).every(
         (card) =>
           Array.isArray((card as DemoCard).history) &&
-          (card as DemoCard).history.every((entry) => typeof entry.points === "number")
+          (card as DemoCard).history.every((entry) => typeof entry.points === "number") &&
+          ((card as DemoCard).vouchers === undefined || Array.isArray((card as DemoCard).vouchers))
       );
     return valid ? (state as DemoState) : null;
   } catch {
@@ -241,47 +249,67 @@ export function DemoLoyaltyProvider({
     [state]
   );
 
-  const played = spins(card);
+  const { ready, played, spins } = wheelDayOf(card);
 
-  const spin = useCallback(async () => {
-    if (!wheel || !device || played.today) throw new Error("Le tour du jour est joué.");
+  // Une part en nature donne un bon pour le palier de l'aperçu à ce prix,
+  // comme loyalty_wheel_spin ; sans palier à ce prix, ses points.
+  const spin = useCallback(async (): Promise<WheelWin> => {
+    if (!wheel || !device || played) throw new Error("Le tour du jour est joué.");
     const index = drawSlice(wheel.slices);
+    const slice = wheel.slices[index];
+    const at = new Date().toISOString();
+    const reward = slice.voucher && demo.rewards.find((candidate) => candidate.points === slice.points);
+    if (slice.voucher && reward) {
+      const expiresAt = new Date(Date.now() + slice.voucher.days * DAY_MS).toISOString();
+      addEntries(device, [{ kind: "roue", points: 0, at, table: null, rewards: reward.label }], { remember: true });
+      update((current) => {
+        const known = current.cards[device];
+        const voucher: DemoVoucher = { id: `bon-${at}`, rewardId: reward.id, label: reward.label, expiresAt, wonAt: at };
+        return {
+          ...current,
+          cards: { ...current.cards, [device]: { ...known, vouchers: [...(known.vouchers ?? []), voucher] } },
+        };
+      });
+      return { index, points: 0, voucher: { label: reward.label, expiresAt } };
+    }
     const { golden } = wheel;
-    const multiplier = golden && (played.streak + 1) % golden.every === 0 ? golden.multiplier : 1;
-    const points = wheel.slices[index].points * multiplier;
-    addEntries(
-      device,
-      [{ kind: "roue", points, at: new Date().toISOString(), table: null, rewards: null }],
-      { remember: true }
-    );
-    return { index, points };
-  }, [wheel, device, played.today, played.streak, addEntries]);
+    const multiplier = golden && (spins + 1) % golden.every === 0 ? golden.multiplier : 1;
+    const points = slice.points * multiplier;
+    addEntries(device, [{ kind: "roue", points, at, table: null, rewards: null }], { remember: true });
+    return { index, points, voucher: null };
+  }, [wheel, device, played, spins, addEntries, update, demo]);
+
+  const vouchers = useMemo(() => card?.vouchers?.filter((voucher) => !voucher.used) ?? [], [card]);
 
   const replay = useCallback(
-    (goldenDay?: boolean) => {
+    (goldenTurn?: boolean) => {
       const today = localDay(Date.now());
       update((current) => {
         const known = current.device ? current.cards[current.device] : undefined;
         if (!current.device || !known) return current;
-        // Rejouer simplement rend aussi la série d'origine : les tours ajoutés partent.
+        // Rejouer simplement rend aussi les tours d'origine : les tours ajoutés partent,
+        // le bon du tour repris avec lui.
         let history = known.history.filter(
-          (entry) => entry.kind !== "roue" || (localDay(entry.at) !== today && (goldenDay || !entry.filler))
+          (entry) => !isSpin(entry) || (localDay(entry.at) !== today && (goldenTurn || !entry.filler))
         );
-        // Les jours manquants de la série reçoivent un petit tour : demain
-        // n'existe pas encore, la roue dorée tombe aujourd'hui.
-        if (goldenDay && wheel?.golden) {
-          const spun = new Set(history.filter((entry) => entry.kind === "roue").map((entry) => localDay(entry.at)));
-          const missing = Array.from({ length: wheel.golden.every - 1 }, (_, i) => i + 1)
-            .filter((daysAgo) => !spun.has(today - daysAgo))
-            .map((daysAgo) => {
-              const at = new Date();
-              at.setDate(at.getDate() - daysAgo);
-              const points = Math.min(...wheel.slices.map((slice) => slice.points));
-              return { kind: "roue" as const, points, at: at.toISOString(), table: null, rewards: null, filler: true as const };
-            });
-          history = [...history, ...missing].sort((a, b) => b.at.localeCompare(a.at));
+        const vouchers = known.vouchers?.filter((voucher) => localDay(voucher.wonAt) !== today);
+        // Des petits tours, un par jour passé sans tour, jusqu'à celui qui
+        // précède la roue dorée : le tour d'aujourd'hui la joue.
+        if (goldenTurn && wheel?.golden) {
+          const { every } = wheel.golden;
+          const spun = new Set(history.filter(isSpin).map((entry) => localDay(entry.at)));
+          const missing = (every - 1 - (history.filter(isSpin).length % every)) % every;
+          const points = Math.min(...wheel.slices.map((slice) => slice.points));
+          const fillers: DemoEntry[] = [];
+          for (let daysAgo = 1; fillers.length < missing; daysAgo++) {
+            if (spun.has(today - daysAgo)) continue;
+            const at = new Date();
+            at.setDate(at.getDate() - daysAgo);
+            fillers.push({ kind: "roue", points, at: at.toISOString(), table: null, rewards: null, filler: true });
+          }
+          history = [...history, ...fillers].sort((a, b) => b.at.localeCompare(a.at));
         }
-        return { ...current, cards: { ...current.cards, [current.device]: { ...known, history } } };
+        return { ...current, cards: { ...current.cards, [current.device]: { ...known, history, vouchers } } };
       });
     },
     [update, wheel]
@@ -308,9 +336,19 @@ export function DemoLoyaltyProvider({
         ],
         { remember: order.remember, firstName: order.firstName }
       );
+      if (order.vouchers.length > 0) {
+        update((current) => {
+          const known = current.cards[contact];
+          if (!known?.vouchers) return current;
+          const vouchers = known.vouchers.map((voucher) =>
+            order.vouchers.includes(voucher.id) ? { ...voucher, used: true as const } : voucher
+          );
+          return { ...current, cards: { ...current.cards, [contact]: { ...known, vouchers } } };
+        });
+      }
       if (order.remember) markGreeted(slug);
     },
-    [addEntries, slug]
+    [addEntries, update, slug]
   );
 
   const value = useMemo<LoyaltyMemberValue>(
@@ -322,13 +360,11 @@ export function DemoLoyaltyProvider({
       forget,
       loadHistory,
       balance,
-      wheel:
-        wheel && member
-          ? { ...wheel, ready: !played.today, streak: played.streak, spin, replay }
-          : null,
+      wheel: wheel && member ? { ...wheel, ready, played, spins, spin, replay } : null,
+      vouchers,
       recordPreviewOrder,
     }),
-    [member, remember, forget, loadHistory, balance, wheel, played.today, played.streak, spin, replay, recordPreviewOrder]
+    [member, remember, forget, loadHistory, balance, wheel, ready, played, spins, spin, replay, vouchers, recordPreviewOrder]
   );
 
   return <LoyaltyMemberValueProvider value={value}>{children}</LoyaltyMemberValueProvider>;

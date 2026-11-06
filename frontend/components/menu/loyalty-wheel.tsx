@@ -2,8 +2,8 @@
 
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/lib/menu/cart";
-import { nextReward, type GarlandMotif } from "@/lib/menu/loyalty";
-import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
+import { nextReward, type GarlandMotif, type WheelSlice } from "@/lib/menu/loyalty";
+import { useLoyaltyMember, type WheelWin } from "@/lib/menu/loyalty-member";
 import type { LiquidOrigin } from "./liquid-sheet";
 import { reducedMotion, useCountUp } from "./loyalty-card";
 import { Sheet } from "./sheet";
@@ -26,7 +26,7 @@ import "./loyalty-wheel.css";
  * taquet la traîne avant de la lâcher. Puis le gain, en temps détachés :
  * éclair, bond et son, la part qui s'allume, la roue qui recule, le chiffre ;
  * pièces et fanions à la mesure du lot, le gros lot a son bandeau. Enfin ce
- * qui fait revenir : la série, la roue dorée au bout, le compte à rebours.
+ * qui fait revenir : les tours joués, la roue dorée au bout, le compte à rebours.
  * Mouvement réduit : la roue posée sur la part, d'emblée, sans son.
  */
 
@@ -57,11 +57,11 @@ function Flame({ className }: { className?: string }) {
 }
 
 /**
- * Le cycle de la série — des fanions sur leur fil quand c'est le motif de la
- * maison : les jours joués, aujourd'hui (à jouer, ou joué et demain qui
- * attend), la roue dorée au bout.
+ * Le chemin vers la roue dorée — des fanions sur leur fil quand c'est le
+ * motif de la maison : les tours joués, celui-ci (à jouer, ou joué et le
+ * suivant qui attend), la roue dorée au bout.
  */
-function StreakTrack({
+function GoldenTrack({
   every,
   played,
   won,
@@ -77,25 +77,25 @@ function StreakTrack({
   return (
     <ol className="wheel-streak flex items-start justify-between gap-1" data-motif={motif} aria-hidden="true">
       {Array.from({ length: every }, (_, i) => {
-        const day = i + 1;
-        const golden = day === every;
+        const turn = i + 1;
+        const golden = turn === every;
         return (
           <li
-            key={day}
-            data-done={day <= played || undefined}
-            data-today={(!won && day === played + 1) || undefined}
-            data-next={(won && day === played + 1) || undefined}
+            key={turn}
+            data-done={turn <= played || undefined}
+            data-today={(!won && turn === played + 1) || undefined}
+            data-next={(won && turn === played + 1) || undefined}
             data-golden={golden || undefined}
             className="wheel-streak-day relative grid size-8 place-items-center rounded-full text-[11px] font-bold tabular-nums"
           >
             {golden ? (
               <span className="flex flex-col items-center leading-none">
-                <span className="text-[8px]">J{day}</span>×{multiplier}
+                <span className="text-[8px]">{turn}e</span>×{multiplier}
               </span>
-            ) : day <= played ? (
+            ) : turn <= played ? (
               "✓"
             ) : (
-              `J${day}`
+              turn
             )}
           </li>
         );
@@ -144,7 +144,28 @@ function Gain({
   );
 }
 
+const voucherDay = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
+
+/** Le lot en nature sous la roue : son nom, le palier qu'il offre, jusqu'à quand. */
+function Prize({ label, reward, until }: { label: string; reward: string; until: string }) {
+  return (
+    <div className="flex flex-col items-center gap-1">
+      <p className="wheel-won-amount font-display text-4xl font-extrabold leading-none" data-done>
+        {label} offert
+      </p>
+      <p className="wheel-kicker text-[11px] font-bold uppercase tracking-[0.3em]">bon de la roue</p>
+      <p className="wheel-won-line wheel-muted mt-1 text-sm">
+        {reward}
+        <br />
+        <span className="wheel-strong font-semibold">Avec une commande, d’ici le {until}</span>
+      </p>
+    </div>
+  );
+}
+
 export function LoyaltyWheel({
+  brand,
+  address,
   icon,
   logo,
   motif,
@@ -152,6 +173,9 @@ export function LoyaltyWheel({
   onClose,
   onShowCard,
 }: {
+  /** L'organisateur, dans le règlement. */
+  brand: string;
+  address: string;
   icon?: string;
   logo?: string;
   motif?: GarlandMotif;
@@ -165,10 +189,13 @@ export function LoyaltyWheel({
   const { member, wheel } = useLoyaltyMember();
   const titleId = useId();
   const sound = useWheelSound();
-  // Solde et série au lancer : le contexte les change dès le tirage.
-  const [launch, setLaunch] = useState<{ points: number; streak: number } | null>(null);
+  // Solde et tours joués au lancer : le contexte les change dès le tirage.
+  const [launch, setLaunch] = useState<{ points: number; turns: number } | null>(null);
+  const [rulesOpen, setRulesOpen] = useState(false);
+  const rulesButtonRef = useRef<HTMLButtonElement>(null);
+  const rulesCloseRef = useRef<HTMLButtonElement>(null);
   const [phase, setPhase] = useState<Phase>("ready");
-  const [won, setWon] = useState<{ index: number; points: number } | null>(null);
+  const [won, setWon] = useState<WheelWin | null>(null);
   const [pieces, setPieces] = useState<Piece[]>([]);
   // Les tours de l'onglet (rejouer en aperçu) : chacun remonte le gain.
   const [spins, setSpins] = useState(0);
@@ -195,47 +222,76 @@ export function LoyaltyWheel({
     if (phase === "won") continueRef.current?.focus({ preventScroll: true });
   }, [phase]);
 
+  useEffect(() => {
+    if (rulesOpen) rulesCloseRef.current?.focus({ preventScroll: true });
+  }, [rulesOpen]);
+
   if (!loyalty || !wheel || !member) return null;
   const { slices, golden } = wheel;
   const before = launch?.points ?? member.points ?? 0;
-  const streakBefore = launch?.streak ?? wheel.streak;
+  const turnsBefore = launch?.turns ?? wheel.spins;
   const gained = won?.points ?? 0;
   const step = 360 / slices.length;
-  const ranked = [...new Set(slices.map((slice) => slice.points))].sort((a, b) => a - b);
+  // Les lots en points ; un lot en nature se fête comme le gros lot.
+  const ranked = [...new Set(slices.filter((slice) => !slice.voucher).map((slice) => slice.points))].sort(
+    (a, b) => a - b
+  );
   const top = ranked.at(-1)!;
-  const tierOf = (points: number): WinTier =>
-    points === top ? "jackpot" : ranked.indexOf(points) < ranked.length / 2 ? "small" : "mid";
-  // Le jour que ce tour compte dans la série, et s'il est doré.
-  const day = streakBefore + 1;
+  const tierOf = ({ points, voucher }: WheelSlice): WinTier =>
+    voucher || points === top ? "jackpot" : ranked.indexOf(points) < ranked.length / 2 ? "small" : "mid";
+  const prizes = [...new Set(slices.flatMap((slice) => (slice.voucher ? [slice.voucher.label] : [])))];
+  // Le palier qu'offre le bon d'une case : celui de la maison à son prix.
+  const rewardFor = (slice: WheelSlice) => loyalty.rewards.find((reward) => reward.points === slice.points);
+  // Ce tour est le combientième de la carte, et s'il est doré.
+  const turn = turnsBefore + 1;
   const every = golden?.every ?? 0;
-  const multiplier = golden && day % golden.every === 0 ? golden.multiplier : 1;
-  const goldenToday = multiplier > 1;
-  const tier = won ? tierOf(slices[won.index].points) : null;
+  const multiplier = golden && turn % golden.every === 0 ? golden.multiplier : 1;
+  const goldenTurn = multiplier > 1;
+  // Sa place sur le chemin de la roue dorée, une fois joué.
+  const position = every === 0 ? 0 : ((turn - 1) % every) + 1;
+  const tier = won ? tierOf(slices[won.index]) : null;
   const jackpot = tier === "jackpot";
-  // Prochaine roue dorée, en jours depuis aujourd'hui (une fois celle du jour jouée, la suivante).
-  const toGolden = every === 0 ? 0 : goldenToday && won ? every : Math.ceil(day / every) * every - day;
+  // Le bon gagné : le nom court de la case (« Café »), et jusqu'à quand.
+  const prize = won?.voucher
+    ? {
+        label: slices[won.index].voucher?.label ?? won.voucher.label,
+        reward: won.voucher.label,
+        until: voucherDay.format(new Date(won.voucher.expiresAt)),
+      }
+    : null;
+  // Prochaine roue dorée, en tours depuis celui-ci (une fois la dorée jouée, la suivante).
+  const toGolden = every === 0 ? 0 : goldenTurn && won ? every : Math.ceil(turn / every) * every - turn;
   const name = member.firstName;
   const shown = (points: number) => points * multiplier;
+  const minOrder = `${wheel.minOrder.toLocaleString("fr-FR")} €`;
+  // Un lot sur plusieurs cases : sa chance est la somme de leurs poids.
+  const totalWeight = slices.reduce((sum, slice) => sum + slice.weight, 0);
+  const chanceOf = (matches: (slice: WheelSlice) => boolean) =>
+    `${((slices.filter(matches).reduce((sum, slice) => sum + slice.weight, 0) / totalWeight) * 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} %`;
+  const odds = [
+    ...ranked.map((points) => ({
+      lot: `+${points} ${points === 1 ? "point" : "points"}`,
+      chance: chanceOf((slice) => !slice.voucher && slice.points === points),
+    })),
+    ...prizes.map((label) => ({ lot: label, chance: chanceOf((slice) => slice.voucher?.label === label) })),
+  ];
   const later = (callback: () => void, ms: number) => {
     timers.current.push(setTimeout(callback, ms));
   };
 
-  const kicker = goldenToday
-    ? `★ Roue dorée · points ×${multiplier} ★`
-    : won
-      ? "★ Tour du jour gagné ★"
-      : "★ La roue du jour ★";
+  // Courts : trois boutons partagent la ligne, un kicker plus long y passait à la ligne.
+  const kicker = goldenTurn ? `★ Roue dorée ×${multiplier} ★` : won ? "★ Tour gagné ★" : "★ La roue du jour ★";
   const title = !won
     ? name
       ? `À vous, ${name}`
       : "À vous de jouer"
-    : jackpot
+    : jackpot && !prize
       ? `Jackpot${name ? `, ${name}` : ""} !`
       : `Bravo${name ? `, ${name}` : ""} !`;
 
   /*
-   * L'aiguille suit les taquets — un par demi-part, au passage d'un multiple
-   * du pas sous elle ; l'angle se calcule depuis le temps de l'animation et
+   * L'aiguille suit les taquets — un entre deux cases, au passage de chaque
+   * bord sous elle ; l'angle se calcule depuis le temps de l'animation et
    * ses courbes. Vite, elle claque (moins fort à pleine vitesse, maintenue
    * contre les taquets) ; au ralenti, le taquet qui arrive la pousse, puis
    * la lâche. Le son ne suit pas les images : chaque claquement des 60 ms à
@@ -244,10 +300,11 @@ export function LoyaltyWheel({
    */
   const followTicks = (animation: Animation, duration: number, angleAt: (progress: number) => number, sway: number) => {
     const pointer = pointerRef.current;
-    const pitch = step / 2;
+    // Les bords des cases tombent à un demi-pas des multiples du pas.
+    const pegAt = (angle: number) => Math.floor((angle - step / 2) / step);
     let previous = angleAt(0) + sway;
     let previousTime = 0;
-    let edge = Math.floor(previous / pitch);
+    let edge = pegAt(previous);
     let speed = 0;
     let kick: Animation | null = null;
     let lastBuzz = 0;
@@ -256,7 +313,7 @@ export function LoyaltyWheel({
     const tick = (time: number) => {
       const now = Number(animation.currentTime ?? 0);
       for (let at = Math.max(now, scanned); at <= Math.min(duration, now + 60); at += 2) {
-        const crossing = Math.floor((angleAt(at / duration) + sway) / pitch);
+        const crossing = pegAt(angleAt(at / duration) + sway);
         if (crossing !== heard) {
           heard = crossing;
           const pace = Math.abs(angleAt(Math.min(1, (at + 8) / duration)) - angleAt(at / duration)) / 8;
@@ -269,7 +326,7 @@ export function LoyaltyWheel({
       if (previousTime) speed = speed * 0.7 + (Math.abs(angle - previous) / (time - previousTime)) * 0.3;
       previous = angle;
       previousTime = time;
-      const crossed = Math.floor(angle / pitch);
+      const crossed = pegAt(angle);
       if (crossed !== edge && pointer) {
         edge = crossed;
         const lean = speed > 0.7 ? -12 : speed < 0.3 ? -24 : -24 + ((speed - 0.3) / 0.4) * 12;
@@ -285,7 +342,8 @@ export function LoyaltyWheel({
           lastBuzz = time;
         }
       } else if (pointer && speed < 0.12 && kick?.playState !== "running") {
-        const approach = (((angle % pitch) + pitch) % pitch) / pitch;
+        const into = angle - step / 2;
+        const approach = (((into % step) + step) % step) / step;
         pointer.style.transform = `rotate(${(-22 * Math.max(0, (approach - 0.55) / 0.45)).toFixed(2)}deg)`;
       }
       if (progress < 1) frame.current = requestAnimationFrame(tick);
@@ -294,13 +352,13 @@ export function LoyaltyWheel({
     frame.current = requestAnimationFrame(tick);
   };
 
-  const land = (result: { index: number; points: number }) => {
+  const land = (result: WheelWin) => {
     cancelAnimationFrame(frame.current);
     setWon(result);
     setSpins((count) => count + 1);
     setPhase("won");
     if (reducedMotion()) return;
-    const winTier = tierOf(slices[result.index].points);
+    const winTier = tierOf(slices[result.index]);
     sound.win(winTier);
     navigator.vibrate?.(winTier === "jackpot" ? [30, 50, 30, 50, 80] : winTier === "mid" ? [20, 40, 30] : [15]);
     setPieces(burst(winTier));
@@ -312,7 +370,7 @@ export function LoyaltyWheel({
     const dial = dialRef.current;
     if (!dial || phase !== "ready") return;
     sound.whoosh();
-    setLaunch({ points: member.points ?? 0, streak: wheel.streak });
+    setLaunch({ points: member.points ?? 0, turns: wheel.spins });
     setPhase("spinning");
     const still = reducedMotion();
     // Le recul part dès le toucher — l'aiguille se tend avec — : le tirage
@@ -331,7 +389,7 @@ export function LoyaltyWheel({
           easing: "cubic-bezier(0.4, 0, 0.2, 1)",
           fill: "forwards",
         });
-    let result: { index: number; points: number };
+    let result: WheelWin;
     try {
       result = await wheel.spin();
     } catch {
@@ -376,10 +434,10 @@ export function LoyaltyWheel({
     );
   };
 
-  // Aperçu : le tour du jour s'annule (avec goldenDay, la série d'avant passe
-  // au jour qui précède la roue dorée, pour la montrer) et la roue se repose.
-  const replay = (goldenDay?: boolean) => {
-    wheel.replay?.(goldenDay);
+  // Aperçu : le tour du jour s'annule (avec goldenTurn, les tours d'avant
+  // mènent à la roue dorée, pour la montrer) et la roue se repose.
+  const replay = (goldenTurn?: boolean) => {
+    wheel.replay?.(goldenTurn);
     dialRef.current?.getAnimations().forEach((animation) => animation.cancel());
     dialRef.current?.style.removeProperty("transform");
     setLaunch(null);
@@ -396,22 +454,23 @@ export function LoyaltyWheel({
   const near =
     won !== null &&
     !jackpot &&
-    [-1, 1].some((side) => slices[(won.index + side + slices.length) % slices.length].points === top);
+    [-1, 1].some((side) => {
+      const neighbour = slices[(won.index + side + slices.length) % slices.length];
+      return !neighbour.voucher && neighbour.points === top;
+    });
 
+  // Le lot le long du rayon, du centre vers le bord, comme sur une roue de
+  // casino : une case étroite ne tient pas un chiffre posé à plat.
   const renderSlice = (i: number) => {
-    const big = slices[i].points === top;
-    const gilded = big || (goldenToday && i % 2 === 1);
+    const { points, voucher } = slices[i];
+    const gilded = !voucher && (points === top || (goldenTurn && i % 2 === 1));
+    const tone = voucher ? "wheel-slice-voucher" : gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`;
     return (
-      <g key={i} data-slice={i} className={`wheel-slice ${gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`}`}>
+      <g key={i} data-slice={i} data-tone={i % 6} className={`wheel-slice ${tone}`}>
         <path d={slicePath(i, step)} fill={gilded ? `url(#${titleId}-gold)` : undefined} />
-        <g transform={`rotate(${i * step})`}>
-          {big && (
-            <text y="-79" textAnchor="middle" className="text-[9.5px] font-extrabold uppercase tracking-[0.18em]">
-              Jackpot
-            </text>
-          )}
-          <text y="-50" textAnchor="middle" className="text-[28px] font-bold">
-            +{shown(slices[i].points)}
+        <g transform={`rotate(${i * step - 90})`}>
+          <text x="86" textAnchor="end" dominantBaseline="central" className="text-[18px] font-extrabold">
+            {voucher ? voucher.label : `+${shown(points)}`}
           </text>
         </g>
       </g>
@@ -426,7 +485,7 @@ export function LoyaltyWheel({
           data-phase={phase}
           data-tier={tier ?? undefined}
           data-jackpot={jackpot || undefined}
-          data-golden={goldenToday || undefined}
+          data-golden={goldenTurn || undefined}
         >
           <div className="relative z-10 flex items-start justify-between gap-3">
             <div className="min-w-0">
@@ -436,6 +495,20 @@ export function LoyaltyWheel({
               </h3>
             </div>
             <div className="flex shrink-0 gap-2">
+              <button
+                ref={rulesButtonRef}
+                type="button"
+                onClick={() => setRulesOpen(true)}
+                aria-label="Règlement et chances"
+                aria-expanded={rulesOpen}
+                className="wheel-icon-button grid size-9 place-items-center rounded-full"
+              >
+                <svg viewBox="0 0 16 16" aria-hidden="true" className="size-4">
+                  <circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" strokeWidth="1.4" />
+                  <path d="M8 7.2v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                  <circle cx="8" cy="4.9" r="0.9" fill="currentColor" />
+                </svg>
+              </button>
               <button
                 type="button"
                 onClick={sound.toggle}
@@ -466,23 +539,23 @@ export function LoyaltyWheel({
           {golden && (
             <div className="relative z-10 flex flex-col gap-2">
               <p className="flex items-center justify-between gap-3 text-xs">
-                {won || streakBefore > 0 ? (
+                {won || turnsBefore % every > 0 ? (
                   <span className="wheel-flame inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-bold tabular-nums">
                     <Flame className="size-3.5" />
-                    {won ? day : streakBefore} {(won ? day : streakBefore) === 1 ? "jour" : "jours"} d’affilée
+                    {won ? position : turnsBefore % every} {(won ? position : turnsBefore % every) === 1 ? "tour" : "tours"} sur {every}
                   </span>
                 ) : (
-                  <span className="wheel-muted font-semibold">Votre série commence aujourd’hui</span>
+                  <span className="wheel-muted font-semibold">Roue dorée au {every}e tour</span>
                 )}
-                {goldenToday && (
+                {goldenTurn && (
                   <span className="wheel-gold-chip rounded-full px-2.5 py-1 font-bold">
-                    {won ? "Roue dorée jouée" : `Aujourd’hui : roue dorée ×${multiplier}`}
+                    {won ? "Roue dorée jouée" : `Ce tour : roue dorée ×${multiplier}`}
                   </span>
                 )}
               </p>
-              <StreakTrack
+              <GoldenTrack
                 every={every}
-                played={won ? ((day - 1) % every) + 1 : streakBefore % every}
+                played={won ? position : turnsBefore % every}
                 won={won !== null}
                 multiplier={golden.multiplier}
                 motif={motif}
@@ -513,7 +586,7 @@ export function LoyaltyWheel({
                   <svg
                     viewBox="-110 -110 220 220"
                     role="img"
-                    aria-label={`Roue : ${slices.map((slice) => `+${shown(slice.points)}`).join(", ")} points`}
+                    aria-label={`Roue de ${slices.length} cases : ${ranked.map((points) => `+${shown(points)}`).join(", ")} points${prizes.map((label) => `, ${label.toLowerCase()} offert`).join("")}`}
                     className="size-full overflow-visible"
                   >
                     <defs>
@@ -524,9 +597,9 @@ export function LoyaltyWheel({
                       </radialGradient>
                     </defs>
                     {slices.map((_, i) => renderSlice(i))}
-                    {Array.from({ length: slices.length * 2 }, (_, i) => {
-                      const [x, y] = polar(i * (step / 2) + step / 2, 95).split(" ");
-                      return <circle key={i} cx={x} cy={y} r={i % 2 ? 1.6 : 2.4} className="wheel-peg" />;
+                    {slices.map((_, i) => {
+                      const [x, y] = polar(i * step + step / 2, 95).split(" ");
+                      return <circle key={i} cx={x} cy={y} r={2.2} className="wheel-peg" />;
                     })}
                   </svg>
                   {/*
@@ -588,7 +661,7 @@ export function LoyaltyWheel({
               {won && <span key={spins} aria-hidden="true" className="wheel-ring absolute inset-0 rounded-full" />}
               {jackpot && (
                 <p className="wheel-jackpot pointer-events-none absolute inset-x-[-8%] bottom-[10%] py-1.5 text-center font-display text-3xl font-semibold uppercase italic">
-                  Jackpot&nbsp;!
+                  {prize ? `${prize.label} offert` : "Jackpot"}&nbsp;!
                 </p>
               )}
               {pieces.map((piece, i) => (
@@ -611,8 +684,10 @@ export function LoyaltyWheel({
           {won && <span key={spins} aria-hidden="true" className="wheel-flash pointer-events-none absolute inset-0" />}
 
           <p role="status" className="sr-only">
-            {won
-              ? `${gained} points gagnés. Votre solde : ${after} points.${unlocked.length > 0 ? ` Débloqué : ${unlocked.at(-1)!.label}.` : ""} Prochain tour demain.`
+            {prize
+              ? `${prize.label} offert : un bon pour ${prize.reward}, avec une commande d’ici le ${prize.until}. Prochain tour dès demain, avec une commande.`
+              : won
+              ? `${gained} points gagnés. Votre solde : ${after} points.${unlocked.length > 0 ? ` Débloqué : ${unlocked.at(-1)!.label}.` : ""} Prochain tour dès demain, avec une commande.`
               : phase === "spinning"
                 ? "La roue tourne…"
                 : ""}
@@ -646,7 +721,7 @@ export function LoyaltyWheel({
                     </>
                   )}
                   <br />
-                  Un tour offert chaque jour · jusqu’à <span className="wheel-strong font-semibold">+{shown(top)}</span>
+                  Offert par votre commande · jusqu’à <span className="wheel-strong font-semibold">+{shown(top)}</span>
                   {" · "}
                   <button
                     type="button"
@@ -664,6 +739,9 @@ export function LoyaltyWheel({
             <div className="wheel-result-pane absolute inset-x-0 top-0" inert={won === null}>
               {won && (
                 <div className="wheel-result flex w-full flex-col items-center gap-2 text-center">
+                  {prize ? (
+                    <Prize key={spins} label={prize.label} reward={prize.reward} until={prize.until} />
+                  ) : (
                   <Gain
                     key={spins}
                     gained={gained}
@@ -671,12 +749,12 @@ export function LoyaltyWheel({
                     near={near}
                     jackpot={jackpot}
                     label={
-                      goldenToday
+                      goldenTurn
                         ? `points · roue dorée ×${multiplier}`
                         : jackpot
                           ? "points · gros lot"
                           : golden
-                            ? `points · série de ${day} jours`
+                            ? `points · tour ${position} sur ${every}`
                             : "points gagnés"
                     }
                     detail={
@@ -687,21 +765,20 @@ export function LoyaltyWheel({
                           : "Toutes les récompenses sont à portée"
                     }
                   />
+                  )}
                   <div className="wheel-won-line wheel-tomorrow flex w-full flex-col items-center gap-1 rounded-2xl px-4 py-2.5" aria-hidden="true">
                     <p className="wheel-kicker text-[10px] font-bold uppercase tracking-[0.24em]">
-                      Prochain tour{golden ? ` · J${(day % every) + 1}` : ""} · jusqu’à +
+                      Prochain tour dès demain · jusqu’à +
                       {golden && toGolden === 1 ? top * golden.multiplier : top}
                     </p>
                     <UntilTomorrow className="wheel-countdown text-3xl font-extrabold leading-none tabular-nums" />
                     {golden && (
-                      <>
-                        <span className="wheel-gold-chip mt-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold">
-                          {toGolden === 1 ? "Demain" : `Dans ${toGolden} jours`} : roue dorée, jusqu’à +
-                          {top * golden.multiplier}
-                        </span>
-                        <p className="wheel-soft text-[11px]">Un jour manqué, et la série repart à zéro.</p>
-                      </>
+                      <span className="wheel-gold-chip mt-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold">
+                        {toGolden === 1 ? "Au prochain tour" : `Dans ${toGolden} tours`} : roue dorée, jusqu’à +
+                        {top * golden.multiplier}
+                      </span>
                     )}
+                    <p className="wheel-soft text-[11px]">Un tour par jour, avec une commande dès {minOrder}.</p>
                   </div>
                   <button
                     ref={continueRef}
@@ -717,7 +794,7 @@ export function LoyaltyWheel({
                       <button type="button" onClick={() => replay()} className="underline underline-offset-4">
                         rejouer
                       </button>
-                      {golden && !goldenToday && (
+                      {golden && !goldenTurn && (
                         <button type="button" onClick={() => replay(true)} className="underline underline-offset-4">
                           voir la roue dorée
                         </button>
@@ -728,6 +805,93 @@ export function LoyaltyWheel({
               )}
             </div>
           </div>
+
+          {rulesOpen && (
+            <section
+              aria-labelledby={`${titleId}-rules`}
+              className="wheel-rules absolute inset-0 z-30 flex flex-col gap-4 overflow-y-auto overscroll-contain px-5 pb-6 pt-5 text-sm leading-relaxed"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <h4 id={`${titleId}-rules`} className="font-display text-2xl font-medium leading-tight">
+                  Règlement et chances
+                </h4>
+                <button
+                  ref={rulesCloseRef}
+                  type="button"
+                  onClick={() => {
+                    setRulesOpen(false);
+                    rulesButtonRef.current?.focus({ preventScroll: true });
+                  }}
+                  aria-label="Retour à la roue"
+                  className="wheel-icon-button grid size-9 shrink-0 place-items-center rounded-full text-lg"
+                >
+                  ×
+                </button>
+              </div>
+              <div>
+                <p className="wheel-soft">
+                  Chaque tour tire une case au hasard. Un lot présent sur plusieurs cases les réunit toutes dans sa
+                  chance&nbsp;:
+                </p>
+                <table className="mt-2 w-full tabular-nums">
+                  <caption className="sr-only">Les lots de la roue et leurs chances</caption>
+                  <thead className="sr-only">
+                    <tr>
+                      <th scope="col">Lot</th>
+                      <th scope="col">Chance</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {odds.map(({ lot, chance }) => (
+                      <tr key={lot} className="wheel-rules-row">
+                        <th scope="row" className="py-1 text-left font-semibold">
+                          {lot}
+                        </th>
+                        <td className="wheel-strong py-1 text-right font-semibold">{chance}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {prizes.map((label) => {
+                  const slice = slices.find((candidate) => candidate.voucher?.label === label)!;
+                  return (
+                    <p key={label} className="wheel-soft mt-2">
+                      {label}&nbsp;: un bon pour «&nbsp;{rewardFor(slice)?.label ?? `${slice.points} points`}&nbsp;»,
+                      valable {slice.voucher!.days}&nbsp;jours, à utiliser avec une commande qui compte un article à
+                      régler.
+                    </p>
+                  );
+                })}
+                {golden && (
+                  <p className="wheel-soft mt-2">
+                    Le {golden.every}e tour de votre carte, puis tous les {golden.every}, est la roue dorée&nbsp;: ses
+                    points sont multipliés par {golden.multiplier}, un bon reste un bon.
+                  </p>
+                )}
+              </div>
+              <ul className="wheel-soft flex list-disc flex-col gap-2 pl-5">
+                <li>
+                  Organisateur&nbsp;: {brand}, {address}.
+                </li>
+                <li>
+                  Qui joue&nbsp;: les membres de la carte de fidélité de {brand}, depuis le téléphone que leur carte
+                  reconnaît.
+                </li>
+                <li>
+                  Un tour par jour et par carte, ouvert par une commande réglée le jour même d’au moins {minOrder}, hors
+                  pourboire et articles offerts. Une commande annulée reprend son tour et ses points.
+                </li>
+                <li>
+                  Les points gagnés vont sur la carte dès l’arrêt de la roue, et s’échangent contre ses
+                  récompenses&nbsp;:{" "}
+                  {loyalty.rewards.map((reward) => `${reward.label} (${reward.points} points)`).join(", ")}. Ils
+                  n’ont pas de valeur en argent et ne se remboursent pas.
+                </li>
+                <li>Le tirage se fait au lancer, sur le serveur de la carte&nbsp;; la roue montre ensuite la part tirée.</li>
+                <li>Ce règlement est remis gratuitement à qui le demande à {brand}.</li>
+              </ul>
+            </section>
+          )}
         </div>
       )}
     </Sheet>

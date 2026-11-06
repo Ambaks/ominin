@@ -282,6 +282,7 @@ export default async function MenuPreviewPage({
           {loyalty && (
             <LoyaltyWelcome
               brand={brandName(restaurant)}
+              address={restaurant.address}
               logo={restaurant.logo}
               icon={restaurant.icons?.homeScreen}
               wordmark={restaurant.logoIsName}

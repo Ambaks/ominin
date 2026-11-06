@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { isUnavailable, OptionsModal } from "@/components/menu/add-to-order";
 import { suggestionButton, SuggestionRow } from "@/components/menu/chef-pairings";
 import { REWARD_ITEMS_SHOWN } from "@/lib/gestion/constants";
-import { cartLineKey, useCart } from "@/lib/menu/cart";
+import { cartLineKey, useCart, type CartLine } from "@/lib/menu/cart";
 import { formatPrice, lineName } from "@/lib/menu/format";
 import {
   maskContact,
@@ -22,11 +22,15 @@ import type { MenuItem } from "@/lib/menu-data";
  * article offert rejoint le panier comme une ligne à part, payée en points.
  * Changer de contact, c'est changer de solde : les lignes offertes repartent.
  * Un téléphone reconnu (/api/fidelite) n'a rien à taper : son contact et son
- * solde sont déjà là, « Ce n'est pas moi » rend le champ. Sinon, le client
- * peut demander qu'on se souvienne de ce téléphone à l'envoi de la commande.
+ * solde sont déjà là, « Ce n'est pas moi » rend le champ, et ses bons de la
+ * roue passent avant les paliers : l'article du palier, offert sans points.
+ * Sinon, le client peut demander qu'on se souvienne de ce téléphone à
+ * l'envoi de la commande.
  */
 
 type LookupState = "idle" | "loading" | "error";
+
+const voucherDay = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
 
 export function LoyaltySection({
   program,
@@ -56,7 +60,7 @@ export function LoyaltySection({
   };
 }) {
   const cart = useCart();
-  const { balance: lookupBalance } = useLoyaltyMember();
+  const { balance: lookupBalance, vouchers } = useLoyaltyMember();
   // Repliée tant que rien n'est saisi : le gain et un bouton, sur une rangée,
   // pour que l'accord du chef et le pied restent à l'écran.
   const [opened, setOpened] = useState(false);
@@ -73,7 +77,7 @@ export function LoyaltySection({
   const [error, setError] = useState<string | null>(null);
   const [picking, setPicking] = useState<{
     item: MenuItem;
-    reward: LoyaltyReward;
+    reward: NonNullable<CartLine["reward"]>;
   } | null>(null);
 
   const remaining = balance === null ? 0 : balance - cart.pointsSpent;
@@ -108,13 +112,15 @@ export function LoyaltySection({
     }
   };
 
-  const offer = (item: MenuItem, reward: LoyaltyReward) => {
+  // Avec un bon de la roue, l'article du palier ne coûte pas de points.
+  const offer = (item: MenuItem, reward: LoyaltyReward, voucher?: string) => {
+    const line = voucher ? { id: reward.id, points: 0, voucher } : { id: reward.id, points: reward.points };
     if ((item.options?.length ?? 0) > 0) {
-      setPicking({ item, reward });
+      setPicking({ item, reward: line });
       return;
     }
     cart.addLine({
-      key: cartLineKey(item.id, [], reward.id),
+      key: cartLineKey(item.id, [], voucher ?? reward.id),
       itemId: item.id,
       name: item.name,
       unitPrice: 0,
@@ -122,9 +128,65 @@ export function LoyaltySection({
       choices: [],
       stock: item.stock,
       noticeHours: item.noticeHours,
-      reward: { id: reward.id, points: reward.points },
+      reward: line,
     });
     cart.track("panier", { items: [item.id] });
+  };
+
+  const offerable = (reward: LoyaltyReward) =>
+    reward.items.filter((item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id)));
+
+  // Les articles d'un palier, comme l'accord du chef : photo, nom, ce qu'il
+  // vaut, un bouton ; repliés au-delà de quelques-uns.
+  const itemList = (listKey: string, reward: LoyaltyReward, voucher?: string) => {
+    const items = offerable(reward);
+    const all = unfolded.has(listKey);
+    const hidden = items.length - REWARD_ITEMS_SHOWN;
+    return (
+      <>
+        <ul className="flex flex-col gap-2.5">
+          {(all ? items : items.slice(0, REWARD_ITEMS_SHOWN)).map((item) => (
+            <li key={item.id}>
+              <SuggestionRow
+                image={item.image}
+                title={lineName(item)}
+                why={`Offert au lieu de ${formatPrice(item.price)}`}
+              >
+                <button
+                  type="button"
+                  onClick={() => offer(item, reward, voucher)}
+                  aria-label={`Ajouter, offert : ${lineName(item)}, ${voucher ? "bon de la roue" : `${reward.points} points`}`}
+                  className={suggestionButton()}
+                >
+                  + Offert
+                </button>
+              </SuggestionRow>
+            </li>
+          ))}
+        </ul>
+        {hidden > 0 && (
+          <button
+            type="button"
+            aria-expanded={all}
+            onClick={() =>
+              setUnfolded((current) => {
+                const next = new Set(current);
+                if (all) next.delete(listKey);
+                else next.add(listKey);
+                return next;
+              })
+            }
+            className="self-start text-xs font-semibold text-muted underline underline-offset-4"
+          >
+            {all
+              ? "Replier la liste"
+              : hidden === 1
+                ? "Voir l’autre article"
+                : `Voir les ${hidden} autres articles`}
+          </button>
+        )}
+      </>
+    );
   };
 
   // Ce que la commande rapporte d'abord : c'est ce qui fait laisser un numéro.
@@ -276,14 +338,33 @@ export function LoyaltySection({
               Ceux de cette commande sont crédités à l&rsquo;encaissement.
             </p>
           )}
+          {vouchers.length > 0 && (
+            <ul className="flex flex-col gap-3">
+              {vouchers.map((voucher) => {
+                const reward = program.rewards.find((candidate) => candidate.id === voucher.rewardId);
+                if (!reward) return null;
+                const used = cart.lines.some((line) => line.reward?.voucher === voucher.id);
+                return (
+                  <li key={voucher.id} className="flex flex-col gap-2">
+                    <p className="flex items-baseline justify-between gap-3 text-xs">
+                      <span className="font-semibold">Bon de la roue · {reward.label}</span>
+                      <span className="shrink-0 font-semibold text-ember-1">
+                        jusqu’au {voucherDay.format(new Date(voucher.expiresAt))}
+                      </span>
+                    </p>
+                    {used ? (
+                      <p className="text-xs text-muted">Dans votre commande.</p>
+                    ) : (
+                      itemList(voucher.id, reward, voucher.id)
+                    )}
+                  </li>
+                );
+              })}
+            </ul>
+          )}
           <ul className="flex flex-col gap-3">
             {program.rewards.map((reward) => {
               const reachable = remaining >= reward.points;
-              const items = reward.items.filter(
-                (item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id))
-              );
-              const all = unfolded.has(reward.id);
-              const hidden = items.length - REWARD_ITEMS_SHOWN;
               return (
                 <li key={reward.id} className="flex flex-col gap-2">
                   <p className="flex items-baseline justify-between gap-3 text-xs">
@@ -295,50 +376,7 @@ export function LoyaltySection({
                     </span>
                   </p>
                   {reachable ? (
-                    // Comme l'accord du chef : photo, nom, ce qu'il vaut, un bouton.
-                    <>
-                      <ul className="flex flex-col gap-2.5">
-                        {(all ? items : items.slice(0, REWARD_ITEMS_SHOWN)).map((item) => (
-                          <li key={item.id}>
-                            <SuggestionRow
-                              image={item.image}
-                              title={lineName(item)}
-                              why={`Offert au lieu de ${formatPrice(item.price)}`}
-                            >
-                              <button
-                                type="button"
-                                onClick={() => offer(item, reward)}
-                                aria-label={`Ajouter, offert : ${lineName(item)}, ${reward.points} points`}
-                                className={suggestionButton()}
-                              >
-                                + Offert
-                              </button>
-                            </SuggestionRow>
-                          </li>
-                        ))}
-                      </ul>
-                      {hidden > 0 && (
-                        <button
-                          type="button"
-                          aria-expanded={all}
-                          onClick={() =>
-                            setUnfolded((current) => {
-                              const next = new Set(current);
-                              if (all) next.delete(reward.id);
-                              else next.add(reward.id);
-                              return next;
-                            })
-                          }
-                          className="self-start text-xs font-semibold text-muted underline underline-offset-4"
-                        >
-                          {all
-                            ? "Replier la liste"
-                            : hidden === 1
-                              ? "Voir l’autre article"
-                              : `Voir les ${hidden} autres articles`}
-                        </button>
-                      )}
-                    </>
+                    itemList(reward.id, reward)
                   ) : (
                     <p className="text-xs text-faint">
                       Encore {reward.points - remaining}{" "}
@@ -355,7 +393,7 @@ export function LoyaltySection({
       {picking && (
         <OptionsModal
           item={picking.item}
-          reward={{ id: picking.reward.id, points: picking.reward.points }}
+          reward={picking.reward}
           onClose={() => setPicking(null)}
           onAdded={() => {}}
         />

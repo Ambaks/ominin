@@ -159,7 +159,7 @@ export interface OrderItem {
   paidMode?: PaymentMode;
   /** ISO — absent tant que la ligne n'est pas arrivée à table. */
   servedAt?: string;
-  /** Points payés par unité : la ligne est offerte par la fidélité. */
+  /** Points payés par unité : la ligne est offerte par la fidélité (0 : par un bon de la roue). */
   loyaltyPoints?: number;
 }
 

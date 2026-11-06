@@ -34,9 +34,9 @@ export function CounterLines({
           <div className="flex flex-col">
             <p className="min-w-0 text-base leading-snug [overflow-wrap:anywhere]">
               {line.name}
-              {line.loyaltyPoints && (
+              {line.loyaltyPoints !== undefined && (
                 <span className={`ml-1.5 whitespace-nowrap rounded-full border border-hairline px-1.5 py-px text-g-axis font-semibold ${EMBER_INK}`}>
-                  Offert · {line.loyaltyPoints * line.quantity} pts
+                  Offert · {line.loyaltyPoints ? `${line.loyaltyPoints * line.quantity} pts` : "bon de la roue"}
                 </span>
               )}
             </p>
