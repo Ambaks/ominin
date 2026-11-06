@@ -51,6 +51,8 @@ export async function generateMetadata({
       description,
       images: [bohoPhotos.terrasse.src],
     },
+    // Sans titre ni image, Next les reprend de l'aperçu ci-dessus plutôt que d'Ominin.
+    twitter: { card: "summary_large_image" },
   };
 }
 

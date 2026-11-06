@@ -28,6 +28,13 @@ export const bohoPhotos = {
     src: "/boho/domes.webp",
     alt: "Trois dômes de verre illuminés dans le jardin du Boho, rideaux ouverts sur une table dressée",
   },
+  /** Les mêmes dômes au format des aperçus de lien, coupés avant le prix de l'affiche et assez légers pour WhatsApp. */
+  apercuBulles: {
+    src: "/boho/apercu-bulles.jpg",
+    width: 1200,
+    height: 630,
+    alt: "Dômes de verre illuminés dans le jardin du Boho, rideaux ouverts sur une table dressée",
+  },
   /** La même terrasse, coupée avant le logo de l'affiche : elle peut passer sous le texte. */
   jardin: {
     src: "/boho/jardin.webp",
