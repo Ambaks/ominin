@@ -1,7 +1,7 @@
-import type { Viewport } from "next";
+import type { Metadata, Viewport } from "next";
 import { BohoCanvas, KilimMark } from "@/components/sites/boho/marks";
 import { bohoFontVariables } from "@/lib/menu/brand-fonts";
-import { BOHO_THEME_COLOR } from "@/lib/sites/boho";
+import { BOHO_THEME_COLOR, bohoPhotos } from "@/lib/sites/boho";
 import { isSiteOpen } from "@/lib/sites/public";
 import { carteUrl, siteUrlOf } from "@/lib/bulles/links";
 import "@/components/sites/boho/boho.css";
@@ -15,6 +15,19 @@ import "@/components/sites/boho/bulles.css";
 export const viewport: Viewport = {
   themeColor: BOHO_THEME_COLOR,
   colorScheme: "dark",
+};
+
+/*
+ * Ces liens s'envoient par message : leur aperçu remplace celui d'Ominin,
+ * hérité de la racine. Sans titre ici, Next reprend dans l'aperçu le titre de
+ * chaque page, et sa description quand elle en pose une.
+ */
+const { src: apercuUrl, ...apercu } = bohoPhotos.apercuBulles;
+
+export const metadata: Metadata = {
+  description: "Les bulles chauffées du BOHO : des dômes de verre dans le jardin, avenue des États-Unis à Toulouse.",
+  openGraph: { type: "website", siteName: "BOHO", images: [{ url: apercuUrl, ...apercu }] },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function BulleLayout({ children, params }: LayoutProps<"/menu/w/[slug]/bulle">) {
