@@ -30,13 +30,15 @@ const day = new Intl.DateTimeFormat("fr-FR", {
 
 function historyLabel(entry: LoyaltyHistoryEntry): string {
   if (entry.kind === "gain") return entry.table ? `Table ${entry.table}` : "Commande";
-  if (entry.kind === "roue") return "Tour de roue";
+  if (entry.kind === "roue") return entry.rewards ? `Tour de roue · bon : ${entry.rewards}` : "Tour de roue";
   if (entry.kind === "depense") {
     if (!entry.rewards) return "Récompense";
     return `${entry.rewards} ${entry.rewards.includes(",") ? "offerts" : "offert"}`;
   }
   return entry.points > 0 ? "Geste de la maison" : "Ajustement";
 }
+
+const voucherDay = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
 
 const capitalize = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
@@ -57,7 +59,7 @@ export function LoyaltyCardSheet({
   onClose: () => void;
 }) {
   const { loyalty } = useCart();
-  const { member, forget, loadHistory, wheel } = useLoyaltyMember();
+  const { member, forget, loadHistory, wheel, vouchers } = useLoyaltyMember();
   const titleId = useId();
   const [history, setHistory] = useState<LoyaltyHistoryEntry[] | null>(null);
   const waiting = wheel !== null && !wheel.ready;
@@ -134,13 +136,41 @@ export function LoyaltyCardSheet({
             <p className="flex items-center justify-between gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/5 px-3.5 py-3 text-xs">
               <span className="inline-flex items-center gap-2 font-semibold">
                 <WheelGlyph className="size-4 text-ember-1" />
-                {wheel.streak > 1 ? `${wheel.streak} jours d’affilée` : "Tour du jour joué"}
+                {wheel.played ? "Tour du jour joué" : "Tour de roue"}
               </span>
-              <span className="text-muted">
-                Prochain tour dans{" "}
-                <UntilTomorrow className="font-semibold tabular-nums text-foreground" />
-              </span>
+              {wheel.played ? (
+                <span className="text-right text-muted">
+                  Le prochain dans{" "}
+                  <UntilTomorrow className="font-semibold tabular-nums text-foreground" />, avec une commande
+                </span>
+              ) : (
+                <span className="text-right text-muted">
+                  Offert avec une commande dès {wheel.minOrder.toLocaleString("fr-FR")}&nbsp;€
+                </span>
+              )}
             </p>
+          )}
+
+          {vouchers.length > 0 && (
+            <section className="flex flex-col gap-2.5">
+              <h4 className="text-[11px] font-semibold uppercase tracking-[0.16em] text-faint">
+                Vos bons de la roue
+              </h4>
+              <ul className="flex flex-col gap-2">
+                {vouchers.map((voucher) => (
+                  <li
+                    key={voucher.id}
+                    className="flex items-center justify-between gap-3 rounded-2xl border border-ember-1/30 bg-ember-1/5 px-3.5 py-3 text-xs"
+                  >
+                    <span className="font-semibold">{voucher.label}</span>
+                    <span className="shrink-0 text-right text-muted">
+                      jusqu’au {voucherDay.format(new Date(voucher.expiresAt))}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="text-xs text-muted">Il s’ajoute depuis le panier, avec un article à régler.</p>
+            </section>
           )}
 
           <section className="flex flex-col gap-2.5">
@@ -221,7 +251,7 @@ export function LoyaltyCardSheet({
                     <span
                       className={`shrink-0 font-semibold tabular-nums ${entry.points < 0 ? "text-ember-2" : "text-foreground"}`}
                     >
-                      {entry.points > 0 ? `+${entry.points}` : `−${-entry.points}`}
+                      {entry.points > 0 ? `+${entry.points}` : entry.points < 0 ? `−${-entry.points}` : "bon"}
                     </span>
                   </li>
                 ))}

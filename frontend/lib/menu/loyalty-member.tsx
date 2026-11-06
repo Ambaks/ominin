@@ -6,6 +6,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -13,33 +14,40 @@ import {
   fetchLoyaltyBalance,
   type LoyaltyHistoryEntry,
   type LoyaltyMember,
+  type LoyaltyVoucher,
   type LoyaltyWheelConfig,
+  type WheelDay,
 } from "./loyalty";
+import { useTickets } from "./tickets";
 
 /*
  * Le client que ce téléphone a fait retenir (/api/fidelite). La page du menu
  * est en cache et sans cookies : c'est le navigateur qui demande, une fois la
- * carte affichée, puis au retour sur l'onglet — les points gagnés à
- * l'encaissement arrivent pendant le repas.
+ * carte affichée, au retour sur l'onglet, et quand une commande suivie se
+ * règle — les points gagnés à l'encaissement, et le tour de roue qu'elle
+ * ouvre, arrivent pendant la visite.
  */
 
+/** Ce qu'un tour a donné : la part, ses points, ou le bon d'une part en nature. */
+export interface WheelWin {
+  index: number;
+  points: number;
+  voucher: { label: string; expiresAt: string } | null;
+}
+
 /** La roue du jour d'un téléphone reconnu. */
-export interface LoyaltyWheelState extends LoyaltyWheelConfig {
-  /** Le tour d'aujourd'hui reste à jouer. */
-  ready: boolean;
-  /** Jours d'affilée avec un tour, aujourd'hui compris s'il est joué. */
-  streak: number;
+export interface LoyaltyWheelState extends LoyaltyWheelConfig, WheelDay {
   /**
-   * Tire la part et crédite ses points sur-le-champ (multipliés un jour de
-   * roue dorée). La roue s'y arrête ensuite : fermer la feuille en route ne
-   * perd rien.
+   * Tire la part et crédite ses points (multipliés au tour de la roue dorée)
+   * ou son bon sur-le-champ. La roue s'y arrête ensuite : fermer la feuille
+   * en route ne perd rien.
    */
-  spin: () => Promise<{ index: number; points: number }>;
+  spin: () => Promise<WheelWin>;
   /**
    * Aperçu seulement : le tour du jour s'annule, pour le rejouer devant le
-   * gérant ; goldenDay : la série d'avant passe au jour qui précède la roue dorée.
+   * gérant ; goldenTurn : les tours d'avant mènent au tour de la roue dorée.
    */
-  replay?: (goldenDay?: boolean) => void;
+  replay?: (goldenTurn?: boolean) => void;
 }
 
 /** Une commande d'aperçu, portée sur la carte de son contact. */
@@ -52,6 +60,8 @@ export interface PreviewLoyaltyOrder {
   spent: number;
   /** Articles offerts, « Il Tiramisù, Café Illy ». */
   rewards: string | null;
+  /** Les bons de la roue que la commande utilise. */
+  vouchers: string[];
   table: number | null;
 }
 
@@ -70,6 +80,8 @@ export interface LoyaltyMemberValue {
   balance: (slug: string, contact: string) => Promise<number | null>;
   /** null : pas de roue dans cette maison. */
   wheel: LoyaltyWheelState | null;
+  /** Les bons gagnés à la roue, à utiliser, le plus proche de son échéance d'abord. */
+  vouchers: LoyaltyVoucher[];
   /** Aperçu seulement : la commande passe sur la carte, rien ne part. */
   recordPreviewOrder?: (order: PreviewLoyaltyOrder) => void;
 }
@@ -84,6 +96,7 @@ const DISABLED: LoyaltyMemberValue = {
   loadHistory: async () => [],
   balance: fetchLoyaltyBalance,
   wheel: null,
+  vouchers: [],
 };
 
 const LoyaltyMemberContext = createContext<LoyaltyMemberValue>(DISABLED);
@@ -98,14 +111,14 @@ export const LoyaltyMemberValueProvider = LoyaltyMemberContext.Provider;
  */
 export const greetedKey = (slug: string) => `fidelite-accueil:${slug}`;
 
-/** Le tour du jour vu du serveur ; null : pas de roue pour ce téléphone ici. */
-type WheelDay = { played: boolean; streak: number } | null;
-
 async function readJson(response: Response) {
   const body = await response.json();
   if (!response.ok) throw new Error(body.error ?? "Fidélité indisponible.");
-  return body as { member: LoyaltyMember | null; wheel?: WheelDay };
+  // wheel null : pas de roue pour ce téléphone ici.
+  return body as LoyaltyBody;
 }
+
+type LoyaltyBody = { member: LoyaltyMember | null; wheel?: WheelDay | null; vouchers?: LoyaltyVoucher[] };
 
 export function LoyaltyMemberProvider({
   slug,
@@ -120,7 +133,9 @@ export function LoyaltyMemberProvider({
   children: ReactNode;
 }) {
   const [member, setMember] = useState<LoyaltyMember | null>(null);
-  const [wheelDay, setWheelDay] = useState<WheelDay>(null);
+  const [wheelDay, setWheelDay] = useState<WheelDay | null>(null);
+  const [vouchers, setVouchers] = useState<LoyaltyVoucher[]>([]);
+  const tickets = useTickets()?.tickets;
 
   const load = useCallback(
     () =>
@@ -130,9 +145,10 @@ export function LoyaltyMemberProvider({
     [slug]
   );
 
-  const apply = useCallback((body: { member: LoyaltyMember | null; wheel?: WheelDay }) => {
+  const apply = useCallback((body: LoyaltyBody) => {
     setMember(body.member);
     setWheelDay(body.wheel ?? null);
+    setVouchers(body.vouchers ?? []);
   }, []);
 
   const refresh = useCallback(() => load().then(apply), [load, apply]);
@@ -149,6 +165,19 @@ export function LoyaltyMemberProvider({
     return () => document.removeEventListener("visibilitychange", onVisible);
   }, [enabled, load, apply]);
 
+  // Une commande suivie vue à régler, puis réglée : ses points sont sur la
+  // carte (loyalty_earn), et elle a pu ouvrir le tour du jour.
+  const unpaid = useRef(new Set<string>());
+  useEffect(() => {
+    if (!enabled || !tickets) return;
+    let settled = false;
+    for (const ticket of tickets) {
+      if (ticket.paid === false) unpaid.current.add(ticket.id);
+      else if (ticket.paid && unpaid.current.delete(ticket.id)) settled = true;
+    }
+    if (settled) load().then(apply, () => {});
+  }, [enabled, tickets, load, apply]);
+
   const remember = useCallback(
     async (contact: string, firstName?: string) => {
       const response = await fetch("/api/fidelite", {
@@ -161,8 +190,9 @@ export function LoyaltyMemberProvider({
         sessionStorage.setItem(greetedKey(slug), "1");
       } catch {}
       setMember(remembered);
-      // Un autre contact, un autre tour du jour : relu avec la carte.
+      // Un autre contact, un autre tour du jour, d'autres bons : relus avec la carte.
       setWheelDay(null);
+      setVouchers([]);
       load().then(apply, () => {});
     },
     [slug, load, apply]
@@ -181,12 +211,13 @@ export function LoyaltyMemberProvider({
   const forget = useCallback(async () => {
     setMember(null);
     setWheelDay(null);
+    setVouchers([]);
     await fetch("/api/fidelite", { method: "DELETE" });
   }, []);
 
   // Le tirage se fait au serveur, qui crédite la carte : le solde et le tour
-  // du jour se mettent à jour ici, sans relire la carte.
-  const spin = useCallback(async () => {
+  // du jour se mettent à jour ici ; un bon gagné se relit avec la carte.
+  const spin = useCallback(async (): Promise<WheelWin> => {
     const response = await fetch("/api/fidelite/roue", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -194,19 +225,23 @@ export function LoyaltyMemberProvider({
     });
     const body = await response.json();
     if (!response.ok) throw new Error(body.error ?? "Tour refusé.");
-    const { slice, points, streak } = body as { slice: number; points: number; streak: number };
-    setWheelDay({ played: true, streak });
+    const { slice, points, spins, voucher } = body as {
+      slice: number;
+      points: number;
+      spins: number;
+      voucher: WheelWin["voucher"];
+    };
+    setWheelDay({ ready: false, played: true, spins });
     setMember((current) =>
       current && current.points !== null ? { ...current, points: current.points + points } : current
     );
-    return { index: slice, points };
-  }, [slug]);
+    if (voucher) load().then(apply, () => {});
+    return { index: slice, points, voucher };
+  }, [slug, load, apply]);
 
   const wheel = useMemo(
     () =>
-      wheelConfig && wheelDay && member
-        ? { ...wheelConfig, ready: !wheelDay.played, streak: wheelDay.streak, spin }
-        : null,
+      wheelConfig && wheelDay && member ? { ...wheelConfig, ...wheelDay, spin } : null,
     [wheelConfig, wheelDay, member, spin]
   );
 
@@ -222,9 +257,10 @@ export function LoyaltyMemberProvider({
             loadHistory,
             balance: fetchLoyaltyBalance,
             wheel,
+            vouchers,
           }
         : DISABLED,
-    [enabled, member, refresh, remember, forget, loadHistory, wheel]
+    [enabled, member, refresh, remember, forget, loadHistory, wheel, vouchers]
   );
 
   return (

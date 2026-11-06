@@ -6,6 +6,8 @@ import {
   LOYALTY_DEVICE_MAX_AGE,
   type LoyaltyHistoryEntry,
   type LoyaltyMember,
+  type LoyaltyVoucher,
+  type WheelDay,
 } from "@/lib/menu/loyalty";
 import { deviceFingerprint as fingerprint } from "@/lib/menu/loyalty-device";
 import { getRestaurant } from "@/lib/menu-data";
@@ -20,7 +22,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * GET ?slug=   le client de ce téléphone, vu de ce restaurant (member: null sinon) ;
  *              avec &historique, les lignes de sa carte (history) ; chez une
- *              maison à roue (registre), où en est son tour du jour (wheel)
+ *              maison à roue (registre), où en est son tour du jour (wheel) et
+ *              les bons qu'il y a gagnés (vouchers)
  * POST         retenir ce téléphone pour { slug, contact, firstName? }
  * DELETE       « Ce n'est pas moi » : oublier ce téléphone
  */
@@ -64,20 +67,30 @@ async function readMember(
 
 /**
  * Le tour du jour de ce téléphone, chez une maison qui a une roue : null
- * sans roue, ou sans tour possible (pas de carte ici, ou pas encore de
- * commande réglée). Une erreur ne coûte que la roue, pas l'accueil.
+ * sans roue, ou sans carte ici. Une erreur ne coûte que la roue, pas l'accueil.
  */
-async function readWheel(
-  slug: string,
-  token: string
-): Promise<{ played: boolean; streak: number } | null> {
-  if (!getRestaurant(slug)?.loyaltyWheel) return null;
+async function readWheel(slug: string, token: string): Promise<WheelDay | null> {
+  const wheel = getRestaurant(slug)?.loyaltyWheel;
+  if (!wheel) return null;
   const { data, error } = await createAdminClient().rpc("loyalty_wheel_state", {
     p_slug: slug,
     p_token_hash: fingerprint(token),
+    p_min_order: wheel.minOrder,
   });
   const row = data?.[0];
-  return error || !row ? null : { played: row.played_today, streak: row.streak };
+  return error || !row ? null : { ready: row.ready, played: row.played_today, spins: row.spins };
+}
+
+/** Les bons à utiliser, chez une maison à roue ; une erreur ne coûte que les bons. */
+async function readVouchers(slug: string, token: string): Promise<LoyaltyVoucher[]> {
+  if (!getRestaurant(slug)?.loyaltyWheel) return [];
+  const { data, error } = await createAdminClient().rpc("loyalty_device_vouchers", {
+    p_slug: slug,
+    p_token_hash: fingerprint(token),
+  });
+  return error
+    ? []
+    : data.map((row) => ({ id: row.id, rewardId: row.reward_id, label: row.label, expiresAt: row.expires_at }));
 }
 
 async function readHistory(
@@ -102,13 +115,14 @@ export async function GET(request: Request) {
   const params = new URL(request.url).searchParams;
   const slug = params.get("slug");
   const token = (await cookies()).get(LOYALTY_DEVICE_COOKIE)?.value;
-  if (!slug || !token) return NextResponse.json({ member: null, history: [], wheel: null });
-  const [member, history, wheel] = await Promise.all([
+  if (!slug || !token) return NextResponse.json({ member: null, history: [], wheel: null, vouchers: [] });
+  const [member, history, wheel, vouchers] = await Promise.all([
     readMember(slug, token),
     params.has("historique") ? readHistory(slug, token) : [],
     readWheel(slug, token),
+    readVouchers(slug, token),
   ]);
-  const response = NextResponse.json({ member, history, wheel });
+  const response = NextResponse.json({ member, history, wheel, vouchers });
   return member ? withDeviceCookie(response, request, token) : response;
 }
 

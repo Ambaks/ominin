@@ -35,9 +35,9 @@ export function LineLabel({
         {quantity}×
       </span>{" "}
       {line.name}
-      {line.loyaltyPoints && (
+      {line.loyaltyPoints !== undefined && (
         <span className={`ml-1.5 whitespace-nowrap rounded-full border border-hairline px-1.5 py-px text-g-axis font-semibold ${EMBER_INK}`}>
-          Offert · {line.loyaltyPoints * quantity} pts
+          Offert · {line.loyaltyPoints ? `${line.loyaltyPoints * quantity} pts` : "bon de la roue"}
         </span>
       )}
     </span>

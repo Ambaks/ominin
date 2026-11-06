@@ -64,9 +64,10 @@ export interface CartLine {
   noticeHours?: number;
   /**
    * Ligne offerte par un palier de fidélité : l'article se paie en points
-   * (par unité), ses suppléments restent en euros dans unitPrice.
+   * (par unité), ses suppléments restent en euros dans unitPrice. Avec
+   * `voucher`, un bon de la roue l'offre : zéro point, une seule unité.
    */
-  reward?: { id: string; points: number };
+  reward?: { id: string; points: number; voucher?: string };
   /**
    * Ligne formule : itemId porte alors l'identifiant de la formule. `items`,
    * les plats de la carte derrière les choix : une fermeture les vise.
@@ -118,8 +119,9 @@ function readSavedCart(key: string): CartLine[] {
   }
 }
 
-function capped(line: { stock?: number | null }, quantity: number): number {
-  return line.stock == null ? quantity : Math.min(quantity, line.stock);
+function capped(line: Pick<CartLine, "stock" | "reward">, quantity: number): number {
+  const most = line.reward?.voucher ? 1 : line.stock;
+  return most == null ? quantity : Math.min(quantity, most);
 }
 
 export interface CartConfig {

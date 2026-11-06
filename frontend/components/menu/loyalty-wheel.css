@@ -87,7 +87,8 @@
   Rosemarie : le bleu marine des traits de l'affiche pour le tapis, ses
   aplats pour les parts (jaune, orange, rouge, blanc), un cadre jaune. La
   part gagnante redessinée seule (.wheel-lit) garde sa couleur : d'où
-  data-slice plutôt que :nth-of-type. Jour de roue dorée : les parts
+  data-tone (les trois aplats tournent de case en case) plutôt que
+  :nth-of-type. Jour de roue dorée : les parts
   colorées passent au tapis, leurs points à l'or.
 */
 .theme-rosemarie .wheel-stage {
@@ -95,19 +96,19 @@
   --felt-2: color-mix(in srgb, var(--rm-navy-deep) 70%, #000);
   --felt-golden-slice: var(--rm-navy-deep);
 }
-.theme-rosemarie .wheel-slice-a[data-slice="0"] path {
+.theme-rosemarie .wheel-slice-a[data-tone="0"] path {
   fill: var(--rm-yellow);
 }
-.theme-rosemarie .wheel-slice-a[data-slice="2"] path {
+.theme-rosemarie .wheel-slice-a[data-tone="2"] path {
   fill: var(--rm-sun);
 }
-.theme-rosemarie .wheel-slice-a[data-slice="4"] path {
+.theme-rosemarie .wheel-slice-a[data-tone="4"] path {
   fill: var(--rm-poppy);
 }
-.theme-rosemarie .wheel-slice-a:is([data-slice="0"], [data-slice="2"]) text {
+.theme-rosemarie .wheel-slice-a:is([data-tone="0"], [data-tone="2"]) text {
   fill: var(--rm-navy-deep);
 }
-.theme-rosemarie .wheel-slice-a[data-slice="4"] text {
+.theme-rosemarie .wheel-slice-a[data-tone="4"] text {
   fill: #fff;
 }
 .theme-rosemarie .wheel-stage[data-golden] .wheel-slice-a text {
@@ -295,6 +296,13 @@
 }
 .wheel-slice-gold text {
   fill: #3b2a08;
+}
+/* Un lot en nature : le rouge du tapis de jeu, à part des points. */
+.wheel-slice-voucher path {
+  fill: var(--ruby);
+}
+.wheel-slice-voucher text {
+  fill: var(--ivory);
 }
 /* Roue dorée : l'or sur le noir. */
 .wheel-stage[data-golden] .wheel-slice-a path {
@@ -633,6 +641,13 @@
 .wheel-tomorrow {
   background: rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(246, 221, 138, 0.35);
+}
+/* Le règlement couvre la table, sur le même tapis assombri. */
+.wheel-rules {
+  background: var(--felt-dim);
+}
+.wheel-rules-row + .wheel-rules-row {
+  border-top: 1px solid rgba(246, 221, 138, 0.18);
 }
 .wheel-countdown {
   color: var(--gold-1);

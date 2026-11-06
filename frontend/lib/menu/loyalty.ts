@@ -80,20 +80,46 @@ export interface LoyaltyHistoryEntry {
   rewards: string | null;
 }
 
-/** Une part de la roue : ses points, et son poids au tirage. */
+/**
+ * Une part de la roue : ses points, et son poids au tirage. Avec `voucher`,
+ * un lot en nature : un bon pour le palier de fidélité à `points` points de
+ * la maison (son nom court sur la roue, `label`), valable `days` jours ; une
+ * maison sans palier à ce prix crédite les points.
+ */
 export interface WheelSlice {
   points: number;
   weight: number;
+  voucher?: { label: string; days: number };
+}
+
+/** Un bon gagné à la roue, à utiliser avec une commande (loyalty_vouchers). */
+export interface LoyaltyVoucher {
+  id: string;
+  /** Le palier qu'il offre, sans points. */
+  rewardId: string;
+  label: string;
+  expiresAt: string;
 }
 
 /**
- * La roue d'une maison : un tour par jour à un téléphone reconnu. Une série
- * de jours d'affilée mène à la roue dorée (`golden.every`-ième jour), dont
- * les points sont multipliés.
+ * La roue d'une maison : un tour par jour à un téléphone reconnu, gagné par
+ * une commande réglée le jour même. Le `golden.every`-ième tour de la carte,
+ * puis tous les `golden.every`, est la roue dorée : ses points sont multipliés.
  */
 export interface LoyaltyWheelConfig {
   slices: WheelSlice[];
+  /** Marchandise payée (€, hors pourboire et articles offerts) qui ouvre le tour. */
+  minOrder: number;
   golden?: { every: number; multiplier: number };
+}
+
+/** Le tour du jour d'une carte, vu du serveur (loyalty_wheel_state). */
+export interface WheelDay {
+  /** Une commande réglée aujourd'hui l'a ouvert, il reste à jouer. */
+  ready: boolean;
+  played: boolean;
+  /** Tours joués par la carte, toutes visites comprises. */
+  spins: number;
 }
 
 /** Indice de la part tirée, au prorata des poids. */

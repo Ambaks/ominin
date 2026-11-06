@@ -47,11 +47,11 @@ const LoyaltyWheel = dynamic(
  * replie en pastille de points dans le coin. La pastille reste : elle ouvre
  * « Ma carte » (loyalty-card-sheet). Un rechargement pendant le repas ne
  * rejoue pas l'accueil (sessionStorage), la pastille suffit. Quand la maison
- * a une roue et que le tour du jour reste à jouer, la roue (loyalty-wheel)
- * monte d'elle-même une seconde après l'ouverture de la page, une fois par
- * onglet ; l'accueil vient après elle, solde à jour. Tant que le tour reste
- * à jouer, l'accueil et la pastille l'annoncent et l'ouvrent ; « Ma carte »
- * une fois le tour joué.
+ * a une roue et qu'une commande réglée a ouvert le tour du jour, la roue
+ * (loyalty-wheel) monte d'elle-même : une seconde après l'ouverture de la
+ * page, une fois par onglet, l'accueil venant après elle, solde à jour ; ou
+ * dès que la commande de la visite se règle. Tant que le tour reste à jouer,
+ * l'accueil et la pastille l'annoncent et l'ouvrent ; « Ma carte » sinon.
  */
 
 type Phase = "greeting" | "folding" | "pill";
@@ -155,12 +155,15 @@ function Progress({ program, points }: { program: LoyaltyProgram; points: number
 
 export function LoyaltyWelcome({
   brand,
+  address,
   logo,
   icon,
   wordmark,
   motif,
 }: {
   brand: string;
+  /** L'organisateur de la roue, dans son règlement. */
+  address: string;
   logo?: string;
   icon?: string;
   wordmark?: boolean;
@@ -191,6 +194,21 @@ export function LoyaltyWelcome({
   const [wheelFirst, setWheelFirst] = useState<boolean | null>(null);
   const [wheelShown, setWheelShown] = useState(false);
   const [wheelDone, setWheelDone] = useState(false);
+  // Une commande réglée pendant la visite ouvre le tour du jour : la roue
+  // monte d'elle-même, une fois refermées les feuilles du paiement et du ticket.
+  const noSheet = useNoSheet();
+  const [readyBefore, setReadyBefore] = useState(spinReady);
+  const [earned, setEarned] = useState(false);
+  if (spinReady !== readyBefore) {
+    setReadyBefore(spinReady);
+    // Rouvert pendant que la roue est montée (« rejouer » de l'aperçu) : elle est déjà là.
+    setEarned(spinReady && wheelFirst !== null && !wheelOpen);
+  }
+  // Ouverte entre-temps à la main (la pastille) : le tour est vu, rien à rouvrir.
+  if (earned && (wheelOpen || noSheet)) {
+    setEarned(false);
+    if (!wheelOpen) setWheelOpen(true);
+  }
   const phase: Phase | null =
     !known || (wheel !== null && wheelFirst === null) || (wheelFirst && !wheelDone)
       ? null
@@ -354,6 +372,8 @@ export function LoyaltyWelcome({
 
       {wheelOpen && (
         <LoyaltyWheel
+          brand={brand}
+          address={address}
           icon={icon}
           logo={logo}
           motif={motif}

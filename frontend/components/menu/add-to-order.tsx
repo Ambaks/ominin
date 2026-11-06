@@ -12,7 +12,7 @@ import {
   type ReactNode,
   type SetStateAction,
 } from "react";
-import { cartLineKey, plainLine, useCart, type CartChoice } from "@/lib/menu/cart";
+import { cartLineKey, plainLine, useCart, type CartChoice, type CartLine } from "@/lib/menu/cart";
 import {
   addVerb,
   formatPrice,
@@ -482,7 +482,8 @@ export function AddToOrder({ item, format }: { item: MenuItem; format?: string }
 
 /**
  * Feuille des options d'un article. Avec `reward`, l'article est offert par
- * un palier de fidélité : il se paie en points, ses suppléments en euros.
+ * un palier de fidélité : il se paie en points (rien avec un bon de la roue),
+ * ses suppléments en euros.
  */
 export function OptionsModal({
   item,
@@ -492,7 +493,7 @@ export function OptionsModal({
   onAdded,
 }: {
   item: MenuItem;
-  reward?: { id: string; points: number };
+  reward?: NonNullable<CartLine["reward"]>;
   /** Un choix du groupe des formats, coché d'avance. */
   format?: string;
   onClose: () => void;
@@ -619,7 +620,7 @@ export function OptionsModal({
   // pas encore choisi : le prix est celui du plus petit, comme sur la fiche.
   const fromPrice = shown.some((group) => group.formats && chosen(group.id).length === 0);
   const priceLabel = reward
-    ? `${reward.points}\u00a0pts${unitPrice > 0 ? ` + ${formatPrice(unitPrice)}` : ""}`
+    ? `${reward.voucher ? "Bon de la roue" : `${reward.points}\u00a0pts`}${unitPrice > 0 ? ` + ${formatPrice(unitPrice)}` : ""}`
     : `${fromPrice ? "dès\u00a0" : ""}${formatPrice(unitPrice)}`;
 
   // Le bouton dit ce qui part avec le plat : ses accords cochés compris.
@@ -680,7 +681,7 @@ export function OptionsModal({
       }
     }
     addLine({
-      key: cartLineKey(item.id, choices, reward?.id),
+      key: cartLineKey(item.id, choices, reward?.voucher ?? reward?.id),
       itemId: item.id,
       name: lineName(item),
       detail: item.detail,
