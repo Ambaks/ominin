@@ -1,0 +1,219 @@
+/*
+  Propre à la landing Menu (la scène du hero et la rangée viennent de
+  portal.css) : l'écran collé du parcours des piliers, centré dans la
+  hauteur libre sous la rangée et dimensionné pour y tenir, la barre calme
+  du graphique d'attente, et le fil de l'accompagnement.
+*/
+.menu-landing {
+  --menu-row-top: calc(var(--g-frame-margin) * 2 + var(--g-topbar-h));
+  --menu-row-h: 5.5rem;
+  --menu-stage-top: calc(var(--menu-row-top) + var(--menu-row-h));
+  --menu-step-dot: 2.75rem;
+  /* Hauteur d’une ligne du flux de paiements de la scène terminal. */
+  --menu-feed-row: 1.75rem;
+}
+.menu-pillar {
+  scroll-margin-top: 5rem;
+}
+@media (min-width: 1024px) {
+  .menu-pillar {
+    scroll-margin-top: var(--menu-stage-top);
+  }
+  .menu-story-stage {
+    position: sticky;
+    top: var(--menu-stage-top);
+    display: flex;
+    height: calc(100svh - var(--menu-stage-top));
+    flex-direction: column;
+    justify-content: center;
+  }
+  .g-glass.menu-story-phone {
+    width: min(16rem, calc((100svh - var(--menu-stage-top) - 6rem) * 390 / 844));
+  }
+}
+/* Appel final : la braise en lumière derrière le titre, pas en aplat. */
+.menu-cta-bloom {
+  background:
+    radial-gradient(60% 80% at 0% 0%, color-mix(in oklab, var(--ember-2) 16%, transparent), transparent 70%),
+    radial-gradient(45% 60% at 100% 100%, color-mix(in oklab, var(--ember-1) 10%, transparent), transparent 70%);
+}
+.menu-bar-calm {
+  background: color-mix(in oklab, var(--ember-2) 40%, var(--surface-raised));
+}
+/* Scène Stripe : le bouton s'enfonce puis passe à « Payée » juste avant que
+   le ticket ne sorte (.ticket-feed part à 13 % de --install-cycle). */
+.menu-pay-press {
+  animation: menu-pay-press var(--install-cycle) ease-in-out infinite;
+}
+@keyframes menu-pay-press {
+  0%,
+  4%,
+  10%,
+  100% {
+    transform: none;
+  }
+  7% {
+    transform: scale(0.92);
+  }
+}
+.menu-pay-done {
+  animation: menu-pay-done var(--install-cycle) linear infinite;
+}
+@keyframes menu-pay-done {
+  0%,
+  8% {
+    opacity: 0;
+  }
+  11%,
+  92% {
+    opacity: 1;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+/* Scène terminal : la carte se pose (14–27 %), l'écran bascule d'un coup sur
+   « Approuvé » à 22 %, le paiement entre en tête du flux et la barre du jour
+   monte (30–40 %), puis tout repart en fin de boucle. */
+.menu-card-tap {
+  animation: menu-card-tap var(--install-cycle) ease-in-out infinite;
+}
+@keyframes menu-card-tap {
+  0%,
+  8% {
+    opacity: 0;
+    transform: translate(3rem, -2rem) rotate(14deg);
+  }
+  14% {
+    opacity: 1;
+    transform: translate(1.25rem, -0.25rem) rotate(8deg);
+  }
+  20%,
+  27% {
+    opacity: 1;
+    transform: translate(0, 3rem) rotate(0deg);
+  }
+  36%,
+  100% {
+    opacity: 0;
+    transform: translate(-1.75rem, -2rem) rotate(-8deg);
+  }
+}
+.menu-term-idle {
+  animation: menu-term-idle var(--install-cycle) linear infinite;
+}
+@keyframes menu-term-idle {
+  0%,
+  21.9% {
+    opacity: 1;
+  }
+  22%,
+  94% {
+    opacity: 0;
+  }
+  96%,
+  100% {
+    opacity: 1;
+  }
+}
+.menu-term-ok {
+  animation: menu-term-ok var(--install-cycle) linear infinite;
+}
+@keyframes menu-term-ok {
+  0%,
+  22% {
+    opacity: 0;
+  }
+  23.5%,
+  94% {
+    opacity: 1;
+  }
+  96%,
+  100% {
+    opacity: 0;
+  }
+}
+/* La ligne « en attente » du flux cède la place au paiement approuvé. */
+.menu-term-wait {
+  animation: menu-term-wait var(--install-cycle) linear infinite;
+}
+@keyframes menu-term-wait {
+  0%,
+  30% {
+    opacity: 1;
+  }
+  32%,
+  94% {
+    opacity: 0;
+  }
+  97%,
+  100% {
+    opacity: 1;
+  }
+}
+.menu-term-row {
+  animation: menu-term-row var(--install-cycle) cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes menu-term-row {
+  0%,
+  30% {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.97);
+  }
+  35%,
+  94% {
+    opacity: 1;
+    transform: none;
+    /* Retour linéaire, au même pas que la ligne « en attente » qui revient. */
+    animation-timing-function: linear;
+  }
+  97%,
+  100% {
+    opacity: 0;
+  }
+}
+.menu-bar-grow {
+  transform-origin: bottom;
+  animation: menu-bar-grow var(--install-cycle) cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+@keyframes menu-bar-grow {
+  0%,
+  30% {
+    transform: scaleY(0.35);
+  }
+  40%,
+  94% {
+    transform: none;
+  }
+  100% {
+    transform: scaleY(0.35);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .menu-pay-press,
+  .menu-pay-done,
+  .menu-term-ok,
+  .menu-term-row,
+  .menu-bar-grow {
+    animation: none;
+  }
+  .menu-term-idle,
+  .menu-term-wait {
+    animation: none;
+    opacity: 0;
+  }
+  .menu-card-tap {
+    display: none;
+  }
+}
+
+.menu-timeline > li:not(:last-child)::before {
+  content: "";
+  position: absolute;
+  top: var(--menu-step-dot);
+  bottom: -0.75rem;
+  left: calc(var(--menu-step-dot) / 2 - 0.5px);
+  width: 1px;
+  background: var(--hairline);
+}

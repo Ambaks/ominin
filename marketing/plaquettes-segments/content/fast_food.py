@@ -6,7 +6,7 @@ CONTENT = {
     "cover": {
         "lead": "Le système tout-en-un pour les fast-foods : des clients plus satisfaits, moins de coûts et plus de ventes.",
         "pillars": [
-            ("Des clients plus satisfaits", "Ils commandent et paient sur leur téléphone, puis suivent leur numéro en direct jusqu’à « C’est prêt »."),
+            ("Des clients plus satisfaits", "Ils commandent et paient sur leur téléphone, l’IA leur annonce l’heure de retrait, et leur numéro se suit en direct jusqu’à « C’est prêt »."),
             ("Des coûts d’exploitation réduits", "La commande payée part toute seule en cuisine. Moins de prise de commande et moins d’encaissement au comptoir."),
             ("Plus de ventes", "Commander ne dépend plus de la file devant la caisse. Vos menus et options à chaque commande, et une fidélité qui fait revenir."),
             ANALYSE,
@@ -19,7 +19,7 @@ CONTENT = {
         "title": "Votre comptoir, sur chaque téléphone.",
         "lead": "Les écrans de ces pages viennent d’une carte de démonstration. Votre version reprend votre logo, vos couleurs, vos menus et vos photos.",
         "rows": [
-            dict(image_first=True, screens=["prete", "compose"], kicker="Clients plus satisfaits : le ticket en direct", title="Un numéro, et plus besoin d’attendre debout.", text="Sans appli et sans compte. Le client scanne un QR, compose son menu et paie. Il reçoit un numéro du jour, et son téléphone suit la commande jusqu’à « C’est prêt ».", points=["Commandée, en cuisine, prête : le ticket change tout seul, en direct.", "Il choisit : payer en ligne, ou payer au comptoir avant le départ en cuisine.", "Un produit épuisé disparaît d’un geste de la carte."]),
+            dict(image_first=True, screens=["eta", "prete"], kicker="Clients plus satisfaits : le ticket en direct", title="Un numéro, une heure prévue, plus d’attente debout.", text="Sans appli et sans compte. Le client scanne un QR, compose son menu et paie. Il reçoit un numéro du jour et l’heure de retrait estimée par l’IA, puis son téléphone suit la commande jusqu’à « C’est prêt ».", points=["L’heure de retrait estimée par l’IA, d’après le rythme de votre cuisine.", "Commandée, en cuisine, prête : le ticket change tout seul, en direct.", "Il choisit : payer en ligne, ou payer au comptoir avant le départ en cuisine."]),
             dict(image_first=False, screens=["g-comptoir"], kicker="Réduisez vos dépenses : le comptoir", title="Prête ? Un appui. Remise ? Un appui.", text="Sur une tablette, l’équipe voit les numéros à préparer et à remettre. Le ticket sort en cuisine avec le numéro en grand, sur vos imprimantes.", points=["Marquer prête prévient le client sur son téléphone.", "Une numérotation qui repart chaque jour, à l’heure que vous réglez.", "Une vue pour le gérant, le comptoir et la cuisine."]),
         ],
         "note": "Écrans réels du produit. Dans l’espace de gestion, les chiffres sont fictifs.",
@@ -94,7 +94,7 @@ CONTENT = {
             ("Mise en place", "<b>Comprise</b>", "Tabesto : environ 780 € par établissement"),
             ("Sur le paiement", "<b>3 %</b> des commandes payées en ligne, frais de carte en sus", "Tabesto : à partir de 0,70 %"),
             ("Où on commande", "<b>Partout</b>, sur son téléphone", "Devant la borne"),
-            ("Le suivi du client", "<b>Son numéro en direct</b> sur son téléphone", "Écran d’appel hors de la liste du pack 6XPOS"),
+            ("Le suivi du client", "<b>Son numéro et l’heure estimée par l’IA</b>, en direct sur son téléphone", "Écran d’appel hors de la liste du pack 6XPOS"),
             ("L’écran cuisine", "Pas d’écran dédié : <b>tickets imprimés</b> et tablette", "Compris dans le pack 6XPOS, dès 155 € par mois"),
         ],
         "claim": dict(title="Commandez comme un client.", text="Ne nous croyez pas sur parole. Scannez, composez un menu, et suivez votre numéro. Rien n’est encaissé.", url="menu.ominin.com/demo/o-crousti-poulet", qr="qr-demo"),
