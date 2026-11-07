@@ -101,9 +101,9 @@ export function CategoryLayoutSettings({ initialLayout }: { initialLayout: Categ
   };
 
   return (
-    <section className="g-plate flex max-w-xl flex-col gap-5 p-5">
+    <section className="g-plate flex flex-col gap-5 p-5">
       <div>
-        <h2 className="font-display text-g-h2">Catégories du menu</h2>
+        <h3 className="text-g-body font-semibold">Catégories du menu</h3>
         <p className="mt-1 text-g-meta text-muted">
           Comment vos clients passent d&rsquo;une catégorie à l&rsquo;autre sur le
           menu en ligne. Le menu suit votre choix en une minute.

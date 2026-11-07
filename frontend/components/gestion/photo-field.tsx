@@ -12,11 +12,14 @@ export function PhotoField({
   onChange,
   alt,
   label = "Photo",
+  error,
 }: {
   value: string;
   onChange: (url: string) => void;
   alt: string;
   label?: string;
+  /** Ce qui manque, à la place de l'indication. */
+  error?: string;
 }) {
   const toast = useToast();
   const [uploading, setUploading] = useState(false);
@@ -37,7 +40,7 @@ export function PhotoField({
   };
 
   return (
-    <Field label={label} hint="Depuis votre téléphone (compressée automatiquement), ou l'adresse d'une image">
+    <Field label={label} hint="Depuis votre téléphone (compressée automatiquement), ou l'adresse d'une image" error={error}>
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2">
           {/* Un label habillé en commande : le sélecteur de fichier reste natif. */}

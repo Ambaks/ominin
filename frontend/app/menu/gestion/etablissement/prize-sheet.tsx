@@ -154,14 +154,12 @@ export function PrizeSheet({
                 className="w-32"
               />
             </Field>
-            <div className="flex flex-col gap-1">
-              <PhotoField value={image} onChange={setImage} alt={label || "Lot de la roue"} />
-              {submitted && errors.image && (
-                <p role="alert" className="text-g-meta font-medium">
-                  {errors.image}
-                </p>
-              )}
-            </div>
+            <PhotoField
+              value={image}
+              onChange={setImage}
+              alt={label || "Lot de la roue"}
+              error={submitted ? errors.image : undefined}
+            />
           </>
         )}
 

@@ -99,7 +99,6 @@ export function WheelSettings({
   }, []);
 
   const load = useCallback(() => {
-    setLoadError(null);
     Promise.all([loadWheel(etablissementId), loadLoyalty(etablissementId), loadWheelStats(etablissementId)]).then(
       ([wheel, program, results]) => {
         fill(wheel);
@@ -117,7 +116,16 @@ export function WheelSettings({
     [categories]
   );
 
-  if (loadError) return <ErrorNotice error={loadError} onRetry={load} />;
+  if (loadError)
+    return (
+      <ErrorNotice
+        error={loadError}
+        onRetry={() => {
+          setLoadError(null);
+          load();
+        }}
+      />
+    );
   if (!saved || !loyalty) return <Shimmer className="h-96" />;
 
   const budget = amount(budgetRaw);
@@ -301,8 +309,8 @@ export function WheelSettings({
                 value={`≈ ${average(pointsPerSpin)}`}
                 baseline={
                   loyalty.pointsPerEuro > 0
-                    ? `Les autres tours, comme ${formatPrice(pointsPerSpin / loyalty.pointsPerEuro)} de commande`
-                    : "Les autres tours, de +2 à +50"
+                    ? `Sur les autres tours : ce que rapportent ${formatPrice(pointsPerSpin / loyalty.pointsPerEuro)} de commande`
+                    : "Sur les autres tours, de +2 à +50"
                 }
               />
             </div>
