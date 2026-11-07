@@ -86,9 +86,9 @@ const phone = (name: string, alt: string): Shot => ({ src: `/menu-landing/${name
 const tablet = (name: string, alt: string): Shot => ({ src: `/menu-landing/${name}.webp`, alt, screen: "tablet" });
 
 export const seo = {
-  title: "Ominin Menu — commande et paiement à table, fidélité et analyses pour restaurants",
+  title: "Menu digital QR code pour restaurants — commande et paiement à table | Ominin",
   description:
-    "La carte QR à vos couleurs, la commande et le paiement à table, la fidélité, les recommandations et vos chiffres analysés. 0 € par mois, " +
+    "Le menu digital QR code à vos couleurs : commande et paiement à table, fidélité, recommandations et vos chiffres analysés. 0 € par mois, " +
     `${commission} sur les commandes payées en ligne, et une équipe avec vous du premier service au rapport du mois.`,
 };
 
@@ -106,9 +106,10 @@ export const nav = {
 };
 
 export const hero = {
+  kicker: "Menu digital QR code pour restaurants",
   lines: [{ text: "Votre restaurant," }, { text: "sur chaque téléphone.", mark: true }],
   body:
-    "Le système tout-en-un pour les restaurants : des clients plus satisfaits, moins de coûts et plus de ventes. " +
+    "Le menu digital QR code tout-en-un pour les restaurants : des clients plus satisfaits, moins de coûts et plus de ventes. " +
     "On monte tout, on forme votre équipe, et on reste avec vous chaque mois.",
   primaryCta: composerCta,
   secondaryCta: { label: "Voir la démo", href: demoPath } satisfies Cta,

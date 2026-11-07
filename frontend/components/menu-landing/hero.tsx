@@ -89,6 +89,10 @@ export function MenuHero() {
       <div className="relative mx-auto w-full max-w-6xl px-4 pb-10 pt-10 sm:px-6 sm:pt-14 lg:px-10 lg:pb-16 lg:pt-14">
         <div className="mx-auto flex max-w-5xl flex-col items-center text-center">
           <h1 className="kit-display text-balance text-[clamp(2.4rem,10vw,4.6rem)] lg:text-[clamp(3.2rem,5vw,5.2rem)]">
+            <span className="kit-rise mb-5 flex items-center justify-center gap-2 text-[11px] font-semibold uppercase leading-snug tracking-[0.2em] text-ember-1 sm:tracking-[0.3em]">
+              <span aria-hidden className="ember-gradient size-1.5 rounded-full" />
+              {hero.kicker}
+            </span>
             {hero.lines.map((line, i) => (
               <span
                 key={line.text}
