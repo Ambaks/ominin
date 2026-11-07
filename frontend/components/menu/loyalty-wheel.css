@@ -304,6 +304,12 @@
 .wheel-slice-voucher text {
   fill: var(--ivory);
 }
+/* La photo d'un lot, cerclée d'or comme un jeton. */
+.wheel-photo-ring {
+  fill: none;
+  stroke: var(--gold-1);
+  stroke-width: 1.2;
+}
 /* Roue dorée : l'or sur le noir. */
 .wheel-stage[data-golden] .wheel-slice-a path {
   fill: var(--felt-golden-slice);
