@@ -931,9 +931,14 @@ html:has(.theme-l-etoile)::-webkit-scrollbar {
 }
 
 .et-credit {
-  margin: 28px 0 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  margin: 16px 0 0;
   font-size: 11px;
   color: rgba(244, 245, 247, 0.6);
+  text-decoration: none;
 }
 
 /* ---------- Barre de commande : le trou noir à son bord ---------- */

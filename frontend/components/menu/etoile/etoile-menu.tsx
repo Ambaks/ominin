@@ -8,6 +8,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Image from "next/image";
 import { OptionsModal } from "@/components/menu/add-to-order";
 import { useNoSheet } from "@/components/menu/sheet";
 import { cartLineKey, useCart } from "@/lib/menu/cart";
@@ -18,6 +19,7 @@ import {
   type MenuItem,
   type Restaurant,
 } from "@/lib/menu-data";
+import { menuPrintUrl } from "@/lib/site";
 import type { BlackHole } from "./black-hole";
 import { EtoileMark } from "./logo";
 import type { Sky } from "./sky";
@@ -676,7 +678,10 @@ export function EtoileMenu({ restaurant }: { restaurant: Restaurant }) {
           <EtoileMark className="et-footer-mark" />
           <p className="et-footer-name">L&apos;Étoile</p>
           <p>Club &amp; Rooftop</p>
-          <p className="et-credit">Carte Ominin</p>
+          <a className="et-credit" href={menuPrintUrl} target="_blank" rel="noopener">
+            <Image src="/logo.png" alt="" width={14} height={14} />
+            Carte Ominin
+          </a>
         </footer>
 
         {optionsItem && (

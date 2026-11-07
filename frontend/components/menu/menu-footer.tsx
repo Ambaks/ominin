@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { PhoneIcon, PinIcon } from "@/components/menu/contact-icons";
 import { keepHyphenated } from "@/components/menu/keep-hyphenated";
@@ -11,6 +12,7 @@ import {
   mapsUrl,
   type Restaurant,
 } from "@/lib/menu-data";
+import { menuPrintUrl } from "@/lib/site";
 
 function StarIcon() {
   return (
@@ -155,9 +157,16 @@ export function MenuFooter({
           <p>Prix nets en euros, service compris.</p>
           {hasPhotos && <p>Photos non contractuelles.</p>}
           <p className="footer-signature mt-1 flex items-center justify-center gap-2">
-            <span>
-              Propulsé par <span className="ember-text font-semibold">Ominin</span>
-            </span>
+            <a
+              href={menuPrintUrl}
+              target="_blank"
+              rel="noopener"
+              className="inline-flex min-h-11 items-center gap-1.5"
+            >
+              Propulsé par
+              <Image src="/logo.png" alt="" width={16} height={16} />
+              <span className="ember-text font-semibold">Ominin</span>
+            </a>
             {themeToggle && <ThemeToggle className="sm:hidden" />}
           </p>
         </div>
