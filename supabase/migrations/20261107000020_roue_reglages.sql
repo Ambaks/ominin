@@ -57,11 +57,12 @@ create policy "gerant read" on public.loyalty_wheel_prizes
   using (public.current_member_role(etablissement_id) = 'gerant');
 
 -- La roue de Caffè Panis telle qu'elle tournait : commande de 5 €, roue
--- dorée au 5e tour, le café à 3 % (0,06 € de budget pour un café à 2 €).
+-- dorée au 5e tour, le café à 3 % (0,06 € de budget pour un café à 2 €),
+-- avec la photo de sa tasse (#602).
 insert into public.loyalty_wheels (etablissement_id, budget, min_order, golden_every, golden_multiplier)
 select id, 0.06, 5, 5, 2 from public.etablissements where slug = 'caffe-panis';
-insert into public.loyalty_wheel_prizes (etablissement_id, item_id, label, position)
-select i.etablissement_id, i.id, 'Café', 0
+insert into public.loyalty_wheel_prizes (etablissement_id, item_id, label, image, position)
+select i.etablissement_id, i.id, 'Café', '/caffe-panis/roue/cafe-illy.webp', 0
 from public.items i
 join public.loyalty_wheels w on w.etablissement_id = i.etablissement_id
 join public.etablissements e on e.id = i.etablissement_id

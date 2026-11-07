@@ -470,45 +470,42 @@ export function LoyaltyWheel({
     });
 
   // Le gain le long du rayon, du centre vers le bord, comme sur une roue de
-  // casino : une case étroite ne tient pas un chiffre posé à plat. Un lot
-  // porte sa photo au bord, la tête vers l'extérieur, et son nom dessous.
-  const renderSlice = (i: number, layer = "roue") => {
+  // casino : une case étroite ne tient pas un chiffre posé à plat. Un lot en
+  // photo la porte ronde au bord, sans son nom, debout quand sa case passe
+  // sous l'aiguille ; sans photo, son nom, à la taille de la case.
+  const renderSlice = (i: number) => {
     const { points, prize } = slices[i];
     const gilded = !prize && (points === top || (goldenTurn && i % 2 === 1));
     const tone = prize ? "wheel-slice-voucher" : gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`;
-    const clip = `${titleId}-${layer}-${i}`;
     const label = prize ? prize.label : `+${shown(points)}`;
     return (
       <g key={i} data-slice={i} data-tone={i % 6} className={`wheel-slice ${tone}`}>
         <path d={slicePath(i, step)} fill={gilded ? `url(#${titleId}-gold)` : undefined} />
         <g transform={`rotate(${i * step - 90})`}>
-          {prize?.image && (
-            <>
-              <clipPath id={clip}>
-                <circle cx="78" r="12" />
-              </clipPath>
+          {prize?.image ? (
+            <g transform="translate(79 0) rotate(90)">
               <image
                 href={prize.image}
-                x="66"
-                y="-12"
-                width="24"
-                height="24"
+                x="-11"
+                y="-11"
+                width="22"
+                height="22"
                 preserveAspectRatio="xMidYMid slice"
-                clipPath={`url(#${clip})`}
-                transform="rotate(90 78 0)"
+                clipPath={`url(#${titleId}-photo)`}
               />
-              <circle cx="78" r="12" className="wheel-lot-ring" />
-            </>
+              <circle r="11.6" className="wheel-photo-ring" />
+            </g>
+          ) : (
+            <text
+              x="86"
+              textAnchor="end"
+              dominantBaseline="central"
+              fontSize={fitText(label, 58)}
+              className="font-extrabold"
+            >
+              {label}
+            </text>
           )}
-          <text
-            x={prize?.image ? 62 : 86}
-            textAnchor="end"
-            dominantBaseline="central"
-            fontSize={fitText(label, prize?.image ? 36 : 58)}
-            className="font-extrabold"
-          >
-            {label}
-          </text>
         </g>
       </g>
     );
@@ -632,6 +629,9 @@ export function LoyaltyWheel({
                         <stop offset="0.45" stopColor="#ecc867" />
                         <stop offset="1" stopColor="#b8862b" />
                       </radialGradient>
+                      <clipPath id={`${titleId}-photo`} clipPathUnits="objectBoundingBox">
+                        <circle cx="0.5" cy="0.5" r="0.5" />
+                      </clipPath>
                     </defs>
                     {slices.map((_, i) => renderSlice(i))}
                     {slices.map((_, i) => {
@@ -649,7 +649,7 @@ export function LoyaltyWheel({
                       <span aria-hidden="true" className="wheel-dim absolute inset-[4.5%] rounded-full" />
                       <span aria-hidden="true" className="wheel-lit absolute inset-0">
                         <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
-                          {renderSlice(won.index, "gain")}
+                          {renderSlice(won.index)}
                         </svg>
                       </span>
                       <span aria-hidden="true" className="wheel-lit-outline absolute inset-0">

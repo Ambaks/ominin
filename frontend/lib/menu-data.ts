@@ -3541,6 +3541,12 @@ const roueDuJour: WheelSettings = {
   prizes: [{ label: "Café", price: 2 }],
 };
 
+/** Chez Caffè Panis, le café montre la tasse Illy de sa carte. */
+const roueCaffePanis: WheelSettings = {
+  ...roueDuJour,
+  prizes: roueDuJour.prizes.map((prize) => ({ ...prize, image: "/caffe-panis/roue/cafe-illy.webp" })),
+};
+
 /*
  * Le Novelty — 10 rue Saint-Guilhem. Toute la carte vient de leur site
  * (lenovelty-montpellier.fr, ouvert le 14 octobre 2026) : les onglets
@@ -6058,7 +6064,7 @@ const caffePanis: Restaurant = {
   pairings: caffePanisAccords,
   // Les fanions d'une terrasse italienne.
   loyaltyMotif: "fanions",
-  loyaltyWheel: roueDuJour,
+  loyaltyWheel: roueCaffePanis,
   demoHappyHour: {
     name: "Aperitivo Happy Hour",
     prices: { margherita: 7, "cafe-illy": 1.5, "coca-cola": 2 },
