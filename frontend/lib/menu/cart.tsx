@@ -63,11 +63,13 @@ export interface CartLine {
   /** Délai de commande du plat (heures) : repousse le premier retrait possible. */
   noticeHours?: number;
   /**
-   * Ligne offerte par un palier de fidélité : l'article se paie en points
-   * (par unité), ses suppléments restent en euros dans unitPrice. Avec
-   * `voucher`, un bon de la roue l'offre : zéro point, une seule unité.
+   * Ligne offerte par un palier de fidélité (`id`) : l'article se paie en
+   * points (par unité), ses suppléments restent en euros dans unitPrice.
+   * Avec `voucher`, un bon de la roue l'offre : zéro point, une seule unité.
    */
-  reward?: { id: string; points: number; voucher?: string };
+  reward?: { id?: string; points: number; voucher?: string };
+  /** Le lot hors carte d'un bon de la roue (reward.voucher) : pas d'article, l'équipe le remet. */
+  lot?: true;
   /**
    * Ligne formule : itemId porte alors l'identifiant de la formule. `items`,
    * les plats de la carte derrière les choix : une fermeture les vise.

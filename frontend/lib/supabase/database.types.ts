@@ -4166,7 +4166,9 @@ export type Database = {
           entry_id: string
           expires_at: string
           id: string
-          reward_id: string
+          image: string | null
+          item_id: string | null
+          label: string
           used_order_id: string | null
         }
         Insert: {
@@ -4175,7 +4177,9 @@ export type Database = {
           entry_id: string
           expires_at: string
           id?: string
-          reward_id: string
+          image?: string | null
+          item_id?: string | null
+          label: string
           used_order_id?: string | null
         }
         Update: {
@@ -4184,7 +4188,9 @@ export type Database = {
           entry_id?: string
           expires_at?: string
           id?: string
-          reward_id?: string
+          image?: string | null
+          item_id?: string | null
+          label?: string
           used_order_id?: string | null
         }
         Relationships: [
@@ -4203,10 +4209,10 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "loyalty_vouchers_reward_id_fkey"
-            columns: ["reward_id"]
+            foreignKeyName: "loyalty_vouchers_item_id_fkey"
+            columns: ["item_id"]
             isOneToOne: false
-            referencedRelation: "loyalty_rewards"
+            referencedRelation: "items"
             referencedColumns: ["id"]
           },
           {
@@ -4214,6 +4220,89 @@ export type Database = {
             columns: ["used_order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_wheel_prizes: {
+        Row: {
+          etablissement_id: string
+          id: string
+          image: string | null
+          item_id: string | null
+          label: string | null
+          position: number
+          price: number | null
+        }
+        Insert: {
+          etablissement_id: string
+          id?: string
+          image?: string | null
+          item_id?: string | null
+          label?: string | null
+          position: number
+          price?: number | null
+        }
+        Update: {
+          etablissement_id?: string
+          id?: string
+          image?: string | null
+          item_id?: string | null
+          label?: string | null
+          position?: number
+          price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_wheel_prizes_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: false
+            referencedRelation: "loyalty_wheels"
+            referencedColumns: ["etablissement_id"]
+          },
+          {
+            foreignKeyName: "loyalty_wheel_prizes_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      loyalty_wheels: {
+        Row: {
+          budget: number
+          enabled: boolean
+          etablissement_id: string
+          golden_every: number | null
+          golden_multiplier: number | null
+          min_order: number
+          updated_at: string
+        }
+        Insert: {
+          budget: number
+          enabled?: boolean
+          etablissement_id: string
+          golden_every?: number | null
+          golden_multiplier?: number | null
+          min_order: number
+          updated_at?: string
+        }
+        Update: {
+          budget?: number
+          enabled?: boolean
+          etablissement_id?: string
+          golden_every?: number | null
+          golden_multiplier?: number | null
+          min_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_wheels_etablissement_id_fkey"
+            columns: ["etablissement_id"]
+            isOneToOne: true
+            referencedRelation: "etablissements"
             referencedColumns: ["id"]
           },
         ]
@@ -9216,8 +9305,9 @@ export type Database = {
         Returns: {
           expires_at: string
           id: string
+          image: string
+          item_id: string
           label: string
-          reward_id: string
         }[]
       }
       loyalty_erase_customer: {
@@ -9247,6 +9337,7 @@ export type Database = {
           rewards_used: number
         }[]
       }
+      loyalty_wheel_config: { Args: { p_slug: string }; Returns: Json }
       loyalty_wheel_customer: {
         Args: { p_slug: string; p_token_hash: string }
         Returns: string
@@ -9254,6 +9345,18 @@ export type Database = {
       loyalty_wheel_order: {
         Args: { p_customer: string; p_day: string; p_min_order: number }
         Returns: string
+      }
+      loyalty_wheel_save: {
+        Args: {
+          p_budget: number
+          p_enabled: boolean
+          p_etablissement_id: string
+          p_golden_every: number | null
+          p_golden_multiplier: number | null
+          p_min_order: number
+          p_prizes: Json
+        }
+        Returns: undefined
       }
       loyalty_wheel_spin: {
         Args: {
@@ -9279,6 +9382,10 @@ export type Database = {
           ready: boolean
           spins: number
         }[]
+      }
+      loyalty_wheel_stats: {
+        Args: { p_etablissement_id: string }
+        Returns: Json
       }
       mark_demo_order_paid: {
         Args: { p_order_id: string; p_tip?: number | null }

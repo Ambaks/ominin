@@ -310,6 +310,10 @@
   stroke: var(--gold-1);
   stroke-width: 1.2;
 }
+/* La même photo, au gain, sous la roue. */
+.wheel-prize-photo {
+  box-shadow: 0 0 0 2px var(--gold-1);
+}
 /* Roue dorée : l'or sur le noir. */
 .wheel-stage[data-golden] .wheel-slice-a path {
   fill: var(--felt-golden-slice);

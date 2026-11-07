@@ -39,11 +39,11 @@ export function CollectSettings({
   };
 
   return (
-    <Plate className="max-w-xl p-5">
+    <Plate className="p-5">
       <form onSubmit={onSubmit} className="flex flex-col gap-4">
         <div>
-          <h2 className="font-display text-g-h2">Click &amp; Collect</h2>
-          <p className="mt-1 text-muted">Paramètres du retrait en ligne.</p>
+          <h3 className="text-g-body font-semibold">Click &amp; Collect</h3>
+          <p className="mt-1 text-g-meta text-muted">Paramètres du retrait en ligne.</p>
         </div>
         <Field
           label="Commandes par créneau"

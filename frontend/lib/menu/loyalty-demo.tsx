@@ -2,14 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import type { DemoLoyalty } from "@/lib/menu-data";
-import {
-  drawSlice,
-  type LoyaltyHistoryEntry,
-  type LoyaltyMember,
-  type LoyaltyVoucher,
-  type LoyaltyWheelConfig,
-  type WheelDay,
-} from "./loyalty";
+import type { LoyaltyHistoryEntry, LoyaltyMember, LoyaltyVoucher, WheelDay } from "./loyalty";
 import {
   greetedKey,
   LoyaltyMemberValueProvider,
@@ -17,6 +10,8 @@ import {
   type PreviewLoyaltyOrder,
   type WheelWin,
 } from "./loyalty-member";
+import { buildWheel, drawSlice, type WheelSettings } from "./wheel";
+import { WHEEL_VOUCHER_DAYS } from "./wheel-config";
 
 /*
  * La fidélité d'une carte d'aperçu (/menu/demo), sans base : les cartes et le
@@ -129,7 +124,7 @@ function readState(key: string): DemoState | null {
         (card) =>
           Array.isArray((card as DemoCard).history) &&
           (card as DemoCard).history.every((entry) => typeof entry.points === "number") &&
-          ((card as DemoCard).vouchers === undefined || Array.isArray((card as DemoCard).vouchers))
+          ((card as DemoCard).vouchers ?? []).every((voucher) => "item" in voucher)
       );
     return valid ? (state as DemoState) : null;
   } catch {
@@ -151,9 +146,10 @@ export function DemoLoyaltyProvider({
 }: {
   slug: string;
   demo: DemoLoyalty;
-  wheel?: LoyaltyWheelConfig;
+  wheel?: WheelSettings;
   children: ReactNode;
 }) {
+  const config = useMemo(() => (wheel ? buildWheel(wheel) : null), [wheel]);
   const cardsKey = `fidelite-apercu:${slug}`;
   // Lu après l'hydratation, comme le vrai menu attend /api/fidelite.
   const [state, setState] = useState<DemoState | null>(null);
@@ -251,33 +247,38 @@ export function DemoLoyaltyProvider({
 
   const { ready, played, spins } = wheelDayOf(card);
 
-  // Une part en nature donne un bon pour le palier de l'aperçu à ce prix,
-  // comme loyalty_wheel_spin ; sans palier à ce prix, ses points.
+  // Un lot donne un bon, comme loyalty_wheel_spin.
   const spin = useCallback(async (): Promise<WheelWin> => {
-    if (!wheel || !device || played) throw new Error("Le tour du jour est joué.");
-    const index = drawSlice(wheel.slices);
-    const slice = wheel.slices[index];
+    if (!config || !device || played) throw new Error("Le tour du jour est joué.");
+    const index = drawSlice(config.slices);
+    const { points: base, prize } = config.slices[index];
     const at = new Date().toISOString();
-    const reward = slice.voucher && demo.rewards.find((candidate) => candidate.points === slice.points);
-    if (slice.voucher && reward) {
-      const expiresAt = new Date(Date.now() + slice.voucher.days * DAY_MS).toISOString();
-      addEntries(device, [{ kind: "roue", points: 0, at, table: null, rewards: reward.label }], { remember: true });
+    if (prize) {
+      const expiresAt = new Date(Date.now() + WHEEL_VOUCHER_DAYS * DAY_MS).toISOString();
+      addEntries(device, [{ kind: "roue", points: 0, at, table: null, rewards: prize.label }], { remember: true });
+      const voucher: DemoVoucher = {
+        id: `bon-${at}`,
+        item: null,
+        label: prize.label,
+        image: prize.image ?? null,
+        expiresAt,
+        wonAt: at,
+      };
       update((current) => {
         const known = current.cards[device];
-        const voucher: DemoVoucher = { id: `bon-${at}`, rewardId: reward.id, label: reward.label, expiresAt, wonAt: at };
         return {
           ...current,
           cards: { ...current.cards, [device]: { ...known, vouchers: [...(known.vouchers ?? []), voucher] } },
         };
       });
-      return { index, points: 0, voucher: { label: reward.label, expiresAt } };
+      return { index, points: 0, voucher: { label: prize.label, expiresAt } };
     }
-    const { golden } = wheel;
+    const { golden } = config;
     const multiplier = golden && (spins + 1) % golden.every === 0 ? golden.multiplier : 1;
-    const points = slice.points * multiplier;
+    const points = base * multiplier;
     addEntries(device, [{ kind: "roue", points, at, table: null, rewards: null }], { remember: true });
     return { index, points, voucher: null };
-  }, [wheel, device, played, spins, addEntries, update, demo]);
+  }, [config, device, played, spins, addEntries, update]);
 
   const vouchers = useMemo(() => card?.vouchers?.filter((voucher) => !voucher.used) ?? [], [card]);
 
@@ -295,11 +296,11 @@ export function DemoLoyaltyProvider({
         const vouchers = known.vouchers?.filter((voucher) => localDay(voucher.wonAt) !== today);
         // Des petits tours, un par jour passé sans tour, jusqu'à celui qui
         // précède la roue dorée : le tour d'aujourd'hui la joue.
-        if (goldenTurn && wheel?.golden) {
-          const { every } = wheel.golden;
+        if (goldenTurn && config?.golden) {
+          const { every } = config.golden;
           const spun = new Set(history.filter(isSpin).map((entry) => localDay(entry.at)));
           const missing = (every - 1 - (history.filter(isSpin).length % every)) % every;
-          const points = Math.min(...wheel.slices.map((slice) => slice.points));
+          const points = Math.min(...config.slices.filter((slice) => !slice.prize).map((slice) => slice.points));
           const fillers: DemoEntry[] = [];
           for (let daysAgo = 1; fillers.length < missing; daysAgo++) {
             if (spun.has(today - daysAgo)) continue;
@@ -312,7 +313,7 @@ export function DemoLoyaltyProvider({
         return { ...current, cards: { ...current.cards, [current.device]: { ...known, history, vouchers } } };
       });
     },
-    [update, wheel]
+    [update, config]
   );
 
   const recordPreviewOrder = useCallback(
@@ -360,11 +361,11 @@ export function DemoLoyaltyProvider({
       forget,
       loadHistory,
       balance,
-      wheel: wheel && member ? { ...wheel, ready, played, spins, spin, replay } : null,
+      wheel: config && member ? { ...config, ready, played, spins, spin, replay } : null,
       vouchers,
       recordPreviewOrder,
     }),
-    [member, remember, forget, loadHistory, balance, wheel, ready, played, spins, spin, replay, vouchers, recordPreviewOrder]
+    [member, remember, forget, loadHistory, balance, config, ready, played, spins, spin, replay, vouchers, recordPreviewOrder]
   );
 
   return <LoyaltyMemberValueProvider value={value}>{children}</LoyaltyMemberValueProvider>;

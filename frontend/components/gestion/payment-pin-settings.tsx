@@ -37,11 +37,11 @@ export function PaymentPinSettings({ pinSet }: { pinSet: boolean }) {
   const incomplete = code.length !== 4;
 
   return (
-    <Plate className="max-w-xl p-5">
+    <Plate className="p-5">
       <form onSubmit={save} className="flex flex-col gap-5">
         <div>
-          <h2 className="font-display text-g-h2">Code d&apos;encaissement</h2>
-          <p className="mt-1 text-muted">
+          <h3 className="text-g-body font-semibold">Code d&apos;encaissement</h3>
+          <p className="mt-1 text-g-meta text-muted">
             {pinSet
               ? "Demandé à chaque appui sur Encaisser. Saisissez-en un nouveau pour le remplacer, ou retirez-le."
               : "Aucun code : l'équipe encaisse sans rien saisir. Posez-en un pour qu'il soit demandé à chaque appui sur Encaisser."}

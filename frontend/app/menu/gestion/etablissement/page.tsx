@@ -28,14 +28,16 @@ import { useGestion, useGestionAccess } from "@/lib/gestion/store";
 import type { Etablissement } from "@/lib/gestion/types";
 import { SettingsCard } from "./settings-card";
 import { ThemeSettings } from "./theme-settings";
+import { WheelSettings } from "./wheel-settings";
 
 /*
  * Réglages (gérant) : tout ce qui n'est ni la carte ni le service du jour,
- * en quatre sections courtes — Mon établissement, Mon service, Encaissement,
- * Appareils — et un « Plus de réglages » replié pour ce que la plupart des
- * restaurants n'ouvrent jamais (caisse connectée, données, abonnement). Le
- * sommaire en tête mène à chaque section ; tout vit sur une seule page pour
- * que la visite guidée trouve chaque cible.
+ * en sections courtes — Mon établissement, Mon service, Paiements, La roue,
+ * Caisse connectée, Appareils — et un « Plus de réglages » replié pour ce
+ * que la plupart des restaurants n'ouvrent jamais (Popina, données,
+ * abonnement). Le sommaire en tête mène à chaque section et dit d'un coup
+ * d'œil où en sont la carte bancaire et la caisse ; tout vit sur une seule
+ * page pour que la visite guidée trouve chaque cible.
  */
 
 function Svg({ className, children }: IconProps & { children: ReactNode }) {
@@ -67,6 +69,18 @@ const DevicesIcon = (p: IconProps) => (
     <path d="M9 19h1M16 10h4a1 1 0 011 1v7a1 1 0 01-1 1h-4z" />
   </Svg>
 );
+const WheelIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <circle cx="12" cy="12" r="8.5" />
+    <path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6L6 18" />
+    <circle cx="12" cy="12" r="2" />
+  </Svg>
+);
+const TillIcon = (p: IconProps) => (
+  <Svg {...p}>
+    <path d="M5 10h14l-1 9H6zM8 10V6h8v4M9 14h6" />
+  </Svg>
+);
 const MoreIcon = (p: IconProps) => (
   <Svg {...p}>
     <circle cx="6" cy="12" r="1" />
@@ -83,9 +97,11 @@ const ChevronIcon = (p: IconProps) => (
 const SECTIONS = [
   { id: "etablissement", label: "Mon établissement", hint: "Nom, horaires, avis Google", icon: HouseIcon },
   { id: "service", label: "Mon service", hint: "Type de service, fermetures", icon: ServiceIcon },
-  { id: "encaissement", label: "Encaissement", hint: "Paiement en ligne, code", icon: CardIcon },
+  { id: "encaissement", label: "Paiements", hint: "Carte bancaire, code d'encaissement", icon: CardIcon },
+  { id: "roue", label: "La roue", hint: "Lots, chances, budget", icon: WheelIcon },
+  { id: "caisse-connectee", label: "Caisse connectée", hint: "HubRise", icon: TillIcon },
   { id: "appareils", label: "Appareils", hint: "Imprimantes, tablette, alertes", icon: DevicesIcon },
-  { id: "plus", label: "Plus de réglages", hint: "Caisse, données, abonnement", icon: MoreIcon },
+  { id: "plus", label: "Plus de réglages", hint: "Popina, données, abonnement", icon: MoreIcon },
 ] as const;
 
 function Block({ i, className = "", children }: { i: number; className?: string; children: ReactNode }) {
@@ -360,8 +376,10 @@ export default function EtablissementPage() {
   // ouverte : le défilement attend le rendu qui l'ouvre.
   const pendingScroll = useRef<string | null>(null);
   const scrollTo = (id: string) => {
-    if (plusOpen) {
-      document.getElementById(id)?.scrollIntoView({ block: "start" });
+    const target = document.getElementById(id);
+    const folded = id === "plus" || Boolean(document.getElementById("plus")?.contains(target));
+    if (plusOpen || !folded) {
+      target?.scrollIntoView({ block: "start" });
       return;
     }
     pendingScroll.current = id;
@@ -394,7 +412,12 @@ export default function EtablissementPage() {
   const blocked = hubrise?.connected === true && hubrise.blocked === true;
   // Une section sans réglage n'a ni titre ni entrée au sommaire.
   const showService = hasFeature("commandes") || etablissement.offre !== null || products.collect;
-  const sections = SECTIONS.filter((section) => section.id !== "service" || showService);
+  // La roue tourne après une commande réglée, pour une carte de fidélité.
+  const showWheel = isGerant && hasFeature("fidelite") && hasFeature("commandes");
+  const shown: Record<string, boolean> = { service: showService, roue: showWheel, "caisse-connectee": isGerant };
+  const sections = SECTIONS.filter((section) => shown[section.id] ?? true);
+  // BOHO encaisse par Square ; tous les autres par Stripe.
+  const provider = etablissement.paymentProvider === "square" ? "square" : "stripe";
   // L'état de la caisse connectée se lit dès le sommaire, avant d'ouvrir « Plus » :
   // le store sait déjà si HubRise est relié, le statut précise ensuite blocage et envois.
   const tillChip = etablissement.hubriseConnected ? (
@@ -462,7 +485,7 @@ export default function EtablissementPage() {
                         <span className="block truncate text-g-label font-semibold">{section.label}</span>
                         <span className="block truncate text-g-meta text-muted">{section.hint}</span>
                       </span>
-                      {section.id === "plus" && tillChip}
+                      {section.id === "caisse-connectee" && tillChip}
                     </a>
                   ))}
                 </nav>
@@ -528,32 +551,50 @@ export default function EtablissementPage() {
           <Section
             id="encaissement"
             i={4}
-            title="Encaissement"
-            sub="Le paiement par carte depuis le menu, et le code demandé pour encaisser."
+            title="Paiements"
+            sub="La carte bancaire depuis le menu, et le code demandé pour encaisser."
           >
             {/* La démonstration se règle chez Ominin : aucun réglage ici. */}
             {etablissement.paymentProvider === "demo" ? (
               <SettingsCard
-                title="Paiement en ligne en démonstration"
-                text="Les commandes sont marquées payées, sans aucun débit. Pour encaisser pour de vrai, demandez à Ominin de relier votre compte."
+                title="Paiement par carte en démonstration"
+                text="Les commandes sont marquées payées, sans aucun débit. Pour encaisser pour de vrai, demandez à Ominin de relier votre compte Stripe."
               />
             ) : (
               <PaymentSettings
                 initialEnabled={etablissement.onlinePayment}
                 initialMinOrder={etablissement.onlineMinOrder}
-                initialProvider={
-                  etablissement.paymentProvider === "square" || etablissement.paymentProvider === "viva"
-                    ? etablissement.paymentProvider
-                    : "stripe"
-                }
+                provider={provider}
               />
             )}
             <PaymentPinSettings pinSet={etablissement.paymentPinSet} />
           </Section>
 
+          {showWheel && (
+            <Section
+              id="roue"
+              i={5}
+              title="La roue"
+              sub="Un tour par jour après une commande réglée. Vous choisissez les lots, leurs chances se calculent seules."
+            >
+              <WheelSettings etablissementId={etablissement.id} categories={state.categories} />
+            </Section>
+          )}
+
+          {isGerant && (
+            <Section
+              id="caisse-connectee"
+              i={6}
+              title="Caisse connectée"
+              sub="Vos commandes arrivent dans votre caisse par HubRise, et la carte suit votre caisse."
+            >
+              <HubriseSettings onStatus={setHubrise} onReturn={() => scrollTo("caisse")} />
+            </Section>
+          )}
+
           <Section
             id="appareils"
-            i={5}
+            i={7}
             title="Appareils"
             sub="Les imprimantes, la tablette posée en salle et les alertes de cet appareil."
           >
@@ -583,7 +624,7 @@ export default function EtablissementPage() {
             <TabletSettings pinSet={etablissement.adminPinSet} />
           </Section>
 
-          <Block i={6}>
+          <Block i={8}>
             <details
               id="plus"
               open={plusOpen}
@@ -593,12 +634,11 @@ export default function EtablissementPage() {
               <summary className="flex min-h-g-control cursor-pointer list-none items-center justify-between gap-3 rounded-g-card touch-manipulation focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ember-1">
                 <SectionHeading
                   title="Plus de réglages"
-                  sub="Caisse connectée, données et modèles, abonnement."
+                  sub="Popina, données et modèles, abonnement."
                 />
                 <ChevronIcon className="size-5 shrink-0 text-muted transition-transform duration-(--g-morph-dur) group-open:rotate-90 motion-reduce:transition-none" />
               </summary>
               <div className="mt-4 flex flex-col gap-4">
-                {isGerant && <HubriseSettings onStatus={setHubrise} onReturn={() => scrollTo("caisse")} />}
                 {isGerant && <PopinaSettings />}
                 <DataLicenceSettings etablissementId={etablissement.id} />
                 {hasFeature("produits") && (
