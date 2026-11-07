@@ -46,7 +46,7 @@ function Toasts({ slots, className }: { slots: number; className: string }) {
       {groups.map((items, slot) => (
         <li key={slot} className="portal-toast-slot" style={{ "--slot": slot, "--slots": slots } as React.CSSProperties}>
           {items.map((item, k) => (
-            <div key={item.id} className={rhythm} style={{ "--k": k, "--n": items.length } as React.CSSProperties}>
+            <div key={item.text.fr} className={rhythm} style={{ "--k": k, "--n": items.length } as React.CSSProperties}>
               <Toast item={item} />
             </div>
           ))}

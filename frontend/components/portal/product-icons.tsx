@@ -11,6 +11,7 @@ const paths: Record<ProductId, React.ReactNode> = {
     </>
   ),
   club: <path d="M5 4h14l-7 8zM12 12v7M8.5 21h7" />,
+  hotels: <path d="M4.5 17a7.5 7.5 0 0 1 15 0M3 20h18M12 9.5V7M10 7h4" />,
   agents: <path d="M21 3 10.5 13.5M21 3l-6.5 18-4-7.5L3 9.5z" />,
   shop: <path d="M6 8h12l1 13H5zM9 8a3 3 0 0 1 6 0" />,
   collect: (

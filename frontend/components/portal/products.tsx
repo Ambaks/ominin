@@ -172,7 +172,7 @@ export function PortalProducts() {
             role="tablist"
             aria-label={t(productsSection.rowLabel)}
             onKeyDown={onKeyDown}
-            className="portal-tabs flex snap-x gap-1 overflow-x-auto lg:grid lg:grid-cols-6"
+            className="portal-tabs flex snap-x gap-1 overflow-x-auto lg:grid lg:grid-cols-5"
           >
             {products.map((p) => {
               const active = p.id === selected;
