@@ -84,12 +84,13 @@ export interface LoyaltyHistoryEntry {
  * Une part de la roue : ses points, et son poids au tirage. Avec `voucher`,
  * un lot en nature : un bon pour le palier de fidélité à `points` points de
  * la maison (son nom court sur la roue, `label`), valable `days` jours ; une
- * maison sans palier à ce prix crédite les points.
+ * maison sans palier à ce prix crédite les points. `image`, la photo du
+ * produit, ronde sur la case à la place du nom.
  */
 export interface WheelSlice {
   points: number;
   weight: number;
-  voucher?: { label: string; days: number };
+  voucher?: { label: string; days: number; image?: string };
 }
 
 /** Un bon gagné à la roue, à utiliser avec une commande (loyalty_vouchers). */
