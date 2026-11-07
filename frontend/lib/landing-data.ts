@@ -1,6 +1,5 @@
 import { DEMO_SLUG, formatPrice } from "@/lib/menu/format";
 import { unsplash } from "@/lib/menu/images";
-import { siteUrl } from "@/lib/site";
 
 export interface Cta {
   label: string;
@@ -21,15 +20,6 @@ export interface Feature {
   stat: string;
   title: string;
   description: string;
-}
-
-export interface ProofStat {
-  stat: string;
-  title: string;
-  description: string;
-  source: string;
-  /** Source primaire, consultable : aucun chiffre n'entre ici sans son lien. */
-  sourceUrl: string;
 }
 
 export interface PlanCommission {
@@ -81,15 +71,6 @@ export interface InstallPath {
   cta?: { label: string; action: string; href: string };
 }
 
-export interface ClientRef {
-  name: string;
-  type: string;
-  city: string;
-  since: number;
-  quote: string;
-  image: string;
-}
-
 export interface QrShowcasePoint {
   title: string;
   description: string;
@@ -130,152 +111,6 @@ export const connectCommission: PlanCommission = {
 /** Connect est sans abonnement : Ominin se rémunère sur la seule commission. */
 const connectPrice = 0;
 
-export const seo = {
-  title:
-    "Ominin — Menu digital QR code, commande et paiement à table pour restaurants",
-  description:
-    "Menus digitaux par QR code, commande et paiement à table sans abonnement ni engagement. Vos clients scannent, commandent, payent — sans application.",
-};
-
-export const nav = {
-  links: [
-    { label: "Parcours", href: "#parcours" },
-    { label: "Fast food", href: "#fast-food" },
-    { label: "Démo", href: "#demo" },
-    { label: "Tarifs", href: "#tarifs" },
-    { label: "Clients", href: "#clients" },
-    { label: "FAQ", href: "#faq" },
-  ] satisfies NavLink[],
-  cta: { label: "Voir la démo", href: `/m/${DEMO_SLUG}` } satisfies Cta,
-  login: { label: "Connexion", href: "/connexion" } satisfies Cta,
-};
-
-export const hero = {
-  eyebrow: "Menu QR · Commande et paiement à table",
-  /** Trois lignes ; la marquée reçoit le pavé braise. */
-  lines: [
-    { text: "Vos tables" },
-    { text: "prennent les" },
-    { text: "commandes.", mark: true },
-  ],
-  subtitle:
-    "Vos clients scannent le Cachet de la table, commandent et payent depuis leur téléphone — sans application, sans attendre un serveur. La commande part en cuisine, votre équipe sert.",
-  stats: [
-    { value: formatEuros(connectPrice), label: "d'abonnement Connect" },
-    {
-      value: `${connectCommission.percent}\u00a0%`,
-      label: "en ligne, + frais de carte ; dégressif jusqu'à 1\u00a0%",
-    },
-    {
-      value: "−4\u00a0min",
-      label: "d'attente, jusqu'à −10 au coup de feu",
-      href: `${siteUrl}/r7k2`,
-    },
-  ],
-  secondaryCta: { label: "Voir les tarifs", href: "#tarifs" } satisfies Cta,
-  clientsLabel: "Ils servent déjà avec Ominin",
-  /** Nommés avant les clients des témoignages, sans citation à leur prêter. */
-  featuredClients: ["BOHO Toulouse"],
-};
-
-/** Relais animé du hero : la table 12 de la démo, du Cachet à la cuisine. */
-export const heroRelay = {
-  table: 12,
-  phoneLabel: "Table 12 · Cachet scanné",
-  stamp: "Payée",
-  kitchenLabel: "Votre cuisine",
-  ticket: { printer: "Ticket cuisine", label: "Table 12", detail: "Payée · Carte" },
-  ready: "En cuisine en 18 s. Le serveur apporte.",
-};
-
-/** Bandeau défilant sous le hero. */
-export const marquee = [
-  "Restaurants",
-  "Brasseries",
-  "Pizzerias",
-  "Fast-foods",
-  "Bars",
-  "Lounges",
-  "Cafés",
-  "Food courts",
-];
-
-export const howItWorks = {
-  id: "parcours",
-  eyebrow: "Le parcours",
-  title: "De l'assise à la cuisine, en moins d'une minute.",
-  steps: [
-    {
-      kicker: "01 · Le Cachet",
-      title: "Le client scanne la table.",
-      description:
-        "Le Cachet, c'est le QR code à votre logo collé sur la table. Un scan, rien à installer, rien à expliquer.",
-    },
-    {
-      kicker: "02 · La carte",
-      title: "Votre menu s'ouvre.",
-      description:
-        "Photos, formules, prix à jour — dans le navigateur, en deux secondes. Un plat épuisé disparaît d'un geste, sur toutes les tables.",
-    },
-    {
-      kicker: "03 · La commande",
-      title: "Il commande, et paye s'il veut.",
-      description:
-        "Plats, options, commentaires — puis carte bancaire à table, ou l'addition au comptoir comme d'habitude.",
-    },
-    {
-      kicker: "04 · La cuisine",
-      title: "Le ticket sort. La salle tourne.",
-      description:
-        "La commande arrive en cuisine en temps réel, sur vos imprimantes ou votre tablette. Le serveur apporte, sans avoir couru prendre la commande.",
-    },
-  ],
-};
-
-/*
- * Mode fast food : un QR au comptoir, un numéro du jour, l'heure annoncée
- * par l'estimateur IA et « C'est prêt ! » sur le téléphone. Même discours
- * que les présentations réseau (lib/pitch).
- */
-export const fastFoodSection = {
-  id: "fast-food",
-  eyebrow: "Mode fast food · inclus dans Connect",
-  title: "Au comptoir, la file disparaît.",
-  lead: "Un QR au comptoir ou sur les tables : le client commande, paie et reçoit son numéro du jour. L'IA lui annonce l'heure où c'est prêt, et « C'est prêt ! » s'affiche sur son téléphone.",
-  points: [
-    {
-      title: "L'heure annoncée par l'IA",
-      description:
-        "Dès le paiement, le client lit « prête vers 12 h 52 ». L'estimateur apprend le rythme de votre cuisine sur vos propres commandes — la file, la taille du panier, l'heure du service — et ajuste l'heure en direct.",
-    },
-    {
-      title: "Un numéro du jour",
-      description:
-        "Le même sur le téléphone du client et sur le ticket cuisine, remis à zéro chaque matin.",
-    },
-    {
-      title: "« C'est prêt ! » sur son téléphone",
-      description:
-        "La page vibre et revient au premier plan : il vient chercher sa commande, sans écran d'appel ni bipeur.",
-    },
-    {
-      title: "Payée en ligne, ou au comptoir",
-      description:
-        "Payée sur le téléphone, la commande part en cuisine aussitôt ; sinon, elle attend son règlement au comptoir.",
-    },
-  ],
-  ticket: {
-    number: 42,
-    restaurant: brand,
-    steps: ["Commandée", "En cuisine", "Prête"],
-    cooking: "En cuisine",
-    eta: "Prête vers 12\u00a0h\u00a052",
-    etaSource: "Estimée par l'IA",
-    ready: "C'est prêt !",
-    readyBody: "Venez chercher votre commande au comptoir.",
-  },
-};
-
 export const featuresSection = {
   id: "fonctionnalites",
   eyebrow: "Fonctionnalités",
@@ -309,58 +144,6 @@ export const featuresSection = {
       description: `La commande arrive dans votre caisse (Square, Zelty, Lightspeed… plus de ${compatibleTills} compatibles), et/ou sort sur vos imprimantes tickets avec le boîtier Omilink.`,
     },
   ],
-};
-
-export const demoSection = {
-  eyebrow: "La démo",
-  title: "Ne nous croyez pas sur parole. Essayez.",
-  subtitle:
-    "Voici le menu d'un restaurant propulsé par Ominin. Faites défiler : c'est le vrai produit, exactement ce que vos clients verront à table.",
-  fullscreenLabel: "Ouvrir la démo en plein écran",
-  mobileHint: "Ouvrez le menu exactement comme vos clients le verront.",
-  iframeTitle: "Démo — menu digital Ominin",
-  tableTag: "Table 12",
-  sceneCaption:
-    "Voilà exactement ce qui se passe à la table 12 de la Trattoria Lucia.",
-  scrollHint: "Faites défiler dans le téléphone.",
-};
-
-export const proofSection = {
-  titleStart: "Ce que disent les",
-  titleAccent: "chiffres publics",
-  subtitle:
-    "Pas de chiffre maison ni de plaquette d'éditeur : un institut de sondage et l'enquête annuelle de France Travail. Les deux sont en lien.",
-  disclaimer:
-    "Ces chiffres décrivent le marché français de la restauration, pas les résultats d'Ominin. Ils sont issus d'un institut de sondage indépendant et d'une enquête publique, consultables en un clic, et ne constituent pas une garantie de résultats.",
-  stats: [
-    {
-      stat: "50 %",
-      title: "commandent ou payent déjà à table",
-      description:
-        "Un Français sur deux a déjà commandé ou réglé son repas à table depuis son téléphone. Chez les 16-24 ans, c'est 65 %.",
-      source: "OpinionWay pour Lyf, mars 2025 — 2 000 personnes",
-      sourceUrl:
-        "https://www.opinion-way.com/wp-content/uploads/2025/03/OpinionWay-pour-Lyf-Pay-Les-Francais-et-les-services-de-paiement-mobile-24-mars.pdf",
-    },
-    {
-      stat: "+11 pts",
-      title: "d'usage en quatre ans",
-      description:
-        "La commande et le paiement à table sont passés de 39 % d'utilisateurs en 2021 à 50 % en 2025, dans la même enquête reconduite chaque année.",
-      source: "OpinionWay pour Lyf, baromètre 2021-2025",
-      sourceUrl:
-        "https://www.opinion-way.com/wp-content/uploads/2025/03/OpinionWay-pour-Lyf-Pay-Les-Francais-et-les-services-de-paiement-mobile-24-mars.pdf",
-    },
-    {
-      stat: "44 %",
-      title: "des recrutements en salle sont difficiles",
-      description:
-        "Sur 319 000 projets de recrutement en hôtellerie-restauration en 2026, 44 % sont jugés difficiles par les employeurs eux-mêmes.",
-      source: "France Travail, enquête BMO 2026",
-      sourceUrl:
-        "https://www.francetravail.org/accueil/actualites/2026/enquete-bmo-2026-france-travail-deploie-sa-strategie-sectorielle-face-a-pres-de-2-3-millions-de-projets-de-recrutement.html",
-    },
-  ] satisfies ProofStat[],
 };
 
 /*
@@ -519,7 +302,7 @@ const tillContactHref = `mailto:${contactEmail}?subject=${encodeURIComponent("In
  * Les partenaires que le panneau caisse fait défiler (« Ominin × … »), un
  * toutes les installSection.integrations.intervalMs.
  */
-const integrationPartners: IntegrationPartner[] = [
+export const integrationPartners: IntegrationPartner[] = [
   { name: "Square", kind: "caisse", icon: { src: "/partners/square.svg" } },
   { name: "Stripe", kind: "paiement", icon: { src: "/partners/stripe.svg", bleed: true } },
   { name: "Zelty", kind: "caisse", icon: { src: "/partners/zelty.png" } },
@@ -988,44 +771,6 @@ export const collectOffer = {
   },
 };
 
-export const clientsSection = {
-  id: "clients",
-  eyebrow: "Clients",
-  title: "Fini les cartes papier.",
-  sinceLabel: "Client depuis",
-  // Photos d'illustration (Unsplash) — à remplacer par de vraies photos des
-  // établissements clients.
-  clients: [
-    {
-      name: "L'Adresse",
-      type: "Restaurant gastronomique",
-      city: "Toulouse",
-      since: 2024,
-      quote:
-        "L'installation a pris 10 minutes. Le lendemain, nos clients scannaient déjà.",
-      image: unsplash("photo-1550966871-3ed3cdb5ed0c", 200),
-    },
-    {
-      name: "Chez l'Walida",
-      type: "Restaurant traditionnel marocain",
-      city: "Muret",
-      since: 2025,
-      quote:
-        "Depuis qu'on a posé les Cachets, mes serveurs gèrent deux fois plus de tables.",
-      image: unsplash("photo-1541518763669-27fef04b14ea", 200),
-    },
-    {
-      name: "NERO",
-      type: "Restaurant lounge",
-      city: "Toulouse",
-      since: 2026,
-      quote:
-        "Nos clients adorent — plus personne ne cherche la carte papier. Et on met à jour le menu en 30 secondes depuis notre téléphone.",
-      image: unsplash("photo-1514933651103-005eec06c04b", 200),
-    },
-  ] satisfies ClientRef[],
-};
-
 export const qrShowcase = {
   label: "Le Cachet",
   title: "Le secret est à table.",
@@ -1069,70 +814,4 @@ export const qrShowcase = {
     src: unsplash("photo-1466978913421-dad2ebd01d17", 1400),
     alt: "Tablée au restaurant, le soir, plats partagés",
   },
-};
-
-export const faqSection = {
-  id: "faq",
-  eyebrow: "FAQ",
-  title: "Questions fréquentes.",
-  items: [
-    {
-      question: "Et pour un fast food, sans service à table ?",
-      answer:
-        "C'est le mode fast food : un QR au comptoir ou sur les tables, le client commande et paie sur son téléphone et reçoit son numéro du jour. L'IA lui annonce l'heure où c'est prêt, et « C'est prêt ! » s'affiche sur son téléphone — plus besoin d'appeler les numéros. Il s'active d'un réglage dans votre espace de gestion.",
-    },
-    {
-      question: "C'est quoi, « le Cachet » ?",
-      answer:
-        "Le Cachet, c'est le petit QR code personnalisé à votre logo qu'on colle sur chaque table. Vos clients le scannent avec leur téléphone et votre menu s'ouvre — sans application. C'est notre façon de remplacer la carte papier.",
-    },
-    {
-      question: "Mes clients doivent-ils installer une application ?",
-      answer:
-        "Non. Le menu s'ouvre directement dans le navigateur du téléphone, sur iPhone comme sur Android. Un scan du Cachet sur la table suffit.",
-    },
-    {
-      question: "Que se passe-t-il si un Cachet est abîmé ?",
-      answer:
-        "Nous vous en renvoyons gratuitement. Prévenez-nous et de nouveaux Cachets personnalisés partent sous 48 heures.",
-    },
-    {
-      question: "Combien de temps pour être opérationnel ?",
-      answer:
-        "Votre carte est en ligne en quelques minutes : notre équipe la conçoit pour vous. Vos Cachets imprimés arrivent sous 48 h, prêts à coller sur les tables. Aucune installation technique de votre côté.",
-    },
-    {
-      question: "Puis-je modifier mon menu moi-même ?",
-      answer:
-        "Oui, à tout moment, depuis votre espace de gestion : un prix, un plat épuisé, une nouvelle formule. Les changements sont visibles en temps réel sur toutes les tables.",
-    },
-    {
-      question: "Est-ce compatible avec ma caisse enregistreuse\u00a0?",
-      answer:
-        `Oui\u00a0: Ominin se connecte à plus de ${compatibleTills} caisses, dont Square, Zelty, Lightspeed, Popina, Clyo Systems et Kezia II. Les commandes payées à table y arrivent directement, déjà réglées, sans abonnement de plus. Pas encore de caisse\u00a0? Le plan de base Square est gratuit. Et si votre caisse ne peut pas imprimer sur vos imprimantes tickets, le boîtier Omilink s'y branche directement.`,
-    },
-    {
-      question: "Combien coûte Connect\u00a0?",
-      answer: `Aucun abonnement\u00a0: Ominin se rémunère par une commission de ${connectCommission.percent} % ${connectCommission.basis}, et ne prélève rien sur les espèces ni sur les paiements au comptoir. Au démarrage, vous réglez seulement vos Cachets imprimés (${formatPrice(starterKit.cachet.price)} par table) et leur livraison (${formatPrice(starterKit.shipping.price)})\u00a0; le boîtier Omilink (${formatPrice(omilinkPrice)}, une seule fois) ne sert que si votre caisse ne peut pas imprimer en cuisine, et la caisse Square est gratuite.`,
-    },
-    {
-      question: "Y a-t-il un engagement ?",
-      answer:
-        "Aucun. Les offres sont mensuelles et résiliables à tout moment, sans frais ni justification. Vous pouvez aussi changer d'offre quand vous voulez.",
-    },
-  ] satisfies FaqItem[],
-};
-
-export const finalCta = {
-  id: "contact",
-  title: "Prêt à moderniser votre service ?",
-  subtitle:
-    "Voyez ce que vos clients verront, ou écrivez-nous — on vous répond sous 24 heures.",
-  contactLabel: "Nous écrire",
-  microcopy: ["Réponse sous 24 h", "Carte en ligne en quelques minutes", "Cachets livrés sous 48 h"],
-};
-
-export const footer = {
-  tagline:
-    "Solutions digitales pour restaurants — menus, commande et paiement à table.",
 };

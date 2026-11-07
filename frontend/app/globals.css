@@ -16236,88 +16236,13 @@ body:has(dialog.visite[open]) [data-visite-bord] {
 }
 
 /*
-  Section « Installation » (landing menu) : le trajet d'une commande payée à
-  table. Un point braise descend de la commande et bifurque vers l'un des deux
-  chemins : vers la caisse, à gauche, à chaque partenaire qui défile
-  (.fork-arrival), et la commande s'y allume (.till-ping) ; vers l'imprimante,
-  à droite, au rythme de --install-cycle, et le ticket sort à son arrivée.
+  Scènes « Paiement et caisse » de la landing Menu : une cadence commune
+  (--install-cycle) pour le ticket qui sort de l'imprimante (.ticket-feed) et
+  les scènes du paiement et du terminal ; la commande s'allume dans la caisse
+  à chaque caisse qui défile (.till-ping).
 */
 .install-scene {
   --install-cycle: 7s;
-}
-
-/* Les étapes suivent la longueur des segments de la fourche (≈ 9 / 82 / 9 %) :
-   le point garde la même vitesse dans les coudes. */
-@keyframes fork-printer {
-  0% {
-    left: 50%;
-    top: 0;
-    opacity: 0;
-  }
-  0.3% {
-    opacity: 1;
-  }
-  1.3% {
-    left: 50%;
-    top: 50%;
-  }
-  11.6% {
-    left: 100%;
-    top: 50%;
-  }
-  12.8% {
-    left: 100%;
-    top: 100%;
-    opacity: 1;
-  }
-  14.5%,
-  100% {
-    left: 100%;
-    top: 100%;
-    opacity: 0;
-  }
-}
-
-.fork-pulse {
-  opacity: 0;
-  animation: fork-printer var(--install-cycle) linear infinite;
-}
-
-/* Un seul trajet, rejoué à chaque partenaire, à la vitesse du point de
-   l'imprimante : la commande s'allume dans la caisse à son arrivée
-   (.till-ping). */
-@keyframes fork-arrival {
-  0% {
-    left: 50%;
-    top: 0;
-    opacity: 0;
-  }
-  2% {
-    opacity: 1;
-  }
-  10% {
-    left: 50%;
-    top: 50%;
-  }
-  90% {
-    left: 0%;
-    top: 50%;
-  }
-  98% {
-    left: 0%;
-    top: 100%;
-    opacity: 1;
-  }
-  100% {
-    left: 0%;
-    top: 100%;
-    opacity: 0;
-  }
-}
-
-.fork-arrival {
-  opacity: 0;
-  animation: fork-arrival 0.9s linear both;
 }
 
 /* Le papier monte par à-coups, comme une tête thermique ligne à ligne. */
@@ -16369,8 +16294,8 @@ body:has(dialog.visite[open]) [data-visite-bord] {
   );
 }
 
-/* La commande reçue s'allume dans la file de la caisse. Rejoué à chaque
-   partenaire, quand le point de la fourche arrive. */
+/* La commande reçue s'allume dans la file de la caisse, rejoué à chaque
+   caisse qui défile, juste après l'arrivée de son nom. */
 @keyframes till-ping {
   0% {
     transform: scale(1);
@@ -16386,15 +16311,10 @@ body:has(dialog.visite[open]) [data-visite-bord] {
 }
 
 .till-ping {
-  animation: till-ping 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.9s both;
+  animation: till-ping 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 
-/* Sans fourche (sous lg), rien à attendre : la commande s'allume avec le nom. */
-@media (max-width: 1023.98px) {
-  .till-ping {
-    animation-delay: 0.3s;
-  }
-}
+
 
 @keyframes led-breathe {
   0%,
@@ -16494,13 +16414,9 @@ body:has(dialog.visite[open]) [data-visite-bord] {
   transition: opacity 0.45s ease 140ms;
 }
 
-/* Sans mouvement : ticket sorti, commande en caisse, aucun point en transit.
-   Les partenaires ne défilent pas (PartnerCycle s'arrête). */
+/* Sans mouvement : ticket sorti, commande en caisse. Les caisses ne défilent
+   pas (PartnerCycle s'arrête). */
 @media (prefers-reduced-motion: reduce) {
-  .fork-pulse,
-  .fork-arrival {
-    display: none;
-  }
   .ticket-feed,
   .till-ping,
   .led-breathe,

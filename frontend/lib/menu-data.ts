@@ -1857,6 +1857,7 @@ const oCroustiPoulet: Restaurant = {
   highlights: ["Halal", "Ouvert 7j/7"],
   googleReviewUrl:
     "https://search.google.com/local/writereview?placeid=ChIJCXg4SkyvthIR3btCb5k3PUI",
+  estimatorLive: true,
   categories: [
     {
       id: "nos-menus",
