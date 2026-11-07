@@ -8,7 +8,8 @@ import { pexels, pexelsRecadre, unsplash } from "@/lib/menu/images";
 import { tarifKey } from "@/lib/menu/tarifs";
 import type { PairingNotes } from "@/lib/menu/pairings";
 import type { SaisonSpots } from "@/lib/menu/saison";
-import type { GarlandMotif, LoyaltyHistoryEntry, LoyaltyWheelConfig } from "@/lib/menu/loyalty";
+import type { GarlandMotif, LoyaltyHistoryEntry } from "@/lib/menu/loyalty";
+import type { WheelSettings } from "@/lib/menu/wheel";
 import bohoAccords from "@/lib/menu/accords/boho.json";
 import { BOHO_DEMO_SLUG } from "@/lib/bulles/demo";
 import { ecussonVelours, veloursPalettes } from "@/components/menu/velours-palettes";
@@ -283,12 +284,11 @@ export interface Restaurant {
   /** Ce qui pend à la guirlande de « Ma carte » (fidélité) ; des lanternes par défaut. */
   loyaltyMotif?: GarlandMotif;
   /**
-   * La roue du jour d'un téléphone que la fidélité connaît, une fois sa
-   * carte gagnante d'une commande réglée. Registre seulement : sur le vrai
-   * menu, /api/fidelite/roue la passe au tirage en base (loyalty_wheel_spin) ;
-   * l'aperçu la fait tourner dans le navigateur.
+   * La roue d'une carte d'aperçu (/menu/demo), qui tourne dans le
+   * navigateur. Sur le vrai menu, la roue est celle que le gérant règle
+   * (loyalty_wheels).
    */
-  loyaltyWheel?: LoyaltyWheelConfig;
+  loyaltyWheel?: WheelSettings;
   /**
    * Fidélité d'une carte d'aperçu (/menu/demo) : en production, les paliers
    * vivent en base. Rien ne part, tout se garde dans le navigateur.
@@ -3529,37 +3529,16 @@ const articleFormats = (
 
 const ALCOOL = { vatRate: 20 } as const;
 
-/** La roue du jour de Caffè Panis, reprise telle quelle par les aperçus de l'Écusson et Rosemarie. */
-const roueDuJour: LoyaltyWheelConfig = {
-  // Environ 7 points le tour, pour des commandes d'une dizaine d'euros : les
-  // petites parts reviennent souvent, +50 rarement. Dix-huit cases, poids
-  // sur 20 000 : chaque lot partage sa chance entre ses copies — +2 29,1 %,
-  // +4 27,16 %, +6 19,4 %, +10 12,61 %, +20 5,82 %, +50 2,91 %, et le café
-  // 3 % (un bon pour le palier à 50 points, valable 14 jours) —, et deux
-  // cases voisines ne portent jamais le même lot.
-  slices: [
-    { points: 50, weight: 582 },
-    { points: 4, weight: 1358 },
-    { points: 2, weight: 1455 },
-    { points: 6, weight: 970 },
-    { points: 10, weight: 1261 },
-    { points: 50, weight: 300, voucher: { label: "Café", days: 14 } },
-    { points: 4, weight: 1358 },
-    { points: 2, weight: 1455 },
-    { points: 6, weight: 970 },
-    { points: 20, weight: 1164 },
-    { points: 4, weight: 1358 },
-    { points: 2, weight: 1455 },
-    { points: 6, weight: 970 },
-    { points: 10, weight: 1261 },
-    { points: 50, weight: 300, voucher: { label: "Café", days: 14 } },
-    { points: 4, weight: 1358 },
-    { points: 2, weight: 1455 },
-    { points: 6, weight: 970 },
-  ],
+/**
+ * La roue des aperçus (Caffè Panis, l'Écusson, Rosemarie…) : celle de Caffè
+ * Panis, le café à 3 % (0,06 € de budget pour un café à 2 €). En production,
+ * chaque gérant règle la sienne (Réglages › La roue).
+ */
+const roueDuJour: WheelSettings = {
+  budget: 0.06,
   minOrder: 5,
-  // Le 5e tour de la carte, puis tous les 5 : points doublés.
   golden: { every: 5, multiplier: 2 },
+  prizes: [{ label: "Café", price: 2 }],
 };
 
 /*

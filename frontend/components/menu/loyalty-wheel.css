@@ -304,6 +304,15 @@
 .wheel-slice-voucher text {
   fill: var(--ivory);
 }
+/* La photo d'un lot, cerclée d'or, et la même au gain. */
+.wheel-lot-ring {
+  fill: none;
+  stroke: var(--ivory);
+  stroke-width: 1.6;
+}
+.wheel-prize-photo {
+  box-shadow: 0 0 0 2px var(--ivory), 0 6px 18px rgb(0 0 0 / 0.35);
+}
 /* Roue dorée : l'or sur le noir. */
 .wheel-stage[data-golden] .wheel-slice-a path {
   fill: var(--felt-golden-slice);

@@ -12,6 +12,7 @@ import {
   type LoyaltyMember,
   type LoyaltyProgram,
   type LoyaltyReward,
+  type LoyaltyVoucher,
 } from "@/lib/menu/loyalty";
 import { useLoyaltyMember } from "@/lib/menu/loyalty-member";
 import type { MenuItem } from "@/lib/menu-data";
@@ -23,7 +24,8 @@ import type { MenuItem } from "@/lib/menu-data";
  * Changer de contact, c'est changer de solde : les lignes offertes repartent.
  * Un téléphone reconnu (/api/fidelite) n'a rien à taper : son contact et son
  * solde sont déjà là, « Ce n'est pas moi » rend le champ, et ses bons de la
- * roue passent avant les paliers : l'article du palier, offert sans points.
+ * roue passent avant les paliers : l'article du bon, offert sans points, ou
+ * le lot hors carte, une ligne que l'équipe remet avec la commande.
  * Sinon, le client peut demander qu'on se souvienne de ce téléphone à
  * l'envoi de la commande.
  */
@@ -112,15 +114,14 @@ export function LoyaltySection({
     }
   };
 
-  // Avec un bon de la roue, l'article du palier ne coûte pas de points.
-  const offer = (item: MenuItem, reward: LoyaltyReward, voucher?: string) => {
-    const line = voucher ? { id: reward.id, points: 0, voucher } : { id: reward.id, points: reward.points };
+  // Un palier se paie en points ; un bon de la roue (line.voucher), en rien.
+  const offer = (item: MenuItem, line: NonNullable<CartLine["reward"]>) => {
     if ((item.options?.length ?? 0) > 0) {
       setPicking({ item, reward: line });
       return;
     }
     cart.addLine({
-      key: cartLineKey(item.id, [], voucher ?? reward.id),
+      key: cartLineKey(item.id, [], line.voucher ?? line.id),
       itemId: item.id,
       name: item.name,
       unitPrice: 0,
@@ -133,35 +134,48 @@ export function LoyaltySection({
     cart.track("panier", { items: [item.id] });
   };
 
-  const offerable = (reward: LoyaltyReward) =>
-    reward.items.filter((item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id)));
+  // Le lot hors carte d'un bon : une ligne à son nom, offerte.
+  const addLot = (voucher: LoyaltyVoucher) =>
+    cart.addLine({
+      key: `lot/${voucher.id}`,
+      itemId: voucher.id,
+      name: voucher.label,
+      image: voucher.image ?? undefined,
+      unitPrice: 0,
+      optionSummary: [],
+      choices: [],
+      reward: { points: 0, voucher: voucher.id },
+      lot: true,
+    });
 
-  // Les articles d'un palier, comme l'accord du chef : photo, nom, ce qu'il
-  // vaut, un bouton ; repliés au-delà de quelques-uns.
-  const itemList = (listKey: string, reward: LoyaltyReward, voucher?: string) => {
-    const items = offerable(reward);
+  const offerable = (items: MenuItem[]) =>
+    items.filter((item) => !isUnavailable(item) && (cart.collect || !cart.closed.has(item.id)));
+
+  // Un article offert, comme l'accord du chef : photo, nom, ce qu'il vaut, un bouton.
+  const offerRow = (item: MenuItem, line: NonNullable<CartLine["reward"]>, image = item.image) => (
+    <SuggestionRow image={image} title={lineName(item)} why={`Offert au lieu de ${formatPrice(item.price)}`}>
+      <button
+        type="button"
+        onClick={() => offer(item, line)}
+        aria-label={`Ajouter, offert : ${lineName(item)}, ${line.voucher ? "bon de la roue" : `${line.points} points`}`}
+        className={suggestionButton()}
+      >
+        + Offert
+      </button>
+    </SuggestionRow>
+  );
+
+  // Les articles d'un palier, repliés au-delà de quelques-uns.
+  const itemList = (reward: LoyaltyReward) => {
+    const listKey = reward.id;
+    const items = offerable(reward.items);
     const all = unfolded.has(listKey);
     const hidden = items.length - REWARD_ITEMS_SHOWN;
     return (
       <>
         <ul className="flex flex-col gap-2.5">
           {(all ? items : items.slice(0, REWARD_ITEMS_SHOWN)).map((item) => (
-            <li key={item.id}>
-              <SuggestionRow
-                image={item.image}
-                title={lineName(item)}
-                why={`Offert au lieu de ${formatPrice(item.price)}`}
-              >
-                <button
-                  type="button"
-                  onClick={() => offer(item, reward, voucher)}
-                  aria-label={`Ajouter, offert : ${lineName(item)}, ${voucher ? "bon de la roue" : `${reward.points} points`}`}
-                  className={suggestionButton()}
-                >
-                  + Offert
-                </button>
-              </SuggestionRow>
-            </li>
+            <li key={item.id}>{offerRow(item, { id: reward.id, points: reward.points })}</li>
           ))}
         </ul>
         {hidden > 0 && (
@@ -341,21 +355,37 @@ export function LoyaltySection({
           {vouchers.length > 0 && (
             <ul className="flex flex-col gap-3">
               {vouchers.map((voucher) => {
-                const reward = program.rewards.find((candidate) => candidate.id === voucher.rewardId);
-                if (!reward) return null;
                 const used = cart.lines.some((line) => line.reward?.voucher === voucher.id);
+                const item = voucher.item && offerable([voucher.item])[0];
                 return (
                   <li key={voucher.id} className="flex flex-col gap-2">
                     <p className="flex items-baseline justify-between gap-3 text-xs">
-                      <span className="font-semibold">Bon de la roue · {reward.label}</span>
+                      <span className="font-semibold">Bon de la roue · {voucher.label}</span>
                       <span className="shrink-0 font-semibold text-ember-1">
                         jusqu’au {voucherDay.format(new Date(voucher.expiresAt))}
                       </span>
                     </p>
                     {used ? (
                       <p className="text-xs text-muted">Dans votre commande.</p>
+                    ) : item ? (
+                      offerRow(item, { points: 0, voucher: voucher.id }, item.image ?? voucher.image ?? undefined)
+                    ) : voucher.item ? (
+                      <p className="text-xs text-muted">Pas servi en ce moment : gardez votre bon pour une autre fois.</p>
                     ) : (
-                      itemList(voucher.id, reward, voucher.id)
+                      <SuggestionRow
+                        image={voucher.image ?? undefined}
+                        title={voucher.label}
+                        why="Remis par l’équipe avec votre commande"
+                      >
+                        <button
+                          type="button"
+                          onClick={() => addLot(voucher)}
+                          aria-label={`Ajouter à la commande : ${voucher.label}, bon de la roue`}
+                          className={suggestionButton()}
+                        >
+                          + Ajouter
+                        </button>
+                      </SuggestionRow>
                     )}
                   </li>
                 );
@@ -376,7 +406,7 @@ export function LoyaltySection({
                     </span>
                   </p>
                   {reachable ? (
-                    itemList(reward.id, reward)
+                    itemList(reward)
                   ) : (
                     <p className="text-xs text-faint">
                       Encore {reward.points - remaining}{" "}

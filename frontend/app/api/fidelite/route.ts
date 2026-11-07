@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { rowToMenuItem } from "@/lib/gestion/mappers";
 import {
   LOYALTY_DEVICE_COOKIE,
   LOYALTY_DEVICE_MAX_AGE,
@@ -10,7 +11,8 @@ import {
   type WheelDay,
 } from "@/lib/menu/loyalty";
 import { deviceFingerprint as fingerprint } from "@/lib/menu/loyalty-device";
-import { getRestaurant } from "@/lib/menu-data";
+import type { LoyaltyWheelConfig } from "@/lib/menu/wheel";
+import { loadWheel } from "@/lib/menu/wheel-server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 /*
@@ -22,8 +24,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
  *
  * GET ?slug=   le client de ce téléphone, vu de ce restaurant (member: null sinon) ;
  *              avec &historique, les lignes de sa carte (history) ; chez une
- *              maison à roue (registre), où en est son tour du jour (wheel) et
- *              les bons qu'il y a gagnés (vouchers)
+ *              maison à roue, la roue et où en est son tour du jour (wheel),
+ *              et les bons qu'il y a gagnés (vouchers)
  * POST         retenir ce téléphone pour { slug, contact, firstName? }
  * DELETE       « Ce n'est pas moi » : oublier ce téléphone
  */
@@ -66,11 +68,11 @@ async function readMember(
 }
 
 /**
- * Le tour du jour de ce téléphone, chez une maison qui a une roue : null
- * sans roue, ou sans carte ici. Une erreur ne coûte que la roue, pas l'accueil.
+ * La roue de la maison et le tour du jour de ce téléphone : null sans roue,
+ * ou sans carte ici. Une erreur ne coûte que la roue, pas l'accueil.
  */
-async function readWheel(slug: string, token: string): Promise<WheelDay | null> {
-  const wheel = getRestaurant(slug)?.loyaltyWheel;
+async function readWheel(slug: string, token: string): Promise<(LoyaltyWheelConfig & WheelDay) | null> {
+  const wheel = await loadWheel(slug).catch(() => null);
   if (!wheel) return null;
   const { data, error } = await createAdminClient().rpc("loyalty_wheel_state", {
     p_slug: slug,
@@ -78,19 +80,32 @@ async function readWheel(slug: string, token: string): Promise<WheelDay | null> 
     p_min_order: wheel.minOrder,
   });
   const row = data?.[0];
-  return error || !row ? null : { ready: row.ready, played: row.played_today, spins: row.spins };
+  return error || !row ? null : { ...wheel, ready: row.ready, played: row.played_today, spins: row.spins };
 }
 
-/** Les bons à utiliser, chez une maison à roue ; une erreur ne coûte que les bons. */
+/**
+ * Les bons à utiliser, avec l'article de la carte que chacun offre : le
+ * panier l'ajoute comme depuis la carte. Une erreur ne coûte que les bons.
+ */
 async function readVouchers(slug: string, token: string): Promise<LoyaltyVoucher[]> {
-  if (!getRestaurant(slug)?.loyaltyWheel) return [];
-  const { data, error } = await createAdminClient().rpc("loyalty_device_vouchers", {
+  const admin = createAdminClient();
+  const { data, error } = await admin.rpc("loyalty_device_vouchers", {
     p_slug: slug,
     p_token_hash: fingerprint(token),
   });
-  return error
-    ? []
-    : data.map((row) => ({ id: row.id, rewardId: row.reward_id, label: row.label, expiresAt: row.expires_at }));
+  if (error || data.length === 0) return [];
+  const itemIds = data.flatMap((row) => (row.item_id ? [row.item_id] : []));
+  const { data: items } = itemIds.length
+    ? await admin.from("items").select("*").in("id", itemIds)
+    : { data: [] };
+  const byId = new Map((items ?? []).map((row) => [row.id, rowToMenuItem(row)]));
+  return data.map((row) => ({
+    id: row.id,
+    item: (row.item_id && byId.get(row.item_id)) || null,
+    label: row.label,
+    image: row.image,
+    expiresAt: row.expires_at,
+  }));
 }
 
 async function readHistory(

@@ -2,8 +2,10 @@
 
 import { useEffect, useId, useRef, useState, type CSSProperties } from "react";
 import { useCart } from "@/lib/menu/cart";
-import { nextReward, type GarlandMotif, type WheelSlice } from "@/lib/menu/loyalty";
+import { nextReward, type GarlandMotif } from "@/lib/menu/loyalty";
 import { useLoyaltyMember, type WheelWin } from "@/lib/menu/loyalty-member";
+import type { WheelSlice } from "@/lib/menu/wheel";
+import { WHEEL_VOUCHER_DAYS } from "@/lib/menu/wheel-config";
 import type { LiquidOrigin } from "./liquid-sheet";
 import { reducedMotion, useCountUp } from "./loyalty-card";
 import { Sheet } from "./sheet";
@@ -43,6 +45,11 @@ function polar(degrees: number, radius = RADIUS): string {
 function slicePath(index: number, step: number): string {
   const from = index * step - step / 2;
   return `M0 0L${polar(from)}A${RADIUS} ${RADIUS} 0 0 1 ${polar(from + step)}Z`;
+}
+
+/** Taille d'un nom couché sur le rayon, pour tenir dans `room` unités. */
+function fitText(text: string, room: number): number {
+  return Math.min(18, Math.max(9, room / (text.length * 0.62)));
 }
 
 function Flame({ className }: { className?: string }) {
@@ -146,18 +153,22 @@ function Gain({
 
 const voucherDay = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "long" });
 
-/** Le lot en nature sous la roue : son nom, le palier qu'il offre, jusqu'à quand. */
-function Prize({ label, reward, until }: { label: string; reward: string; until: string }) {
+/** Le lot gagné sous la roue : sa photo, son nom, comment l'avoir, jusqu'à quand. */
+function Prize({ label, image, fromMenu, until }: { label: string; image?: string; fromMenu: boolean; until: string }) {
   return (
     <div className="flex flex-col items-center gap-1">
+      {image && (
+        // eslint-disable-next-line @next/next/no-img-element -- photo du lot, choisie par le gérant
+        <img src={image} alt="" className="wheel-prize-photo mb-1 size-14 rounded-full object-cover" />
+      )}
       <p className="wheel-won-amount font-display text-4xl font-extrabold leading-none" data-done>
         {label} offert
       </p>
       <p className="wheel-kicker text-[11px] font-bold uppercase tracking-[0.3em]">bon de la roue</p>
       <p className="wheel-won-line wheel-muted mt-1 text-sm">
-        {reward}
+        {fromMenu ? "À ajouter à votre prochaine commande" : "Remis avec votre prochaine commande"}
         <br />
-        <span className="wheel-strong font-semibold">Avec une commande, d’ici le {until}</span>
+        <span className="wheel-strong font-semibold">D’ici le {until}</span>
       </p>
     </div>
   );
@@ -232,16 +243,14 @@ export function LoyaltyWheel({
   const turnsBefore = launch?.turns ?? wheel.spins;
   const gained = won?.points ?? 0;
   const step = 360 / slices.length;
-  // Les lots en points ; un lot en nature se fête comme le gros lot.
-  const ranked = [...new Set(slices.filter((slice) => !slice.voucher).map((slice) => slice.points))].sort(
+  // Les gains en points ; un lot se fête comme le gros lot.
+  const ranked = [...new Set(slices.filter((slice) => !slice.prize).map((slice) => slice.points))].sort(
     (a, b) => a - b
   );
   const top = ranked.at(-1)!;
-  const tierOf = ({ points, voucher }: WheelSlice): WinTier =>
-    voucher || points === top ? "jackpot" : ranked.indexOf(points) < ranked.length / 2 ? "small" : "mid";
-  const prizes = [...new Set(slices.flatMap((slice) => (slice.voucher ? [slice.voucher.label] : [])))];
-  // Le palier qu'offre le bon d'une case : celui de la maison à son prix.
-  const rewardFor = (slice: WheelSlice) => loyalty.rewards.find((reward) => reward.points === slice.points);
+  const tierOf = ({ points, prize }: WheelSlice): WinTier =>
+    prize || points === top ? "jackpot" : ranked.indexOf(points) < ranked.length / 2 ? "small" : "mid";
+  const prizes = slices.filter((slice) => slice.prize);
   // Ce tour est le combientième de la carte, et s'il est doré.
   const turn = turnsBefore + 1;
   const every = golden?.every ?? 0;
@@ -251,11 +260,12 @@ export function LoyaltyWheel({
   const position = every === 0 ? 0 : ((turn - 1) % every) + 1;
   const tier = won ? tierOf(slices[won.index]) : null;
   const jackpot = tier === "jackpot";
-  // Le bon gagné : le nom court de la case (« Café »), et jusqu'à quand.
+  // Le bon gagné : son lot, et jusqu'à quand.
   const prize = won?.voucher
     ? {
-        label: slices[won.index].voucher?.label ?? won.voucher.label,
-        reward: won.voucher.label,
+        label: won.voucher.label,
+        image: slices[won.index].prize?.image,
+        fromMenu: Boolean(slices[won.index].prize?.itemId),
         until: voucherDay.format(new Date(won.voucher.expiresAt)),
       }
     : null;
@@ -264,16 +274,16 @@ export function LoyaltyWheel({
   const name = member.firstName;
   const shown = (points: number) => points * multiplier;
   const minOrder = `${wheel.minOrder.toLocaleString("fr-FR")} €`;
-  // Un lot sur plusieurs cases : sa chance est la somme de leurs poids.
+  // Des points sur plusieurs cases : leur chance est la somme de leurs poids.
   const totalWeight = slices.reduce((sum, slice) => sum + slice.weight, 0);
   const chanceOf = (matches: (slice: WheelSlice) => boolean) =>
     `${((slices.filter(matches).reduce((sum, slice) => sum + slice.weight, 0) / totalWeight) * 100).toLocaleString("fr-FR", { maximumFractionDigits: 2 })} %`;
   const odds = [
     ...ranked.map((points) => ({
       lot: `+${points} ${points === 1 ? "point" : "points"}`,
-      chance: chanceOf((slice) => !slice.voucher && slice.points === points),
+      chance: chanceOf((slice) => !slice.prize && slice.points === points),
     })),
-    ...prizes.map((label) => ({ lot: label, chance: chanceOf((slice) => slice.voucher?.label === label) })),
+    ...prizes.map((slice) => ({ lot: slice.prize!.label, chance: chanceOf((candidate) => candidate === slice) })),
   ];
   const later = (callback: () => void, ms: number) => {
     timers.current.push(setTimeout(callback, ms));
@@ -456,21 +466,48 @@ export function LoyaltyWheel({
     !jackpot &&
     [-1, 1].some((side) => {
       const neighbour = slices[(won.index + side + slices.length) % slices.length];
-      return !neighbour.voucher && neighbour.points === top;
+      return !neighbour.prize && neighbour.points === top;
     });
 
-  // Le lot le long du rayon, du centre vers le bord, comme sur une roue de
-  // casino : une case étroite ne tient pas un chiffre posé à plat.
-  const renderSlice = (i: number) => {
-    const { points, voucher } = slices[i];
-    const gilded = !voucher && (points === top || (goldenTurn && i % 2 === 1));
-    const tone = voucher ? "wheel-slice-voucher" : gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`;
+  // Le gain le long du rayon, du centre vers le bord, comme sur une roue de
+  // casino : une case étroite ne tient pas un chiffre posé à plat. Un lot
+  // porte sa photo au bord, la tête vers l'extérieur, et son nom dessous.
+  const renderSlice = (i: number, layer = "roue") => {
+    const { points, prize } = slices[i];
+    const gilded = !prize && (points === top || (goldenTurn && i % 2 === 1));
+    const tone = prize ? "wheel-slice-voucher" : gilded ? "wheel-slice-gold" : `wheel-slice-${i % 2 ? "b" : "a"}`;
+    const clip = `${titleId}-${layer}-${i}`;
+    const label = prize ? prize.label : `+${shown(points)}`;
     return (
       <g key={i} data-slice={i} data-tone={i % 6} className={`wheel-slice ${tone}`}>
         <path d={slicePath(i, step)} fill={gilded ? `url(#${titleId}-gold)` : undefined} />
         <g transform={`rotate(${i * step - 90})`}>
-          <text x="86" textAnchor="end" dominantBaseline="central" className="text-[18px] font-extrabold">
-            {voucher ? voucher.label : `+${shown(points)}`}
+          {prize?.image && (
+            <>
+              <clipPath id={clip}>
+                <circle cx="78" r="12" />
+              </clipPath>
+              <image
+                href={prize.image}
+                x="66"
+                y="-12"
+                width="24"
+                height="24"
+                preserveAspectRatio="xMidYMid slice"
+                clipPath={`url(#${clip})`}
+                transform="rotate(90 78 0)"
+              />
+              <circle cx="78" r="12" className="wheel-lot-ring" />
+            </>
+          )}
+          <text
+            x={prize?.image ? 62 : 86}
+            textAnchor="end"
+            dominantBaseline="central"
+            fontSize={fitText(label, prize?.image ? 36 : 58)}
+            className="font-extrabold"
+          >
+            {label}
           </text>
         </g>
       </g>
@@ -586,7 +623,7 @@ export function LoyaltyWheel({
                   <svg
                     viewBox="-110 -110 220 220"
                     role="img"
-                    aria-label={`Roue de ${slices.length} cases : ${ranked.map((points) => `+${shown(points)}`).join(", ")} points${prizes.map((label) => `, ${label.toLowerCase()} offert`).join("")}`}
+                    aria-label={`Roue de ${slices.length} cases : ${ranked.map((points) => `+${shown(points)}`).join(", ")} points${prizes.map((slice) => `, ${slice.prize!.label.toLowerCase()} offert`).join("")}`}
                     className="size-full overflow-visible"
                   >
                     <defs>
@@ -612,7 +649,7 @@ export function LoyaltyWheel({
                       <span aria-hidden="true" className="wheel-dim absolute inset-[4.5%] rounded-full" />
                       <span aria-hidden="true" className="wheel-lit absolute inset-0">
                         <svg viewBox="-110 -110 220 220" className="size-full overflow-visible">
-                          {renderSlice(won.index)}
+                          {renderSlice(won.index, "gain")}
                         </svg>
                       </span>
                       <span aria-hidden="true" className="wheel-lit-outline absolute inset-0">
@@ -685,7 +722,7 @@ export function LoyaltyWheel({
 
           <p role="status" className="sr-only">
             {prize
-              ? `${prize.label} offert : un bon pour ${prize.reward}, avec une commande d’ici le ${prize.until}. Prochain tour dès demain, avec une commande.`
+              ? `${prize.label} offert : un bon à utiliser avec une commande d’ici le ${prize.until}. Prochain tour dès demain, avec une commande.`
               : won
               ? `${gained} points gagnés. Votre solde : ${after} points.${unlocked.length > 0 ? ` Débloqué : ${unlocked.at(-1)!.label}.` : ""} Prochain tour dès demain, avec une commande.`
               : phase === "spinning"
@@ -740,7 +777,7 @@ export function LoyaltyWheel({
               {won && (
                 <div className="wheel-result flex w-full flex-col items-center gap-2 text-center">
                   {prize ? (
-                    <Prize key={spins} label={prize.label} reward={prize.reward} until={prize.until} />
+                    <Prize key={spins} label={prize.label} image={prize.image} fromMenu={prize.fromMenu} until={prize.until} />
                   ) : (
                   <Gain
                     key={spins}
@@ -830,8 +867,8 @@ export function LoyaltyWheel({
               </div>
               <div>
                 <p className="wheel-soft">
-                  Chaque tour tire une case au hasard. Un lot présent sur plusieurs cases les réunit toutes dans sa
-                  chance&nbsp;:
+                  Chaque tour tire une case au hasard. Des points présents sur plusieurs cases les réunissent toutes
+                  dans leur chance&nbsp;:
                 </p>
                 <table className="mt-2 w-full tabular-nums">
                   <caption className="sr-only">Les lots de la roue et leurs chances</caption>
@@ -842,8 +879,8 @@ export function LoyaltyWheel({
                     </tr>
                   </thead>
                   <tbody>
-                    {odds.map(({ lot, chance }) => (
-                      <tr key={lot} className="wheel-rules-row">
+                    {odds.map(({ lot, chance }, i) => (
+                      <tr key={i} className="wheel-rules-row">
                         <th scope="row" className="py-1 text-left font-semibold">
                           {lot}
                         </th>
@@ -852,16 +889,13 @@ export function LoyaltyWheel({
                     ))}
                   </tbody>
                 </table>
-                {prizes.map((label) => {
-                  const slice = slices.find((candidate) => candidate.voucher?.label === label)!;
-                  return (
-                    <p key={label} className="wheel-soft mt-2">
-                      {label}&nbsp;: un bon pour «&nbsp;{rewardFor(slice)?.label ?? `${slice.points} points`}&nbsp;»,
-                      valable {slice.voucher!.days}&nbsp;jours, à utiliser avec une commande qui compte un article à
-                      régler.
-                    </p>
-                  );
-                })}
+                {prizes.length > 0 && (
+                  <p className="wheel-soft mt-2">
+                    Un lot gagné donne un bon valable {WHEEL_VOUCHER_DAYS}&nbsp;jours, à utiliser avec une commande qui
+                    compte un article à régler&nbsp;: l’article de la carte s’y ajoute offert, un autre lot est remis
+                    par l’équipe avec la commande.
+                  </p>
+                )}
                 {golden && (
                   <p className="wheel-soft mt-2">
                     Le {golden.every}e tour de votre carte, puis tous les {golden.every}, est la roue dorée&nbsp;: ses

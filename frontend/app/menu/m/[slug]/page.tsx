@@ -200,7 +200,6 @@ export default async function MenuPage({
       <LoyaltyMemberProvider
         slug={slug}
         enabled={orderingEnabled && !cartConfig.orderingSoon && loyalty != null}
-        wheel={restaurant.loyaltyWheel}
       >
         <div
           data-menu-root

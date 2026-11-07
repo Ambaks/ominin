@@ -641,7 +641,9 @@ export function CartBar() {
     setPaymentUnconfirmed(false);
     const supabase = createClient();
     const payload = cart.lines.map((line) =>
-      line.formule
+      line.lot
+        ? { voucher_id: line.reward!.voucher!, quantity: 1 }
+        : line.formule
         ? {
             formule_id: line.itemId,
             quantity: line.quantity,
@@ -652,7 +654,7 @@ export function CartBar() {
             item_id: line.itemId,
             quantity: line.quantity,
             choices: line.choices,
-            ...(line.reward && { reward_id: line.reward.id }),
+            ...(line.reward?.id && { reward_id: line.reward.id }),
             ...(line.reward?.voucher && { voucher_id: line.reward.voucher }),
             ...(line.accord && { accord: line.accord }),
           }

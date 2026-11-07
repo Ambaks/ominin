@@ -15,20 +15,21 @@ import {
   type LoyaltyHistoryEntry,
   type LoyaltyMember,
   type LoyaltyVoucher,
-  type LoyaltyWheelConfig,
   type WheelDay,
 } from "./loyalty";
 import { useTickets } from "./tickets";
+import type { LoyaltyWheelConfig } from "./wheel";
 
 /*
  * Le client que ce téléphone a fait retenir (/api/fidelite). La page du menu
  * est en cache et sans cookies : c'est le navigateur qui demande, une fois la
  * carte affichée, au retour sur l'onglet, et quand une commande suivie se
  * règle — les points gagnés à l'encaissement, et le tour de roue qu'elle
- * ouvre, arrivent pendant la visite.
+ * ouvre, arrivent pendant la visite. La roue vient avec : son gérant la
+ * règle à tout moment, le cache de la page n'y est pour rien.
  */
 
-/** Ce qu'un tour a donné : la part, ses points, ou le bon d'une part en nature. */
+/** Ce qu'un tour a donné : la case, ses points, ou le bon d'un lot. */
 export interface WheelWin {
   index: number;
   points: number;
@@ -118,22 +119,23 @@ async function readJson(response: Response) {
   return body as LoyaltyBody;
 }
 
-type LoyaltyBody = { member: LoyaltyMember | null; wheel?: WheelDay | null; vouchers?: LoyaltyVoucher[] };
+type LoyaltyBody = {
+  member: LoyaltyMember | null;
+  wheel?: (LoyaltyWheelConfig & WheelDay) | null;
+  vouchers?: LoyaltyVoucher[];
+};
 
 export function LoyaltyMemberProvider({
   slug,
   enabled,
-  wheel: wheelConfig,
   children,
 }: {
   slug: string;
   enabled: boolean;
-  /** La roue de la maison (registre) ; absente, pas de roue. */
-  wheel?: LoyaltyWheelConfig;
   children: ReactNode;
 }) {
   const [member, setMember] = useState<LoyaltyMember | null>(null);
-  const [wheelDay, setWheelDay] = useState<WheelDay | null>(null);
+  const [wheelDay, setWheelDay] = useState<(LoyaltyWheelConfig & WheelDay) | null>(null);
   const [vouchers, setVouchers] = useState<LoyaltyVoucher[]>([]);
   const tickets = useTickets()?.tickets;
 
@@ -231,7 +233,7 @@ export function LoyaltyMemberProvider({
       spins: number;
       voucher: WheelWin["voucher"];
     };
-    setWheelDay({ ready: false, played: true, spins });
+    setWheelDay((current) => current && { ...current, ready: false, played: true, spins });
     setMember((current) =>
       current && current.points !== null ? { ...current, points: current.points + points } : current
     );
@@ -240,9 +242,8 @@ export function LoyaltyMemberProvider({
   }, [slug, load, apply]);
 
   const wheel = useMemo(
-    () =>
-      wheelConfig && wheelDay && member ? { ...wheelConfig, ...wheelDay, spin } : null,
-    [wheelConfig, wheelDay, member, spin]
+    () => (wheelDay && member ? { ...wheelDay, spin } : null),
+    [wheelDay, member, spin]
   );
 
   const value = useMemo<LoyaltyMemberValue>(
