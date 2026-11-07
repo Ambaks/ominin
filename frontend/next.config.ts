@@ -50,6 +50,9 @@ const supabaseOrigins = (() => {
  *    appels sur pay.google.com (plus google.com/pay), et le visuel du bouton
  *    sur www.gstatic.com.
  *    Apple Pay passe par le navigateur lui-même : aucun hôte à ouvrir.
+ *  - Draco (maquettes 3D d'Ominin Hôtels) : son décodeur est en WebAssembly →
+ *    'wasm-unsafe-eval' en script-src, qui permet de compiler du wasm et rien
+ *    d'autre (eval reste bloqué). Sans lui, la maquette ne se charge jamais.
  * script/style gardent 'unsafe-inline' : Next (App Router) et next-themes
  * injectent des scripts inline sans nonce. En dev, 'unsafe-eval' + ws pour le HMR.
  */
@@ -63,7 +66,7 @@ const csp = [
   `media-src 'self' https://*.supabase.co${supabaseOrigins}`,
   "font-src 'self' data:",
   "style-src 'self' 'unsafe-inline' https://web.squarecdn.com https://sandbox.web.squarecdn.com",
-  `script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com${isDev ? " 'unsafe-eval'" : ""}`,
+  `script-src 'self' 'unsafe-inline' https://js.stripe.com https://*.js.stripe.com https://gateway.sumup.com https://web.squarecdn.com https://sandbox.web.squarecdn.com https://pay.google.com 'wasm-unsafe-eval'${isDev ? " 'unsafe-eval'" : ""}`,
   `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.stripe.com https://tiles.openfreemap.org https://gateway.sumup.com https://api.sumup.com https://connect.squareup.com https://connect.squareupsandbox.com https://pci-connect.squareup.com https://pci-connect.squareupsandbox.com https://pay.google.com https://google.com/pay${supabaseOrigins}${
     isDev ? " ws: http://localhost:*" : ""
   }`,
