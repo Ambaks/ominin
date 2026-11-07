@@ -186,6 +186,7 @@ export function PartnerLockup({
   icons,
   spoken,
   controls,
+  lead,
 }: {
   brand: string;
   names: string[];
@@ -193,6 +194,8 @@ export function PartnerLockup({
   icons: { src: string; bleed?: boolean }[];
   spoken: string;
   controls: { pause: string; play: string };
+  /** Remplace « logo Ominin, marque, × » devant le nom qui défile. */
+  lead?: ReactNode;
 }) {
   const { active, previous, running, paused, setPaused, lessMotion, intervalMs } =
     usePartnerCycle();
@@ -203,13 +206,17 @@ export function PartnerLockup({
         aria-hidden
         className="flex w-fit items-baseline gap-2 text-lg font-semibold"
       >
-        {/* Sur une pastille sombre : la braise du logo disparaissait sur le
-            crème du panneau en thème sombre. */}
-        <span className="flex size-6 shrink-0 items-center justify-center self-center rounded-md bg-neutral-950 ring-1 ring-white/10">
-          <Image src="/logo.png" alt="" width={16} height={16} />
-        </span>
-        <span className="kit-display">{brand}</span>
-        <span className="text-sm text-background/55">×</span>
+        {lead ?? (
+          <>
+            {/* Sur une pastille sombre : la braise du logo disparaissait sur le
+                crème du panneau en thème sombre. */}
+            <span className="flex size-6 shrink-0 items-center justify-center self-center rounded-md bg-neutral-950 ring-1 ring-white/10">
+              <Image src="/logo.png" alt="" width={16} height={16} />
+            </span>
+            <span className="kit-display">{brand}</span>
+            <span className="text-sm text-background/55">×</span>
+          </>
+        )}
         {/* Tous les noms empilés dans la même case : sa largeur est celle
             du plus long, rien ne bouge autour quand ils se relaient. */}
         <span className="inline-grid min-w-0">
