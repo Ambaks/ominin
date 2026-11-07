@@ -4,6 +4,7 @@ import {
   clipSiteUrl,
   clubSiteUrl,
   collectSiteUrl,
+  hotelsSiteUrl,
   menuSiteUrl,
   shopSiteUrl,
   siteUrl,
@@ -43,7 +44,7 @@ const host = (url: string) => url.replace(/^https?:\/\//, "");
 export const seo = {
   title: "Ominin — Entrez dans l'ère de l'IA avant vos concurrents",
   description:
-    "Ominin construit des outils d'IA qui retirent le travail répétitif du quotidien des commerces : menu et commande à table, clubs, prospection automatique, boutique en ligne, click & collect, publication de clips, et développements sur mesure.",
+    "Ominin construit des outils d'IA qui retirent le travail répétitif du quotidien des commerces : menu et commande à table, service hôtelier du transat à la chambre, clubs, click & collect, boutique en ligne, et développements sur mesure.",
 };
 
 export const nav = {
@@ -73,7 +74,7 @@ export const hero = {
     href: "/sur-mesure",
   },
   stats: [
-    { value: "6", label: { fr: "outils, un interlocuteur", en: "tools, one person to call" } },
+    { value: "5", label: { fr: "outils, un interlocuteur", en: "tools, one person to call" } },
     { value: "0 €", label: { fr: "pour démarrer", en: "to get started" } },
     { value: "48 h", label: { fr: "pour vous répondre", en: "to get a reply" } },
   ],
@@ -81,9 +82,10 @@ export const hero = {
 
 /*
  * Scène du hero : un horizon de téléphones (les captures des démos, un
- * produit chacun), et par-dessus ce que fait Ominin au quotidien — un
- * exemple par produit, en notifications qui se relaient. Des exemples,
- * annoncés comme tels : pas un faux direct.
+ * produit chacun), et par-dessus ce que fait Ominin au quotidien — six
+ * exemples, en notifications qui se relaient (le rythme de portal.css en
+ * attend six : l'hôtel en donne deux). Des exemples, annoncés comme tels :
+ * pas un faux direct.
  */
 const deck = (name: string) => `/pitch/decks/${name}.webp`;
 
@@ -98,16 +100,16 @@ export const heroScene: { src: string; alt: Localized }[] = [
 export const heroFeed = {
   /** Une phrase pour les lecteurs d'écran, à la place des notifications. */
   caption: {
-    fr: "Exemples : une commande payée à table, un retrait prêt au bar, des prospects trouvés, une commande de boutique, un retrait en cuisine, un clip publié.",
-    en: "Examples: an order paid at the table, a pickup ready at the bar, prospects found, a store order, a kitchen pickup, a published clip.",
+    fr: "Exemples : une commande payée à table, deux spritz au transat sur la note de la chambre, un retrait prêt au bar, une commande de boutique, un petit-déjeuner servi en chambre, un retrait en cuisine.",
+    en: "Examples: an order paid at the table, two spritzes at the sunbed on the room bill, a pickup ready at the bar, a store order, breakfast served in the room, a kitchen pickup.",
   },
   items: [
     { id: "menu" as const, product: "Menu", text: { fr: "Table 12 a commandé et payé : 40,00 €", en: "Table 12 ordered and paid: €40.00" } },
+    { id: "hotels" as const, product: "Hôtels", text: { fr: "Transat 12 : deux spritz, sur la note de la 214", en: "Sunbed 12: two spritzes, on room 214's bill" } },
     { id: "club" as const, product: "Club", text: { fr: "N° 42 prêt dans 3 min au bar Rooftop", en: "No. 42 ready in 3 min at the Rooftop bar" } },
-    { id: "agents" as const, product: "Agents", text: { fr: "18 prospects trouvés, un e-mail prêt à valider", en: "18 prospects found, one email ready to approve" } },
     { id: "shop" as const, product: "Shop", text: { fr: "Commande MyBox : 135,00 €, bon de préparation prêt", en: "MyBox order: €135.00, packing slip ready" } },
+    { id: "hotels" as const, product: "Hôtels", text: { fr: "Chambre 214 : petit-déjeuner servi à 8:30", en: "Room 214: breakfast served at 8:30" } },
     { id: "collect" as const, product: "Collect", text: { fr: "Camille passe à 12:30, le ticket est sorti en cuisine", en: "Camille picks up at 12:30, the ticket is out in the kitchen" } },
-    { id: "clip" as const, product: "Clip", text: { fr: "Clip publié sur TikTok, Reels et Shorts", en: "Clip posted to TikTok, Reels and Shorts" } },
   ],
 };
 
@@ -115,12 +117,11 @@ export const marquee: Localized[] = [
   { fr: "Restaurants", en: "Restaurants" },
   { fr: "Bars", en: "Bars" },
   { fr: "Clubs", en: "Clubs" },
+  { fr: "Hôtels", en: "Hotels" },
   { fr: "Boulangeries", en: "Bakeries" },
   { fr: "Pizzerias", en: "Pizzerias" },
   { fr: "Créatrices", en: "Makers" },
-  { fr: "Artisans", en: "Tradespeople" },
   { fr: "Traiteurs", en: "Caterers" },
-  { fr: "Streamers", en: "Streamers" },
 ];
 
 export const productsSection = {
@@ -151,7 +152,7 @@ export interface ProductStep {
   shot: Shot;
 }
 
-export type ProductId = "menu" | "club" | "agents" | "shop" | "collect" | "clip";
+export type ProductId = "menu" | "club" | "hotels" | "agents" | "shop" | "collect" | "clip";
 
 export type Product = {
   id: ProductId;
@@ -171,13 +172,17 @@ export type Product = {
 
 const ckl = (name: string) => `/pitch/groupe-ckl/${name}.jpg`;
 const club = (name: string) => `/pitch/club/${name}.webp`;
+const hotels = (name: string) => `/pitch/hotels/${name}.webp`;
 const shop = (name: string) => `/shop/landing/${name}.webp`;
 const social = (name: string) => `/social/screens/${name}.jpg`;
 
 const image = (src: string, alt: Localized, screen?: Screen): Shot => ({ kind: "image", src, alt, screen });
 const mock = (which: "agents" | "clip", step: number): Shot => ({ kind: "mock", mock: which, step });
 
-export const products: Product[] = [
+/** Produits de la rangée et du pied de page, dans l'ordre du catalogue ; Agents et Clip en sont retirés pour l'instant. */
+const shown = new Set<ProductId>(["menu", "hotels", "club", "collect", "shop"]);
+
+const catalogue: Product[] = [
   {
     id: "menu",
     name: untranslated("Ominin Menu"),
@@ -248,6 +253,79 @@ export const products: Product[] = [
           en: "Tables, bills, your numbers, and a monthly analysis of your data. Plugged into your till and your printers.",
         },
         shot: image(ckl("salle-victoria"), { fr: "L'espace de gestion : chaque table, ce qu'elle a commandé, ce qui reste à servir", en: "The management space: every table, what it ordered, what's left to serve" }, "tablet"),
+      },
+    ],
+  },
+  {
+    id: "hotels",
+    name: untranslated("Ominin Hôtels"),
+    short: "Hôtels",
+    audience: { fr: "Hôtels, plages, spas", en: "Hotels, beach clubs, spas" },
+    href: hotelsSiteUrl,
+    destination: host(hotelsSiteUrl),
+    tagline: {
+      fr: "Le service vient au client, du transat à la chambre",
+      en: "Service comes to the guest, from sunbed to room",
+    },
+    body: {
+      fr: "Un QR code par transat, par table et par chambre : vos clients commandent, appellent, réservent et règlent sur leur note de chambre depuis leur téléphone. Sans application à installer.",
+      en: "A QR code on every sunbed, table and room: guests order, call, book and charge it to their room from their phone. No app to install.",
+    },
+    demo: { label: { fr: "Un séjour au Grand Large", en: "A stay at Le Grand Large" }, href: `${hotelsSiteUrl}/demo` },
+    steps: [
+      {
+        kicker: { fr: "01 · Les espaces", en: "01 · The spaces" },
+        title: { fr: "Commander sans quitter son transat.", en: "Order without leaving the sunbed." },
+        description: {
+          fr: "Piscine, plage, rooftop, lobby, spa : chaque espace a sa carte et ses horaires. Le client commande ou appelle un serveur sans se lever.",
+          en: "Pool, beach, rooftop, lobby, spa: each space has its own menu and hours. Guests order or call a waiter without getting up.",
+        },
+        shot: image(hotels("phone-transat"), { fr: "Le transat 12 de la piscine du Grand Large : sa carte, le bouton Appeler un serveur", en: "Sunbed 12 at Le Grand Large's pool: its menu, the Call a waiter button" }),
+      },
+      {
+        kicker: { fr: "02 · La chambre", en: "02 · The room" },
+        title: { fr: "Le room service, sans décrocher.", en: "Room service, no phone call." },
+        description: {
+          fr: "Le QR de la table de nuit ouvre la carte de la chambre : petit-déjeuner à l'heure choisie, allergènes affichés, minibar à toute heure.",
+          en: "The bedside QR opens the in-room menu: breakfast at the time chosen, allergens shown, minibar at any hour.",
+        },
+        shot: image(hotels("phone-chambre"), { fr: "La chambre 214 accueille Madame Laurent : le room service, la carte jusqu'à sa porte", en: "Room 214 welcomes Madame Laurent: room service, the menu brought to her door" }),
+      },
+      {
+        kicker: { fr: "03 · La note", en: "03 · The bill" },
+        title: { fr: "Tout va sur la note de la chambre.", en: "It all goes on the room bill." },
+        description: {
+          fr: "Au transat, au rooftop ou en chambre, la commande s'ajoute à la note. La réception la voit en direct, le client la règle au départ. Branché sur votre infrastructure existante.",
+          en: "At the sunbed, on the rooftop or in the room, the order is added to the bill. Reception sees it live, the guest settles it at checkout. Plugged into your existing setup.",
+        },
+        shot: image(hotels("phone-note"), { fr: "La note de la chambre 214 : deux spritz à la piscine, deux cocktails au rooftop, 98,00 € au total", en: "Room 214's bill: two spritzes at the pool, two cocktails on the rooftop, €98.00 in total" }),
+      },
+      {
+        kicker: { fr: "04 · Le séjour", en: "04 · The stay" },
+        title: { fr: "Tout l'hôtel, dans sa poche.", en: "The whole hotel, in their pocket." },
+        description: {
+          fr: "Les transats libres, le spa complet jusqu'à 16 h 30, la salle de sport au calme. Le client réserve un massage, demande des serviettes ou un taxi : la demande part à la bonne équipe.",
+          en: "Free sunbeds, the spa full until 4:30 pm, a quiet gym. Guests book a massage, ask for towels or a taxi: the request goes to the right team.",
+        },
+        shot: image(hotels("phone-sejour"), { fr: "L'hôtel en ce moment : 21 transats occupés sur 30 à la piscine, le spa complet, la salle de sport calme", en: "The hotel right now: 21 of 30 sunbeds taken at the pool, the spa full, the gym quiet" }),
+      },
+      {
+        kicker: { fr: "05 · L'équipe", en: "05 · The team" },
+        title: { fr: "Chaque demande, à la bonne équipe.", en: "Every request, to the right team." },
+        description: {
+          fr: "Bar de la piscine, étages, réception, cuisine : chacun voit ce qui le concerne et où trouver le client. Chaque geste de l'équipe s'affiche sur le téléphone du client.",
+          en: "Pool bar, housekeeping, reception, kitchen: each team sees what concerns it and where to find the guest. Every step the team takes shows on the guest's phone.",
+        },
+        shot: image(hotels("gestion-service"), { fr: "Le service en direct : un ménage à programmer en chambre 107, un room service en préparation pour la 305", en: "Live service: housekeeping to schedule in room 107, room service being prepared for 305" }, "tablet"),
+      },
+      {
+        kicker: { fr: "06 · Piloter", en: "06 · Run it" },
+        title: { fr: "Vos chiffres, espace par espace.", en: "Your numbers, space by space." },
+        description: {
+          fr: "Ce que rapportent la piscine, le rooftop ou le room service, l'occupation, le temps de service. Et les prévisions du lendemain, pour caler l'équipe.",
+          en: "What the pool, the rooftop or room service bring in, occupancy, service time. And tomorrow's forecast, to staff the right team.",
+        },
+        shot: image(hotels("gestion-analyses"), { fr: "Les chiffres de la semaine : restauration et bars, hébergement, occupation à 89 %, RevPAR", en: "The week's numbers: food and drinks, rooms, 89% occupancy, RevPAR" }, "tablet"),
       },
     ],
   },
@@ -325,56 +403,57 @@ export const products: Product[] = [
     ],
   },
   {
-    id: "agents",
-    name: untranslated("Ominin Agents"),
-    short: "Agents",
-    audience: { fr: "Artisans et services B2B", en: "Tradespeople and B2B services" },
-    href: agentsSiteUrl,
-    destination: host(agentsSiteUrl),
+    id: "collect",
+    name: untranslated("Ominin Collect"),
+    short: "Collect",
+    audience: { fr: "Pizzerias, traiteurs, pâtisseries", en: "Pizzerias, caterers, pastry shops" },
+    href: collectSiteUrl,
+    destination: host(collectSiteUrl),
     tagline: {
-      fr: "Vos prochains clients, contactés pendant que vous travaillez",
-      en: "Your next clients, contacted while you work",
+      fr: "Vos commandes à emporter, sans décrocher",
+      en: "Takeaway orders, without picking up the phone",
     },
     body: {
-      fr: "Un agent trouve les entreprises de votre zone, leur écrit en votre nom depuis votre Gmail et vous signale chaque réponse. Vous gardez la main.",
-      en: "An agent finds the businesses in your area, writes to them in your name from your Gmail and flags every reply. You stay in control.",
+      fr: "Vos clients commandent et payent sur votre page, pour tout de suite ou pour un autre jour. La commande tombe en cuisine déjà réglée.",
+      en: "Your customers order and pay on your own page, for right now or for another day. The order lands in the kitchen already paid.",
     },
+    demo: { label: { fr: "Jouer les deux rôles", en: "Play both roles" }, href: `${collectSiteUrl}/demo` },
     steps: [
       {
-        kicker: { fr: "01 · Votre activité", en: "01 · Your business" },
-        title: { fr: "Décrivez votre activité.", en: "Describe your business." },
+        kicker: { fr: "01 · Le lien", en: "01 · The link" },
+        title: { fr: "Il ouvre votre page, il choisit son heure.", en: "They open your page and pick a time." },
         description: {
-          fr: "Vos services, vos points forts, les entreprises que vous visez et votre zone. Cinq minutes, une seule fois.",
-          en: "Your services, your strengths, the businesses you target and your area. Five minutes, once.",
+          fr: "Un lien à votre nom, sur Google, Instagram ou votre vitrine. Dès que possible ou un créneau de 15 minutes, dans vos horaires seulement.",
+          en: "A link under your name, on Google, Instagram or your shopfront. As soon as possible or a 15-minute slot, within your hours only.",
         },
-        shot: mock("agents", 0),
+        shot: image(social("collect-commande"), { fr: "La carte de la Trattoria Lucia : trois pizzas et pâtes au panier, 40,00 €", en: "Trattoria Lucia's menu: three pizzas and pastas in the basket, €40.00" }),
       },
       {
-        kicker: { fr: "02 · Votre Gmail", en: "02 · Your Gmail" },
-        title: { fr: "Connectez votre Gmail.", en: "Connect your Gmail." },
+        kicker: { fr: "02 · Le paiement", en: "02 · Payment" },
+        title: { fr: "Il paye. Vous êtes réglé.", en: "They pay. You're paid." },
         description: {
-          fr: "Les e-mails partent de votre adresse, signés de votre nom. Les réponses arrivent dans votre boîte, comme d'habitude.",
-          en: "Emails leave from your address, signed with your name. Replies land in your inbox, as usual.",
+          fr: "Par carte, directement sur votre compte. Pas de commande fantôme : la cuisine ne lance que ce qui est payé.",
+          en: "By card, straight to your account. No ghost orders: the kitchen only starts what's been paid.",
         },
-        shot: mock("agents", 1),
+        shot: image(social("collect-paiement"), { fr: "Le paiement de la commande à emporter, dans la page", en: "Paying for the takeaway order, in the page" }),
       },
       {
-        kicker: { fr: "03 · L'agent", en: "03 · The agent" },
-        title: { fr: "Il cherche, il trouve, il écrit.", en: "It searches, finds and writes." },
+        kicker: { fr: "03 · La cuisine", en: "03 · The kitchen" },
+        title: { fr: "Le ticket sort, la préparation part.", en: "The ticket prints, prep begins." },
         description: {
-          fr: "À chaque heure de votre créneau, il repère de nouvelles entreprises, trouve leur contact et rédige un e-mail propre à chacune. Jamais deux fois la même adresse.",
-          en: "Every hour in your window, it spots new businesses, finds their contact and writes an email specific to each. Never the same address twice.",
+          fr: "La commande apparaît en direct dans votre espace et sur votre imprimante cuisine. Un geste pour lancer la préparation et annoncer un délai.",
+          en: "The order shows up live in your space and on your kitchen printer. One tap to start prep and announce a delay.",
         },
-        shot: mock("agents", 2),
+        shot: image(social("collect-gestion"), { fr: "Les commandes en direct : Camille, à emporter, payée en ligne, Commencer la préparation", en: "Live orders: Camille, takeaway, paid online, Start preparing" }),
       },
       {
-        kicker: { fr: "04 · Les réponses", en: "04 · The replies" },
-        title: { fr: "Vous récoltez les réponses.", en: "You collect the replies." },
+        kicker: { fr: "04 · Le retrait", en: "04 · Pickup" },
+        title: { fr: "« C'est prêt ! » Il passe, il repart.", en: "“It's ready!” They come, they go." },
         description: {
-          fr: "Il classe chaque réponse, vous prépare un brouillon et vous alerte. Il ne vous reste qu'à rappeler.",
-          en: "It sorts every reply, drafts your answer and alerts you. All that's left is to call back.",
+          fr: "Votre client suit l'avancement sur son téléphone, l'heure estimée par l'IA. Déjà payé : il récupère son sac et repart.",
+          en: "Your customer follows progress on their phone, with the AI-estimated time. Already paid: they grab their bag and go.",
         },
-        shot: mock("agents", 3),
+        shot: image(social("collect-suivi"), { fr: "Le suivi de la commande : prête, à récupérer au comptoir", en: "Order tracking: ready, to collect at the counter" }),
       },
     ],
   },
@@ -434,57 +513,56 @@ export const products: Product[] = [
     ],
   },
   {
-    id: "collect",
-    name: untranslated("Ominin Collect"),
-    short: "Collect",
-    audience: { fr: "Pizzerias, traiteurs, pâtisseries", en: "Pizzerias, caterers, pastry shops" },
-    href: collectSiteUrl,
-    destination: host(collectSiteUrl),
+    id: "agents",
+    name: untranslated("Ominin Agents"),
+    short: "Agents",
+    audience: { fr: "Artisans et services B2B", en: "Tradespeople and B2B services" },
+    href: agentsSiteUrl,
+    destination: host(agentsSiteUrl),
     tagline: {
-      fr: "Vos commandes à emporter, sans décrocher",
-      en: "Takeaway orders, without picking up the phone",
+      fr: "Vos prochains clients, contactés pendant que vous travaillez",
+      en: "Your next clients, contacted while you work",
     },
     body: {
-      fr: "Vos clients commandent et payent sur votre page, pour tout de suite ou pour un autre jour. La commande tombe en cuisine déjà réglée.",
-      en: "Your customers order and pay on your own page, for right now or for another day. The order lands in the kitchen already paid.",
+      fr: "Un agent trouve les entreprises de votre zone, leur écrit en votre nom depuis votre Gmail et vous signale chaque réponse. Vous gardez la main.",
+      en: "An agent finds the businesses in your area, writes to them in your name from your Gmail and flags every reply. You stay in control.",
     },
-    demo: { label: { fr: "Jouer les deux rôles", en: "Play both roles" }, href: `${collectSiteUrl}/demo` },
     steps: [
       {
-        kicker: { fr: "01 · Le lien", en: "01 · The link" },
-        title: { fr: "Il ouvre votre page, il choisit son heure.", en: "They open your page and pick a time." },
+        kicker: { fr: "01 · Votre activité", en: "01 · Your business" },
+        title: { fr: "Décrivez votre activité.", en: "Describe your business." },
         description: {
-          fr: "Un lien à votre nom, sur Google, Instagram ou votre vitrine. Dès que possible ou un créneau de 15 minutes, dans vos horaires seulement.",
-          en: "A link under your name, on Google, Instagram or your shopfront. As soon as possible or a 15-minute slot, within your hours only.",
+          fr: "Vos services, vos points forts, les entreprises que vous visez et votre zone. Cinq minutes, une seule fois.",
+          en: "Your services, your strengths, the businesses you target and your area. Five minutes, once.",
         },
-        shot: image(social("collect-commande"), { fr: "La carte de la Trattoria Lucia : trois pizzas et pâtes au panier, 40,00 €", en: "Trattoria Lucia's menu: three pizzas and pastas in the basket, €40.00" }),
+        shot: mock("agents", 0),
       },
       {
-        kicker: { fr: "02 · Le paiement", en: "02 · Payment" },
-        title: { fr: "Il paye. Vous êtes réglé.", en: "They pay. You're paid." },
+        kicker: { fr: "02 · Votre Gmail", en: "02 · Your Gmail" },
+        title: { fr: "Connectez votre Gmail.", en: "Connect your Gmail." },
         description: {
-          fr: "Par carte, directement sur votre compte. Pas de commande fantôme : la cuisine ne lance que ce qui est payé.",
-          en: "By card, straight to your account. No ghost orders: the kitchen only starts what's been paid.",
+          fr: "Les e-mails partent de votre adresse, signés de votre nom. Les réponses arrivent dans votre boîte, comme d'habitude.",
+          en: "Emails leave from your address, signed with your name. Replies land in your inbox, as usual.",
         },
-        shot: image(social("collect-paiement"), { fr: "Le paiement de la commande à emporter, dans la page", en: "Paying for the takeaway order, in the page" }),
+        shot: mock("agents", 1),
       },
       {
-        kicker: { fr: "03 · La cuisine", en: "03 · The kitchen" },
-        title: { fr: "Le ticket sort, la préparation part.", en: "The ticket prints, prep begins." },
+        kicker: { fr: "03 · L'agent", en: "03 · The agent" },
+        title: { fr: "Il cherche, il trouve, il écrit.", en: "It searches, finds and writes." },
         description: {
-          fr: "La commande apparaît en direct dans votre espace et sur votre imprimante cuisine. Un geste pour lancer la préparation et annoncer un délai.",
-          en: "The order shows up live in your space and on your kitchen printer. One tap to start prep and announce a delay.",
+          fr: "À chaque heure de votre créneau, il repère de nouvelles entreprises, trouve leur contact et rédige un e-mail propre à chacune. Jamais deux fois la même adresse.",
+          en: "Every hour in your window, it spots new businesses, finds their contact and writes an email specific to each. Never the same address twice.",
         },
-        shot: image(social("collect-gestion"), { fr: "Les commandes en direct : Camille, à emporter, payée en ligne, Commencer la préparation", en: "Live orders: Camille, takeaway, paid online, Start preparing" }),
+        shot: mock("agents", 2),
       },
       {
-        kicker: { fr: "04 · Le retrait", en: "04 · Pickup" },
-        title: { fr: "« C'est prêt ! » Il passe, il repart.", en: "“It's ready!” They come, they go." },
+        kicker: { fr: "04 · Les réponses", en: "04 · The replies" },
+        title: { fr: "Vous récoltez les réponses.", en: "You collect the replies." },
         description: {
-          fr: "Votre client suit l'avancement sur son téléphone, l'heure estimée par l'IA. Déjà payé : il récupère son sac et repart.",
-          en: "Your customer follows progress on their phone, with the AI-estimated time. Already paid: they grab their bag and go.",
+          fr: "Il classe chaque réponse, vous prépare un brouillon et vous alerte. Il ne vous reste qu'à rappeler.",
+          en: "It sorts every reply, drafts your answer and alerts you. All that's left is to call back.",
         },
-        shot: image(social("collect-suivi"), { fr: "Le suivi de la commande : prête, à récupérer au comptoir", en: "Order tracking: ready, to collect at the counter" }),
+        shot: mock("agents", 3),
       },
     ],
   },
@@ -544,6 +622,8 @@ export const products: Product[] = [
     ],
   },
 ];
+
+export const products = catalogue.filter((product) => shown.has(product.id));
 
 /* Maquettes des produits sans capture : l'agent, puis le clipper. */
 export const agentsMock = {
@@ -632,11 +712,11 @@ export const whySection = {
       },
     },
     {
-      stat: { fr: "24 h/24", en: "24/7" },
-      title: { fr: "Des agents qui travaillent pour vous", en: "Agents that work for you" },
+      stat: { fr: "Sans appli", en: "No app" },
+      title: { fr: "Le client commande seul", en: "Guests order on their own" },
       body: {
-        fr: "Prospection, rédaction, publication, suggestions à table : les tâches répétitives partent à l'agent, vous gardez la décision.",
-        en: "Prospecting, writing, publishing, tableside suggestions: the repetitive work goes to the agent, you keep the decision.",
+        fr: "À table, au bar, au transat ou en chambre, un QR code suffit. L'IA suggère le bon accord au client et envoie sa commande au bar qui sert le plus vite.",
+        en: "At the table, the bar, the sunbed or in the room, a QR code is enough. AI suggests the right pairing and sends the order to the bar serving fastest.",
       },
     },
     {
@@ -696,8 +776,8 @@ export const surMesure = {
     en: "Tell us which work costs you the most.",
   },
   body: {
-    fr: "Nos six produits couvrent des besoins fréquents. Le reste se construit. Si une tâche vous prend des heures chaque semaine et suit toujours les mêmes règles, elle est probablement automatisable — dites-nous laquelle, on vous répond franchement, y compris quand la réponse est non.",
-    en: "Our six products cover common needs. The rest gets built. If a task eats hours every week and always follows the same rules, it can probably be automated — tell us which one, and we'll answer honestly, including when the answer is no.",
+    fr: "Nos cinq produits couvrent des besoins fréquents. Le reste se construit. Si une tâche vous prend des heures chaque semaine et suit toujours les mêmes règles, elle est probablement automatisable — dites-nous laquelle, on vous répond franchement, y compris quand la réponse est non.",
+    en: "Our five products cover common needs. The rest gets built. If a task eats hours every week and always follows the same rules, it can probably be automated — tell us which one, and we'll answer honestly, including when the answer is no.",
   },
   examples: {
     heading: { fr: "Ce que ça peut être", en: "What that can look like" },
